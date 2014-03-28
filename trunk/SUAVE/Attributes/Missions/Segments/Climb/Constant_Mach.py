@@ -84,7 +84,7 @@ class Constant_Mach(Segment):
                 return True             
 
         # create "raw" Chebyshev data (0 ---> 1)  
-        x, D, I = chebyshev_data(self.options.N,True)
+        x, D, I = chebyshev_data(self.options.N)
 
         self.dz = (self.altitude[1] - self.altitude[0])*1e3                                  # m
         V2 = (self.a*self.Minf)**2                                                      # m^2/s^2
