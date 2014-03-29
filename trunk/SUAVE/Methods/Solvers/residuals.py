@@ -23,7 +23,8 @@ def residuals(x,problem):
         dt = problem.dt
 
     # d/dt and integration[dt] operators
-    D = problem.numerics.D/dt; I = problem.numerics.I*dt    
+    D = problem.numerics.D/dt
+    I = problem.numerics.I*dt
 
     if problem.Nstate > 0:
 

@@ -21,6 +21,14 @@ from SUAVE.Methods.Utilities           import atleast_2d_col
 def pseudospectral(problem):
     """  solution = pseudospectral(problem,options)
          integrate a Segment using Chebyshev pseudospectral method
+         
+         Inputs:
+         
+         Outputs:
+         
+         Assumptions:
+         
+         
     """
     
     # initialize probme

@@ -18,78 +18,35 @@ class Constant_Speed_Constant_Altitude(Segment):
 
     def __defaults__(self):
         self.tag = 'Segment: constant speed, constant altitude cruise'
+        
 
     def initialize(self):
-
-        err = False; guess = []
-
-        # check altitude
-        try: 
-            self.altitude
-        except AttributeError:
-            print "Error in cruise segment: no altitude defined."
-            return True
-        else:
-            if np.shape(self.altitude):
-                if len(np.shape(self.altitude)) == 2:
-                    print "Error in cruise segment: altitude must be a scalar."
-                    return True
-                elif len(np.shape(self.altitude)) == 1:
-                    if len(self.altitude) > 1:
-                        print "Error in cruise segment: altitude must be a scalar."
-                        return True
-                
-        # check Vinf / Minf
-        try: 
-            self.Vinf
-        except AttributeError:
-            have_V = False
-        else:
-            have_V = True
-            if np.shape(self.Vinf):
-                if len(np.shape(self.Vinf)) == 2:
-                    print "Error in cruise segment: velocity must be a scalar."
-                    return True
-                elif len(np.shape(self.Vinf)) == 1:
-                    if len(self.Vinf) > 1:
-                        print "Error in cruise segment: velocity must be a scalar."
-                        return True
-
-        try: 
-            self.Minf
-        except AttributeError:
-            have_M = False
-        else:
-            have_M = True
-            if np.shape(self.Minf):
-                if len(np.shape(self.Minf)) == 2:
-                    print "Error in cruise segment: velocity must be a scalar."
-                    return True
-                elif len(np.shape(self.Minf)) == 1:
-                    if len(self.Minf) > 1:
-                        print "Error in cruise segment: velocity must be a scalar."
-                        return True
-
+        
+        ## TODO: subclass this check out        
+        
+        # check number of inputs
+        inputs = []
+        for key in ['altitude','Vinf','Minf']:
+            if self.has_key(key):
+                inputs.append(key)
+        if len(inputs) > 2: raise RuntimeError, 'too many inputs, must pick too: altitude, Vinf, Minf'
+        if not 'altitude' in inputs: raise RuntimeError, 'did not define altitude'
+        
         # allocate vectors
         self.initialize_vectors()
-
+        
         # gravity
         self.compute_gravity(self.altitude,self.planet)
 
-        # freestream conditions
+        # freestream atmoshperic conditions
         self.compute_atmosphere(self.altitude)
-
-        if have_V and have_M:
-            print "Error in cruise segment: velocity and Mach both defined. Please disambiguate."
-            return True
-        elif have_V and not have_M:
+        
+        # fill in undefinined freestream speed
+        if 'Vinf' in inputs:
             self.Minf = self.Vinf/self.a
-        elif not have_V and have_M:
+        elif 'Minf' in inputs:
             self.Vinf = self.Minf*self.a
-        elif not have_V and not have_M:
-            print "Error in cruise segment: no velocity or Mach defined."
-            return True
-
+        
         # final time
         self.dt = (self.range*1e3)/self.Vinf      # s
 
@@ -100,18 +57,20 @@ class Constant_Speed_Constant_Altitude(Segment):
         # lift direction
         self.compute_lift_direction_2D()
 
-        if not err:
+        # create guess - THIS DRIVES THE NUMBER OF UNKOWNS
+        N = self.options.N
+        self.guess = np.hstack([ np.zeros(N)     ,  # gamma - thrust angle
+                                 np.ones(N)*0.50 ]) # eta   - throttle
 
-            # create guess
-            self.guess = np.append(np.zeros(self.options.N),np.ones(self.options.N)*0.50)
-
-        return err
+        return 
 
     def unpack(self,x):
-
+        """ 
+        """
+        
         # unpack state data
         x_state = []; tf = []
-        x_control = np.reshape(x,(self.options.N,2),order="F")
+        x_control = np.reshape(x, (self.options.N,2), order="F")
     
         return x_state, x_control, tf
 
@@ -120,24 +79,9 @@ class Constant_Speed_Constant_Altitude(Segment):
 
     def constraints(self,x_state,x_control,D,I):
 
-        # initialize needed arrays
-        N = self.options.N
-        if self.complex:
-            self.vectors.D = np.zeros((N,3)) + 0j       # drag vector (N)
-            self.vectors.L = np.zeros((N,3)) + 0j       # lift vector (N)
-            self.vectors.u = np.zeros((N,3)) + 0j       # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3)) + 0j       # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3)) + 0j    # total force vector (N)
-
-        else:    
-            self.vectors.D = np.zeros((N,3))            # drag vector (N)
-            self.vectors.L = np.zeros((N,3))            # lift vector (N)
-            self.vectors.u = np.zeros((N,3))            # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3))            # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3))         # total force vector (N)
-
         # unpack state data
-        gamma = x_control[:,0]; eta = x_control[:,1]
+        gamma = x_control[:,0]; 
+        eta   = x_control[:,1]
 
         # set up thrust vector
         self.vectors.u[:,0] = np.cos(gamma) 
@@ -178,7 +122,7 @@ class Constant_Speed_Constant_Altitude(Segment):
         # operators
         self.t = self.t0 + self.numerics.t*self.dt
         self.differentiate = self.numerics.D/self.dt 
-        self.integrate = self.numerics.I*self.dt
+        self.integrate     = self.numerics.I*self.dt
 
         # call dynamics function to fill state data
         self.constraints(x_state,x_control,self.differentiate,self.integrate)

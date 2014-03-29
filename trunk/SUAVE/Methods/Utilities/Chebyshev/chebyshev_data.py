@@ -32,7 +32,7 @@ def chebyshev_data(N,integration=True):
             
             # scale to dimensional
             y = x * dy_dx
-            D = D * dy_dx
+            D = D / dy_dx # yup, divide
             I = I * dy_dx
             
             # the function
@@ -53,10 +53,12 @@ def chebyshev_data(N,integration=True):
     N = int(N)
     if N <= 0: raise RuntimeError , "N = %i, must be > 0" % N
     
+    
     # --- X vector
     
     # cosine spaced in range [0,1]
     x = 0.5*(1 - np.cos(np.pi*np.arange(0,N)/(N-1)))    
+
 
     # --- Differentiation Operator
     
@@ -78,7 +80,9 @@ def chebyshev_data(N,integration=True):
     # more math
     D = D - np.diag( np.sum( D.T, axis=0 ) );
 
+
     # --- Integratin operator
+    
     if integration:
         # invert D except first row and column
         I = np.linalg.inv(D[1:,1:]); 

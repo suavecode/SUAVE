@@ -18,6 +18,7 @@ from SUAVE.Attributes.Atmospheres                   import Atmosphere
 class Segment(Data):
     """ Top-level Mission Segment """
     def __defaults__(self):
+        
         self.tag = 'Segment'
         self.dofs = 2
         self.planet = Planet()
@@ -54,91 +55,28 @@ class Segment(Data):
     def initialize_vectors(self):
 
         N = self.options.N
-
+        zips = np.zeros((N,3))
+        if self.complex: zips = zips + 0j
+        
         # initialize arrays
-        if self.complex:
-            self.vectors.r = np.zeros((N,3)) + 0j       # position vector (m)
-            self.vectors.V = np.zeros((N,3)) + 0j       # velocity vector (m/s)
-            self.vectors.D = np.zeros((N,3)) + 0j       # drag vector (N)
-            self.vectors.L = np.zeros((N,3)) + 0j       # lift vector (N)
-            self.vectors.v = np.zeros((N,3)) + 0j       # velocity unit tangent vector
-            self.vectors.l = np.zeros((N,3)) + 0j       # lift unit tangent vector
-            self.vectors.u = np.zeros((N,3)) + 0j       # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3)) + 0j       # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3)) + 0j    # total force vector (N)
-            self.vectors.a = np.zeros((N,3)) + 0j       # acceleration (m/s^2)
-            self.alpha = np.zeros(N) + 0j               # alpha (rad)
-
-        else:    
-            self.vectors.r = np.zeros((N,3))            # position vector (m)
-            self.vectors.V = np.zeros((N,3))            # velocity vector (m/s)
-            self.vectors.D = np.zeros((N,3))            # drag vector (N)
-            self.vectors.L = np.zeros((N,3))            # lift vector (N)
-            self.vectors.v = np.zeros((N,3))            # velocity unit tangent vector
-            self.vectors.l = np.zeros((N,3))            # lift unit tangent vector
-            self.vectors.u = np.zeros((N,3))            # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3))            # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3))         # total force vector (N)
-            self.vectors.a = np.zeros((N,3))            # acceleration (m/s^2)
-            self.alpha = np.zeros(N)                    # alpha (rad)
+        self.vectors.r    = zips + 0  # position vector (m)
+        self.vectors.V    = zips + 0  # velocity vector (m/s)
+        self.vectors.D    = zips + 0  # drag vector (N)
+        self.vectors.L    = zips + 0  # lift vector (N)
+        self.vectors.v    = zips + 0  # velocity unit tangent vector
+        self.vectors.l    = zips + 0  # lift unit tangent vector
+        self.vectors.u    = zips + 0  # thrust unit tangent vector
+        self.vectors.F    = zips + 0  # thrust vector (N)
+        self.vectors.Ftot = zips + 0  # total force vector (N)
+        self.vectors.a    = zips + 0  # acceleration (m/s^2)
+        self.alpha        = zips[:,0] + 0  # alpha (rad)
 
         return
 
     def compute_atmosphere(self,altitude):
 
-        # atmospheric properties
-        #if not np.shape(altitude):
-        #    altitude = np.array([altitude])
-        #if len(altitude) == 1:
-        #    p, T, rho, a, mew = self.atmosphere.compute_values(altitude)
-        #    self.p = p*np.ones(self.options.N)
-        #    self.T = T*np.ones(self.options.N)
-        #    self.rho = rho*np.ones(self.options.N)
-        #    self.a = a*np.ones(self.options.N)
-        #    self.mew = mew*np.ones(self.options.N)
-        #elif len(altitude) == self.options.N:
         self.p, self.T, self.rho, self.a, self.mew = \
             self.atmosphere.compute_values(altitude)
-        #else: 
-        #    print "error: altitude larray length does not match velocity"
-        #    return
-        return
-
-    def assign_velocity(self,V):
-
-        # figure out DOFs
-        if not np.shape(V):
-            V = np.array([V]); N = 1
-        else:
-            if len(np.shape(V)) == 2:
-                N, dofs = np.shape(V)
-            elif len(np.shape(V)) == 1:
-                dofs = np.shape(V)[0]; N = 1
-            else:
-                print "Something wrong with V array"
-                return []
-
-        if N == 1:
-            if len(V) == 1:
-                self.vectors.V[:,0] = V         # Vx
-            elif len(V) == 2:
-                self.vectors.V[:,0] = V[0]      # Vx
-                self.vectors.V[:,2] = V[1]      # Vz
-            elif len(V) == 3:
-                self.vectors.V[:,0] = V[0]      # Vx
-                self.vectors.V[:,1] = V[1]      # Vy
-                self.vectors.V[:,2] = V[2]      # Vz
-        elif N == self.N:
-            if dofs == 1:
-                self.vectors.V[:,0] = V         # Vx
-            elif dofs == 2:
-                self.vectors.V[:,0] = V[:,0]    # Vx
-                self.vectors.V[:,2] = V[:,1]    # Vz
-            elif dofs == 3:
-                self.vectors.V = V              # V
-        else: 
-            print "error: velocity vector size does not match"
-            return
 
         return
 
@@ -149,81 +87,26 @@ class Segment(Data):
         self.V = np.sqrt(V2)
 
         # velocity unit tangent vector
-        self.vectors.v[:,0] = self.vectors.V[:,0]/self.V
-        self.vectors.v[:,1] = self.vectors.V[:,1]/self.V
-        self.vectors.v[:,2] = self.vectors.V[:,2]/self.V
+        self.vectors.v = self.vectors.V / self.V[:,None]
 
         # dynamic pressure
-        self.q = 0.5*self.rho*V2                                    # Pa
+        self.q = 0.5*self.rho*V2 # Pa
 
-        # Mach
-        if np.isscalar(self.a):
-            if self.a == 0:
-                self.M = np.inf
-            else:
-                self.M = self.V/self.a
-        else:
-            self.M = np.ones(len(self.a))*np.inf
-            mask = self.a != 0
-            self.M[mask] = self.V[mask]/self.a[mask]
+        # Mach number
+        self.M = np.ones(len(self.a))*np.inf
+        mask = self.a > 0 # avoid non-phsyical values
+        self.M[mask] = self.V[mask]/self.a[mask]
 
-        # Re
-        if np.isscalar(self.mew):
-            if self.mew == 0:
-                self.Re = np.inf
-            else:
-                self.Re = self.rho*self.V/self.mew
-        else:
-            self.Re = np.ones(len(self.a))*np.inf
-            mask = self.mew != 0
-            self.Re[mask] = self.rho[mask]*self.V[mask]/self.mew[mask]  # per m
-
-        return
-
-    def compute_oreintation(self,u):
-
-        # figure out DOFs
-        if len(np.shape(u)) == 2:
-            N, dofs = np.shape(u)
-        elif len(np.shape(u)) == 1:
-            dofs = np.shape(u)[0]; N = 1 
-        else:
-            print "Something wrong with V array"
-            return []
-
-        if N == 1:
-            if len(u) == 1:
-                self.vectors.u[:,0] = 1.0       # horizontal, input ignored
-            elif len(u) == 2:
-                self.vectors.u[:,0] = u[0]      # ux
-                self.vectors.u[:,2] = u[1]      # uz
-            elif len(u) == 3:
-                self.vectors.u[:,0] = u[0]      # Vx
-                self.vectors.u[:,1] = u[1]      # Vy
-                self.vectors.u[:,2] = u[2]      # Vz
-        elif N == self.N:
-            if dofs == 1:
-                self.vectors.u[:,0] = 1.0       # horizontal, input ignored
-            elif dofs == 2:
-                self.vectors.u[:,0] = u[:,0]    # ux
-                self.vectors.u[:,2] = u[:,1]    # uz
-            elif dofs == 3:
-                self.vectors.u = u              # u
-        else: 
-            print "error: thrust vector size does not match"
-            return
-
-        # normalize u
-        umag = np.sqrt(np.sum(self.vectors.u**2,axis=1))
-        self.vectors.u[:,0] = self.vectors.u[:,0]/umag
-        self.vectors.u[:,1] = self.vectors.u[:,1]/umag
-        self.vectors.u[:,2] = self.vectors.u[:,2]/umag
+        # Reynolds number
+        self.Re = np.ones(len(self.a))*np.inf
+        mask = self.mew > 0 # avoid non-phsyical values
+        self.Re[mask] = self.rho[mask]*self.V[mask]/self.mew[mask]  # per m
 
         return
     
     def compute_aero(self,alpha):
 
-        # get scalar aero properties
+        # CALL AERODYNAMICS MODEL
         self.CD, self.CL = self.config.Aerodynamics(alpha,self)     # nondimensional
 
         self.F_aero = self.q*self.config.Aerodynamics.S             # N
