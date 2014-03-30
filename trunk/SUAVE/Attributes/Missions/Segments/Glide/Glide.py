@@ -74,7 +74,7 @@ class Glide(Segment):
         pass
 
     #def final_condition(self,x_state,x_control,D,I):
-    #    pass
+        #pass
 
     def solution(self,x):
         

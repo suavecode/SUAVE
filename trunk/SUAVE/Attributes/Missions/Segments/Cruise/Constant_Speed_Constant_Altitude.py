@@ -19,7 +19,6 @@ class Constant_Speed_Constant_Altitude(Segment):
     def __defaults__(self):
         self.tag = 'Segment: constant speed, constant altitude cruise'
         
-
     def initialize(self):
         
         ## TODO: subclass this check out        

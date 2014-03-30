@@ -45,7 +45,7 @@ def pseudospectral(problem):
     problem.numerics.I = I
 
     # solve system
-    solution = root( residuals        ,
+    solution = root( segment_residuals        ,
                      problem.guess    ,
                      args   = problem ,
                      method = "hybr"  ,
@@ -64,6 +64,9 @@ def pseudospectral(problem):
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
+
+
+
 
 def check_initial_state(problem):
     

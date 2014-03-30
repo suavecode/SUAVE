@@ -36,3 +36,4 @@ def evaluate_mission(mission):
             segment.vectors.r[:,0]+=results.Segments[i-1].vectors.r[-1,0]
 
     return results
+
