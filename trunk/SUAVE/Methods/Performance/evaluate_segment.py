@@ -1,152 +1,127 @@
-""" evaluate_segment.py: ... """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+# numpy imports
 import numpy as np
-import math
-import SUAVE.Methods.Units
-import copy
+from scipy.optimize import root
+from copy import deepcopy
 
-from SUAVE.Structure            import Data
-from SUAVE.Attributes.Results   import Result, Segment
-# from SUAVE.Methods.Utilities    import chebyshev_data, pseudospectral
+# SUAVE imports
+from SUAVE.Structure           import Data
+from SUAVE.Methods.Solvers     import jacobian_complex
+
 
 # ----------------------------------------------------------------------
-#  Methods
+#  Evaluate a Segment
 # ----------------------------------------------------------------------
         
-def evaluate_segment(config,segment,ICs,solver):
-
-    problem = Problem()
-    options = Options()                                # ODE integration options
-    problem.config = config
-    problem.segment = segment
-    err = False
+def evaluate_segment(segment):
+    """  solution = evaluate_segment(segment)
+         integrate a Segment 
+         
+         Inputs:
+         
+         Outputs:
+         
+         Assumptions:
+         
+    """
     
-    if segment.type.lower() == 'climb':             # Climb segment
-        
-        problem.tag = "Climb"
-        problem.f = EquationsOfMotion.General2DOF
-
-        # initial conditions
-        problem.z0 = ICs
-
-        if solver.lower() == "RK45":
-
-            # boundary conditions
-            problem.zmin = np.zeros(5)
-            problem.zmin[0] = None                              # x: no minimum
-            problem.zmin[1] = None                               # Vx: must be > 0
-            problem.zmin[2] = 0.0                               # y: y > 0 (must climb)
-            problem.zmin[3] = None                               # Vy: Vy > 0 (must climb)
-            problem.zmin[4] = config.Mass_Props.m_flight_min     # m: mimumum mass (out of fuel)
-        
-            problem.zmax = np.zeros(5)
-            problem.zmax[0] = None                              # x: no maximum
-            problem.zmax[1] = None                              # Vx: liftoff when Vx >= V_liftoff
-            problem.zmax[2] = segment.altitude[1]               # y: climb target
-            problem.zmax[3] = None                              # Vy: no maximum 
-            problem.zmax[4] = None                              # m: no maximum
-
-            # check if this problem is well-posed 
-            #y0 = segment.altitude[0]
-            #p, T, rho, a, mew = segment.atmosphere.ComputeValues(y0,"all")
-
-            # estimate time step
-            problem.h0 = 0.01
-
-        elif solver.lower() == "PS":
-
-            # final conditions   
-            problem.zf = np.zeros(5)
-            problem.zf[0] = None                              # x: no maximum
-            problem.zf[1] = None                              # Vx: liftoff when Vx >= V_liftoff
-            problem.zf[2] = segment.altitude                  # y: climb target
-            problem.zf[3] = None                              # Vy: no maximum 
-            problem.zf[4] = None                              # m: no maximum
-            problem.tf = 0.0                                  # final time
-
-            # check if this problem is well-posed
-
-
-    elif segment.type.lower() == 'descent':         # Descent segment
-        
-        options.end_type = "Altitude"
-        options.DOFs = 2
-
-    elif segment.type.lower() == 'cruise':          # Cruise segment
-        
-        options.end_type = segment.end.type
-        options.end_value = segment.end.value
-        options.DOFs = 2
-
-    elif segment.type.lower() == 'takeoff':         # Takeoff segment (on runway)
-        
-        problem.tag = "Takeoff"
-        problem.f = EquationsOfMotion.Ground1DOF
-
-        # initial conditions
-        problem.z0 = ICs
-
-        # final conditions
-        problem.zmin = np.zeros(5)
-        problem.zmin[0] = None                              # x: no minimum
-        problem.zmin[1] = 0.0                               # Vx: must be > 0
-        problem.zmin[2] = None                              # y: N/A
-        problem.zmin[3] = None                              # Vy: N/A
-        problem.zmin[4] = config.Mass_Props.m_flight_min     # m: mimumum mass (out of fuel)
-        
-        problem.zmax = np.zeros(5)
-        problem.zmax[0] = None                              # x: no maximum
-        problem.zmax[1] = config.V_liftoff                  # Vx: liftoff when Vx >= V_liftoff
-        problem.zmax[2] = None                              # y: N/A
-        problem.zmax[3] = None                              # Vy: N/A
-        problem.zmax[4] = None                              # m: no maximum
-
-        # check this configuration / segment 
-        #y0 = segment.altitude[0]
-        #p, T, rho, a, mew = segment.atmosphere.ComputeValues(y0,"all")
-
-        # estimate time step
-        problem.h0 = 1.0
-
-    elif segment.type.lower() == 'landing':         # landing segemnt (on runway)
-        
-        # set up initial conditions
-        z0[0] = mission_segment.altitude[0]            # km
-        z0[1] = 0.0                                    # km
-        options.stop = "Velocity"
-        options.EOM = "1DOF"
-
-    elif segment.type.lower() == 'PASS':
-        results_segment = EvaluatePASS(config,segment)
-    else:
-        print "Unknown mission segment type: " + segment.type + "; mission aborted"
+    # check inputs
+    segment.check()
     
-    if err:
-        print "Segment / Configuration check failed"
-        results_segment = None
-    else:
+    # unpack segment
+    options       = segment.options
+    unknowns      = segment.unknowns    
+    conditions    = segment.conditions
+    differentials = segment.differentials
+    
+    # initialize arrays
+    unknowns, conditions = segment.initialize_arrays(unknowns,conditions,options)
+    
+    # initialize differential operators
+    differentials = segment.initialize_differentials(differentials,options)
 
-        print problem.z0
-        print problem.h0
+    # preprocess segment conditions
+    conditions = segment.initialize_conditions(conditions)
+    
+    # pack the guess
+    guess = unknowns.pack_array('vector')
 
-        # integrate EOMs:
-        solution = RK45(problem,options)
+    # solve system
+    x_sol = root( fun    = segment_residuals          ,
+                  x0     = guess                      ,
+                  args   = [segment]                  ,
+                  method = "hybr"                     ,
+                  #jac    = jacobian_complex           ,
+                  tol    = options.tolerance_solution  )
+    
+    # confirm final solution
+    residuals(x_sol,segment)
+    unknowns      = segment.unknowns    
+    conditions    = segment.conditions
+    differentials = segment.differentials
 
-        # package results:
-        results_segment = Segment()                     # RESULTS segment container
-        results_segment.tag = problem.tag
-        results_segment.state.t = solution.t
-        results_segment.state.x = solution.z[:,0]
-        results_segment.state.Vx = solution.z[:,1]
-        results_segment.state.y = solution.z[:,2]
-        results_segment.state.Vy = solution.z[:,3]
-        results_segment.state.m = solution.z[:,4]
-        results_segment.exit = solution.exit
-        results_segment.mission_segment = segment
-        results_segment.config = config
+    # post processing
+    segment.post_process(unknowns,conditions,differentials)
+    
+    # done!
+    return segment
 
-    return results_segment
+   
+# ----------------------------------------------------------------------
+#  Main Segment Objective Function
+# ----------------------------------------------------------------------
+
+def segment_residuals(x,segment):
+    """ segment_residuals(x)
+        the objective function for the segment solver
+        
+        Inputs - 
+            x - 1D vector of the solver's guess for segment free unknowns
+        
+        Outputs - 
+            R - 1D vector of the segment's residuals
+            
+        Assumptions -
+            solver tries to converge R = [0]
+            
+    """
+    
+    # unpack segment
+    unknowns      = segment.unknowns
+    conditions    = segment.conditions
+    differentials = deepcopy( segment.differentials )
+    
+    # unpack vector into unknowns
+    unknowns.unpack_array(x)
+    
+    # update differentials
+    differentials = segment.update_differentials(unknowns,conditions,differentials)
+    t = differentials.t
+    D = differentials.D
+    I = differentials.I
+    
+    # update conditions
+    conditions = segment.update_conditions(unknowns,conditions,differentials)
+    
+    # solve residuals
+    residuals = segment.solve_residuals(unknowns,conditions,differentials)
+    
+    # pack column matrices
+    S  = unknowns .states  .pack_array()
+    FS = residuals.states  .pack_array()
+    FC = residuals.controls.pack_array()
+    FF = residuals.finals  .pack_array()
+    
+    # solve final residuals
+    R = [ ( np.dot(D,S) - FS ) ,
+          (               FC ) , 
+          (               FF )  ]
+    
+    # pack in to final residual vector
+    R = np.hstack( [ r.ravel(order='F') for r in R ] )
+    
+    return R

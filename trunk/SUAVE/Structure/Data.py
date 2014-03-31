@@ -144,6 +144,158 @@ class Data(Indexable_Bunch):
                 output[key] = value
         return output
     
+    def pack_array(self,output='vector'):
+        """ Data.pack_array(output='vector')
+            maps the data dict to a 1D vector or 2D column array
+            
+            Inputs - 
+                output - either 'vector' (default), or 'array'
+                         chooses whether to output a 1d vector or 
+                         2d column array
+            Outputs - 
+                array - the packed array
+                
+            Assumptions - 
+                will only pack int, float, np.array and np.matrix (max rank 2)
+                if using output = 'matrix', all data values must have 
+                same length (if 1D) or number of rows (if 2D).
+        
+        """
+        
+        # dont require data to have numpy
+        import numpy as np
+        from SUAVE.Methods.Utilities import atleast_2d_col
+        
+        # check output type
+        if not output in ('vector','array'): raise Exception , 'output type must be "vector" or "array"'        
+        vector = output == 'vector'
+        
+        # list to pre-dump array elements
+        M = []
+        
+        # valid types for output
+        valid_types = ( int, float,
+                        np.ndarray,
+                        np.matrixlib.defmatrix.matrix )
+        
+        # initialize array row size (for array output)
+        size = False
+        
+        # the packing function
+        def do_pack(D):
+            for v in D.itervalues():
+                # type checking
+                if isinstance( v, Data ): do_pack(D) # recursion!
+                elif not isinstance( v, valid_types ): continue
+                elif np.rank(v) > 2: continue
+                # make column vectors
+                v = atleast_2d_col(v)
+                # handle output type
+                if vector:
+                    # unravel into 1d vector
+                    v = v.ravel(order='F')
+                else:
+                    # check array size
+                    size = size or v.shape[0] # updates size once on first array
+                    if v.shape[0] != size: raise RuntimeError , 'array size mismatch, all values in data must have same number of rows for array packing'
+                # dump to list
+                M.append(v)
+            #: for each value
+        #: def do_pack()
+        
+        # do the packing
+        do_pack(self)
+        
+        # pack into final array
+        M = np.hstack(M)
+        
+        # done!
+        return M
+    
+    def unpack_array(self,M):
+        """ Data.unpack_array(array)
+            unpacks an input 1d vector or 2d column array into the data dictionary
+                following the same order that it was unpacked
+            important that the structure of the data dictionary, and the shapes
+                of the contained values are the same as the data from which the 
+                array was packed
+        
+            Inputs:
+                 array - either a 1D vector or 2D column array
+                 
+            Outputs:
+                 none, updates self in place
+                 
+        """
+        
+        # dont require data to have numpy
+        import numpy as np
+        from SUAVE.Methods.Utilities import atleast_2d_col
+        
+        # check input type
+        vector = np.rank(M) == 1
+        
+        # valid types for output
+        valid_types = ( int, float,
+                        np.ndarray,
+                        np.matrixlib.defmatrix.matrix )
+        
+        # initialize array row size (for array output)
+        size = False
+        
+        # counter for unpacking
+        index = 0
+        
+        # the unpacking function
+        def do_unpack(D):
+            for k,v in D.iteritems():
+                
+                # type checking
+                if isinstance(v,Data): do_unpack(D)
+                elif not isinstance(v,valid_types): continue
+                
+                # get this value's rank
+                rank = np.rank(v)
+                
+                # skip if too big
+                if rank > 2: 
+                    continue
+                    
+                # scalars
+                elif rank == 0:
+                    if vector:
+                        D[k] = M[index]
+                        index += 1
+                    else:#array
+                        raise RuntimeError , 'array size mismatch, all values in data must have same number of rows for array unpacking'
+                    
+                # 1d vectors
+                elif rank == 1:
+                    n = len(v)
+                    if vector:
+                        D[k][:] = M[index:(index+n-1)]
+                        index += n
+                    else:#array
+                        D[k][:] = M[:,index]
+                        index += 1
+                    
+                # 2d arrays
+                elif rank == 2:
+                    n,m = v.shape
+                    if vector:
+                        D[k][:,:] = np.reshape( M[index:(index+(n*m)-1)] ,[n,m], order='F')
+                        index += n*m 
+                    else:#array
+                        D[k][:,:] = M[:,index:(index+m-1)]
+                        index += m
+                
+                #: switch rank
+            #: for each itme
+        #: def do_unpack()
+            
+        # done!
+        return
+    
     def get_bases(self):
         """ find all Data() base classes, return in a list """
         klass = self.__class__

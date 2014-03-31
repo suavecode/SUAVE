@@ -11,7 +11,7 @@ from copy import deepcopy
 from SUAVE.Structure                    import Data, Data_Exception
 from SUAVE.Structure                    import Container as ContainerBase
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
-
+from SUAVE.Methods.Utilities            import atleast_2d_col
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -20,11 +20,19 @@ from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 class Base_Segment(Data):
     
     # ------------------------------------------------------------------
-    #   Methods For Overriding
+    #   Methods For Initialization
     # ------------------------------------------------------------------    
 
     def __defaults__(self):
         self.tag = 'Base_Segment'
+        
+        # --- Segment Inputs
+        
+        # these are the inputs the user will define in the input script
+        
+        # an example
+        ##self.mach_number = 0.7
+        
         
         # --- Conditions and Unknowns
         
@@ -34,34 +42,36 @@ class Base_Segment(Data):
         
         # base array column lengths
         # use a trivial operation to copy the array
-        ones_1col = np.zeros([1,1])
-        ones_2col = np.zeros([1,2])
-        ones_3col = np.zeros([1,3])         
+        ones_1col = np.ones([1,1])
+        ones_2col = np.ones([1,2])
+        ones_3col = np.ones([1,3])         
         
         
         # --- Conditions 
         
         # setup conditions
         conditions = Data()
-        conditions.inertial = Data()
-        conditions.body     = Data()
+        conditions.frames   = Data()
         conditions.weights  = Data()
         conditions.engergy  = Data()   
+        self.conditions = conditions
         
         # inertial conditions
-        conditions.inertial.position_vector      = ones_3col + 0
-        conditions.inertial.velocity_vector      = ones_3col + 0
-        conditions.inertial.acceleration_vector  = ones_3col + 0
-        conditions.inertial.total_force_vector   = ones_3col + 0      
-        conditions.inertial.time                 = ones_1col + 0
+        conditions.frames.inertial = Data()        
+        conditions.frames.inertial.position_vector      = ones_3col * 0
+        conditions.frames.inertial.velocity_vector      = ones_3col * 0
+        conditions.frames.inertial.acceleration_vector  = ones_3col * 0
+        conditions.frames.inertial.total_force_vector   = ones_3col * 0
+        conditions.frames.inertial.time                 = ones_1col * 0
         
         # body conditions
-        conditions.body.velocity_vector          = ones_3col + 0
-        conditions.body.acceleration_vector      = ones_3col + 0
-        conditions.body.total_force_vector       = ones_3col + 0
+        conditions.frames.body = Data()        
+        conditions.frames.body.inertial_rotations       = ones_3col * 0
+        conditions.frames.body.transform_to_inertial    = np.empty([0,0,0])
         
         # weights conditions
-        conditions.weights.total_mass            = ones_1col + 0
+        conditions.weights.total_mass            = ones_1col * 0
+        conditions.weights.weight_breakdown      = Data()
         
         # energy conditions
         conditions.energies.total_energy         = ones_1col + 0
@@ -74,6 +84,7 @@ class Base_Segment(Data):
         unknowns.states   = Data()
         unknowns.controls = Data()
         unknowns.finals   = Data()
+        self.unknowns = unknowns
         
         # an example
         ## unknowns.states.gamma = ones_1col + 0
@@ -91,9 +102,9 @@ class Base_Segment(Data):
         
         # differentials
         self.differentials = Data()
-        self.differentials.t = t
-        self.differentials.D = D
-        self.differentials.I = I
+        self.differentials.t = np.empty([0,0]) 
+        self.differentials.D = np.empty([0,0]) 
+        self.differentials.I = np.empty([0,0]) 
         self.differentials.method = chebyshev_data
         
         return
@@ -124,6 +135,7 @@ class Base_Segment(Data):
                 --
                 
             Usage Notes:
+                may need to inspect segment (self) for user inputs
                 will be called before solving the segments free unknowns
                 
         """
@@ -142,6 +154,10 @@ class Base_Segment(Data):
         
         return conditions
     
+    # ------------------------------------------------------------------
+    #   Methods For Solver Iterations
+    # ------------------------------------------------------------------    
+    
     def update_conditions(unknowns,conditions,differentials):
         """ Segment.update_conditions(unknowns, conditions, differentials)
             if needed, updates the conditions given the current free unknowns and differentials
@@ -156,7 +172,7 @@ class Base_Segment(Data):
                 differentials - data dictionary of differential operators for this iteration
                 
             Outputs - 
-                conditions - data dictionary of update conditions
+                conditions - data dictionary of updated conditions
                 
             Assumptions - 
                 preserves the shapes of arrays in conditions
@@ -216,6 +232,10 @@ class Base_Segment(Data):
         
         return residuals
     
+    # ------------------------------------------------------------------
+    #   Methods For Post-Solver
+    # ------------------------------------------------------------------    
+    
     def post_process(self,unknowns,conditions,differentials):
         """ Segment.post_process(unknowns, conditions, differentials)
             post processes the conditions after converging the segment solver
@@ -229,11 +249,12 @@ class Base_Segment(Data):
                 differentials - data dictionary of the converged differential operators
                 
             Outputs - 
-                conditions - data dictionary with additional post-processed data
+                conditions - data dictionary with remaining fields filled with post-processed conditions
             
             Usage Notes - 
                 use this to store the unknowns and any other interesting in conditions
                     for later plotting
+                for clarity and style, be sure to define any new fields in segment.__defaults__
             
         """
         
@@ -253,17 +274,21 @@ class Base_Segment(Data):
     
     
     # ------------------------------------------------------------------
-    #   Probably Internal Methods
+    #   Internal Methods
     # ------------------------------------------------------------------
+    # in general it's unlikely these will need to be overidden
+    # except for maybe update_differntials() if you are changing 
+    #     control point spacing
 
-    def initialize_arrays(self,unknowns, conditions):
-        """ Segment.initialize_arrays(unknowns, conditions)
+    def initialize_arrays(self,unknowns,conditions,options):
+        """ Segment.initialize_arrays(unknowns,conditions,options)
             expands the number of rows of all arrays in segment.conditions
-            and segment.unknowns to segment.options.n_control_points
+            and segment.unknowns to options.n_control_points
             
             Inputs - 
                 unknowns   - data dicitonary of segment unknowns
                 conditions - data dictionary of segment conditions
+                options    - data dictionary of segment options
                 
             Outputs -
                 unknowns   - updated unknowns
@@ -304,7 +329,7 @@ class Base_Segment(Data):
         update_conditions(unknowns)
         # like a boss
          
-        return unknowns, conditions
+        return unknowns,conditions
     
     def initialize_differentials(self,differentials,options):
         """ Segment.initialize_differentials(differentials)
@@ -335,6 +360,7 @@ class Base_Segment(Data):
         
         # get operators
         t,D,I = differential_method(N,**options)
+        t = atleast_2d_col(t)
         
         # pack
         differentials.t = t
@@ -393,60 +419,6 @@ class Base_Segment(Data):
         differentials.I = I
         
         return differentials
-    
-
-
-
-def segment_residuals(x,segment):
-    """ segment_residuals(x)
-        the objective function for the segment solver
-        
-        Inputs - 
-            x - 1D vector of the solver's guess for segment free unknowns
-        
-        Outputs - 
-            R - 1D vector of the segment's residuals
-            
-        Assumptions -
-            solver tries to converge R = [0]
-            
-    """
-    
-    # unpack segment
-    unknowns      = segment.unknowns
-    conditions    = segment.conditions
-    differentials = deepcopy( segment.differentials )
-    
-    # unpack vector into unknowns
-    unknowns.unpack_array(x)
-    
-    # update differentials
-    differentials = segment.update_differentials(unknowns,conditions,differentials)
-    t = differentials.t
-    D = differentials.D
-    I = differentials.I
-    
-    # update conditions
-    conditions = segment.update_conditions(unknowns,conditions,differentials)
-    
-    # solve residuals
-    residuals = segment.solve_residuals(unknowns,conditions,differentials)
-    
-    # pack column matrices
-    S  = unknowns .states  .pack_array()
-    FS = residuals.states  .pack_array()
-    FC = residuals.controls.pack_array()
-    FF = residuals.finals  .pack_array()
-    
-    # solve final residuals
-    R = [ ( np.dot(D,S) - FS ) ,
-          (               FC ) , 
-          (               FF )  ]
-    
-    # pack in to final residual vector
-    R = np.hstack( [ r.ravel(order='F') for r in R ] )
-    
-    return R
 
 
 # ----------------------------------------------------------------------
