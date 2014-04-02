@@ -61,11 +61,11 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     flt_ctrl_wt = (flt_ctrl_scaler*(area_h + area_v)) * Units.lb
      
     # APU Group Wt   
-    if num_seats >= 9.:
+    if num_seats >= 6.:
         apu_wt = 7.0 * num_seats *Units.lb
     else:
         apu_wt = 0.0 * Units.lb #no apu if less than 9 seats
-
+    apu_wt = max(apu_wt,70.)
     # Hydraulics & Pneumatics Group Wt
     hyd_pnu_wt = (0.65 * sref) * Units.lb
      
@@ -74,7 +74,9 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
 
     # Furnishings Group Wt
     furnish_wt = ((43.7 - 0.037*min(num_seats,300.))*num_seats + 46.0*num_seats) * Units.lb
-
+    if ac_type == "business":
+        furnish_wt = S_fus * 11.
+    
     # Environmental Control
     ac_wt = (15.0 * num_seats) * Units.lb
 
