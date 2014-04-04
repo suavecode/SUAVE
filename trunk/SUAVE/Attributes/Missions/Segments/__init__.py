@@ -1,19 +1,11 @@
 
 # classes
-from Segment import Segment
-
-# constraint-enforcement segments
-#from CruiseConstantSpeedConstantAltitude import CruiseConstantSpeedConstantAltitude, \
-#                                                CruiseConstantMachConstantAltitude
-#from ClimbDescentConstantSpeed import ClimbDescentConstantSpeed
-#from ClimbDescentConstantMach import ClimbDescentConstantMach
-
-## dynamic segments
-#from Glide import Glide
+from Base_Segment import Base_Segment
+from Aerodynamic_Segment import Aerodynamic_Segment
 
 # packages
-import Climb
+#import Climb
 import Cruise
-import Descent
-import Glide
-import Trajectory
+#import Descent
+#import Glide
+#import Trajectory

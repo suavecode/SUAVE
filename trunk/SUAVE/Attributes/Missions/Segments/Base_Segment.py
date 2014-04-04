@@ -20,7 +20,7 @@ from SUAVE.Methods.Utilities            import atleast_2d_col
 class Base_Segment(Data):
     
     # ------------------------------------------------------------------
-    #   Methods For Initialization
+    #   Data Defaults
     # ------------------------------------------------------------------    
 
     def __defaults__(self):
@@ -32,6 +32,13 @@ class Base_Segment(Data):
         
         # an example
         ##self.mach_number = 0.7
+        
+        
+        # --- Vehicle Configuration
+        
+        # a linked copy of the vehicle
+        
+        self.config = Data()
         
         
         # --- Conditions and Unknowns
@@ -53,7 +60,7 @@ class Base_Segment(Data):
         conditions = Data()
         conditions.frames   = Data()
         conditions.weights  = Data()
-        conditions.engergy  = Data()   
+        conditions.energies = Data()   
         self.conditions = conditions
         
         # inertial conditions
@@ -74,8 +81,8 @@ class Base_Segment(Data):
         conditions.weights.weight_breakdown      = Data()
         
         # energy conditions
-        conditions.energies.total_energy         = ones_1col + 0
-        conditions.energies.total_efficiency     = ones_1col + 0
+        conditions.energies.total_energy         = ones_1col * 0
+        conditions.energies.total_efficiency     = ones_1col * 0
         
         # --- Unknowns
         
@@ -88,6 +95,14 @@ class Base_Segment(Data):
         
         # an example
         ## unknowns.states.gamma = ones_1col + 0
+        
+        
+        # --- Initial Conditions
+        
+        # this data structure will hold a copy of the last
+        #    rows from the conditions of the last segment
+        
+        self.initials = Data()
         
         
         # --- Numerics
@@ -108,8 +123,12 @@ class Base_Segment(Data):
         self.differentials.method = chebyshev_data
         
         return
+
+    # ------------------------------------------------------------------
+    #   Methods For Initialization
+    # ------------------------------------------------------------------  
     
-    def check(self):
+    def check_inputs(self):
         """ Segment.check():
             error checking of segment inputs
         """
@@ -118,7 +137,7 @@ class Base_Segment(Data):
         
         return
     
-    def initialize_conditions(self,conditions):
+    def initialize_conditions(self,conditions,initials=None):
         """ Segment.initialize_conditions(conditions)
             update the segment conditions
             pin down as many condition variables as possible in this function
@@ -126,6 +145,8 @@ class Base_Segment(Data):
             Inputs:
                 conditions - the conditions data dictionary, with initialized zero arrays, 
                              with number of rows = segment.conditions.n_control_points
+                initials - a data dictionary with 1-row column arrays pulled from the last row
+                           of the previous segment's conditions data, or none if no previous segment
                 
             Outputs:
                 conditions - the conditions data dictionary, updated with the 
@@ -158,7 +179,7 @@ class Base_Segment(Data):
     #   Methods For Solver Iterations
     # ------------------------------------------------------------------    
     
-    def update_conditions(unknowns,conditions,differentials):
+    def update_conditions(self,unknowns,conditions,differentials):
         """ Segment.update_conditions(unknowns, conditions, differentials)
             if needed, updates the conditions given the current free unknowns and differentials
             called once per segment solver iteration
@@ -191,9 +212,9 @@ class Base_Segment(Data):
         # pack outputs
         ## CODE
         
-        return residuals
+        return conditions
     
-    def solve_residuals(unknowns,conditions,differentials):
+    def solve_residuals(self,unknowns,conditions,differentials):
         """ Segment.solve_residuals(unknowns, conditions, differentials)
             the hard work, solves the residuals for the free unknowns
             called once per segment solver iteration
@@ -305,6 +326,7 @@ class Base_Segment(Data):
         ones = np.ones([N,1])
         if options.jacobian == 'complex': ones = ones + 0j
         
+        
         # recursively initialize condition and unknown arrays 
         # to have row length of number n_control_points
         
@@ -313,12 +335,9 @@ class Base_Segment(Data):
             for k,v in D.iteritems():
                 # recursion
                 if isinstance(v,Data):
-                    update_condition(D[k])
+                    update_conditions(D[k])
                 # need arrays here
-                elif not isinstance(v,np.ndarray):
-                    raise ValueError , 'condition "%s%" must be type np.array' % k
-                # the update
-                else:
+                elif np.rank(v) == 2:
                     D[k] = np.dot(ones,D[k]) # depends on the ones array here
                 #: if type
             #: for each key,value
@@ -369,7 +388,7 @@ class Base_Segment(Data):
         
         return differentials
     
-    def update_differentials(unknowns,conditions,differentials):
+    def update_differentials(self,unknowns,conditions,differentials):
         """ Segment.update_differentials(unknowns, conditions, differentials)
             updates the differential operators t, D and I
             must return in dimensional time, with t[0] = 0
@@ -406,7 +425,8 @@ class Base_Segment(Data):
             conditions.inertial.time = t + conditions.inertial.time[0]
         else:
             # stationary time control points
-            dt = conditions.inertial.time[-1] - segment.conditions.inertial.time[0]
+            time = conditions.frames.inertial.time
+            dt = time[-1] - time[0]
             t = t * dt
         
         # rescale operators
@@ -420,6 +440,58 @@ class Base_Segment(Data):
         
         return differentials
 
+    
+    def get_final_conditions(self):
+        
+        conditions = segment
+        finals = Data()
+        
+        # the update function
+        def pull_conditions(A,B):
+            for k,v in A.iteritems():
+                # recursion
+                if isinstance(v,Data):
+                    B[k] = Data()
+                    pull_conditions(A[k],B[k])
+                # need arrays here
+                elif not isinstance(v,np.ndarray):
+                    raise ValueError , 'condition "%s%" must be type np.array' % k
+                # the copy
+                else:
+                    B[k] = A[k][-1,:][:,None]
+                #: if type
+            #: for each key,value
+        #: def pull_conditions()
+        
+        # do the update!
+        pull_conditions(conditions,finals)
+        
+        return finals
+    
+    def set_initial_conditions(self,finals):
+        
+        initials = self.initials
+        
+        # the update function
+        def set_conditions(A,B):
+            for k,v in B.iteritems():
+                # recursion
+                if isinstance(v,Data):
+                    set_conditions(A[k],B[k])
+                # need arrays here
+                elif not isinstance(v,np.ndarray):
+                    raise ValueError , 'condition "%s%" must be type np.array' % k
+                # the copy
+                else:
+                    B[k] = A[k][-1,:][:,None]
+                #: if type
+            #: for each key,value
+        #: def pull_conditions()
+        
+        # do the update!
+        set_conditions(finals,initials)
+        
+        return initials
 
 # ----------------------------------------------------------------------
 #  Handle Linking

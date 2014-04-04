@@ -30,13 +30,14 @@ def evaluate_segment(segment):
     """
     
     # check inputs
-    segment.check()
+    segment.check_inputs()
     
     # unpack segment
     options       = segment.options
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
     differentials = segment.differentials
+    initials      = segment.initials
     
     # initialize arrays
     unknowns, conditions = segment.initialize_arrays(unknowns,conditions,options)
@@ -45,7 +46,7 @@ def evaluate_segment(segment):
     differentials = segment.initialize_differentials(differentials,options)
 
     # preprocess segment conditions
-    conditions = segment.initialize_conditions(conditions)
+    conditions = segment.initialize_conditions(conditions,differentials,initials)
     
     # pack the guess
     guess = unknowns.pack_array('vector')
@@ -53,7 +54,7 @@ def evaluate_segment(segment):
     # solve system
     x_sol = root( fun    = segment_residuals          ,
                   x0     = guess                      ,
-                  args   = [segment]                  ,
+                  args   = segment                    ,
                   method = "hybr"                     ,
                   #jac    = jacobian_complex           ,
                   tol    = options.tolerance_solution  )

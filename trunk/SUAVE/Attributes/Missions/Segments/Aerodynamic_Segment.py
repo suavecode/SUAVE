@@ -9,13 +9,14 @@ from SUAVE.Attributes.Planets           import Planet
 from SUAVE.Attributes.Atmospheres       import Atmosphere
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 from SUAVE.Methods.Utilities            import atleast_2d_col
-from SUAVE.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product
+from SUAVE.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product, orientation_transpose
+from Base_Segment import Base_Segment
 
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
 
-class Aerodynamic_Segment(Data):
+class Aerodynamic_Segment(Base_Segment):
     
     # ------------------------------------------------------------------
     #   Methods For Initialization
@@ -24,11 +25,11 @@ class Aerodynamic_Segment(Data):
     def __defaults__(self):
         self.tag = 'Aerodynamic Segment'
         
-        # presumably we fly in an atmosphere
+        # atmosphere and planet
         self.planet     = Planet()
         self.atmosphere = Atmosphere()        
-
-
+        
+        
         # --- Conditions and Unknowns
         
         # user shouldn't change these in an input script
@@ -51,7 +52,7 @@ class Aerodynamic_Segment(Data):
         conditions.aerodynamics = Data()
         conditions.propulsion   = Data()
         conditions.weights      = Data()
-        conditions.engergy      = Data()
+        conditions.energies     = Data()
         self.conditions = conditions
         
         # inertial frame conditions
@@ -114,204 +115,38 @@ class Aerodynamic_Segment(Data):
         conditions.energies.gravity_energy       = ones_1col * 0
         conditions.energies.propulusion_power    = ones_1col * 0
         
-        # --- Unknowns        
-        
-        # setup unknowns
-        unknowns = Data()
-        unknowns.states   = Data()
-        unknowns.controls = Data()
-        unknowns.finals   = Data()
-        self.unknowns = unknowns
-        
-        # an example
-        ## unknowns.states.gamma = ones_1col + 0
-        
-        
-        # --- Numerics
-        
-        # numerical options
-        self.options.tag = 'Solution Options'
-        self.options.n_control_points              = 16
-        self.options.jacobian                      = "complex"
-        self.options.tolerance_solution            = 1e-8
-        self.options.tolerance_boundary_conditions = 1e-8        
-        
-        # differentials
-        self.differentials.method = chebyshev_data
         
         return
     
-    
-    def check(self):
-        """ Segment.check():
-            error checking of segment inputs
-        """
-        
-        ## CODE
-        
-        return
-    
-    def initialize_conditions(self,conditions):
-        """ Segment.initialize_conditions(conditions)
-            update the segment conditions
-            pin down as many condition variables as possible in this function
-            
-            Inputs:
-                conditions - the conditions data dictionary, with initialized zero arrays, 
-                             with number of rows = segment.conditions.n_control_points
-                
-            Outputs:
-                conditions - the conditions data dictionary, updated with the 
-                             values that can be precalculated
-            
-            Assumptions:
-                --
-                
-            Usage Notes:
-                sill need to inspect segment (self) for user inputs
-                will be called before solving the segments free unknowns
-                
-        """
-        
-        # unpack inputs
-        ## CODE
-        
-        # setup
-        ## CODE
-        
-        # process
-        ## CODE
-        
-        # pack outputs
-        ## CODE
-        
-        return conditions
-    
-    
-    # ------------------------------------------------------------------
-    #   Methods For Solver Iterations
-    # ------------------------------------------------------------------    
-    
-    def update_conditions(unknowns,conditions,differentials):
-        """ Segment.update_conditions(unknowns, conditions, differentials)
-            if needed, updates the conditions given the current free unknowns and differentials
-            called once per segment solver iteration
-            
-            Inputs - 
-                unknowns      - data dictionary of segment free unknowns with fields:
-                    states, controls, finals
-                    these are defined in segment.__defaults__
-                conditions    - data dictionary of segment conditions
-                    these are defined in segment.__defaults__
-                differentials - data dictionary of differential operators for this iteration
-                
-            Outputs - 
-                conditions - data dictionary of update conditions
-                
-            Assumptions - 
-                preserves the shapes of arrays in conditions
-
-        """
-        
-        # unpack inputs
-        ## CODE
-        
-        # setup
-        ## CODE
-        
-        # process
-        ## CODE
-        
-        # pack outputs
-        ## CODE
-        
-        return residuals
-    
-    def solve_residuals(unknowns,conditions,differentials):
-        """ Segment.solve_residuals(unknowns, conditions, differentials)
-            the hard work, solves the residuals for the free unknowns
-            called once per segment solver iteration
-            
-            Inputs - 
-                unknowns      - data dictionary of segment free unknowns with fields:
-                    states, controls, finals
-                    these are defined in segment.__defaults__
-                conditions    - data dictionary of segment conditions
-                    these are defined in segment.__defaults__
-                differentials - data dictionary of differential operators for this iteration
-                
-            Outputs - 
-                residuals - data dictionary of residuals, same dictionary structure as unknowns
-            
-            Usage Notes - 
-                after this method, residuals composed into a final residual vector:
-                    R = [ [ d(unknowns.states)/dt - residuals.states   ] ;
-                          [                         residuals.controls ] ;
-                          [                         residuals.finals   ] ] = [0] ,
-                    where the segment solver will find a root of R = [0]
-
-        """
-        
-        # unpack inputs
-        ## CODE
-        
-        # setup
-        ## CODE
-        
-        # process
-        ## CODE
-        
-        # pack outputs
-        ## CODE
-        
-        return residuals
-    
-    
-    # ------------------------------------------------------------------
-    #   Methods For Post-Solver
-    # ------------------------------------------------------------------    
-    
-    def post_process(self,unknowns,conditions,differentials):
-        """ Segment.post_process(unknowns, conditions, differentials)
-            post processes the conditions after converging the segment solver
-            
-            Inputs - 
-                unknowns - data dictionary of converged segment free unknowns with fields:
-                    states, controls, finals
-                    these are defined in segment.__defaults__
-                conditions - data dictionary of segment conditions
-                    these are defined in segment.__defaults__
-                differentials - data dictionary of the converged differential operators
-                
-            Outputs - 
-                conditions - data dictionary with additional post-processed data
-            
-            Usage Notes - 
-                use this to store the unknowns and any other interesting in conditions
-                    for later plotting
-            
-        """
-        
-        # unpack inputs
-        ## CODE
-        
-        # setup
-        ## CODE
-        
-        # process
-        ## CODE
-        
-        # pack outputs
-        ## CODE
-        
-        return
-
+    # other methods, see also:
+    #   Base_Segment.check_inputs()
+    #   Base_Segment.initialize_conditions()
+    #   Base_Segment.update_conditions()
+    #   Base_Segment.solve_residuals()
+    #   Base_Segment.post_process()
     
     # ----------------------------------------------------------------------
     #  Segment Helper Methods
     # ----------------------------------------------------------------------
     
     def compute_atmosphere(self,conditions,atmosphere):
+        """ Aerodynamic_Segment.compute_atmosphere(conditions,atmosphere)
+            computes conditions of the atmosphere at given altitudes
+            
+            Inputs:
+                conditions - data dictionary with ...
+                    freestream.altitude
+                atmoshere - an atmospheric model
+            Outputs:
+                conditions - with...
+                    freestream.pressure
+                    freestream.temperature
+                    freestream.density
+                    freestream.speed_of_sound
+                    freestream.viscosity
+                    
+        """
+        
     
         # unpack
         h = conditions.freestream.altitude
@@ -320,11 +155,11 @@ class Aerodynamic_Segment(Data):
         p, T, rho, a, mew = atmosphere.compute_values(h)
         
         # pack
-        conditions.freestream.pressure       = p
-        conditions.freestream.temperature    = T
-        conditions.freestream.density        = rho
-        conditions.freestream.speed_of_sound = a
-        conditions.freestream.viscosity      = mew
+        conditions.freestream.pressure[:,0]       = p
+        conditions.freestream.temperature[:,0]    = T
+        conditions.freestream.density[:,0]        = rho
+        conditions.freestream.speed_of_sound[:,0] = a
+        conditions.freestream.viscosity[:,0]      = mew
     
         return conditions
     
@@ -337,7 +172,7 @@ class Aerodynamic_Segment(Data):
         g = g0        # m/s^2 (placeholder for better g models)
         
         # pack
-        conditions.freestream.gravity = g
+        conditions.freestream.gravity[:,0] = g
         
         return conditions
     
@@ -346,11 +181,17 @@ class Aerodynamic_Segment(Data):
             computes freestream values
             
             Inputs:
-            
+                conditions - data dictionary with fields...
+                    frames.inertial.velocity_vector
+                    freestream.density
+                    freestream.speed_of_sound
+                    freestream.viscosity
+                    
             Outputs:
-            dynamic pressure
-            mach number
-            reynolds number - DIMENSIONAL - PER UNIT LENGTH - MUST MULTIPLY BY REFERENCE LENGTH
+                conditions with fields:
+                    freestream.dynamic pressure
+                    freestream.mach number
+                    freestream.reynolds number - DIMENSIONAL - PER UNIT LENGTH - MUST MULTIPLY BY REFERENCE LENGTH
             
         """
         
@@ -361,8 +202,8 @@ class Aerodynamic_Segment(Data):
         mew  = conditions.freestream.viscosity 
         
         # velocity magnitude
-        Vmag2 = np.sum( V**2, axis=1)[:,None] # keep 2d column vector
-        Vmag  = np.sqrt(V2)
+        Vmag2 = np.sum( Vvec**2, axis=1)[:,None] # keep 2d column vector
+        Vmag  = np.sqrt(Vmag2)
     
         # dynamic pressure
         q = 0.5 * rho * Vmag2 # Pa
@@ -385,6 +226,10 @@ class Aerodynamic_Segment(Data):
         """ compute_aerodynamics()
             gets aerodynamics conditions
             
+            Inputs - 
+                aerodynamics_model - a callable that will recieve ...
+                conditions         - passed directly to the aerodynamics model
+            
             Outputs - 
                 lift, drag coefficient, lift drag force, stores to body axis data
             
@@ -400,7 +245,7 @@ class Aerodynamic_Segment(Data):
         Sref = aerodynamics_model.reference_area # TODO - where???
         
         # call aerodynamics model
-        results = aerodynamics_model(conditions)     # nondimensional
+        results = aerodynamics_model( conditions )     # nondimensional
         
         # unpack results
         CL = atleast_2d_col( results.lift_coefficient )
@@ -420,9 +265,26 @@ class Aerodynamic_Segment(Data):
         return conditions
     
     def compute_propulsion(self,propulsion_model,conditions):
-        
-        # unpack
-        throttle         = conditions.propulsion.throttle
+        """ compute_propulsion()
+            gets propulsion conditions
+            
+            Inputs - 
+                propulsion_model - a callable that will recieve ...
+                conditions         - passed directly to the propulsion model
+            
+            Outputs - 
+                results - a data dictionary with ...
+                    thrust_force   - a 3-column array with rows of total thrust force vectors
+                        for each control point, in the body frame
+                    fuel_mass_rate - the total fuel mass flow rate for each control point
+                    thrust_power   - the total propulsion power for each control point
+            
+            Assumptions -
+                +X out nose
+                +Y out starboard wing
+                +Z down
+            
+        """
         
         # call propulsion model
         results = propulsion_model(conditions)
@@ -462,32 +324,46 @@ class Aerodynamic_Segment(Data):
         
         # unpack
         V_inertial = conditions.frames.inertial.velocity_vector
-        
         body_inertial_rotations = conditions.frames.body.inertial_rotations
+        
+        # --- Body Frame
+        
+        # body frame rotations
         psi   = body_inertial_rotations[:,0,None]
         theta = body_inertial_rotations[:,1,None]
         phi   = body_inertial_rotations[:,2,None]
         
         # body frame tranformation matrices
         T_inertial2body = angles_to_dcms(body_inertial_rotations,'ZYX')
-        T_body2inertial = np.einsum('aji',T_inertial2body)
+        T_body2inertial = orientation_transpose(T_inertial2body)
         
-        # transform V_I to body frame
+        # transform inertial velocity to body frame
         V_body = orientation_product(T_inertial2body,V_inertial)
         
-        # project V_I into body x-z plane
+        # project inertial velocity into body x-z plane
         V_stability = V_body
         V_stability[:,1] = 0
-        V_stability_magnitude = np.sqrt( np.sum(V_stability**2,axis=1) )
-        V_stability_direction = V_stability / V_stability_magnitude
+        V_stability_magnitude = np.sqrt( np.sum(V_stability**2,axis=1) )[:,None]
+        #V_stability_direction = V_stability / V_stability_magnitude
         
         # calculate angle of attack
         alpha = np.arctan2(V_stability[:,2],V_stability[:,0])[:,None]
         
         # calculate side slip
-        beta = np.arctan2(V_stability[:,1],V_stability_direction)[:,None]
+        beta = np.arctan2(V_body[:,1],V_stability_magnitude[:,0])[:,None]
         
-        # wind frame rotations
+        # pack aerodynamics angles
+        conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
+        conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
+        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]        
+        
+        # pack transformation tensor
+        conditions.frames.body.transform_to_inertial = T_body2inertial
+        
+        
+        # --- Wind Frame
+        
+        # back calculate wind frame rotations
         wind_body_rotations = body_inertial_rotations * 0.
         wind_body_rotations[:,0] = 0 
         wind_body_rotations[:,1] = alpha[:,0]
@@ -495,21 +371,17 @@ class Aerodynamic_Segment(Data):
         
         # wind frame tranformation matricies
         T_wind2body = angles_to_dcms(wind_body_rotations,'ZYX')
-        T_body2wind = np.einsum('aji',T_wind2body)
+        T_body2wind = orientation_transpose(T_wind2body)
         T_wind2inertial = orientation_product(T_wind2body,T_body2inertial)
-        
-        # pack aero
-        conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
-        conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
-        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]
         
         # pack wind rotations
         conditions.frames.wind.body_rotations = wind_body_rotations
         
-        # pack transformation matricies
+        # pack transformation tensor
         conditions.frames.wind.transform_to_inertial = T_wind2inertial
-        conditions.frames.body.transform_to_inertial = T_body2inertial
         
+        
+        # done!
         return conditions
         
     def compute_forces(self,conditions):

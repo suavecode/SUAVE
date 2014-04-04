@@ -17,7 +17,7 @@ from copy            import deepcopy
 from warnings        import warn
 from collections     import OrderedDict
 
-        
+
 # ----------------------------------------------------------------------
 #   Data Base Class
 # ----------------------------------------------------------------------        
@@ -158,7 +158,7 @@ class Data(Indexable_Bunch):
             Assumptions - 
                 will only pack int, float, np.array and np.matrix (max rank 2)
                 if using output = 'matrix', all data values must have 
-                same length (if 1D) or number of rows (if 2D).
+                same length (if 1D) or number of rows (if 2D), otherwise is skipped
         
         """
         
@@ -179,13 +179,15 @@ class Data(Indexable_Bunch):
                         np.matrixlib.defmatrix.matrix )
         
         # initialize array row size (for array output)
-        size = False
+        size = [False]
         
         # the packing function
         def do_pack(D):
             for v in D.itervalues():
                 # type checking
-                if isinstance( v, Data ): do_pack(D) # recursion!
+                if isinstance( v, Data ): 
+                    do_pack(v) # recursion!
+                    continue
                 elif not isinstance( v, valid_types ): continue
                 elif np.rank(v) > 2: continue
                 # make column vectors
@@ -196,8 +198,10 @@ class Data(Indexable_Bunch):
                     v = v.ravel(order='F')
                 else:
                     # check array size
-                    size = size or v.shape[0] # updates size once on first array
-                    if v.shape[0] != size: raise RuntimeError , 'array size mismatch, all values in data must have same number of rows for array packing'
+                    size[0] = size[0] or v.shape[0] # updates size once on first array
+                    if v.shape[0] != size[0]: 
+                        #warn ('array size mismatch, skipping. all values in data must have same number of rows for array packing',RuntimeWarning)
+                        continue
                 # dump to list
                 M.append(v)
             #: for each value
@@ -224,7 +228,7 @@ class Data(Indexable_Bunch):
                  array - either a 1D vector or 2D column array
                  
             Outputs:
-                 none, updates self in place
+                 a reference to self, updates self in place
                  
         """
         
@@ -240,40 +244,43 @@ class Data(Indexable_Bunch):
                         np.ndarray,
                         np.matrixlib.defmatrix.matrix )
         
-        # initialize array row size (for array output)
-        size = False
-        
         # counter for unpacking
-        index = 0
+        _index = [0]
         
         # the unpacking function
         def do_unpack(D):
             for k,v in D.iteritems():
                 
                 # type checking
-                if isinstance(v,Data): do_unpack(D)
+                if isinstance(v,Data): 
+                    do_unpack(v) # recursion!
+                    continue
                 elif not isinstance(v,valid_types): continue
                 
                 # get this value's rank
                 rank = np.rank(v)
                 
+                # get unpack index
+                index = _index[0]                
+                
                 # skip if too big
                 if rank > 2: 
                     continue
-                    
+                
                 # scalars
                 elif rank == 0:
                     if vector:
                         D[k] = M[index]
                         index += 1
                     else:#array
-                        raise RuntimeError , 'array size mismatch, all values in data must have same number of rows for array unpacking'
+                        continue
+                        #raise RuntimeError , 'array size mismatch, all values in data must have same number of rows for array unpacking'
                     
                 # 1d vectors
                 elif rank == 1:
                     n = len(v)
                     if vector:
-                        D[k][:] = M[index:(index+n-1)]
+                        D[k][:] = M[index:(index+n)]
                         index += n
                     else:#array
                         D[k][:] = M[:,index]
@@ -283,18 +290,27 @@ class Data(Indexable_Bunch):
                 elif rank == 2:
                     n,m = v.shape
                     if vector:
-                        D[k][:,:] = np.reshape( M[index:(index+(n*m)-1)] ,[n,m], order='F')
+                        D[k][:,:] = np.reshape( M[index:(index+(n*m))] ,[n,m], order='F')
                         index += n*m 
                     else:#array
-                        D[k][:,:] = M[:,index:(index+m-1)]
+                        D[k][:,:] = M[:,index:(index+m)]
                         index += m
                 
                 #: switch rank
+                
+                _index[0] = index
+
             #: for each itme
         #: def do_unpack()
-            
+        
+        # do the unpack
+        do_unpack(self)
+         
+        # check
+        if not M.shape[-1] == _index[0]: warn('did not unpack all values',RuntimeWarning)
+         
         # done!
-        return
+        return self
     
     def get_bases(self):
         """ find all Data() base classes, return in a list """
@@ -407,3 +423,44 @@ def DataReConstructor(klass,items=(),**kwarg):
 
 #: def DataConstructor()
 
+
+# ----------------------------------------------------------------------
+#   Module Tests
+# ----------------------------------------------------------------------        
+
+if __name__ == '__main__':
+    
+    d = Data()
+    d.tag = 'data name'
+    d['value'] = 132
+    d.options = Data()
+    d.options.field = 'of greens'
+    d.options.half  = 0.5
+    print d
+    
+    import numpy as np
+    ones = np.ones([10,1])
+        
+    m = Data()
+    m.tag = 'numerical data'
+    m.hieght = ones * 1.
+    m.rates = Data()
+    m.rates.angle  = ones * 3.14
+    m.rates.slope  = ones * 20.
+    m.rates.special = 'nope'
+    m.value = 1.0
+    
+    print m
+    
+    V = m.pack_array('vector')
+    M = m.pack_array('array')
+    
+    print V
+    print M
+    
+    V = V*10
+    M = M-10
+    
+    print m.unpack_array(V)
+    print m.unpack_array(M)
+    

@@ -10,7 +10,7 @@ def atleast_2d_col(A,oned_as='col'):
         will affect B. Except if A was a scalar.
     '''
     if not isinstance(A,np.ndarray):
-        A = np.array(A)
+        A = np.array([A])
     if np.rank(A) < 2:
         if oned_as == 'row':
             A = A[None,:]

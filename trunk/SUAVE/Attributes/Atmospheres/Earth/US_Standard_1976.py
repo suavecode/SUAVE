@@ -9,6 +9,7 @@ from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Attributes.Planets import Earth
 from SUAVE.Structure import Data
+from SUAVE.Attributes import Units
 
 # ----------------------------------------------------------------------
 #  Classes
@@ -25,9 +26,9 @@ class US_Standard_1976(Atmosphere):
         # break point data: 
         self.gas = Air()
         self.planet = Earth()
-        self.z_breaks = np.array(   [-2.00,     0.00,     11.00,      20.00,      32.00,      47.00,      51.00,      71.00,      84.852])      # km, geopotential altitude
-        self.T_breaks = np.array(   [301.15,    288.15,   216.65,     216.65,     228.65,     270.65,     270.65,     214.65,     186.95])      # K
-        self.p_breaks = np.array(   [127774.0,  101325.0, 22632.1,    5474.89,    868.019,    110.906,    66.9389,    3.95642,    0.3734])      # Pa
+        self.z_breaks = np.array(   [-2.00    , 0.00,     11.00,      20.00,      32.00,      47.00,      51.00,      71.00,      84.852]) * Units.km     # m, geopotential altitude
+        self.T_breaks = np.array(   [301.15   , 288.15,   216.65,     216.65,     228.65,     270.65,     270.65,     214.65,     186.95])      # K
+        self.p_breaks = np.array(   [127774.0 , 101325.0, 22632.1,    5474.89,    868.019,    110.906,    66.9389,    3.95642,    0.3734])      # Pa
         self.rho_breaks = np.array( [1.47808e0, 1.2250e0, 3.63918e-1, 8.80349e-2, 1.32250e-2, 1.42753e-3, 8.61606e-4, 6.42099e-5, 6.95792e-6])  # kg/m^3
     
     def compute_values(self,altitude,type="all"):
@@ -35,16 +36,16 @@ class US_Standard_1976(Atmosphere):
         """ Computes values from the International Standard Atmosphere
 
         Inputs:
-            altitude     : geometric altitude (elevation) (km)
+            altitude     : geometric altitude (elevation) (m)
                            can be a float, list or 1D array of floats
          
         Outputs:
-            Data() with fields -
-            pressure     : static pressure (Pa)
-            temperature  : static temperature (K)
-            density      : density (kg/m^3)
-            speedofsound : speed of sound (m/s)
-            viscosity    : viscosity (kg/m-s)
+            list of conditions -
+                pressure       : static pressure (Pa)
+                temperature    : static temperature (K)
+                density        : density (kg/m^3)
+                speed_of_sound : speed of sound (m/s)
+                viscosity      : viscosity (kg/m-s)
             
         Example:
             atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -63,7 +64,7 @@ class US_Standard_1976(Atmosphere):
         pressure = ["p", "pressure"]
         temp = ["t", "temp", "temperature"]
         density = ["rho", "density"]
-        speedofsound = ["speedofsound", "a"]
+        speed_of_sound = ["speed_of_sound", "a"]
         viscosity = ["viscosity", "mew"]
 
         # some up-front logic for outputs based on thermo
@@ -74,7 +75,7 @@ class US_Standard_1976(Atmosphere):
             need_p = False; need_rho = False; need_a = False; need_mew = False
         elif type.lower() in density:
             need_a = False; need_mew = False
-        elif type.lower() in speedofsound:
+        elif type.lower() in speed_of_sound:
             need_p = False; need_rho = False; need_mew = False
         elif type.lower() in viscosity:
             need_p = False; need_rho = False; need_a = False
@@ -89,7 +90,11 @@ class US_Standard_1976(Atmosphere):
         zs = zs/(1 + zs/Rad)
 
         # initialize return data
-        p = np.array([]); T = np.array([]); rho = np.array([]); a = np.array([]); mew = np.array([]);
+        p = np.array([])
+        T = np.array([])
+        rho = np.array([])
+        a = np.array([])
+        mew = np.array([])
         
         # evaluate at each altitude
         for z in zs:
@@ -120,9 +125,9 @@ class US_Standard_1976(Atmosphere):
                     pz = self.p_breaks[-1]
                 else:
                     if alpha == 0.0:
-                        pz = p0*np.exp(-1000*dz*grav/(gas.R*T0))
+                        pz = p0*np.exp(-1*dz*grav/(gas.R*T0))
                     else:
-                        pz = p0*((1 - alpha*dz/T0)**(1000*grav/(alpha*gas.R)))
+                        pz = p0*((1 - alpha*dz/T0)**(1*grav/(alpha*gas.R)))
                 p = np.append(p,pz)
 
             # temperature
@@ -164,14 +169,51 @@ class US_Standard_1976(Atmosphere):
         elif type.lower() in density:
             return rho
             
-        elif type.lower() in speedofsound:
+        elif type.lower() in speed_of_sound:
             return a
 
         elif type.lower() in viscosity:
             return mew
 
         else:
-            print "Unknown data, " + type + ", request; no data returned."
-            return []
+            raise Exception , "Unknown atmosphere data type, " + type
 
 # ----------------------------------------------------------------------
+#   Module Tests
+# ----------------------------------------------------------------------
+if __name__ == '__main__':
+    
+    import pylab as plt
+    
+    h = np.linspace(-1.,60.,200) * Units.km
+    
+    atmosphere = US_Standard_1976()
+    
+    p, T, rho, a, mew = atmosphere.compute_values(h)
+    
+    plt.figure(1)
+    plt.plot(p,h)
+    plt.xlabel('Pressure (Pa)')
+    plt.ylabel('Altitude (km)')
+    
+    plt.figure(2)
+    plt.plot(T,h)
+    plt.xlabel('Temperature (K)')
+    plt.ylabel('Altitude (km)')    
+    
+    plt.figure(3)
+    plt.plot(rho,h)
+    plt.xlabel('Density (kg/m^3)')
+    plt.ylabel('Altitude (km)')       
+    
+    plt.figure(4)
+    plt.plot(a,h)
+    plt.xlabel('Speed of Sound (m/s)')
+    plt.ylabel('Altitude (km)') 
+    
+    plt.figure(6)
+    plt.plot(mew,h)
+    plt.xlabel('Viscosity (kg/m-s)')
+    plt.ylabel('Altitude (km)')   
+
+    plt.show()

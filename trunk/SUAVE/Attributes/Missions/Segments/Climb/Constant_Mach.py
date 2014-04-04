@@ -7,7 +7,7 @@
 import numpy as np
 # from SUAVE.Plugins.ADiPy import *
 from scipy import interpolate
-from SUAVE.Attributes.Missions.Segments import Segment
+from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
 from SUAVE.Methods.Utilities.Chebyshev import cosine_space, chebyshev_data
 from SUAVE.Methods.Constraints import horizontal_force, vertical_force
 
@@ -15,7 +15,7 @@ from SUAVE.Methods.Constraints import horizontal_force, vertical_force
 #  Class
 # ----------------------------------------------------------------------
 
-class Constant_Mach(Segment):
+class Constant_Mach(Aerodynamic_Segment):
 
     """ Segment: constant Mach climb or descent """
 

@@ -78,7 +78,7 @@ def Tz(a):
     
     T = new_tensor(a)
     
-    T[:,0.0] = cos
+    T[:,0,0] = cos
     T[:,0,1] = sin
     T[:,1,0] = -sin
     T[:,1,1] = cos
@@ -94,3 +94,54 @@ def new_tensor(a):
     T = np.resize(T,[n_a,3,3])    
     
     return T
+
+
+# ------------------------------------------------------------
+#   Module Tests
+# ------------------------------------------------------------
+if __name__ == '__main__':
+    
+    import numpy as np
+    from orientation_transpose import orientation_transpose
+    
+    n_t = 5
+    
+    psi   = np.linspace(0,2,n_t)
+    theta = np.linspace(0,-2,n_t)
+    phi   = np.zeros([n_t])
+    
+    rotations = np.array([psi,theta,phi]).T
+    
+    Fx = np.linspace(0,10,n_t)
+    Fy = np.linspace(0,10,n_t)
+    Fz = np.linspace(0,10,n_t)
+    
+    F = np.array([Fx,Fy,Fz]).T
+    
+    print rotations
+    print F
+    print '\n'
+    
+    T = angles_to_dcms(rotations,'ZYX')
+    
+    print T
+    print '\n'
+    
+    F2 = orientation_product(T,F)
+    
+    print F2
+    print '\n'
+    
+    Tt = orientation_transpose(T)
+    F3 = orientation_product(Tt,F2)
+    
+    print F3
+    print '\n'
+    
+    print F - F3
+    
+    
+    
+    
+
+    
