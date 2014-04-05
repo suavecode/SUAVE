@@ -95,6 +95,16 @@ class Base_Segment(Data):
         
         # an example
         ## unknowns.states.gamma = ones_1col + 0
+
+        
+        # --- Residuals
+         
+        # setup unknowns
+        residuals = Data()
+        residuals.states   = Data()
+        residuals.controls = Data()
+        residuals.finals   = Data()
+        self.residuals = residuals
         
         
         # --- Initial Conditions
@@ -301,7 +311,7 @@ class Base_Segment(Data):
     # except for maybe update_differntials() if you are changing 
     #     control point spacing
 
-    def initialize_arrays(self,unknowns,conditions,options):
+    def initialize_arrays(self,unknowns,conditions,residuals,options):
         """ Segment.initialize_arrays(unknowns,conditions,options)
             expands the number of rows of all arrays in segment.conditions
             and segment.unknowns to options.n_control_points
@@ -309,6 +319,7 @@ class Base_Segment(Data):
             Inputs - 
                 unknowns   - data dicitonary of segment unknowns
                 conditions - data dictionary of segment conditions
+                residuals  - data dictionary of segment residuals
                 options    - data dictionary of segment options
                 
             Outputs -
@@ -346,9 +357,10 @@ class Base_Segment(Data):
         # do the update!
         update_conditions(conditions)
         update_conditions(unknowns)
+        update_conditions(residuals)
         # like a boss
          
-        return unknowns,conditions
+        return unknowns,conditions,residuals
     
     def initialize_differentials(self,differentials,options):
         """ Segment.initialize_differentials(differentials)

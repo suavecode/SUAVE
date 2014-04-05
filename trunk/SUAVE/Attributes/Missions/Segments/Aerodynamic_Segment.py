@@ -115,15 +115,21 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.energies.gravity_energy       = ones_1col * 0
         conditions.energies.propulusion_power    = ones_1col * 0
         
-        
         return
     
-    # other methods, see also:
+    
+    
+    # ------------------------------------------------------------------
+    #   Methods For Solver
+    # ------------------------------------------------------------------        
+
+    # See:
     #   Base_Segment.check_inputs()
     #   Base_Segment.initialize_conditions()
     #   Base_Segment.update_conditions()
     #   Base_Segment.solve_residuals()
     #   Base_Segment.post_process()
+    
     
     # ----------------------------------------------------------------------
     #  Segment Helper Methods
@@ -163,6 +169,7 @@ class Aerodynamic_Segment(Base_Segment):
     
         return conditions
     
+    
     def compute_gravity(self,conditions,planet):
     
         # unpack
@@ -175,6 +182,7 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.freestream.gravity[:,0] = g
         
         return conditions
+    
     
     def compute_freestream(self,conditions):
         """ compute_freestream(condition)
@@ -222,6 +230,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         return conditions
     
+    
     def compute_aerodynamics(self,aerodynamics_model,conditions):
         """ compute_aerodynamics()
             gets aerodynamics conditions
@@ -240,29 +249,19 @@ class Aerodynamic_Segment(Base_Segment):
             
         """
         
-        # unpack
-        q    = conditions.freestream.dynamic_pressure
-        Sref = aerodynamics_model.reference_area # TODO - where???
-        
         # call aerodynamics model
         results = aerodynamics_model( conditions )     # nondimensional
         
         # unpack results
-        CL = atleast_2d_col( results.lift_coefficient )
-        CD = atleast_2d_col( results.drag_coefficient )
-        
-        # compute forces
-        f_aero = q * Sref
-        FL = -CL * f_aero
-        FD = -CD * f_aero
-        
+        L = results.lift_force_vector
+        D = results.drag_force_vector
+                
         # pack conditions
-        conditions.aerodynamics.lift_coefficient[:,0] = CL[:,0]
-        conditions.aerodynamics.drag_coefficient[:,0] = CD[:,0]
-        conditions.frames.wind.lift_force_vector[:,3] = -FL[:,0] # z-axis
-        conditions.frames.wind.drag_force_vector[:,0] = -FD[:,0] # x-axis
+        conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
+        conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
         
         return conditions
+    
     
     def compute_propulsion(self,propulsion_model,conditions):
         """ compute_propulsion()
@@ -286,20 +285,43 @@ class Aerodynamic_Segment(Base_Segment):
             
         """
         
-        # call propulsion model
-        results = propulsion_model(conditions)
+        # for current propulsion models
         
-        # unpack results
-        F    = results.thrust_force
-        mdot = atleast_2d_col( results.fuel_mass_rate )
-        P    = atleast_2d_col( results.thurst_power   )
+        N = self.options.n_control_points
+        
+        eta = conditions.propulsion.throttle[:,0]
+        
+        state = Data()
+        state.q  = conditions.freestream.dynamic_pressure[:,0]
+        state.g0 = conditions.freestream.gravity[:,0]
+        state.V  = conditions.freestream.velocity[:,0]
+        state.M  = conditions.freestream.mach_number[:,0]
+        state.T  = conditions.freestream.temperature[:,0]
+        state.p  = conditions.freestream.pressure[:,0]
+        
+        F, mdot, P = propulsion_model(eta, state)
+        
+        F_vec = np.zeros([N,3])
+        F_vec[:,0] = F[:]
+        mdot = atleast_2d_col( mdot )
+        P    = atleast_2d_col( P    )
+        
+        ## TODO ---
+        ## call propulsion model
+        #results = propulsion_model( conditions )
+        
+        ## unpack results
+        #F    = results.thrust_force
+        #mdot = atleast_2d_col( results.fuel_mass_rate )
+        #P    = atleast_2d_col( results.thurst_power   )
         
         # pack conditions
-        conditions.frames.body.thrust_force_vector[:,:] = F[:,:]
-        conditions.propulsion.fuel_mass_rate[:,0]       = -mdot[:,0]
+        conditions.frames.body.thrust_force_vector[:,:] = F_vec[:,:]
+        conditions.propulsion.fuel_mass_rate[:,0]       = mdot[:,0]
         conditions.energies.propulusion_power[:,0]      = P[:,0]
-    
+        
         return conditions
+    
     
     def compute_weights(self,conditions,differentials):
         
@@ -308,15 +330,15 @@ class Aerodynamic_Segment(Base_Segment):
         mdot_fuel = conditions.propulsion.fuel_mass_rate
         I         = differentials.I
         g         = conditions.freestream.gravity
-    
+        
         # calculate
-        m = m0 + np.dot(I,mdot_fuel)
+        m = m0 + np.dot(I, -mdot_fuel )
         W = m*g
         
         # pack
         conditions.weights.total_mass[1:,0] = m[1:,0] # don't mess with m0
-        conditions.frames.inertial.gravity_force_vector = W
-    
+        conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
+        
         return conditions
     
         
@@ -383,6 +405,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         # done!
         return conditions
+    
         
     def compute_forces(self,conditions):
         

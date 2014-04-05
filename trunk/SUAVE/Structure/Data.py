@@ -211,7 +211,13 @@ class Data(Indexable_Bunch):
         do_pack(self)
         
         # pack into final array
-        M = np.hstack(M)
+        if M:
+            M = np.hstack(M)
+        else:
+            if vector:
+                M = np.array([])
+            else:
+                M = np.array([[]])
         
         # done!
         return M

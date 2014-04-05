@@ -44,6 +44,11 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         unknowns.controls.throttle = np.ones([1,1])
         unknowns.controls.theta    = np.ones([1,1])
         
+        # --- Residuals
+        residuals = self.residuals
+        residuals.controls.Fx = np.ones([1,1])
+        residuals.controls.Fz = np.ones([1,1])
+        
         return
 
     # ------------------------------------------------------------------
@@ -80,8 +85,10 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         if initials:
             t_initial = initials.frames.inertial[0,0]
+            m_initial = initials.weights.total_mass[0,0]
         else:
             t_initial = 0.0
+            m_initial = self.config.Mass_Props.m_takeoff
         
         # freestream details
         conditions.freestream.altitude[:,0] = alt
@@ -90,6 +97,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         conditions.frames.inertial.velocity_vector[:,0] = speed
         conditions = self.compute_freestream(conditions)
+        
+        # weights
+        conditions.weights.total_mass[:,0] = m_initial
         
         # dimensionalize time
         t_final = xf / speed + t_initial
@@ -140,7 +150,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         return conditions
     
-    def solve_residuals(self,unknowns,conditions,differentials):
+    def solve_residuals(self,unknowns,residuals,conditions,differentials):
         """ Segment.solve_residuals(unknowns, conditions, differentials)
             the hard work, solves the residuals for the free unknowns
             called once per segment solver iteration
@@ -155,11 +165,11 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         """
         
         # unpack inputs
-        FT = conditions.frames.inertial.total_force_vectortotal_force_vector
+        FT = conditions.frames.inertial.total_force_vector
         
         # process
-        residuals.controls.Fx = FT[:,0]
-        resuduals.controls.FZ = FT[:,2]
+        residuals.controls.Fx[:,0] = FT[:,0]
+        residuals.controls.Fz[:,0] = FT[:,2]
         
         # pack outputs
         ## CODE

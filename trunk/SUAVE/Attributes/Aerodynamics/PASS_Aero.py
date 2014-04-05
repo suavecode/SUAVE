@@ -5,8 +5,10 @@
 # ----------------------------------------------------------------------
 
 import numpy 
+import numpy as np
 from SUAVE.Attributes.Aerodynamics import Aerodynamics
 from scipy.interpolate import interp1d
+from SUAVE.Structure import Data
 
 # ----------------------------------------------------------------------
 #  Class
@@ -869,24 +871,48 @@ class PASS_Aero(Aerodynamics):
 
 
 
-    def __call__(self,alpha,segment):
+    def __call__(self,conditions):
 
-
-
-
+        
+        alpha = conditions.aerodynamics.angle_of_attack
+        
+        state = Data()
+        state.M   = conditions.freestream.mach_number
+        state.rho = conditions.freestream.density
+        state.mew = conditions.freestream.viscosity
+        state.T   = conditions.freestream.temperature
+        state.q   = conditions.freestream.dynamic_pressure
+        state.Sref = self.Sref
+        
+        N = state.M.shape[0]
+        
         ##interpolation methods
         #f_Cl = interp1d(self.aoa_range, self.Cl_a,bounds_error=False)
         #Cl_inc=f_Cl(alpha)
         ##Cl_inc=self.f_Cl(alpha)
 
         Cl_inc= self.CL0 + self.dCLdalpha*alpha  
-        CL=Cl_inc/(numpy.sqrt(1-segment.M**2))
+        CL=Cl_inc/(numpy.sqrt(1-state.M**2))
         #print 'alpha',alpha
         #print 'Cl_inc',Cl_inc
         #print 'CL',CL
         #CD = self.CD0 + (CL**2)/(np.pi*self.AR*self.e)      # parbolic drag
-        CD= self.drag(CL,segment)
+        CD= self.drag(CL,state)
 
+        results = Data()
+        results.lift_coefficient = CL
+        results.drag_coefficient = CD
+        
+        conditions.aerodynamics.lift_coefficient = CL
+        conditions.aerodynamics.drag_coefficient = CD
+        
+        L = np.zeros([N,3])
+        D = np.zeros([N,3])
+        
+        L[:,2] = ( -CL * state.q * state.Sref )[:,0]
+        D[:,0] = ( -CD * state.q * state.Sref )[:,0]
+        
+        results.lift_force_vector = L
+        results.drag_force_vector = D
 
-
-        return CD, CL
+        return results

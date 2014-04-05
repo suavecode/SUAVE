@@ -3,8 +3,7 @@ try:
     import wxversion
     wxversion.ensureMinimal('2.8')
 except:
-    pass
-    #raise ImportError, 'Plot_Dock requires wxPython version 2.8+'
+    raise ImportError, 'Plot_Dock requires wxPython version 2.8+'
 
 else:
     import wx

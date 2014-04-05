@@ -36,11 +36,12 @@ def evaluate_segment(segment):
     options       = segment.options
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
+    residuals     = segment.residuals
     differentials = segment.differentials
     initials      = segment.initials
     
     # initialize arrays
-    unknowns, conditions = segment.initialize_arrays(unknowns,conditions,options)
+    unknowns,conditions,residuals = segment.initialize_arrays(unknowns,conditions,residuals,options)
     
     # initialize differential operators
     differentials = segment.initialize_differentials(differentials,options)
@@ -60,7 +61,7 @@ def evaluate_segment(segment):
                   tol    = options.tolerance_solution  )
     
     # confirm final solution
-    residuals(x_sol,segment)
+    segment_residuals(x_sol.x,segment)
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
     differentials = segment.differentials
@@ -93,6 +94,7 @@ def segment_residuals(x,segment):
     
     # unpack segment
     unknowns      = segment.unknowns
+    residuals     = segment.residuals
     conditions    = segment.conditions
     differentials = deepcopy( segment.differentials )
     
@@ -109,18 +111,23 @@ def segment_residuals(x,segment):
     conditions = segment.update_conditions(unknowns,conditions,differentials)
     
     # solve residuals
-    residuals = segment.solve_residuals(unknowns,conditions,differentials)
+    residuals = segment.solve_residuals(unknowns,residuals,conditions,differentials)
     
     # pack column matrices
-    S  = unknowns .states  .pack_array()
-    FS = residuals.states  .pack_array()
-    FC = residuals.controls.pack_array()
-    FF = residuals.finals  .pack_array()
+    S  = unknowns .states  .pack_array('array')
+    FS = residuals.states  .pack_array('array')
+    FC = residuals.controls.pack_array('array')
+    FF = residuals.finals  .pack_array('array')
+    
+    if S:
+        DFS = np.dot(D,S)
+    else:
+        DFS = np.array([[]])
     
     # solve final residuals
-    R = [ ( np.dot(D,S) - FS ) ,
-          (               FC ) , 
-          (               FF )  ]
+    R = [ ( DFS - FS ) ,
+          (       FC ) , 
+          (       FF )  ]
     
     # pack in to final residual vector
     R = np.hstack( [ r.ravel(order='F') for r in R ] )
