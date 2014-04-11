@@ -48,4 +48,4 @@ g = 9.8 # gravitational constant
 short_period = Approximations.short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot)
 phugoid = Approximations.phugoid(g, velocity, CD, CL)
 
-print dutch_roll
+print  dutch_roll
