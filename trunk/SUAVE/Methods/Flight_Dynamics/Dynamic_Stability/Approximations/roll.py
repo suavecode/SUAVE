@@ -16,7 +16,7 @@ from SUAVE.Structure import (
 # ----------------------------------------------------------------------
 
 def roll(I_x, S_gross_w, density, velocity, span, Cl_p):
-    """ roll_tau = SUAVE.Methods.Flight_Dynamics_Dynamic_Stablity_Approximations.roll(I_x, S_gross_w, density, velocity, span, Cl_p)
+    """ roll_tau = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.roll(I_x, S_gross_w, density, velocity, span, Cl_p)
         Calculate the approximate time constant for the roll mode       
         
         Inputs:
@@ -47,6 +47,6 @@ def roll(I_x, S_gross_w, density, velocity, span, Cl_p):
     """ 
     
     #process
-    roll_tau = 4.*I_x/(S_gross_w*density*velocity*span**2*Cl_p)
+    roll_tau = 4.*I_x/(S_gross_w*density*velocity*span**2.*Cl_p)
     
     return roll_tau

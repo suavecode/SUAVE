@@ -16,7 +16,7 @@ from SUAVE.Structure import (
 # ----------------------------------------------------------------------
 
 def phugoid(g, velocity, CD, CL):
-    """ output = SUAVE.Methods.Flight_Dynamics_Dynamic_Stablity_Approximations.phugoid(g, velocity, CD, CL)
+    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.phugoid(g, velocity, CD, CL)
         Calculate the natural frequency and damping ratio for the approximate phugoid characteristics       
         
         Inputs:

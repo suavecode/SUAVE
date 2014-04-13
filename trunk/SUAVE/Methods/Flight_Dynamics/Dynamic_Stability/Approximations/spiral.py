@@ -16,7 +16,7 @@ from SUAVE.Structure import (
 # ----------------------------------------------------------------------
 
 def spiral(mass, velocity, density, S_gross_w, Cl_p, Cn_Beta, Cy_phi, Cl_Beta, Cn_r, Cl_r):
-    """ output = SUAVE.Methods.Flight_Dynamics_Dynamic_Stablity_Approximations.spiral()
+    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.spiral()
         Calculate the approximate time constant for the spiral mode         
         
         Inputs:
@@ -49,6 +49,6 @@ def spiral(mass, velocity, density, S_gross_w, Cl_p, Cn_Beta, Cy_phi, Cl_Beta, C
     """ 
     
     #process
-    spiral_tau = mass * velocity / S_gross_w / (0.5 * density * velocity **2) * (Cl_p*Cn_Beta/(Cy_phi*(Cl_Beta*Cn_r-Cn_Beta*Cl_r)))
+    spiral_tau = mass * velocity / S_gross_w / (0.5 * density * velocity **2.) * (Cl_p*Cn_Beta/(Cy_phi*(Cl_Beta*Cn_r-Cn_Beta*Cl_r)))
     
     return spiral_tau

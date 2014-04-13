@@ -16,7 +16,7 @@ from SUAVE.Structure import (
 # ----------------------------------------------------------------------
 
 def short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot):
-    """ output = SUAVE.Methods.Flight_Dynamics_Dynamic_Stablity_Approximations.short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot)
+    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot)
         Calculate the natural frequency and damping ratio for the approximate short period characteristics        
         
         Inputs:
@@ -55,7 +55,7 @@ def short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
     
     #process
     w_n = velocity * density * S_gross_w * mac / 2. * ((0.5*Cm_q*Cz_alpha - 2. * mass / density /S_gross_w /mac * Cm_alpha) / Iy /mass)**(0.5)
-    zeta = -0.25 * (Cm_q + Cm_alpha_dot + 2. * Iy * Cz_alpha / mass / (mac ** 2)) * ( mass * mac ** 2 / Iy / (Cm_q * Cz_alpha * 0.5 - 2. * mass * Cm_alpha / density / S_gross_w / mac)) ** 0.5
+    zeta = -0.25 * (Cm_q + Cm_alpha_dot + 2. * Iy * Cz_alpha / mass / (mac ** 2.)) * ( mass * mac ** 2. / Iy / (Cm_q * Cz_alpha * 0.5 - 2. * mass * Cm_alpha / density / S_gross_w / mac)) ** 0.5
     
     output = Data()
     output.short_w_n = w_n

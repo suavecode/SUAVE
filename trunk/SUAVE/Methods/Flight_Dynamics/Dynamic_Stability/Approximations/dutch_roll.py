@@ -16,7 +16,7 @@ from SUAVE.Structure import (
 # ----------------------------------------------------------------------
 
 def dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r):
-    """ output = SUAVE.Methods.Flight_Dynamics_Dynamic_Stablity_Approximations.dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r)
+    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r)
         Calculate the natural frequency and damping ratio for the approximate dutch roll characteristics       
         
         Inputs:
