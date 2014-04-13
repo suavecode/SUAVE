@@ -91,7 +91,11 @@ def new_tensor(a):
     n_a = len(a)
     
     T = np.eye(3)
-    T = np.resize(T,[n_a,3,3])    
+    
+    if a.dtype is np.dtype('complex'):
+        T = T + 0j
+    
+    T = np.resize(T,[n_a,3,3])
     
     return T
 

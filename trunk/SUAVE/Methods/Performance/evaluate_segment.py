@@ -65,6 +65,9 @@ def evaluate_segment(segment):
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
     differentials = segment.differentials
+    
+    # update differential operators
+    differentials = segment.update_differentials(unknowns,conditions,differentials)    
 
     # post processing
     segment.post_process(unknowns,conditions,differentials)

@@ -1,4 +1,3 @@
 
-from Constant_Mach import Constant_Mach
-from Constant_Speed import Constant_Speed
+from Constant_Speed_Constant_Rate import Constant_Speed_Constant_Rate
 

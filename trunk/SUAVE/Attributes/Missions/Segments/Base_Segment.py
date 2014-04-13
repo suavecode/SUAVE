@@ -32,7 +32,9 @@ class Base_Segment(Data):
         
         # an example
         ##self.mach_number = 0.7
-        
+        #self.mass_initial     = 'previous_segment' ??
+        #self.time_initial     = 'previous_segment'
+        #self.position_initial = 'previous_segment'
         
         # --- Vehicle Configuration
         
@@ -121,7 +123,7 @@ class Base_Segment(Data):
         self.options = Data()
         self.options.tag = 'Solution Options'
         self.options.n_control_points              = 16
-        self.options.jacobian                      = "complex"
+        self.options.jacobian                      = "none"
         self.options.tolerance_solution            = 1e-8
         self.options.tolerance_boundary_conditions = 1e-8        
         
@@ -147,7 +149,7 @@ class Base_Segment(Data):
         
         return
     
-    def initialize_conditions(self,conditions,initials=None):
+    def initialize_conditions(self,conditions,differentials,initials=None):
         """ Segment.initialize_conditions(conditions)
             update the segment conditions
             pin down as many condition variables as possible in this function
@@ -163,25 +165,34 @@ class Base_Segment(Data):
                              values that can be precalculated
             
             Assumptions:
-                --
-                
-            Usage Notes:
-                may need to inspect segment (self) for user inputs
-                will be called before solving the segments free unknowns
+                time_initial comes from either initials.frames.inertial.time[0,0] 
+                                            or is set to 0.0
+                weight_initial comes from either initialse.weights.total_mass[0,0]
+                                              or self.config.Mass_Props.m_takeoff
                 
         """
         
-        # unpack inputs
-        ## CODE
+        # Usage Notes:
+        #     may need to inspect segment (self) for user inputs
+        #     arrays will be expanded to number of control points in options.n_control_points
+        #     will be called before solving the segments free unknowns
         
-        # setup
-        ## CODE
         
-        # process
-        ## CODE
-        
-        # pack outputs
-        ## CODE
+        # process initials
+        if initials:
+            t_initial = initials.frames.inertial.time[0,0]
+            r_initial = initials.frames.inertial.position_vector[0,:][None,:]
+            m_initial = initials.weights.total_mass[0,0]
+        else:
+            t_initial = 0.0
+            r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
+            m_initial = self.config.Mass_Props.m_takeoff
+            
+            
+        # apply initials
+        conditions.weights.total_mass[:,0]   = m_initial
+        conditions.frames.inertial.time[:,0] = t_initial
+        conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
         
         return conditions
     
@@ -455,7 +466,7 @@ class Base_Segment(Data):
     
     def get_final_conditions(self):
         
-        conditions = segment
+        conditions = self.conditions
         finals = Data()
         
         # the update function
@@ -470,7 +481,7 @@ class Base_Segment(Data):
                     raise ValueError , 'condition "%s%" must be type np.array' % k
                 # the copy
                 else:
-                    B[k] = A[k][-1,:][:,None]
+                    B[k] = A[k][-1,:][None,:]
                 #: if type
             #: for each key,value
         #: def pull_conditions()

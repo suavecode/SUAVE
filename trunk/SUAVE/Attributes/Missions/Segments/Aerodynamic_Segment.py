@@ -130,6 +130,29 @@ class Aerodynamic_Segment(Base_Segment):
     #   Base_Segment.solve_residuals()
     #   Base_Segment.post_process()
     
+    def update_conditions(self,unknowns,conditions,differentials):
+        
+        # unpack models
+        aero_model = self.config.aerodynamics_model
+        prop_model = self.config.propulsion_model        
+        
+        # angle of attacks
+        conditions = self.compute_orientations(conditions)
+        
+        # aerodynamics
+        conditions = self.compute_aerodynamics(aero_model,conditions)
+        
+        # propulsion
+        conditions = self.compute_propulsion(prop_model,conditions)
+        
+        # weights
+        conditions = self.compute_weights(conditions,differentials)
+        
+        # total forces
+        conditions = self.compute_forces(conditions)
+        
+        return conditions
+    
     
     # ----------------------------------------------------------------------
     #  Segment Helper Methods
@@ -286,6 +309,7 @@ class Aerodynamic_Segment(Base_Segment):
         """
         
         # for current propulsion models
+        ## TODO: update propulsion modules
         
         N = self.options.n_control_points
         

@@ -29,9 +29,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
        # --- User Inputs
         
-        self.altitude = 10. * km
-        self.speed    = 10. * km/hr
-        self.range    = 10. * km
+        self.altitude  = 10. * km
+        self.air_speed = 10. * km/hr
+        self.range     = 10. * km
 
         
         # -- Conditions 
@@ -74,37 +74,33 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
                 
         """
         
-        # unpack inputs
-        N        = self.options.n_control_points
-        alt      = self.altitude
-        xf       = self.range
-        speed    = self.speed
-        atmo     = self.atmosphere
-        planet   = self.planet
-        t_nondim = differentials.t
+        # sets initial time and mass
+        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,differentials,initials)
         
-        if initials:
-            t_initial = initials.frames.inertial[0,0]
-            m_initial = initials.weights.total_mass[0,0]
-        else:
-            t_initial = 0.0
-            m_initial = self.config.Mass_Props.m_takeoff
+        # unpack inputs
+        alt       = self.altitude
+        xf        = self.range
+        air_speed = self.air_speed
+        atmo      = self.atmosphere
+        planet    = self.planet
+        t_nondim  = differentials.t        
+        t_initial = conditions.frames.inertial.time[0,0]
         
         # freestream details
         conditions.freestream.altitude[:,0] = alt
         conditions = self.compute_atmosphere(conditions,atmo)
         conditions = self.compute_gravity(conditions,planet)
         
-        conditions.frames.inertial.velocity_vector[:,0] = speed
+        conditions.frames.inertial.velocity_vector[:,0] = air_speed
         conditions = self.compute_freestream(conditions)
         
-        # weights
-        conditions.weights.total_mass[:,0] = m_initial
-        
         # dimensionalize time
-        t_final = xf / speed + t_initial
+        t_final = xf / air_speed + t_initial
         time =  t_nondim * (t_final-t_initial) + t_initial
         conditions.frames.inertial.time[:,0] = time[:,0]
+        
+        # positions (TODO: mamange user initials)
+        conditions.frames.inertial.position_vector[:,2] = -alt # z points down
         
         # done
         return conditions
@@ -120,10 +116,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
             called once per segment solver iteration
         """
         
-        # unpack models
-        aero_model = self.config.aerodynamics_model
-        prop_model = self.config.propulsion_model
-        
         # unpack unknowns
         throttle = unknowns.controls.throttle
         theta    = unknowns.controls.theta
@@ -132,36 +124,19 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         conditions.propulsion.throttle[:,0]            = throttle[:,0]
         conditions.frames.body.inertial_rotations[:,1] = theta[:,0]
         
-        # angle of attacks
-        conditions = self.compute_orientations(conditions)
-        
-        # aerodynamics
-        conditions = self.compute_aerodynamics(aero_model,conditions)
-        
+        # angle of attack
+        # external aerodynamics
         # propulsion
-        conditions = self.compute_propulsion(prop_model,conditions)
-        
         # weights
-        conditions = self.compute_weights(conditions,differentials)
-        
         # total forces
-        conditions = self.compute_forces(conditions)
-        
+        conditions = Aerodynamic_Segment.update_conditions(self,unknowns,conditions,differentials)
         
         return conditions
-    
+     
     def solve_residuals(self,unknowns,residuals,conditions,differentials):
         """ Segment.solve_residuals(unknowns, conditions, differentials)
             the hard work, solves the residuals for the free unknowns
             called once per segment solver iteration
-
-            Usage Notes - 
-                after this method, residuals composed into a final residual vector:
-                    R = [ [ d(unknowns.states)/dt - residuals.states   ] ;
-                          [                         residuals.controls ] ;
-                          [                         residuals.finals   ] ] = [0] ,
-                    where the segment solver will find a root of R = [0]
-
         """
         
         # unpack inputs
