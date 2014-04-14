@@ -75,7 +75,7 @@ class Climb_Segment(Aerodynamic_Segment):
         conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,differentials,initials)        
         
         # unpack inputs
-        alt0     = self.altitude_start
+        alt0     = self.altitude_start 
         altf     = self.altitude_end
         atmo     = self.atmosphere
         planet   = self.planet
@@ -85,8 +85,8 @@ class Climb_Segment(Aerodynamic_Segment):
         alt = t_nondim * (altf-alt0) + alt0
         
         # pack conditions
-        conditions.frames.inertial.position_vector[:,2] = alt[:,0]
-        conditions.freestream.altitude[:,0]             = alt[:,0]
+        conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
+        conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
         
         # freestream atmosphereric conditions
         conditions = self.compute_atmosphere(conditions,atmo)
@@ -144,10 +144,13 @@ class Climb_Segment(Aerodynamic_Segment):
         dz = r[-1,2] - r[0,2]
         vz = v[:,2,None] # maintain column array
         
+        # get overall time step
+        dt = np.dot( I[-1,:] * dz , 1/ vz[:,0] )
+        
         # rescale operators
-        D = D / dz * vz
-        I = I * dz / vz
-        t = np.dot(I,t)
+        D = D / dt
+        I = I * dt
+        t = t * dt
         
         # pack
         differentials.t = t

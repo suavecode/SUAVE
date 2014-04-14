@@ -63,7 +63,7 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         
         # process velocity vector
         v_mag = air_speed
-        v_z   = climb_rate
+        v_z   = -climb_rate # z points down
         v_x   = np.sqrt( v_mag**2 - v_z**2 )
         conditions.frames.inertial.velocity_vector[:,0] = v_x
         conditions.frames.inertial.velocity_vector[:,2] = v_z

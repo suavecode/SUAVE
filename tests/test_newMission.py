@@ -488,6 +488,16 @@ def post_process(vehicle,mission,results):
         #plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].alpha),'bo-')
     #plt.xlabel('Time (mins)'); plt.ylabel('Angle of Attack (deg)'); plt.title(title)
     #plt.grid(True)
+    
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        axes.plot(time, aoa, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)        
 
     # ------------------------------------------------------------------    
     #   Fuel Burn
@@ -502,12 +512,15 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Fuel Burn Rate
     # ------------------------------------------------------------------
-    #title = "Fuel Burn Rate"
-    #plt.figure(4)
-    #for i in range(len(results.Segments)):
-        #plt.plot(results.Segments[i].t/60,results.Segments[i].mdot,'bo-')
-    #plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn Rate (kg/s)'); plt.title(title)
-    #plt.grid(True)
+    plt.figure("Fuel Burn Rate")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.Segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        axes.plot(time, mdot, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.grid(True)    
 
     
     
@@ -527,14 +540,16 @@ def post_process(vehicle,mission,results):
     
     # ------------------------------------------------------------------    
     #   Vehicle Mass
-    # ------------------------------------------------------------------
-    #title = "Vehicle Mass"
-    #plt.figure(6)
-    #for i in range(len(results.Segments)):
-        #plt.plot(results.Segments[i].t/60,results.Segments[i].m,'bo-')
-         
-    #plt.xlabel('Time (mins)'); plt.ylabel('Vehicle Mass(kg)'); plt.title(title)
-    #plt.grid(True)
+    # ------------------------------------------------------------------    
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
+    for i in range(len(results.Segments)):
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
     
 
     # ------------------------------------------------------------------    
@@ -631,7 +646,7 @@ def post_process(vehicle,mission,results):
         axes.grid(True)
     
     
-    #plt.show()     
+    plt.show()     
     
     return     
 
