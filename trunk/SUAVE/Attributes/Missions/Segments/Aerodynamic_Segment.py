@@ -351,12 +351,18 @@ class Aerodynamic_Segment(Base_Segment):
         
         # unpack
         m0        = conditions.weights.total_mass[0,0]
+        m_empty   = self.config.Mass_Props.m_empty
         mdot_fuel = conditions.propulsion.fuel_mass_rate
         I         = differentials.I
         g         = conditions.freestream.gravity
         
         # calculate
         m = m0 + np.dot(I, -mdot_fuel )
+        
+        # feasibility constraint
+        m[ m < m_empty ] = m_empty
+        
+        # weight
         W = m*g
         
         # pack

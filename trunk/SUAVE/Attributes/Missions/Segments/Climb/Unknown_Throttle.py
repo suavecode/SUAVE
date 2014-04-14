@@ -76,7 +76,7 @@ class Unknown_Throttle(Climb_Segment):
         acc = np.dot(D,v)
         
         # pack conditions
-        conditions.frames.inertial.acceleration_vector = acc
+        conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]
         
         # angle of attack
         # external aerodynamics

@@ -56,7 +56,7 @@ class Constant_Mach_Constant_Rate(Unknown_Throttle):
         # sets altitude, atmospheric conditions,
         # initial time and mass
         # climb segments are discretized on altitude
-        conditions = Unknown_Throttle.initialize_conditions(conditions,differentials,initials)
+        conditions = Unknown_Throttle.initialize_conditions(self,conditions,differentials,initials)
 
         # unpack user inputs
         climb_rate  = self.climb_rate
@@ -67,10 +67,10 @@ class Constant_Mach_Constant_Rate(Unknown_Throttle):
         
         # process
         v_mag = mach_number * a
-        v_z   = climb_rate
+        v_z   = -climb_rate # z points down
         v_x   = np.sqrt( v_mag**2 - v_z**2 )
         
-        conditions.frames.inertial.velocity_vector[:,0] = v_x
+        conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
         conditions.frames.inertial.velocity_vector[:,2] = v_z
         
         # freestream conditions

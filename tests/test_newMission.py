@@ -315,6 +315,7 @@ def define_mission(vehicle):
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    #segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -329,6 +330,8 @@ def define_mission(vehicle):
     # pick two:
     segment.air_speed      = 190.0  * Units.m / Units.s
     segment.climb_rate     = 6.0    * Units.m / Units.s
+    #segment.mach_number = 0.5
+    #segment.climb_rate  = 6.0
     
     # add to mission
     mission.append_segment(segment)
@@ -383,42 +386,48 @@ def define_mission(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    #segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
-    #segment.tag = "Descent - 1"
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "Descent - 1"
     
-    ## connect vehicle configuration
-    #segment.config = vehicle.Configs.cruise
+    # connect vehicle configuration
+    segment.config = vehicle.Configs.cruise
     
-    ## sergment attributes
-    #segment.atmosphere = atmosphere
-    #segment.planet     = planet    
-    #segment.altitude   = [10.668, 5.0]  # km
-    #segment.Vinf       = 170.0          # m/s
-    #segment.rate       = 5.0            # m/s
+    # segment attributes
+    segment.atmosphere = atmosphere
+    segment.planet     = planet        
+    segment.altitude_start = 10.668 * Units.km
+    segment.altitude_end   = 5.0    * Units.km
     
-    ## add to mission
-    #mission.append_segment(segment)
+    # pick two:
+    segment.air_speed      = 170.0  * Units.m / Units.s
+    segment.descent_rate   = 5.0    * Units.m / Units.s
+    
+    # add to mission
+    mission.append_segment(segment)
     
 
     # ------------------------------------------------------------------    
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    #segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
-    #segment.tag = "Descent - 2"
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "Descent - 2"
 
-    ## connect vehicle configuration
-    #segment.config = vehicle.Configs.cruise
+    # connect vehicle configuration
+    segment.config = vehicle.Configs.cruise
+
+    # segment attributes
+    segment.atmosphere = atmosphere
+    segment.planet     = planet        
+    segment.altitude_start = 5.0 * Units.km
+    segment.altitude_end   = 0.0    * Units.km
     
-    ## segment attributes
-    #segment.atmosphere = atmosphere
-    #segment.planet     = planet   
-    #segment.altitude   = [5.0, 0.0]  # km
-    #segment.Vinf       = 145.0       # m/s
-    #segment.rate       = 5.0         # m/s
+    # pick two:
+    segment.air_speed      = 145.0  * Units.m / Units.s
+    segment.descent_rate   = 5.0    * Units.m / Units.s    
 
-    ## append to mission
-    #mission.append_segment(segment)
+    # append to mission
+    mission.append_segment(segment)
 
     
     # ------------------------------------------------------------------    

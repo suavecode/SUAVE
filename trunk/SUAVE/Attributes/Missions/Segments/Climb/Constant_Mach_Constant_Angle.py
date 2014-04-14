@@ -56,7 +56,7 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
         # sets altitude, atmospheric conditions,
         # initial time and mass
         # climb segments are discretized on altitude
-        conditions = Unknown_Throttle.initialize_conditions(conditions,differentials,initials)
+        conditions = Unknown_Throttle.initialize_conditions(self,conditions,differentials,initials)
 
         # unpack user inputs
         climb_angle = self.climb_angle
@@ -68,10 +68,10 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
         # velocity vector
         v_mag = mach_number * a
         v_x   = v_mag * np.cos(climb_angle)
-        v_z   = v_mag * np.sin(climb_angle)
+        v_z   = -v_mag * np.sin(climb_angle)
         
-        conditions.frames.inertial.velocity_vector[:,0] = v_x
-        conditions.frames.inertial.velocity_vector[:,2] = v_z
+        conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+        conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
         
         # freestream conditions
         # freestream.velocity, dynamic pressure, mach number, ReL

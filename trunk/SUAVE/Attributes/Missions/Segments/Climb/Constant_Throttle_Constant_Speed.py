@@ -71,7 +71,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         # sets altitude, atmospheric conditions,
         # initial time and mass
         # climb segments are discretized on altitude
-        conditions = Climb_Segment.initialize_conditions(conditions,differentials,initials)
+        conditions = Climb_Segment.initialize_conditions(self,conditions,differentials,initials)
         
         # unpack user inputs
         throttle   = self.throttle
@@ -80,10 +80,10 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         # process freestream
         # gets freestream.velocity_mag, mach number, dynamic pressure, ReL
         conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
-        conditions = Climb_Segment.compute_freestream(conditions)
+        conditions = self.compute_freestream(conditions)
         
         # pack conditions
-        conditions.propulsion.throttle          = throttle
+        conditions.propulsion.throttle = throttle
         
         return conditions
         
@@ -103,12 +103,12 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         theta = unknowns.controls.wind_angle[:,0]
         
         # process
-        vx = v_mag * np.cos(theta)
-        vz = v_mag * np.sin(theta)
+        v_x = v_mag * np.cos(theta)
+        v_z = -v_mag * np.sin(theta) # z points down
         
         # pack
-        conditions.frames.inertial.velocity_vector[:,0] = vx
-        conditions.frames.inertial.velocity_vector[:,2] = vz                
+        conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+        conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
         
         return conditions
     
@@ -129,14 +129,14 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         acc = np.dot(D,v)
         
         # pack conditions
-        conditions.frames.inertial.acceleration_vector = acc
+        conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]
         
         # angle of attack
         # external aerodynamics
         # propulsion
         # weights
         # total forces
-        conditions = Climb_Segment.update_conditions(unknowns,conditions,differentials)
+        conditions = Climb_Segment.update_conditions(self,unknowns,conditions,differentials)
         
         return conditions
     
