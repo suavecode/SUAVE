@@ -9,6 +9,7 @@ from SUAVE import Components
 from SUAVE.Components import Component_Exception
 from SUAVE.Methods.Utilities import switch
 
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #  Vehicle Data Class
@@ -120,7 +121,8 @@ class Vehicle(Data):
         # first config
         if not self.Configs:
             # linked copy from self
-            new_config = self.linked_copy()
+            #new_config = self.linked_copy()
+            new_config = deepcopy(self)
 
             # avoid recursion problems
             del new_config.Configs
@@ -131,7 +133,8 @@ class Vehicle(Data):
             if ref_index is None: ref_index = -1
 
             # get linked copy
-            new_config = self.Configs[ref_index].linked_copy()
+            #new_config = self.Configs[ref_index].linked_copy()
+            new_config = deepcopy(self.Configs[ref_index])
 
         # prepare new config
         new_config.tag = tag

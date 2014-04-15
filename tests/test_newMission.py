@@ -279,7 +279,7 @@ def define_mission(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Props.linked_copy('m_full') # linked copy updates if parent changes
+    mission.m0 = vehicle.Mass_Props.m_full # linked copy updates if parent changes
     
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -655,7 +655,7 @@ def post_process(vehicle,mission,results):
         axes.grid(True)
     
     
-    plt.show()     
+    #plt.show()     
     
     return     
 

@@ -344,27 +344,27 @@ class Data(Indexable_Bunch):
     def dataname(self):
         return "<data object '" + self.typestring() + "'>"
 
-    def linked_copy(self,key=None):
-        """ SAUVE.Data.linked_copy(key=None)
-            returns a copy of the Data dictionary
-            the copy's values are referenced to the original's values
-            value changes to the original will propogate to the copy
-            value changes to the copy will break the link to the copy
-            new values added to the copy will *not*  propogate to the copy
-            copied values that reference deleted original values will return a BrokenKey() object
-        """
-        if not key is None:
-            return LinkedValue(self,key)
+    #def linked_copy(self,key=None):
+        #""" SAUVE.Data.linked_copy(key=None)
+            #returns a copy of the Data dictionary
+            #the copy's values are referenced to the original's values
+            #value changes to the original will propogate to the copy
+            #value changes to the copy will break the link to the copy
+            #new values added to the copy will *not*  propogate to the copy
+            #copied values that reference deleted original values will return a BrokenKey() object
+        #"""
+        #if not key is None:
+            #return LinkedValue(self,key)
         
-        # else ...
+        ## else ...
         
-        kopy = DataReConstructor(self.__class__)
-        for key,value in self.iteritems():
-            if isinstance(value,(Data,LinkedValue)):
-                kopy[key] = value.linked_copy()
-            else:
-                kopy[key] = LinkedValue(self,key)
-        return kopy
+        #kopy = DataReConstructor(self.__class__)
+        #for key,value in self.iteritems():
+            #if isinstance(value,(Data,LinkedValue)):
+                #kopy[key] = value.linked_copy()
+            #else:
+                #kopy[key] = LinkedValue(self,key)
+        #return kopy
     
     def is_link(self,key):
         """ returns True if the key's value is LinkedCopy
