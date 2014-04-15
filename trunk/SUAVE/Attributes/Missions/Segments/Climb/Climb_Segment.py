@@ -47,8 +47,8 @@ class Climb_Segment(Aerodynamic_Segment):
         
         return
     
-    def initialize_conditions(self,conditions,differentials,initials=None):
-        """ Segment.initialize_conditions(conditions)
+    def initialize_conditions(self,conditions,numerics,initials=None):
+        """ Segment.initialize_conditions(conditions,numerics,initials=None)
             update the segment conditions
             pin down as many condition variables as possible in this function
             
@@ -72,14 +72,14 @@ class Climb_Segment(Aerodynamic_Segment):
         """
         
         # gets initial mass and time from previous segment
-        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,differentials,initials)        
+        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)        
         
         # unpack inputs
         alt0     = self.altitude_start 
         altf     = self.altitude_end
         atmo     = self.atmosphere
         planet   = self.planet
-        t_nondim = differentials.t
+        t_nondim = numerics.dimensionless_time
         
         # discretize on altitude
         alt = t_nondim * (altf-alt0) + alt0
@@ -109,8 +109,8 @@ class Climb_Segment(Aerodynamic_Segment):
         
         return conditions
 
-    def update_differentials(self,unknowns,conditions,differentials):
-        """ Segment.update_differentials(unknowns, conditions, differentials)
+    def update_differentials(self,conditions,numerics,unknowns):
+        """ Segment.update_differentials(conditions, numerics, unknowns)
             updates the differential operators t, D and I
             must return in dimensional time, with t[0] = 0
             
@@ -119,10 +119,10 @@ class Climb_Segment(Aerodynamic_Segment):
             Inputs - 
                 unknowns      - data dictionary of segment free unknowns
                 conditions    - data dictionary of segment conditions
-                differentials - data dictionary of non-dimensional differential operators
+                numerics - data dictionary of non-dimensional differential operators
                 
             Outputs - 
-                differentials - udpated data dictionary with dimensional differentials 
+                numerics - udpated data dictionary with dimensional numerics 
             
             Assumptions - 
                 outputed operators are in dimensional time for the current solver iteration
@@ -134,9 +134,9 @@ class Climb_Segment(Aerodynamic_Segment):
         conditions = self.update_velocity_vector(unknowns,conditions)
         
         # unpack
-        t = differentials.t
-        D = differentials.D
-        I = differentials.I
+        t = numerics.dimensionless_time
+        D = numerics.differentiate_dimensionless
+        I = numerics.integrate_dimensionless
         
         r = conditions.frames.inertial.position_vector
         v = conditions.frames.inertial.velocity_vector
@@ -153,12 +153,12 @@ class Climb_Segment(Aerodynamic_Segment):
         t = t * dt
         
         # pack
-        differentials.t = t
-        differentials.D = D
-        differentials.I = I
+        numerics.time = t
+        numerics.differentiate_time = D
+        numerics.integrate_time = I
 
         # time
         t_initial = conditions.frames.inertial.time[0,0]
         conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
         
-        return differentials
+        return numerics

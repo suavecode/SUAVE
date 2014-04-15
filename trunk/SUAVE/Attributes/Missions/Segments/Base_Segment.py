@@ -119,20 +119,27 @@ class Base_Segment(Data):
         
         # --- Numerics
         
-        # numerical options
-        self.options = Data()
-        self.options.tag = 'Solution Options'
-        self.options.n_control_points              = 16
-        self.options.jacobian                      = "none"
-        self.options.tolerance_solution            = 1e-8
-        self.options.tolerance_boundary_conditions = 1e-8        
+        self.numerics = Data()
+        self.numerics.tag = 'Solution Numerical Setup'
         
-        # differentials
-        self.differentials = Data()
-        self.differentials.t = np.empty([0,0]) 
-        self.differentials.D = np.empty([0,0]) 
-        self.differentials.I = np.empty([0,0]) 
-        self.differentials.method = chebyshev_data
+        # discretization
+        self.numerics.n_control_points                 = 16
+        self.numerics.discretization_method            = chebyshev_data
+        
+        # solver options
+        self.numerics.solver_jacobian                  = "none"
+        self.numerics.tolerance_solution               = 1e-8
+        self.numerics.tolerance_boundary_conditions    = 1e-8
+        
+        # dimensionless differentials
+        self.numerics.dimensionless_time               = np.empty([0,0])
+        self.numerics.differentiate_dimensionless      = np.empty([0,0])
+        self.numerics.integrate_dimensionless          = np.empty([0,0])
+        
+        # time-dimensional differentials
+        self.numerics.time                             = np.empty([0,0])
+        self.numerics.differentiate_time               = np.empty([0,0])
+        self.numerics.integrate_time                   = np.empty([0,0])
         
         return
 
@@ -149,8 +156,8 @@ class Base_Segment(Data):
         
         return
     
-    def initialize_conditions(self,conditions,differentials,initials=None):
-        """ Segment.initialize_conditions(conditions)
+    def initialize_conditions(self,conditions,numerics,initials=None):
+        """ Segment.initialize_conditions(conditions,numerics,initials=None)
             update the segment conditions
             pin down as many condition variables as possible in this function
             
@@ -174,7 +181,7 @@ class Base_Segment(Data):
         
         # Usage Notes:
         #     may need to inspect segment (self) for user inputs
-        #     arrays will be expanded to number of control points in options.n_control_points
+        #     arrays will be expanded to number of control points in numerics.n_control_points
         #     will be called before solving the segments free unknowns
         
         
@@ -200,9 +207,9 @@ class Base_Segment(Data):
     #   Methods For Solver Iterations
     # ------------------------------------------------------------------    
     
-    def update_conditions(self,unknowns,conditions,differentials):
-        """ Segment.update_conditions(unknowns, conditions, differentials)
-            if needed, updates the conditions given the current free unknowns and differentials
+    def update_conditions(self,conditions,numerics,unknowns):
+        """ Segment.update_conditions(conditions,numerics,unknowns)
+            if needed, updates the conditions given the current free unknowns and numerics
             called once per segment solver iteration
             
             Inputs - 
@@ -211,7 +218,7 @@ class Base_Segment(Data):
                     these are defined in segment.__defaults__
                 conditions    - data dictionary of segment conditions
                     these are defined in segment.__defaults__
-                differentials - data dictionary of differential operators for this iteration
+                numerics - data dictionary of differential operators for this iteration
                 
             Outputs - 
                 conditions - data dictionary of updated conditions
@@ -235,8 +242,8 @@ class Base_Segment(Data):
         
         return conditions
     
-    def solve_residuals(self,unknowns,conditions,differentials):
-        """ Segment.solve_residuals(unknowns, conditions, differentials)
+    def solve_residuals(self,conditions,numerics,unknowns,residuals):
+        """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
             the hard work, solves the residuals for the free unknowns
             called once per segment solver iteration
             
@@ -246,7 +253,7 @@ class Base_Segment(Data):
                     these are defined in segment.__defaults__
                 conditions    - data dictionary of segment conditions
                     these are defined in segment.__defaults__
-                differentials - data dictionary of differential operators for this iteration
+                numerics - data dictionary of differential operators for this iteration
                 
             Outputs - 
                 residuals - data dictionary of residuals, same dictionary structure as unknowns
@@ -278,8 +285,8 @@ class Base_Segment(Data):
     #   Methods For Post-Solver
     # ------------------------------------------------------------------    
     
-    def post_process(self,unknowns,conditions,differentials):
-        """ Segment.post_process(unknowns, conditions, differentials)
+    def post_process(self,conditions,numerics,unknowns):
+        """ Segment.post_process(conditions,numerics,unknowns)
             post processes the conditions after converging the segment solver
             
             Inputs - 
@@ -288,7 +295,7 @@ class Base_Segment(Data):
                     these are defined in segment.__defaults__
                 conditions - data dictionary of segment conditions
                     these are defined in segment.__defaults__
-                differentials - data dictionary of the converged differential operators
+                numerics - data dictionary of the converged differential operators
                 
             Outputs - 
                 conditions - data dictionary with remaining fields filled with post-processed conditions
@@ -322,16 +329,16 @@ class Base_Segment(Data):
     # except for maybe update_differntials() if you are changing 
     #     control point spacing
 
-    def initialize_arrays(self,unknowns,conditions,residuals,options):
-        """ Segment.initialize_arrays(unknowns,conditions,options)
+    def initialize_arrays(self,conditions,numerics,unknowns,residuals):
+        """ Segment.initialize_arrays(conditions,numerics,unknowns,residuals)
             expands the number of rows of all arrays in segment.conditions
-            and segment.unknowns to options.n_control_points
+            and segment.unknowns to numerics.n_control_points
             
             Inputs - 
-                unknowns   - data dicitonary of segment unknowns
-                conditions - data dictionary of segment conditions
+                conditions - data dictionary of segment conditions                
                 residuals  - data dictionary of segment residuals
-                options    - data dictionary of segment options
+                unknowns   - data dicitonary of segment unknowns
+                numerics   - data dictionary of segment numerics
                 
             Outputs -
                 unknowns   - updated unknowns
@@ -344,9 +351,9 @@ class Base_Segment(Data):
         """
 
         # base array row length
-        N = options.n_control_points
+        N = numerics.n_control_points
         ones = np.ones([N,1])
-        if options.jacobian == 'complex': ones = ones + 0j
+        if numerics.solver_jacobian == 'complex': ones = ones + 0j
         
         
         # recursively initialize condition and unknown arrays 
@@ -373,56 +380,62 @@ class Base_Segment(Data):
          
         return unknowns,conditions,residuals
     
-    def initialize_differentials(self,differentials,options):
-        """ Segment.initialize_differentials(differentials)
+    def initialize_differentials(self,numerics):
+        """ Segment.initialize_differentials(numerics)
             initialize differentiation and integration operator matricies
             
             Inputs - 
-                differentials - Data dictionary with empty fields:
-                    t, D, I
-                options - Data dictionary with fields:
-                    n_control_points - number of control points for operators
+                numerics - Data dictionary with fields:
+                    dimensionless_time          - empty 2D array
+                    differentiate_dimensionless - empty 2D array
+                    integrate_dimensionless     - empty 2D array
+                    discretization_method       - the method for calculating the above
+                    n_control_points            - number of control points for operators
         
             Outputs:
-                differentials - Data dictionary with fields:
-                    t - time control points, non-dimensional, in range [0,1]
-                    D - differention operation matrix
-                    I - integration operation matrix
-                    method - the method for calculating the above
+                numerics - Data dictionary with fields:
+                    dimensionless_time - time control points, non-dimensional, in range [0,1], column vector
+                    differentiate_dimensionless - differention operation matrix
+                    integrate_dimensionless - integration operation matrix
+                    
                     
             Assumptions:
                 operators are in non-dimensional time, with bounds [0,1]
-                will call differentials.method(n_control_points,**options) to get operators
+                will call numerics.discretization_method(n_control_points,**numerics) to get operators
                 
         """
         
         # unpack
-        N                   = options.n_control_points
-        differential_method = differentials.method
+        N                     = numerics.n_control_points
+        discretization_method = numerics.discretization_method
         
         # get operators
-        t,D,I = differential_method(N,**options)
+        t,D,I = discretization_method(N,**numerics)
         t = atleast_2d_col(t)
         
         # pack
-        differentials.t = t
-        differentials.D = D
-        differentials.I = I
+        numerics.dimensionless_time          = t
+        numerics.differentiate_dimensionless = D
+        numerics.integrate_dimensionless     = I
         
-        return differentials
+        return numerics
     
-    def update_differentials(self,unknowns,conditions,differentials):
-        """ Segment.update_differentials(unknowns, conditions, differentials)
+    def update_differentials(self,conditions,numerics,unknowns=None):
+        """ Segment.update_differentials(conditions, numerics, unknowns=None)
             updates the differential operators t, D and I
             must return in dimensional time, with t[0] = 0
             
             Inputs - 
-                unknowns      - data dictionary of segment free unknowns
-                conditions    - data dictionary of segment conditions
-                differentials - data dictionary of non-dimensional differential operators
+                conditions - data dictionary of segment conditions
+                numerics   - data dictionary of non-dimensional differential operators
+                unknowns   - data dictionary of segment free unknowns
                 
             Outputs - 
-                differentials - udpated data dictionary with dimensional differentials 
+                numerics   - udpated data dictionary with dimensional differentials 
+                for Base_Segment:
+                    numerics.time
+                    numerics.differentiate_time
+                    numerics.integrate_time
             
             Assumptions - 
                 outputed operators are in dimensional time for the current solver iteration
@@ -435,17 +448,18 @@ class Base_Segment(Data):
         """
         
         # unpack
-        t = differentials.t
-        D = differentials.D
-        I = differentials.I
+        t = numerics.dimensionless_time
+        D = numerics.differentiate_dimensionless
+        I = numerics.integrate_dimensionless
         
         # rescale time
-        if unknowns.finals.has_key('time'):
+        if unknowns and unknowns.finals.has_key('time'):
             # variable final time
             dt = unknowns.finals.time
             t = t * dt
             # update inertial time, keep start time
-            conditions.inertial.time = t + conditions.inertial.time[0]
+            t_initial = conditions.inertial.time[0]
+            conditions.inertial.time = t_initial + t
         else:
             # stationary time control points
             time = conditions.frames.inertial.time
@@ -457,11 +471,11 @@ class Base_Segment(Data):
         I = I * dt
         
         # pack
-        differentials.t = t
-        differentials.D = D
-        differentials.I = I
+        numerics.time               = t
+        numerics.differentiate_time = D
+        numerics.integrate_time     = I
         
-        return differentials
+        return numerics
 
     
     def get_final_conditions(self):

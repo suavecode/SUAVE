@@ -50,14 +50,14 @@ class Constant_Speed_Constant_Rate(Climb.Constant_Speed_Constant_Rate):
         
         return
 
-    def initialize_conditions(self,conditions,differentials,initials=None):
+    def initialize_conditions(self,conditions,numerics,initials=None):
         
         # unpack user inputs, set 'climb rate'
         descent_rate = self.descent_rate
         self.climb_rate = -descent_rate
         
         # everything else is the same
-        Climb.Constant_Speed_Constant_Rate.initialize_conditions(self,conditions,differentials,initials)
+        Climb.Constant_Speed_Constant_Rate.initialize_conditions(self,conditions,numerics,initials)
         
         return conditions
         

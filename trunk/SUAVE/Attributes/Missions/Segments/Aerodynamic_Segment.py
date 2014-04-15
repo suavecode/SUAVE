@@ -130,7 +130,7 @@ class Aerodynamic_Segment(Base_Segment):
     #   Base_Segment.solve_residuals()
     #   Base_Segment.post_process()
     
-    def update_conditions(self,unknowns,conditions,differentials):
+    def update_conditions(self,conditions,numerics,unknowns):
         
         # unpack models
         aero_model = self.config.aerodynamics_model
@@ -146,7 +146,7 @@ class Aerodynamic_Segment(Base_Segment):
         conditions = self.compute_propulsion(prop_model,conditions)
         
         # weights
-        conditions = self.compute_weights(conditions,differentials)
+        conditions = self.compute_weights(conditions,numerics)
         
         # total forces
         conditions = self.compute_forces(conditions)
@@ -311,7 +311,7 @@ class Aerodynamic_Segment(Base_Segment):
         # for current propulsion models
         ## TODO: update propulsion modules
         
-        N = self.options.n_control_points
+        N = self.numerics.n_control_points
         
         eta = conditions.propulsion.throttle[:,0]
         
@@ -347,13 +347,13 @@ class Aerodynamic_Segment(Base_Segment):
         return conditions
     
     
-    def compute_weights(self,conditions,differentials):
+    def compute_weights(self,conditions,numerics):
         
         # unpack
         m0        = conditions.weights.total_mass[0,0]
         m_empty   = self.config.Mass_Props.m_empty
         mdot_fuel = conditions.propulsion.fuel_mass_rate
-        I         = differentials.I
+        I         = numerics.integrate_time
         g         = conditions.freestream.gravity
         
         # calculate

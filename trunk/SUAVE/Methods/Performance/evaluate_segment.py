@@ -33,21 +33,20 @@ def evaluate_segment(segment):
     segment.check_inputs()
     
     # unpack segment
-    options       = segment.options
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
     residuals     = segment.residuals
-    differentials = segment.differentials
+    numerics      = segment.numerics
     initials      = segment.initials
     
     # initialize arrays
-    unknowns,conditions,residuals = segment.initialize_arrays(unknowns,conditions,residuals,options)
+    unknowns,conditions,residuals = segment.initialize_arrays(conditions,numerics,unknowns,residuals)
     
     # initialize differential operators
-    differentials = segment.initialize_differentials(differentials,options)
-
+    numerics = segment.initialize_differentials(numerics)
+    
     # preprocess segment conditions
-    conditions = segment.initialize_conditions(conditions,differentials,initials)
+    conditions = segment.initialize_conditions(conditions,numerics,initials)
     
     # pack the guess
     guess = unknowns.pack_array('vector')
@@ -58,19 +57,16 @@ def evaluate_segment(segment):
                   args   = segment                    ,
                   method = "hybr"                     ,
                   #jac    = jacobian_complex           ,
-                  tol    = options.tolerance_solution  )
+                  tol    = numerics.tolerance_solution  )
     
     # confirm final solution
     segment_residuals(x_sol.x,segment)
     unknowns      = segment.unknowns    
     conditions    = segment.conditions
-    differentials = segment.differentials
-    
-    # update differential operators
-    differentials = segment.update_differentials(unknowns,conditions,differentials)    
+    numerics      = segment.numerics
 
     # post processing
-    segment.post_process(unknowns,conditions,differentials)
+    segment.post_process(conditions,numerics,unknowns)
     
     # done!
     return segment
@@ -99,22 +95,22 @@ def segment_residuals(x,segment):
     unknowns      = segment.unknowns
     residuals     = segment.residuals
     conditions    = segment.conditions
-    differentials = deepcopy( segment.differentials )
+    numerics      = segment.numerics
     
     # unpack vector into unknowns
     unknowns.unpack_array(x)
     
     # update differentials
-    differentials = segment.update_differentials(unknowns,conditions,differentials)
-    t = differentials.t
-    D = differentials.D
-    I = differentials.I
+    numerics = segment.update_differentials(conditions,numerics,unknowns)
+    t = numerics.time
+    D = numerics.differentiate_time
+    I = numerics.integrate_time
     
     # update conditions
-    conditions = segment.update_conditions(unknowns,conditions,differentials)
+    conditions = segment.update_conditions(conditions,numerics,unknowns)
     
     # solve residuals
-    residuals = segment.solve_residuals(unknowns,residuals,conditions,differentials)
+    residuals = segment.solve_residuals(conditions,numerics,unknowns,residuals)
     
     # pack column matrices
     S  = unknowns .states  .pack_array('array')

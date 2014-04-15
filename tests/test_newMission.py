@@ -23,6 +23,7 @@ import matplotlib
 
 import copy
 
+
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -377,9 +378,7 @@ def define_mission(vehicle):
     segment.altitude   = 10.668    * Units.km
     segment.air_speed  = 230.412   * Units.m / Units.s
     segment.range      = 3933.65   * Units.km
-    
-    segment.options.jacobian = 'none'
-    
+        
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------    
@@ -655,7 +654,7 @@ def post_process(vehicle,mission,results):
         axes.grid(True)
     
     
-    #plt.show()     
+    plt.show()     
     
     return     
 

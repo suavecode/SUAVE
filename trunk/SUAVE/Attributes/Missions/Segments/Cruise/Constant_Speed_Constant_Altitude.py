@@ -64,7 +64,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         return
     
-    def initialize_conditions(self,conditions,differentials,initials=None):
+    def initialize_conditions(self,conditions,numerics,initials=None):
         """ Segment.initialize_conditions(conditions)
             update the segment conditions
             pin down as many condition variables as possible in this function
@@ -75,7 +75,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         """
         
         # sets initial time and mass
-        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,differentials,initials)
+        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)
         
         # unpack inputs
         alt       = self.altitude
@@ -83,7 +83,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         air_speed = self.air_speed
         atmo      = self.atmosphere
         planet    = self.planet
-        t_nondim  = differentials.t        
+        t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]
         
         # freestream details
@@ -102,6 +102,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         # positions (TODO: mamange user initials)
         conditions.frames.inertial.position_vector[:,2] = -alt # z points down
         
+        # update differentials
+        numerics = Aerodynamic_Segment.update_differentials(self,conditions,numerics)
+        
         # done
         return conditions
     
@@ -110,9 +113,14 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
     #   Methods For Solver Iterations
     # ------------------------------------------------------------------    
     
-    def update_conditions(self,unknowns,conditions,differentials):
-        """ Segment.update_conditions(unknowns, conditions, differentials)
-            if needed, updates the conditions given the current free unknowns and differentials
+    def update_differentials(self,conditions,numerics,unknowns):
+        # time is constant for this segment,
+        # don't need to update differential operators
+        return numerics
+    
+    def update_conditions(self,conditions,numerics,unknowns):
+        """ Segment.update_conditions(conditions,numerics,unknowns)
+            if needed, updates the conditions given the current free unknowns and numerics
             called once per segment solver iteration
         """
         
@@ -129,12 +137,12 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         # propulsion
         # weights
         # total forces
-        conditions = Aerodynamic_Segment.update_conditions(self,unknowns,conditions,differentials)
+        conditions = Aerodynamic_Segment.update_conditions(self,conditions,numerics,unknowns)
         
         return conditions
      
-    def solve_residuals(self,unknowns,residuals,conditions,differentials):
-        """ Segment.solve_residuals(unknowns, conditions, differentials)
+    def solve_residuals(self,conditions,numerics,unknowns,residuals):
+        """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
             the hard work, solves the residuals for the free unknowns
             called once per segment solver iteration
         """
@@ -155,8 +163,8 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
     #   Methods For Post-Solver
     # ------------------------------------------------------------------    
     
-    def post_process(self,unknowns,conditions,differentials):
-        """ Segment.post_process(unknowns, conditions, differentials)
+    def post_process(self,conditions,numerics,unknowns):
+        """ Segment.post_process(conditions,numerics,unknowns)
             post processes the conditions after converging the segment solver
             
             Usage Notes - 

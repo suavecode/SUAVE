@@ -55,8 +55,8 @@ class Unknown_Throttle(Climb_Segment):
     #   Methods For Iterations
     # ------------------------------------------------------------------  
     
-    def update_conditions(self,unknowns,conditions,differentials):
-        """ Segment.update_conditions(unknowns, conditions, differentials)
+    def update_conditions(self,conditions,numerics,unknowns):
+        """ Segment.update_conditions(conditions,numerics,unknowns)
             
         """
         
@@ -70,7 +70,7 @@ class Unknown_Throttle(Climb_Segment):
         
         # unpack conditions
         v = conditions.frames.inertial.velocity_vector
-        D = differentials.D
+        D = numerics.differentiate_time
         
         # accelerations
         acc = np.dot(D,v)
@@ -83,12 +83,12 @@ class Unknown_Throttle(Climb_Segment):
         # propulsion
         # weights
         # total forces
-        conditions = Climb_Segment.update_conditions(self,unknowns,conditions,differentials)
+        conditions = Climb_Segment.update_conditions(self,conditions,numerics,unknowns)
         
         return conditions
     
-    def solve_residuals(self,unknowns,residuals,conditions,differentials):
-        """ Segment.solve_residuals(unknowns, conditions, differentials)
+    def solve_residuals(self,conditions,numerics,unknowns,residuals):
+        """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
             solves the residuals for the free unknowns
             called once per segment solver iteration
         """

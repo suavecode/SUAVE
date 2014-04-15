@@ -48,7 +48,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         
         return
     
-    def initialize_conditions(self,conditions,differentials,initials=None):
+    def initialize_conditions(self,conditions,numerics,initials=None):
         """ Segment.initialize_conditions(conditions)
             update the segment conditions
             pin down as many condition variables as possible in this function
@@ -68,7 +68,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         self.air_speed = mach * a
         
         # call super class's initialize
-        conditions = Constant_Speed_Constant_Altitude.initialize_conditions(conditions,differentials,initials)
+        conditions = Constant_Speed_Constant_Altitude.initialize_conditions(conditions,numerics,initials)
         
         # done
         return conditions

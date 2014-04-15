@@ -51,12 +51,12 @@ class Constant_Mach_Constant_Rate(Unknown_Throttle):
         
         return
     
-    def initialize_conditions(self,conditions,differentials,initials=None):
+    def initialize_conditions(self,conditions,numerics,initials=None):
         
         # sets altitude, atmospheric conditions,
         # initial time and mass
         # climb segments are discretized on altitude
-        conditions = Unknown_Throttle.initialize_conditions(self,conditions,differentials,initials)
+        conditions = Unknown_Throttle.initialize_conditions(self,conditions,numerics,initials)
 
         # unpack user inputs
         climb_rate  = self.climb_rate

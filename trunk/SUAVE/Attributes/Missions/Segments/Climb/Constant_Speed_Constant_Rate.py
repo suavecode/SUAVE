@@ -50,12 +50,12 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         
         return
 
-    def initialize_conditions(self,conditions,differentials,initials=None):
+    def initialize_conditions(self,conditions,numerics,initials=None):
         
         # initialize time and mass
         # initialize altitude, atmospheric conditions,
         # climb segments are discretized on altitude
-        conditions = Unknown_Throttle.initialize_conditions(self,conditions,differentials,initials)
+        conditions = Unknown_Throttle.initialize_conditions(self,conditions,numerics,initials)
         
         # unpack user inputs
         air_speed   = self.air_speed
