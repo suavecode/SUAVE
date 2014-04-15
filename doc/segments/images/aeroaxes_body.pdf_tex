@@ -1,0 +1,61 @@
+%% Creator: Inkscape 0.48.3.1, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'aeroaxes_body.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{320bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.58099998)%
+    \put(0,0){\includegraphics[width=\unitlength]{aeroaxes_body.pdf}}%
+    \put(0.85166639,0.28532294){\color[rgb]{0.6627451,0.6627451,0.6627451}\makebox(0,0)[lb]{\smash{$\hat{\vx}_I$}}}%
+    \put(0.46758945,0.0195246){\color[rgb]{0.6627451,0.6627451,0.6627451}\makebox(0,0)[lb]{\smash{$\hat{\vz}_I$}}}%
+    \put(0.06555905,0.3026377){\color[rgb]{0.6627451,0.6627451,0.6627451}\makebox(0,0)[lb]{\smash{$\hat{\vy}_I$}}}%
+    \put(0.86582303,0.38113242){\color[rgb]{1,0.01568627,0}\makebox(0,0)[lb]{\smash{$\hat{\vx}_B$}}}%
+    \put(0.58493142,0.04487754){\color[rgb]{1,0.01568627,0}\makebox(0,0)[lb]{\smash{$\hat{\vz}_B$}}}%
+    \put(0.13351021,0.20455123){\color[rgb]{1,0.01568627,0}\makebox(0,0)[lb]{\smash{$\hat{\vy}_B$}}}%
+    \put(0.79027684,0.53373481){\color[rgb]{0.65490196,0.37647059,0.04313725}\makebox(0,0)[lb]{\smash{$\vec{T}_B$}}}%
+  \end{picture}%
+\endgroup%

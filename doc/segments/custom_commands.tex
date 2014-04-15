@@ -1,0 +1,114 @@
+
+ % Define commands to assure consistent treatment throughout document
+ \newcommand{\eqnref}[1]{(\ref{#1})}
+ \newcommand{\class}[1]{\texttt{#1}}
+ \newcommand{\package}[1]{\texttt{#1}}
+ \newcommand{\file}[1]{\texttt{#1}}
+ \newcommand{\BibTeX}{\textsc{Bib}\TeX}
+
+% Paul's list of latex commands
+\providecommand{\mat}[1]{\boldsymbol{#1}}%
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\vecalt}[1]{\boldsymbol{#1}}
+
+\providecommand{\eye}{\mat{I}}
+\providecommand{\mA}{\ensuremath{\mat{A}}}
+\providecommand{\mB}{\ensuremath{\mat{B}}}
+\providecommand{\mC}{\ensuremath{\mat{C}}}
+\providecommand{\mD}{\ensuremath{\mat{D}}}
+\providecommand{\mE}{\ensuremath{\mat{E}}}
+\providecommand{\mF}{\ensuremath{\mat{F}}}
+\providecommand{\mG}{\ensuremath{\mat{G}}}
+\providecommand{\mH}{\ensuremath{\mat{H}}}
+\providecommand{\mI}{\ensuremath{\mat{I}}}
+\providecommand{\mJ}{\ensuremath{\mat{J}}}
+\providecommand{\mK}{\ensuremath{\mat{K}}}
+\providecommand{\mL}{\ensuremath{\mat{L}}}
+\providecommand{\mM}{\ensuremath{\mat{M}}}
+\providecommand{\mN}{\ensuremath{\mat{N}}}
+\providecommand{\mO}{\ensuremath{\mat{O}}}
+\providecommand{\mP}{\ensuremath{\mat{P}}}
+\providecommand{\mQ}{\ensuremath{\mat{Q}}}
+\providecommand{\mR}{\ensuremath{\mat{R}}}
+\providecommand{\mS}{\ensuremath{\mat{S}}}
+\providecommand{\mT}{\ensuremath{\mat{T}}}
+\providecommand{\mU}{\ensuremath{\mat{U}}}
+\providecommand{\mV}{\ensuremath{\mat{V}}}
+\providecommand{\mW}{\ensuremath{\mat{W}}}
+\providecommand{\mX}{\ensuremath{\mat{X}}}
+\providecommand{\mY}{\ensuremath{\mat{Y}}}
+\providecommand{\mZ}{\ensuremath{\mat{Z}}}
+\providecommand{\mLambda}{\ensuremath{\mat{\Lambda}}}
+\providecommand{\mSigma}{\ensuremath{\mat{\Sigma}}}
+\providecommand{\mzero}{\ensuremath{\mat{0}}}
+
+\providecommand{\ones}{\vec{e}}
+\providecommand{\va}{\ensuremath{\vec{a}}}
+\providecommand{\vb}{\ensuremath{\vec{b}}}
+\providecommand{\vc}{\ensuremath{\vec{c}}}
+\providecommand{\vd}{\ensuremath{\vec{d}}}
+\providecommand{\ve}{\ensuremath{\vec{e}}}
+\providecommand{\vf}{\ensuremath{\vec{f}}}
+\providecommand{\vg}{\ensuremath{\vec{g}}}
+\providecommand{\vh}{\ensuremath{\vec{h}}}
+\providecommand{\vi}{\ensuremath{\vec{i}}}
+\providecommand{\vj}{\ensuremath{\vec{j}}}
+\providecommand{\vk}{\ensuremath{\vec{k}}}
+\providecommand{\vl}{\ensuremath{\vec{l}}}
+\providecommand{\vm}{\ensuremath{\vec{l}}}
+\providecommand{\vn}{\ensuremath{\vec{n}}}
+\providecommand{\vo}{\ensuremath{\vec{o}}}
+\providecommand{\vp}{\ensuremath{\vec{p}}}
+\providecommand{\vq}{\ensuremath{\vec{q}}}
+\providecommand{\vr}{\ensuremath{\vec{r}}}
+\providecommand{\vs}{\ensuremath{\vec{s}}}
+\providecommand{\vt}{\ensuremath{\vec{t}}}
+\providecommand{\vu}{\ensuremath{\vec{u}}}
+\providecommand{\vv}{\ensuremath{\vec{v}}}
+\providecommand{\vw}{\ensuremath{\vec{w}}}
+\providecommand{\vx}{\ensuremath{\vec{x}}}
+\providecommand{\vy}{\ensuremath{\vec{y}}}
+\providecommand{\vz}{\ensuremath{\vec{z}}}
+\providecommand{\vpi}{\ensuremath{\vecalt{\pi}}}
+
+% script upper case
+\newcommand{\sA}{\mathcal{A}}
+\newcommand{\sB}{\mathcal{B}}
+\newcommand{\sE}{\mathcal{E}}
+\newcommand{\sI}{\mathcal{I}}
+\newcommand{\sJ}{\mathcal{J}}
+\newcommand{\sN}{\mathcal{N}}
+\newcommand{\sR}{\mathcal{R}}
+\newcommand{\sS}{\mathcal{S}}
+\newcommand{\sX}{\mathcal{X}}
+\newcommand{\sY}{\mathcal{Y}}
+
+% script lower case
+\newcommand{\sx}{\chi}
+
+% bold greek
+\newcommand{\balpha}{\bolsymbol{\alpha}}
+
+% some useful commands
+\newcommand{\ip}[1]{\left\langle #1\right\rangle}
+\newcommand{\Exp}[1]{\mathbb{E}\left[#1\right]}
+\newcommand{\Cov}[2]{\operatorname{Cov}\left[#1,\,#2\right]}
+\newcommand{\Corr}[3]{\text{Corr}_{#1}\left[#2,\,#3\right]}
+\newcommand{\Var}[1]{\operatorname{Var}\left[#1\right]}
+\newcommand{\Prob}[2]{\mathbb{P}_{#1}\left[#2\right]}
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\ddx}[2]{\frac{\partial #1}{\partial x_{#2}}}
+\newcommand{\avg}[1]{\underset{#1}{\operatorname{average}\;}}
+\newcommand{\nn}[1]{\operatorname{nn}(#1)}
+\newcommand{\argmax}[1]{\underset{#1}{\operatorname{argmax}}}
+\newcommand{\argmin}[1]{\underset{#1}{\operatorname{argmin}}}
+\newcommand{\mini}[1]{\underset{#1}{\operatorname{minimize}}}
+\newcommand{\maxi}[1]{\underset{#1}{\operatorname{maximum}}}
+\newcommand{\st}{\text{subject to}}
+\newcommand{\find}{\text{find}}
+\newcommand{\given}{\text{given}}
+\newcommand{\yield}{\text{yield}}
+\newcommand{\trace}[1]{\operatorname{trace}\left(#1\right)}
+\newcommand{\sign}[1]{\operatorname{sign}\left(#1\right)}
+\newcommand{\Real}{\mathbb{R}}
+
