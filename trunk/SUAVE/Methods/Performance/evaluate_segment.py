@@ -61,9 +61,9 @@ def evaluate_segment(segment):
     
     # confirm final solution
     segment_residuals(x_sol.x,segment)
-    unknowns      = segment.unknowns    
-    conditions    = segment.conditions
-    numerics      = segment.numerics
+    unknowns   = segment.unknowns    
+    conditions = segment.conditions
+    numerics   = segment.numerics
 
     # post processing
     segment.post_process(conditions,numerics,unknowns)
