@@ -19,7 +19,7 @@ import numpy as np
 import pylab as plt
 
 import matplotlib
-matplotlib.interactive(True)
+#matplotlib.interactive(True)
 
 import copy
 
@@ -628,7 +628,7 @@ def post_process(vehicle,mission,results):
     
     plt.show()
     
-    raw_input('Press Enter To Quit')
+    #raw_input('Press Enter To Quit')
 
     return     
 
