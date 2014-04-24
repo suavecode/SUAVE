@@ -61,7 +61,7 @@ def wing_planform(Wing):
     
     swet = 2*span/2*(chord_root+chord_tip)
 
-    mac = 2/3*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
+    mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
     # update
     Wing.chord_root  = chord_root
