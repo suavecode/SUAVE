@@ -69,7 +69,8 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     total_nacelle_base_drag = 0.0
     nacelle_base_drag_results = Result()
     
-    for propulsor in propulsors:
+    for p_tag in propulsors:
+        propulsor = geometry.Propulsors[p_tag]
         
         # calculate
         nacelle_base_drag = 0.5/12. * np.pi * propulsor.nacelle_dia * 0.2/vehicle_reference_area
