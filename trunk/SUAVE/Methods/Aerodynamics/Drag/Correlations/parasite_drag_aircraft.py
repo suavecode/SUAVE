@@ -67,4 +67,4 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     # dump to condtitions
     conditions.drag_breakdown.parasite.total = total_parasite_drag
         
-    return parasite_drag_total
+    return total_parasite_drag
