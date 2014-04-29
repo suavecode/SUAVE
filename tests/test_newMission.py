@@ -39,7 +39,7 @@ def main():
     results = evaluate_mission(vehicle,mission)
     
     # plot results
-    post_process(vehicle,mission,results)
+    #post_process(vehicle,mission,results)
     
     return
 

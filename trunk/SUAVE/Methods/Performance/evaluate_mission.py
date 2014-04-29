@@ -21,7 +21,7 @@ def evaluate_mission(mission):
         
         if i > 0:
             # link segment final conditions with initial conditions
-            segment.initials = segments[i-1].get_final_conditions()
+            segment.initials = segments.values()[i-1].get_final_conditions()
         else:
             segment.initials = None
             

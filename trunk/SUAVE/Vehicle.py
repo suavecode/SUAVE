@@ -97,18 +97,16 @@ class Vehicle(Data):
         return
 
 
-    def new_configuration(self,tag,ref_index=None,new_index=None):
-        """ config = SUAVE.Vehicle.new_configuration(name,ref=None,index=None)
+    def new_configuration(self,tag,ref_index=None): #,new_index=None):
+        """ config = SUAVE.Vehicle.new_configuration(name,ref=None)
             start a new configuration, with tag name, appended to Vehicle.Configs[]
             each new configuration is a linked copy to its reference
             the first configuration is a linked copy to Vehicle
 
             Inputs:
-                tag       - name of the new configuration
-                ref_index - optional, index or key to reference the configuration
-                            default, will referernce to the last configuration
-                new_index - optional, index before which to add the configuration
-                            default, will append to the end of Vehicle.Configs
+                tag - name of the new configuration
+                ref - optional, key to reference the configuration
+                      default, will referernce to the last configuration
 
             Outputs:
                 config - a reference to the new configuration
@@ -130,21 +128,21 @@ class Vehicle(Data):
         # not first config
         else:
             # ref_index default is end
-            if ref_index is None: ref_index = -1
+            if ref_index is None: ref_index = self.Configs.keys()[-1]
 
-            # get linked copy
-            #new_config = self.Configs[ref_index].linked_copy()
+            # copy new config
             new_config = deepcopy(self.Configs[ref_index])
 
         # prepare new config
         new_config.tag = tag
         new_config.Functions = FunctionContainer()
 
-        # new_index default is end
-        if new_index is None: new_index = len(self.Configs)
+        ## new_index default is end
+        #if new_index is None: new_index = len(self.Configs)
 
         # insert new config
-        self.Configs.insert(new_index,tag,new_config)
+        #self.Configs.insert(new_index,tag,new_config)
+        self.Configs[tag] = new_config
 
         return new_config
 

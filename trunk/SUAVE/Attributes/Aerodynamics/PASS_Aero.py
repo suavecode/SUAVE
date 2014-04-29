@@ -88,11 +88,11 @@ class PASS_Aero(Aerodynamics):
         gm=1.4
         R=287
 
-        Wing1=vehicle.Wings[0]
+        Wing1=vehicle.Wings.values()[0]
         #Wing1=vehicle.Wings[0]
-        Wing2=vehicle.Wings[1] 
+        Wing2=vehicle.Wings.values()[1] 
         #Wing2=vehicle.Wings[1] 
-        Wing3=vehicle.Wings[2]
+        Wing3=vehicle.Wings.values()[2]
         #Wing3=vehicle.Wings[2]
         #Mc=state.M[curr_itr]
 
@@ -787,15 +787,17 @@ class PASS_Aero(Aerodynamics):
         return cd_tot        
 
     def initialize(self,vehicle):
-        Wing1=vehicle.Wings[0]
-        Wing2=vehicle.Wings[1] 
-        Wing3=vehicle.Wings[2]      
+        keys = vehicle.Wings.keys()
+        Wing1=vehicle.Wings[keys[0]]
+        Wing2=vehicle.Wings[keys[1]]
+        Wing3=vehicle.Wings[keys[2]]
         self.Sref=Wing1.sref
         self.S = self.Sref
-        self.l_fus=vehicle.Fuselages[0].length_cabin
-        self.d_fus=vehicle.Fuselages[0].width
-        self.l_nose=vehicle.Fuselages[0].length_nose
-        self.l_tail=vehicle.Fuselages[0].length_tail        
+        fuselage = vehicle.Fuselages.values()[0]
+        self.l_fus=fuselage.length_cabin
+        self.d_fus=fuselage.width
+        self.l_nose=fuselage.length_nose
+        self.l_tail=fuselage.length_tail        
 
 
         self.mac_w=Wing1.chord_mac
@@ -822,7 +824,7 @@ class PASS_Aero(Aerodynamics):
         self.arw_v=Wing3.ar
         self.span_v=Wing3.span
 
-        self.d_engexit=vehicle.Propulsors[0].df        
+        self.d_engexit=vehicle.Propulsors.values()[0].df        
 
         #print 'chord_mac',Wing1.chord_mac
 
