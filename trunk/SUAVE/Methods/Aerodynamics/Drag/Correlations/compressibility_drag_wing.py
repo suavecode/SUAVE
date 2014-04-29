@@ -8,6 +8,10 @@
 # ----------------------------------------------------------------------
 
 # suave imports
+from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Structure import (
+    Data, Container, Data_Exception, Data_Warning,
+)
 
 # python imports
 import os, sys, shutil
@@ -47,8 +51,8 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     conditions.drag_breakdown.compressibility = Result(total = 0)
 
     # go go go
-    for wing, lift in zip( wings.values(), wing_lifts.values() ):
-        
+    for surf, lift in zip(wings, wing_lifts):
+        wing = geometry.Wings[surf]
         # unpack wing
         t_c_w   = wing.t_c
         sweep_w = wing.sweep
@@ -90,7 +94,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
             thickness_to_chord        = tc      , 
             wing_sweep                = sweep_w , 
             crest_critical            = mcc     ,
-            divergence_mach           = Mdiv    ,
+            divergence_mach           = MDiv    ,
         )
         conditions.drag_breakdown.compressible[wing.tag] = wing_results
 
