@@ -1,3 +1,6 @@
+# Unix
+*~
+
 # Python
 *.py[cod]
 
@@ -36,6 +39,7 @@ nosetests.xml
 .project
 .pydevproject
 
+
 # local directories
 /workspace
 
@@ -47,4 +51,7 @@ nosetests.xml
 *.gz
 *.zip
 *.tar
+
+# Mac
+.DS_Store
 

@@ -6,6 +6,8 @@ import scipy as sp
 import pylab as plt
 import copy
 import time
+import matplotlib
+matplotlib.interactive(True)
 from pint import UnitRegistry
 from SUAVE.Attributes import Units as Units
 # ----------------------------------------------------------------------
@@ -56,16 +58,16 @@ def main():
    4.71228083e+00 , -2.28259122e+00 ,  6.78616016e-08 ,  1.19645462e+02,
    1.10636483e+02 ,  1.47459194e+02 ,  1.84638188e+02  , 2.05206786e+02,
    1.85829008e+02 ,  2.30319308e+02 ,  2.22268873e+03]
-     """
+    """
      
      
-     
-    inputs=  [  1.62973197e+11 ,  1.60543182e-01  , 2.91530256e+01  , 2.45702690e+00,5.63681367e+00 ,  5.64722963e+00 ,  5.73109120e+00 ,  5.73118772e+00,  3.34662057e+00 , -4.85208129e+00  , 4.78244071e-07  , 9.91507194e+01,   1.06353536e+02 ,  1.49821261e+02  , 2.01346494e+02  , 1.87524607e+02,   2.11198736e+02 ,  2.30000985e+02  , 3.40216975e+03]
+   
+  
+    inputs=  [  1.72969081e+11 ,  8.34289325e+03 ,  1.78401198e+00  , 2.14421657e+00,  5.58288581e+00 ,  5.65821025e+00 ,  5.75191743e+00  , 5.77491276e+00,   2.96603752e+00 , -4.98926921e+00 ,  8.78684362e-05  , 1.14191554e+02,   1.38908850e+02 ,  1.50408709e+02 ,  2.25516393e+02  , 1.74643398e+02,  2.06298598e+02 ,  2.30000004e+02 ,  3.58480325e+03]
 
+   
     
-    
-    
-   #out=sp.optimize.basinhopping(run, inputs, niter=1E5)
+    #out=sp.optimize.basinhopping(run, inpuSts, niter=1E5)
     #out=sp.optimize.fmin_bfgs(run,inputs)
     #bounds for simulated annealing
     lower_bounds=[1E11,.01,.01,0.1,0.1,4., -5., -5.,0.01, 50., 50.,50., 50., 230., 1800.]
@@ -78,7 +80,7 @@ def main():
     
     #print mybounds
     
-    out=sp.optimize.fmin(run, inputs)
+    #out=sp.optimize.fmin(run, inputs)
     if 'out' in locals():
         
         obj_out=disp_results(out)
@@ -90,7 +92,7 @@ def main():
 #   Calls
 # ----------------------------------------------------------------------
 def run(inputs):                #sizing loop to enable optimization
-    target_range=3600.           #minimum flight range of the aircraft (constraint)
+    target_range=4400.           #minimum flight range of the aircraft (constraint)
     i=0 #counter for inputs
     
     
@@ -98,7 +100,6 @@ def run(inputs):                #sizing loop to enable optimization
     #mass=[ 113343.414181]                 
     mass=[ 67502.3079434 ]       #mass guess, 2000 W-h/kg
     Ereq=inputs[i];              i+=1
-  
     Ereq_lis=inputs[i];          i+=1
     Preq_lis=inputs[i];          i+=1
     climb_alt_1=inputs[i];       i+=1
@@ -163,9 +164,11 @@ def run(inputs):                #sizing loop to enable optimization
     
     #results.Segments[i].Ecurrent_lis=battery_lis.CurrentEnergy
     penalty_energy=abs(min(min_Ebat/battery.TotalEnergy, min_Ebat_lis/battery_lis.TotalEnergy,0.))*10.**8.
-   
+    penalty_bat_neg=(10.**4.)*abs(min(0.,Ereq_lis, Preq_lis))   #penalty to make sure none of the inputs are negative
+    
+    
     vehicle.Mass_Props.m_full=results.Segments[-1].m[-1]    #make the vehicle the final mass
-    vehicle.Mass_Props.m_full+=penalty_energy+vehicle.penalty_power+10000.*abs(min(0, battery_lis.MaxPower, battery.MaxPower))
+    vehicle.Mass_Props.m_full+=penalty_energy+vehicle.penalty_power+10000.*abs(min(0, battery_lis.MaxPower, battery.MaxPower))+penalty_bat_neg
     
     #add penalty functions for twist, ensuring that trailing edge is >-5 degrees
     vehicle.Mass_Props.m_full+=100000.*abs(min(0, alpha_tc+5))
@@ -1205,7 +1208,7 @@ def post_process(vehicle,mission,results):
     plt.grid(True)
     
     plt.show()
-    
+    raw_input('Press Enter To Quit')
 
    
     return     
