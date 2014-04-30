@@ -1,3 +1,68 @@
+# ---------------------------------------------------------------------
+#   Segment Evaluation
+# ---------------------------------------------------------------------
+SUAVE/Methods/Performance/evaluate_segment.py
+
+The basic flow for mission evaluation is ...
+
+evaluate_mission()
+    for each segment:
+        evaluage_segment()
+            unpack
+            segment.initialize_differentials()
+            segment.initalize_conditions()
+            x_sol = root( segement_residuals() )
+                unpack
+                segment.update_differentials()
+                segment.update_conditions()
+                segment.solve_residuals()
+            segment.post_process()
+        end segment
+    end for each segment
+end mission!
+
+some more detail on the inner workings is at the end of this document
+
+
+# ---------------------------------------------------------------------
+#   Base_Segment
+# ---------------------------------------------------------------------
+SUAVE/Attributes/Missions/Segments/Base_Segment.py
+
+This is the base segment class, it sets up data dictionaries of
+conditions, unknowns and residuals.  You can check these out in the
+__defaults__() method.  The conditions data will be shared down into
+the analysis modules, including aerodynamics and propulsion. Because
+the conditions dictionary will be shared across modules, the naming is
+verbose and explicit, which is why the names are so long.
+
+Like always, the segments are discretized on control points in one
+dimension, usually time.  All the control-point-wise data is stored in
+2d arrays.  This allows for multiple columns for vector quantities,
+and generalizes initialization out of the typical use case.
+
+The evaluation script implements explicit passing of inputs into
+segment's methods, to make it clear what is coming in and out.
+Segment.self is always available if it's needed, but would be a
+violation of style to use it without good reason.
+
+
+# ---------------------------------------------------------------------
+#   Aerodynamic Segment
+# ---------------------------------------------------------------------
+SUAVE/Attributes/Missions/Segments/Aerodynamic_Segment.py
+
+This is an important segment class because it defines the conditions
+data structure and implements many helper methods for the segments
+we've been using.
+
+
+# ---------------------------------------------------------------------
+#   Starting a New Segment
+# ---------------------------------------------------------------------
+check out 
+SUAVE/Attributes/Missions/Segments/Empty_Segment.py
+
 
 # ---------------------------------------------------------------------
 #   Top level mission evaluation
