@@ -96,9 +96,10 @@ class Unknown_Throttle(Climb_Segment):
         # unpack inputs
         FT = conditions.frames.inertial.total_force_vector
         a  = conditions.frames.inertial.acceleration_vector
+        m  = conditions.weights.total_mass
         
         # process
-        residuals.controls.Fx[:,0] = FT[:,0] - a[:,0]
-        residuals.controls.Fz[:,0] = FT[:,2] - a[:,2]
+        residuals.controls.Fx[:,0] = FT[:,0]/m[:,0] - a[:,0]
+        residuals.controls.Fz[:,0] = FT[:,2]/m[:,0] - a[:,2]
         
         return residuals
