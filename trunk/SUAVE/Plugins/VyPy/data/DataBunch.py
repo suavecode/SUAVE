@@ -3,7 +3,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-#from IndexableBunch import IndexableBunch ## Too Slow on __getitem__
+from IndexableBunch import IndexableBunch ## Too Slow on __getitem__
 from OrderedBunch import OrderedBunch 
 
 import types
@@ -18,7 +18,7 @@ from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
 #   Data Dictionary
 # ----------------------------------------------------------------------
 
-class DataBunch(OrderedBunch):
+class DataBunch(IndexableBunch):
     """ DataBunch()
         
         a dict-type container with attribute and item style access
@@ -39,8 +39,8 @@ class DataBunch(OrderedBunch):
         """
         
         # initialize data, no inputs
-        self = OrderedBunch.__new__(cls)
-        OrderedBunch.__init__(self)
+        self = super(DataBunch,cls).__new__(cls)
+        super(DataBunch,self).__init__()
         
         # get base class list
         klasses = self.get_bases()
@@ -60,7 +60,7 @@ class DataBunch(OrderedBunch):
         """
         
         # handle input data (ala class factory)
-        input_data = OrderedBunch(*args,**kwarg)
+        input_data = DataBunch.__base__(*args,**kwarg)
         
         # update this data with inputs
         self.update(input_data)
@@ -85,7 +85,7 @@ class DataBunch(OrderedBunch):
         else:
             args += ''
             
-        args += OrderedBunch.__str__(self,indent)
+        args += super(DataBunch,self).__str__(indent)
         
         return args
         

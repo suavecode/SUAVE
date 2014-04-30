@@ -23,6 +23,7 @@ import matplotlib
 
 import copy
 
+
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -236,8 +237,13 @@ def define_vehicle():
     
     aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
     aerodynamics.initialize(vehicle)
-    vehicle.Aerodynamics = aerodynamics
+    vehicle.aerodynamics_model = aerodynamics
     
+    # ------------------------------------------------------------------
+    #   Simple Propulsion Model
+    # ------------------------------------------------------------------     
+    
+    vehicle.propulsion_model = vehicle.Propulsors
 
     # ------------------------------------------------------------------
     #   Define Configurations
@@ -274,7 +280,7 @@ def define_mission(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Props.linked_copy('m_full') # linked copy updates if parent changes
+    mission.m0 = vehicle.Mass_Props.m_full # linked copy updates if parent changes
     
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -285,7 +291,7 @@ def define_mission(vehicle):
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
@@ -294,12 +300,12 @@ def define_mission(vehicle):
     # define segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet    
-    segment.altitude   = [0.0, 3.0]   # km
+    segment.altitude_start = 0.0    * Units.km
+    segment.altitude_end   = 3.0  * Units.km
     
     # pick two:
-    segment.Vinf       = 125.0        # m/s
-    segment.rate       = 6.0          # m/s
-    #segment.psi        = 8.5          # deg
+    segment.air_speed      = 125.0  * Units.m / Units.s
+    segment.climb_rate     = 6.0    * Units.m / Units.s
     
     # add to misison
     mission.append_segment(segment)
@@ -309,7 +315,8 @@ def define_mission(vehicle):
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    #segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -318,12 +325,14 @@ def define_mission(vehicle):
     # segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet    
-    segment.altitude   = [3.0, 8.0]  # km
+    segment.altitude_start = 3.0    * Units.km
+    segment.altitude_end   = 8.0  * Units.km
     
     # pick two:
-    segment.Vinf       = 190.0       # m/s
-    segment.rate       = 6.0         # m/s
-    #segment.psi        = 15.0        # deg
+    segment.air_speed      = 190.0  * Units.m / Units.s
+    segment.climb_rate     = 6.0    * Units.m / Units.s
+    #segment.mach_number = 0.5
+    #segment.climb_rate  = 6.0
     
     # add to mission
     mission.append_segment(segment)
@@ -333,21 +342,21 @@ def define_mission(vehicle):
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 3"
-
+    
     # connect vehicle configuration
     segment.config = vehicle.Configs.cruise
     
     # segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet        
-    segment.altitude   = [8.0, 10.668] # km
+    segment.altitude_start = 8.0    * Units.km
+    segment.altitude_end   = 10.668 * Units.km
     
     # pick two:
-    segment.Vinf        = 226.0        # m/s   
-    segment.rate        = 3.0          # m/s
-    #segment.psi         = 15.0         # deg
+    segment.air_speed      = 226.0  * Units.m / Units.s
+    segment.climb_rate     = 3.0    * Units.m / Units.s
     
     # add to mission
     mission.append_segment(segment)
@@ -366,27 +375,31 @@ def define_mission(vehicle):
     # segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet        
-    segment.altitude   = 10.668    # km
-    segment.Vinf       = 230.412   # m/s
-    segment.range      = 3933.65   # km
+    segment.altitude   = 10.668    * Units.km
+    segment.air_speed  = 230.412   * Units.m / Units.s
+    segment.range      = 3933.65   * Units.km
+        
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------    
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
     segment.config = vehicle.Configs.cruise
     
-    # sergment attributes
+    # segment attributes
     segment.atmosphere = atmosphere
-    segment.planet     = planet    
-    segment.altitude   = [10.668, 5.0]  # km
-    segment.Vinf       = 170.0          # m/s
-    segment.rate       = 5.0            # m/s
+    segment.planet     = planet        
+    segment.altitude_start = 10.668 * Units.km
+    segment.altitude_end   = 5.0    * Units.km
+    
+    # pick two:
+    segment.air_speed      = 170.0  * Units.m / Units.s
+    segment.descent_rate   = 5.0    * Units.m / Units.s
     
     # add to mission
     mission.append_segment(segment)
@@ -396,18 +409,21 @@ def define_mission(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 2"
 
     # connect vehicle configuration
     segment.config = vehicle.Configs.cruise
-    
+
     # segment attributes
     segment.atmosphere = atmosphere
-    segment.planet     = planet   
-    segment.altitude   = [5.0, 0.0]  # km
-    segment.Vinf       = 145.0       # m/s
-    segment.rate       = 5.0         # m/s
+    segment.planet     = planet        
+    segment.altitude_start = 5.0 * Units.km
+    segment.altitude_end   = 0.0    * Units.km
+    
+    # pick two:
+    segment.air_speed      = 145.0  * Units.m / Units.s
+    segment.descent_rate   = 5.0    * Units.m / Units.s    
 
     # append to mission
     mission.append_segment(segment)
@@ -436,10 +452,10 @@ def evaluate_mission(vehicle,mission):
     # ------------------------------------------------------------------    
     #   Compute Useful Results
     # ------------------------------------------------------------------
-    SUAVE.Methods.Results.compute_energies(results,summary=True)
-    SUAVE.Methods.Results.compute_efficiencies(results)
-    SUAVE.Methods.Results.compute_velocity_increments(results)
-    SUAVE.Methods.Results.compute_alpha(results)    
+    #SUAVE.Methods.Results.compute_energies(results,summary=True)
+    #SUAVE.Methods.Results.compute_efficiencies(results)
+    #SUAVE.Methods.Results.compute_velocity_increments(results)
+    #SUAVE.Methods.Results.compute_alpha(results)    
     
     return results
 
@@ -451,193 +467,227 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Thrust Angle
     # ------------------------------------------------------------------
-    title = "Thrust Angle History"
-    plt.figure(0)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].gamma),'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Thrust Angle (deg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Thrust Angle History"
+    #plt.figure(0)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].gamma),'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Thrust Angle (deg)'); plt.title(title)
+    #plt.grid(True)
 
     # ------------------------------------------------------------------    
     #   Throttle
     # ------------------------------------------------------------------
-    title = "Throttle History"
-    plt.figure(1)
+    plt.figure("Throttle History")
+    axes = plt.gca()
     for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,results.Segments[i].eta,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Throttle'); plt.title(title)
-    plt.grid(True)
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.Segments[i].conditions.propulsion.throttle[:,0]
+        axes.plot(time, eta, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Throttle')
+    axes.grid(True)
 
     # ------------------------------------------------------------------    
     #   Angle of Attack
     # ------------------------------------------------------------------
-    title = "Angle of Attack History"
-    plt.figure(2)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].alpha),'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Angle of Attack (deg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Angle of Attack History"
+    #plt.figure(2)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].alpha),'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Angle of Attack (deg)'); plt.title(title)
+    #plt.grid(True)
+    
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        axes.plot(time, aoa, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)        
 
     # ------------------------------------------------------------------    
     #   Fuel Burn
     # ------------------------------------------------------------------
-    title = "Fuel Burn"
-    plt.figure(3)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,mission.m0 - results.Segments[i].m,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn (kg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Fuel Burn"
+    #plt.figure(3)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,mission.m0 - results.Segments[i].m,'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn (kg)'); plt.title(title)
+    #plt.grid(True)
 
     # ------------------------------------------------------------------    
     #   Fuel Burn Rate
     # ------------------------------------------------------------------
-    title = "Fuel Burn Rate"
-    plt.figure(4)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,results.Segments[i].mdot,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn Rate (kg/s)'); plt.title(title)
-    plt.grid(True)
+    plt.figure("Fuel Burn Rate")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.Segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        axes.plot(time, mdot, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.grid(True)    
 
     
     
     # ------------------------------------------------------------------    
     #   Altitude
     # ------------------------------------------------------------------
-    plt.figure(5)
-    title = "Altitude"
-    
-    for i in range(len(results.Segments)):
-     
-        plt.plot(results.Segments[i].t/60,results.Segments[i].vectors.r[:,2],'bo-')
-        
-    plt.xlabel('Time (mins)'); plt.ylabel('Altitude (m)'); plt.title(title)
-    plt.grid(True)
+    plt.figure("Altitude")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
+        axes.plot(time, altitude, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Altitude (m)')
+    axes.grid(True)
     
     
     # ------------------------------------------------------------------    
     #   Vehicle Mass
-    # ------------------------------------------------------------------
-    title = "Vehicle Mass"
-    plt.figure(6)
+    # ------------------------------------------------------------------    
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
     for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,results.Segments[i].m,'bo-')
-         
-    plt.xlabel('Time (mins)'); plt.ylabel('Vehicle Mass(kg)'); plt.title(title)
-    plt.grid(True)
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
     
 
     # ------------------------------------------------------------------    
     #   Atmosphere
     # ------------------------------------------------------------------
-    title = "Atmosphere"
-    plt.figure(7)    
-    plt.title(title)
-    for segment in results.Segments.values():
+    #title = "Atmosphere"
+    #plt.figure(7)    
+    #plt.title(title)
+    #for segment in results.Segments.values():
 
-        plt.subplot(3,1,1)
-        plt.plot( segment.t / Units.minute , 
-                  segment.rho * np.ones_like(segment.t),
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Density (kg/m^3)')
-        plt.grid(True)
+        #plt.subplot(3,1,1)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.rho * np.ones_like(segment.t),
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Density (kg/m^3)')
+        #plt.grid(True)
         
-        plt.subplot(3,1,2)
-        plt.plot( segment.t / Units.minute , 
-                  segment.p * np.ones_like(segment.t) ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Pressure (Pa)')
-        plt.grid(True)
+        #plt.subplot(3,1,2)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.p * np.ones_like(segment.t) ,
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Pressure (Pa)')
+        #plt.grid(True)
         
-        plt.subplot(3,1,3)
-        plt.plot( segment.t / Units.minute , 
-                  segment.T * np.ones_like(segment.t) ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Temperature (K)')
-        plt.grid(True)
+        #plt.subplot(3,1,3)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.T * np.ones_like(segment.t) ,
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Temperature (K)')
+        #plt.grid(True)
     
     
     # ------------------------------------------------------------------    
     #   Aerodynamics
     # ------------------------------------------------------------------
-    title = "Aerodynamics"
-    plt.figure(8)  
-    plt.title(title)
+    fig = plt.figure("Aerodynamic Forces")
     for segment in results.Segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
 
-        plt.subplot(3,1,1)
-        plt.plot( segment.t / Units.minute , 
-                  segment.L ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Lift (N)')
-        plt.grid(True)
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , Lift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Lift (N)')
+        axes.grid(True)
         
-        plt.subplot(3,1,2)
-        plt.plot( segment.t / Units.minute , 
-                  segment.D ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Drag (N)')
-        plt.grid(True)
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , Drag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag (N)')
+        axes.grid(True)
         
-        plt.subplot(3,1,3)
-        plt.plot( segment.t / Units.minute , 
-                  segment.F ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Thrust (N)')
-        plt.grid(True)
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Thrust , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Thrust (N)')
+        axes.grid(True)
         
     # ------------------------------------------------------------------    
     #   Aerodynamics 2
     # ------------------------------------------------------------------
-    title = "Aerodynamics 2"
-    plt.figure(9)  
-    plt.title(title)
+    fig = plt.figure("Aerodynamic Coefficients")
     for segment in results.Segments.values():
-
-        plt.subplot(3,1,1)
-        plt.plot( segment.t / Units.minute , 
-                  segment.CL ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('CL')
-        plt.grid(True)
         
-        plt.subplot(3,1,2)
-        plt.plot( segment.t / Units.minute , 
-                  segment.CD ,
-                  'bo-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('CD')
-        plt.grid(True)
-        
-        plt.subplot(3,1,3)
-        plt.plot( segment.t / Units.minute , 
-                  segment.D ,
-                  'bo-' )
-        plt.plot( segment.t / Units.minute , 
-                  segment.F ,
-                  'ro-' )
-        plt.xlabel('Time (min)')
-        plt.ylabel('Drag and Thrust (N)')
-        plt.grid(True)
-    
-    plt.show()
-    
-    #raw_input('Press Enter To Quit')
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
 
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , CLift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CL')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , CDrag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CD')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Drag   , 'bo-' )
+        axes.plot( time , Thrust , 'ro-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag and Thrust (N)')
+        axes.grid(True)
+    
+    
+    plt.show()     
+    
     return     
 
 
 
 # ---------------------------------------------------------------------- 
-#   Call Main
+#   Module Tests
 # ----------------------------------------------------------------------
+
 if __name__ == '__main__':
-    main()
+    
+    profile_module = True
+        
+    if not profile_module:
+        main()
+        
+    else:
+        profile_file = 'log_Profile.out'
+        
+        import cProfile
+        cProfile.run('import tut_mission_Boeing_737800 as tut; tut.profile()', profile_file)
+        
+        import pstats
+        p = pstats.Stats(profile_file)
+        p.sort_stats('time').print_stats(20)        
+        
+        import os
+        os.remove(profile_file)
+    
+#: def main()
 
 
+def profile():
+    vehicle = define_vehicle()
+    mission = define_mission(vehicle)
+    results = evaluate_mission(vehicle,mission)

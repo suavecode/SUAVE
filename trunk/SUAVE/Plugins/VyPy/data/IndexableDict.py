@@ -21,22 +21,16 @@ class IndexableDict(OrderedDict):
             return super(IndexableDict,self).__getitem__(self.keys()[k])
     
     def __setitem__(self,k,v):
-        if isinstance(k,int):
-            try:
-                self[ self.keys()[k] ] = v
-            except IndexError:
-                raise IndexError(k)
-        else:
+        if not isinstance(k,int):
             super(IndexableDict,self).__setitem__(k,v)
+        else:
+            super(IndexableDict,self).__setitem__( self.keys()[k], v )
     
     def __delitem__(self,k):
-        if isinstance(k,int):
-            try:
-                del self[ self.keys()[k] ]
-            except IndexError:
-                raise IndexError(k)
+        if not isinstance(k,int):
+            return super(IndexableDict,self).__delitem__(k)
         else:
-            super(IndexableDict,self).__delitem__(k)
+            return super(IndexableDict,self).__delitem__(self.keys()[k])
     
     # iterate on values, not keys
     def __iter__(self):
