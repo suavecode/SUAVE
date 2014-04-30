@@ -304,34 +304,11 @@ def define_mission(vehicle):
     # add to misison
     mission.append_segment(segment)
 
-    
     # ------------------------------------------------------------------
-    #   Second Climb Segment: Constant Speed, Constant Climb Rate
+    #   Second Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_TRANSITION"
-    
-    # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
-    
-    # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
-    segment.altitude_end   = 3.657 * Units.km
-    segment.air_speed      = 168.0 * Units['m/s']
-    segment.climb_rate     = 2500. * Units['ft/min']
-
-    # add to mission
-    mission.append_segment(segment)
-
-    
-    # ------------------------------------------------------------------
-    #   Third Climb Segment: Constant Speed, Constant Climb Rate
-    # ------------------------------------------------------------------    
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Throttle_Constant_Speed()
     segment.tag = "CLIMB_280KCAS"
 
     # connect vehicle configuration
@@ -341,39 +318,15 @@ def define_mission(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet        
     
-    segment.altitude_end = 25000. * Units.ft
+    segment.altitude_end = 32000. * Units.ft
     segment.air_speed    = 200.0  * Units['m/s']
-    segment.climb_rate   = 1800.  * Units['ft/min']
-    
+    segment.throttle     = 1.0
     
     # add to mission
     mission.append_segment(segment)
 
-    
     # ------------------------------------------------------------------
-    #   Fourth Climb Segment: Constant Speed, Constant Climb Rate
-    # ------------------------------------------------------------------    
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_M0.78"
-
-    # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
-    
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet        
-    
-    segment.altitude_end = 32000. * Units.ft
-    segment.air_speed    = 230.0  * Units['m/s']
-    segment.climb_rate   = 900.   * Units['ft/min']
-    
-    # add to mission
-    mission.append_segment(segment)      
-
-   
-    # ------------------------------------------------------------------
-    #   Fifth Climb Segment: Constant Speed, Constant Climb Rate
+    #   Third Climb Segment: Constant Speed, Constant Climb Rate
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()

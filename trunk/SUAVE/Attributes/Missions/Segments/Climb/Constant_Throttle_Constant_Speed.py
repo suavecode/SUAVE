@@ -83,7 +83,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         conditions = self.compute_freestream(conditions)
         
         # pack conditions
-        conditions.propulsion.throttle = throttle
+        conditions.propulsion.throttle[:,0] = throttle
         
         return conditions
         
@@ -100,7 +100,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         
         # unpack
         v_mag = self.air_speed
-        theta = unknowns.controls.wind_angle[:,0]
+        theta = unknowns.controls.wind_angle[:,0][:,None]
         
         # process
         v_x = v_mag * np.cos(theta)
@@ -119,7 +119,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         
         # unpack/pack unknowns
         theta = unknowns.controls.body_angle
-        conditions.frames.body.inertial_rotations[:,1] = theta
+        conditions.frames.body.inertial_rotations[:,1] = theta[:,0]
         
         # unpack conditions
         v = conditions.frames.inertial.velocity_vector
