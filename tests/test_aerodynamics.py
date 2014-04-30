@@ -1,7 +1,7 @@
 # test_aerodynamics.py
 
-import sys
-sys.path.append('../trunk')
+#import sys
+#sys.path.append('../trunk')
 
 
 import SUAVE
@@ -13,6 +13,12 @@ from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Propulsors import Turbofan
 from SUAVE.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Geometry.Two_Dimensional.Planform import fuselage_planform
+
+
+# python imports
+import os, sys, shutil
+from copy import deepcopy
+from warnings import warn
 
 # MAIN
 
@@ -44,23 +50,15 @@ def test():
     Seg.mew = 1.8*10**-5          # Ps-s
     Seg.M = 0.8            # dimensionless
    
-    Wing1.sref=124.862
+    Wing1.sref= 125.00 #124.862
     Wing1.ar = 9
     Wing1.span =35.66
-    Wing1.sweep=25*numpy.pi/180
+    Wing1.sweep=20.0*numpy.pi/180
     Wing1.symmetric = True
     Wing1.t_c = 0.1
     Wing1.taper= 0.16
     
-    #---B777-200ER------------
-    
-    #Wing1.sref=453.738
-    #Wing1.ar = 8.1
-    #Wing1.span =60.65
-    #Wing1.sweep=30*numpy.pi/180
-    #Wing1.symmetric = True
-    #Wing1.t_c = 0.11
-    #Wing1.taper= 0.16  
+ 
     
     
      
@@ -68,10 +66,10 @@ def test():
     Wing1.chord_mac= 12.5
     Wing1.S_exposed=0.8*Wing1.area_wetted
     Wing1.S_affected=0.6*Wing1.area_wetted 
-    Wing1.Cl = 0.3
+    #Wing1.Cl = 0.3
     Wing1.e = 0.9
-    Wing1.alpha_rc =3.0*numpy.pi/180
-    Wing1.alpha_tc =-1.0*numpy.pi/180
+    Wing1.twist_rc =3.0*numpy.pi/180
+    Wing1.twist_tc =-1.0*numpy.pi/180
  
    
     aircraft.append_component(Wing1)
@@ -79,8 +77,8 @@ def test():
     
     Wing2.sref=32.488
     Wing2.ar = 6.16
-    #Wing2.span =100
-    Wing2.sweep=30*numpy.pi/180
+    Wing2.span =14.146
+    Wing2.sweep=35.0*numpy.pi/180
     Wing2.symmetric = True
     Wing2.t_c = 0.08
     Wing2.taper= 0.4
@@ -93,20 +91,20 @@ def test():
     Wing2.chord_mac= 8.0
     Wing2.S_exposed=0.8*Wing2.area_wetted
     Wing2.S_affected=0.6*Wing2.area_wetted     
-    Wing2.Cl = 0.2
+    #Wing2.Cl = 0.2
     Wing2.e = 0.9
-    Wing2.alpha_rc =3.0*numpy.pi/180
-    Wing2.alpha_tc =-1.0*numpy.pi/180   
+    Wing2.twist_rc =3.0*numpy.pi/180
+    Wing2.twist_tc =0.0*numpy.pi/180   
   
     aircraft.append_component(Wing2)
     
  
-    
+
     
     Wing3.sref=32.488
     Wing3.ar = 1.91
-    #Wing3.span =100
-    Wing3.sweep=25*numpy.pi/180
+    Wing3.span =7.877
+    Wing3.sweep=0.0*numpy.pi/180
     Wing3.symmetric = False
     Wing3.t_c = 0.08
     Wing3.taper= 0.25
@@ -115,10 +113,11 @@ def test():
     Wing3.chord_mac= 8.0
     Wing3.S_exposed=0.8*Wing3.area_wetted
     Wing3.S_affected=0.6*Wing3.area_wetted     
-    Wing3.Cl = 0.002  
+    #Wing3.Cl = 0.002  
     Wing3.e = 0.9
-    Wing3.alpha_rc =0.0*numpy.pi/180
-    Wing3.alpha_tc =0.0*numpy.pi/180       
+    Wing3.twist_rc =0.0*numpy.pi/180
+    Wing3.twist_tc =0.0*numpy.pi/180   
+    Wing3.vertical     = True
         
     aircraft.append_component(Wing3)
     
@@ -145,16 +144,28 @@ def test():
     aircraft.append_component(turbofan)
 
 
+
     wing_aero = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
-    wing_aero.initialize(aircraft)
+    wing_aero.initialize(aircraft,Seg)
     aircraft.Aerodynamics = wing_aero 
 
+
+    conditions=SUAVE.Attributes.Aerodynamics.Conditions.Conditions()
+    conditions.mach_number=Seg.M
+    conditions.density=Seg.rho
+    conditions.viscosity=Seg.mew
+    conditions.temperature = Seg.T  
+    conditions.pressure=Seg.p   
+    conditions.angle_of_attack=0   
     
-    [Cd,Cl]=aircraft.Aerodynamics(0,Seg)
+    [Cl,Cd]=aircraft.Aerodynamics(conditions)
   
     print 'Aerodynamics module test script'
     print 'aircraft Cl' , Cl
     print 'aircraft Cd' , Cd
+  
+  
+  
   
   
     return
