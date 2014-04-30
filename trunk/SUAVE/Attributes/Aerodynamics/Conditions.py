@@ -22,6 +22,7 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
+#Data.update(self)
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -44,15 +45,19 @@ class Conditions(Data):
     """
     
     def __defaults__(self):
-        self.angle_of_attack = []
-        self.mach_number = []
+        #self.angle_of_attack = []
+        #self.mach_number = []
         
-        self.lift_breakdown = Result.Container(
-            total=[] 
-        )
-        self.drag_breakdown = Result.Container(
-            total=[] 
-        )
+        #self.lift_breakdown = Result.Container(
+            #total=[] 
+        #)
+        #self.drag_breakdown = Result.Container(
+            #total=[] 
+        #)
+        
+        self.lift_coefficient=0.0
+        #self.clean_wing_lift=0.0
+        self.clean_wing_lift=[0.0,0.0,0.0];
         
     def __check__(self):
         pass

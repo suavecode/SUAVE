@@ -9,12 +9,17 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
+
+import SUAVE
+
 from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Methods.Aerodynamics.Lift.weissenger_vortex_lattice import weissinger_vortex_lattice
-from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
+#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
+from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
+
 
 # local imports
 from Aerodynamics_Surrogate import Aerodynamics_Surrogate
@@ -54,6 +59,8 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         
         self.configuration = Configuration()
         
+        
+        
         # correction factors
         self.configuration.fuselage_lift_correction           = 1.14
         self.configuration.trim_drag_correction_factor        = 1.02
@@ -66,13 +73,17 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         self.configuration.number_panels_chordwise = 1
         
         self.conditions_table = Conditions(
-            angle_of_attack = np.linspace(-10., 10., 5) * Units.deg ,
+            #angle_of_attack = np.linspace(-10., 10., 5) * Units.deg ,
+            angle_of_attack = np.linspace(0, 5, 6) * Units.deg ,
         )
+        
+       
+        
         
         self.models = Data()
         
         
-    def initialize(self,vehicle):
+    def initialize(self,vehicle,Seg):
                         
         # unpack
         conditions_table = self.conditions_table
@@ -88,12 +99,22 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         
         # reference area
         geometry.reference_area = vehicle.Sref
+              
         
         # arrays
         CL  = np.zeros_like(AoA)
         
         # condition input, local, do not keep
         konditions = Conditions()
+        
+        #----Conditions data
+        konditions.mach_number=Seg.M
+        konditions.density=Seg.rho
+        konditions.viscosity=Seg.mew
+        konditions.temperature = Seg.T  
+        konditions.pressure=Seg.p           
+        
+        
         
         # calculate aerodynamics for table
         for i in xrange(n_conditions):
@@ -106,6 +127,9 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
             
         # store table
         conditions_table.lift_coefficient = CL
+        
+        print 'aoa',AoA
+        print 'Cl', CL
         
         # build surrogate
         self.build_surrogate()
@@ -130,8 +154,10 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         X_data = np.array([AoA_data]).T        
         
         # assign models
-        Interpolation = Fidelity_Zero.Interpolation
-        self.models.lift_coefficient = Interpolation(X_data,CL_data)
+        Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        
+        #Interpolation = Fidelity_Zero.Interpolation
+        self.models.lift_coefficient = Interpolation
         
         # assign to configuration
         self.configuration.surrogate_models = self.models
@@ -168,9 +194,10 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         # unpack
         configuration = self.configuration
         geometry      = self.geometry
+
                 
         # lift needs to compute first, updates data needed for drag
-        CL = compute_aircraft_lift(conditions,configuration,geometry)
+        CL = SUAVE.Methods.Aerodynamics.Lift.compute_aircraft_lift(conditions,configuration,geometry)
         
         # drag computes second
         CD = compute_aircraft_drag(conditions,configuration,geometry)
@@ -184,13 +211,22 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     """
     
     # unpack
-    vehicle_reference_area = geometry.Sref
+    vehicle_reference_area = geometry.reference_area
     
     total_lift = 0.0
     
-    for wing in geometry.Wings:
-        wing_lift = weissinger_vortex_lattice(conditions,configuration,wing)
-        total_lift += wing_lift * wing.Sref / vehicle_reference_area
+    count = 0
+    
+    for wing in geometry.Wings.values():
+        
+        
+
+        
+        [wing_lift,wing_drag] = weissinger_vortex_lattice(conditions,configuration,wing)
+        total_lift += wing_lift * wing.sref / vehicle_reference_area
+
+        
+        
     
     return total_lift
     

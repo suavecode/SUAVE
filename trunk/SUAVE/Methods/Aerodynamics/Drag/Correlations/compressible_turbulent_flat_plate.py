@@ -22,7 +22,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 
-def compressible_turbulent_flat_plate(Re,Ma,T):
+def compressible_turbulent_flat_plate(Re_w,Mc,Tc):
     
     # incompressible skin friction coefficient
     cf_inc = 0.455/(np.log10(Re_w))**2.58
