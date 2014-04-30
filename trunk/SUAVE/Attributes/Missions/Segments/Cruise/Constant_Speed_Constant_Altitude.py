@@ -29,9 +29,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
        # --- User Inputs
         
-        self.altitude  = 10. * km
+        self.altitude  = None # Optional
         self.air_speed = 10. * km/hr
-        self.range     = 10. * km
+        self.distance  = 10. * km
 
         
         # -- Conditions 
@@ -79,12 +79,18 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         # unpack inputs
         alt       = self.altitude
-        xf        = self.range
+        xf        = self.distance
         air_speed = self.air_speed
         atmo      = self.atmosphere
         planet    = self.planet
         t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]
+        
+        # check for initial altitude
+        if alt is None:
+            if not initials: raise AttributeError('altitude not set')
+            alt = -1.0 * initials.frames.inertial.position_vector[0,2]
+            self.altitude = alt
         
         # freestream details
         conditions.freestream.altitude[:,0] = alt

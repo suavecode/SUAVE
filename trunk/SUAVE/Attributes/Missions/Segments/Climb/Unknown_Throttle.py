@@ -30,7 +30,7 @@ class Unknown_Throttle(Climb_Segment):
         
         # --- User Inputs
         
-        self.altitude_start = 1.  * km
+        self.altitude_start = None # Optional
         self.altitude_end   = 10. * km
         
         # -- Conditions 

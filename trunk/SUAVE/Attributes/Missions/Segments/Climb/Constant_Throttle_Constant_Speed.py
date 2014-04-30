@@ -30,7 +30,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         
         # --- User Inputs
         
-        self.altitude_start = 1.  * km
+        self.altitude_start = None # Optional
         self.altitude_end   = 10. * km
         self.throttle       = 0.5
         self.air_speed      = 100 * Units.m / Units.s

@@ -30,7 +30,7 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         
         # --- User Inputs
         
-        self.altitude_start = 1.  * km
+        self.altitude_start = None # Optional
         self.altitude_end   = 10. * km
         self.climb_rate     = 3.  * deg
         self.air_speed      = 100 * Units.m / Units.s

@@ -21,7 +21,7 @@ import pylab as plt
 import matplotlib
 #matplotlib.interactive(True)
 
-import copy
+import copy, time
 
 
 # ----------------------------------------------------------------------
@@ -298,14 +298,13 @@ def define_mission(vehicle):
     segment.config = vehicle.Configs.takeoff
     
     # define segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet    
-    segment.altitude_start = 0.0    * Units.km
-    segment.altitude_end   = 3.0  * Units.km
+    segment.atmosphere     = atmosphere
+    segment.planet         = planet    
     
-    # pick two:
-    segment.air_speed      = 125.0  * Units.m / Units.s
-    segment.climb_rate     = 6.0    * Units.m / Units.s
+    segment.altitude_start = 0.0   * Units.km
+    segment.altitude_end   = 3.0   * Units.km
+    segment.air_speed      = 125.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
     
     # add to misison
     mission.append_segment(segment)
@@ -323,16 +322,15 @@ def define_mission(vehicle):
     segment.config = vehicle.Configs.cruise
     
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet    
-    segment.altitude_start = 3.0    * Units.km
-    segment.altitude_end   = 8.0  * Units.km
+    segment.atmosphere     = atmosphere
+    segment.planet         = planet    
     
-    # pick two:
-    segment.air_speed      = 190.0  * Units.m / Units.s
-    segment.climb_rate     = 6.0    * Units.m / Units.s
-    #segment.mach_number = 0.5
-    #segment.climb_rate  = 6.0
+    #segment.altitude_start = 3.0   * Units.km ## Optional
+    segment.altitude_end   = 8.0   * Units.km
+    segment.air_speed      = 190.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.mach_number    = 0.5
+    #segment.climb_rate     = 6.0   * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
@@ -349,14 +347,12 @@ def define_mission(vehicle):
     segment.config = vehicle.Configs.cruise
     
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    segment.altitude_start = 8.0    * Units.km
-    segment.altitude_end   = 10.668 * Units.km
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet        
     
-    # pick two:
-    segment.air_speed      = 226.0  * Units.m / Units.s
-    segment.climb_rate     = 3.0    * Units.m / Units.s
+    segment.altitude_end = 10.668 * Units.km
+    segment.air_speed    = 226.0  * Units['m/s']
+    segment.climb_rate   = 3.0    * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
@@ -375,9 +371,10 @@ def define_mission(vehicle):
     # segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet        
-    segment.altitude   = 10.668    * Units.km
-    segment.air_speed  = 230.412   * Units.m / Units.s
-    segment.range      = 3933.65   * Units.km
+    
+    #segment.altitude   = 10.668  * Units.km     # Optional
+    segment.air_speed  = 230.412 * Units['m/s']
+    segment.distance   = 3933.65 * Units.km
         
     mission.append_segment(segment)
 
@@ -392,14 +389,12 @@ def define_mission(vehicle):
     segment.config = vehicle.Configs.cruise
     
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    segment.altitude_start = 10.668 * Units.km
-    segment.altitude_end   = 5.0    * Units.km
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet   
     
-    # pick two:
-    segment.air_speed      = 170.0  * Units.m / Units.s
-    segment.descent_rate   = 5.0    * Units.m / Units.s
+    segment.altitude_end = 5.0   * Units.km
+    segment.air_speed    = 170.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
@@ -416,14 +411,12 @@ def define_mission(vehicle):
     segment.config = vehicle.Configs.cruise
 
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    segment.altitude_start = 5.0 * Units.km
-    segment.altitude_end   = 0.0    * Units.km
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet    
     
-    # pick two:
-    segment.air_speed      = 145.0  * Units.m / Units.s
-    segment.descent_rate   = 5.0    * Units.m / Units.s    
+    segment.altitude_end = 0.0   * Units.km
+    segment.air_speed    = 145.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
 
     # append to mission
     mission.append_segment(segment)
@@ -447,7 +440,7 @@ def evaluate_mission(vehicle,mission):
     #   Run Mission
     # ------------------------------------------------------------------
     results = SUAVE.Methods.Performance.evaluate_mission(mission)
-    
+   
     
     # ------------------------------------------------------------------    
     #   Compute Useful Results
@@ -666,7 +659,7 @@ def post_process(vehicle,mission,results):
 
 if __name__ == '__main__':
     
-    profile_module = True
+    profile_module = False
         
     if not profile_module:
         main()
@@ -688,6 +681,8 @@ if __name__ == '__main__':
 
 
 def profile():
+    t0 = time.time()
     vehicle = define_vehicle()
     mission = define_mission(vehicle)
     results = evaluate_mission(vehicle,mission)
+    print 'Run Time:' , (time.time()-t0)

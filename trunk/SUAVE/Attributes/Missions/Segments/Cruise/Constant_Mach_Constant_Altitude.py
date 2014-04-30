@@ -31,7 +31,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         
         self.altitude    = 10. * km
         self.mach        = 0.7
-        self.range       = 10. * km
+        self.distance    = 10. * km
         
         return
 

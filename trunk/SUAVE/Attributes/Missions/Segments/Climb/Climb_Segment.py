@@ -29,7 +29,7 @@ class Climb_Segment(Aerodynamic_Segment):
         
        # --- User Inputs
         
-        self.altitude_start = 1. * km
+        self.altitude_start = None      # optional
         self.altitude_end   = 10. * km
         
         return
@@ -72,7 +72,7 @@ class Climb_Segment(Aerodynamic_Segment):
         """
         
         # gets initial mass and time from previous segment
-        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)        
+        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)
         
         # unpack inputs
         alt0     = self.altitude_start 
@@ -80,6 +80,12 @@ class Climb_Segment(Aerodynamic_Segment):
         atmo     = self.atmosphere
         planet   = self.planet
         t_nondim = numerics.dimensionless_time
+        
+        # check for initial altitude
+        if alt0 is None:
+            if not initials: raise AttributeError('initial altitude not set')
+            alt0 = -1.0 * initials.frames.inertial.position_vector[0,2]
+            self.altitude_start = alt0
         
         # discretize on altitude
         alt = t_nondim * (altf-alt0) + alt0

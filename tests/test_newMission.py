@@ -679,6 +679,5 @@ if __name__ == '__main__':
         p = pstats.Stats(profile_file)
         p.sort_stats('time').print_stats(20)        
     
-    #main()
 
 

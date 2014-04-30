@@ -14,6 +14,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
+from SUAVE.Attributes import Units
 
 import numpy as np
 import pylab as plt
@@ -54,6 +55,7 @@ def define_vehicle():
     # vehicle-level properties
     vehicle.Mass_Props.m_full       = 743.0  # kg
     vehicle.Mass_Props.m_empty      = 743.0  # kg
+    vehicle.Mass_Props.m_takeoff    = 743.0  # kg
 
     vehicle.delta                   = 0.0    # deg  
     
@@ -108,7 +110,14 @@ def define_vehicle():
     aerodynamics.CL0 = 0.30    # CL at alpha = 0.0 (from wind tunnel data)  
     
     # add model to vehicle aerodynamics
-    vehicle.Aerodynamics = aerodynamics
+    vehicle.aerodynamics_model = aerodynamics
+    
+    
+    # ------------------------------------------------------------------
+    #   Simple Propulsion Model
+    # ------------------------------------------------------------------     
+    
+    vehicle.propulsion_model = vehicle.Propulsors    
     
     
     # ------------------------------------------------------------------
@@ -145,9 +154,6 @@ def define_mission(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'Cessna 172 Test Mission'
     
-    # initial mass
-    mission.m0 = vehicle.Mass_Props.linked_copy('m_full') # linked copy updates if parent changes
-    
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet     = SUAVE.Attributes.Planets.Earth()
@@ -156,67 +162,70 @@ def define_mission(vehicle):
     #   Climb Segment: constant Mach, constant climb angle 
     # ------------------------------------------------------------------
     
-    climb = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach()
-    climb.tag = "Climb"
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Angle()
+    segment.tag = "Climb"
     
     # connect vehicle configuration
-    climb.config = vehicle.Configs.cruise
+    segment.config = vehicle.Configs.cruise
     
     # segment attributes
-    climb.atmosphere = atmosphere
-    climb.planet     = planet    
-    climb.altitude   = [0.0, 2.0] # km
-    climb.Minf       = 0.15        
-    climb.psi        = 15.0         # deg
-    climb.options.N  = 16
+    # define segment attributes
+    segment.atmosphere     = atmosphere
+    segment.planet         = planet    
+    
+    segment.altitude_start = 0.0 * Units.km
+    segment.altitude_end   = 2.0 * Units.km
+    
+    segment.mach_number    = 0.15
+    segment.climb_angle    = 15.0 * Units.degrees
 
     # add to mission
-    mission.append_segment(climb)
+    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------
     
-    cruise = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
-    cruise.tag = "Cruise"
+    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment.tag = "Cruise"
     
     # connect vehicle configuration
-    cruise.config = vehicle.Configs.cruise
+    segment.config = vehicle.Configs.cruise
     
-    # config attributes
-    cruise.atmosphere = atmosphere
-    cruise.planet     = planet        
-    cruise.altitude  =climb.altitude[-1]    
-    cruise.Vinf      = 62.0    # m/s
-    cruise.range     = 130    # km
-    cruise.options.N = 16
+    # segment attributes
+    segment.atmosphere = atmosphere
+    segment.planet     = planet        
+    
+    #segment.altitude   = 2.0   * Units.km     # Optional
+    segment.air_speed  = 62.0  * Units['m/s']
+    segment.distance   = 130.0 * Units.km
     
     # add to mission
-    mission.append_segment(cruise)
+    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
     #   Descent Segment: consant speed, constant descent rate
     # ------------------------------------------------------------------
     
-    descent = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
-    descent.tag = "Descent"
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "Descent"
     
     # connect vehicle configuration
-    descent.config = vehicle.Configs.cruise
-
+    segment.config = vehicle.Configs.cruise
+    
     # segment attributes
-    descent.atmosphere  = atmosphere
-    descent.planet      = planet        
-    descent.altitude  = [cruise.altitude, 0.0] # km
-    descent.Vinf      = 45.0        # m/s
-    descent.rate      = 5.0         # m/s
-    descent.options.N = 16
+    segment.atmosphere = atmosphere
+    segment.planet     = planet   
+    
+    segment.altitude_end = 0.0  * Units.km
+    segment.air_speed    = 45.0 * Units['m/s']
+    segment.descent_rate = 5.0  * Units['m/s']
     
     # add to mission
-    mission.append_segment(descent)
-
+    mission.append_segment(segment)
+    
     
     # ------------------------------------------------------------------    
     #   Mission definition complete    
@@ -245,9 +254,9 @@ def evaluate_mission(vehicle,mission):
     # estimate required power for the battery
     W = 9.81*vehicle.Mass_Props.m_full
     a = (1.4*287.*293.)**.5
-    T = 1./(np.sin(climb.psi*np.pi/180.))  # direction of thrust vector
+    T = 1./(np.sin(climb.climb_angle))  # direction of thrust vector
     factor = 10                             # factor on maximum power requirement of mission
-    Preq = climb.Minf * W * a * T / factor # the required power
+    Preq = climb.mach_number * W * a * T / factor # the required power
     Ereq = 2E6                                # required energy
     # Ereq chosen such that it can run the entire segment, 
     # accounting for discharge losses without running out of energy    
@@ -267,38 +276,38 @@ def evaluate_mission(vehicle,mission):
     results = SUAVE.Methods.Performance.evaluate_mission(mission)
     
     
-    # ------------------------------------------------------------------    
-    #   Compute Useful Results
-    # ------------------------------------------------------------------
-    SUAVE.Methods.Results.compute_energies(results, summary=True)
-    SUAVE.Methods.Results.compute_efficiencies(results)
-    SUAVE.Methods.Results.compute_velocity_increments(results)
-    SUAVE.Methods.Results.compute_alpha(results)    
+    ## ------------------------------------------------------------------    
+    ##   Compute Useful Results
+    ## ------------------------------------------------------------------
+    #SUAVE.Methods.Results.compute_energies(results, summary=True)
+    #SUAVE.Methods.Results.compute_efficiencies(results)
+    #SUAVE.Methods.Results.compute_velocity_increments(results)
+    #SUAVE.Methods.Results.compute_alpha(results)    
     
     
-    Pbat_loss=np.zeros_like(results.Segments[0].P_e) #initialize battery losses
-    Ecurrent=np.zeros_like(results.Segments[0].t) #initialize battery energies
+    #Pbat_loss=np.zeros_like(results.Segments[0].P_e) #initialize battery losses
+    #Ecurrent=np.zeros_like(results.Segments[0].t) #initialize battery energies
    
 
-    #now run the battery for the mission
-    for i in range(len(results.Segments)):
-        results.Segments[i].Ecurrent=np.zeros_like(results.Segments[i].t)
-        if i==0:
-            results.Segments[i].Ecurrent[0]=battery.TotalEnergy
-        if i!=0 and j!=0:
-            results.Segments[i].Ecurrent[0]=results.Segments[i-1].Ecurrent[j] #assign energy at end of segment to next segment 
+    ##now run the battery for the mission
+    #for i in range(len(results.Segments)):
+        #results.Segments[i].Ecurrent=np.zeros_like(results.Segments[i].t)
+        #if i==0:
+            #results.Segments[i].Ecurrent[0]=battery.TotalEnergy
+        #if i!=0 and j!=0:
+            #results.Segments[i].Ecurrent[0]=results.Segments[i-1].Ecurrent[j] #assign energy at end of segment to next segment 
           
-        for j in range(len(results.Segments[i].P_e)):
-            if j!=0:
-                [Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j]-results.Segments[i].t[j-1]))
+        #for j in range(len(results.Segments[i].P_e)):
+            #if j!=0:
+                #[Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j]-results.Segments[i].t[j-1]))
                     
-            elif i!=0 and j==0:
-                [Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j]-results.Segments[i-1].t[-2]))
-            elif j==0 and i==0: 
-                [Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j+1]-results.Segments[i].t[j]))
-            results.Segments[i].mdot[j]=mdot
-            results.Segments[i].Ecurrent[j]=battery.CurrentEnergy
-            results.Segments[i].P_e[j]+=Ploss
+            #elif i!=0 and j==0:
+                #[Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j]-results.Segments[i-1].t[-2]))
+            #elif j==0 and i==0: 
+                #[Ploss,mdot]=battery(results.Segments[i].P_e[j], (results.Segments[i].t[j+1]-results.Segments[i].t[j]))
+            #results.Segments[i].mdot[j]=mdot
+            #results.Segments[i].Ecurrent[j]=battery.CurrentEnergy
+            #results.Segments[i].P_e[j]+=Ploss
     return results
 
 # ----------------------------------------------------------------------
