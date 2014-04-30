@@ -11,7 +11,7 @@ from copy            import deepcopy
 from warnings        import warn
 
 import numpy as np
-from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
+from ..tools.arrays import atleast_2d_col, array_type, matrix_type
 
 
 # ----------------------------------------------------------------------

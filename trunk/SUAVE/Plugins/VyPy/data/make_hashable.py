@@ -6,7 +6,7 @@
 import copy
 DictProxyType = type(object.__dict__)
 
-from VyPy.tools import numpy_isloaded, array_type, matrix_type
+from ..tools import numpy_isloaded, array_type, matrix_type
 
 
 # ----------------------------------------------------------------------
