@@ -14,7 +14,6 @@ from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Attributes.Results import Result
-from SUAVE.Attributes.Missions.Segments import Segment
 #from SUAVE import Vehicle
 from SUAVE.Components.Wings import Wing
 from SUAVE.Components.Fuselages import Fuselage
