@@ -3,7 +3,9 @@
 # ---------------------------------------------------------------------
 SUAVE/Methods/Performance/evaluate_segment.py
 
-The basic flow for mission evaluation is ...
+The basic flow for mission evaluation is below.
+One of the best ways to see this in action is to step through it
+with a debugger, starting at evaluate_mission()
 
 evaluate_mission()
     for each segment:
