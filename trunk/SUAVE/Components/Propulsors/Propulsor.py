@@ -60,9 +60,10 @@ class Container(Physical_Component.Container):
     
     def __call__(self,eta,segment):
         
-        F = np.zeros_like(eta)
+        
+        F    = np.zeros_like(eta)
         mdot = np.zeros_like(eta)
-        P = np.zeros_like(eta)
+        P    = np.zeros_like(eta)
         
         for propulsor in self.values():
             CF, Isp, etaPe = propulsor(eta,segment)
@@ -109,6 +110,7 @@ class Container(Physical_Component.Container):
                 mask = (etaPe != 0.0)
                 P += F[mask]*segment.V[mask]/etaPe[mask]    # W
             #print mdot   
+            
         return F, mdot, P
 
     def power_flow(self,eta,segment):

@@ -1,205 +1,199 @@
-""" CruiseConstantSpeedConstantAltitude.py: constant speed, constant altitude cruise """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+# python imports
 import numpy as np
-from SUAVE.Attributes.Missions.Segments import Segment
-from SUAVE.Methods.Constraints import horizontal_force, vertical_force
+
+# SUAVE imports
+from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
+
+# import units
+from SUAVE.Attributes import Units
+km = Units.km
+hr = Units.hr
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 
-class Constant_Speed_Constant_Altitude(Segment):
+class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
 
-    """ Segment: constant speed, constant altitude cruise """
-
-    def __defaults__(self):
-        self.tag = 'Segment: constant speed, constant altitude cruise'
-
-    def initialize(self):
-
-        err = False; guess = []
-
-        # check altitude
-        try: 
-            self.altitude
-        except AttributeError:
-            print "Error in cruise segment: no altitude defined."
-            return True
-        else:
-            if np.shape(self.altitude):
-                if len(np.shape(self.altitude)) == 2:
-                    print "Error in cruise segment: altitude must be a scalar."
-                    return True
-                elif len(np.shape(self.altitude)) == 1:
-                    if len(self.altitude) > 1:
-                        print "Error in cruise segment: altitude must be a scalar."
-                        return True
-                
-        # check Vinf / Minf
-        try: 
-            self.Vinf
-        except AttributeError:
-            have_V = False
-        else:
-            have_V = True
-            if np.shape(self.Vinf):
-                if len(np.shape(self.Vinf)) == 2:
-                    print "Error in cruise segment: velocity must be a scalar."
-                    return True
-                elif len(np.shape(self.Vinf)) == 1:
-                    if len(self.Vinf) > 1:
-                        print "Error in cruise segment: velocity must be a scalar."
-                        return True
-
-        try: 
-            self.Minf
-        except AttributeError:
-            have_M = False
-        else:
-            have_M = True
-            if np.shape(self.Minf):
-                if len(np.shape(self.Minf)) == 2:
-                    print "Error in cruise segment: velocity must be a scalar."
-                    return True
-                elif len(np.shape(self.Minf)) == 1:
-                    if len(self.Minf) > 1:
-                        print "Error in cruise segment: velocity must be a scalar."
-                        return True
-
-        # allocate vectors
-        self.initialize_vectors()
-
-        # gravity
-        self.compute_gravity(self.altitude,self.planet)
-
-        # freestream conditions
-        self.compute_atmosphere(self.altitude)
-
-        if have_V and have_M:
-            print "Error in cruise segment: velocity and Mach both defined. Please disambiguate."
-            return True
-        elif have_V and not have_M:
-            self.Minf = self.Vinf/self.a
-        elif not have_V and have_M:
-            self.Vinf = self.Minf*self.a
-        elif not have_V and not have_M:
-            print "Error in cruise segment: no velocity or Mach defined."
-            return True
-
-        # final time
-        self.dt = (self.range*1e3)/self.Vinf      # s
-
-        # freestream conditions
-        self.vectors.V[:,0] = self.Vinf
-        self.compute_freestream()
-
-        # lift direction
-        self.compute_lift_direction_2D()
-
-        if not err:
-
-            # create guess
-            self.guess = np.append(np.zeros(self.options.N),np.ones(self.options.N)*0.50)
-
-        return err
-
-    def unpack(self,x):
-
-        # unpack state data
-        x_state = []; tf = []
-        x_control = np.reshape(x,(self.options.N,2),order="F")
+    # ------------------------------------------------------------------
+    #   Data Defaults
+    # ------------------------------------------------------------------  
     
-        return x_state, x_control, tf
-
-    def dynamics(self,x_state,x_control,D,I):
-        pass
-
-    def constraints(self,x_state,x_control,D,I):
-
-        # initialize needed arrays
-        N = self.options.N
-        if self.complex:
-            self.vectors.D = np.zeros((N,3)) + 0j       # drag vector (N)
-            self.vectors.L = np.zeros((N,3)) + 0j       # lift vector (N)
-            self.vectors.u = np.zeros((N,3)) + 0j       # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3)) + 0j       # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3)) + 0j    # total force vector (N)
-
-        else:    
-            self.vectors.D = np.zeros((N,3))            # drag vector (N)
-            self.vectors.L = np.zeros((N,3))            # lift vector (N)
-            self.vectors.u = np.zeros((N,3))            # thrust unit tangent vector
-            self.vectors.F = np.zeros((N,3))            # thrust vector (N)
-            self.vectors.Ftot = np.zeros((N,3))         # total force vector (N)
-
-        # unpack state data
-        gamma = x_control[:,0]; eta = x_control[:,1]
-
-        # set up thrust vector
-        self.vectors.u[:,0] = np.cos(gamma) 
-        self.vectors.u[:,2] = np.sin(gamma)
-
-        # aero data (gamma = alpha in this case)
-        self.compute_aero(gamma)
-
-        # compute aero vectors
-        self.compute_aero_vectors_2D()
-
-        # propulsion data & thrust vectos
-        self.compute_propulsion(eta)
-        self.compute_thrust_vectors_2D()
-
-        # mass
-        self.compute_mass(self.m0,I)
-
-        # total up forces
-        self.compute_forces()
-
-        # evaluate constraints 
-        if self.complex:
-            R = np.zeros_like(x_control) + 0j
-        else:
-            R = np.zeros_like(x_control)
-
-        R[:,0] = horizontal_force(self) 
-        R[:,1] = vertical_force(self)  
-
-        return R
-
-    def solution(self,x):
-        
-        # unpack vector
-        x_state, x_control, tf = self.unpack(x)
-
-        # operators
-        self.t = self.t0 + self.numerics.t*self.dt
-        self.differentiate = self.numerics.D/self.dt 
-        self.integrate = self.numerics.I*self.dt
-
-        # call dynamics function to fill state data
-        self.constraints(x_state,x_control,self.differentiate,self.integrate)
-
-        # state and orientation data
-        self.vectors.r[:,0] = np.dot(self.integrate,self.vectors.V[:,0])
-        self.vectors.r[:,2] = np.ones(self.options.N)*self.altitude*1e3
-
-        # flight angle
-        self.psi = np.zeros_like(self.t)
-
-        # accelerations
-        self.vectors.a = np.zeros_like(self.vectors.u)
-
-        # controls
-        self.gamma = x_control[:,0]
-        self.eta = x_control[:,1]
-
-        return 
-
-class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
-
     def __defaults__(self):
-        self.tag = 'Segment: constant Mach, constant altitude cruise'
+        self.tag = 'Constant Speed, Constant Altitude Cruise'
+        
+       # --- User Inputs
+        
+        self.altitude  = None # Optional
+        self.air_speed = 10. * km/hr
+        self.distance  = 10. * km
+
+        
+        # -- Conditions 
+        
+        # uses a ton of defaults from Aerodynamic_Segment
+        
+        
+        # --- Unknowns
+        unknowns = self.unknowns
+        unknowns.controls.throttle = np.ones([1,1])
+        unknowns.controls.theta    = np.ones([1,1])
+        
+        # --- Residuals
+        residuals = self.residuals
+        residuals.controls.Fx = np.ones([1,1])
+        residuals.controls.Fz = np.ones([1,1])
+        
+        return
+
+    # ------------------------------------------------------------------
+    #   Methods For Initialization
+    # ------------------------------------------------------------------  
+    
+    def check_inputs(self):
+        """ Segment.check():
+            error checking of segment inputs
+        """
+        
+        ## CODE
+        
+        return
+    
+    def initialize_conditions(self,conditions,numerics,initials=None):
+        """ Segment.initialize_conditions(conditions)
+            update the segment conditions
+            pin down as many condition variables as possible in this function
+            
+            Assumptions:
+                --
+                
+        """
+        
+        # sets initial time and mass
+        conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)
+        
+        # unpack inputs
+        alt       = self.altitude
+        xf        = self.distance
+        air_speed = self.air_speed
+        atmo      = self.atmosphere
+        planet    = self.planet
+        t_nondim  = numerics.dimensionless_time
+        t_initial = conditions.frames.inertial.time[0,0]
+        
+        # check for initial altitude
+        if alt is None:
+            if not initials: raise AttributeError('altitude not set')
+            alt = -1.0 * initials.frames.inertial.position_vector[0,2]
+            self.altitude = alt
+        
+        # freestream details
+        conditions.freestream.altitude[:,0] = alt
+        conditions = self.compute_atmosphere(conditions,atmo)
+        conditions = self.compute_gravity(conditions,planet)
+        
+        conditions.frames.inertial.velocity_vector[:,0] = air_speed
+        conditions = self.compute_freestream(conditions)
+        
+        # dimensionalize time
+        t_final = xf / air_speed + t_initial
+        time =  t_nondim * (t_final-t_initial) + t_initial
+        conditions.frames.inertial.time[:,0] = time[:,0]
+        
+        # positions (TODO: mamange user initials)
+        conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+        
+        # update differentials
+        numerics = Aerodynamic_Segment.update_differentials(self,conditions,numerics)
+        
+        # done
+        return conditions
+    
+    
+    # ------------------------------------------------------------------
+    #   Methods For Solver Iterations
+    # ------------------------------------------------------------------    
+    
+    def update_differentials(self,conditions,numerics,unknowns):
+        # time is constant for this segment,
+        # don't need to update differential operators
+        return numerics
+    
+    def update_conditions(self,conditions,numerics,unknowns):
+        """ Segment.update_conditions(conditions,numerics,unknowns)
+            if needed, updates the conditions given the current free unknowns and numerics
+            called once per segment solver iteration
+        """
+        
+        # unpack unknowns
+        throttle = unknowns.controls.throttle
+        theta    = unknowns.controls.theta
+        
+        # apply unknowns
+        conditions.propulsion.throttle[:,0]            = throttle[:,0]
+        conditions.frames.body.inertial_rotations[:,1] = theta[:,0]
+        
+        # angle of attack
+        # external aerodynamics
+        # propulsion
+        # weights
+        # total forces
+        conditions = Aerodynamic_Segment.update_conditions(self,conditions,numerics,unknowns)
+        
+        return conditions
+     
+    def solve_residuals(self,conditions,numerics,unknowns,residuals):
+        """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
+            the hard work, solves the residuals for the free unknowns
+            called once per segment solver iteration
+        """
+        
+        # unpack inputs
+        FT = conditions.frames.inertial.total_force_vector
+        
+        # process
+        residuals.controls.Fx[:,0] = FT[:,0]
+        residuals.controls.Fz[:,0] = FT[:,2]
+        
+        # pack outputs
+        ## CODE
+        
+        return residuals
+    
+    # ------------------------------------------------------------------
+    #   Methods For Post-Solver
+    # ------------------------------------------------------------------    
+    
+    def post_process(self,conditions,numerics,unknowns):
+        """ Segment.post_process(conditions,numerics,unknowns)
+            post processes the conditions after converging the segment solver
+            
+            Usage Notes - 
+                use this to store the unknowns and any other interesting in conditions
+                    for later plotting
+                for clarity and style, be sure to define any new fields in segment.__defaults__
+            
+        """
+        
+        # unpack inputs
+        ## CODE
+        
+        # setup
+        ## CODE
+        
+        # process
+        ## CODE
+        
+        # pack outputs
+        ## CODE
+        
+        return
+    
+    
+        
+    

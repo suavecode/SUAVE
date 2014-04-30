@@ -3,7 +3,7 @@ import numpy as np
 from numpy import cos, sin
 
 def angle_to_dcm(rotation,sequence='ZYX',units='radians'):
-    """ dcm = angle_to_dcm([r1,r2,r3],seq)
+    """ transform = angle_to_dcm([r1,r2,r3],seq)
         builds euler angle rotation matrix
     
         Inputs:

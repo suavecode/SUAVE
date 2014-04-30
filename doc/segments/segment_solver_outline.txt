@@ -1,0 +1,75 @@
+
+# ---------------------------------------------------------------------
+#   Top level mission evaluation
+# ---------------------------------------------------------------------
+SUAVE.Methods.Performance.evaluate_mission()
+    for each segment:
+        evaluage_segment()
+
+
+# ---------------------------------------------------------------------
+#   Segment evaluator
+# ---------------------------------------------------------------------
+SUAVE.Methods.Performance.evaluate_segment()
+    
+    #unpack 
+    unknowns, residuals, conditions, numerics
+    
+    # works on a segment, see
+    # SUAVE.Attributes.Missions.Segments.Segment()
+    
+    # initialize arrays in unknowns, residuals, conditions
+    segment.initialize_differentials()    
+    # arrays are defaulted to one-row 2D-arrays
+    # this step expands them out to the segment's number of time points
+    
+    # initialize segmenet conditions
+    segment.initalize_conditions()
+    # this is likely the first function defined for a new segment
+    # does all the pre-processing needed to run the segment
+    
+    # iterate and converge the segment residuals
+    x_sol = root( segement_residuals() )
+    
+    # post process segments 
+    segment.post_process()
+    # does all the post-processing after a segmenet is run
+    # this function fills in all the conditions that weren't needed
+    # during the segment solve
+    
+    # done!
+
+
+# ---------------------------------------------------------------------
+#   Segment solver
+# ---------------------------------------------------------------------
+SUAVE.Methods.Performance.evaluate_segment.segment_residuals():
+    # this function is called iteratively to converges residuals to zero
+    
+    # unpack 
+    unknowns, residuals, conditions, numerics    
+    
+    # update differentials
+    segment.update_differentials()
+    # likely needed if the final time of the segment is changing
+    
+    # update conditions
+    segment.update_conditions()
+    # another important function for new segments
+    # applies unknowns to the conditions
+    # does the work to update conditions as a result
+    
+    # solve residuals
+    segment.solve_residuals()
+    # pulls conditions and processes them to solve for residuals
+    # after this method, residuals composed into a final residual vector --
+    #    R = [ [ d(unknowns.states)/dt - residuals.states   ] ;
+    #          [                         residuals.controls ] ;
+    #          [                         residuals.finals   ] ] = [0] ,
+    #    where the segment solver will find a root of R = [0]
+    
+    
+    
+    
+    
+    
