@@ -1,13 +1,13 @@
 # Unix
 *~
 
-
+# Python
 *.py[cod]
 
-# C extensions
+# Python C extensions
 *.so
 
-# Packages
+# Python Packages
 *.egg
 *.egg-info
 dist
@@ -39,5 +39,19 @@ nosetests.xml
 .project
 .pydevproject
 
+
+# local directories
+/workspace
+
+# latex
+*.aux
+*.log
+
+# archives
+*.gz
+*.zip
+*.tar
+
 # Mac
 .DS_Store
+

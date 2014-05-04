@@ -42,21 +42,28 @@ def compressibility_drag_wing(conditions,configuration,geometry):
 
     # unpack
     wings      = geometry.Wings
-    wing_lifts = conditions.lift_breakdown.clean_wing
+    #wing_lifts = conditions.lift_breakdown.clean_wing
+    wing_lifts = conditions.clean_wing_lift
     mach       = conditions.mach_number
     
     # start result
     total_compressibility_drag = 0.0
-    
-    conditions.drag_breakdown.compressibility = Result(total = 0)
+    count=0  #counter
+    #conditions.drag_breakdown.compressibility = Result(total = 0)
 
     # go go go
+<<<<<<< HEAD
     for surf, lift in zip(wings, wing_lifts):
         wing = geometry.Wings[surf]
+=======
+    #for wing, lift in zip( wings.values(), wing_lifts.values() ):
+    for wing, in zip( wings.values()):
+        
+>>>>>>> c422cfc93480e326c5a4ef5e7d955b38d4a85e9c
         # unpack wing
         t_c_w   = wing.t_c
         sweep_w = wing.sweep
-        cl_w    = lift
+        cl_w    = wing_lifts[count]
     
         # get effective Cl and sweep
         tc = t_c_w /(np.cos(sweep_w))
@@ -86,9 +93,16 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
         # increment
-        total_compressibility_drag += cd_c
+        #total_compressibility_drag += cd_c
+        
+        if count==0:
+        
+            total_compressibility_drag = cd_c        
+            
+        count=count+1
         
         # dump data to conditions
+<<<<<<< HEAD
         wing_results = Result(
             compressibility_drag      = cd_c    ,
             thickness_to_chord        = tc      , 
@@ -97,11 +111,21 @@ def compressibility_drag_wing(conditions,configuration,geometry):
             divergence_mach           = MDiv    ,
         )
         conditions.drag_breakdown.compressible[wing.tag] = wing_results
+=======
+        #wing_results = Result(
+            #compressibility_drag      = cd_c    ,
+            #thickness_to_chord        = tc      , 
+            #wing_sweep                = sweep_w , 
+            #crest_critical            = mcc     ,
+            #divergence_mach           = Mdiv    ,
+        #)
+        #conditions.drag_breakdown.compressible[wing.tag] = wing_results
+>>>>>>> c422cfc93480e326c5a4ef5e7d955b38d4a85e9c
 
     #: for each wing
     
     # dump total comp drag
-    conditions.drag_breakdown.compressible.total = total_compressibility_drag
+    #conditions.drag_breakdown.compressible.total = total_compressibility_drag
     
 
     return total_compressibility_drag

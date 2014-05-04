@@ -58,6 +58,9 @@ def compute_aircraft_drag(aircraft, segment,Sref,cl_w,cd_w):
     [cd_i,induced_drag_total] =SUAVE.Methods.Aerodynamics.Drag.Correlations.induced_drag_wing(aircraft,segment,cl_w,cd_w,parasite_drag_total)
     [cd_c,compressibility_drag_total]=SUAVE.Methods.Aerodynamics.Drag.Correlations.compressibility_drag_wing(aircraft,segment,cl_w)    
 
+    #[compressibility_drag_total]=SUAVE.Methods.Aerodynamics.Drag.Correlations.compressibility_drag_wing(aircraft,segment,cl_w)    
+    
+    
     
     
     drag_aircraft_untrimmed=parasite_drag_total+induced_drag_total+compressibility_drag_total

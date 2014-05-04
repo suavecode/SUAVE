@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import copy
-from SUAVE.Methods.Solvers import pseudospectral
+from evaluate_segment import evaluate_segment
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -13,26 +13,24 @@ from SUAVE.Methods.Solvers import pseudospectral
 
 def evaluate_mission(mission):
 
-    results = copy.deepcopy(mission)
-
+    mission = copy.deepcopy(mission)
+    segments = mission.Segments
+    
     # evaluate each segment 
-    for i in range(len(results.Segments)):
-
-        segment = results.Segments[i]
-        # print mission.Segments[i]
-
-        # determine ICs for this segment
-        if i == 0:                                              # first segment of mission
-            segment.m0 = results.m0
-            segment.t0 = 0.0
-        else:                                                   # inherit ICs from previous segment
-            segment.m0 = results.Segments[i-1].m[-1]
-            segment.t0 = results.Segments[i-1].t[-1]
-
+    for i,segment in enumerate(segments.values()):
+        
+        if i > 0:
+            # link segment final conditions with initial conditions
+            segment.initials = segments.values()[i-1].get_final_conditions()
+        else:
+            segment.initials = None
+            
         # run segment
-        pseudospectral(segment)
-        #add horizontal distance covered
-        if i !=0:
-            segment.vectors.r[:,0]+=results.Segments[i-1].vectors.r[-1,0]
+        evaluate_segment(segment)
+        
+    return mission
 
-    return results
+
+# ----------------------------------------------------------------------
+#  Helper Methods
+# ----------------------------------------------------------------------

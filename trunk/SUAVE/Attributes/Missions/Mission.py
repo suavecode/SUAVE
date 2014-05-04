@@ -6,7 +6,7 @@
 
 from SUAVE.Structure import Data, Data_Exception
 from SUAVE.Structure import Container as ContainerBase
-from Segments.Segment import Segment
+from Segments import Base_Segment
 
 # ----------------------------------------------------------------------
 #   Class
@@ -17,7 +17,7 @@ class Mission(Data):
 
     def __defaults__(self):
         self.tag = 'Mission'
-        self.Segments = Segment.Container()
+        self.Segments = Base_Segment.Container()
 
     def append_segment(self,segment):
         """ Add a Mission Segment  """

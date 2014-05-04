@@ -5,7 +5,8 @@
 ##################################################################
 [project attributes]
 proj.directory-list = [{'dirloc': loc('../..'),
-                        'excludes': (),
+                        'excludes': [u'trunk/SUAVE.egg-info',
+                                     u'tags'],
                         'filter': '*',
                         'include_hidden': False,
                         'recursive': True,
