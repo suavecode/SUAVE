@@ -52,14 +52,9 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     #conditions.drag_breakdown.compressibility = Result(total = 0)
 
     # go go go
-<<<<<<< HEAD
-    for surf, lift in zip(wings, wing_lifts):
-        wing = geometry.Wings[surf]
-=======
     #for wing, lift in zip( wings.values(), wing_lifts.values() ):
     for wing, in zip( wings.values()):
         
->>>>>>> c422cfc93480e326c5a4ef5e7d955b38d4a85e9c
         # unpack wing
         t_c_w   = wing.t_c
         sweep_w = wing.sweep
@@ -102,7 +97,6 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         count=count+1
         
         # dump data to conditions
-<<<<<<< HEAD
         wing_results = Result(
             compressibility_drag      = cd_c    ,
             thickness_to_chord        = tc      , 
@@ -111,16 +105,6 @@ def compressibility_drag_wing(conditions,configuration,geometry):
             divergence_mach           = MDiv    ,
         )
         conditions.drag_breakdown.compressible[wing.tag] = wing_results
-=======
-        #wing_results = Result(
-            #compressibility_drag      = cd_c    ,
-            #thickness_to_chord        = tc      , 
-            #wing_sweep                = sweep_w , 
-            #crest_critical            = mcc     ,
-            #divergence_mach           = Mdiv    ,
-        #)
-        #conditions.drag_breakdown.compressible[wing.tag] = wing_results
->>>>>>> c422cfc93480e326c5a4ef5e7d955b38d4a85e9c
 
     #: for each wing
     
