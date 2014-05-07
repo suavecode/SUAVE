@@ -2,7 +2,7 @@
 import numpy as np
 import scipy as sp
 
-from VyPy.tools import vector_distance, atleast_2d
+from ..tools import vector_distance, atleast_2d
 
 def lhc_uniform(XB,NI,XI=None,maxits=100):
     ''' Latin Hypercube Sampling with uniform density

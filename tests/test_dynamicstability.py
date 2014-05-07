@@ -65,6 +65,41 @@ short_period = Approximations.short_period(velocity, density, S_gross_w, mac, Cm
 phugoid = Approximations.phugoid(g, velocity, CD, CL)
 longitudinal = Full_Linearized_Equations.longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha)
 
+# Expected Values
+Blakelock_longitudinal.short_zeta = 0.352
+Blakelock_longitudinal.short_w_n = 1.145
+Blakelock_longitudinal.phugoid_zeta = 0.032
+Blakelock_longitudinal.phugoid_w_n = 0.073
+Blakelock_short_period.short_w_n = 1.15
+Blakelock_short_period.short_zeta = 0.35
+Blakelock_phugoid.phugoid_w_n = 0.0765
+Blakelock_phugoid.phugoid_zeta = 0.042
+Blakelock_lateral_directional.dutch_w_n = 1.345
+Blakelock_lateral_directional.dutch_zeta = 0.14
+Blakelock_lateral_directional.spiral_tau = -1/2.09
+Blakelock_lateral_directional.roll_tau = 1/0.004
+Blakelock_dutch_roll.dutch_w_n = 1.28
+Blakelock_dutch_roll.dutch_zeta = 0.114
+Blakelock_spiral_tau = 1./0.0042
+Blakelock_roll_tau = -0.493
 
+# Calculating error percentage
+error.longitudinal_short_zeta = (Blakelock_longitudinal.short_zeta - longitudinal.short_zeta)/Blakelock_longitudinal.short_zeta
+error.longitudinal_short_w_n = (Blakelock_longitudinal.short_w_n - longitudinal.short_w_n)/Blakelock_longitudinal.short_w_n
+error.longitudinal_phugoid_zeta = (Blakelock_longitudinal.phugoid_zeta - longitudinal.phugoid_zeta)/Blakelock_longitudinal.phugoid_zeta
+error.longitudinal_phugoid_w_n = (Blakelock_longitudinal.phugoid_w_n - longitudinal.phugoid_w_n)/Blakelock_longitudinal.phugoid_w_n
+error.short_period
+Blakelock_short_period.short_w_n = 1.15
+Blakelock_short_period.short_zeta = 0.35
+Blakelock_phugoid.phugoid_w_n = 0.0765
+Blakelock_phugoid.phugoid_zeta = 0.042
+Blakelock_lateral_directional.dutch_w_n = 1.345
+Blakelock_lateral_directional.dutch_zeta = 0.14
+Blakelock_lateral_directional.spiral_tau = -1/2.09
+Blakelock_lateral_directional.roll_tau = 1/0.004
+Blakelock_dutch_roll.dutch_w_n = 1.28
+Blakelock_dutch_roll.dutch_zeta = 0.114
+Blakelock_spiral_tau = 1./0.0042
+Blakelock_roll_tau = -0.493
 
 print  dutch_roll

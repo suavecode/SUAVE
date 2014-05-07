@@ -284,7 +284,7 @@ class OrderedDict(Dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
+        from ..tools.arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
         if not output in ('vector','array'): raise Exception , 'output type must be "vector" or "array"'        
@@ -361,7 +361,7 @@ class OrderedDict(Dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
+        from ..tools.arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
         vector = np.rank(M) == 1

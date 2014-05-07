@@ -104,12 +104,12 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     
     
     # dump to results
-    #conditions.drag_breakdown.miscelaneous = Result(
-        #fuselage_upsweep = fuselage_upsweep_drag     , 
-        #nacelle_base     = nacelle_base_drag_results ,
-        #fuselage_base    = fuselage_base_drag        ,
-        #control_gaps     = total_gap_drag            ,
-    #)
+    conditions.drag_breakdown.miscellaneous = Result(
+        fuselage_upsweep = fuselage_upsweep_drag     , 
+        nacelle_base     = nacelle_base_drag_results ,
+        fuselage_base    = fuselage_base_drag        ,
+        control_gaps     = total_gap_drag            ,
+    )
        
     return total_miscellaneous_drag
     

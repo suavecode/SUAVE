@@ -7,11 +7,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+# local imports
+from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+
 # suave imports
 
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
+from SUAVE.Attributes.Results.Result import Result
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -75,7 +79,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     D = np.sqrt(1 - (1-Mc**2) * d_d**2)
     a        = 2 * (1-Mc**2) * (d_d**2) *(np.arctanh(D)-D) / (D**3)
     du_max_u = a / ( (2-a) * (1-Mc**2)**0.5 )
-    k_fus    = (1 + C_fus*du_max_u)**2
+    k_fus    = (1 + cf_fus*du_max_u)**2
     
     # --------------------------------------------------------
     # find the final result    
