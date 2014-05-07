@@ -10,7 +10,7 @@ from SUAVE.Attributes.Constants import Universe, Composition
 
 # modules
 #import numpy as np
-from math import sqrt
+import numpy as np
 
 # initialize local constants
 Universe = Universe()
@@ -44,7 +44,7 @@ class Air(Gas):
         else:
             g = 1.40
 
-        return sqrt(g*self.R*T)
+        return np.sqrt(g*self.R*T)
 
     def compute_cv(self,T=300,p=101325):
 

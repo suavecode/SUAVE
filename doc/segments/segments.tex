@@ -1,0 +1,184 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{natbib}
+\usepackage{color} 
+\usepackage{transparent}
+\setlength{\parindent}{0cm}
+\bibliographystyle{plain}
+
+% graphics paths
+\graphicspath{{./images/}}
+\makeatletter
+\def\input@path{{./images/}}
+\makeatother
+
+% Paul Constantine's prettyfication commands
+\input{custom_commands}
+
+\title{SUAVE Segments}
+
+\author{
+  Trent Lukaczyk%
+        \thanks{Graduate Student, Department of Aeronautics and Astronautics} \\
+  {\normalsize\itshape Stanford University, Stanford, CA 94305, USA}
+  Michael Colonno%
+        \thanks{Research Associate, Department of Aeronautics and Astronautics} \\
+  {\normalsize\itshape Stanford University, Stanford, CA 94305, USA}
+}
+
+
+\begin{document}
+
+\maketitle
+
+\clearpage
+
+\section{Aerodynamic Segments}
+
+These are segments that involve a vehicle traveling through air in an inertial referance frame.  
+
+
+\subsection{Frames of Reference}
+
+There are three frames that are needed to make dynamics calculations reasonably general yet convenient -- Inertial, Body, and Wind.  These frames are all centered at the aircraft's center of gravity
+
+The inertial frame is chosen such that the x-y plane is oriented parallel to a flat ground plane, and the z-axis points downward.  Two vector quantities are conveniently defined in this frame.  First is the weight vector, which points in the +z-direction with the direction of gravity.  Second is the vehicle's velocity vector.  
+
+\begin{figure}[htb] 
+    \centering
+    \def\svgwidth{150pt}
+    \input{aeroaxes_inertial.pdf_tex}
+    \caption{Inertial Frame}
+\end{figure} 
+
+It is typically not convienient to not define the velocity vector in the wind frame, as a combination of the velocity vector and the body frame orientation will later define the orientation of the wind frame.
+
+The body frame is aligned with the vehicle body, usually with the +x-direction pointing out the nose, the +y-direction pointing out the starboard wing, and the +z-direction pointing down.  
+
+\begin{figure}[htb] 
+    \centering
+    \def\svgwidth{150pt}
+    \input{aeroaxes_body.pdf_tex}
+    \caption{Body Frame}
+\end{figure} 
+
+The thrust of the aircraft is conveniently described in this frame since the propulsion system usually rotates with the aircraft.  The thrust's line of action may point in any direction in this frame.
+
+The orientation of this axis can be described relative to the inertial frame with Euler-angle rotations psi-theta-phi, which describe successive yaw-pitch-roll rotations around the z-y-x axes respectively.  These rotations can be encoded in a 3x3 transformation matrix, and can be composed of the matrix products of component rotations around each axis.  These component rotations are built as ...
+
+\begin{equation}
+T_x(\phi) = 0, 
+T_y(\theta) = 0, 
+T_z(\psi) = 0, 
+\end{equation}
+
+So given three yaw-pitch-roll angles of the body frame within the inertial, we can build a transformation matrix that takes any vector in the inertial frame and finds its equivalent coordinates in the rotated body frame.  This matrix is built from right to left...
+
+\begin{equation}
+T_{W/I} = T_\vx(\phi) T_\vy(\theta) T_z(\psi)
+\end{equation}
+
+
+The last frame is the wind frame, which is found using information from both the inertial and body frames.  It is typically constructed because the lift and drag aerodynamic force vectors typically rotate with this frame when constructed around the freestream velocity direction.
+
+\begin{figure}[htb] 
+    \centering
+    \def\svgwidth{150pt}
+    \input{aeroaxes_wind.pdf_tex}
+    \caption{Wind Frame}
+\end{figure} 
+
+The wind frame is rotated from the body frame with two rotations - side slip, followed by angle of attack.  The frame is constructed by first aligning the +x-direction parallel to the vehicle velocity vector.  The velocity vector is then projected into the x-z plane of the body axis.  Angle of attack is found as the angle subtended between the body frame's +x-direction and the projected velocity vector.  Side slip angle is found as the angle subtended between the velocity vector and the projected velocity vector.  Knowing these rotations, we can finally construct a transformation matrix from the wind frame to the body frame - 
+
+\begin{equation}
+T_{B/W} = T_\vy(\alpha) T_\vz(-\beta)
+\end{equation}
+
+We need a transformation matrix that will find parameterizations of the lift and drag vectors in the inertial frame.  This is done by combining the tanspose of the wind-body transformation with the body-inertial transformation ...
+
+\begin{equation}
+T_{I/W} = T_{I/B} T_{B/W}^\top
+\end{equation}
+
+And that's it!  We now have transformation matrices that can take forces in any of the two rotated body or wind frames and return their parameterization in the inertial frame, where we will resolve the equations of motion.
+
+
+\subsection{Cruise Segments}
+
+\subsubsection{Constant Speed Constant Altitude}
+
+\subsubsection*{Inputs}
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+    $\vv_x$         & horizontal velocity \\ \hline
+	   $\vh$           & altitude            \\ \hline
+    $\Delta \vr_x$  & horizontal range    \\ \hline
+    $\vt_0$         & initial time        \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection*{Precalulation}
+
+\begin{equation}
+    t_f = \Delta \vr_x / \vx
+\end{equation}
+
+\begin{equation}
+    \vr_x(t_f) = \int_{t_0}^{t_f} \vv_x dt
+\end{equation}
+
+\begin{equation}
+    a_x = \sum F_x = 0
+\end{equation}
+
+\begin{equation}
+    a_z = \sum F_z = 0
+\end{equation}
+
+\begin{equation}
+    g(t) = compute_planet(C)    
+\end{equation}
+
+\begin{equation}
+    \rho(t), a(t), T(t) = compute_atmosphere(h)
+\end{equation}
+
+\begin{equation}
+    M(t) = |\vv| / a
+\end{equation}
+
+\subsubsection*{Unknowns}
+
+\begin{table}[htb]
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+    $\theta$    & aircraft body pitch \\ \hline
+	   $\eta$      & propulsion throttle \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection*{Free Equations}
+
+
+
+\subsubsection*{Residuals}
+
+
+\subsubsection*{Conditions}
+
+
+
+
+
+%\bibliography{segments}
+
+
+\end{document}

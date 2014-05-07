@@ -16,6 +16,7 @@
 import numpy
 from math import pi, sqrt
 from SUAVE.Structure  import Data
+from SUAVE.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 #from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------

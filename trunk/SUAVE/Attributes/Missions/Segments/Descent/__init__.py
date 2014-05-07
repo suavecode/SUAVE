@@ -1,3 +1,2 @@
 
-from SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach import Constant_Mach
-from SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed import Constant_Speed
+from Constant_Speed_Constant_Rate import Constant_Speed_Constant_Rate

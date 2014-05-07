@@ -16,8 +16,8 @@ from Physical_Component import Physical_Component
 class Lofted_Body(Physical_Component):
     def __defaults__(self):
         self.tag = 'Lofted_Body'
-        self.Segments = SegmentContainer()
-        self.Sections = SectionContainer()
+        self.Segments = SegmentContainer() # think edges
+        self.Sections = SectionContainer() # think nodes
     
    
 # ------------------------------------------------------------

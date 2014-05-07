@@ -6,3 +6,5 @@ from miscellaneous_drag_aircraft import miscellaneous_drag_aircraft
 from induced_drag_aircraft import induced_drag_aircraft
 from compressibility_drag_wing import compressibility_drag_wing
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from wing_form_factor import wing_form_factor
+from body_form_factor import body_form_factor

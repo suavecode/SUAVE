@@ -51,7 +51,7 @@ def empty(engine,wing,aircraft,fuselage,horizontal,vertical):
                 num_pax - number of passengers on the aircraft [dimensionless]
                 wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
                 num_seats - number of seats installed on the aircraft [dimensionless]
-                ctrl - specifies if the control system is "fully power", "partially powered", or not powered [dimensionless]
+                ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
                 ac - determines type of instruments, electronics, and operating items based on types: 
                     "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst" [dimensionless]
                 w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
@@ -149,5 +149,15 @@ def empty(engine,wing,aircraft,fuselage,horizontal,vertical):
     
     # packup outputs
     output             = payload(TOW, wt_empty, num_pax,wt_cargo)
+    
+    output.wing              = wt_wing
+    output.fuselage          = wt_fuselage
+    output.propulsion        = wt_propulsion
+    output.landing_gear      = wt_landing_gear
+    output.systems           = output_2.wt_systems
+    output.wt_furnish        = output_2.wt_furnish
+    output.horizontal_tail   = wt_tail_horizontal
+    output.vertical_tail     = output_3.wt_tail_vertical
+    output.rudder            = output_3.wt_rudder    
     
     return output

@@ -91,7 +91,15 @@ def define_vehicle():
     aerodynamics.CL0 = 0.30    # CL at alpha = 0.0 (from wind tunnel data)  
     
     # add model to vehicle aerodynamics
-    vehicle.Aerodynamics = aerodynamics
+    vehicle.aerodynamics_model = aerodynamics
+    
+    
+    # ------------------------------------------------------------------
+    #   Simple Propulsion Model
+    # ------------------------------------------------------------------     
+    
+    vehicle.propulsion_model = vehicle.Propulsors    
+    
     
     
     # ------------------------------------------------------------------
@@ -126,79 +134,82 @@ def define_mission(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-
+    
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'Cessna 172 Test Mission'
     
-    # initial mass
-    mission.m0 = vehicle.Mass_Props.linked_copy('m_full') # linked copy updates if parent changes
-    
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    planet     = SUAVE.Attributes.Planets.Earth()
 
     # ------------------------------------------------------------------
     #   Climb Segment: constant Mach, constant climb angle 
     # ------------------------------------------------------------------
     
-    climb = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach()
-    climb.tag = "Climb"
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Angle()
+    segment.tag = "Climb"
     
     # connect vehicle configuration
-    climb.config = vehicle.Configs.cruise
+    segment.config = vehicle.Configs.cruise
     
     # segment attributes
-    climb.atmosphere = atmosphere
-    climb.planet     = planet    
-    climb.altitude   = [0.0, 10.0] # km
-    climb.Minf       = 0.15        # m/s
-    climb.psi        = 15.0        # deg
+    # define segment attributes
+    segment.atmosphere     = atmosphere
+    segment.planet         = planet    
+    
+    segment.altitude_start = 0.0  * Units.km
+    segment.altitude_end   = 10.0 * Units.km
+    
+    segment.mach_number    = 0.15
+    segment.climb_angle    = 15.0 * Units.degrees
 
     # add to mission
-    mission.append_segment(climb)
+    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------
     
-    cruise = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
-    cruise.tag = "Cruise"
+    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment.tag = "Cruise"
     
     # connect vehicle configuration
-    cruise.config = vehicle.Configs.cruise
+    segment.config = vehicle.Configs.cruise
     
-    # config attributes
-    cruise.atmosphere = atmosphere
-    cruise.planet     = planet        
-    cruise.altitude   = 10.0    # km
-    cruise.Vinf       = 62.0    # m/s
-    cruise.range      = 1000    # km
+    # segment attributes
+    segment.atmosphere = atmosphere
+    segment.planet     = planet        
+    
+    #segment.altitude   = 10.0   * Units.km     # Optional
+    segment.air_speed  = 62.0   * Units['m/s']
+    segment.distance   = 1000.0 * Units.km
     
     # add to mission
-    mission.append_segment(cruise)
+    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
     #   Descent Segment: consant speed, constant descent rate
     # ------------------------------------------------------------------
     
-    descent = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
-    descent.tag = "Descent"
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "Descent"
     
     # connect vehicle configuration
-    descent.config = vehicle.Configs.cruise
-
+    segment.config = vehicle.Configs.cruise
+    
     # segment attributes
-    descent.atmosphere = atmosphere
-    descent.planet     = planet        
-    descent.altitude   = [10.0, 0.0] # km
-    descent.Vinf       = 45.0        # m/s
-    descent.rate       = 5.0         # m/s
+    segment.atmosphere = atmosphere
+    segment.planet     = planet   
+    
+    segment.altitude_end = 0.0  * Units.km
+    segment.air_speed    = 45.0 * Units['m/s']
+    segment.descent_rate = 5.0  * Units['m/s']
     
     # add to mission
-    mission.append_segment(descent)
-
+    mission.append_segment(segment)
+    
     
     # ------------------------------------------------------------------    
     #   Mission definition complete    

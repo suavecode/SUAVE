@@ -7,8 +7,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+# local imports
+from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+
 # suave imports
+
+from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
+from SUAVE.Attributes.Results.Result import Result
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -26,6 +33,8 @@ import scipy as sp
 #   The Function
 # ----------------------------------------------------------------------
 
+
+
 def parasite_drag_fuselage(conditions,configuration,fuselage):
     """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
         computes the parasite drag associated with a fuselage 
@@ -41,6 +50,8 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
 
     # unpack inputs
     form_factor = configuration.fuselage_parasite_drag_form_factor
+    C_fus = configuration.fuselage_parasite_drag_form_factor
+    
     Sref        = fuselage.reference_area
     Swet        = fuselage.wetted_area
     
@@ -64,11 +75,11 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
     
     # form factor for cylindrical bodies
-    d_d = d_fus/l_fus
+    d_d = float(d_fus)/float(l_fus)
     D = np.sqrt(1 - (1-Mc**2) * d_d**2)
     a        = 2 * (1-Mc**2) * (d_d**2) *(np.arctanh(D)-D) / (D**3)
     du_max_u = a / ( (2-a) * (1-Mc**2)**0.5 )
-    k_fus    = (1 + C_fus*du_max_u)**2
+    k_fus    = (1 + cf_fus*du_max_u)**2
     
     # --------------------------------------------------------
     # find the final result    
@@ -76,16 +87,16 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # --------------------------------------------------------
     
     # dump data to conditions
-    fuselage_result = Result(
-        wetted_area               = Swet   , 
-        reference_area            = Sref   , 
-        parasite_drag_coefficient = fuselage_parasite_drag ,
-        skin_friction_coefficient = cf_fus ,
-        compressibility_factor    = k_comp ,
-        reynolds_factor           = k_reyn , 
-        form_factor               = k_fus  ,
-    )
-    conditions.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
+    #fuselage_result = Result(
+        #wetted_area               = Swet   , 
+        #reference_area            = Sref   , 
+        #parasite_drag_coefficient = fuselage_parasite_drag ,
+        #skin_friction_coefficient = cf_fus ,
+        #compressibility_factor    = k_comp ,
+        #reynolds_factor           = k_reyn , 
+        #form_factor               = k_fus  ,
+    #)
+    #conditions.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
     
     return fuselage_parasite_drag
 
