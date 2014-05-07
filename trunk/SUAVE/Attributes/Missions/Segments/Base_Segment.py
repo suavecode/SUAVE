@@ -374,9 +374,10 @@ class Base_Segment(Data):
         
         # do the update!
         update_conditions(conditions)
-        update_conditions(unknowns)
-        update_conditions(residuals)
-        # like a boss
+        update_conditions(unknowns.states)
+        update_conditions(unknowns.controls)
+        update_conditions(residuals.states)
+        update_conditions(residuals.controls)
          
         return unknowns,conditions,residuals
     
