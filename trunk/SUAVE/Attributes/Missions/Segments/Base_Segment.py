@@ -442,9 +442,9 @@ class Base_Segment(Data):
                 outputed operators are in dimensional time for the current solver iteration
                 Base_Segment() by default will rescale operators based on final time,
                     either found in 
-                    segment.unknowns.finals.time (will update segment.conditions.inertial.time)
+                    segment.unknowns.finals.time (will update segment.conditions.frames.inertial.time)
                         otherwise,
-                    segment.conditions.inertial.time[-1] - segment.conditions.inertial.time[0]
+                    segment.conditions.frames.inertial.time[-1] - segment.conditions.frames.inertial.time[0]
                 
         """
         
@@ -459,8 +459,8 @@ class Base_Segment(Data):
             dt = unknowns.finals.time
             t = t * dt
             # update inertial time, keep start time
-            t_initial = conditions.inertial.time[0]
-            conditions.inertial.time = t_initial + t
+            t_initial = conditions.frames.inertial.time[0]
+            conditions.frames.inertial.time = t_initial + t
         else:
             # stationary time control points
             time = conditions.frames.inertial.time
