@@ -319,7 +319,7 @@ class Base_Segment(Data):
         # pack outputs
         ## CODE
         
-        return
+        return conditions
     
     
     # ------------------------------------------------------------------

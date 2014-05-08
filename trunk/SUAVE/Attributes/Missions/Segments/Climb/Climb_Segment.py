@@ -168,3 +168,18 @@ class Climb_Segment(Aerodynamic_Segment):
         conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
         
         return numerics
+
+    def post_process(self,conditions,numerics,unknowns):
+        
+        conditions = Aerodynamic_Segment.post_process(self,conditions,numerics,unknowns)
+        
+        x0 = conditions.frames.inertial.position_vector[0,0]
+        vx = conditions.frames.inertial.velocity_vector[:,0]
+        I  = numerics.integrate_time
+        
+        x = np.dot(I,vx) + x0
+        
+        conditions.frames.inertial.position_vector[:,0] = x
+        
+        return conditions
+        
