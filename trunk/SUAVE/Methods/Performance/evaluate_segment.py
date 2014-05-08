@@ -118,7 +118,7 @@ def segment_residuals(x,segment):
     FC = residuals.controls.pack_array('array')
     FF = residuals.finals  .pack_array('array')
     
-    if S:
+    if len(S):
         DFS = np.dot(D,S)
     else:
         DFS = np.array([[]])
