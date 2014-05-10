@@ -221,16 +221,16 @@ def define_vehicle():
     vehicle.fuel_density = turbofan.propellant.density
 
     turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.996 #0.98     #
-    turbofan.fan_pressure_ratio            = 1.82  #1.6      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.974 #0.99     #
-    turbofan.lpc_pressure_ratio            = 1.76  #1.9      #
-    turbofan.hpc_pressure_ratio            = 11.77 #10.0     #
-    turbofan.burner_pressure_ratio         = 0.948 #0.95     #
-    turbofan.turbine_nozzle_pressure_ratio = 0.98  #0.99     #
-    turbofan.Tt4                           = 1609.2 #1450.0   #
-    turbofan.bypass_ratio                  = 5.14   #5.4      #
-    turbofan.design_thrust                 = 20227. #25000.0  #
+    turbofan.diffuser_pressure_ratio       = 0.995  #
+    turbofan.fan_pressure_ratio            = 1.8   #
+    turbofan.fan_nozzle_pressure_ratio     = 0.97 #
+    turbofan.lpc_pressure_ratio            = 1.80    #
+    turbofan.hpc_pressure_ratio            = 12.   #
+    turbofan.burner_pressure_ratio         = 0.95   #
+    turbofan.turbine_nozzle_pressure_ratio = 0.98    #
+    turbofan.Tt4                           = 1600.   #
+    turbofan.bypass_ratio                  = 5.2     #
+    turbofan.design_thrust                 = 20200.   #
     turbofan.no_of_engines                 = 2      #
 
     # turbofan sizing conditions
