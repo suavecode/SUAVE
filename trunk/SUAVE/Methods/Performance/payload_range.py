@@ -13,6 +13,7 @@ from SUAVE.Attributes.Units import Units
 
 # other imports
 import time
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Calculate vehicle Payload Range Diagram
@@ -112,54 +113,71 @@ def payload_range(vehicle,mission,cruise_segment_tag):
     if iprint:
         print('\n\n\n .......... PAYLOAD RANGE DIAGRAM CALCULATION ..........\n')
 
+    # loop for each point of Payload Range Diagram
     for i in range(len(TOW)):
         if iprint:
-            print('   EVALUATING POINT : ' + str(i+2))
-        vehicle.Mass_Props.m_takeoff = TOW[i]  # we should redefine design weights names....
-        mission.Segments[0].config.Mass_Props.m_takeoff = TOW[i]
+            print('   EVALUATING POINT : ' + str(i+1))
 
+        # Define takeoff weight
+        mission.Segments[0].config.Mass_Props.m_takeoff = TOW[i] # we should redefine design weights names....
+
+        # Evaluate mission with current TOW
         results = SUAVE.Methods.Performance.evaluate_mission(mission)
         segment = results.Segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
+        #
+        # User don't have the option of run a mission for a given fuel. So, we
+        # have to iterate distance in order to have total fuel equal to target fuel
+        #
+
         maxIter = 10 # maximum iteration limit
-        iter = 0     # iteration count
         tol = 1.     # fuel convergency tolerance
         err = 9999.  # error to be minimized
-
+        iter = 0     # iteration count
+        
         while abs(err) > tol and iter < maxIter:
             iter = iter + 1
+            
+            # Current total fuel burned in mission
+            TotalFuel  = TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1]
 
+            # Difference between burned fuel and target fuel
+            missingFuel = FUEL[i] - TotalFuel
+
+            # Current distance and fuel consuption in the cruise segment
             CruiseDist = segment.distance                # Distance [m]
             CruiseFuel = segment.conditions.weights.total_mass[0] - segment.conditions.weights.total_mass[-1]    # [kg]
+            # Current specific range (m/kg)
             CruiseSR    = CruiseDist / CruiseFuel        # [m/kg]
 
-            TotalFuel  = TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1]
-            OtherSegmentsFuel = TotalFuel - CruiseFuel
-
-            missingFuel = FUEL[i] - TotalFuel
+            # Estimated distance that will result in total fuel burn = target fuel
             DeltaDist  =  CruiseSR *  missingFuel
             mission.Segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
+            # running mission with new distance
             results = SUAVE.Methods.Performance.evaluate_mission(mission)
             segment = results.Segments[segmentNum]
-##            CruiseFuel = segment.m[0] - segment.m[-1]    #[kg]
 
+            # Difference between burned fuel and target fuel
             err = ( TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1] ) - FUEL[i]
+
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
                   + str('%8.0F' % (err+FUEL[i]))+' (kg) | Error : '+str('%8.0F' % err))
 
+        # Allocating resulting range in ouput array.
         R[i] = ( results.Segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
 
+    # Inserting point (0,0) in output arrays
     R.insert(0,0)
     PLD.insert(0,MaxPLD)
     FUEL.insert(0,0)
     TOW.insert(0,0)
 
     # packing results
-    payload_range.range     = R
+    payload_range.range     = np.multiply(R,Units.nautical_mile / Units.m) # [m]
     payload_range.payload   = PLD
     payload_range.fuel      = FUEL
     payload_range.takeoff_weight = TOW
@@ -178,7 +196,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
         fid.write( ' Maximum Fuel Weight ..............( FUELMX )...: ' + str( '%8.0F'   %   MaxFuel ) + ' kg\n\n' )
 
         fid.write( '    RANGE    |   PAYLOAD   |   FUEL      |    TOW      |  \n')
-        fid.write( '     kg      |     kg      |    kg       |     kg      |  \n')
+        fid.write( '     nm      |     kg      |    kg       |     kg      |  \n')
 
         for i in range(len(TOW)):
             fid.write( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |\n')
