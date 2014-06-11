@@ -55,18 +55,8 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     nn = configuration.number_panels_chordwise
 
     # conditions
-    Mc  = conditions.mach_number
-    roc = conditions.density
-    muc = conditions.viscosity
-    Tc  = conditions.temperature    
-    pc  = conditions.pressure
-    aoa = conditions.angle_of_attack
+    aoa = conditions.aerodynamics.angle_of_attack
     
-    
-
-    # freestream velocity
-    Vinf = Mc * compute_speed_of_sound(Tc, pc) 
-
     # chord difference
     dchord=(root_chord-tip_chord)
     if sym_para is True :
@@ -183,8 +173,8 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     
         for i in range(0,n):
     
-            L[i]=deltax*roc*Lft[i]   #T(i)*v(i)*sin(alpha)
-            D[i]=deltax*roc*Dg[i]    
+            L[i]=deltax*Lft[i]   #T(i)*v(i)*sin(alpha)
+            D[i]=deltax*Dg[i]    
     
             LT=LT+L[i]
             DT=DT+D[i]
@@ -196,8 +186,8 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         #Cl=2*LT/(0.5*roc*Vinf**2*Sref)
         #Cd=2*DT/(0.5*roc*Vinf**2*Sref)       
     
-        Cl=2*LT/(0.5*roc*Sref)
-        Cd=2*DT/(0.5*roc*Sref)     
+        Cl=2*LT/(0.5*Sref)
+        Cd=2*DT/(0.5*Sref)     
     
     else:
         

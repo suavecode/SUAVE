@@ -19,7 +19,7 @@ class Result(Data):
     """
     def __defaults__(self):
         self.tag = 'Results'
-        self.Segments = Segment.Container()
+        
         # self.regulation = Data()        # FAA constraints... PASS / FAIL
         # self.fuel_burn = 0.0
         # self.total_power = 0.0
@@ -29,6 +29,8 @@ class Result(Data):
         # CL margins 
         # Takeoff field margins
         # 2nd stage climb contraints 
+        
+        pass
 
     def add_segment(self,new_seg):
         """ Add a Results Segment  """

@@ -58,17 +58,13 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     
     # unpack inputs
     trim_correction_factor = configuration.trim_drag_correction_factor
-    
-    #conditions.drag_breakdown.total = 0.0
+    drag_breakdown = conditions.aerodynamics.drag_breakdown
     
     # various drag components
     parasite_total        = parasite_drag_aircraft     (conditions,configuration,geometry) 
     induced_total         = induced_drag_aircraft      (conditions,configuration,geometry)
     compressibility_total = compressibility_drag_wing  (conditions,configuration,geometry)    
     miscellaneous_drag    = miscellaneous_drag_aircraft(conditions,configuration,geometry)
-    
-    
-    
     
     # untrimmed drag
     aircraft_untrimmed = parasite_total        \
@@ -78,16 +74,13 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     
     # trim correction
     aircraft_total_drag = aircraft_untrimmed * trim_correction_factor
-    #conditions.drag_breakdown.miscellaneous.trim_correction_factor = trim_correction_factor
+    drag_breakdown.miscellaneous.trim_correction_factor = trim_correction_factor
 
     # store to results
-    #conditions.drag_breakdown.total     = aircraft_total_drag
-    #conditions.drag_breakdown.untrimmed = aircraft_untrimmed
+    drag_breakdown.total     = aircraft_total_drag
+    drag_breakdown.untrimmed = aircraft_untrimmed
     
     # done!
-    
-    #print 'compressibility_total', compressibility_total
-    
     return aircraft_total_drag
 
 
