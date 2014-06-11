@@ -58,9 +58,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         self.geometry      = Geometry()
         
         self.configuration = Configuration()
-        
-        
-        
+
         # correction factors
         self.configuration.fuselage_lift_correction           = 1.14
         self.configuration.trim_drag_correction_factor        = 1.02
@@ -73,17 +71,13 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         self.configuration.number_panels_chordwise = 1
         
         self.conditions_table = Conditions(
-            #angle_of_attack = np.linspace(-10., 10., 5) * Units.deg ,
-            angle_of_attack = np.linspace(0, 5, 6) * Units.deg ,
+            angle_of_attack = np.array([-10,-5,0,5,10.0]) * Units.deg ,
         )
-        
-       
-        
         
         self.models = Data()
         
         
-    def initialize(self,vehicle,Seg):
+    def initialize(self,vehicle):
                         
         # unpack
         conditions_table = self.conditions_table
@@ -98,7 +92,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
-        geometry.reference_area = vehicle.Sref
+        geometry.reference_area = vehicle.S
               
         
         # arrays
@@ -106,21 +100,13 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         
         # condition input, local, do not keep
         konditions = Conditions()
-        
-        #----Conditions data
-        konditions.mach_number=Seg.M
-        konditions.density=Seg.rho
-        konditions.viscosity=Seg.mew
-        konditions.temperature = Seg.T  
-        konditions.pressure=Seg.p           
-        
-        
+        konditions.aerodynamics = Data()
         
         # calculate aerodynamics for table
         for i in xrange(n_conditions):
             
             # overriding conditions, thus the name mangling
-            konditions.angle_of_attack = AoA[i]
+            konditions.aerodynamics.angle_of_attack = AoA[i]
             
             # these functions are inherited from Aerodynamics() or overridden
             CL[i] = calculate_lift_vortex_lattice(konditions, configuration, geometry)
@@ -128,20 +114,12 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         # store table
         conditions_table.lift_coefficient = CL
         
-        print 'aoa',AoA
-        print 'Cl', CL
-        
         # build surrogate
         self.build_surrogate()
         
         return
         
-    #: def initialize()
-
-    # don't need to build a conditions table
-    build_conditions_table = None
-    
-    
+    #: def initialize()    
     def build_surrogate(self):
         
         # unpack data
@@ -184,17 +162,11 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
                 
         """
         
-        #Mc  = conditions.mach_number
-        #roc = conditions.density
-        #muc = conditions.viscosity
-        #Tc  = conditions.temperature    
-        #pc  = conditions.pressure
-        #aoa = conditions.angle_of_attack        
-        
         # unpack
         configuration = self.configuration
         geometry      = self.geometry
-
+        q             = conditions.freestream.dynamic_pressure
+        Sref          = geometry.reference_area
                 
         # lift needs to compute first, updates data needed for drag
         CL = SUAVE.Methods.Aerodynamics.Lift.compute_aircraft_lift(conditions,configuration,geometry)
@@ -202,9 +174,34 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         # drag computes second
         CD = compute_aircraft_drag(conditions,configuration,geometry)
         
-        return CL, CD
+        
+        # pack conditions
+        conditions.aerodynamics.lift_coefficient = CL
+        conditions.aerodynamics.drag_coefficient = CD        
+
+        # pack results
+        results = Data()
+        results.lift_coefficient = CL
+        results.drag_coefficient = CD
+        
+        N = q.shape[0]
+        L = np.zeros([N,3])
+        D = np.zeros([N,3])
+        
+        L[:,2] = ( -CL * q * Sref )[:,0]
+        D[:,0] = ( -CD * q * Sref )[:,0]
+        
+        results.lift_force_vector = L
+        results.drag_force_vector = D        
+        
+        return results
         
     #: def __call__()
+    
+    # don't need to build a conditions table
+    build_conditions_table = None
+    
+    
     
 def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     """ calculate total vehicle lift coefficient by vortex lattice
@@ -213,24 +210,14 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     # unpack
     vehicle_reference_area = geometry.reference_area
     
-    total_lift = 0.0
-    
-    count = 0
-    
+    # iterate over wings
+    total_lift_coeff = 0.0
     for wing in geometry.Wings.values():
         
-        
+        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
+        total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
 
-        
-        [wing_lift,wing_drag] = weissinger_vortex_lattice(conditions,configuration,wing)
-        total_lift += wing_lift * wing.sref / vehicle_reference_area
+    return total_lift_coeff
+    
 
-        
-        
-    
-    return total_lift
-    
-    
-    
-#: class Aerodynamics_Surrogate()
 

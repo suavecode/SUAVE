@@ -50,9 +50,8 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     trim_correction_factor = configuration.trim_drag_correction_factor    
     propulsors             = geometry.Propulsors
     vehicle_reference_area = geometry.reference_area
-    
-    print propulsors[0].nacelle_dia
-    
+    ones_1col              = conditions.frames.inertial.time *0.+1
+        
     # ------------------------------------------------------------------
     #   Control surface gap drag
     # ------------------------------------------------------------------
@@ -77,7 +76,7 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
         nacelle_base_drag = 0.5/12. * np.pi * propulsor.nacelle_dia * 0.2/vehicle_reference_area
         
         # dump
-        nacelle_base_drag_results[propulsor.tag] = nacelle_base_drag
+        nacelle_base_drag_results[propulsor.tag] = nacelle_base_drag * ones_1col
         
         # increment
         total_nacelle_base_drag += nacelle_base_drag
@@ -100,16 +99,17 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     total_miscellaneous_drag = total_gap_drag          \
                              + total_nacelle_base_drag \
                              + fuselage_upsweep_drag   \
-                             + fuselage_base_drag
+                             + fuselage_base_drag 
     
     
     # dump to results
-    conditions.drag_breakdown.miscellaneous = Result(
-        fuselage_upsweep = fuselage_upsweep_drag     , 
+    conditions.aerodynamics.drag_breakdown.miscellaneous = Result(
+        fuselage_upsweep = fuselage_upsweep_drag     *ones_1col, 
         nacelle_base     = nacelle_base_drag_results ,
-        fuselage_base    = fuselage_base_drag        ,
-        control_gaps     = total_gap_drag            ,
+        fuselage_base    = fuselage_base_drag        *ones_1col,
+        control_gaps     = total_gap_drag            *ones_1col,
+        total            = total_miscellaneous_drag  *ones_1col,
     )
        
-    return total_miscellaneous_drag
+    return total_miscellaneous_drag *ones_1col
     

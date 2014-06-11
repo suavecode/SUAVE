@@ -213,7 +213,7 @@ class Interpolation(object):
 
         #self.nearest_interp = sp.interpolate.NearestNDInterpolator(X_data,C_data)
         #print X_data
-        self.linear_interp  = sp.interpolate.interp1d(X_data,C_data)
+        self.linear_interp  = sp.interpolate.interp1d(X_data,C_data,bounds_error=False,fill_value=9000.)
         
         #self.rbf_interp     = sp.interpolate.Rbf(AoA_data,Ma_data,Re_data,C_data,
                                                  #function='gaussian',smooth=True)
