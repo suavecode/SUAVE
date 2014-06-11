@@ -1,0 +1,230 @@
+# payload_range.py
+#
+# Created:  Tarik, Apr. 2014
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+# SUAVE imports
+import SUAVE
+from SUAVE.Attributes.Units import Units
+
+# other imports
+import time
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Calculate vehicle Payload Range Diagram
+# ----------------------------------------------------------------------
+
+def payload_range(vehicle,mission,cruise_segment_tag):
+    """ SUAVE.Methods.Performance.payload_range(vehicle,mission,cruise_segment_tag):
+        Calculates vehicle payload range diagram
+
+        Inputs:
+            vehicle - SUave type vehicle
+            mission - SUave type mission profile
+            cruise_segment_tag - Mission segment to be considered Cruise
+
+        Outputs:
+            payload_range.range           - Array with range data   [m]
+            payload_range.payload         - Array with payload data [kg]
+            payload_range.fuel            - Array with fuel data    [kg]
+            payload_range.takeoff_weight  - Array with TOW data     [kg]
+
+            obs.:  4 points array:      # 1: 0
+                                        # 2: RANGE WITH MAX. PLD
+                                        # 3: RANGE WITH MAX. FUEL
+                                        # 4: FERRY RANGE
+
+        Assumptions:
+            Constante altitude cruise
+
+    """
+    # elapsed time start
+    start_time = time.time()
+
+    # Flags for printing results in command line, write output file, and plot
+    iprint = 1      # Flag for print output data in the prompt line
+    iwrite = 1      # Flag for write an output file
+    iplot  = 1      # Flag for plot payload range diagram
+    ### could be an user input.
+    ##      output_type: 1: Print only              (light)
+    ##      output_type: 2: Print + Write           (medium)
+    ##      output_type: 3: Print + Write + Plot    (complete)
+
+    #unpack
+    try:
+        OEW = vehicle.Mass_Props.OEW
+    except AttributeError:
+        print "Error calculating Payload Range Diagram: Vehicle OEW not defined"
+        return True
+
+    try:
+        MZFW = vehicle.Mass_Props.MZFW
+    except AttributeError:
+        print "Error calculating Payload Range Diagram: Vehicle MZFW not defined"
+        return True
+
+    try:
+        MTOW = vehicle.Mass_Props.MTOW
+    except AttributeError:
+        print "Error calculating Payload Range Diagram: Vehicle MTOW not defined"
+        return True
+
+    try:
+        MaxPLD = vehicle.Mass_Props.MaxPLD # If payload max not defined, calculate based in design weights
+        MaxPLD = min(MaxPLD , MZFW - OEW)
+    except:
+        MaxPLD = MZFW - OEW
+
+    try:
+        MaxFuel = vehicle.Mass_Props.MaxUsableFuel # If max fuel capacity not defined
+        MaxFuel = min(MaxFuel, MTOW - OEW)
+    except:
+        try:
+            fuel_tank_volume   = vehicle.fuel_tank_volume           # [m3]
+            fuel_density       = vehicle.fuel_density               # [kg/m3]
+            fuel_tank_capacity = fuel_tank_volume * fuel_density    # [kg]
+        except AttributeError:
+            print "Error in Payload Range Diagram: Vehicle fuel capacity not defined"
+            return True
+        fuel_structural_limit = MTOW - OEW
+        MaxFuel = min(fuel_tank_capacity, fuel_structural_limit)
+
+    # Define payload range points
+    #Point  = [ RANGE WITH MAX. PLD   , RANGE WITH MAX. FUEL , FERRY RANGE   ]
+    TOW     = [ MTOW                  , MTOW                 , OEW + MaxFuel ]
+    FUEL    = [ TOW[1] - OEW - MaxPLD , MaxFuel              , MaxFuel       ]
+    PLD     = [ MaxPLD                , MTOW - MaxFuel - OEW , 0.            ]
+
+    # allocating Range array
+    R       = [0,0,0]
+
+    # Locate cruise segment to be variated
+    for i in range(len(mission.Segments)):          #loop for all segments
+        if mission.Segments[i].tag.upper() == cruise_segment_tag.upper() :
+            segmentNum = i
+            break
+
+    # evaluate the mission
+    if iprint:
+        print('\n\n\n .......... PAYLOAD RANGE DIAGRAM CALCULATION ..........\n')
+
+    # loop for each point of Payload Range Diagram
+    for i in range(len(TOW)):
+        if iprint:
+            print('   EVALUATING POINT : ' + str(i+1))
+
+        # Define takeoff weight
+        mission.Segments[0].config.Mass_Props.m_takeoff = TOW[i] # we should redefine design weights names....
+
+        # Evaluate mission with current TOW
+        results = SUAVE.Methods.Performance.evaluate_mission(mission)
+        segment = results.Segments[segmentNum]
+
+        # Distance convergency in order to have total fuel equal to target fuel
+        #
+        # User don't have the option of run a mission for a given fuel. So, we
+        # have to iterate distance in order to have total fuel equal to target fuel
+        #
+
+        maxIter = 10 # maximum iteration limit
+        tol = 1.     # fuel convergency tolerance
+        err = 9999.  # error to be minimized
+        iter = 0     # iteration count
+        
+        while abs(err) > tol and iter < maxIter:
+            iter = iter + 1
+            
+            # Current total fuel burned in mission
+            TotalFuel  = TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1]
+
+            # Difference between burned fuel and target fuel
+            missingFuel = FUEL[i] - TotalFuel
+
+            # Current distance and fuel consuption in the cruise segment
+            CruiseDist = segment.distance                # Distance [m]
+            CruiseFuel = segment.conditions.weights.total_mass[0] - segment.conditions.weights.total_mass[-1]    # [kg]
+            # Current specific range (m/kg)
+            CruiseSR    = CruiseDist / CruiseFuel        # [m/kg]
+
+            # Estimated distance that will result in total fuel burn = target fuel
+            DeltaDist  =  CruiseSR *  missingFuel
+            mission.Segments[segmentNum].distance = (CruiseDist + DeltaDist)
+
+            # running mission with new distance
+            results = SUAVE.Methods.Performance.evaluate_mission(mission)
+            segment = results.Segments[segmentNum]
+
+            # Difference between burned fuel and target fuel
+            err = ( TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1] ) - FUEL[i]
+
+            if iprint:
+                print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
+                  + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
+                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Error : '+str('%8.0F' % err))
+
+        # Allocating resulting range in ouput array.
+        R[i] = ( results.Segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
+
+    # Inserting point (0,0) in output arrays
+    R.insert(0,0)
+    PLD.insert(0,MaxPLD)
+    FUEL.insert(0,0)
+    TOW.insert(0,0)
+
+    # packing results
+    payload_range.range     = np.multiply(R,Units.nautical_mile / Units.m) # [m]
+    payload_range.payload   = PLD
+    payload_range.fuel      = FUEL
+    payload_range.takeoff_weight = TOW
+
+    # Write output file
+    if iwrite:
+        import datetime                 # importing library
+
+        fid = open('PayloadRangeDiagram.dat','w')   # Open output file
+        fid.write('Output file with Payload Range Diagram details\n\n') #Start output printing
+
+        fid.write( ' Maximum Takeoff Weight ...........( MTOW ).....: ' + str( '%8.0F'   %   MTOW   ) + ' kg\n' )
+        fid.write( ' Operational Empty Weight .........( OEW  ).....: ' + str( '%8.0F'   %   OEW    ) + ' kg\n' )
+        fid.write( ' Maximum Zero Fuel Weight .........( MZFW ).....: ' + str( '%8.0F'   %   MZFW   ) + ' kg\n' )
+        fid.write( ' Maximum Payload Weight ...........( PLDMX  )...: ' + str( '%8.0F'   %   MaxPLD ) + ' kg\n' )
+        fid.write( ' Maximum Fuel Weight ..............( FUELMX )...: ' + str( '%8.0F'   %   MaxFuel ) + ' kg\n\n' )
+
+        fid.write( '    RANGE    |   PAYLOAD   |   FUEL      |    TOW      |  \n')
+        fid.write( '     nm      |     kg      |    kg       |     kg      |  \n')
+
+        for i in range(len(TOW)):
+            fid.write( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |\n')
+
+        # Print timestamp
+        fid.write(2*'\n'+ 43*'-'+ '\n' + datetime.datetime.now().strftime(" %A, %d. %B %Y %I:%M:%S %p"))
+        fid.close
+
+    # Print data in command line
+    if iprint:
+        print( '\n\n                        RESULTS\n')
+        print( '    RANGE    |   PAYLOAD   |   FUEL      |    TOW      |')
+        print( '     nm      |     kg      |    kg       |     kg      |')
+        for i in range(len(TOW)):
+            print( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |')
+        print('\n\n   Enlapsed time: ' + str('%6.2f' % (time.time() - start_time)) + 's')
+
+    #   Plot Payload Range
+    if iplot:
+
+        #import pylab
+        import pylab as plt
+
+        title = "Payload Range Diagram"
+        plt.figure(0)
+        plt.plot(R,PLD,'r')
+        plt.xlabel('Range (nm)'); plt.ylabel('Payload (kg)'); plt.title(title)
+        plt.grid(True)
+        plt.show(True)
+
+    return payload_range

@@ -180,17 +180,15 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
             
         """
         
-        # unpack inputs
-        ## CODE
+        conditions = Aerodynamic_Segment.post_process(self,conditions,numerics,unknowns)
         
-        # setup
-        ## CODE
+        x0 = conditions.frames.inertial.position_vector[0,0]
+        vx = conditions.frames.inertial.velocity_vector[:,0]
+        I  = numerics.integrate_time
         
-        # process
-        ## CODE
+        x = np.dot(I,vx) + x0
         
-        # pack outputs
-        ## CODE
+        conditions.frames.inertial.position_vector[:,0] = x
         
         return
     

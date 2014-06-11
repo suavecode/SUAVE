@@ -319,7 +319,7 @@ class Base_Segment(Data):
         # pack outputs
         ## CODE
         
-        return
+        return conditions
     
     
     # ------------------------------------------------------------------
@@ -374,9 +374,10 @@ class Base_Segment(Data):
         
         # do the update!
         update_conditions(conditions)
-        update_conditions(unknowns)
-        update_conditions(residuals)
-        # like a boss
+        update_conditions(unknowns.states)
+        update_conditions(unknowns.controls)
+        update_conditions(residuals.states)
+        update_conditions(residuals.controls)
          
         return unknowns,conditions,residuals
     
@@ -441,9 +442,9 @@ class Base_Segment(Data):
                 outputed operators are in dimensional time for the current solver iteration
                 Base_Segment() by default will rescale operators based on final time,
                     either found in 
-                    segment.unknowns.finals.time (will update segment.conditions.inertial.time)
+                    segment.unknowns.finals.time (will update segment.conditions.frames.inertial.time)
                         otherwise,
-                    segment.conditions.inertial.time[-1] - segment.conditions.inertial.time[0]
+                    segment.conditions.frames.inertial.time[-1] - segment.conditions.frames.inertial.time[0]
                 
         """
         
@@ -458,8 +459,8 @@ class Base_Segment(Data):
             dt = unknowns.finals.time
             t = t * dt
             # update inertial time, keep start time
-            t_initial = conditions.inertial.time[0]
-            conditions.inertial.time = t_initial + t
+            t_initial = conditions.frames.inertial.time[0]
+            conditions.frames.inertial.time = t_initial + t
         else:
             # stationary time control points
             time = conditions.frames.inertial.time
@@ -492,7 +493,7 @@ class Base_Segment(Data):
                     pull_conditions(A[k],B[k])
                 # need arrays here
                 elif not isinstance(v,np.ndarray):
-                    raise ValueError , 'condition "%s%" must be type np.array' % k
+                    raise ValueError , 'condition "%s" must be type np.array' % k
                 # the copy
                 else:
                     B[k] = A[k][-1,:][None,:]

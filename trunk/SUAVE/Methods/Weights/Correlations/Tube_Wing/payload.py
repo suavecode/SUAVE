@@ -32,11 +32,11 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195.,wt_baggage = 30.)
         
         Outputs:
             output - a data dictionary with fields:
-                wt_payload - weight of the passengers plus baggage and paid cargo [kilograms]
-                wt_pax - weight of all the passengers [kilogram]
-                wt_bag - weight of all the baggage [kilogram]
-                wt_fuel - weight of the fuel carried[kilogram]
-                wt_empty - operating empty weight of the aircraft [kilograms]
+                payload - weight of the passengers plus baggage and paid cargo [kilograms]
+                pax - weight of all the passengers [kilogram]
+                bag - weight of all the baggage [kilogram]
+                fuel - weight of the fuel carried[kilogram]
+                empty - operating empty weight of the aircraft [kilograms]
             
         Assumptions:
             based on FAA guidelines for weight of passengers 

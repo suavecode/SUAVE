@@ -537,10 +537,13 @@ def post_process(vehicle,mission,results):
     axes = plt.gca()    
     for i in range(len(results.Segments)):     
         time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        distance = results.Segments[i].conditions.frames.inertial.position_vector[:,0] / Units.km
         altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
-        axes.plot(time, altitude, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Altitude (m)')
+        #axes.plot(time, altitude, 'bo-')
+        axes.plot(distance, altitude, 'bo-')
+    #axes.set_xlabel('Time (mins)')
+    axes.set_xlabel('Distance (km)')
+    axes.set_ylabel('Altitude (km)')
     axes.grid(True)
     
     # ------------------------------------------------------------------    
