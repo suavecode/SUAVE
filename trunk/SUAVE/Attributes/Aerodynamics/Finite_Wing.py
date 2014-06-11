@@ -23,8 +23,9 @@ class Finite_Wing(Aerodynamics):
         self.CL0 = 0.0                                      # CL at alpha = 0.0
         self.dCLdalpha = 2*np.pi                            # dCL/dalpha
 
-    def __call__(self,alpha,segment):
-
+    def __call__(self,conditions):
+        alpha=conditions.aerodynamics.angle_of_attack
+        
         CL = self.CL0 + self.dCLdalpha*alpha                # linear lift vs. alpha
         CD = self.CD0 + (CL**2)/(np.pi*self.AR*self.e)      # parbolic drag
 
