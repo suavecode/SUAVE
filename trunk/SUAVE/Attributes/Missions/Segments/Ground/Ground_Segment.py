@@ -9,18 +9,30 @@ import numpy as np
 from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment, Base_Segment
 from SUAVE.Structure import Data
 from SUAVE.Geometry.Three_Dimensional   import orientation_product
-
-# import units
 from SUAVE.Attributes import Units
-km = Units.km
-hr = Units.hr
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 
 class Ground_Segment(Aerodynamic_Segment):
-
+    """
+        Base segment for takeoff and landing segments. Integrates equations of motion
+	including rolling friction.
+    
+	Notes Regarding Friction Coefficients
+	    Dry asphalt or concrete: .04 brakes off, .4 brakes on
+	    Wet asphalt or concrete: .05 brakes off, .225 brakes on
+	    Icy asphalt or concrete: .02 brakes off, .08 brakes on
+	    Hard turf:               .05 brakes off, .4 brakes on
+	    Firm dirt:               .04 brakes off, .3 brakes on
+	    Soft turf:               .07 brakes off, .2 brakes on
+	    Wet grass:               .08 brakes off, .2 brakes on
+	FROM: General Aviation Aircraft Design: Applied Methods and Procedures,
+	by Snorri Gudmundsson, copyright 2014, published by Elsevier, Waltham,
+	MA, USA [p.938]
+    """
+    
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
@@ -28,20 +40,12 @@ class Ground_Segment(Aerodynamic_Segment):
     def __defaults__(self):
 
         self.tag = 'Ground Segment'
-       
-        #Notes Regarding Friction Coefficients
-		#  Dry asphalt or concrete: .04 brakes off, .4 brakes on
-		#  Wet asphalt or concrete: .05 brakes off, .225 brakes on
-		#  Icy asphalt or concrete: .02 brakes off, .08 brakes on
-		#  Hard turf:               .05 brakes off, .4 brakes on
-		#  Firm dirt:               .04 brakes off, .3 brakes on
-		#  Soft turf:               .07 brakes off, .2 brakes on
-		#  Wet grass:               .08 brakes off, .2 brakes on
-	#FROM: General Aviation Aircraft Design: Applied Methods and Procedures,
-        # by Snorri Gudmundsson, copyright 2014, published by Elsevier, Waltham,
-        # MA, USA [p.938]
-        self.ground_incline       = 0.0
-        self.friction_coefficient = 0.04
+	
+	self.ground_incline       = 0.0
+	self.friction_coefficient = 0.04
+	self.throttle             = None
+	self.velocity_start       = 0.0
+	self.velocity_end         = 0.0
 
         #Initialize data structure
         # base matricies
@@ -53,24 +57,20 @@ class Ground_Segment(Aerodynamic_Segment):
         conditions = self.conditions
 
         # --- Properties specific to ground segments
-        conditions.ground                              = Data()
-        conditions.ground.incline                      = 0.0 * Units.deg
-        conditions.frames.inertial.ground_force_vector = ones_3col * 0
+        conditions.ground = Data()
+        conditions.ground.incline                      = ones_1col * 0.0
+	conditions.ground.friction_coefficient         = ones_1col * 0.0
+        conditions.frames.inertial.ground_force_vector = ones_3col * 0.0
 
         # --- Unknowns
         unknowns = self.unknowns
-        unknowns.states.velocity = np.ones([1,1])
-        unknowns.finals.time     = np.ones([1,1])
+        unknowns.controls.velocity_x = ones_1col
+        unknowns.finals.time         = ones_1col
         
         # --- Residuals
         residuals = self.residuals
-        residuals.states.total_force_x  = np.ones([1,1])
-        residuals.finals.velocity_error = np.ones([1,1])
-
-	# Pack up outputs
-        self.conditions = conditions
-        self.unknowns   = unknowns
-        self.residuals  = residuals
+	residuals.controls.acceleration_x       = ones_1col
+        residuals.finals.final_velocity_error   = ones_1col
 
         return
 
@@ -88,6 +88,20 @@ class Ground_Segment(Aerodynamic_Segment):
         
         return
     
+    def initialize_arrays(self,conditions,numerics,unknowns,residuals):
+	""" Modified initialize_arrays method to remove the initial condition from
+	    unknowns.controls.velocity_x (and the corresponding acceleration residual)
+	"""
+	
+	# run the superclass array initialization
+	unknowns, conditions, residuals = \
+	    Aerodynamic_Segment.initialize_arrays(self, conditions, numerics, unknowns, residuals)
+	
+	# modify unknowns and residuals to prevent solver from changing v0
+	unknowns.controls.velocity_x      = unknowns.controls.velocity_x[1:,0]
+	residuals.controls.acceleration_x = residuals.controls.acceleration_x[1:,0]
+	
+	return unknowns, conditions, residuals
     
     def initialize_conditions(self,conditions,numerics,initials=None):
         """ Segment.initialize_conditions(conditions,numerics,initials=None)
@@ -114,25 +128,35 @@ class Ground_Segment(Aerodynamic_Segment):
                 will be called before solving the segments free unknowns
                 
         """
+	
+	conditions = Aerodynamic_Segment.initialize_conditions(self,conditions,numerics,initials)
 
         # unpack inputs
-        v0       = self.velocity_start + .001	#Non-zero velocity for aero and propulsion
-        vf       = self.velocity_end
+	v0       = self.velocity_start
+	vf       = self.velocity_end
         alt      = self.altitude
         atmo     = self.atmosphere
         planet   = self.planet
-        conditions.ground.incline = self.ground_incline * np.ones([1,1])
-        conditions.ground.friction_coefficient = self.friction_coefficient * np.ones([1,1])
-        
+        conditions.ground.incline[:,0]              = self.ground_incline
+        conditions.ground.friction_coefficient[:,0] = self.friction_coefficient
+	N        = len(conditions.frames.inertial.velocity_vector[:,0])
+	
+	# avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
+	if v0 == 0.0: v0 = 0.01
+	if vf == 0.0: vf = 0.01
+	
+	# repack
+	self.velocity_start = v0
+	self.velocity_end   = vf
+	
         # pack conditions
-        conditions.frames.inertial.velocity_vector[:,0] = v0
+        conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
         conditions.freestream.altitude[:,0]             = alt
         
         # freestream atmosphereric conditions
         conditions = self.compute_atmosphere(conditions,atmo)
         conditions = self.compute_gravity(conditions,planet)
-        conditions = self.compute_freestream(conditions)        
-
+	
         # done
         return conditions
     
@@ -141,115 +165,72 @@ class Ground_Segment(Aerodynamic_Segment):
     #   Methods For Iterations
     # ------------------------------------------------------------------ 
 
-    def update_velocity_vector(self,numerics,unknowns,conditions):
-        """ helper function to set velocity_vector.
-            called from update_differentials()
-        """
-        
-        # unpack
-        a_x   = conditions.frames.inertial.acceleration_vector[:,0][:,None]
-        v_x_0 = conditions.frames.inertial.velocity_vector[0,0]
-        I     = numerics.integrate_time
-
-        # process
-        v_x   = v_x_0 + np.dot(I, a_x )
-
-        # pack
-        conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
-        conditions.frames.wind.velocity_vector[:,0] = v_x[:,0]
-        
-        return conditions
-
-
     def update_conditions(self,conditions,numerics,unknowns):
         """ Compute orientation, and force conditions. Modified from
             originial Aerodynamic_Segment to include rolling friction
         """
-
+	# unpack unknowns
+	velocity_x   = unknowns.controls.velocity_x
+	final_time   = unknowns.finals.time
+	
+	#apply unknowns
+	conditions.frames.inertial.velocity_vector[1:,0] = velocity_x
+	
         # unpack models
         aero_model = self.config.aerodynamics_model
-        prop_model = self.config.propulsion_model        
-        
-        # angle of attacks
-        conditions = self.compute_orientations(conditions)
+        prop_model = self.config.propulsion_model
 
         # freestream conditions
         conditions = self.compute_freestream(conditions)
         
-        # aerodynamics
-        conditions = self.compute_aerodynamics(aero_model,conditions)
-        
-        # propulsion
-        conditions = self.compute_propulsion(prop_model,conditions)
-        
-        # weights
-        conditions = self.compute_weights(conditions,numerics)
+        # call Aerodynamic_Segment's update_conditions
+        conditions = Aerodynamic_Segment.update_conditions(self,conditions,numerics,unknowns)
 
         # rolling friction
-        conditions = self.compute_rolling_friction(conditions)
+        conditions = self.compute_ground_forces(conditions)
 
         # total forces
-        conditions = self.compute_forces(conditions)
-        
-        # update and apply acceleration
-        Force_x    = conditions.frames.inertial.total_force_vector
-        mass       = conditions.weights.total_mass
-        a_x        = Force_x / mass
-        # pack acceleration and update velocity
-        conditions.frames.inertial.acceleration_vector[:,0] = a_x[:,0]
-        conditions = self.update_velocity_vector(numerics,unknowns,conditions)
+        conditions = self.compute_forces(conditions)	
 
         return conditions
 
 
 
-    def compute_rolling_friction(self,conditions):
+    def compute_ground_forces(self,conditions):
         """ Compute the rolling friction on the aircraft """
 
         # unpack
-        W              = conditions.frames.inertial.gravity_force_vector[:,2]
-        friction_coeff = conditions.ground.friction_coefficient
-        wind_lift_force_vector        = conditions.frames.wind.lift_force_vector
+        W                      = conditions.frames.inertial.gravity_force_vector[:,2,None]
+        friction_coeff         = conditions.ground.friction_coefficient
+        wind_lift_force_vector = conditions.frames.wind.lift_force_vector
 
         #transformation matrix to get lift in inertial frame
         T_wind2inertial = conditions.frames.wind.transform_to_inertial
         
         # to inertial frame
-        L = orientation_product(T_wind2inertial,wind_lift_force_vector)[:,2]
+        L = orientation_product(T_wind2inertial,wind_lift_force_vector)[:,2,None]
 
         #compute friction force
         N  = -(W + L)
         Ff = N * friction_coeff
 
         #pack results. Friction acts along x-direction
-        conditions.frames.inertial.ground_force_vector[:,2] = N
-        conditions.frames.inertial.ground_force_vector[:,0] = Ff
+        conditions.frames.inertial.ground_force_vector[:,2] = N[:,0]
+        conditions.frames.inertial.ground_force_vector[:,0] = Ff[:,0]
 
         return conditions
 
 
     def compute_forces(self,conditions):
 
+	conditions = Aerodynamic_Segment.compute_forces(self,conditions)
+	
         # unpack forces
-        wind_lift_force_vector        = conditions.frames.wind.lift_force_vector
-        wind_drag_force_vector        = conditions.frames.wind.drag_force_vector
-        body_thrust_force_vector      = conditions.frames.body.thrust_force_vector
-        inertial_gravity_force_vector = conditions.frames.inertial.gravity_force_vector
-        inertial_ground_force_vector  = conditions.frames.inertial.ground_force_vector  #Includes friction and normal force. Normal force will cancel out lift and weight
-        
-        # unpack transformation matrices
-        T_body2inertial = conditions.frames.body.transform_to_inertial
-        T_wind2inertial = conditions.frames.wind.transform_to_inertial
-        
-        # to inertial frame
-        L = orientation_product(T_wind2inertial,wind_lift_force_vector)
-        D = orientation_product(T_wind2inertial,wind_drag_force_vector)
-        T = orientation_product(T_body2inertial,body_thrust_force_vector)
-        W = inertial_gravity_force_vector
-        R = inertial_ground_force_vector
+        total_aero_forces = conditions.frames.inertial.total_force_vector
+	inertial_ground_force_vector = conditions.frames.inertial.ground_force_vector
         
         # sum of the forces, including friction force
-        F = L + D + T + W + R
+        F = total_aero_forces + inertial_ground_force_vector
         # like a boss
         
         # pack
@@ -265,17 +246,19 @@ class Ground_Segment(Aerodynamic_Segment):
         """
 
         # unpack inputs
-        FT = conditions.frames.inertial.total_force_vector
-        vf = self.velocity_end
-        v  = conditions.frames.inertial.velocity_vector
-        m  = conditions.weights.total_mass
-        a  = conditions.frames.inertial.acceleration_vector
-        #print v[:,0]
-        
+	FT = conditions.frames.inertial.total_force_vector
+	vf = self.velocity_end
+	v  = conditions.frames.inertial.velocity_vector
+	D  = numerics.differentiate_time
+	m  = conditions.weights.total_mass
+	
         # process and pack
-        residuals.states.total_force_x  = FT[:,0] - (np.transpose(m) * a[:,0])[0]
-        residuals.finals.velocity_error = v[-1,0] - vf
-        
+	acceleration = np.dot(D , v)
+	conditions.frames.inertial.acceleration_vector = acceleration
+	
+	residuals.finals.final_velocity_error = (v[-1,0] - vf)
+	residuals.controls.acceleration_x[:] = (FT / m - acceleration)[1:,0]
+	
         return residuals
 
 
@@ -321,6 +304,5 @@ class Ground_Segment(Aerodynamic_Segment):
         
         # pack outputs
         conditions.frames.inertial.position_vector = position_vector
-        
         
         return conditions
