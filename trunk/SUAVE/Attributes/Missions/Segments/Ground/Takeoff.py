@@ -30,6 +30,11 @@ class Takeoff(Ground_Segment):
 
 	self.tag = "Takeoff Segment"
 	
+	self.velocity_start       = 0.0
+	self.velocity_end         = 150 * Units.knots
+	self.friction_coefficient = 0.04
+	self.throttle             = 1.0
+	
 	return
 	
 
@@ -47,8 +52,7 @@ class Takeoff(Ground_Segment):
 	conditions.frames.inertial.time[:,0] = t_initial
 	conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
 	
-	#Assume full throttle
-	throttle   = 1.0	
+	throttle = self.throttle	
         conditions.propulsion.throttle[:,0] = throttle
 	
 	return conditions
@@ -69,7 +73,7 @@ class Takeoff(Ground_Segment):
 	conditions = Ground_Segment.post_process(self, conditions, numerics, unknowns)
 	
 	# process
-	# Assume 4 seconds for rotation, with a constant groundspeed
+	# Assume 3.5 seconds for rotation, with a constant groundspeed
 	rotation_distance = conditions.frames.inertial.velocity_vector[-1,0] * 3.5
 	
 	# pack outputs
