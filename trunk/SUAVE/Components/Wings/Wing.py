@@ -44,6 +44,19 @@ class Wing(Lofted_Body):
         self.hl           = 0
         self.flap_type    = 'none'
         self.S_affected   = 0.
+          
+        
+    def append_segment(self,segment):
+        """ adds a segment to the wing """
+
+        # assert database type
+        if not isinstance(segment,Data):
+            raise Component_Exception, 'input component must be of type Data()'
+
+        # store data
+        self.Segments.append(segment)
+       
+        return
 
 
 class Container(Component.Container):
