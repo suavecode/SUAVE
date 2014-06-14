@@ -46,13 +46,13 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     wings     = geometry.Wings
     fuselages = geometry.Fuselages
     vehicle_reference_area = geometry.reference_area
+    drag_breakdown = conditions.aerodynamics.drag_breakdown
     
     # the drag to be returned
     total_parasite_drag = 0.0
     
     # start conditions node
-    #if not conditions.drag_breakdown.has_key('parasite'):
-        #conditions.drag_breakdown.parasite = Result(total=0.0)
+    drag_breakdown.parasite = Result()
     
     # from wings
     for wing in wings.values():
@@ -65,6 +65,6 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
         total_parasite_drag += parasite_drag * fuselage.reference_area/vehicle_reference_area
         
     # dump to condtitions
-    #conditions.drag_breakdown.parasite.total = total_parasite_drag
+    drag_breakdown.parasite.total = total_parasite_drag
         
     return total_parasite_drag

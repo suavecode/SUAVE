@@ -589,6 +589,7 @@ class TurboFanPASS(Propulsor):
       #end
         self.A2= A2
         self.df= df
+        self.nacelle_dia = df
         self.A2_5= A2_5
         self.dhc= dhc
         self.A7= A7

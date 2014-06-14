@@ -23,13 +23,17 @@ Units = UnitRegistry()
  
 # multiplication covnverts in to base unit
 def __rmul__(self,other):
+    self._magnitude = other
     self.ito_base_units()
-    return other * self.magnitude
+    return self.magnitude
 
 # division converts out of base unit
 def __rdiv__(self,other):
+    units = str(self._units)
     self.ito_base_units()
-    return other / self.magnitude
+    self._magnitude = other
+    self.ito(units)
+    return self.magnitude
 
 # yay monkey patching!
 Units.Quantity.__mul__      = __rmul__
@@ -89,16 +93,20 @@ if __name__ == '__main__':
     
     a = 4. * Units.kilogram
     b = a / Units.gram
+    t = 100 * Units.degF
     
     print a
     print b
+    print t
     
     import numpy as np
     
     c = np.array([3.,4.,6.])
     c = c * Units.kg
     d = c / Units.g
+    v = t / Units.degF
     
     print c
     print d
+    print v
     

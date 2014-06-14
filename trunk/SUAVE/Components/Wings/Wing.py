@@ -44,6 +44,7 @@ class Wing(Lofted_Body):
         self.hl           = 0
         self.flap_type    = 'none'
         self.S_affected   = 0.
+        self.vertical     = False
           
         
     def append_segment(self,segment):

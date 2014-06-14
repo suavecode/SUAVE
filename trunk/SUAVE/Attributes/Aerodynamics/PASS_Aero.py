@@ -116,10 +116,10 @@ class PASS_Aero(Aerodynamics):
         #if Wing1.hl == 1: 
             #[cl_w1,cd_w1]=high_lift(Wing1,state,curr_itr)
         #else :   
-        [cl_w1,cd_w1]=self.vlm(Wing1.span,Wing1.chord_root,Wing1.chord_tip,n,nn,Wing1.sweep,Wing1.taper,Wing1.alpha_rc,Wing1.alpha_tc,Sref,Wing1.symmetric,alpha1,Wing1.ar)
+        [cl_w1,cd_w1]=self.vlm(Wing1.span,Wing1.chord_root,Wing1.chord_tip,n,nn,Wing1.sweep,Wing1.taper,Wing1.twist_rc,Wing1.twist_tc,Sref,Wing1.symmetric,alpha1,Wing1.ar)
 
-        [cl_w2,cd_w2]=self.vlm(Wing2.span,Wing2.chord_root,Wing2.chord_tip,n,nn,Wing2.sweep,Wing2.taper,Wing2.alpha_rc,Wing2.alpha_tc,Sref,Wing2.symmetric,alpha2,Wing2.ar)
-        [cl_w3,cd_w3]=self.vlm(Wing3.span,Wing3.chord_root,Wing3.chord_tip,n,nn,Wing3.sweep,Wing3.taper,Wing3.alpha_rc,Wing3.alpha_tc,Sref,Wing3.symmetric,alpha3,Wing3.ar)
+        [cl_w2,cd_w2]=self.vlm(Wing2.span,Wing2.chord_root,Wing2.chord_tip,n,nn,Wing2.sweep,Wing2.taper,Wing2.twist_rc,Wing2.twist_tc,Sref,Wing2.symmetric,alpha2,Wing2.ar)
+        [cl_w3,cd_w3]=self.vlm(Wing3.span,Wing3.chord_root,Wing3.chord_tip,n,nn,Wing3.sweep,Wing3.taper,Wing3.twist_rc,Wing3.twist_tc,Sref,Wing3.symmetric,alpha3,Wing3.ar)
         #cl_wing=vlm(wing_main,State)
         #cl_horz=vlm(wing_horz,State)
     #<<<<<<< .mine
@@ -167,7 +167,7 @@ class PASS_Aero(Aerodynamics):
 
 
     #def vlm(Wing,State):
-    def vlm(self,span,root_chord,tip_chord,n,nn,sweep,taper,alpha_rc,alpha_tc,Sref,sym_para,aoa,AR):
+    def vlm(self,span,root_chord,tip_chord,n,nn,sweep,taper,twist_rc,twist_tc,Sref,sym_para,aoa,AR):
 
         # span=200           #half span
         # root_chord=30
@@ -182,12 +182,12 @@ class PASS_Aero(Aerodynamics):
         # rho=1.2
 
         #print Vinf
-        #alpha_tc=alpha_tc*numpy.pi/180
+        #twist_tc=twist_tc*numpy.pi/180
 
         #eeta=0.97
 
         #Cl_alpha=2*numpy.pi*AR/(2+(numpy.sqrt( ((AR/eeta)**2)*(1+numpy.tan(sweep)**2-Mc**2)+4)))
-        #Cl=Cl_alpha*numpy.pi/180*alpha_rc
+        #Cl=Cl_alpha*numpy.pi/180*twist_rc
         #print Cl
         rho=1.0
         Vinf=1.0
@@ -244,7 +244,7 @@ class PASS_Aero(Aerodynamics):
             section_length[i]= dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             area_section[i]=section_length[i]*deltax
             sl[i]=section_length[i]
-            twist_distri[i]=alpha_rc + i/float(n)*(alpha_tc-alpha_rc)
+            twist_distri[i]=twist_rc + i/float(n)*(twist_tc-twist_rc)
             xpos[i]=(i)*deltax
 
             ya[i]=(i)*deltax
@@ -280,7 +280,7 @@ class PASS_Aero(Aerodynamics):
 
         for i in range(0,n):
         #for i=1:n
-            RHS[i,0]=Vinf*numpy.sin(twist_distri[i]*numpy.pi/180+aoa)  #)
+            RHS[i,0]=Vinf*numpy.sin(twist_distri[i]+aoa)  #)
             #for j=1:n
             for j in range(0,n):
 
@@ -329,11 +329,11 @@ class PASS_Aero(Aerodynamics):
                 v[i]=v[i]+A_v[i,j]
 
 
-            Lfi[i]=-T[i]*(Vinf*numpy.sin(alpha_tc)-v[i])
-            Lfk[i]=T[i]*Vinf*numpy.cos(alpha_tc)
+            Lfi[i]=-T[i]*(Vinf*numpy.sin(twist_tc)-v[i])
+            Lfk[i]=T[i]*Vinf*numpy.cos(twist_tc)
 
-            Lft[i]=(-Lfi[i]*numpy.sin(alpha_tc)+Lfk[i]*numpy.cos(alpha_tc))
-            Dg[i]=(Lfi[i]*numpy.cos(alpha_tc)+Lfk[i]*numpy.sin(alpha_tc))
+            Lft[i]=(-Lfi[i]*numpy.sin(twist_tc)+Lfk[i]*numpy.cos(twist_tc))
+            Dg[i]=(Lfi[i]*numpy.cos(twist_tc)+Lfk[i]*numpy.sin(twist_tc))
 
 
 
@@ -824,7 +824,7 @@ class PASS_Aero(Aerodynamics):
         self.arw_v=Wing3.ar
         self.span_v=Wing3.span
 
-        self.d_engexit=vehicle.Propulsors.values()[0].df        
+        self.d_engexit=vehicle.Propulsors.values()[0].nacelle_dia        
 
         #print 'chord_mac',Wing1.chord_mac
 
@@ -876,17 +876,17 @@ class PASS_Aero(Aerodynamics):
     def __call__(self,conditions):
 
         
-        alpha = conditions.aerodynamics.angle_of_attack
+        alpha = conditions.angle_of_attack
         
         state = Data()
-        state.M   = conditions.freestream.mach_number
-        state.rho = conditions.freestream.density
-        state.mew = conditions.freestream.viscosity
-        state.T   = conditions.freestream.temperature
-        state.q   = conditions.freestream.dynamic_pressure
+        state.M   = conditions.mach_number
+        state.rho = conditions.density
+        state.mew = conditions.viscosity
+        state.T   = conditions.temperature
+        #state.q   = conditions.dynamic_pressure
         state.Sref = self.Sref
         
-        N = state.M.shape[0]
+        #N = state.M.shape[0]
         
         ##interpolation methods
         #f_Cl = interp1d(self.aoa_range, self.Cl_a,bounds_error=False)
@@ -905,8 +905,8 @@ class PASS_Aero(Aerodynamics):
         results.lift_coefficient = CL
         results.drag_coefficient = CD
         
-        conditions.aerodynamics.lift_coefficient = CL
-        conditions.aerodynamics.drag_coefficient = CD
+        conditions.lift_coefficient = CL
+        conditions.drag_coefficient = CD
         
         L = np.zeros([N,3])
         D = np.zeros([N,3])
@@ -917,4 +917,4 @@ class PASS_Aero(Aerodynamics):
         results.lift_force_vector = L
         results.drag_force_vector = D
 
-        return results
+        return [CL,CD]

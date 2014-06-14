@@ -1,28 +1,27 @@
-"""Battery.Py: calculates battery discharge losses when run """
+"""Battery_Li_Air.Py: calculates battery discharge losses and mass gain when run """
 # M. Vegh
 #
-"""Sources are the "Requirements for a Hydrogen Powered All-Electric
-Manned Helicopter" Anubhav Datta and Wayne Johnson, as well as 
-the EADS Voltair paper by S. Stueckl, J. van Toor, H. Lobentanzer
-"""
+
 # ------------------------------------------------------------
 #  Imports 
 # ------------------------------------------------------------
 
 from Storage import Storage
+from Battery import Battery
 import numpy as np
 # ------------------------------------------------------------
 #  Battery
 # ------------------------------------------------------------
     
-class Battery(Storage):
-    """ SUAVE.Attributes.Components.Energy.Storage.Battery()
+class Battery_Li_Air(Storage):
+    """ SUAVE.Attributes.Components.Energy.Storage.Battery_Li_Air()
+    Models for a Lithium Air Battery
     """
     def __defaults__(self):
-        self.tag = 'Battery'
-        self.MassDensity = 0.0,       # kg/m^3
-        self.SpecificEnergy = 0.0     # W-hr/kg
-        self.SpecificPower = 0.0      # kW/kg
+      
+        self.MassDensity = 1000.0     # kg/m^3
+        self.SpecificEnergy = 2000.0  # W-hr/kg
+        self.SpecificPower = .66      # kW/kg
         self.MaxPower=0.0             # W
         self.TotalEnergy = 0.0        # J
         self.CurrentEnergy=0.0        # J
@@ -37,10 +36,11 @@ class Battery(Storage):
         
         Reads:
         power
- 
+        t
     
         Returns:
         Ploss= additional discharge power losses from the battery [W]
+        mdot= mass gain rate of the lithium-air battery (if applicable) [W]
         """
     
         x=np.divide(self.CurrentEnergy,self.TotalEnergy)
@@ -57,6 +57,14 @@ class Battery(Storage):
         Ploss=(Icur**2)*R                    #calculate resistive losses
         if power!=0:
             self.CurrentEnergy=self.CurrentEnergy-Eloss_ideal-Ploss*t
- 
-            return Ploss
-    
+            
+        if self.CurrentEnergy<0:
+            print 'Warning, battery out of energy'
+       
+        #model taken from EADS Voltair Paper
+        mdot=-(power+Ploss) *(1.92E-4)*(1./3600.)      #weight gain of battery (positive means mass loss)
+        return Ploss, mdot
+
+    def find_mass_gain(self):               #find total potential mass gain of a lithium air battery
+        mgain=self.TotalEnergy*(1.92E-4)*(1./3600.)
+        return mgain

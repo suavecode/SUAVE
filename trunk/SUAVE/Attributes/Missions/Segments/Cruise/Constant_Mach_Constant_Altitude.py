@@ -68,7 +68,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         self.air_speed = mach * a
         
         # call super class's initialize
-        conditions = Constant_Speed_Constant_Altitude.initialize_conditions(conditions,numerics,initials)
+        conditions = Constant_Speed_Constant_Altitude.initialize_conditions(self,conditions,numerics,initials)
         
         # done
         return conditions

@@ -35,7 +35,7 @@ def tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail,rudder_fractio
         
         Outputs:
             output - a dictionary with outputs:
-                wt_tail_vert - weight of the vertical fin portion of the vertical tail [kilograms]
+                wt_tail_vertical - weight of the vertical fin portion of the vertical tail [kilograms]
                 wt_rudder - weight of the rudder on the aircraft [kilograms]
             
         Assumptions:

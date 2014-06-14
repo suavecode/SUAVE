@@ -81,13 +81,13 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.sref      = 124.862       #
-    wing.ar        = 8             #
-    wing.span      = 35.66         #
-    wing.sweep     = 25*np.pi/180  #
-    wing.symmetric = True          #
-    wing.t_c       = 0.1           #
-    wing.taper     = 0.16          #
+    wing.sref      = 124.862        #
+    wing.ar        = 8              #
+    wing.span      = 35.66          #
+    wing.sweep     = 25 * Units.deg #
+    wing.symmetric = True           #
+    wing.t_c       = 0.1            #
+    wing.taper     = 0.16           #
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
@@ -95,15 +95,14 @@ def define_vehicle():
     wing.chord_mac   = 12.5                  #
     wing.S_exposed   = 0.8*wing.area_wetted  #
     wing.S_affected  = 0.6*wing.area_wetted  #
-    #wing.Cl          = 0.3                   #
     wing.e           = 0.9                   #
-    wing.alpha_rc    = 3.0*Units.degrees                   #
-    wing.alpha_tc    = 3.0*Units.degrees                    #
-    wing.highlift    = False                 
-    #wing.hl          = 1                     #
-    #wing.flaps_chord = 20                    #
-    #wing.flaps_angle = 20                    #
-    #wing.slats_angle = 10                    #
+    wing.twist_rc    = 3.0*Units.degrees     #
+    wing.twist_tc    = 3.0*Units.degrees     #
+    wing.highlift    = False                 #
+    #wing.hl          = 1                    #
+    #wing.flaps_chord = 20                   #
+    #wing.flaps_angle = 20                   #
+    #wing.slats_angle = 10                   #
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -117,23 +116,22 @@ def define_vehicle():
     wing.tag = 'Horizontal Stabilizer'
     
     wing.sref      = 32.488         #
-    wing.ar        = 6.16          #
-    #wing.span      = 100           #
-    wing.sweep     = 30*np.pi/180  #
-    wing.symmetric = True          
-    wing.t_c       = 0.08          #
-    wing.taper     = 0.4           #
+    wing.ar        = 6.16           #
+    wing.span      = 14.146         #
+    wing.sweep     = 30 * Units.deg #
+    wing.symmetric = True           #
+    wing.t_c       = 0.08           #
+    wing.taper     = 0.4            #
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #  
-    #wing.Cl         = 0.2                   #
+    wing.S_affected = 0.6*wing.area_wetted  #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 3.0*Units.degrees                    #
-    wing.alpha_tc   = 3.0*Units.degrees                    #
+    wing.twist_rc   = 3.0*Units.degrees     #
+    wing.twist_tc   = 3.0*Units.degrees     #
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -146,25 +144,24 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertcal Stabilizer'    
     
-    wing.sref      = 32.488        #
-    wing.ar        = 1.91          #
-    #wing.span      = 100           #
-    wing.sweep     = 25*np.pi/180  #
-    wing.symmetric = False    
-    wing.t_c       = 0.08          #
-    wing.taper     = 0.25          #
+    wing.sref      = 32.488         #
+    wing.ar        = 1.91           #
+    wing.span      = 7.877          #
+    wing.sweep     = 25 * Units.deg #
+    wing.symmetric = False          #
+    wing.t_c       = 0.08           #
+    wing.taper     = 0.25           #
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 12.5                  #
+    wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
     wing.S_affected = 0.6*wing.area_wetted  #  
-    #wing.Cl        = 0.002                  #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 0.0*Units.degrees                    #
-    wing.alpha_tc   = 0.0*Units.degrees                    #
-    wing.vertical   =True    
+    wing.twist_rc   = 0.0*Units.degrees     #
+    wing.twist_tc   = 0.0*Units.degrees     #
+    wing.vertical   = True    
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -178,7 +175,7 @@ def define_vehicle():
     fuselage.tag = 'Fuselage'
     
     fuselage.num_coach_seats = 200  #
-    fuselage.seats_abreast   = 6
+    fuselage.seats_abreast   = 6    #
     fuselage.seat_pitch      = 1    #
     fuselage.fineness_nose   = 1.6  #
     fuselage.fineness_tail   = 2    #
@@ -235,7 +232,8 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
+    #aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     vehicle.aerodynamics_model = aerodynamics
     
@@ -535,7 +533,7 @@ def post_process(vehicle,mission,results):
         altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
         axes.plot(time, altitude, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Altitude (m)')
+    axes.set_ylabel('Altitude (km)')
     axes.grid(True)
     
     
@@ -646,6 +644,35 @@ def post_process(vehicle,mission,results):
         axes.set_ylabel('Drag and Thrust (N)')
         axes.grid(True)
     
+    
+    # ------------------------------------------------------------------    
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components")
+    axes = plt.gca()    
+    for i, segment in enumerate(results.Segments.values()):
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+        
+        
+        axes.plot( time , cdp , 'ko-', label='CD_P' )
+        axes.plot( time , cdi , 'bo-', label='CD_I' )
+        axes.plot( time , cdc , 'go-', label='CD_C' )
+        axes.plot( time , cdm , 'yo-', label='CD_M' )
+        axes.plot( time , cd  , 'ro-', label='CD'   )
+        
+        if i == 0:
+            axes.legend(loc='upper center')
+        
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
     
     plt.show()     
     

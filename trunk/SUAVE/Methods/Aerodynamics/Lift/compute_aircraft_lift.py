@@ -47,11 +47,7 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
-#def main():
-    
-    #test()
-    
-    #return
+
 # ----------------------------------------------------------------------
 #  The Function
 # ----------------------------------------------------------------------
@@ -88,20 +84,17 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
    
     # unpack
     fus_correction = configuration.fuselage_lift_correction
-    Mc             = conditions.mach_number
-    AoA            = conditions.angle_of_attack
+    Mc             = conditions.freestream.mach_number
+    AoA            = conditions.aerodynamics.angle_of_attack
     
     # the lift surrogate model for wings only
     wings_lift_model = configuration.surrogate_models.lift_coefficient
     
     # pack for interpolate
-    X_interp = np.array([AoA]).T
-    #X_interp = AoA
+    X_interp = AoA
     
     # interpolate
     wings_lift = wings_lift_model(X_interp)  
-    
-    
     
     # compressibility correction
     compress_corr = 1./(np.sqrt(1.-Mc**2.))
@@ -112,8 +105,7 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
     # total lift, accounting one fuselage
     aircraft_lift_total = wings_lift_comp * fus_correction 
     
-    #print aircraft_lift_total
-    # store to results
+    # store results
     lift_results = Result(
         total                = aircraft_lift_total ,
         incompressible_wings = wings_lift          ,
@@ -121,14 +113,9 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
         compressibility_correction_factor = compress_corr  ,
         fuselage_correction_factor        = fus_correction ,
     )
-    #conditions.lift_breakdown.update( lift_results )    #update
+    conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
     
-    conditions.lift_coefficient= aircraft_lift_total
-    conditions.clean_wing_lift[0] = wings_lift_comp
-    #conditions.clean_wing_lift[1] = 0.0
-    #conditions.clean_wing_lift[2] = 0.0
-    
-
+    conditions.aerodynamics.lift_coefficient= aircraft_lift_total
 
     return aircraft_lift_total
 
