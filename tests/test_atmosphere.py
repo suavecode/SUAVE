@@ -3,15 +3,16 @@
 import SUAVE
 import numpy as np
 import matplotlib.pyplot as plt
+from SUAVE.Attributes import Units
 
 # main program
-def main():
+def main(block_plot=True):
 
     # initialize atmospheric models
-    atm = SUAVE.Attributes.Atmospheres.Earth.InternationalStandard()
+    atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
     
     # test elevations -3 km <= z <= 90 km
-    z = np.linspace(-3,90,100)
+    z = np.linspace(-3,90,100) * Units.km
 
     # compute values from each model
     p, T, rho, a, mew = atm.compute_values(z)
@@ -39,7 +40,8 @@ def main():
     plt.title(title)
     plt.grid(True)
 
-    plt.show()
+    plt.show(block=block_plot)
+    plt.close()
  
     return
 
