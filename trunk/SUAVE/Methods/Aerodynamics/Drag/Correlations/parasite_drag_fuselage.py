@@ -51,6 +51,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # unpack inputs
     form_factor = configuration.fuselage_parasite_drag_form_factor
     C_fus = configuration.fuselage_parasite_drag_form_factor
+    freestream = conditions.freestream
     
     Sref        = fuselage.reference_area
     Swet        = fuselage.wetted_area
@@ -61,11 +62,11 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     l_tail = fuselage.length_tail
     
     # conditions
-    Mc  = conditions.mach_number
-    roc = conditions.density
-    muc = conditions.viscosity
-    Tc  = conditions.temperature    
-    pc  = conditions.pressure
+    Mc  = freestream.mach_number
+    roc = freestream.density
+    muc = freestream.viscosity
+    Tc  = freestream.temperature    
+    pc  = freestream.pressure
 
     # reynolds number
     V = Mc * compute_speed_of_sound(Tc, pc) 
@@ -87,16 +88,16 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # --------------------------------------------------------
     
     # dump data to conditions
-    #fuselage_result = Result(
-        #wetted_area               = Swet   , 
-        #reference_area            = Sref   , 
-        #parasite_drag_coefficient = fuselage_parasite_drag ,
-        #skin_friction_coefficient = cf_fus ,
-        #compressibility_factor    = k_comp ,
-        #reynolds_factor           = k_reyn , 
-        #form_factor               = k_fus  ,
-    #)
-    #conditions.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
+    fuselage_result = Result(
+        wetted_area               = Swet   , 
+        reference_area            = Sref   , 
+        parasite_drag_coefficient = fuselage_parasite_drag ,
+        skin_friction_coefficient = cf_fus ,
+        compressibility_factor    = k_comp ,
+        reynolds_factor           = k_reyn , 
+        form_factor               = k_fus  ,
+    )
+    conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
     
     return fuselage_parasite_drag
 

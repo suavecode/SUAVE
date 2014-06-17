@@ -13,6 +13,7 @@ sys.path.append('../trunk')
 
 import SUAVE
 from SUAVE.Attributes import Units
+from SUAVE.Attributes.Missions.Segments.Ground import Takeoff, Landing
 
 import numpy as np
 import pylab as plt

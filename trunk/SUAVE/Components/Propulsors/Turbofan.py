@@ -589,6 +589,7 @@ class TurboFanPASS(Propulsor):
       #end
         self.A2= A2
         self.df= df
+        self.nacelle_dia = df
         self.A2_5= A2_5
         self.dhc= dhc
         self.A7= A7
@@ -967,7 +968,10 @@ class TurboFanPASS(Propulsor):
         #Isp[ln] = FD2/(mfuel*State.g0)   
         
         CF = FD2/(State.q*self.A2)
-        Isp = FD2/(mfuel*State.g0*State.q/State.q)        
+        if throttle.all() == 0.0:
+            Isp = 0.0
+        else:
+            Isp = FD2/(mfuel*State.g0*State.q/State.q)        
         
         
         #-------------------------------------------------------

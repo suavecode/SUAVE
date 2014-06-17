@@ -493,7 +493,8 @@ class Base_Segment(Data):
                     pull_conditions(A[k],B[k])
                 # need arrays here
                 elif not isinstance(v,np.ndarray):
-                    raise ValueError , 'condition "%s" must be type np.array' % k
+                    continue
+                    #raise ValueError , 'condition "%s" must be type np.array' % k
                 # the copy
                 else:
                     B[k] = A[k][-1,:][None,:]

@@ -45,6 +45,7 @@ def parasite_drag_wing(conditions,configuration,wing):
     
     # unpack inputs
     C = configuration.wing_parasite_drag_form_factor
+    freestream = conditions.freestream
     Sref = wing.sref
     
     # wing
@@ -60,11 +61,11 @@ def parasite_drag_wing(conditions,configuration,wing):
     Swet = 2. * (1.0+ 0.2*t_c_w) * S_exposed_w    
     
     # conditions
-    Mc  = conditions.mach_number
-    roc = conditions.density
-    muc = conditions.viscosity
-    Tc  = conditions.temperature    
-    pc  = conditions.pressure
+    Mc  = freestream.mach_number
+    roc = freestream.density
+    muc = freestream.viscosity
+    Tc  = freestream.temperature    
+    pc  = freestream.pressure
     
     # reynolds number
     V    = Mc * compute_speed_of_sound( Tc, pc ) #input gamma and R
@@ -93,7 +94,7 @@ def parasite_drag_wing(conditions,configuration,wing):
         reynolds_factor           = k_reyn , 
         form_factor               = k_w    ,
     )
-    #conditions.drag_breakdown.parasite[wing.tag] = wing_result
+    conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
     
     # done!
     return wing_parasite_drag

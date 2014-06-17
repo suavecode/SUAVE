@@ -7,5 +7,6 @@ from Aerodynamic_Segment import Aerodynamic_Segment
 import Climb
 import Cruise
 import Descent
+import Ground
 #import Glide
 #import Trajectory

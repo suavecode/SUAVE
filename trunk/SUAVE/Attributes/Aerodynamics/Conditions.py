@@ -53,11 +53,10 @@ class Conditions(Data):
         #)
         #self.drag_breakdown = Result.Container(
             #total=[] 
-        #)
+        #
         
-        self.lift_coefficient=0.0
-        #self.clean_wing_lift=0.0
-        self.clean_wing_lift=[0.0,0.0,0.0];
+        pass
+        
         
     def __check__(self):
         pass

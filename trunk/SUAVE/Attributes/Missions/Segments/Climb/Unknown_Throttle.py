@@ -41,7 +41,7 @@ class Unknown_Throttle(Climb_Segment):
         # --- Unknowns
         unknowns = self.unknowns
         unknowns.controls.throttle = np.ones([1,1]) # engine throttle
-        unknowns.controls.theta    = np.ones([1,1]) # aircraft inertial to body angle
+        unknowns.controls.theta    = np.zeros([1,1]) # aircraft inertial to body angle
         
         # --- Residuals
         residuals = self.residuals
