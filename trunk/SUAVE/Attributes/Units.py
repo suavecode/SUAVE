@@ -11,6 +11,7 @@
 # ------------------------------------------------------------
 
 from SUAVE.Plugins.pint import UnitRegistry
+from SUAVE.Plugins.pint.quantity import _Quantity
 
 Units = UnitRegistry()
 
@@ -19,21 +20,25 @@ Units = UnitRegistry()
 #   Monkey Patching
 # ------------------------------------------------------------
  
-# TODO - non-linear or offset conversions (ie Temp) 
- 
 # multiplication covnverts in to base unit
 def __rmul__(self,other):
-    self._magnitude = other
-    self.ito_base_units()
-    return self.magnitude
+    if isinstance(other,_Quantity):
+        return _Quantity.__rmul__(self,other)
+    else:
+        self._magnitude = other
+        self.ito_base_units()
+        return self.magnitude
 
 # division converts out of base unit
 def __rdiv__(self,other):
-    units = str(self._units)
-    self.ito_base_units()
-    self._magnitude = other
-    self.ito(units)
-    return self.magnitude
+    if isinstance(other,_Quantity):
+        return _Quantity.__truediv__(self,other)
+    else:
+        units = str(self._units)
+        self.ito_base_units()
+        self._magnitude = other
+        self.ito(units)
+        return self.magnitude
 
 # yay monkey patching!
 Units.Quantity.__mul__      = __rmul__
@@ -91,22 +96,36 @@ Units.__doc__ = \
 
 if __name__ == '__main__':
     
+    import numpy as np
+    
+    x = Units['miles/hour']
+    y = Units.miles / Units.hour
+    print x
+    print y
+    
+    x = Units['slug/ft**3']
+    y = Units.slug / Units.ft**3
+    print x
+    print y    
+    
     a = 4. * Units.kilogram
-    b = a / Units.gram
+    b = 5. * Units.gram
+    v = np.array([3.,4.,6.]) * Units['miles/hour']
     t = 100 * Units.degF
     
     print a
     print b
+    print v
     print t
     
-    import numpy as np
+    a = a / Units.g
+    b = b / Units.g
+    v = v / Units['miles/hour']
+    t = t / Units.degF
     
-    c = np.array([3.,4.,6.])
-    c = c * Units.kg
-    d = c / Units.g
-    v = t / Units.degF
-    
-    print c
-    print d
+    print a
+    print b
     print v
+    print t
+    
     
