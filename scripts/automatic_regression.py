@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 
 modules = [
     'test_atmosphere.py',
+    #'test_mission_Embraerer.py',
 ]
 
 
