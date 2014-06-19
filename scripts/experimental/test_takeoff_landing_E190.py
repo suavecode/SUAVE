@@ -95,8 +95,8 @@ def define_vehicle():
     wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
     wing.S_affected  = 0.6*wing.area_wetted  # part of high lift system
     wing.e           = 1.0                   #
-    wing.alpha_rc    = 2.0                   #
-    wing.alpha_tc    = 0.0                   #
+    wing.twist_rc    = 2.0                   #
+    wing.twist_tc    = 0.0                   #
     wing.highlift    = False                 
     #wing.hl          = 1                     #
     #wing.flaps_chord = 20                    #
@@ -130,8 +130,8 @@ def define_vehicle():
     wing.S_affected = 0.6*wing.area_wetted  #  
     #wing.Cl         = 0.2                   #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 2.0                   #
-    wing.alpha_tc   = 2.0                   #
+    wing.twist_rc   = 2.0                   #
+    wing.twist_tc   = 2.0                   #
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -160,8 +160,8 @@ def define_vehicle():
     wing.S_affected = 0.6*wing.area_wetted  #  
     #wing.Cl        = 0.002                  #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 0.0                   #
-    wing.alpha_tc   = 0.0                   #
+    wing.twist_rc   = 0.0                   #
+    wing.twist_tc   = 0.0                   #
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -232,7 +232,7 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     vehicle.aerodynamics_model = aerodynamics
     
@@ -306,10 +306,11 @@ def define_mission(vehicle):
     rot_conditions = Data()
     rot_conditions.V = v_rot_assumed
     rot_conditions.mew = mew_to
-    rot_conditions.rho = rho_to 
+    rot_conditions.rho = rho_to
     CL_max = SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations.compute_max_lift_coeff(vehicle,rot_conditions)[0][0]
     v_mu   = (vehicle.Mass_Props.m_takeoff*g_to / (0.5*rho_to*CL_max*vehicle.S))**0.5
     v_rot  = 1.1 * v_mu
+    print v_rot
 
     segment.velocity_start = 0.0   * Units['m/s']
     segment.velocity_end   = v_rot
@@ -337,6 +338,7 @@ def define_mission(vehicle):
     segment.altitude_end   = airport_altitude + 35. * Units.feet
     segment.climb_rate     = 3000. * Units['ft/min']
     segment.air_speed      = 1.2 * v_mu * Units['m/s']
+    print segment.air_speed, segment.climb_rate
     
     # add to misison
     mission.append_segment(segment)
@@ -468,24 +470,37 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Vehicle Mass
     # ------------------------------------------------------------------    
-#    plt.figure("Vehicle Mass")
-#    axes = plt.gca()
-#    for i in range(len(results.Segments)):
-#        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-#        mass = results.Segments[i].conditions.weights.total_mass[:,0]
-#        axes.plot(time, mass, 'bo-')
-#    axes.set_xlabel('Time (mins)')
-#    axes.set_ylabel('Vehicle Mass (kg)')
-#    axes.grid(True)
-    plt.figure("Position")
+    plt.figure("Vehicle Mass")
     axes = plt.gca()
     for i in range(len(results.Segments)):
         time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        vel  = results.Segments[i].conditions.frames.inertial.position_vector[:,0]
-        axes.plot(time, vel, 'bo-')
+        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('X-position (m/s)')
+    axes.set_ylabel('Vehicle Mass (kg)')
     axes.grid(True)
+    
+    # ------------------------------------------------------------------    
+    #   Position and velocity
+    # ------------------------------------------------------------------     
+    fig  = plt.figure("Position and Velocity")
+    axes = plt.gca()
+    for i in range(len(results.Segments)):
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        vel  = results.Segments[i].conditions.frames.inertial.velocity_vector[:,0]
+        pos  = results.Segments[i].conditions.frames.inertial.position_vector[:,0]
+        
+        axes = fig.add_subplot(2,1,1)
+        axes.plot( time , pos , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Position (m)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(2,1,2)
+        axes.plot( time , vel , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Velocity (m/s)')
+        axes.grid(True)   
     
 
     ## ------------------------------------------------------------------    

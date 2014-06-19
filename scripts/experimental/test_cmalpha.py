@@ -1,3 +1,7 @@
+# test_cmalpha.py
+# Tim Momose, April 2014
+# Reference: Aircraft Dynamics: from Modeling to Simulation, by M. R. Napolitano
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -65,7 +69,7 @@ aircraft.Mass_Props.pos_cg[0] = 112. * Units.feet
 
 #Method Test
 print '<<Test run of the taw_cmalpha() method>>'
-print 'Boeing 747 at M = {0}'.format(Mach)
+print '--Boeing 747 at Mach {0}--'.format(Mach)
 
 cm_a = taw_cmalpha(aircraft,Mach)
 
@@ -127,8 +131,7 @@ aircraft.fuselage         = fuselage
 aircraft.Mass_Props.pos_cg[0] = 17.2 * Units.feet    
 
 #Method Test
-print '<<Test run of the taw_cmalpha() method>>'
-print 'Beech 99 at M = {0}'.format(Mach)
+print '--Beech 99 at Mach {0}--'.format(Mach)
 
 cm_a = taw_cmalpha(aircraft,Mach)
 
@@ -192,8 +195,7 @@ aircraft.Mass_Props.pos_cg[0] = 16.6 * Units.feet
 
 
 #Method Test
-print ' '
-print 'SIAI Marchetti S-211 at Mach {0}'.format(Mach)
+print '--SIAI Marchetti S-211 at Mach {0}--'.format(Mach)
 
 cm_a = taw_cmalpha(aircraft,Mach)
 
