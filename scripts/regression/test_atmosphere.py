@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from SUAVE.Attributes import Units
 
 # main program
-def main(block_plot=True):
+def main():
 
     # initialize atmospheric models
     atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
@@ -21,10 +21,10 @@ def main(block_plot=True):
     p_truth, T_truth, rho_truth, a_truth = get_truth()
     
     # difference
-    p_err   = np.max(p_truth  -p  )
-    T_err   = np.max(T_truth  -T  )
-    rho_err = np.max(rho_truth-rho)
-    a_err   = np.max(a_truth  -a  )
+    p_err   = np.max( p_truth  -p   )
+    T_err   = np.max( T_truth  -T   )
+    rho_err = np.max( rho_truth-rho )
+    a_err   = np.max( a_truth  -a   )
     
     print 'Max Pressure Difference       = %.4e' % p_err
     print 'Max Temperature Difference    = %.4e' % T_err
@@ -53,9 +53,6 @@ def main(block_plot=True):
     plt.ylabel('Altitude (km)')
     plt.title(title)
     plt.grid(True)
-
-    plt.show(block=block_plot)
-    plt.close()
     
     # checks
     assert( p_err   < 1e-1 )
@@ -194,3 +191,4 @@ def get_truth():
 # call main
 if __name__ == '__main__':
     main()
+    plt.show()

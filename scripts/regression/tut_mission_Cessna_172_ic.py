@@ -18,6 +18,8 @@ import SUAVE
 import numpy as np
 import pylab as plt
 
+from SUAVE.Attributes import Units
+
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -234,10 +236,10 @@ def evaluate_mission(vehicle,mission):
     # ------------------------------------------------------------------    
     #   Compute Useful Results
     # ------------------------------------------------------------------
-    SUAVE.Methods.Results.compute_energies(results,True)
-    SUAVE.Methods.Results.compute_efficiencies(results)
-    SUAVE.Methods.Results.compute_velocity_increments(results)
-    SUAVE.Methods.Results.compute_alpha(results)    
+    #SUAVE.Methods.Results.compute_energies(results,True)
+    #SUAVE.Methods.Results.compute_efficiencies(results)
+    #SUAVE.Methods.Results.compute_velocity_increments(results)
+    #SUAVE.Methods.Results.compute_alpha(results)    
     
     return results
 
@@ -249,56 +251,195 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Thrust Angle
     # ------------------------------------------------------------------
-    title = "Thrust Angle History"
-    plt.figure(0)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].gamma),'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Thrust Angle (deg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Thrust Angle History"
+    #plt.figure(0)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].gamma),'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Thrust Angle (deg)'); plt.title(title)
+    #plt.grid(True)
 
     # ------------------------------------------------------------------    
     #   Throttle
     # ------------------------------------------------------------------
-    title = "Throttle History"
-    plt.figure(1)
+    plt.figure("Throttle History")
+    axes = plt.gca()
     for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,results.Segments[i].eta,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Throttle'); plt.title(title)
-    plt.grid(True)
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.Segments[i].conditions.propulsion.throttle[:,0]
+        axes.plot(time, eta, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Throttle')
+    axes.grid(True)
 
     # ------------------------------------------------------------------    
     #   Angle of Attack
     # ------------------------------------------------------------------
-    title = "Angle of Attack History"
-    plt.figure(2)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].alpha),'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Angle of Attack (deg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Angle of Attack History"
+    #plt.figure(2)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,np.degrees(results.Segments[i].alpha),'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Angle of Attack (deg)'); plt.title(title)
+    #plt.grid(True)
+    
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        axes.plot(time, aoa, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)        
 
     # ------------------------------------------------------------------    
     #   Fuel Burn
     # ------------------------------------------------------------------
-    title = "Fuel Burn"
-    plt.figure(3)
-    for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,mission.m0 - results.Segments[i].m,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn (kg)'); plt.title(title)
-    plt.grid(True)
+    #title = "Fuel Burn"
+    #plt.figure(3)
+    #for i in range(len(results.Segments)):
+        #plt.plot(results.Segments[i].t/60,mission.m0 - results.Segments[i].m,'bo-')
+    #plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn (kg)'); plt.title(title)
+    #plt.grid(True)
 
     # ------------------------------------------------------------------    
     #   Fuel Burn Rate
     # ------------------------------------------------------------------
-    title = "Fuel Burn Rate"
-    plt.figure(4)
+    plt.figure("Fuel Burn Rate")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.Segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        axes.plot(time, mdot, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.grid(True)    
+
+    
+    
+    # ------------------------------------------------------------------    
+    #   Altitude
+    # ------------------------------------------------------------------
+    plt.figure("Altitude")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
+        axes.plot(time, altitude, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Altitude (km)')
+    axes.grid(True)
+    
+    
+    # ------------------------------------------------------------------    
+    #   Vehicle Mass
+    # ------------------------------------------------------------------    
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
     for i in range(len(results.Segments)):
-        plt.plot(results.Segments[i].t/60,results.Segments[i].mdot,'bo-')
-    plt.xlabel('Time (mins)'); plt.ylabel('Fuel Burn Rate (kg/s)'); plt.title(title)
-    plt.grid(True)
+        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
+    
 
+    # ------------------------------------------------------------------    
+    #   Atmosphere
+    # ------------------------------------------------------------------
+    #title = "Atmosphere"
+    #plt.figure(7)    
+    #plt.title(title)
+    #for segment in results.Segments.values():
+
+        #plt.subplot(3,1,1)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.rho * np.ones_like(segment.t),
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Density (kg/m^3)')
+        #plt.grid(True)
+        
+        #plt.subplot(3,1,2)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.p * np.ones_like(segment.t) ,
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Pressure (Pa)')
+        #plt.grid(True)
+        
+        #plt.subplot(3,1,3)
+        #plt.plot( segment.t / Units.minute , 
+                  #segment.T * np.ones_like(segment.t) ,
+                  #'bo-' )
+        #plt.xlabel('Time (min)')
+        #plt.ylabel('Temperature (K)')
+        #plt.grid(True)
+    
+    
+    # ------------------------------------------------------------------    
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Forces")
+    for segment in results.Segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , Lift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Lift (N)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , Drag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag (N)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Thrust , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Thrust (N)')
+        axes.grid(True)
+        
+    # ------------------------------------------------------------------    
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients")
+    for segment in results.Segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , CLift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CL')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , CDrag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CD')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Drag   , 'bo-' )
+        axes.plot( time , Thrust , 'ro-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag and Thrust (N)')
+        axes.grid(True)
+        
     plt.show()
-
-    return     
+    
+    return
 
 
 # ---------------------------------------------------------------------- 

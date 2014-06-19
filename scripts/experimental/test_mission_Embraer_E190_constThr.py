@@ -95,8 +95,8 @@ def define_vehicle():
     wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
     wing.S_affected  = 0.6*wing.area_wetted  # part of high lift system
     wing.e           = 1.0                   #
-    wing.alpha_rc    = 2.0                   #
-    wing.alpha_tc    = 0.0                   #
+    wing.twist_rc    = 2.0*Units.degrees     #
+    wing.twist_tc    = 0.0*Units.degrees     #
     wing.highlift    = False                 
     #wing.hl          = 1                     #
     #wing.flaps_chord = 20                    #
@@ -130,8 +130,8 @@ def define_vehicle():
     wing.S_affected = 0.6*wing.area_wetted  #  
     #wing.Cl         = 0.2                   #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 2.0                   #
-    wing.alpha_tc   = 2.0                   #
+    wing.twist_rc   = 2.0*Units.degrees     #
+    wing.twist_tc   = 2.0*Units.degrees     #
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -160,8 +160,8 @@ def define_vehicle():
     wing.S_affected = 0.6*wing.area_wetted  #  
     #wing.Cl        = 0.002                  #
     wing.e          = 0.9                   #
-    wing.alpha_rc   = 0.0                   #
-    wing.alpha_tc   = 0.0                   #
+    wing.twist_rc   = 0.0*Units.degrees     #
+    wing.twist_tc   = 0.0*Units.degrees     #
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -232,7 +232,7 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     vehicle.aerodynamics_model = aerodynamics
     
