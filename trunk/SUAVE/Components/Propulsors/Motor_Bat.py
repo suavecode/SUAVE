@@ -21,12 +21,13 @@ class Motor_Bat(Propulsor):   #take simple IC engine and attach a motor to it
         self.F_max_static = 0.0         # static thrust corresponding to max throttle
         self.mdot_min_static = 0.0      # mass flow corresponding to min throttle
         self.mdot_max_static = 0.0      # mass flow corresponding to max throttle
+        self.nacelle_dia = 0.0
 
     def __call__(self,eta,segment):
 
         # unpack fuel cell
-        config   = segment.config
-        battery = config.Energy.Storages['Battery']
+        #config   = segment.config
+        #battery = config.Energy.Storages['Battery']
        
 
         F = self.F_min_static + (self.F_max_static - self.F_min_static)*eta
