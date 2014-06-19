@@ -25,59 +25,59 @@ class Takeoff(Ground_Segment):
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
-    
+
     def __defaults__(self):
 
-	self.tag = "Takeoff Segment"
-	
-	self.velocity_start       = 0.0
-	self.velocity_end         = 150 * Units.knots
-	self.friction_coefficient = 0.04
-	self.throttle             = 1.0
-	
-	return
-	
+        self.tag = "Takeoff Segment"
+
+        self.velocity_start       = 0.0
+        self.velocity_end         = 150 * Units.knots
+        self.friction_coefficient = 0.04
+        self.throttle             = 1.0
+
+        return
+
 
     def initialize_conditions(self,conditions,numerics,initials=None):
-	
-	conditions = Ground_Segment.initialize_conditions(self,conditions,numerics,initials)
-	
+
+        conditions = Ground_Segment.initialize_conditions(self,conditions,numerics,initials)
+
         # default initial time, position, and mass
-	t_initial = 0.0
-	r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-	m_initial = self.config.Mass_Props.m_takeoff
-	
-	# apply initials
-	conditions.weights.total_mass[:,0]   = m_initial
-	conditions.frames.inertial.time[:,0] = t_initial
-	conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
-	
-	throttle = self.throttle	
+        t_initial = 0.0
+        r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
+        m_initial = self.config.Mass_Props.m_takeoff
+
+        # apply initials
+        conditions.weights.total_mass[:,0]   = m_initial
+        conditions.frames.inertial.time[:,0] = t_initial
+        conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
+
+        throttle = self.throttle	
         conditions.propulsion.throttle[:,0] = throttle
-	
-	return conditions
-	
-	
-	
+
+        return conditions
+
+
+
     # ------------------------------------------------------------------
     #   Methods For Post-Solver
     # ------------------------------------------------------------------    
-    
+
     def post_process(self,conditions,numerics,unknowns):
-	""" Segment.post_process(conditions,numerics,unknowns)
-	    post processes the conditions after converging the segment solver.
-	    Packs up the estimated distance for rotation in addition to the final 
-	    position vector found in the superclass post_process method.
-	"""
-	
-	conditions = Ground_Segment.post_process(self, conditions, numerics, unknowns)
-	
-	# process
-	# Assume 3.5 seconds for rotation, with a constant groundspeed
-	rotation_distance = conditions.frames.inertial.velocity_vector[-1,0] * 3.5
-	
-	# pack outputs
-	conditions.frames.inertial.rotation_distance = np.ones([1,1])
-	conditions.frames.inertial.rotation_distance[0,0] = rotation_distance
-	
-	return conditions    
+        """ Segment.post_process(conditions,numerics,unknowns)
+            post processes the conditions after converging the segment solver.
+            Packs up the estimated distance for rotation in addition to the final 
+            position vector found in the superclass post_process method.
+        """
+
+        conditions = Ground_Segment.post_process(self, conditions, numerics, unknowns)
+
+        # process
+        # Assume 3.5 seconds for rotation, with a constant groundspeed
+        rotation_distance = conditions.frames.inertial.velocity_vector[-1,0] * 3.5
+
+        # pack outputs
+        conditions.frames.inertial.rotation_distance = np.ones([1,1])
+        conditions.frames.inertial.rotation_distance[0,0] = rotation_distance
+
+        return conditions    
