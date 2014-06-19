@@ -5,9 +5,8 @@
         
 import SUAVE
 from SUAVE.Structure import Ordered_Bunch
-import sys, os
+import sys, os, traceback
 import matplotlib.pyplot as plt
-
 
 # ----------------------------------------------------------------------        
 #   How This Works
@@ -15,9 +14,7 @@ import matplotlib.pyplot as plt
 
 # The "modules" list contains the name of the file you would like to run.
 # Each test script must include a main function, this will be called by
-# this automatic regression script.  The main function must have at least 
-# one input field called "block_plot", which when set to False, will not
-# stop to view plots.  This can be done by using pylab.show(block=block_plot).
+# this automatic regression script. 
 #
 # For more information, see ../templates/example_test_script.py
 
@@ -27,8 +24,8 @@ import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------        
 
 modules = [
-    'test_atmosphere.py',
-    #'test_mission_Embraerer.py',
+    'regression/test_atmosphere.py',
+    'regression/test_dynamicstability.py',
 ]
 
 
@@ -52,6 +49,7 @@ def main():
             results[module] = 'Failed'
     
     # final report
+    sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write('Final Results \n')
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
@@ -63,20 +61,32 @@ def main():
 #   Module Tester
 # ----------------------------------------------------------------------   
 
-def test_module(module_name):
+def test_module(module_path):
     
-    sys.stdout.write('# Start Test: %s \n' % module_name)
+    home_dir = os.getcwd()
+    test_dir, module_name = os.path.split( os.path.abspath(module_path) )
+    
+    sys.stdout.write('# --------------------------------------------------------------------- \n')
+    sys.stdout.write('# Start Test: %s \n' % module_path)
     sys.stdout.flush()
     
     # try the test
     try:
+
+        # see if file exists
+        os.chdir(test_dir)
+        if not os.path.exists(module_name) and not os.path.isfile(module_name):
+            raise ImportError, 'file %s does not exist' % module_name
+        
+        # add module directory
+        sys.path.append(test_dir)
         
         # do the import
         name = os.path.splitext(module_name)[0]
         module = __import__(name)        
         
         # run main function
-        module.main(block_plot=False)
+        module.main()
         
         passed = True
         
@@ -98,8 +108,9 @@ def test_module(module_name):
         sys.stdout.write('# Failed: %s \n' % module_name)
     sys.stdout.write('\n')
     
-    # close all plots
+    # cleanup
     plt.close('all')
+    os.chdir(home_dir)
     
     # make sure to write to stdout
     sys.stdout.flush()    

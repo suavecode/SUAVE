@@ -18,9 +18,6 @@ from SUAVE.Attributes import Units
 import numpy as np
 import pylab as plt
 
-import matplotlib
-#matplotlib.interactive(True)
-
 import copy, time
 
 
@@ -673,8 +670,6 @@ def post_process(vehicle,mission,results):
     axes.set_ylabel('CD')
     axes.grid(True)
     
-    plt.show()     
-    
     return     
 
 
@@ -688,7 +683,9 @@ if __name__ == '__main__':
     profile_module = False
         
     if not profile_module:
+        
         main()
+        plt.show()        
         
     else:
         profile_file = 'log_Profile.out'
