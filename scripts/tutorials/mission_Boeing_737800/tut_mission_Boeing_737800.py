@@ -232,7 +232,6 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    #aerodynamics = SUAVE.Attributes.Aerodynamics.PASS_Aero()
     aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     vehicle.aerodynamics_model = aerodynamics
