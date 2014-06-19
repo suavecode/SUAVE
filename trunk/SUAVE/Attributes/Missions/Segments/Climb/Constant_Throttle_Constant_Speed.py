@@ -43,7 +43,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
         # --- Unknowns
         unknowns = self.unknowns
         unknowns.controls.body_angle = np.zeros([1,1]) # aircraft inertial to body angle
-        unknowns.controls.wind_angle = np.zeros([1,1]) # aircraft inertial to wind angle
+        unknowns.controls.wind_angle = np.ones([1,1]) * Units.deg # aircraft inertial to wind angle
         
         # --- Residuals
         residuals = self.residuals
