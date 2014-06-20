@@ -19,7 +19,6 @@ import numpy as np
 import pylab as plt
 
 import matplotlib
-matplotlib.interactive(True)
 
 import copy
 
@@ -710,10 +709,7 @@ def post_process(vehicle,mission,results):
                   #3600.*segment.mdot/segment.F ,
                   #'ro-' )
         
-    plt.show(block=True)
     
-    
-
     return     
 
 def outputMission(results,filename):
@@ -807,5 +803,6 @@ def outputMission(results,filename):
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
     main()
+    plt.show(block=True)
 
 

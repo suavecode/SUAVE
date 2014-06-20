@@ -1,11 +1,15 @@
+# automatic_regression.py
+# 
+# Created:  Trent Lukaczyk, Jun 2014
+# Modified:     
 
-# ----------------------------------------------------------------------
-#   Imports
 # ----------------------------------------------------------------------        
+#   Imports
+# ----------------------------------------------------------------------  
         
 import SUAVE
 from SUAVE.Structure import Ordered_Bunch
-import sys, os, traceback
+import sys, os, traceback, time
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------        
@@ -26,6 +30,9 @@ import matplotlib.pyplot as plt
 modules = [
     'regression/test_atmosphere.py',
     'regression/test_dynamicstability.py',
+    'regression/test_mission_Embraer_E190.py',
+    'regression/tut_mission_Cessna_172_ic.py',
+    'tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py',
 ]
 
 
@@ -39,6 +46,12 @@ def main():
     results = Ordered_Bunch()
     for module in modules:
         results[module] = 'Untested'
+        
+    sys.stdout.write('# --------------------------------------------------------------------- \n')
+    sys.stdout.write('#   SUAVE Automatic Regression \n')
+    sys.stdout.write('#   %s \n' % time.strftime("%B %d, %Y - %H:%M:%S", time.gmtime()) )
+    sys.stdout.write('# --------------------------------------------------------------------- \n')
+    sys.stdout.write(' \n')
         
     # run tests
     for module in modules:
@@ -69,6 +82,8 @@ def test_module(module_path):
     sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write('# Start Test: %s \n' % module_path)
     sys.stdout.flush()
+    
+    tic = time.time()
     
     # try the test
     try:
@@ -106,6 +121,7 @@ def test_module(module_path):
         sys.stdout.write('# Passed: %s \n' % module_name)
     else:
         sys.stdout.write('# Failed: %s \n' % module_name)
+    sys.stdout.write('# Test Duration: %.4f min \n' % ((time.time()-tic)/60) )
     sys.stdout.write('\n')
     
     # cleanup

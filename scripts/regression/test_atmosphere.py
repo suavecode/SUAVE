@@ -1,12 +1,27 @@
-""" test_atmosphere.py: test the International Standard Atmopshere model """
+# test_atmosphere.py
+# 
+# Created:  Mike Colonno, Dec 2013
+# Modified: Trent Lukaczyk, Jun 2014
+
+# ----------------------------------------------------------------------        
+#   Imports
+# ----------------------------------------------------------------------  
 
 import SUAVE
 import numpy as np
 import matplotlib.pyplot as plt
 from SUAVE.Attributes import Units
 
-# main program
+
+# ----------------------------------------------------------------------        
+#   Main
+# ----------------------------------------------------------------------  
+
 def main():
+    
+    # ------------------------------------------------------------------
+    #   The Tests
+    # ------------------------------------------------------------------    
 
     # initialize atmospheric models
     atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
@@ -30,6 +45,11 @@ def main():
     print 'Max Temperature Difference    = %.4e' % T_err
     print 'Max Density Difference        = %.4e' % rho_err
     print 'Max Speed of Sound Difference = %.4e' % a_err
+    
+    
+    # ------------------------------------------------------------------
+    #   Plotting
+    # ------------------------------------------------------------------    
 
     # plot data
     title = "International Standard Atmosphere"
@@ -54,13 +74,23 @@ def main():
     plt.title(title)
     plt.grid(True)
     
-    # checks
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
+
     assert( p_err   < 1e-1 )
     assert( T_err   < 1e-5 )
     assert( rho_err < 1e-5 )
     assert( a_err   < 1e-5 )    
  
     return
+
+#: def main()
+
+
+# ----------------------------------------------------------------------        
+#   Helper Function
+# ---------------------------------------------------------------------- 
 
 def get_truth():
     p_truth = np.array([  1.27774000e+05,   1.27774000e+05,   1.15542264e+05,
@@ -188,7 +218,10 @@ def get_truth():
     return p_truth, T_truth, rho_truth, a_truth
     
 
-# call main
+# ----------------------------------------------------------------------        
+#   Call Main
+# ---------------------------------------------------------------------- 
+
 if __name__ == '__main__':
     main()
     plt.show()

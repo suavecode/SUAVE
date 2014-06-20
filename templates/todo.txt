@@ -1,4 +1,0 @@
-no module level doc string
-Unit Tests -> Module Tests
-Instructions for implementing (comments outside col 62)
-from import \ instead of ()?
