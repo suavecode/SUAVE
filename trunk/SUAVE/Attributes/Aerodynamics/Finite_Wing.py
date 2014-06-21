@@ -6,6 +6,8 @@
 
 import numpy as np
 from SUAVE.Attributes.Aerodynamics import Aerodynamics
+from SUAVE.Structure import Data
+
 
 # ----------------------------------------------------------------------
 #  Class
@@ -24,9 +26,28 @@ class Finite_Wing(Aerodynamics):
         self.dCLdalpha = 2*np.pi                            # dCL/dalpha
 
     def __call__(self,conditions):
+        # unpack
+        q             = conditions.freestream.dynamic_pressure
+        Sref          = self.S       
+        
         alpha=conditions.aerodynamics.angle_of_attack
         
         CL = self.CL0 + self.dCLdalpha*alpha                # linear lift vs. alpha
         CD = self.CD0 + (CL**2)/(np.pi*self.AR*self.e)      # parbolic drag
+        
+        # pack results
+        results = Data()
+        results.lift_coefficient = CL
+        results.drag_coefficient = CD
+        
+        N = q.shape[0]
+        L = np.zeros([N,3])
+        D = np.zeros([N,3])
+        
+        L[:,2] = ( -CL * q * Sref )[:,0]
+        D[:,0] = ( -CD * q * Sref )[:,0]
+        
+        results.lift_force_vector = L
+        results.drag_force_vector = D        
 
-        return CD, CL
+        return results
