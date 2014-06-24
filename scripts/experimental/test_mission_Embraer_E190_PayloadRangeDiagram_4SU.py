@@ -684,16 +684,20 @@ def post_process(vehicle,mission,results):
     ## ------------------------------------------------------------------
     ##   TSFC
     ## ------------------------------------------------------------------
-    #title = "TSFC"
-    #plt.figure(10)
-    #plt.title(title)
-    #for segment in results.Segments.values():
-        #plt.plot( segment.t / Units.minute ,
-                  #3600.*segment.mdot/segment.F ,
-                  #'ro-' )
+    plt.figure("TSFC")
+    axes = plt.gca()
+    for segment in results.Segments.values():
 
-#    plt.show(block=True)
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        mdot =   segment.conditions.propulsion.fuel_mass_rate[:,0]
+        TSFC = 3600.* segment.conditions.propulsion.fuel_mass_rate[:,0] / segment.conditions.frames.body.thrust_force_vector[:,0] * segment.planet.sea_level_gravity
+        axes.plot(time, TSFC, 'bo-')
 
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('TSFC')
+    axes.grid(True)
+    
     return
 
 def outputMission(results,filename):
