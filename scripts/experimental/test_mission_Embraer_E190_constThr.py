@@ -329,7 +329,7 @@ def define_mission(vehicle):
     #   Third Climb Segment: Constant Speed, Constant Climb Rate
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Throttle_Constant_Speed()
     segment.tag = "CLIMB_Final"
 
     # connect vehicle configuration
@@ -341,7 +341,7 @@ def define_mission(vehicle):
     
     segment.altitude_end = 37000. * Units.ft
     segment.air_speed    = 230.0  * Units['m/s']
-    segment.climb_rate   = 200.   * Units['ft/min']
+    segment.throttle     =   1.0 
 
     # add to mission
     mission.append_segment(segment)    
