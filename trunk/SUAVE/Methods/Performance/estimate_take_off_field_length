@@ -148,11 +148,16 @@ def estimate_take_off_field_length(vehicle,config,airport):
             takeoff_constants[0] = 486.7
             takeoff_constants[1] =   2.282
             takeoff_constants[2] =   0.0000705
+        elif engine_number >  4:
+            takeoff_constants[0] = 486.7
+            takeoff_constants[1] =   2.282
+            takeoff_constants[2] =   0.0000705
+            print 'The vehicle has more than 4 engines. Using 4 engine correlation. Result may not be correct.'
         else:
             takeoff_constants[0] = 857.4
             takeoff_constants[1] =   2.476
             takeoff_constants[2] =   0.00014
-            print 'Incorrect number of engines. Using twin engine correlation'
+            print 'Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number)
 
     # Define takeoff index   (V2^2 / (T/W)
     takeoff_index = V2_speed**2 / (thrust / weight)
