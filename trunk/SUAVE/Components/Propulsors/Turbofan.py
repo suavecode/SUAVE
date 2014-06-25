@@ -602,7 +602,7 @@ class TurboFanPASS(Propulsor):
         self.D=numpy.sqrt(A2/(numpy.pi/4))
     
       
-        print ' Areas ', self.Ao
+        # print ' Areas ', self.Ao
         #Turbofan.sfc=sfc
         #Turbofan.thrust=th  
         self.mdhc=mdhcD
