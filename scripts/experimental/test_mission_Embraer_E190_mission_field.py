@@ -12,8 +12,7 @@ import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Methods.Performance import payload_range
 from SUAVE.Methods.Performance import estimate_take_off_field_length
-##from SUAVE.Methods.Performance import estimate_landing_field_length
-
+from SUAVE.Methods.Performance import estimate_landing_field_length
 
 # packges imports
 import numpy as np
@@ -45,11 +44,9 @@ def main():
     # evaluate takeoff
     TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
 
-##    # evaluate landing
-##    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
-##    print 'Weigth: {:.0f} kg ; TOFL: {:.1f} m ; LFL: {:.1f} m'.format(float(vehicle.Mass_Props.m_takeoff),float(TOFL),float(LFL))
-
-    print 'Weigth: {:.0f} kg ; TOFL: {:.1f} m '.format(float(vehicle.Mass_Props.m_takeoff),float(TOFL))
+    # evaluate landing
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    print 'Weigth: {:.0f} kg ; TOFL: {:.1f} m ; LFL: {:.1f} m'.format(float(vehicle.Mass_Props.m_takeoff),float(TOFL),float(LFL))
 
     # plot results
 ##    post_process(vehicle,mission,results)
