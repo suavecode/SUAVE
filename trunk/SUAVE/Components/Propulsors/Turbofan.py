@@ -105,20 +105,9 @@ class TurboFanPASS(Propulsor):
         Tt4=self.Tt4
         aalpha=self.bypass_ratio
         FD=self.design_thrust
+        htf=self.propellant.specific_energy
     
-        #print Minf
-        #print Tinf
-        #print pinf
-        #print pid
-        #print pif
-        #print pifn
-        #print pilc
-        #print pihc
-        #print pib
-        #print pitn
-        #print Tt4
-        #print aalpha
-        #print FD
+
     
     
      #global fm
@@ -169,7 +158,7 @@ class TurboFanPASS(Propulsor):
         #-----------------------------------------
         
         #stagnation pressures
-        htf=4.3*10**7#J/Kg
+        #htf=4.3*10**7#J/Kg
         tau_f=htf/(Cpp*To)
     
         #other quantities
@@ -602,7 +591,7 @@ class TurboFanPASS(Propulsor):
         self.D=numpy.sqrt(A2/(numpy.pi/4))
     
       
-        # print ' Areas ', self.Ao
+
         #Turbofan.sfc=sfc
         #Turbofan.thrust=th  
         self.mdhc=mdhcD
@@ -648,7 +637,7 @@ class TurboFanPASS(Propulsor):
         mdhc=self.mdhc  
         A22=self.A2 
         no_eng=self.no_of_engines 
-        
+        htf=self.propellant.specific_energy
         throttle=eta
        
        
@@ -710,7 +699,7 @@ class TurboFanPASS(Propulsor):
         #-----------------------------------------
         
         #stagnation pressures
-        htf=4.3*10**7#J/Kg
+        #htf=4.3*10**7#J/Kg
         #Tt4=1380#K
         #Cppp=1005
         tau_f=htf/(Cpp*To)
