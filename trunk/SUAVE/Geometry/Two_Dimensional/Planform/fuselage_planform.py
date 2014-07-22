@@ -1,5 +1,7 @@
 # Geoemtry.py
 #
+# Last Modified: Tim MacDonald 7/10/14
+# Added Deff to class parameters
 
 """ SUAVE Methods for Geoemtry Generation
 """
@@ -95,5 +97,6 @@ def fuselage_planform(Fuselage):
     Fuselage.wetted_area  = wetted_area
     Fuselage.cross_section_area = cross_section_area
     Fuselage.reference_area     = reference_area # ?? CHECK
+    Fuselage.Deff         = Deff
     
     return 0
