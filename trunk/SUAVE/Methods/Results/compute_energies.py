@@ -16,15 +16,18 @@ def compute_energies(results,summary=False):
     for i in range(len(results.Segments)):
 
         segment = results.Segments[i]
-        segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(segment.eta,segment)
-
+        eta=segment.conditions.propulsion.throttle[:,0]
+        segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(eta,segment.conditions)
+        
         # time integration operator
-        I = segment.numerics.I*segment.dt
+        '''
+        print segment.numerics
+        I = segment.numerics.integrate_time
 
         # raw propellant energy consumed 
         segment.energy.propellant = np.dot(I,segment.P_fuel)[-1]
 
-        # raw elecrical energy consumed  
+        # raw electrical energy consumed  
         segment.energy.electric = np.dot(I,segment.P_e)[-1]
 
         # energy to gravity 
@@ -44,5 +47,5 @@ def compute_energies(results,summary=False):
             print " "
             print "#########################################"
             print " "
-
+        '''
     return        
