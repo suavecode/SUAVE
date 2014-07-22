@@ -143,7 +143,7 @@ class Aerodynamic_Segment(Base_Segment):
         conditions = self.compute_aerodynamics(aero_model,conditions)
         
         # propulsion
-        conditions = self.compute_propulsion(prop_model,conditions)
+        conditions = self.compute_propulsion(prop_model,conditions,numerics)
         
         # weights
         conditions = self.compute_weights(conditions,numerics)
@@ -286,7 +286,7 @@ class Aerodynamic_Segment(Base_Segment):
         return conditions
     
     
-    def compute_propulsion(self,propulsion_model,conditions):
+    def compute_propulsion(self,propulsion_model,conditions,numerics):
         """ compute_propulsion()
             gets propulsion conditions
             
@@ -315,15 +315,15 @@ class Aerodynamic_Segment(Base_Segment):
         
         eta = conditions.propulsion.throttle[:,0]
         
-        state = Data()
-        state.q  = conditions.freestream.dynamic_pressure[:,0]
-        state.g0 = conditions.freestream.gravity[:,0]
-        state.V  = conditions.freestream.velocity[:,0]
-        state.M  = conditions.freestream.mach_number[:,0]
-        state.T  = conditions.freestream.temperature[:,0]
-        state.p  = conditions.freestream.pressure[:,0]
+        #state = Data()
+        #state.q  = conditions.freestream.dynamic_pressure[:,0]
+        #state.g0 = conditions.freestream.gravity[:,0]
+        #state.V  = conditions.freestream.velocity[:,0]
+        #state.M  = conditions.freestream.mach_number[:,0]
+        #state.T  = conditions.freestream.temperature[:,0]
+        #state.p  = conditions.freestream.pressure[:,0]
         
-        F, mdot, P = propulsion_model(eta, state)
+        F, mdot, P = propulsion_model(eta, conditions)
         
         F_vec = np.zeros([N,3])
         F_vec[:,0] = F[:]

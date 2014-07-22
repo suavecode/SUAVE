@@ -1,30 +1,22 @@
-# test_mission_Embraer_E190.py
+# test_mission_Embraer_E190_mission_field.py
 #
-# Created:  Tarik, Apr 2013
-# Modified:
-#
-
-""" evaluate a mission with a E190
-"""
+# Created:  Tarik, Jun 2014
 
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import sys
-sys.path.append('../trunk')
 
+# SUAVE Imports
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Methods.Performance import payload_range
+from SUAVE.Methods.Performance import estimate_take_off_field_length
+from SUAVE.Methods.Performance import estimate_landing_field_length
 
+# packges imports
 import numpy as np
 import pylab as plt
-
-import matplotlib
-matplotlib.interactive(True)
-
-import copy
 
 # ----------------------------------------------------------------------
 #   Main
@@ -40,16 +32,32 @@ def main():
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
 
+    # define takeoff and landing configuration
+    takeoff_config,landing_config = define_field_configs(vehicle)
+
+    # define airport to be evaluated
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    # evaluate takeoff
+    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
+
+    # evaluate landing
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    print 'Weigth: {:.0f} kg ; TOFL: {:.1f} m ; LFL: {:.1f} m'.format(float(vehicle.Mass_Props.m_takeoff),float(TOFL),float(LFL))
+
     # plot results
-    post_process(vehicle,mission,results)
+##    post_process(vehicle,mission,results)
 
     # compute payload range diagram
-    cruise_segment_tag = 'CRUISE'
-    payload_range(vehicle,mission,cruise_segment_tag)
+##    cruise_segment_tag = 'CRUISE'
+##    payload_range(vehicle,mission,cruise_segment_tag)
 
     plt.show(True)
 
-    return
+    return results,vehicle
 
 
 # ----------------------------------------------------------------------
@@ -71,14 +79,14 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     # mass properties
-    vehicle.Mass_Props.OEW          = 30000.        # kg
-    vehicle.Mass_Props.MTOW         = 50000.        # kg
-    vehicle.Mass_Props.MZFW         = 42600.        # kg
+    vehicle.Mass_Props.OEW          = 30000. * Units.kg # kg
+    vehicle.Mass_Props.MTOW         = 50000. * Units.kg # kg
+    vehicle.Mass_Props.MZFW         = 42600. * Units.kg # kg
+    vehicle.Mass_Props.m_landing    = 45800. * Units.kg # kg
+    vehicle.Mass_Props.MaxPLD       = 11792. * Units.kg # kg
 
     vehicle.Mass_Props.m_empty   = vehicle.Mass_Props.OEW
     vehicle.Mass_Props.m_takeoff = vehicle.Mass_Props.MTOW # linked copy updates if parent changes
-    vehicle.Mass_Props.MaxPLD = 11792. * Units.kg
-
 
     # basic parameters
     vehicle.delta    = 22.                      # deg
@@ -90,7 +98,7 @@ def define_vehicle():
     #   Main Wing
     # ------------------------------------------------------------------
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'Main Wing'
 
     wing.sref      = vehicle.S     #
@@ -100,31 +108,25 @@ def define_vehicle():
     wing.symmetric = True          #
     wing.t_c       = 0.11          #
     wing.taper     = 0.28          #
+    wing.e           = 1.0                   #
+    wing.twist_rc    = 2.0*Units.degrees     #
+    wing.twist_tc    = 0.0*Units.degrees     #
+    wing.flap_type   = 'double_slotted'
+    wing.S_affected  = 0.6*wing.sref         # part of high lift system
+    wing.flaps_chord  = 0.28
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
+
+    # add to vehicle
+    vehicle.append_component(wing)
 
     # compute wing fuel capacity
     SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
     vehicle.fuel_tank_volume = wing.fuel_volume
 
     vehicle.Mass_Props.MaxUsableFuel = 12970.
-
-    wing.chord_mac   = 12.0                  #
-    wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
-    wing.S_affected  = 0.6*wing.area_wetted  # part of high lift system
-    wing.e           = 1.0                   #
-    wing.twist_rc    = 2.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #
-    wing.highlift    = False
-    #wing.hl          = 1                     #
-    #wing.flaps_chord = 20                    #
-    #wing.flaps_angle = 20                    #
-    #wing.slats_angle = 10                    #
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
 
     # ------------------------------------------------------------------
     #  Horizontal Stabilizer
@@ -140,21 +142,16 @@ def define_vehicle():
     wing.symmetric = True
     wing.t_c       = 0.11          #
     wing.taper     = 0.11           #
-
-    # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
-
-    wing.chord_mac  = 8.0                   #
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #
-    #wing.Cl         = 0.2                   #
     wing.e          = 0.9                   #
     wing.twist_rc   = 2.0*Units.degrees     #
     wing.twist_tc   = 2.0*Units.degrees     #
 
+    # size the wing planform
+    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    wing.S_exposed  = 0.8*wing.area_wetted  #
+
     # add to vehicle
     vehicle.append_component(wing)
-
 
     # ------------------------------------------------------------------
     #   Vertcal Stabilizer
@@ -170,21 +167,16 @@ def define_vehicle():
     wing.symmetric = False
     wing.t_c       = 0.12          #
     wing.taper     = 0.10          #
+    wing.e          = 0.9                   #
+    wing.twist_rc   = 0.0*Units.degrees     #
+    wing.twist_tc   = 0.0*Units.degrees     #
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
-
-    wing.chord_mac  = 11.0                  #
     wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #
-    #wing.Cl        = 0.002                  #
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 0.0*Units.degrees     #
-    wing.twist_tc   = 0.0*Units.degrees     # 
 
     # add to vehicle
     vehicle.append_component(wing)
-
 
     # ------------------------------------------------------------------
     #  Fuselage
@@ -267,13 +259,13 @@ def define_vehicle():
     #   Define Configurations
     # ------------------------------------------------------------------
 
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    # this configuration is derived from the baseline vehicle
-
     # --- Cruise Configuration ---
     config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.Configs.takeoff
+    # this configuration is derived from the baseline vehicle
+
+    # --- Takeoff Configuration ---
+    #    config = vehicle.new_configuration("takeoff")
+    # this configuration is derived from vehicle.Configs.cruise
 
 
     # ------------------------------------------------------------------
@@ -342,7 +334,7 @@ def define_mission(vehicle):
     segment.planet       = planet
 
     segment.altitude_end = 32000. * Units.ft
-    segment.air_speed    = 350.0  * Units.knots
+    segment.air_speed    = 351.0  * Units.knots
     segment.throttle     = 1.0
 
     # add to mission
@@ -460,15 +452,39 @@ def define_mission(vehicle):
     # append to mission
     mission.append_segment(segment)
 
-
-    # ------------------------------------------------------------------
-    #   Mission definition complete
-    # ------------------------------------------------------------------
-
     return mission
 
-#: def define_mission()
+# ----------------------------------------------------------------------
+#   Define takeoff and landing configuration
+# ----------------------------------------------------------------------
+def define_field_configs(vehicle):
 
+    # Imports
+    import copy
+
+    # --- Takeoff Configuration ---
+    takeoff_config = vehicle.new_configuration("takeoff")
+##    takeoff_config = copy.deepcopy(vehicle.Configs.cruise)
+    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    takeoff_config.V2_VS_ratio = 1.21
+    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
+    # takeoff_config.maximum_lift_coefficient = 2.XX
+    takeoff_config.max_lift_coefficient_factor = 0.97
+
+    # --- Landing Configuration ---
+    landing_config = vehicle.new_configuration("landing")
+##    landing_config = copy.deepcopy(vehicle.Configs.takeoff)
+    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
+    landing_config.Vref_VS_ratio = 1.23
+    # CLmax for a given configuration may be informed by user
+    # landing_config.maximum_lift_coefficient = 2.XX
+    landing_config.max_lift_coefficient_factor = 0.96
+
+    return takeoff_config,landing_config
 
 # ----------------------------------------------------------------------
 #   Evaluate the Mission
@@ -697,7 +713,7 @@ def post_process(vehicle,mission,results):
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('TSFC')
     axes.grid(True)
-    
+
     return
 
 def outputMission(results,filename):
@@ -786,6 +802,6 @@ def outputMission(results,filename):
 #   Call Main
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
-    main()
+    results,vehicle = main()
 
 

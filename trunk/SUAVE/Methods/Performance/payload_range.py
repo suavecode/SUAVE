@@ -212,7 +212,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
         print( '     nm      |     kg      |    kg       |     kg      |')
         for i in range(len(TOW)):
             print( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |')
-        print('\n\n   Enlapsed time: ' + str('%6.2f' % (time.time() - start_time)) + 's')
+        print('\n\n   Elapsed time: ' + str('%6.2f' % (time.time() - start_time)) + 's')
 
     #   Plot Payload Range
     if iplot:

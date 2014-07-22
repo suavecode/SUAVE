@@ -66,15 +66,6 @@ class Battery(Storage):
         if self.CurrentEnergy<0:
             print 'Warning, battery out of energy'
         
-        if self.type=='Li-Air':
-            #model taken from EADS Voltair Paper
-            mdot=-(power+Ploss) *(1.92E-4)*(1./3600.)      #weight gain of battery (positive means mass loss)
-            return Ploss, mdot
-        elif self.type=='Li-Ion':
-            mdot=0.
-            return Ploss, mdot
-            
-        else:
 
             return Ploss
     

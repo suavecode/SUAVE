@@ -2,6 +2,7 @@
 #
 # Created:  Anil V., Dec 2013
 # Modified: Tarik, Feb 2014
+#           Tarik, Jun 2014
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,7 +35,7 @@ def compute_slat_lift(slat_angle,sweep_angle):
     sw = sweep_angle
 
     #---PASS Method
-    dcl_slat = (sa/23.)*(np.cos(sw))**1.4
+    dcl_slat = (sa/23.)*(np.cos(sw))**1.4 * np.cos(sa * Units.deg)**2
 
     #returning dcl_slat
     return dcl_slat

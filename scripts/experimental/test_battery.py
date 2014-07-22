@@ -17,12 +17,12 @@ def main():
     battery_li_s.find_opt_mass(Ereq,Preq)
     battery_li_ion.find_opt_mass(Ereq,Preq)
 
-    print battery_li_s
+    #print battery_li_s
     battery_li_air.Mass_Props.mass=max(Ereq*(1./3600.)/battery_li_air.SpecificEnergy, 
     (Preq/1000.)/battery_li_air.SpecificPower)
     battery_li_air.TotalEnergy=battery_li_air.Mass_Props.mass * \
     battery_li_air.SpecificEnergy*3600.
-    print battery_li_air.MassDensity
+    #print battery_li_air.MassDensity
     battery_li_air.Volume=battery_li_air.Mass_Props.mass/battery_li_air.MassDensity
     battery_li_air.CurrentEnergy= battery_li_air.TotalEnergy
     battery_li_air.MaxPower= (battery_li_air.SpecificPower*1000.)* \
@@ -30,12 +30,27 @@ battery_li_air.Mass_Props.mass
     time=60; #time in seconds
     #run the battery
     Ecurrent_li_s=battery_li_s.TotalEnergy
+    
     Ploss_li_s=battery_li_s(Preq,time)
     print battery_li_s
     [Ploss_li_air, mdot]=battery_li_air(Preq,time)
     print battery_li_air
+    print 'mass flow rate=', mdot
  
     Ploss_li_ion=battery_li_ion(Preq,time)
     print battery_li_ion
+    
+    
+    '''
+    vehicle=SUAVE.Vehicle()
+    fan=SUAVE.Components.Propulsors.Ducted_Fan_Bat()
+    vehicle.battery=battery_li_s
+    fan.battery=battery_li_s
+    
+    #vehicle.battery(1000, 5)
+    print battery_li_s
+    fan.battery(3000,2)
+    print battery_li_s
+    '''
 if __name__ == '__main__':
     main()

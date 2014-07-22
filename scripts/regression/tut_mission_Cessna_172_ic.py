@@ -436,8 +436,8 @@ def post_process(vehicle,mission,results):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag and Thrust (N)')
         axes.grid(True)
-        
-    plt.show()
+    
+    # do not include plt.show() here
     
     return
 
@@ -446,6 +446,9 @@ def post_process(vehicle,mission,results):
 #   Call Main
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
+    
     main()
+    
+    plt.show()
 
 
