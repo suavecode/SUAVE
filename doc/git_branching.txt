@@ -1,17 +1,21 @@
-
+Git Branching Basics
 
 1. Create branch on github
     a. find the dropdown menu for branches, right above the box listing the files in the repo.
     b. type in the name of your new branch.  
     
-    the name of your branch should reflect the feature you're working on. the convention we'll use is "feature-*".  some examples are --
+    # Naming
+    the name of your branch should reflect the feature you're working on. do not name it after yourself.
+    
+    # IMPORTANT!
+    the convention we'll use is "feature-*".  some examples are --
     feature-turbofan
-    feature-mission
+    feature-new_mission
     
 2. pull the changes locally
 > git pull
 
-3. list the branches
+3. list all the branches
 > git branch -a
 
 4. create a local branch
@@ -21,8 +25,10 @@ the branch you created on github is a "remote" branch, since it lives on the git
 
 at this point you've checked out your new branch and can add/commit/push/pull changes like normal.
 
-5. to switch between branches
-> get branch
+5. list your local branches
+> git branch
+
+6. to switch between branches
 > git checkout master
 > git checkout branch_name
 
