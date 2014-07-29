@@ -37,6 +37,7 @@ class Aerodynamics(Data):
         self.tag = 'Aerodynamics'
         self.geometry      = Geometry()
         self.configuration = Configuration()
+        self.stability     = None
         
     def __call__(self,conditions):
         """ process vehicle to setup geometry, condititon and configuration
