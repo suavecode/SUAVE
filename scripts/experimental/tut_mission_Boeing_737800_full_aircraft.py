@@ -703,7 +703,7 @@ def post_process(vehicle,mission,results):
 
 
 # Check stability using something of the form
-cm_alpha = results.Segments.Cruise.conditions.aerodynamics.cm_alpha
+# cm_alpha = results.Segments.Cruise.conditions.aerodynamics.cm_alpha
 
 
 # ---------------------------------------------------------------------- 
