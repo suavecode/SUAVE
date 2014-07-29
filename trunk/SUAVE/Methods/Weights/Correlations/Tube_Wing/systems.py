@@ -1,7 +1,7 @@
 # systems.py
 # 
 # Created:  Andrew Wendorff, Jan 2014
-# Modified:         
+# Modified: Andrew Wendorff, July 2014        
 
 
 # ----------------------------------------------------------------------
@@ -114,8 +114,8 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
         opitems_wt     = 40.0   * num_seats * Units.lb
         furnish_wt    += 23.0   * num_seats * Units.lb #add aditional seat wt                  
     else:
-        instruments_wt = 800.0 * Units.lb * Units.lb
-        avionics_wt    = 900.0 * Units.lb * Units.lb
+        instruments_wt = 800.0 * Units.lb 
+        avionics_wt    = 900.0 * Units.lb 
         opitems_wt     = 28.0  * num_seats * Units.lb
     
     # packup outputs

@@ -153,6 +153,15 @@ class Aerodynamic_Segment(Base_Segment):
         
         return conditions
     
+    # post processing
+    def post_process(self,conditions,numerics,unknowns):
+        
+        aero_model = self.config.aerodynamics_model
+        
+        if not aero_model.stability is None:
+            conditions = aero_model.stability(conditions)
+        
+        return conditions
     
     # ----------------------------------------------------------------------
     #  Segment Helper Methods
