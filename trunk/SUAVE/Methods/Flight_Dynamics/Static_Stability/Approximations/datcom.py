@@ -1,7 +1,7 @@
 # datcom.py
 #
 # Created: Feb 2014, Tim Momose
-# IN PROGRESS
+# Modified: July 2014, Andrew Wendorff
 
 # NOTES/QUESTIONS
 # - May need to bring in Roskam Figure 8.47 data (Airplane Design Part VI) for supersonic
@@ -55,31 +55,30 @@ def datcom(wing,mach):
     try:
         ar = wing.effective_aspect_ratio
     except AttributeError:   
-        ar = wing.aspect_ratio
-    sweep  = wing.sweep_le
-    
-    M      = mach
+        ar = wing.ar
+    sweep  = wing.sweep # Value is at the leading edge
     
     #Compute relevent parameters
-    if M < 1:
-        beta = np.sqrt(1.0-M**2.0)
-    else:
-        beta = np.sqrt(M**2.0-1.0)
-        
-    half_chord_sweep = convert_sweep(wing,0.0,0.5)  #Assumes original sweep 
-                                                      #value is at leading edge
+    cL_alpha = []
+    half_chord_sweep = convert_sweep(wing,0.0,0.5)  #Assumes original sweep
     
     #Compute k correction factor for Mach number    
     #First, compute corrected 2D section lift curve slope (C_la) for the given Mach number
-    cla = 6.13          #Section C_la at M = 0; Roskam Airplane Design Part VI, Table 8.1
-    if M < 1:
-        cla_M = cla/beta
-    else:
-        cla_M = 4.0/beta
+    cla = 6.13          #Section C_la at M = 0; Roskam Airplane Design Part VI, Table 8.1  
     
-    k = cla_M/(2.0*np.pi/beta)
+    for M in mach:
+        if M < 1:
+            Beta = np.sqrt(1.0-M**2.0)
+            cla_M = cla/Beta
+            k = cla_M/(2.0*np.pi/Beta)
+            cL_alpha.extend(2.0*np.pi*ar/(2.0+((ar**2.0*Beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/Beta**2.0)+4.0)**0.5))
+    
+        else:
+            Beta = np.sqrt(M**2.0-1.0)
+            cla_M = 4.0/Beta
+            k = cla_M/(2.0*np.pi/Beta) 
+            cL_alpha.extend(2.0*np.pi*ar/(2.0+((ar**2.0*Beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/Beta**2.0)+4.0)**0.5))
     
     #Compute aerodynamic surface 3D lift curve slope using the DATCOM formula
-    cL_alpha = 2.0*np.pi*ar/(2.0+((ar**2.0*beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/beta**2.0)+4.0)**0.5)
     
-    return cL_alpha
+    return np.array([cL_alpha]).T

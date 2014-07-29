@@ -1,3 +1,4 @@
 
 from compute_aircraft_drag import compute_aircraft_drag
+from compute_aircraft_drag_supersonic import compute_aircraft_drag_supersonic
 import Correlations

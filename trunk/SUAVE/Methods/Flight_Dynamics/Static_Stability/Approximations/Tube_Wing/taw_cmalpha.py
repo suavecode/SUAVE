@@ -1,6 +1,7 @@
 # taw_cmalpha.py
 #
 # Created:  Tim Momose, April 2014
+# Modified: Andrew Wendorff, July 2014
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ from SUAVE.Structure import (
 #  Method
 # ----------------------------------------------------------------------
 
-def taw_cmalpha(configuration,mach):
+def taw_cmalpha(geometry,mach,conditions,configuration):
     """ cm_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha(configuration,conditions)
         This method computes the static longitudinal stability derivative for a
         standard Tube-and-Wing aircraft configuration.
@@ -68,24 +69,24 @@ def taw_cmalpha(configuration,mach):
     """   
 
     # Unpack inputs
-    Sref  = configuration.reference.area
-    mac   = configuration.reference.mac
-    C_Law = configuration.reference.CL_alpha_wing
-    x_cg  = configuration.Mass_Props.pos_cg[0]
-    x_rqc = configuration.fuselage.x_root_quarter_chord
-    w_f   = configuration.fuselage.w_max
-    l_f   = configuration.fuselage.length
+    Sref  = geometry.reference_area
+    mac   = geometry.Wings['Main Wing'].chord_mac
+    C_Law = conditions.lift_curve_slope
+    x_cg  = configuration.mass_props.pos_cg[0]
+    x_rqc = geometry.Wings['Main Wing'].origin[0]
+    w_f   = geometry.Fuselages.Fuselage.width
+    l_f   = geometry.Fuselages.Fuselage.length_total
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
-    for surf in configuration.Lifting_Surfaces:
+    for surf in geometry.Wings:
         #Unpack inputs
-        s         = surf.area
-        x_surf    = surf.x_LE
-        x_ac_surf = surf.x_ac_LE
+        s         = surf.sref
+        x_surf    = surf.origin[0]
+        x_ac_surf = surf.aero_center[0]
         eta       = surf.eta
-        downw     = surf.downwash_adj
+        downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
         #Calculate Cm_alpha contributions
         l_surf    = x_surf + x_ac_surf - x_cg

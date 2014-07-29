@@ -66,7 +66,7 @@ class Aerodynamic_Segment(Base_Segment):
 
         # wind frame conditions
         conditions.frames.wind = Data()        
-        conditions.frames.wind.body_rotations           = ones_3col * 0
+        conditions.frames.wind.body_rotations           = ones_3col * 0   # rotations in [X,Y,Z] -> [phi,theta,psi]
         conditions.frames.wind.velocity_vector          = ones_3col * 0
         conditions.frames.wind.lift_force_vector        = ones_3col * 0
         conditions.frames.wind.drag_force_vector        = ones_3col * 0
@@ -74,7 +74,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         # body frame conditions
         conditions.frames.body = Data()        
-        conditions.frames.body.inertial_rotations       = ones_3col * 0
+        conditions.frames.body.inertial_rotations       = ones_3col * 0    # rotations in [X,Y,Z] -> [phi,theta,psi]
         conditions.frames.body.thrust_force_vector      = ones_3col * 0
         conditions.frames.body.transform_to_inertial    = np.empty([0,0,0])
         
@@ -153,6 +153,15 @@ class Aerodynamic_Segment(Base_Segment):
         
         return conditions
     
+    # post processing
+    def post_process(self,conditions,numerics,unknowns):
+        
+        aero_model = self.config.aerodynamics_model
+        
+        if not aero_model.stability is None:
+            conditions = aero_model.stability(conditions)
+        
+        return conditions
     
     # ----------------------------------------------------------------------
     #  Segment Helper Methods
@@ -381,12 +390,12 @@ class Aerodynamic_Segment(Base_Segment):
         # --- Body Frame
         
         # body frame rotations
-        psi   = body_inertial_rotations[:,0,None]
+        phi   = body_inertial_rotations[:,0,None]
         theta = body_inertial_rotations[:,1,None]
-        phi   = body_inertial_rotations[:,2,None]
+        psi   = body_inertial_rotations[:,2,None]
         
         # body frame tranformation matrices
-        T_inertial2body = angles_to_dcms(body_inertial_rotations,'ZYX')
+        T_inertial2body = angles_to_dcms(body_inertial_rotations,(2,1,0))
         T_body2inertial = orientation_transpose(T_inertial2body)
         
         # transform inertial velocity to body frame
@@ -417,12 +426,12 @@ class Aerodynamic_Segment(Base_Segment):
         
         # back calculate wind frame rotations
         wind_body_rotations = body_inertial_rotations * 0.
-        wind_body_rotations[:,0] = 0 
-        wind_body_rotations[:,1] = alpha[:,0]
-        wind_body_rotations[:,2] = beta[:,0]
+        wind_body_rotations[:,0] = 0          # no roll in wind frame
+        wind_body_rotations[:,1] = alpha[:,0] # theta is angle of attack
+        wind_body_rotations[:,2] = beta[:,0]  # psi is side slip angle
         
         # wind frame tranformation matricies
-        T_wind2body = angles_to_dcms(wind_body_rotations,'ZYX')
+        T_wind2body = angles_to_dcms(wind_body_rotations,(2,1,0))
         T_body2wind = orientation_transpose(T_wind2body)
         T_wind2inertial = orientation_product(T_wind2body,T_body2inertial)
         

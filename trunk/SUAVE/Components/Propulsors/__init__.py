@@ -4,6 +4,8 @@
 from Propulsor              import Propulsor
 from Turbofan               import Turbofan, TurboFanPASS
 from Turbojet               import Turbojet
+from Turbojet_Supersonic    import Turbojet_Supersonic, Turbojet_SupersonicPASS
+from Turbojet2    import Turbojet2, Turbojet2PASS
 from Rotor                  import Rotor
 from Transmission           import Transmission
 from Ducted_Fan_Bat         import Ducted_Fan_Bat

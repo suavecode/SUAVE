@@ -85,7 +85,7 @@ class Ducted_Fan_Bat(Propulsor):
         self.mdot_core = 0.0
         
         
-    def engine_sizing_ductedfan(self,State, battery):    
+    def engine_sizing_ductedfan(self,State):    
     #def engine_sizing_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,FD):
     
         Minf=State.M
@@ -95,7 +95,7 @@ class Ducted_Fan_Bat(Propulsor):
         pif=self.fan_pressure_ratio
         pifn=self.fan_nozzle_pressure_ratio
         FD=self.design_thrust
-        self.battery=battery
+        
     
     
     
@@ -526,7 +526,6 @@ class Ducted_Fan_Bat(Propulsor):
     
     def __call__(self,eta,State):
     #def engine_analysis_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,mdhc): 
-       
        
         Minf=State.M
         Tinf=State.T
