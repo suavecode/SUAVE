@@ -58,7 +58,7 @@ class Container(Physical_Component.Container):
             example: find_instances(Propulsors.Turbojet) > return all Turbojets
     """
     
-    def __call__(self,eta,conditions):
+    def __call__(self,eta,conditions,numerics):
         
         segment=Data()
         segment.q  = conditions.freestream.dynamic_pressure[:,0]

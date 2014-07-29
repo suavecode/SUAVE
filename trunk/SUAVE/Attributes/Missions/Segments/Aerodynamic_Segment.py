@@ -323,7 +323,7 @@ class Aerodynamic_Segment(Base_Segment):
         #state.T  = conditions.freestream.temperature[:,0]
         #state.p  = conditions.freestream.pressure[:,0]
         
-        F, mdot, P = propulsion_model(eta, conditions)
+        F, mdot, P = propulsion_model(eta, conditions,numerics)
         
         F_vec = np.zeros([N,3])
         F_vec[:,0] = F[:]
