@@ -90,7 +90,7 @@ class DataBunch(IndexableBunch):
         return args
         
     def __repr__(self):
-        return self.__str__()
+        return self.dataname() #self.__str__()
     
     def append(self,value,key=None):
         if key is None: key = value.tag
