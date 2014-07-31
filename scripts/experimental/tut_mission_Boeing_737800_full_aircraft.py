@@ -272,6 +272,17 @@ def define_vehicle():
 
     vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle)
     
+    
+    # ------------------------------------------------------------------
+    # compute wing fuel capacity
+    # ------------------------------------------------------------------
+    vehicle.Mass_Props.fuel_density = turbofan.propellant.density
+
+    wing = vehicle.Wings['Main Wing']
+    SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
+    vehicle.Mass_Props.max_usable_fuel = wing.fuel_volume * vehicle.Mass_Props.fuel_density # [kg]
+    
+    
 
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
