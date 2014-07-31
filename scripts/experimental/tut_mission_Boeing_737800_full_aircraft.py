@@ -20,6 +20,9 @@ import pylab as plt
 
 import copy, time
 
+from SUAVE.Methods.Performance import estimate_take_off_field_length
+from SUAVE.Methods.Performance import estimate_landing_field_length
+
 
 # ----------------------------------------------------------------------
 #   Main
@@ -31,6 +34,26 @@ def main():
     
     # define the mission
     mission = define_mission(vehicle)
+    
+    # ---------------------------
+    # Check field performance
+    # ---------------------------
+    # define takeoff and landing configuration
+    print ' Defining takeoff and landing configurations'
+    takeoff_config,landing_config = define_field_configs(vehicle)
+
+    # define airport to be evaluated
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    # evaluate takeoff / landing
+    print ' Estimating takeoff performance'
+    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
+    print ' Estimating landing performance'
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    
     
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
@@ -705,6 +728,38 @@ def post_process(vehicle,mission,results):
 
 # Check stability using something of the form
 # cm_alpha = results.Segments.Cruise.conditions.aerodynamics.cm_alpha
+
+
+# ----------------------------------------------------------------------
+#   Define takeoff and landing configuration
+# ----------------------------------------------------------------------
+def define_field_configs(vehicle):
+
+    # Imports
+    import copy
+
+    # --- Takeoff Configuration ---
+    takeoff_config = vehicle.Configs.takeoff
+    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    takeoff_config.V2_VS_ratio = 1.21
+    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
+    takeoff_config.maximum_lift_coefficient = 2.
+    #takeoff_config.max_lift_coefficient_factor = 1.0
+
+    # --- Landing Configuration ---
+    landing_config = vehicle.new_configuration("landing")
+    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
+    landing_config.Vref_VS_ratio = 1.23
+    # CLmax for a given configuration may be informed by user
+    landing_config.maximum_lift_coefficient = 2.
+    #landing_config.max_lift_coefficient_factor = 1.0
+    landing_config.Mass_Props.m_landing = 0.85 * vehicle.Mass_Props.m_takeoff
+
+    return takeoff_config,landing_config
 
 
 # ---------------------------------------------------------------------- 

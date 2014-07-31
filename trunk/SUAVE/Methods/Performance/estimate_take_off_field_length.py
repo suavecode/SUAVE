@@ -116,16 +116,27 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # ==============================================
     # Getting engine thrust
     # ==============================================
-    state = Data()
-    state.q  = np.atleast_1d(0.5 * rho * speed_for_thrust**2)
-    state.g0 = np.atleast_1d(sea_level_gravity)
-    state.V  = np.atleast_1d(speed_for_thrust)
-    state.M  = np.atleast_1d(speed_for_thrust/ a_delta_ISA)
-    state.T  = np.atleast_1d(T_delta_ISA)
-    state.p  = np.atleast_1d(p)
+    #state = Data()
+    #state.q  = np.atleast_1d(0.5 * rho * speed_for_thrust**2)
+    #state.g0 = np.atleast_1d(sea_level_gravity)
+    #state.V  = np.atleast_1d(speed_for_thrust)
+    #state.M  = np.atleast_1d(speed_for_thrust/ a_delta_ISA)
+    #state.T  = np.atleast_1d(T_delta_ISA)
+    #state.p  = np.atleast_1d(p)
     eta      = np.atleast_1d(1.)
+    conditions = Data()
+    conditions.freestream = Data()
+    conditions.propulsion = Data()
+    
+    conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
+    conditions.freestream.gravity = np.array([np.atleast_1d(sea_level_gravity)])
+    conditions.freestream.velocity = np.array([np.atleast_1d(speed_for_thrust)])
+    conditions.freestream.mach_number = np.array([np.atleast_1d(speed_for_thrust/ a_delta_ISA)])
+    conditions.freestream.temperature = np.array([np.atleast_1d(T_delta_ISA)])
+    conditions.freestream.pressure = np.array([np.atleast_1d(p)])
+    conditions.propulsion.throttle = np.array([np.atleast_1d(1.)])   
 
-    thrust, mdot, P = vehicle.propulsion_model(eta, state) # total thrust
+    thrust, mdot, P = vehicle.propulsion_model(eta, conditions) # total thrust
 
     # ==============================================
     # Calculate takeoff distance
