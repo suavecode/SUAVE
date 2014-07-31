@@ -218,7 +218,7 @@ def define_vehicle():
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
     turbofan.tag = 'Turbo Fan'
     
-    turbofan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
+    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
     turbofan.analysis_type                 = '1D'     #
     turbofan.diffuser_pressure_ratio       = 0.98     #
@@ -248,6 +248,7 @@ def define_vehicle():
     vehicle.append_component(turbofan)
 
     vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle)
+    
 
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
