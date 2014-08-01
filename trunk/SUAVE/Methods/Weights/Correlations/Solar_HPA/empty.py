@@ -21,16 +21,16 @@ from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
     )
 
-def empty(mainwing,aircraft,horizontal,vertical):
+def empty(vehicle):
     """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.empty(wing,aircraft,horizontal,vertical): 
             
         Inputs:
             wing - a data dictionary with the fields:
-                Sw -       wing area [m^2]
+                Sw -       wing area [m**2]
                 bw -       wing span [m]
                 cw -       average wing chord [m]
                 deltaw -   average rib spacing to average chord ratio
-                Nwr -      number of wing surface ribs (bw^2)/(deltaw*Sw)
+                Nwr -      number of wing surface ribs (bw**2)/(deltaw*Sw)
                 t_cw -     wing airfoil thickness to chord ratio
                 Nwer -     number of wing end ribs (2*number of individual wing panels -2)
                 
@@ -47,7 +47,7 @@ def empty(mainwing,aircraft,horizontal,vertical):
                 bts -      tail surface span (m)
                 cts -      average tail surface chord (m)
                 deltawts - average rib spacing to average chord ratio
-                Ntsr -     number of tail surface ribs (bts^2)/(deltats*Sts)
+                Ntsr -     number of tail surface ribs (bts**2)/(deltats*Sts)
                 t_cts -    tail airfoil thickness to chord ratio
                 
             aircraft - a data dictionary with the fields:    
@@ -78,46 +78,49 @@ def empty(mainwing,aircraft,horizontal,vertical):
         """
     
     #Unpack
-    Sw     = mainwing.sref
-    bw     = mainwing.span
-    cw     = mainwing.mac #close enough
-    deltaw = mainwing.deltaw
-    Nwr    = mainwing.Nwr
-    t_cw   = mainwing.t_c
-    Nwer   = mainwing.Nwer
-    
-    S_h    = horizontal.area
-    b_h    = horizontal.span
-    chs    = horizontal.mac
-    deltah = horizontal.deltah
-    Nhsr   = horizontal.Nwr
-    t_ch   = horizontal.t_c
-    
-    S_v    = vertical.area
-    b_v    = vertical.span
-    cvs    = vertical.mac
-    deltav = vertical.deltah
-    Nvsr   = vertical.Nwr
-    t_cv   = vertical.t_c
-    
-    nult   = aircraft.nult
-    gw     = aircraft.gw
-    qm     = aircraft.qm
-    Ltb    = aircraft.Ltb
 
+    Sw     = vehicle.Wings['Main Wing'].sref
+    bw     = vehicle.Wings['Main Wing'].span
+    cw     = vehicle.Wings['Main Wing'].chord_mac
+    Nwr    = vehicle.Wings['Main Wing'].Nwr
+    t_cw   = vehicle.Wings['Main Wing'].t_c
+    Nwer   = vehicle.Wings['Main Wing'].Nwer
+    
+    S_h    = vehicle.Wings['Horizontal Stabilizer'].sref
+    b_h    = vehicle.Wings['Horizontal Stabilizer'].span
+    chs    = vehicle.Wings['Horizontal Stabilizer'].chord_mac
+    Nhsr   = vehicle.Wings['Horizontal Stabilizer'].Nwr
+    t_ch   = vehicle.Wings['Horizontal Stabilizer'].t_c
+    
+    S_v    = vehicle.Wings['Vertical Stabilizer'].sref
+    b_v    = vehicle.Wings['Vertical Stabilizer'].span
+    cvs    = vehicle.Wings['Vertical Stabilizer'].chord_mac
+    Nvsr   = vehicle.Wings['Vertical Stabilizer'].Nwr
+    t_cv   = vehicle.Wings['Vertical Stabilizer'].t_c
+    
+    nult   = vehicle.Ultimate_Load
+    gw     = vehicle.Mass_Props.m_full
+    qm     = vehicle.qm
+    Ltb    = vehicle.Ltb    
+    
     #Wing weight
-    wt_wing = wing.wing(Sw,bw,cw,deltaw,Nwr,t_cw,Nwer,nult,gw)
+    wt_wing = wing.wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,gw)
 
     #Horizontal weight  
-    wt_ht   = tail.tail(S_h,b_h,chs,deltah,Nhsr,t_ch,qm)
+    wt_ht   = tail.tail(S_h,b_h,chs,Nhsr,t_ch,qm)
     
     #Vertical weight
-    wt_vt   = tail.tail(S_v,b_v,cvs,deltav,Nvsr,t_cv,qm)
+    wt_vt   = tail.tail(S_v,b_v,cvs,Nvsr,t_cv,qm)
     
     #Fuselage weight
     wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
     
-    weight                 =  Data()
+    vehicle.Wings['Main Wing'].Mass_Props.mass = wt_wing
+    vehicle.Wings['Horizontal Stabilizer'].Mass_Props.mass = wt_ht
+    vehicle.Wings['Vertical Stabilizer'].Mass_Props.mass = wt_vt
+    #vehicle.Fuselages.Fuselage.Mass_Props.mass = wt_tb
+    
+    weight                 = Data()
     weight.wing            = wt_wing
     weight.fuselage        = wt_tb
     weight.horizontal_tail = wt_ht

@@ -13,7 +13,7 @@ from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
-def wing(Sw,bw,cw,deltaw,Nwr,t_cw,Nwer,nult,GW):
+def wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,GW):
     """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.wing(Sw,bw,cw,deltaw,nwr,t_cw,Nwer,nult,Gw)     
         
         Inputs:
@@ -43,15 +43,17 @@ def wing(Sw,bw,cw,deltaw,Nwr,t_cw,Nwer,nult,GW):
             
     """
     
+    deltaw = (bw**2)/(Sw*Nwr)
+    
     #Wing One Wire Main Spar:
-    Wws  = (bw * (3.10e-2) + (7.56e-3) * (bw**2)) * (1.0 + (nult * GW /100.0 - 2.0) / 4.0)
+    Wws    = (bw * (3.10e-2) + (7.56e-3) * (bw**2)) * (1.0 + (nult * GW /100.0 - 2.0) / 4.0)
     
     #Wing Secondary Structure:
-    Wwr  = Nwr * ((cw**2) * t_cw * 5.50e-2 + cw * 1.91e-3)
-    Wwer = Nwer * ((cw**2) * t_cw * 6.62e-1 + cw * 6.57e-3)
-    WwLE = 0.456 * ((Sw**2)*(deltaw**(4./3.))/bw)
-    WwTE = bw * 2.77e-2
-    Wwc  = Sw * 3.08e-2
+    Wwr    = Nwr * ((cw**2) * t_cw * 5.50e-2 + cw * 1.91e-3)
+    Wwer   = Nwer * ((cw**2) * t_cw * 6.62e-1 + cw * 6.57e-3)
+    WwLE   = 0.456 * ((Sw**2)*(deltaw**(4./3.))/bw)
+    WwTE   = bw * 2.77e-2
+    Wwc    = Sw * 3.08e-2
     
     print(Wws)
     

@@ -13,7 +13,7 @@ from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
-def tail(Sts,bts,cts,deltats,Ntsr,t_cts,qm):      
+def tail(Sts,bts,cts,Ntsr,t_cts,qm):      
     
     """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.tail(Sts,bts,cts,deltats,Ntsr,t_cts)     
         
@@ -39,6 +39,7 @@ def tail(Sts,bts,cts,deltats,Ntsr,t_cts,qm):
             gross weight is an input.
             
     """    
+    deltats = (bts**2)/(Sts*Ntsr)
     
     #Rudder & Elevator Primary Structure:
     Wtss = (bts * 4.15e-2 + (bts**2) * 3.91e-3) * (1.0 + ((qm * Sts)/78.5 - 1.0)/12.0)
