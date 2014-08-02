@@ -466,6 +466,7 @@ class Thrust(Energy_Component):
         self.outputs.mdot_core = 1.0
         self.outputs.fuel_rate=1.0
         self.outputs.mfuel = 1.0
+        self.outputs.power = 1.0
         
         
         
@@ -512,7 +513,7 @@ class Thrust(Energy_Component):
         #--fuel mass flow rate
         mfuel=0.1019715*FD2*TSFC/3600            
         
-    
+        power = FD2*u0
 
         
         #pack outputs
@@ -523,7 +524,8 @@ class Thrust(Energy_Component):
         self.outputs.non_dim_thrust=Fsp
         self.outputs.mdot_core = mdot_core
         self.outputs.fuel_rate= fuel_rate
-        self.outputs.mfuel = mfuel      
+        self.outputs.mfuel = mfuel     
+        self.outputs.power = power  
 
         
     __call__ = compute         
@@ -723,12 +725,12 @@ class Network(Data):
         F = self.thrust.outputs.Thrust
         mdot = self.thrust.outputs.mdot_core
         Isp = self.thrust.outputs.Isp
+        P = self.thrust.outputs.power
 
 
        # return F,mdot,Isp
-        return F[:,0],mdot[:,0],Isp[:,0]
-        
-       # return F[:,0], mdot[:,0], P[:,0]
+        return F[:,0],mdot[:,0],P[:,0]
+
             
     __call__ = evaluate
     
@@ -746,6 +748,9 @@ def test():
     #-------Conditions---------------------
     
     # --- Conditions        
+    ones_1col = np.ones([1,1])    
+    
+    
     
     # setup conditions
     conditions = Data()
@@ -759,19 +764,19 @@ def test():
     
 
     # freestream conditions
-    conditions.freestream.velocity           = 263.
-    conditions.freestream.mach_number        =  0.8
-    conditions.freestream.pressure           =  20000.
-    conditions.freestream.temperature        = 215.
-    conditions.freestream.density            =  0.8
-    conditions.freestream.speed_of_sound     =  300.
-    conditions.freestream.viscosity          =  0.000001
-    conditions.freestream.altitude           =  10.
-    conditions.freestream.gravity            =  9.8
-    conditions.freestream.gamma              =  1.4
-    conditions.freestream.Cp                 =  1004.    
-    conditions.freestream.stagnation_temperature =  310.
-    conditions.freestream.stagnation_pressure =  22500.        
+    conditions.freestream.velocity           = ones_1col*263.
+    conditions.freestream.mach_number        = ones_1col*0.8
+    conditions.freestream.pressure           = ones_1col*20000.
+    conditions.freestream.temperature        = ones_1col*215.
+    conditions.freestream.density            = ones_1col* 0.8
+    conditions.freestream.speed_of_sound     = ones_1col* 300.
+    conditions.freestream.viscosity          = ones_1col* 0.000001
+    conditions.freestream.altitude           = ones_1col* 10.
+    conditions.freestream.gravity            = ones_1col*9.8
+    #conditions.freestream.gamma              =  [1.4]
+    #conditions.freestream.Cp                 =  [1004.]    
+    #conditions.freestream.stagnation_temperature =  310.
+    #conditions.freestream.stagnation_pressure =  22500.        
     #conditions.freestream.reynolds_number    = ones_1col * 0
     #conditions.freestream.dynamic_pressure   = ones_1col * 0
     
