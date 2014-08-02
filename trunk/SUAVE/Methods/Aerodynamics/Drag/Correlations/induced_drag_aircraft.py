@@ -39,7 +39,9 @@ def induced_drag_aircraft(conditions,configuration,geometry):
 
     # unpack inputs
     aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
+    e = geometry.Wings[0].e
+    
+    #e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
     ar            = geometry.Wings[0].ar # TODO: get estimate from weissinger
     
     # start the result
