@@ -84,7 +84,7 @@ def define_vehicle():
 
     # mass properties
     vehicle.Mass_Props.m_full       = 79015.8   # kg
-    vehicle.Mass_Props.m_empty      = 62746.4   # kg
+    #vehicle.Mass_Props.m_empty      = 62746.4   # kg
     vehicle.Mass_Props.m_takeoff    = 79015.8   # kg
     vehicle.Mass_Props.m_flight_min = 66721.59  # kg
     vehicle.Mass_Props.pos_cg       = [60 * Units.feet, 0, 0]  # Not correct
@@ -271,7 +271,7 @@ def define_vehicle():
     vehicle.append_component(turbofan)
 
     vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle)
-    
+    vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
     
     # ------------------------------------------------------------------
     # compute wing fuel capacity
@@ -654,23 +654,30 @@ def post_process(vehicle,mission,results):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
-        axes = fig.add_subplot(3,1,1)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Lift (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,2)
+        axes = fig.add_subplot(4,1,2)
         axes.plot( time , Drag , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(4,1,3)
         axes.plot( time , Thrust , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Thrust (N)')
+        axes.grid(True)        
+        
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Pitching_moment , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Pitching_moment (~)')
         axes.grid(True)
         
     # ------------------------------------------------------------------    
