@@ -23,6 +23,9 @@ import copy, time
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length
 
+from SUAVE.Structure import (
+Data, Container, Data_Exception, Data_Warning,
+)
 
 # ----------------------------------------------------------------------
 #   Main
@@ -35,26 +38,8 @@ def main():
     # define the mission
     mission = define_mission(vehicle)
     
-    # ---------------------------
-    # Check field performance
-    # ---------------------------
-    # define takeoff and landing configuration
-    print ' Defining takeoff and landing configurations'
-    takeoff_config,landing_config = define_field_configs(vehicle)
-
-    # define airport to be evaluated
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
-    # evaluate takeoff / landing
-    print ' Estimating takeoff performance'
-    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
-    print ' Estimating landing performance'
-    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
-    
-    
+    fldlength = evaluate_field_length(vehicle)
+        
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
     
@@ -488,6 +473,36 @@ def define_mission(vehicle):
 
 #: def define_mission()
 
+
+# ----------------------------------------------------------------------
+#   Evaluate the Field Length
+# ----------------------------------------------------------------------
+def evaluate_field_length(vehicle):
+    
+    # ---------------------------
+    # Check field performance
+    # ---------------------------
+    # define takeoff and landing configuration
+    #print ' Defining takeoff and landing configurations'
+    takeoff_config,landing_config = define_field_configs(vehicle)
+
+    # define airport to be evaluated
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    # evaluate takeoff / landing
+    #print ' Estimating takeoff performance'
+    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
+    #print ' Estimating landing performance'
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    
+    fldlength      = Data()
+    fldlength.TOFL = TOFL
+    fldlength.LFL  = LFL
+    
+    return fldlength
 
 # ----------------------------------------------------------------------
 #   Evaluate the Mission
