@@ -98,10 +98,7 @@ class Fidelity_Zero(Data):
             mac           = geometry.Wings['Main Wing'].chord_mac
             
             # Calculate CL_alpha 
-
-            try:
-                conditions.lift_curve_slope
-            except AttributeError:    
+            if not conditions.has_key('lift_curve_slope'):
                 conditions.lift_curve_slope = (datcom(geometry.Wings['Main Wing'],mach))
             
             # Calculate change in downwash with respect to change in angle of attack
@@ -118,38 +115,29 @@ class Fidelity_Zero(Data):
             
             if np.count_nonzero(configuration.mass_props.I_cg) > 0:         
                 # Dynamic Stability Approximation Methods
-                try:
-                    conditions.aerodynamics.cn_r
-                except AttributeError:    
+                if not conditions.aerodynamics.has_key('cn_r'):  
                     cDw = conditions.aerodynamics.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
                     l_v = geometry.Wings['Vertical Stabilizer'].origin[0] + geometry.Wings['Vertical Stabilizer'].aero_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aero_center[0]
                     conditions.aerodynamics.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].sref, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
-                try:
-                    conditions.aerodynamics.cl_p
-                except AttributeError:
+                if not conditions.aerodynamics.has_key('cl_p'):
                     conditions.aerodynamics.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
-                try:
-                    conditions.aerodynamics.cl_beta
-                except AttributeError:
+                    
+                if not conditions.aerodynamics.has_key('cl_beta'):
                     conditions.aerodynamics.cl_beta = 0 # Need to see if there is a low fidelity way to calculate cl_p
                 
                 l_t = geometry.Wings['Horizontal Stabilizer'].origin[0] + geometry.Wings['Horizontal Stabilizer'].aero_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aero_center[0] #Need to check this is the length of the horizontal tail moment arm       
                 
-                try: 
-                    conditions.aerodynamics.cm_q 
-                except AttributeError:
+                if not conditions.aerodynamics.has_key('cm_q'):
                     conditions.aerodynamics.cm_q = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
-                try:
-                    conditions.aerodynamics.cm_alpha_dot
-                except AttributeError:
+                
+                if not conditions.aerodynamics.has_key('cm_alpha_dot'):
                     conditions.aerodynamics.cm_alpha_dot = Supporting_Functions.cm_alphadot(conditions.lift_curve_slope, geometry.Wings['Horizontal Stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha
                     
-                try: 
-                    conditions.aerodynamics.cz_alpha
-                except AttributeError:
+                if not conditions.aerodynamics.has_key('cz_alpha'):
                     conditions.aerodynamics.cz_alpha = Supporting_Functions.cz_alpha(conditions.aerodynamics.drag_coefficient,conditions.lift_curve_slope)                   
                 
                 conditions.dutch_roll = Approximations.dutch_roll(velocity, conditions.aerodynamics.cn_beta, Sref, density, Span, configuration.mass_props.I_cg[2][2], conditions.aerodynamics.cn_r)
+                
                 if conditions.aerodynamics.cl_p != 0:                 
                     roll_tau = Approximations.roll(configuration.mass_props.I_cg[2][2], Sref, density, velocity, Span, conditions.aerodynamics.cl_p)
                     if conditions.aerodynamics.cl_beta != 0:
@@ -158,6 +146,7 @@ class Fidelity_Zero(Data):
                         spiral_tau = Approximations.spiral(conditions.weights.total_mass, velocity, density, Sref, conditions.aerodynamics.cl_p, conditions.aerodynamics.cn_beta, conditions.aerodynamics.cy_phi, conditions.aerodynamics.cl_beta, conditions.aerodynamics.cn_r, conditions.aerodynamics.cl_r)
                 conditions.short_period = Approximations.short_period(velocity, density, Sref, mac, conditions.aerodynamics.cm_q, conditions.aerodynamics.cz_alpha, conditions.weights.total_mass, conditions.aerodynamics.cm_alpha, configuration.mass_props.I_cg[1][1], conditions.aerodynamics.cm_alpha_dot)
                 conditions.phugoid = Approximations.phugoid(conditions.freestream.gravity, conditions.freestream.velocity, conditions.aerodynamics.drag_coefficient, conditions.aerodynamics.lift_coefficient)
+                
                 # Dynamic Stability Full Linearized Methods
                 #lateral_directional = Full_Linearized_Equations.lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, I_x, Cl_p, J_xz, Cl_r, Cl_Beta, Cn_p, Cy_phi, Cy_psi, Cy_Beta, mass)
                 #longitudinal = Full_Linearized_Equations.longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha)
