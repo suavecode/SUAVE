@@ -16,7 +16,7 @@ import numpy as np
 #   Method
 # ----------------------------------------------------------------------
 
-def cz_alphadot(cm_i, ep_alpha, l_t, mac):
+def cz_alphadot(cm_i, ep_alpha):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cm_alphadot(cm_i, ep_alpha, l_t, mac) 
         Calculating the coefficient of force in the z direction with respect to the rate of change of the alpha of attack of the aircraft        
         Inputs:
