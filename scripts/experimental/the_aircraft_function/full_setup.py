@@ -1,10 +1,9 @@
-# tut_mission_Boeing_737.py
+# full_setup.py
 # 
-# Created:  Michael Colonno, Apr 2013
-# Modified: Michael Vegh   , Sep 2013
-#           Trent Lukaczyk , Jan 2014
+# Created:  SUave Team, Aug 2014
+# Modified: 
 
-""" evaluate a mission with a Boeing 737-800
+""" setup file for a mission with a 737
 """
 
 
