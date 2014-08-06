@@ -15,6 +15,7 @@
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Structure import Data
+from compile_results import compile_results
 
 import numpy as np
 
@@ -151,7 +152,7 @@ def evaluate_noise(vehicle,mission,results):
 #   Compile Useful Results
 # ----------------------------------------------------------------------
 
-def compile_results(vehicle,mission,results):
+#def compile_results(vehicle,mission,results):
     
     # unpack
     
@@ -159,7 +160,7 @@ def compile_results(vehicle,mission,results):
     
     # pack
     
-    return results
+    #return results
 
 
 # ---------------------------------------------------------------------- 
