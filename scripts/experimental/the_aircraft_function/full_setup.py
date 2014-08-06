@@ -24,8 +24,7 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 def full_setup():
-    
-    airport = airport_setup()
+
     vehicle = vehicle_setup()
     mission = mission_setup(vehicle)
     
@@ -263,24 +262,6 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(turbofan)    
     
-    vehicle.Mass_Props.breakdown = Data()
-    breakdown = vehicle.Mass_Props.breakdown
-    breakdown.payload           = 27350.0
-    breakdown.pax               = 15040.0  
-    breakdown.bag               = 2310.0
-    breakdown.fuel              = 1050.0
-    breakdown.empty             = 50620.0   
-    breakdown.wing              = 7370.0
-    breakdown.fuselage          = 17630.0
-    breakdown.propulsion        = 1740.0
-    breakdown.landing_gear      = 3160.0
-    breakdown.systems           = 15460.0
-    breakdown.wt_furnish        = 7470.0
-    breakdown.horizontal_tail   = 4110.0
-    breakdown.vertical_tail     = 820.0
-    breakdown.rudder            = 330.0   
-    
-    
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
@@ -311,6 +292,27 @@ def vehicle_setup():
     # --- Cruise Configuration ---
     config = vehicle.new_configuration("cruise")
     # this configuration is derived from vehicle.Configs.takeoff
+
+    # --- Takeoff Configuration ---
+    takeoff_config = vehicle.Configs.takeoff
+    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    takeoff_config.V2_VS_ratio = 1.21
+    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
+    takeoff_config.maximum_lift_coefficient = 2.
+    #takeoff_config.max_lift_coefficient_factor = 1.0
+
+    # --- Landing Configuration ---
+    landing_config = vehicle.new_configuration("landing")
+    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
+    landing_config.Vref_VS_ratio = 1.23
+    # CLmax for a given configuration may be informed by user
+    landing_config.maximum_lift_coefficient = 2.
+    #landing_config.max_lift_coefficient_factor = 1.0
+    landing_config.Mass_Props.m_landing = 0.85 * vehicle.Mass_Props.m_takeoff
     
 
     # ------------------------------------------------------------------
@@ -338,6 +340,14 @@ def mission_setup(vehicle):
     # atmospheric model
     planet = SUAVE.Attributes.Planets.Earth()
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    
+    mission.airport = airport
     
     
     # ------------------------------------------------------------------
@@ -482,36 +492,6 @@ def mission_setup(vehicle):
     return mission
 
 
-    
-def wing_size(wing):
-    
-    # unpack
-    sref  = wing.sref
-    ar    = wing.ar
-    taper = wing.taper
-    sweep = wing.sweep
-    
-    # calculate
-    span = sqrt(ar*sref)
-    
-    chord_root = 2*sref/span/(1+taper)
-    chord_tip  = taper * chord_root
-    
-    swet = 2*span/2*(chord_root+chord_tip)
-
-    mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
-    
-    # update
-    wing.chord_root  = chord_root
-    wing.chord_tip   = chord_tip
-    wing.chord_mac   = mac
-    wing.area_wetted = swet
-    wing.span        = span  
-    
-    return 0
-
-
 if __name__ == '__main__': 
     
     full_setup()
-    #return wave_drag_lift
