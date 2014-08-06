@@ -34,7 +34,7 @@ def the_aircraft_function(vehicle,mission):
     results = evaluate_weights(vehicle,results)
 
     # evaluate field length
-    results = evaluate_field_length(vehicle,results)
+    results = evaluate_field_length(vehicle,mission,results)
     
     # evaluate the mission
     results = evaluate_mission(vehicle,mission,results)
@@ -59,10 +59,13 @@ def evaluate_weights(vehicle,results):
     
     # evaluate
     breakdown = empty(vehicle)
-    
+     
     # pack
     vehicle.Mass_Props.breakdown = breakdown
     vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    
+    for config in vehicle.Configs:
+        config.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
     
     results.weight_breakdown = breakdown
     
@@ -89,8 +92,9 @@ def evaluate_field_length(vehicle,mission,results):
     LFL = estimate_landing_field_length(vehicle,landing_config,airport)
     
     # pack
-    field_length.takeoff = TOFL
-    field_length.landing = LFL
+    field_length = Data()
+    field_length.takeoff = TOFL[0]
+    field_length.landing = LFL[0]
     
     results.field_length = field_length
     
@@ -125,8 +129,8 @@ def evaluate_noise(vehicle,mission,results):
     mission_profile = results.mission_profile
     
     weight_landing    = mission_profile.Segments[-1].conditions.weights.total_mass[-1,0]
-    number_of_engines = vehicle['Turbo Fan'].no_of_engines
-    thrust_sea_level  = vehicle['Turbo Fan'].design_thrust
+    number_of_engines = vehicle.Propulsors['Turbo Fan'].no_of_engines
+    thrust_sea_level  = vehicle.Propulsors['Turbo Fan'].design_thrust
     thrust_landing    = mission_profile.Segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
     
     from SUAVE.Methods.Noise.Correlations import shevell as evaluate_noise
@@ -139,6 +143,21 @@ def evaluate_noise(vehicle,mission,results):
     
     # pack
     results.noise = noise
+    
+    return results
+
+
+# ----------------------------------------------------------------------
+#   Compile Useful Results
+# ----------------------------------------------------------------------
+
+def compile_results(vehicle,mission,results):
+    
+    # unpack
+    
+    # evaluate
+    
+    # pack
     
     return results
 

@@ -28,14 +28,7 @@ def full_setup():
     vehicle = vehicle_setup()
     mission = mission_setup(vehicle)
     
-def airport_setup():
-    
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    
-    return airport
+    return vehicle, mission
 
 def vehicle_setup():
     
