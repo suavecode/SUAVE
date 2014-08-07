@@ -45,7 +45,7 @@ def vehicle_setup():
 
     # mass properties
     vehicle.Mass_Props.m_full       = 79015.8   # kg
-    #vehicle.Mass_Props.m_empty      = 62746.4   # kg
+    vehicle.Mass_Props.m_empty      = 62746.4   # kg
     vehicle.Mass_Props.m_takeoff    = 79015.8   # kg
     vehicle.Mass_Props.m_flight_min = 66721.59  # kg
     vehicle.Mass_Props.pos_cg       = [60 * Units.feet, 0, 0]  # Not correct
@@ -70,7 +70,7 @@ def vehicle_setup():
     wing.tag = 'Main Wing'
     
     wing.sref      = 124.862        #
-    wing.ar        = 8              #
+    wing.ar        = 10.18          #
     wing.span      = 35.66          #
     wing.sweep     = 25 * Units.deg #
     wing.symmetric = True           #

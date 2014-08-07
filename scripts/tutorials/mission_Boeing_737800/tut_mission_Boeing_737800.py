@@ -195,7 +195,7 @@ def define_vehicle():
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
     turbofan.tag = 'Turbo Fan'
     
-    turbofan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
+    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
     turbofan.analysis_type                 = '1D'     #
     turbofan.diffuser_pressure_ratio       = 0.98     #

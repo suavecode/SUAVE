@@ -48,13 +48,15 @@ def wing_planform(Wing):
     """
     
     # unpack
+    span  = Wing.span
     sref  = Wing.sref
-    ar    = Wing.ar
+    #ar    = Wing.ar
     taper = Wing.taper
     sweep = Wing.sweep
     
     # calculate
-    span = sqrt(ar*sref)
+    ar = span**2. / sref
+    #span = sqrt(ar*sref)
     
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
@@ -68,6 +70,7 @@ def wing_planform(Wing):
     Wing.chord_tip   = chord_tip
     Wing.chord_mac   = mac
     Wing.area_wetted = swet
-    Wing.span        = span
+    #Wing.span        = span
+    Wing.ar          = ar
     
     return 0
