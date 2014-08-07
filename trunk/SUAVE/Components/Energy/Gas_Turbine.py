@@ -106,7 +106,9 @@ class Ram(Energy_Component):
         #method
         conditions.freestream.gamma =1.4
         conditions.freestream.Cp =1004.
-
+        
+        
+        #Compute the stagnation quantities from the input static quantities
         conditions.freestream.stagnation_temperature = conditions.freestream.temperature*(1+((conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2))
         
         conditions.freestream.stagnation_pressure = conditions.freestream.pressure* ((1+(conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2 )**3.5 )  
@@ -165,17 +167,20 @@ class Nozzle(Energy_Component):
 
     
         
-        #method
+        #Computing the output modules
+        
+        #--Getting the outptu stagnation quantities
         Pt_out=Pt_in*self.pid
         Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
         ht_out=Cp*Tt_out 
         
         
-
+        #compute the output Mach number, static quantities and the output velocity
         Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
         T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
         h_out=Cp*T_out
-        u_out=np.sqrt(2*(ht_out-h_out))        
+        u_out=np.sqrt(2*(ht_out-h_out))  
+   
          
         
         #pack outputs
@@ -231,7 +236,7 @@ class Compressor(Energy_Component):
         Tt_in = self.inputs.Tt
         Pt_in = self.inputs.Pt        
     
-        #method
+        #Compute the output stagnation quantities based on the pressure ratio of the component
         Pt_out=Pt_in*self.pid
         Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
         ht_out=Cp*Tt_out 
@@ -280,7 +285,7 @@ class Fan(Energy_Component):
         Pt_in = self.inputs.Pt        
     
     
-        #method
+        #Compute the output stagnation quantities based on the pressure ratio of the component
         Pt_out=Pt_in*self.pid
         Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
         ht_out=Cp*Tt_out    #h(Tt1_8)
@@ -342,16 +347,26 @@ class Combustor(Energy_Component):
         
         Tt_in = self.inputs.Tt 
         Pt_in = self.inputs.Pt   
-        Tt_n = self.inputs.nozzle_temp   
+        Tt_n = self.inputs.nozzle_temp 
+        Tto = self.inputs.freestream_stag_temp
         
         htf=self.fuel.specific_energy
+        ht4 = Cp*self.Tt4
+        ho = Cp*To
         
         
-        #method        
+        
+        
+        
+        #Using the Turbine exit temperature, the fuel properties and freestream temperature to compute the fuel to air ratio f        
         tau = htf/(Cp*To)
-    
-        f=(((self.Tt4/To)-tau*(Tt_in/Tt_n))/(self.eta*tau-(self.Tt4/To)))
+        tau_freestream=Tto/To
         
+    
+        #f=(((self.Tt4/To)-tau_freestream*(Tt_in/Tt_n))/(self.eta*tau-(self.Tt4/To)))
+        
+        f = (ht4 - ho)/(htf-ht4)
+        #print ((self.Tt4/To)-tau_freestream*(Tt_in/Tt_n))
         
         ht_out=Cp*self.Tt4
         Pt_out=Pt_in*self.pib  
@@ -411,13 +426,16 @@ class Turbine(Energy_Component):
         Pt_in =self.inputs.Pt   
         h_compressor_out =self.inputs.h_compressor_out 
         h_compressor_in=self.inputs.h_compressor_in
+        h_fan_out =  self.inputs.h_fan_out
+        h_fan_in = self.inputs.h_fan_in
+        alpha =  self.inputs.alpha
         f =self.inputs.f        
         
-        #method 
-        deltah_ht=-1/(1+f)*1/self.eta_mech*(h_compressor_out-h_compressor_in)
+        #Using the stagnation enthalpy drop across the corresponding turbine and the fuel to air ratio to compute the energy drop across the turbine
+        deltah_ht=-1/(1+f)*1/self.eta_mech*((h_compressor_out-h_compressor_in)+ alpha*(h_fan_out-h_fan_in))
         
+        #Compute the output stagnation quantities from the inputs and the energy drop computed above 
         Tt_out=Tt_in+deltah_ht/Cp
-        
         Pt_out=Pt_in*(Tt_out/Tt_in)**(gamma/((gamma-1)*self.etapolt))
         ht_out=Cp*Tt_out   #h(Tt4_5)
         
@@ -490,38 +508,40 @@ class Thrust(Energy_Component):
         throttle = conditions.propulsion.throttle
         
 
-        #method
-        #Engine Properties--------------
+
+        #Computing the engine output properties, the thrust, SFC, fuel flow rate--------------
 
         #--specific thrust
-        Fsp=((1+f)*core_exit_velocity-u0+self.alpha*(fan_exit_velocity-u0))/((1+self.alpha)*a0)
-        
+        specific_thrust=((1+f)*core_exit_velocity-u0+self.alpha*(fan_exit_velocity-u0))/((1+self.alpha)*a0)
 
-        Isp=Fsp*a0*(1+self.alpha)/(f*g)
+        #Specific impulse
+        Isp=specific_thrust*a0*(1+self.alpha)/(f*g)
     
+        #thrust specific fuel consumption
         TSFC=3600/Isp  
         
         #mass flow sizing
         mdot_core=self.mdhc*np.sqrt(self.Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/self.Pref)
 
-
+        #fuel flow rate computation
         fuel_rate=mdot_core*f*self.no_eng
         
         #dimensional thrust
-        FD2=Fsp*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
+        thrust=specific_thrust*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
         
         #--fuel mass flow rate
-        mfuel=0.1019715*FD2*TSFC/3600            
+        mfuel=0.1019715*thrust*TSFC/3600            
         
-        power = FD2*u0
+        #--Output power based on freestream velocity
+        power = thrust*u0
 
         
         #pack outputs
 
-        self.outputs.Thrust=FD2
+        self.outputs.Thrust=thrust
         self.outputs.sfc=TSFC
         self.outputs.Isp=Isp   
-        self.outputs.non_dim_thrust=Fsp
+        self.outputs.non_dim_thrust=specific_thrust
         self.outputs.mdot_core = mdot_core
         self.outputs.fuel_rate= fuel_rate
         self.outputs.mfuel = mfuel     
@@ -554,73 +574,14 @@ class Network(Data):
         
         
         
-    #def __init__(self,*args,**kwarg):
-        ## will set defaults
-        #super(Network,self).__init__(*args,**kwarg)
 
-        #self._component_root_map = {
-            #SUAVE.Components.Energy.Gas_Turbine.Nozzle              : self['Nozzle']              ,
-            #SUAVE.Components.Energy.Gas_Turbine.Compressor          : self['Compressor']                  ,
-            #SUAVE.Components.Energy.Gas_Turbine.Combustor           : self['Combustor']                ,
-            #SUAVE.Components.Energy.Gas_Turbine.Turbine             : self['Turbine']                   ,
-                                                  
-        #}    
-        
-        
-    
-    #def find_component_root(self,component):
-        #""" find pointer to component data root.
-        #"""
-
-        #component_type = type(component)
-        
-        
-
-        ## find component root by type, allow subclasses
-        #for component_type, component_root in self._component_root_map.iteritems():
-            #if isinstance(component,component_type):
-                #break
-        #else:
-            #raise Component_Exception , "Unable to place component type %s" % component.typestring()
-
-        #return component_root        
-    
-        
-    #def append_component(self,component):
-        #""" adds a component to network """
-
-        ## assert database type
-        #if not isinstance(component,Data):
-            #raise Component_Exception, 'input component must be of type Data()'
-
-        ## find the place to store data
-        #component_root = self.find_component_root(component)
-        
-
-        ## store data
-        #component_root.append(component)
-
-        #return            
-    
-    
-
-
-           
-    
-    
     
     # manage process with a driver function
     def evaluate(self,eta,conditions):
     
         # unpack
         
-        #conditions.freestream.gamma =1.4
-        #conditions.freestream.Cp =1004.
-
-        #conditions.freestream.stagnation_temperature = conditions.freestream.temperature*(1+((conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2))
-        
-        #conditions.freestream.stagnation_pressure = conditions.freestream.pressure* ((1+(conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2 )**3.5 )  
-        
+  
 
         self.ram(conditions)
         
@@ -651,10 +612,21 @@ class Network(Data):
         self.high_pressure_compressor(conditions) 
         
         
+        
+        #Fan
+        
+        
+        self.fan.inputs.Tt = self.inlet_nozzle.outputs.Tt
+        self.fan.inputs.Pt = self.inlet_nozzle.outputs.Pt
+        
+        self.fan(conditions)         
+        
+        
         #--Combustor
         self.combustor.inputs.Tt = self.high_pressure_compressor.outputs.Tt
         self.combustor.inputs.Pt = self.high_pressure_compressor.outputs.Pt   
         self.combustor.inputs.nozzle_temp = self.inlet_nozzle.outputs.Tt
+        self.combustor.inputs.freestream_stag_temp = self.ram.outputs.Tt
         
         self.combustor(conditions)
         
@@ -667,6 +639,9 @@ class Network(Data):
         self.high_pressure_turbine.inputs.h_compressor_out = self.high_pressure_compressor.outputs.ht
         self.high_pressure_turbine.inputs.h_compressor_in = self.low_pressure_compressor.outputs.ht
         self.high_pressure_turbine.inputs.f = self.combustor.outputs.f
+        self.high_pressure_turbine.inputs.h_fan_out =  0.0
+        self.high_pressure_turbine.inputs.h_fan_in = 0.0
+        self.high_pressure_turbine.inputs.alpha =0.0    
         
         self.high_pressure_turbine(conditions)
         
@@ -678,7 +653,10 @@ class Network(Data):
         self.low_pressure_turbine.inputs.Pt = self.high_pressure_turbine.outputs.Pt    
         self.low_pressure_turbine.inputs.h_compressor_out = self.low_pressure_compressor.outputs.ht
         self.low_pressure_turbine.inputs.h_compressor_in = self.inlet_nozzle.outputs.ht
-        self.low_pressure_turbine.inputs.f = self.combustor.outputs.f        
+        self.low_pressure_turbine.inputs.f = self.combustor.outputs.f   
+        self.low_pressure_turbine.inputs.h_fan_out =  self.fan.outputs.ht
+        self.low_pressure_turbine.inputs.h_fan_in =  self.inlet_nozzle.outputs.ht
+        self.low_pressure_turbine.inputs.alpha =  self.thrust.alpha   
         
         self.low_pressure_turbine(conditions)
         
@@ -693,13 +671,7 @@ class Network(Data):
         
 
         
-        #Fan
-        
-        
-        self.fan.inputs.Tt = self.inlet_nozzle.outputs.Tt
-        self.fan.inputs.Pt = self.inlet_nozzle.outputs.Pt
-        
-        self.fan(conditions) 
+
         
         
         #fan nozzle
@@ -721,9 +693,10 @@ class Network(Data):
         self.thrust(conditions)
         
  
-                
+        #getting the output data from the thrust outputs
+        
         F = self.thrust.outputs.Thrust
-        mdot = self.thrust.outputs.mdot_core
+        mdot = self.thrust.outputs.mfuel
         Isp = self.thrust.outputs.Isp
         P = self.thrust.outputs.power
 
@@ -764,7 +737,7 @@ def test():
     
 
     # freestream conditions
-    conditions.freestream.velocity           = ones_1col*263.
+    conditions.freestream.velocity           = ones_1col*223.
     conditions.freestream.mach_number        = ones_1col*0.8
     conditions.freestream.pressure           = ones_1col*20000.
     conditions.freestream.temperature        = ones_1col*215.
@@ -773,19 +746,13 @@ def test():
     conditions.freestream.viscosity          = ones_1col* 0.000001
     conditions.freestream.altitude           = ones_1col* 10.
     conditions.freestream.gravity            = ones_1col*9.8
-    #conditions.freestream.gamma              =  [1.4]
-    #conditions.freestream.Cp                 =  [1004.]    
-    #conditions.freestream.stagnation_temperature =  310.
-    #conditions.freestream.stagnation_pressure =  22500.        
-    #conditions.freestream.reynolds_number    = ones_1col * 0
-    #conditions.freestream.dynamic_pressure   = ones_1col * 0
+
     
 
     
     # propulsion conditions
     conditions.propulsion.throttle           =  1.0
-    #conditions.propulsion.fuel_mass_rate     = ones_1col * 0
-    #conditions.propulsion.thrust_breakdown   = Data()
+
     
 
     
@@ -800,7 +767,7 @@ def test():
     gt_engine = SUAVE.Components.Energy.Gas_Turbine.Network()
 
     
-    #gt_engine = Network('gas_turbine')
+
     
     #Ram
     ram = SUAVE.Components.Energy.Gas_Turbine.Ram()
@@ -834,11 +801,10 @@ def test():
     high_pressure_compressor.tag = 'hpc'
     gt_engine.high_pressure_compressor = high_pressure_compressor
     gt_engine.high_pressure_compressor.etapold = 0.91
-    gt_engine.high_pressure_compressor.pid = 21.4
+    gt_engine.high_pressure_compressor.pid = 13.2
     
  
-    
-    
+
     
     #low pressure turbine  
     low_pressure_turbine = SUAVE.Components.Energy.Gas_Turbine.Turbine()

@@ -221,6 +221,9 @@ def define_vehicle():
     # size the turbofan
     turbofan.engine_sizing_1d(sizing_segment)     
     
+    print turbofan.mdhc
+    
+    
     # add to vehicle
     vehicle.append_component(turbofan)
 
