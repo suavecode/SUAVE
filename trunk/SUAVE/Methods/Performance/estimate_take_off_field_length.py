@@ -36,7 +36,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
                 maximum_lift_coefficient   - Maximum lift coefficient for the config
                                              [optional. Calculated if not informed]
 
-			airport   - SUAVE type airport data, with followig fields:
+    airport   - SUAVE type airport data, with followig fields:
                 atmosphere                  - Airport atmosphere (SUAVE type)
                 altitude                    - Airport altitude
                 delta_isa                   - ISA Temperature deviation
@@ -52,7 +52,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     """
 
     # ==============================================
-	# Unpack
+        # Unpack
     # ==============================================
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
@@ -127,7 +127,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     conditions = Data()
     conditions.freestream = Data()
     conditions.propulsion = Data()
-    
+
     conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
     conditions.freestream.gravity = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity = np.array([np.atleast_1d(speed_for_thrust)])

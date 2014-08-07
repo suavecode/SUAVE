@@ -34,7 +34,7 @@ def estimate_landing_field_length(vehicle,config,airport):
                 maximum_lift_coefficient   - Maximum lift coefficient for the config
                                              [optional. Calculated if not informed]
 
-			airport   - SUAVE type airport data, with followig fields:
+    airport   - SUAVE type airport data, with followig fields:
                 atmosphere                  - Airport atmosphere (SUAVE type)
                 altitude                    - Airport altitude
                 delta_isa                   - ISA Temperature deviation
@@ -46,12 +46,12 @@ def estimate_landing_field_length(vehicle,config,airport):
 
         Assumptions:
       		- Landing field length calculated according to Torenbeek, E., "Advanced
-		Aircraft Design", 2013 (equation 9.25)
+    Aircraft Design", 2013 (equation 9.25)
             - Considering average aav/g values of two-wheel truck (0.40)
     """
 
     # ==============================================
-	# Unpack
+        # Unpack
     # ==============================================
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
@@ -294,5 +294,4 @@ if __name__ == '__main__':
     plt.xlabel('Weight (kg)')
     plt.ylabel('Landing Field Length (m)')
     plt.show('True')
-
 

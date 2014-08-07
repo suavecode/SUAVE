@@ -23,6 +23,9 @@ import copy, time
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length
 
+from SUAVE.Structure import (
+Data, Container, Data_Exception, Data_Warning,
+)
 
 # ----------------------------------------------------------------------
 #   Main
@@ -35,26 +38,8 @@ def main():
     # define the mission
     mission = define_mission(vehicle)
     
-    # ---------------------------
-    # Check field performance
-    # ---------------------------
-    # define takeoff and landing configuration
-    print ' Defining takeoff and landing configurations'
-    takeoff_config,landing_config = define_field_configs(vehicle)
-
-    # define airport to be evaluated
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
-    # evaluate takeoff / landing
-    print ' Estimating takeoff performance'
-    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
-    print ' Estimating landing performance'
-    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
-    
-    
+    fldlength = evaluate_field_length(vehicle)
+        
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
     
@@ -84,7 +69,7 @@ def define_vehicle():
 
     # mass properties
     vehicle.Mass_Props.m_full       = 79015.8   # kg
-    vehicle.Mass_Props.m_empty      = 62746.4   # kg
+    #vehicle.Mass_Props.m_empty      = 62746.4   # kg
     vehicle.Mass_Props.m_takeoff    = 79015.8   # kg
     vehicle.Mass_Props.m_flight_min = 66721.59  # kg
     vehicle.Mass_Props.pos_cg       = [60 * Units.feet, 0, 0]  # Not correct
@@ -271,7 +256,7 @@ def define_vehicle():
     vehicle.append_component(turbofan)
 
     vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle)
-    
+    vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
     
     # ------------------------------------------------------------------
     # compute wing fuel capacity
@@ -490,6 +475,36 @@ def define_mission(vehicle):
 
 
 # ----------------------------------------------------------------------
+#   Evaluate the Field Length
+# ----------------------------------------------------------------------
+def evaluate_field_length(vehicle):
+    
+    # ---------------------------
+    # Check field performance
+    # ---------------------------
+    # define takeoff and landing configuration
+    #print ' Defining takeoff and landing configurations'
+    takeoff_config,landing_config = define_field_configs(vehicle)
+
+    # define airport to be evaluated
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    # evaluate takeoff / landing
+    #print ' Estimating takeoff performance'
+    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
+    #print ' Estimating landing performance'
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    
+    fldlength      = Data()
+    fldlength.TOFL = TOFL
+    fldlength.LFL  = LFL
+    
+    return fldlength
+
+# ----------------------------------------------------------------------
 #   Evaluate the Mission
 # ----------------------------------------------------------------------
 def evaluate_mission(vehicle,mission):
@@ -654,23 +669,30 @@ def post_process(vehicle,mission,results):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
-        axes = fig.add_subplot(3,1,1)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Lift (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,2)
+        axes = fig.add_subplot(4,1,2)
         axes.plot( time , Drag , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(4,1,3)
         axes.plot( time , Thrust , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Thrust (N)')
+        axes.grid(True)        
+        
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Pitching_moment , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Pitching_moment (~)')
         axes.grid(True)
         
     # ------------------------------------------------------------------    

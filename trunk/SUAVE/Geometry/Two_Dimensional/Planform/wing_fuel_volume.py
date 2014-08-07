@@ -33,7 +33,7 @@ def wing_fuel_volume(wing):
 
         Assumptions:
       		Wing fuel capacity calculated according to Torenbeek, E., "Advanced
-		Aircraft Design", 2013 (equation 10.30)
+    Aircraft Design", 2013 (equation 10.30)
 
     """
 
@@ -53,7 +53,7 @@ def wing_fuel_volume(wing):
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
 
-	# imports
+        # imports
     import SUAVE
     import scipy as sp
     import pylab as plt
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         plt.figure(tc); plt.hold
         for AR in range(len(AR_vec)):
             plt.plot(sw_array , wing_fuel[tc,:,AR] ,'bo-', \
-                label = 't/c: ' +  str(tc_vec[tc]) + ' AR = ' + str(AR_vec[AR]))
+                     label = 't/c: ' +  str(tc_vec[tc]) + ' AR = ' + str(AR_vec[AR]))
         plt.xlabel('Wing Area (deg)'); plt.ylabel('Fuel Volume (m3)')
         plt.title(title); plt.grid(True)
         legend = plt.legend(loc='upper right', shadow = 'true')

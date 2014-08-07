@@ -43,17 +43,17 @@ def main():
     m_guess=  68262.5002421 
     Ereq_guess = 148551581278.0                 # required energy
     Preq_guess=  11195719.6775
-    disp_results=1                              #1 for displaying results, 0 for optimize    
+    disp_results=0                              #1 for displaying results, 0 for optimize    
     target_range=3600
     
-    wclimb1=2000.*(Units.ft/Units.minute)
-    wclimb2=1500.*(Units.ft/Units.minute)
-    wclimb3=1500.*(Units.ft/Units.minute)
+    wclimb1=3000.*(Units.ft/Units.minute)
+    wclimb2=2500.*(Units.ft/Units.minute)
+    wclimb3=1800.*(Units.ft/Units.minute)
     wclimb4=900.*(Units.ft/Units.minute)
     wclimb5=200.*(Units.ft/Units.minute)
     
-    wdesc1=1600.*(Units.ft/Units.minute)
-    wdesc2=1500.*(Units.ft/Units.minute)
+    wdesc1=2600.*(Units.ft/Units.minute)
+    wdesc2=2300.*(Units.ft/Units.minute)
     wdesc3=1500.*(Units.ft/Units.minute)
     
     Vdesc1=230.
@@ -140,7 +140,7 @@ def main():
    3.29330607e+00 , 2.19344850e+00 , .22925708e+00 ,  1.11520327e-01,
    6.3210909e+01 ,  1.18885066e+02 ,  1.75558962e+02 ,  1.55906624e+02,
    1.78475625e+02,   1.97106394e+02 ,  3.17647633e+00 ,  1.10782912e-01,
-   3.17050410e+00]
+   3.38150410e+00]
     
     
     
@@ -270,9 +270,9 @@ def run(inputs):                #sizing loop to enable optimization
     tol=.1 #difference in mass in kg between iterations
     dm=10000. #initialize error
     if disp_results==0:
-        max_iter=10
+        max_iter=20
     else:
-        max_iter=5
+        max_iter=30
     j=0
      
    
@@ -379,6 +379,8 @@ def run(inputs):                #sizing loop to enable optimization
     iteration_number+=1
     print 't=', time2-time1, 'seconds'
     print 'iteration number=', iteration_number
+    print inputs
+    print 'm=', results.Segments[-1].conditions.weights.total_mass[-1,0]
     """
     if np.isnan(vehicle.Mass_Props.m_full):
         vehicle.Mass_Props.m_full=1E50  #put penalty in case nan values appear
@@ -479,9 +481,9 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #wing.alpha_tc    = -1.0                   #
     #wing.alpha_rc   =3.0
     #wing.alpha_rc   =alpha_rc
-    wing.twist_rc   =alpha_rc
+    wing.twist_rc   =alpha_rc*Units.degrees 
     #wing.alpha_tc   =alpha_tc
-    wing.twist_tc   =alpha_tc
+    wing.twist_tc   =alpha_tc*Units.degrees 
  
     wing.highlift    = False                 
     
@@ -516,6 +518,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     c_ht                 =1.   #horizontal tail sizing coefficient
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(horizontal,wing,vehicle.w2h,c_ht )
+    
     horizontal.area    = horizontal.sref # Area of the horizontal tail
     horizontal.chord_mac  = 8.0                   #
     horizontal.S_exposed  = 0.8*horizontal.area_wetted  #
@@ -523,9 +526,9 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #wing.Cl         = 0.2                   #
     horizontal.e          = 0.9                   #
     #horizontal.alpha_rc   = 2.0                   #
-    horizontal.twist_rc   =2.0
+    horizontal.twist_rc   =2.0*Units.degrees 
     #horizontal.alpha_tc   = 2.0                   #
-    horizontal.twist_tc   =2.0
+    horizontal.twist_tc   =2.0*Units.degrees 
     # add to vehicle
     vehicle.append_component(horizontal)
 
@@ -595,7 +598,8 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     
     atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
     p1, T1, rho1, a1, mew1 = atm.compute_values(0.)
-    p2, T2, rho2, a2, mew2 = atm.compute_values(max_alt)
+    p2, T2, rho2, a2, mew2 = atm.compute_values(max_alt*Units.km)
+  
     
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
     sizing_segment.M   = 230./a2        
@@ -652,7 +656,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     DuctedFan.Mass_Props.mass=propulsion_mass*DuctedFan.no_of_engines
     DuctedFan.battery=battery
     #DuctedFan.battery_lis=battery_lis
-    fuselage.diff_p=max(abs(p2-p1*2./3.),0)   #assume its pressurized to 2/3 atmospheric pressure
+    fuselage.diff_p=max(abs(p2-p1),0)   #assume its pressurized to 2/3 atmospheric pressure
     
     """
     fus_weight=SUAVE.Methods.Weights.Correlations.Tube_Wing.tube(S_fus*(Units.meter**2), 
@@ -696,8 +700,13 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #m_air=0.              #mass gain from the lithium air battery 
     engine1 = SUAVE.Structure.Data()
     engine1.thrust_sls  =0.001;  #dummy variable to make sizing easier
-    weight =SUAVE.Methods.Weights.Correlations. Tube_Wing.empty(engine1,wing,vehicle,fuselage,horizontal,vertical)
-    vehicle.Mass_Props.m_full=weight.empty+battery.Mass_Props.mass+DuctedFan.Mass_Props.mass+(vehicle.num_pax+4.)*250.*Units.lb
+    '''
+    battery.Mass_Props.mass=0
+    DuctedFan.Mass_Props.mass=0
+    m_air=0
+    '''
+    weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine1,wing,vehicle,fuselage,horizontal,vertical)
+    vehicle.Mass_Props.m_full=weight.empty+battery.Mass_Props.mass+vehicle.num_eng*DuctedFan.Mass_Props.mass+(vehicle.num_pax+4.)*250.*Units.lb
     """
     vehicle.Mass_Props.m_full=fuselage.Mass_Props.mass+main_wing.Mass_Props.mass+battery.Mass_Props.mass+battery_lis.Mass_Props.mass+m_landing_gear+ \
     v_stab.Mass_Props.mass+h_stab.Mass_Props.mass+m_pl+DuctedFan.Mass_Props.mass+m_fuel+m_systems+m_air
@@ -714,10 +723,12 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     # --- Cruise Configuration ---
     config = vehicle.new_configuration("cruise")
     # this configuration is derived from vehicle.Configs.takeoff
+    
     '''
     print 'battery=', battery.Mass_Props.mass
     print 'motor=', motor_mass
     print 'ducted fan=',DuctedFan.Mass_Props.mass-motor_mass
+    print 'turbofan=', weight.propulsion
     print 'passenger=', (vehicle.num_pax+4.)*250.*Units.lb
     print 'air=', m_air
     print 'wing=', weight.wing
@@ -727,7 +738,10 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     print 'landing gear=', weight.landing_gear
     print 'systems=', weight.systems
     print 'furnishing=', weight.wt_furnish
+    print 'vehicle mass=', vehicle.Mass_Props.m_full
+    print 'empty mass=', weight.empty
     '''
+    
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
