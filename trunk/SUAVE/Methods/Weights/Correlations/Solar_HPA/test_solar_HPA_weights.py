@@ -50,4 +50,4 @@ aircraft.Ltb  = wing.sref*((2.+1./8.)/9.)
 
 weights = empty.empty(wing,aircraft,horizontal,vertical)
 
-print weights
+#print weights

@@ -71,8 +71,11 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         self.configuration.number_panels_chordwise = 1
         
         self.conditions_table = Conditions(
-            angle_of_attack = np.array([-10,-5,0,5,10.0]) * Units.deg ,
+            angle_of_attack = np.array([-60.,-30.,-20.,-15.,-10.,-5.,0.,5.,10.,15.,20.,30.,60.]) * Units.deg ,
         )
+        #self.conditions_table = Conditions(
+            #angle_of_attack = np.linspace(-70,70,num=7) * Units.deg ,
+        #)        
         
         self.models = Data()
         
@@ -110,6 +113,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
             
             # these functions are inherited from Aerodynamics() or overridden
             CL[i] = calculate_lift_vortex_lattice(konditions, configuration, geometry)
+
             
         # store table
         conditions_table.lift_coefficient = CL
@@ -127,6 +131,9 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         AoA_data = conditions_table.angle_of_attack
         #
         CL_data  = conditions_table.lift_coefficient
+        
+        print(CL_data)
+        print(AoA_data)
         
         # pack for surrogate
         X_data = np.array([AoA_data]).T        

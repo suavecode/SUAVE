@@ -55,8 +55,6 @@ def wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,GW):
     WwTE   = bw * 2.77e-2
     Wwc    = Sw * 3.08e-2
     
-    print(Wws)
-    
     weight = Wws + Wwr + Wwer + WwLE + WwTE + Wwc
     
     return weight

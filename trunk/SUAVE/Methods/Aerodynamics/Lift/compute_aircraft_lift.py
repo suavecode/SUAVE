@@ -94,7 +94,12 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
     X_interp = AoA
     
     # interpolate
-    wings_lift = wings_lift_model(X_interp)  
+    wings_lift = wings_lift_model(X_interp)
+
+    #print('lift')
+    #print(wings_lift)
+    #print('AoA')
+    #print(X_interp*180/np.pi)
     
     # compressibility correction
     compress_corr = 1./(np.sqrt(1.-Mc**2.))
