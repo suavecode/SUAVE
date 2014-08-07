@@ -131,8 +131,11 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         # pack for surrogate
         X_data = np.array([AoA_data]).T        
         
+        X_data = np.reshape(X_data,-1)
         # assign models
-        Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        #Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        Interpolation = np.poly1d(np.polyfit(X_data, CL_data ,1))
+        
         
         #Interpolation = Fidelity_Zero.Interpolation
         self.models.lift_coefficient = Interpolation
