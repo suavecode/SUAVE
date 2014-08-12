@@ -1,0 +1,44 @@
+#payload.py
+# 
+# Created:  Emilio Botero, Jun 2014
+# Modified:  
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+# suave imports
+import SUAVE
+
+# package imports
+import numpy as np
+import scipy as sp
+from SUAVE.Attributes import Units
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
+
+# ----------------------------------------------------------------------
+#  Payload Class
+# ----------------------------------------------------------------------  
+    
+class Payload(Energy_Component):
+    
+    def __defaults__(self):
+        
+        self.draw = 0.0
+        
+    def power(self):
+        """ The avionics input power
+            
+            Inputs:
+                draw
+               
+            Outputs:
+                power output
+               
+            Assumptions:
+                This device just draws power
+               
+        """
+        self.outputs.power = self.draw
+        
+        return self.draw 

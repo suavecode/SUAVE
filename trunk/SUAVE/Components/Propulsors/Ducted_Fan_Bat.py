@@ -8,7 +8,7 @@ import numpy #as np
 from SUAVE.Structure import Data, Container
 from Propulsor import Propulsor
 import Segments
-from SUAVE.Components.Energy.Storages import Battery
+#from SUAVE.Components.Energy.Storages import Battery
 # from SUAVE.Methods.Power import RunFuelCell
 # from SUAVE.Components.Energy.Converters import Fuel_Cell
 

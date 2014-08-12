@@ -58,7 +58,7 @@ class Container(Physical_Component.Container):
             example: find_instances(Propulsors.Turbojet) > return all Turbojets
     """
     
-    def __call__(self,eta,conditions,numerics):
+    def __call__(self,conditions,numerics):
         
         segment=Data()
         segment.q  = conditions.freestream.dynamic_pressure[:,0]
@@ -67,6 +67,8 @@ class Container(Physical_Component.Container):
         segment.M  = conditions.freestream.mach_number[:,0]
         segment.T  = conditions.freestream.temperature[:,0]
         segment.p  = conditions.freestream.pressure[:,0]
+        
+        eta        = conditions.propulsion.throttle[:,0]
         
         F    = np.zeros_like(eta)
         mdot = np.zeros_like(eta)

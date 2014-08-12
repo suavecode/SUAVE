@@ -1,71 +1,99 @@
-"""Battery.Py: calculates battery discharge losses when run """
-# M. Vegh
-#
-"""Sources are the "Requirements for a Hydrogen Powered All-Electric
-Manned Helicopter" Anubhav Datta and Wayne Johnson, as well as 
-the EADS Voltair paper by S. Stueckl, J. van Toor, H. Lobentanzer
-"""
-# ------------------------------------------------------------
-#  Imports 
-# ------------------------------------------------------------
+#Battery.py
+# 
+# Created:  Emilio Botero, Jun 2014
+# Modified:  
 
-from Storage import Storage
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+# suave imports
+import SUAVE
+
+# package imports
 import numpy as np
-# ------------------------------------------------------------
-#  Battery
-# ------------------------------------------------------------
+import scipy as sp
+from SUAVE.Attributes import Units
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
+
+# ----------------------------------------------------------------------
+#  Battery Class
+# ----------------------------------------------------------------------    
+
+class Battery(Energy_Component):
     
-class Battery(Storage):
-    """ SUAVE.Attributes.Components.Energy.Storage.Battery()
-    """
     def __defaults__(self):
-        self.tag = 'Battery'
-        self.MassDensity = 0.0,       # kg/m^3
-        self.SpecificEnergy = 0.0     # W-hr/kg
-        self.SpecificPower = 0.0      # kW/kg
-        self.MaxPower=0.0             # W
-        self.TotalEnergy = 0.0        # J
-        self.CurrentEnergy=0.0        # J
-        self.Volume = 0.0             # m^3
-        self.R0=.07446                #base resistance (ohms)
         
-    def __call__(self,power, t, Icur=90):
-        """
-        Inputs:
-        power=power requirements for the time step [W]
-        t=time step to calculate energy consumption in the battery [s]
+        self.type = 'Li-Ion'
+        self.Mass_Props.mass = 0.0
+        self.CurrentEnergy = 0.0
+        self.R0 = 0.07446
         
-        Reads:
-        power
- 
-    
-        Returns:
-        Ploss= additional discharge power losses from the battery [W]
-        """
-        
-        x=np.divide(self.CurrentEnergy,self.TotalEnergy)
-        
-        if self.MaxPower<power:
-            print "Warning, battery not powerful enough"          
-        C=3600.*power/self.TotalEnergy        #C rate of the power output
-        Eloss_ideal=power*t                  #ideal power losses
-        f=1-np.exp(-20*x)-np.exp(-20*(1-x))  #empirical value for discharge
-        
-        if x<0:                              #reduce discharge losses when model no longer makes sense
-            f=0
-        R=self.R0*(1+C*f)                    #model discharge characteristics based on changing resistance
-        Ploss=(Icur**2)*R                    #calculate resistive losses
-        if power!=0:
-            self.CurrentEnergy=self.CurrentEnergy-Eloss_ideal-Ploss*t
-
-        if power<0:
-            self.CurrentEnergy=self.CurrentEnergy-Eloss_ideal
-            if self.CurrentEnergy>self.TotalEnergy:
-                self.CurrentEnergy=self.TotalEnergy
+    def max_energy(self):
+        """ The maximum energy the battery can hold
             
-        if self.CurrentEnergy<0:
-            print 'Warning, battery out of energy'
+            Inputs:
+                battery mass
+                battery type
+               
+            Outputs:
+                maximum energy the battery can hold
+               
+            Assumptions:
+                This is a simple battery
+               
+        """
         
-
-            return Ploss
+        #These need to be fixed
+        if self.type=='Li-Ion':
+            return 0.90*(10**6)*self.Mass_Props.mass
+        
+        elif self.type=='Li-Po':
+            return 0.90*(10**6)*self.Mass_Props.mass
+        
+        elif self.type=='Li-S':
+            return 500.*3600.*self.Mass_Props.mass        
     
+    def energy_calc(self,numerics):
+        
+        #Unpack
+        Ibat  = self.inputs.batlogic.Ibat
+        pbat  = self.inputs.batlogic.pbat
+        edraw = self.inputs.batlogic.e
+        
+        Rbat  = self.R0
+        I     = numerics.integrate_time
+        
+        #X value from Mike V.'s battery model
+        x = np.divide(self.CurrentEnergy,self.max_energy())[:,0]
+        
+        #C rate from Mike V.'s battery model
+        C = 3600.*pbat/self.max_energy()
+        
+        f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) #empirical value for discharge
+        
+        f[x<0.0] = 0.0
+        
+        R = Rbat*(1+C*f)       #model discharge characteristics based on changing resistance
+        Ploss = (Ibat**2)*R       #calculate resistive losses
+
+        eloss = np.dot(I,Ploss)
+        
+        #Skip the first energy, since it should already be known
+        for ii in range(1,len(Ibat)):
+            if pbat[ii]!=0:
+                self.CurrentEnergy[ii]=self.CurrentEnergy[ii-1]-edraw[ii]-eloss[ii]
+    
+            if pbat[ii]<0:
+                self.CurrentEnergy[ii]=self.CurrentEnergy[ii-1]-eloss[ii]
+                if self.CurrentEnergy[ii]>self.max_energy():
+                    self.CurrentEnergy[ii]=self.max_energy()
+                
+            if self.CurrentEnergy[ii]<0:
+                pass
+                #print 'Warning, battery out of energy'  
+                #Do nothing really!
+                
+        print self.CurrentEnergy        
+        
+        return  

@@ -322,17 +322,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         N = self.numerics.n_control_points
         
-        eta = conditions.propulsion.throttle[:,0]
-        
-        #state = Data()
-        #state.q  = conditions.freestream.dynamic_pressure[:,0]
-        #state.g0 = conditions.freestream.gravity[:,0]
-        #state.V  = conditions.freestream.velocity[:,0]
-        #state.M  = conditions.freestream.mach_number[:,0]
-        #state.T  = conditions.freestream.temperature[:,0]
-        #state.p  = conditions.freestream.pressure[:,0]
-        
-        F, mdot, P = propulsion_model(eta, conditions,numerics)
+        F, mdot, P = propulsion_model(conditions,numerics)
         
         F_vec = np.zeros([N,3])
         F_vec[:,0] = F[:]

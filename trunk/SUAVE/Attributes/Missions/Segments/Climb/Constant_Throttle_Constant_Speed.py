@@ -26,7 +26,7 @@ class Constant_Throttle_Constant_Speed(Climb_Segment):
     # ------------------------------------------------------------------  
     
     def __defaults__(self):
-        self.tag = 'Constant Mach, Constant Altitude Cruise'
+        self.tag = 'Constant Throttle, Constant Speed Climb'
         
         # --- User Inputs
         
