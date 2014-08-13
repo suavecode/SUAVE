@@ -118,6 +118,17 @@ class Solar_Network(Data):
         battery.inputs.batlogic = solar_logic.outputs.batlogic
         battery.energy_calc(numerics)
         
+        #Pack the conditions for outputs
+        conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
+        rpm                                  = motor.outputs.omega*60./(2.*np.pi)
+        conditions.propulsion.rpm            = np.reshape(rpm,np.shape(solar_flux.outputs.flux))
+        current                              = solar_logic.inputs.currentesc
+        conditions.propulsion.current        = np.reshape(current,np.shape(solar_flux.outputs.flux))
+        battery_draw                         = battery.inputs.batlogic.pbat
+        conditions.propulsion.battery_draw   = np.reshape(battery_draw,np.shape(solar_flux.outputs.flux))
+        battery_energy                       = battery.CurrentEnergy
+        conditions.propulsion.battery_energy = np.reshape(battery_energy,np.shape(solar_flux.outputs.flux))
+        
         mdot = np.zeros_like(F)
 
         F = self.num_motors * F

@@ -76,24 +76,9 @@ class Battery(Energy_Component):
         
         R = Rbat*(1+C*f)       #model discharge characteristics based on changing resistance
         Ploss = (Ibat**2)*R       #calculate resistive losses
-
         eloss = np.dot(I,Ploss)
-        
-        #Skip the first energy, since it should already be known
-        for ii in range(1,len(Ibat)):
-            if pbat[ii]!=0:
-                self.CurrentEnergy[ii]=self.CurrentEnergy[ii-1]-edraw[ii]-eloss[ii]
-    
-            if pbat[ii]<0:
-                self.CurrentEnergy[ii]=self.CurrentEnergy[ii-1]-eloss[ii]
-                if self.CurrentEnergy[ii]>self.max_energy():
-                    self.CurrentEnergy[ii]=self.max_energy()
-                
-            if self.CurrentEnergy[ii]<0:
-                pass
-                #print 'Warning, battery out of energy'  
-                #Do nothing really!
-                
-        print self.CurrentEnergy        
-        
+
+        self.CurrentEnergy = self.CurrentEnergy[0] + edraw + eloss
+        self.CurrentEnergy[self.CurrentEnergy>self.max_energy()] = self.max_energy()
+                    
         return  

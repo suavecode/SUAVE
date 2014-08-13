@@ -44,7 +44,7 @@ import scipy as sp
 class Fidelity_Zero(Aerodynamics_Surrogate):
     """ SUAVE.Attributes.Aerodynamics.Fidelity_Zero
         aerodynamic model that builds a surrogate model for clean wing 
-        lift, using vortex lattic, and various handbook methods
+        lift, using vortex lattice, and various handbook methods
         for everything else
         
         this class is callable, see self.__call__
