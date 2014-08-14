@@ -3,34 +3,36 @@ import numpy as np
 from numpy import cos, sin
 from orientation_product import orientation_product
 
-def angles_to_dcms(rotations,sequence='ZYX'):
+def angles_to_dcms(rotations,sequence=(2,1,0)):
     """ transform = angles_to_dcms([r1s,r2s,r3s],seq)
         builds euler angle rotation matrix
     
         Inputs:
             rotations = [r1s r2s r3s], column array of rotations
-            sequence = 'ZYX' (default)
-                       'ZXZ'
+            sequence = (2,1,0) (default)
+                       (2,1,2)
                        etc...
+                       a combination of three column indeces
         Outputs:
             transform = 3-dimensional array with direction cosine matricies
                         patterned along dimension zero
     """
     
     # transform map
-    Ts = {'X':Tx,'Y':Ty,'Z':Tz}
+    Ts = { 0:T0, 1:T1, 2:T2 }
     
     # a bunch of eyes
     transform = new_tensor(rotations[:,0])
     
     # build the tranform
-    for dim,angs in zip(sequence,rotations.T)[::-1]:
+    for dim in sequence[::-1]:
+        angs = rotations[:,dim]
         transform = orientation_product( transform, Ts[dim](angs) )
     
     # done!
     return transform
   
-def Tx(a):
+def T0(a):
     
     # T = np.array([[1,   0,  0],
     #               [0, cos,sin],
@@ -49,7 +51,7 @@ def Tx(a):
     return T
         
 
-def Ty(a):
+def T1(a):
     
     # T = np.array([[cos,0,-sin],
     #               [0  ,1,   0],
@@ -67,7 +69,7 @@ def Ty(a):
     
     return T
 
-def Tz(a):
+def T2(a):
     
     # T = np.array([[cos ,sin,0],
     #               [-sin,cos,0],
@@ -110,11 +112,11 @@ if __name__ == '__main__':
     
     n_t = 5
     
-    psi   = np.linspace(0,2,n_t)
-    theta = np.linspace(0,-2,n_t)
     phi   = np.zeros([n_t])
+    theta = np.linspace(0,-2,n_t)
+    psi   = np.linspace(0,2,n_t)
     
-    rotations = np.array([psi,theta,phi]).T
+    rotations = np.array([phi,theta,psi]).T
     
     Fx = np.linspace(0,10,n_t)
     Fy = np.linspace(0,10,n_t)
@@ -126,14 +128,26 @@ if __name__ == '__main__':
     print F
     print '\n'
     
-    T = angles_to_dcms(rotations,'ZYX')
+    T = angles_to_dcms(rotations,[2,1,0])
     
     print T
     print '\n'
     
     F2 = orientation_product(T,F)
     
+    F2_expected = np.array(
+        [[  0.        ,   0.        ,   0.        ],
+         [  4.17578046,   0.99539256,   0.56749556],
+         [  7.9402314 ,  -1.50584339,  -3.11209913],
+         [  8.04794057,  -6.95068339,  -7.46114288],
+         [  7.04074369, -13.25444263,  -8.64567399]]        
+    )
+    
     print F2
+    print '\n'
+    
+    print 'should be nearly zero:'
+    print np.sum(F2-F2_expected)
     print '\n'
     
     Tt = orientation_transpose(T)
@@ -142,7 +156,8 @@ if __name__ == '__main__':
     print F3
     print '\n'
     
-    print F - F3
+    print 'should be nearly zero:'
+    print np.sum(F - F3)
     
     
     

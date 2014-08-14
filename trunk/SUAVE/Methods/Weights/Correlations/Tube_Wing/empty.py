@@ -113,7 +113,7 @@ def empty(vehicle):
     ac_type    = vehicle.accessories  
     l_w2h      = vehicle.Wings['Horizontal Stabilizer'].origin[0] + vehicle.Wings['Horizontal Stabilizer'].aero_center[0] - vehicle.Wings['Main Wing'].origin[0] - vehicle.Wings['Main Wing'].aero_center[0] #Need to check this is the length of the horizontal tail moment arm
     
-    S_fus      = vehicle.Fuselages.Fuselage.cross_section_area
+    S_fus      = vehicle.Fuselages.Fuselage.wetted_area
     diff_p_fus = vehicle.Fuselages.Fuselage.differential_pressure
     w_fus      = vehicle.Fuselages.Fuselage.width
     h_fus      = vehicle.Fuselages.Fuselage.height

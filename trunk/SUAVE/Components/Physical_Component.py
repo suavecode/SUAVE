@@ -22,8 +22,6 @@ class Physical_Component(Component):
         self.Mass_Props = Mass_Props()
         self.position  = [0.0,0.0,0.0]
         self.symmetric = False
-        self.joints    = None
-        self.leafs     = None
     
 class Container(Component.Container):
     """ SUAVE.Components.Physical_Component.Container()

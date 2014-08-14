@@ -439,6 +439,44 @@ class OrderedDict(Dict):
         # done!
         return self
 
+    def do_recursive(self,method,other=None,default=None):
+        
+        # result data structure
+        klass = self.__class__
+        from SUAVE.Plugins.VyPy.data import DataBunch
+        if isinstance(klass,DataBunch):
+            klass = DataBunch
+        result = klass()
+                
+        # the update function
+        def do_operation(A,B,C):
+            for k,a in A.iteritems():
+                if isinstance(B,OrderedDict):
+                    b = B[k]
+                else:
+                    b = B
+                # recursion
+                if isinstance(a,OrderedDict):
+                    c = klass()
+                    C[k] = c
+                    do_operation(a,b,c)
+                # method
+                else:
+                    if b is None:
+                        c = method(a)
+                    else:
+                        c = method(a,b)
+                    if not c is None:
+                        C[k] = c
+                #: if type
+            #: for each key,value
+        #: def do_operation()
+        
+        # do the update!
+        do_operation(self,other,result)    
+        
+        return result
+
 
 # for rebuilding dictionaries with attributes
 def _reconstructor(klass,items):
@@ -481,6 +519,33 @@ if __name__ == '__main__':
 
     print ''
     print p
+    
+    
+    import numpy as np
+    a = OrderedDict()
+    a['f'] = 1
+    a['g'] = 2
+    a['b'] = OrderedDict()
+    a['b']['h'] = np.array([1,2,3])
+    
+    from copy import deepcopy
+    b = deepcopy(a)    
+    
+    def method(self,other):
+        return self-other
+    
+    c = a.do_recursive(method,b)
+    
+    print c
+    
+    def method(self):
+        if isinstance(self,np.ndarray):
+            return self[-1]
+        else:
+            return None
+    
+    d = a.do_recursive(method)
+    print d    
     
     
     
