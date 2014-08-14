@@ -77,10 +77,14 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
         if i_wing == 0:
             Sref_main = wing.sref  
             
-        main_fuselage = fuselages.Fuselage
+        if len(geometry.Fuselages) > 0:
+            main_fuselage = fuselages.Fuselage
+        else:
+            main_fuselage = geometry.Fuselages
         num_engines = propulsor.no_of_engines
         
-        drag99 = drag_div(0.99)
+        cl = conditions.aerodynamics.lift_coefficient
+        drag99 = drag_div(0.99,wing,i_wing,cl)
         (drag105,a,b) = wave_drag(conditions, 
                             configuration, 
                             main_fuselage, 
@@ -92,11 +96,15 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
             
             
             if Mc[ii] <= 0.99:
-                cd_c[ii] = drag_div(Mc[ii])
+                cl = conditions.aerodynamics.lift_coefficient
+                cd_c[ii] = drag_div(Mc[ii],wing,i_wing,cl[ii])
             
             elif Mc[ii] > 0.99 and Mc[ii] < 1.05:
                 Mc[ii] = 0.99
-                cd_c[ii] = drag99 + (drag105-drag99)*(Mc[ii]-0.99)/(1.05-0.99)
+                if type(drag99) is float:
+                    cd_c[ii] = drag99 + (drag105-drag99)*(Mc[ii]-0.99)/(1.05-0.99)
+                else:
+                    cd_c[ii] = drag99[ii] + (drag105-drag99[ii])*(Mc[ii]-0.99)/(1.05-0.99)
                            
                 
             else:
@@ -135,11 +143,41 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
     return total_compressibility_drag
 
 
-def drag_div(Mc_ii):
+def drag_div(Mc_ii,wing,i_wing,cl):
 
-    # divergence mach number
-    MDiv = 0.95
-    mcc = 0.93
+    if wing.highmach is True:
+        
+        # divergence mach number
+        MDiv = 0.95
+        mcc = 0.93
+        
+    else:
+        # unpack wing
+        t_c_w   = wing.t_c
+        sweep_w = wing.sweep
+        
+        if i_wing == 0:
+            cl_w = cl
+        else:
+            cl_w = 0
+    
+        # get effective Cl and sweep
+        tc = t_c_w /(np.cos(sweep_w))
+        cl = cl_w / (np.cos(sweep_w))**2
+    
+        # compressibility drag based on regressed fits from AA241
+        mcc_cos_ws = 0.922321524499352       \
+                   - 1.153885166170620*tc    \
+                   - 0.304541067183461*cl    \
+                   + 0.332881324404729*tc**2 \
+                   + 0.467317361111105*tc*cl \
+                   + 0.087490431201549*cl**2
+            
+        # crest-critical mach number, corrected for wing sweep
+        mcc = mcc_cos_ws / np.cos(sweep_w)
+        
+        # divergence mach number
+        MDiv = mcc * ( 1.02 + 0.08*(1 - np.cos(sweep_w)) )        
     
     # divergence ratio
     mo_mc = Mc_ii/mcc
@@ -167,10 +205,13 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     if i_wing != 0:
         cd_c[ii] = cd_c[ii]*wing.sref/Sref_main
     if i_wing == 0:
-        fuse_drag = wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
-        prop_drag = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia,Sref_main)*propulsor.no_of_engines
-        cd_c[ii] = cd_c[ii] + wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
-        cd_c[ii] = cd_c[ii] + wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.no_of_engines
+        if len(main_fuselage) > 0:
+            fuse_drag = wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
+        else:
+            fuse_drag = 0.0
+        prop_drag = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.no_of_engines
+        cd_c[ii] = cd_c[ii] + fuse_drag
+        cd_c[ii] = cd_c[ii] + prop_drag
     mcc = 0
     MDiv = 0
 

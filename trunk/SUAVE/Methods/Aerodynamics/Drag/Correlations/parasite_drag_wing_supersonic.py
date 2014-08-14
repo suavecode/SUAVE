@@ -9,6 +9,7 @@
 
 # local imports
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 
 # suave imports
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
@@ -55,10 +56,11 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
     arw_w        = wing.ar
     span_w       = wing.span    
     S_exposed_w  = wing.S_exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
-    S_affected_w = wing.S_affected    
+    S_affected_w = wing.S_affected  
+    xt           = wing.transistion_x
     
     # compute wetted area # TODO: calcualte as preprocessing
-    Swet = 2. * (1.0+ 0.2*t_c_w) * S_exposed_w    
+    Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w    
     
     # conditions
     Mc  = freestream.mach_number
@@ -72,7 +74,8 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
     Re_w = roc * V * mac_w/muc    
     
     # skin friction  coefficient
-    cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
+    #cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
+    cf_w, k_comp, k_reyn = compressible_mixed_flat_plate(Re_w,Mc,Tc,xt)
 
     # correction for airfoils
     k_w = np.array([[0.0]] * len(Mc))
@@ -86,7 +89,7 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
                         / (2.*(1.-(Mc[i]*np.cos(sweep_w))**2.))       
             
         else:
-            k_w[i] = 1.
+            k_w[i] = 1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
     
     # --------------------------------------------------------
     # find the final result

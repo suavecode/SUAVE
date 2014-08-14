@@ -94,6 +94,7 @@ def parasite_drag_fuselage_supersonic(conditions,configuration,fuselage):
     
     # --------------------------------------------------------
     # find the final result    
+    #print k_fus[-1] * cf_fus[-1] * Swet
     fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
     # --------------------------------------------------------
     

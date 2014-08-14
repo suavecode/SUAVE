@@ -91,6 +91,8 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         
         # increment
         #total_compressibility_drag += cd_c  ## todo when there is a lift break down by wing
+        if mach[15] > 0.85 and cl[15] > 0.1:
+            h = 0        
         
         # dump data to conditions
         wing_results = Result(

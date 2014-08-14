@@ -38,6 +38,7 @@ class Wing(Lofted_Body):
         self.Sections     = SectionContainer()
         self.Segments     = SegmentContainer()
         self.highlift     = False
+        self.highmach     = False
         self.flaps_chord  = 0.0
         self.flaps_angle  = 0.0
         self.slats_angle  = 0.0
@@ -45,7 +46,8 @@ class Wing(Lofted_Body):
         self.flap_type    = 'none'
         self.S_affected   = 0.
         self.vertical     = False
-          
+        self.vortexlift   = False
+        self.transistion_x=0.0     # Normalized 0 to 1
         
     def append_segment(self,segment):
         """ adds a segment to the wing """

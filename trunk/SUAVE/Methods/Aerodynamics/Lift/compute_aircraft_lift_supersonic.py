@@ -118,7 +118,10 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
             #print wings_lift_model(X_interp)
             wings_lift[i] = wings_lift_model(X_interp[i]) + vortex_lift(X_interp[i],configuration,wing)
             #print wings_lift[i]
-            vortex_cl[i] = vortex_lift(X_interp[i],configuration,wing)
+            if wing.vortexlift is True:
+                vortex_cl[i] = vortex_lift(X_interp[i],configuration,wing)
+            else:
+                vortex_cl[i] = 0.0
             
             # correct lift
             wings_lift_comp[i] = wings_lift[i] * compress_corr[i]            

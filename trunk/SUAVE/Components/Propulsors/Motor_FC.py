@@ -4,6 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Structure import Data
 # from SUAVE.Methods.Power import RunFuelCell
 from Propulsor import Propulsor
@@ -22,25 +23,27 @@ class Motor_FC(Propulsor):   #take simple engine module and power it with a fuel
         self.F_max_static = 0.0         # static thrust corresponding to max throttle
         self.mdot_min_static = 0.0      # mass flow corresponding to min throttle
         self.mdot_max_static = 0.0      # mass flow corresponding to max throttle
+        self.propellant = SUAVE.Attributes.Propellants.Jet_A1()
+        self.e = 0.8
+        
+    def sizing(self,state):
+        mach = state.M
+        temp = state.T
+        gamma = 1.4
+        R = 286.9
+        a = np.sqrt(gamma*R*temp)
+        U = mach*a
+        P = self.F_max_static*U
+        spec_energy = self.propellant.specific_energy
+        self.mdot_max_static = P/self.e/self.propellant.specific_energy
 
     def __call__(self,eta,segment):
-
-        # unpack fuel cell
-        config   = segment.config
-        fuel_cell = config.Energy.Converters['Fuel_Cell']
         
 
         F = self.F_min_static + (self.F_max_static - self.F_min_static)*eta
-        #mdot = mdot_min  + (mdot_max - mdot_min)*eta
-        
-        Preqfc=abs(copy.copy(segment.V*F))
+        mdot = self.mdot_min_static + (self.mdot_max_static - self.mdot_min_static)*eta
    
-                
-   
-        #print segment.V  
         CF = F/(segment.q*np.pi*(self.D/2)**2)
-        mdot1 = fuel_cell(Preqfc)
-        mdot=mdot1[0] #reassign to np array
 
         Isp = F/(mdot*segment.g0)
         #eta_Pe=F*segment.V/Preqfc

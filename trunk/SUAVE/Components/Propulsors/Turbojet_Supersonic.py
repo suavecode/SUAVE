@@ -880,6 +880,13 @@ class Turbojet_SupersonicPASS(Propulsor):
         #-------if areas specified-----------------------------
         fuel_rate=mdot_core*f*no_eng
         
+        #if min(throttle) < 0:
+            #print throttle
+            #print('Negative Throttle')
+            ##raise('Negative Throttle')
+
+        
+        
         FD2=Fsp*ao*(1+aalpha)*mdot_core*no_eng*throttle
         mfuel=0.1019715*FD2*TSFC/3600
         #State.config.A_engine=A22

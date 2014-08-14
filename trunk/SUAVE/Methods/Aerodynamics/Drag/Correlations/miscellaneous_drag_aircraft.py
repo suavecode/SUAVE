@@ -50,7 +50,11 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     trim_correction_factor = configuration.trim_drag_correction_factor    
     propulsors             = geometry.Propulsors
     vehicle_reference_area = geometry.reference_area
-    ones_1col              = conditions.frames.inertial.time *0.+1
+    try:
+        ones_1col              = conditions.frames.inertial.time *0.+1
+    except:
+        print("Misc early return")
+        return 0.0
         
     # ------------------------------------------------------------------
     #   Control surface gap drag

@@ -104,6 +104,13 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
     
     # total lift, accounting one fuselage
     aircraft_lift_total = wings_lift_comp * fus_correction 
+    #print("From compute_aircraft_lift")
+    #print("AoA")
+    #print AoA
+    #print("aircraft_lift_total")
+    #print aircraft_lift_total
+    #print Mc
+    #raw_input()    
     
     # store results
     lift_results = Result(
