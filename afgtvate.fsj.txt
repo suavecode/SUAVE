@@ -1,0 +1,42 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   scripts/experimental/tut_mission_Boeing_737800_full_aircraft.py
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   scripts/experimental/test_Concorde.py
+#	modified:   trunk/SUAVE/Components/Propulsors/Motor_FC.py
+#	modified:   trunk/SUAVE/Components/Propulsors/Turbojet_Supersonic.py
+#	modified:   trunk/SUAVE/Components/Propulsors/__init__.py
+#	modified:   trunk/SUAVE/Components/Wings/Wing.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/compressibility_drag_total_supersonic.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/compressibility_drag_wing.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/induced_drag_aircraft.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/induced_drag_aircraft_supersonic.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/miscellaneous_drag_aircraft.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_aircraft_supersonic.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_wing.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_wing_supersonic.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Lift/compute_aircraft_lift.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Lift/compute_aircraft_lift_supersonic.py
+#	modified:   trunk/SUAVE/Methods/Aerodynamics/Lift/linear_supersonic_lift.py
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	scripts/experimental/fuel_cell_network.py
+#	scripts/experimental/solar_energy_network_5.py
+#	scripts/experimental/test_AS2.py
+#	scripts/experimental/test_Concorde_FC.py
+#	scripts/experimental/test_Concorde_for_UM.py
+#	scripts/experimental/test_SBiDirFW68_for_UM.py
+#	scripts/experimental/test_SBiDirFW78_for_UM.py
+#	scripts/experimental/test_mission_NEWHBSIAwithEnergyNetwork2.py
+
