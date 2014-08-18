@@ -577,10 +577,10 @@ class Network(Data):
 
     
     # manage process with a driver function
-    def evaluate(self,eta,conditions):
+    def evaluate(self,conditions,numerics):
     
-        # unpack
-        
+        # unpack to shorter component names
+        # table the equal signs
   
 
         self.ram(conditions)
@@ -702,7 +702,7 @@ class Network(Data):
 
 
        # return F,mdot,Isp
-        return F[:,0],mdot[:,0],P[:,0]
+        return F[:,0],mdot[:,0],P[:,0]  #return the 2d array instead of the 1D array
 
             
     __call__ = evaluate
@@ -713,7 +713,9 @@ class Network(Data):
 # ----------------------------------------------------------------------
 #   Module Tests
 # ----------------------------------------------------------------------
-
+#make 2 test scripts
+#one like below
+#one full mission
 
 def test():
     
@@ -852,7 +854,7 @@ def test():
     gt_engine.fan_nozzle.pid = 1.0
 
     
-    
+    #power out as an output
     #fan    
     fan = SUAVE.Components.Energy.Gas_Turbine.Fan()
     fan.tag = 'fan'
@@ -871,8 +873,13 @@ def test():
     gt_engine.thrust.Pref=101325
     gt_engine.thrust.no_eng =1.0    
 
+
+    #byoass ratio  closer to fan
+    
+    numerics = Data()
+    
     eta=1.0
-    [F,mdot,Isp] = gt_engine(eta,conditions)
+    [F,mdot,Isp] = gt_engine(conditions,numerics)
     
     print F
     
