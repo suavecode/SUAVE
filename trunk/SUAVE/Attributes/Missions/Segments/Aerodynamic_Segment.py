@@ -103,6 +103,7 @@ class Aerodynamic_Segment(Base_Segment):
         # propulsion conditions
         conditions.propulsion.throttle           = ones_1col * 0
         conditions.propulsion.fuel_mass_rate     = ones_1col * 0
+        conditions.propulsion.battery_energy     = ones_1col * 0
         conditions.propulsion.thrust_breakdown   = Data()
         
         # weights conditions
@@ -129,6 +130,22 @@ class Aerodynamic_Segment(Base_Segment):
     #   Base_Segment.update_conditions()
     #   Base_Segment.solve_residuals()
     #   Base_Segment.post_process()
+    
+    def initialize_conditions(self, conditions, numerics, initials=None):
+        Base_Segment.initialize_conditions(self,conditions, numerics, initials)
+        
+        # process initials
+        if initials:
+            energy_initial = initials.propulsion.battery_energy[0,0]
+
+        else:
+            energy_initial = self.battery_energy
+            
+        # apply initials
+        conditions.propulsion.battery_energy[:,0]   = energy_initial
+        
+        return conditions
+    
     
     def update_conditions(self,conditions,numerics,unknowns):
         

@@ -15,6 +15,9 @@ import numpy as np
 import scipy as sp
 from SUAVE.Attributes import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Structure import (
+Data, Container, Data_Exception, Data_Warning,
+)
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -24,10 +27,13 @@ class Propeller(Energy_Component):
     
     def __defaults__(self):
         
-        self.Ct     = 0.0
-        self.Cp     = 0.0
-        self.radius = 0.0
-    
+        self.Prop_attributes      = Data
+        self.Prop_attributes.B    = 0.0    # Number of Blades
+        self.Prop_attributes.R    = 0.0    # Tip Radius
+        self.Prop_attributes.Rh   = 0.0    # Hub Radius
+        self.Prop_attributes.beta = 0.0    # Twist
+        self.Prop_attributes.c    = 0.0    # Chords
+        
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
                  
@@ -64,7 +70,7 @@ class Propeller(Energy_Component):
         a     = conditions.freestream.speed_of_sound
         
         nu    = mu/rho
-        tol   = 1e-8 # Convergence tolerance
+        tol   = 1e-5 # Convergence tolerance
            
         ######
         #Figure out how to enter airfoil data
@@ -102,7 +108,6 @@ class Propeller(Energy_Component):
         diff   = np.ones_like(c)
         
         while (np.any(diff>tol)):
-            #print(psi)
             Wa    = 0.5*Ua + 0.5*U*np.sin(psi)
             Wt    = 0.5*Ut + 0.5*U*np.cos(psi)           
             #va    = Wa - Ua
@@ -116,7 +121,6 @@ class Propeller(Energy_Component):
             f      = (B/2.)*(1.-r/R)/lamdaw
             piece  = np.exp(-f)
             piece[piece>1] = 1.0
-            #print(piece)
             F      = 2.*np.arccos(piece)/np.pi
             Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))**2.)
             
@@ -146,8 +150,8 @@ class Propeller(Energy_Component):
         Cd       = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
         epsilon  = Cd/Cl
         deltar   = (r[1]-r[0])
-        thrust   = rho[:,0]*B*np.transpose(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1))   #T
-        torque   = rho[:,0]*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1) #Q
+        thrust   = rho[:,0]*B*np.transpose(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1))
+        torque   = rho[:,0]*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)
         power    = torque*omega       
        
         D        = 2*R

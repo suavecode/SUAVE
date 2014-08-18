@@ -52,15 +52,14 @@ class Solar_Network(Data):
         solar_logic = self.solar_logic
         battery     = self.battery
         
-        #Time and location
+        #Time and location of the mission start, this needs to be added to the mission eventually
         conditions.frames.planet          = Data()
         conditions.frames.planet.lat      = 37.4300
         conditions.frames.planet.lon      = -122.1700
         conditions.frames.planet.timedate = time.strptime("Sat, Jun 21 08:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
         
-        ##Set battery energy
-        battery.CurrentEnergy = battery.max_energy()*np.ones_like(numerics.time)
-        #battery.CurrentEnergy
+        #Set battery energy
+        battery.CurrentEnergy = conditions.propulsion.battery_energy
         
         # step 1
         solar_flux.solar_flux(conditions)
@@ -85,9 +84,9 @@ class Solar_Network(Data):
         # step 6
         F, Q, P, Cplast = propeller.spin(conditions)
        
-        #iterate the Cp here
+        # iterate the Cp here
         diff = abs(Cplast-motor.propCp)
-        tol = 1e-8
+        tol = 1e-6
         
         while (np.any(diff>tol)):
             motor.propCp = Cplast #Change the Cp
@@ -96,21 +95,21 @@ class Solar_Network(Data):
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
             diff = abs(Cplast-motor.propCp) #Check to see if it converged
             
-        #Run the avionics
+        # Run the avionics
         avionics.power()
         # link
         solar_logic.inputs.pavionics =  avionics.outputs.power
-        #Run the payload
+        # Run the payload
         payload.power()
         # link
         solar_logic.inputs.ppayload = payload.outputs.power
-        #Run the motor for current
+        # Run the motor for current
         motor.current(conditions)
         # link
         esc.inputs.currentout =  motor.outputs.current
-        #Run the esc
+        # Run the esc
         esc.currentin()
-        # link, I cheated here
+        # link
         solar_logic.inputs.currentesc = esc.outputs.currentin*self.num_motors
         #
         solar_logic.logic(conditions,numerics)
@@ -119,20 +118,21 @@ class Solar_Network(Data):
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
-        conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)
-        conditions.propulsion.rpm            = np.reshape(rpm,np.shape(solar_flux.outputs.flux))
         current                              = solar_logic.inputs.currentesc
-        conditions.propulsion.current        = np.reshape(current,np.shape(solar_flux.outputs.flux))
         battery_draw                         = battery.inputs.batlogic.pbat
-        conditions.propulsion.battery_draw   = np.reshape(battery_draw,np.shape(solar_flux.outputs.flux))
         battery_energy                       = battery.CurrentEnergy
+        
+        conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
+        conditions.propulsion.rpm            = np.reshape(rpm,np.shape(solar_flux.outputs.flux))
+        conditions.propulsion.current        = np.reshape(current,np.shape(solar_flux.outputs.flux))
+        conditions.propulsion.battery_draw   = np.reshape(battery_draw,np.shape(solar_flux.outputs.flux))
         conditions.propulsion.battery_energy = np.reshape(battery_energy,np.shape(solar_flux.outputs.flux))
         
+        #Create the outputs
+        F    = self.num_motors * F
         mdot = np.zeros_like(F)
-
-        F = self.num_motors * F
-        P = self.num_motors * P
+        P    = self.num_motors * P
         
         return F, mdot, P
             

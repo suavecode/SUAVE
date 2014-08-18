@@ -65,11 +65,13 @@ class Motor(Energy_Component):
         #Omega
         #This is solved by setting the torque of the motor equal to the torque of the prop
         #It assumes that the Cp is constant
-        omega1  =   (np.pi**(3./2.)*((- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) + 16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))**(0.5) - np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
+        omega1  =   (np.pi**(3./2.)*((- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
+                    16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))**(0.5) - 
+                    np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
 
         # store to outputs
         self.outputs.omega = omega1
-
+        
         #Q = ((v-omega1/Kv)/Res -io)/Kv
         #P = Q*omega1
         
@@ -99,7 +101,7 @@ class Motor(Energy_Component):
         v    = self.inputs.voltage[:,0]
         etaG = self.etaG
         omeg = self.omega(conditions)*G
-        #io   = self.io + self.exp_i*(1-etaG)        
+        #io   = self.io + self.exp_i*(1-etaG)  
         
         i=(v-omeg/Kv)/Res
 

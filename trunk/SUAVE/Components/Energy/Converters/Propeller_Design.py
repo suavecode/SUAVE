@@ -65,7 +65,7 @@ def Propeller_Design(Prop_attributes):
     rho   = Prop_attributes.rho    # Density
     
     tol   = 1e-10# Convergence tolerance
-    N     = 30 # Number of Stations
+    N     = 20 # Number of Stations
     
     #Figure out how to enter airfoil data
 

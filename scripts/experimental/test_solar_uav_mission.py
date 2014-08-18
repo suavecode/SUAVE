@@ -67,7 +67,7 @@ def define_vehicle():
     vehicle.Mass_Props.m_takeoff    = 200.    # kg    
     
     # basic parameters
-    vehicle.delta         = 0.                 # deg
+    vehicle.delta         = 0.                # deg
     vehicle.S             = 80.               # m^2
     vehicle.Ultimate_Load = 2.0
     vehicle.qm            = 0.5*1.225*(25.**2.) #Max q
@@ -81,8 +81,8 @@ def define_vehicle():
     wing.tag = 'Main Wing'
     
     wing.sref      = vehicle.S     #
-    wing.span      = 20.          #m
-    wing.ar        = (wing.span**2)/vehicle.S           #
+    wing.span      = 40.          #m
+    wing.ar        = (wing.span**2)/vehicle.S 
     wing.sweep     = vehicle.delta * Units.deg #
     wing.symmetric = True          #
     wing.t_c       = 0.12          #
@@ -145,7 +145,7 @@ def define_vehicle():
     wing.tag = 'Vertical Stabilizer'    
     
     wing.sref      = vehicle.S*.1 #m^2
-    wing.ar        = (63.4**2)/200              #
+    wing.ar        = 20             #
     wing.span      = np.sqrt(wing.ar*wing.sref)
     wing.sweep     = 0 * Units.deg              #
     wing.symmetric = True          
@@ -172,33 +172,36 @@ def define_vehicle():
     #   Propulsor
     # ------------------------------------------------------------------
     
+    #Propeller design specs
+    design_altitude = 23.0 * Units.km
+    Velocity        = 30.0  # freestream m/s
+    RPM             = 5500.
+    Blades          = 2.0
+    Radius          = 1.0
+    Hub_Radius      = 0.0508
+    Thrust          = 0.0    #Specify either thrust or power to design for
+    Power           = 9000.0 #Specify either thrust or power to design for
+    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
+    
     #Design the Propeller
     Prop_attributes = Data()
-    Prop_attributes.nu     = 0.00001789/0.05
-    Prop_attributes.B      = 2. #Two blades
-    Prop_attributes.V      = 30.0 # freestream m/s
-    Prop_attributes.omega  = 5500.*(2.*np.pi/60.0)#rad/s
-    Prop_attributes.R      = 1.0
-    Prop_attributes.Rh     = 0.0508
+    Prop_attributes.nu     = mu/rho
+    Prop_attributes.B      = Blades 
+    Prop_attributes.V      = Velocity
+    Prop_attributes.omega  = RPM*(2.*np.pi/60.0)
+    Prop_attributes.R      = Radius
+    Prop_attributes.Rh     = Hub_Radius
     Prop_attributes.Des_CL = 0.7
-    Prop_attributes.rho    = 0.05
-    rho                    = Prop_attributes.rho
-
-    #Design to either thrust or power output
-    thrust = 0.0
-    power  = 9000.0
-    
-    V  = Prop_attributes.V
-    R  = Prop_attributes.R
-    
-    Prop_attributes.Tc = 2.*thrust/(rho*(V**2.)*np.pi*(R**2.))
-    Prop_attributes.Pc = 2.*power/(rho*(V**3.)*np.pi*(R**2.))
-    Prop_attributes = Propeller_Design(Prop_attributes)
+    Prop_attributes.rho    = rho
+    Prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
+    Prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
+    Prop_attributes        = Propeller_Design(Prop_attributes)
     
     # build network
     net = Solar_Network()
     net.num_motors = 1.
-    net.nacelle_dia = 1.5
+    net.nacelle_dia = 0.2
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Properties.solar()
@@ -212,7 +215,7 @@ def define_vehicle():
     
     # Component 3 the ESC
     esc = SUAVE.Components.Energy.Distributors.ESC()
-    esc.eff = 0.95 #Gundlach for brushless motors
+    esc.eff = 0.95 # Gundlach for brushless motors
     net.esc = esc
     
     # Component 5 the Propeller
@@ -224,17 +227,19 @@ def define_vehicle():
     motor = SUAVE.Components.Energy.Converters.Motor()
     motor.Res = 0.008
     motor.io = 4.5
-    motor.kv = 120.*(2.*np.pi/60.) #RPM/volt converted to rad/s     
+    motor.kv = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
     motor.propradius = prop.Prop_attributes.R
     motor.propCp = prop.Prop_attributes.Cp
-    motor.G   = 1. #Gear ratio
+    motor.G   = 1. # Gear ratio
     motor.etaG = 1. # Gear box efficiency
-    motor.exp_i = 160. #Expected current
+    motor.exp_i = 160. # Expected current
+    motor.Mass_Props.mass = 2.0
     net.motor = motor    
     
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Sinks.Payload()
     payload.draw = 250. #Watts 
+    payload.Mass_Props.mass = 25.0 * Units.kg
     net.payload = payload
     
     # Component 7 the Avionics
@@ -244,14 +249,14 @@ def define_vehicle():
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Battery()
-    bat.Mass_Props.mass = 83.      #kg
+    bat.Mass_Props.mass = 83.  #kg
     bat.type = 'Li-Ion'
     bat.R0 = 0.07446
     net.battery = bat
    
     #Component 9 the system logic controller and MPPT
     logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
-    logic.systemvoltage = 100.0
+    logic.systemvoltage = 65.0
     logic.MPPTeff = 0.95
     net.solar_logic = logic
     
@@ -324,7 +329,8 @@ def define_mission(vehicle):
     segment.altitude_start = 14.0   * Units.km
     segment.altitude_end   = 18.0   * Units.km
     segment.air_speed      = 30.0  * Units['m/s']
-    segment.throttle       = 0.35   
+    segment.throttle       = 0.6
+    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
     
     # add to misison
     mission.append_segment(segment)
@@ -343,10 +349,10 @@ def define_mission(vehicle):
     segment.atmosphere     = atmosphere
     segment.planet         = planet    
     
-    segment.altitude_start = 18.0   * Units.km ## Optional
+    segment.altitude_start = 18.0   * Units.km # Optional
     segment.altitude_end   = 28.0   * Units.km
     segment.air_speed      = 30.0 * Units['m/s']
-    segment.climb_rate     = 0.6   * Units['m/s']
+    segment.climb_rate     = 0.5   * Units['m/s']
 
     # add to mission
     mission.append_segment(segment)
@@ -387,7 +393,7 @@ def define_mission(vehicle):
     
     segment.altitude_end = 18.   * Units.km
     segment.air_speed    = 40.0 * Units['m/s']
-    segment.descent_rate = 0.4  * Units['m/s']
+    segment.descent_rate = 0.8  * Units['m/s']
     
     # add to mission
     mission.append_segment(segment) 
