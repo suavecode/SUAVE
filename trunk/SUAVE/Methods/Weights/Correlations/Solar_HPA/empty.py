@@ -115,9 +115,9 @@ def empty(vehicle):
     #Fuselage weight
     wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
     
-    vehicle.Wings['Main Wing'].Mass_Props.mass = wt_wing
+    vehicle.Wings['Main Wing'].Mass_Props.mass             = wt_wing
     vehicle.Wings['Horizontal Stabilizer'].Mass_Props.mass = wt_ht
-    vehicle.Wings['Vertical Stabilizer'].Mass_Props.mass = wt_vt
+    vehicle.Wings['Vertical Stabilizer'].Mass_Props.mass   = wt_vt
     #vehicle.Fuselages.Fuselage.Mass_Props.mass = wt_tb
     
     weight                 = Data()

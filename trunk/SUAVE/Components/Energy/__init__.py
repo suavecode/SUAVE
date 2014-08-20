@@ -8,7 +8,7 @@ import Storages
 import Converters
 import Distributors
 import Networks
-import Sinks
+import Peripherals
 import Properties
 import Processes
 

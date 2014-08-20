@@ -73,7 +73,7 @@ class Propeller(Energy_Component):
         tol   = 1e-5 # Convergence tolerance
            
         ######
-        #Figure out how to enter airfoil data
+        # Enter airfoil data
         ######
         
         #Things that don't change with iteration
@@ -103,7 +103,7 @@ class Propeller(Energy_Component):
         #Things that will change with iteration
     
         #Setup a Newton iteration
-        psi    =  np.ones_like(c)
+        psi    = np.ones_like(c)
         psiold = np.zeros_like(c)
         diff   = np.ones_like(c)
         
@@ -140,11 +140,9 @@ class Propeller(Energy_Component):
                       (128.*U*r*np.arccos(piece)*(Ua + U*np.sin(psi))*(Ut/2. - (U*np.cos(psi))/2.)*(U + Ut*np.cos(psi) + 
                       Ua*np.sin(psi)))/(B**3.*np.pi**2.*(Ut + U*np.cos(psi))**3.*((16.*(2*Wa)**2.)/(B**2.*np.pi**2.*(2*Wt)**2.) + 1.)**(0.5))) 
                       
-            dpsi = -Rsquiggly/dR_dpsi
-            
-            psi = psi + dpsi
-            diff = abs(psiold-psi)
-    
+            dpsi   = -Rsquiggly/dR_dpsi
+            psi    = psi + dpsi
+            diff   = abs(psiold-psi)
             psiold = psi
     
         Cd       = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
@@ -158,7 +156,7 @@ class Propeller(Energy_Component):
         Cp       = power/(rho[:,0]*(n**3)*(D**5))
 
         thrust[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0
         
         #etap     = V*thrust/(power)
 

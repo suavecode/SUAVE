@@ -79,16 +79,17 @@ class Solar_Logic(Energy_Component):
         
         plevel = pavail -pavionics -ppayload - volts*esccurrent
         
-        #Integrate the plevel over time to assess the energy consumption
-        #or energy storage
+        # Integrate the plevel over time to assess the energy consumption
+        # or energy storage
         e = np.dot(I,plevel)
         
-        #Send or take power out of the battery
+        # Send or take power out of the battery, Pack up
         batlogic      = Data()
         batlogic.pbat = plevel
         batlogic.Ibat = abs(plevel/volts)
         batlogic.e    = e
         
+        # Output
         self.outputs.batlogic = batlogic
         
         return 

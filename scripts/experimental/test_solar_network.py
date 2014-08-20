@@ -31,7 +31,7 @@ from SUAVE.Components.Energy.Converters.Propeller_Design import Propeller_Design
 
 #Propeller design specs
 design_altitude = 0.0 * Units.km
-Velocity        = 30.0  # freestream m/s
+Velocity        = 10.0  # freestream m/s
 RPM             = 5887.
 Blades          = 2.0
 Radius          = .4064
@@ -82,9 +82,9 @@ net.propeller = prop
 
 # Component 4 the Motor
 motor = SUAVE.Components.Energy.Converters.Motor()
-motor.Res = 0.006
+motor.Res = 0.005
 motor.io = 10
-motor.kv = 145.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
+motor.kv = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
 motor.propradius = prop.Prop_attributes.R
 motor.propCp = prop.Prop_attributes.Cp
 motor.G   = 1. # Gear ratio
@@ -126,7 +126,7 @@ conditions.frames.inertial = Data()
 numerics                   = Data()
 
 conditions.propulsion.throttle            = np.transpose(np.array([[1.0, 1.0]]))
-conditions.freestream.velocity            = np.transpose(np.array([[1.0, 1.0]]))
+conditions.freestream.velocity            = np.transpose(np.array([[10.0, 10.0]]))
 conditions.freestream.density             = np.array([rho, rho])
 conditions.freestream.viscosity           = np.transpose(np.array([[mu, mu]]))
 conditions.freestream.speed_of_sound      = np.transpose(np.array([[a, a]]))
@@ -139,8 +139,12 @@ numerics.integrate_time                   = np.array([[0, 0], [0, 1]])
 #Run the network and print the results
 F, mdot, P = net(conditions,numerics)
 
+print('Thrust in kg')
 print F/9.81
+print('Power in Watts')
 print P
 
+print('Current in Amps')
 print conditions.propulsion.current
+print('Motor RPM')
 print conditions.propulsion.rpm

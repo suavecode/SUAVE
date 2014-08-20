@@ -26,11 +26,13 @@ class Solar_Panel(Energy_Component):
         self.eff = 0.0
     
     def power(self):
+        
+        # Unpack
         flux=self.inputs.flux
         
         p = flux*self.A*self.eff
         
-        # store to outputs
+        # Store to outputs
         self.outputs.power = p
     
         return p

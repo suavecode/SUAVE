@@ -65,7 +65,7 @@ def Propeller_Design(Prop_attributes):
     rho   = Prop_attributes.rho    # Density
     
     tol   = 1e-10# Convergence tolerance
-    N     = 20 # Number of Stations
+    N     = 20. # Number of Stations
     
     #Figure out how to enter airfoil data
 
@@ -105,9 +105,9 @@ def Propeller_Design(Prop_attributes):
 
         #Step 4, determine epsilon and alpha from airfoil data
 
-        Cd    = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
-        alpha = Cl/(2.*np.pi)
-        epsilon   = Cd/Cl
+        Cd     = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
+        alpha   = Cl/(2.*np.pi)
+        epsilon = Cd/Cl
         
         #Step 5, change Cl and repeat steps 3 and 4 until epsilon is minimized
         
@@ -189,7 +189,7 @@ def Propeller_Design(Prop_attributes):
     
     
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
-    Cp   = Power/(rho*(n**3)*(D**5))
+    Cp    = Power/(rho*(n**3)*(D**5))
 
     Prop_attributes.c    = c
     Prop_attributes.beta = beta

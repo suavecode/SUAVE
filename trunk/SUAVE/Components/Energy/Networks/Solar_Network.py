@@ -52,11 +52,11 @@ class Solar_Network(Data):
         solar_logic = self.solar_logic
         battery     = self.battery
         
-        #Time and location of the mission start, this needs to be added to the mission eventually
+        #Time and location of the mission start
         conditions.frames.planet          = Data()
         conditions.frames.planet.lat      = 37.4300
         conditions.frames.planet.lon      = -122.1700
-        conditions.frames.planet.timedate = time.strptime("Sat, Jun 21 08:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
+        conditions.frames.planet.timedate = time.strptime("Sat, Jun 21 12:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
         
         #Set battery energy
         battery.CurrentEnergy = conditions.propulsion.battery_energy

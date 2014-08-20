@@ -95,17 +95,18 @@ class Motor(Energy_Component):
                
         """    
         
+        # Unpack
         G    = self.G
         Kv   = self.kv
         Res  = self.Res
         v    = self.inputs.voltage[:,0]
-        etaG = self.etaG
         omeg = self.omega(conditions)*G
+        #etaG = self.etaG
         #io   = self.io + self.exp_i*(1-etaG)  
         
         i=(v-omeg/Kv)/Res
 
-        # store to outputs
+        # Pack
         self.outputs.current = i
         
         #Q = (i-io)/Kv

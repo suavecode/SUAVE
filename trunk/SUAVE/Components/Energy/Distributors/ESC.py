@@ -40,13 +40,16 @@ class ESC(Energy_Component):
                 The ESC's output voltage is linearly related to throttle setting
                
         """
+        # Unpack
         eta = conditions.propulsion.throttle
         
+        # Negative throttle is bad
         eta[eta<=0.0] = 0.0
         
         voltsin  = self.inputs.voltagein
         voltsout = eta*voltsin
         
+        # Pack the output
         self.outputs.voltageout = voltsout
         
         return voltsout
@@ -65,10 +68,14 @@ class ESC(Energy_Component):
                 The ESC draws current.
                
         """
-        eff = self.eff
+        
+        # Unpack
+        eff        = self.eff
         currentout = self.inputs.currentout
+        
         currentin  = currentout/eff
         
+        # Pack
         self.outputs.currentin = currentin
         
         return currentin

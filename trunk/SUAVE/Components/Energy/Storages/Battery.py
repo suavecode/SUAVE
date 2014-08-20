@@ -40,7 +40,8 @@ class Battery(Energy_Component):
                 maximum energy the battery can hold
                
             Assumptions:
-                This is a simple battery
+                This is a simple battery, based on the model by:
+                AIAA 2012-5045 by Anubhav Datta/Johnson
                
         """
         
@@ -56,28 +57,34 @@ class Battery(Energy_Component):
     
     def energy_calc(self,numerics):
         
-        #Unpack
+        # Unpack
         Ibat  = self.inputs.batlogic.Ibat
         pbat  = self.inputs.batlogic.pbat
         edraw = self.inputs.batlogic.e
-        
         Rbat  = self.R0
         I     = numerics.integrate_time
         
-        #X value from Mike V.'s battery model
+        # X value
         x = np.divide(self.CurrentEnergy,self.max_energy())[:,0]
         
-        #C rate from Mike V.'s battery model
+        # C rate from 
         C = 3600.*pbat/self.max_energy()
         
-        f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) #empirical value for discharge
+        # Empirical value for discharge
+        f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) 
         
         f[x<0.0] = 0.0
         
-        R = Rbat*(1+C*f)       #model discharge characteristics based on changing resistance
-        Ploss = (Ibat**2)*R       #calculate resistive losses
+        # Model discharge characteristics based on changing resistance
+        R = Rbat*(1+C*f)
+        
+        #Calculate resistive losses
+        Ploss = (Ibat**2)*R
+        
+        # Energy loss from power draw
         eloss = np.dot(I,Ploss)
-
+        
+        # Pack up
         self.CurrentEnergy = self.CurrentEnergy[0] + edraw + eloss
         self.CurrentEnergy[self.CurrentEnergy>self.max_energy()] = self.max_energy()
                     
