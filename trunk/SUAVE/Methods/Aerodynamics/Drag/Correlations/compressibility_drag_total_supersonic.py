@@ -35,15 +35,20 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 def compressibility_drag_total_supersonic(conditions,configuration,geometry):
-    """ SUAVE.Methods.compressibility_drag_wing(conditions,configuration,geometry)
-        computes the induced drag associated with a wing 
+    """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
+        computes the compressibility drag on a full aircraft
         
         Inputs:
+            wings
+	    fuselages
+	    propulsors
+	    freestream conditions
         
         Outputs:
+	    compressibility drag coefficient
         
         Assumptions:
-            based on a set of fits
+            drag is only calculated for the wings, main fuselage, and propulsors
             
     """
 
@@ -51,12 +56,7 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
     wings      = geometry.Wings
     fuselages   = geometry.Fuselages
     propulsor = geometry.Propulsors[0]
-    #print geometry
-    #w = input("Press any key to continue")
-    #try:
-        #wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
-    #except:
-    wing_lifts = conditions.aerodynamics.lift_coefficient
+
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
@@ -83,62 +83,52 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
             main_fuselage = geometry.Fuselages
         num_engines = propulsor.no_of_engines
         
-        cl = conditions.aerodynamics.lift_coefficient
-        drag99 = drag_div(0.99,wing,i_wing,cl)
+        wings_lift = conditions.aerodynamics.lift_breakdown.compressible_wings
+        cl = wings_lift
+        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,i_wing,cl)
         (drag105,a,b) = wave_drag(conditions, 
                             configuration, 
                             main_fuselage, 
                             propulsor, 
                             wing, 
-                            num_engines,1,i_wing,Sref_main,True)
+                            num_engines,i_wing,Sref_main,True)
         
-        for ii in range(len(Mc)):          
-            
-            
-            if Mc[ii] <= 0.99:
-                cl = conditions.aerodynamics.lift_coefficient
-                cd_c[ii] = drag_div(Mc[ii],wing,i_wing,cl[ii])
-            
-            elif Mc[ii] > 0.99 and Mc[ii] < 1.05:
-                Mc[ii] = 0.99
-                if type(drag99) is float:
-                    cd_c[ii] = drag99 + (drag105-drag99)*(Mc[ii]-0.99)/(1.05-0.99)
-                else:
-                    cd_c[ii] = drag99[ii] + (drag105-drag99[ii])*(Mc[ii]-0.99)/(1.05-0.99)
-                           
-                
-            else:
-                
-                (cd_c[ii],mcc[ii],MDiv[ii]) = wave_drag(conditions, 
-                                                       configuration, 
-                                                       main_fuselage, 
-                                                       propulsor, 
-                                                       wing, 
-                                                       num_engines,ii,i_wing,Sref_main,False)
+	(cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,i_wing,cl[Mc <= 0.99])
+	
+	
+	if type(drag99) is float:
+		cd_c[Mc > 0.99] = drag99 + (drag105-drag99)*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
+	else:
+		cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
+	(cd_c_sup,mcc_sup,MDiv_sup) = wave_drag(conditions, 
+                                               configuration, 
+                                               main_fuselage, 
+                                               propulsor, 
+                                               wing, 
+                                               num_engines,i_wing,Sref_main,False)
+	(cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
+		
+		
+
         
             
-            # increment
+	# increment
             
-            # dump data to conditions
+	# dump data to conditions
         wing_results = Result(
             compressibility_drag      = cd_c    ,
             crest_critical            = mcc     ,
             divergence_mach           = MDiv    ,
         )
         drag_breakdown.compressible[wing.tag] = wing_results
-        #print cd_c[1]
+
     #: for each wing
     
     # dump total comp drag
     total_compressibility_drag = 0.0
     for jj in range(1,i_wing+2):
         total_compressibility_drag = drag_breakdown.compressible[jj].compressibility_drag + total_compressibility_drag
-    #print total_compressibility_drag[1]
-    #w = input("Press any key")
     drag_breakdown.compressible.total = total_compressibility_drag
-    
-    #if max(total_compressibility_drag) > 0.014:
-        #h = 0
 
     return total_compressibility_drag
 
@@ -148,8 +138,8 @@ def drag_div(Mc_ii,wing,i_wing,cl):
     if wing.highmach is True:
         
         # divergence mach number
-        MDiv = 0.95
-        mcc = 0.93
+        MDiv = np.array([0.95] * len(Mc_ii))
+        mcc = np.array([0.93] * len(Mc_ii))
         
     else:
         # unpack wing
@@ -187,39 +177,51 @@ def drag_div(Mc_ii,wing,i_wing,cl):
     
     # compressibility drag
     
-    cd_c = dcdc_cos3g 
+    if wing.highmach is True:
+	cd_c = dcdc_cos3g
+    else:
+	cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
     
-    return cd_c
+    return (cd_c,mcc,MDiv)
 
-def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,ii,i_wing,Sref_main,flag105):
+def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,i_wing,Sref_main,flag105):
 
     mach       = conditions.freestream.mach_number
     Mc         = copy.copy(mach)
     if flag105 is True:
         conditions.freestream.mach_number = np.array([[1.05]] * len(Mc))
+	mach = conditions.freestream.mach_number
     
-    cd_c = np.array([[0.0]] * len(Mc))
+    
+    cd_c = np.array([[0.0]] * len(mach))
     cd_lift_wave = wave_drag_lift(conditions,configuration,wing)
     cd_volume_wave = wave_drag_volume(conditions,configuration,wing)
-    cd_c[ii] = cd_lift_wave[ii] + cd_volume_wave[ii]
+    cd_c[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
     if i_wing != 0:
-        cd_c[ii] = cd_c[ii]*wing.sref/Sref_main
+        cd_c = cd_c*wing.sref/Sref_main
     if i_wing == 0:
+	prop_drag = np.array([[0.0]] * len(mach))
+	fuse_drag = np.array([[0.0]] * len(mach))
         if len(main_fuselage) > 0:
-            fuse_drag = wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
+            fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
         else:
-            fuse_drag = 0.0
-        prop_drag = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.no_of_engines
-        cd_c[ii] = cd_c[ii] + fuse_drag
-        cd_c[ii] = cd_c[ii] + prop_drag
-    mcc = 0
-    MDiv = 0
+            fuse_drag[mach >= 1.05] = 0.0
+        prop_drag[mach >= 1.05] = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.no_of_engines
+        cd_c[mach >= 1.05] = cd_c[mach >= 1.05] + fuse_drag[mach >= 1.05]
+        cd_c[mach >= 1.05] = cd_c[mach >= 1.05] + prop_drag[mach >= 1.05]
+    mcc = np.array([[0.0]] * len(mach))
+    MDiv = np.array([[0.0]] * len(mach))
+
+    if len(Mc[mach < .4]) > 0:
+	a = 0
 
     conditions.freestream.mach_number = Mc
     
-    return (cd_c[ii],mcc,MDiv)
+    return (cd_c,mcc,MDiv)
 
 def wave_drag_body_of_rev(total_length,Rmax,Sref):
+    if ((total_length == 0.0) or (Rmax == 0.0) or (Sref == 0.0)):
+	a = 0
 
     # Computations - takes drag of Sears-Haack and use wing reference area for CD
     wave_drag_body_of_rev = (9.0*(np.pi)**3.0*Rmax**4.0/(4.0*total_length**2.0))/(0.5*Sref)  

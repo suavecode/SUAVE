@@ -49,13 +49,16 @@ def induced_drag_aircraft_supersonic(conditions,configuration,geometry):
     
     #print("In induced_drag_aircraft:")
     #print aircraft_lift
-    for ii in range(len(Mc)):
-        if Mc[ii] < 1.0:
-            total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
-        else:
-            total_induced_drag = aircraft_lift**2 / (np.pi*ar)
-            #total_induced_drag = aircraft_lift * 0.0
-    #raw_input()
+    #for ii in range(len(Mc)):
+        #if Mc[ii] < 1.0:
+            #total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+        #else:
+            #total_induced_drag = aircraft_lift**2 / (np.pi*ar)
+            ##total_induced_drag = aircraft_lift * 0.0
+            
+    total_induced_drag = np.array([[0.0]]*len(Mc))
+    total_induced_drag[Mc < 1.0] = aircraft_lift[Mc < 1.0]**2 / (np.pi*ar*e)
+    total_induced_drag[Mc >= 1.0] = aircraft_lift[Mc >= 1.0]**2 / (np.pi*ar*e)
         
     # store data
     try:

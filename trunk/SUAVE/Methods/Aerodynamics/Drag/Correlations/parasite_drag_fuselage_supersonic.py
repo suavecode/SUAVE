@@ -81,20 +81,31 @@ def parasite_drag_fuselage_supersonic(conditions,configuration,fuselage):
     a = np.array([[0.0]] * len(Mc))
     du_max_u = np.array([[0.0]] * len(Mc))
     k_fus = np.array([[0.0]] * len(Mc))
-    for i in range(len(Mc)):
-        if Mc[i] < 0.95:
-            D[i] = np.sqrt(1 - (1-Mc[i]**2) * d_d**2)
-            a[i]        = 2 * (1-Mc[i]**2) * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            du_max_u[i] = a[i] / ( (2-a[i]) * (1-Mc[i]**2)**0.5 )
-        else:
-            D[i] = np.sqrt(1 - d_d**2)
-            a[i]        = 2  * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            du_max_u[i] = a[i] / ( (2-a[i]) )            
-        k_fus[i]    = (1 + cf_fus[i]*du_max_u[i])**2
+    
+    D[Mc < 0.95] = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
+    a[Mc < 0.95] = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
+    du_max_u[Mc < 0.95] = a[Mc < 0.95] / ( (2-a[Mc < 0.95]) * (1-Mc[Mc < 0.95]**2)**0.5 )
+    
+    D[Mc >= 0.95] = np.sqrt(1 - d_d**2)
+    a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
+    du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
+    
+    k_fus = (1 + cf_fus*du_max_u)**2
+    
+    #for i in range(len(Mc)):
+        #if Mc[i] < 0.95:
+            #D[i] = np.sqrt(1 - (1-Mc[i]**2) * d_d**2)
+            #a[i]        = 2 * (1-Mc[i]**2) * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
+            #du_max_u[i] = a[i] / ( (2-a[i]) * (1-Mc[i]**2)**0.5 )
+        #else:
+            #D[i] = np.sqrt(1 - d_d**2)
+            #a[i]        = 2  * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
+            #du_max_u[i] = a[i] / ( (2-a[i]) )            
+        #k_fus[i]    = (1 + cf_fus[i]*du_max_u[i])**2
     
     # --------------------------------------------------------
     # find the final result    
-    #print k_fus[-1] * cf_fus[-1] * Swet
+
     fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
     # --------------------------------------------------------
     

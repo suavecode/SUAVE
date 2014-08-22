@@ -125,7 +125,7 @@ def compressibility_drag_wing_supersonic(conditions,configuration,geometry):
                 crest_critical            = mcc     ,
                 divergence_mach           = MDiv    ,
             )
-            drag_breakdown.compressible[wing.tag] = wing_results
+            #drag_breakdown.compressible[wing.tag] = wing_results
 
     #: for each wing
     
@@ -133,4 +133,4 @@ def compressibility_drag_wing_supersonic(conditions,configuration,geometry):
     total_compressibility_drag = drag_breakdown.compressible[1+0].compressibility_drag
     drag_breakdown.compressible.total = total_compressibility_drag
 
-    return total_compressibility_drag
+    return total_compressibility_drag, wing_results

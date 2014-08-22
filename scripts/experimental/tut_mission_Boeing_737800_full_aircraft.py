@@ -240,6 +240,7 @@ def define_vehicle():
     turbofan.bypass_ratio                  = 5.4      #
     turbofan.design_thrust                 = 25000.0  #
     turbofan.no_of_engines                 = 2.0      #
+    turbofan.engine_length                 = 4.0
     
     # turbofan sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
@@ -273,7 +274,8 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero_Supersonic()
+    #aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     
     # build stability model
@@ -669,7 +671,7 @@ def post_process(vehicle,mission,results):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
+        #Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
         axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , 'bo-' )
@@ -689,11 +691,11 @@ def post_process(vehicle,mission,results):
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)        
         
-        axes = fig.add_subplot(4,1,4)
-        axes.plot( time , Pitching_moment , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Pitching_moment (~)')
-        axes.grid(True)
+        #axes = fig.add_subplot(4,1,4)
+        #axes.plot( time , Pitching_moment , 'bo-' )
+        #axes.set_xlabel('Time (min)')
+        #axes.set_ylabel('Pitching_moment (~)')
+        #axes.grid(True)
         
     # ------------------------------------------------------------------    
     #   Aerodynamics 2

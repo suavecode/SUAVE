@@ -107,7 +107,9 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     #: for each wing
     
     # dump total comp drag
-    total_compressibility_drag = drag_breakdown.compressible[1+0].compressibility_drag
+    total_compressibility_drag = 0.0
+    for jj in range(1,i_wing+2):
+        total_compressibility_drag = drag_breakdown.compressible[jj].compressibility_drag + total_compressibility_drag
     drag_breakdown.compressible.total = total_compressibility_drag
 
     return total_compressibility_drag

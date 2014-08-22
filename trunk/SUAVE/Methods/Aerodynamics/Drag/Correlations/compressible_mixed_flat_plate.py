@@ -24,8 +24,28 @@ import numpy as np
 
 
 def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
+    """ SUAVE.Methods.Aerodyanmics.Drag.Correlations.compressibile_mixed_flat_plate(Re,Ma,Tc,xt)
+        Computes the coefficient of friction for a flat plate given the 
+        input parameters. Also returns the correction terms used in the
+        computation.
+        
+        Inputs:
+            Re - Reynolds Number
+            Ma - Mach number
+            Tc - temperature
+            xt - turbulent transition point as a proportion of chord length
+        
+        Outputs:
+            cf_comp - coefficient of friction
+            k_comp - compressibility correction
+            k_reyn - reynolds number correction
+        
+        Assumptions:
+            Reynolds number between 10e5 and 10e8
+            xt between 0 and 1
+            
+    """    
 
-    # Add catching warnings here
     if xt == 0.0:
         cf_inc = 0.0742/(Re)**0.2
     elif xt == 1.0:

@@ -37,8 +37,31 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
         computes the parastite drag associated with a wing 
         
         Inputs:
+            conditions
+            -freestream mach number
+            -freestream density
+            -freestream viscosity
+            -freestream temperature
+            -freestream pressuve
+            
+            configuration
+            -wing parasite drag form factor
+            
+            wing
+            -S reference
+            -mean aerodynamic chord
+            -thickness to chord ratio
+            -sweep
+            -aspect ratio
+            -span
+            -S exposed
+            -S affected
+            -transition x
             
         Outputs:
+            wing parasite drag coefficient with refernce area as the
+            reference area of the input wing
+
         
         Assumptions:
         
@@ -74,22 +97,28 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
     Re_w = roc * V * mac_w/muc    
     
     # skin friction  coefficient
-    #cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
-    cf_w, k_comp, k_reyn = compressible_mixed_flat_plate(Re_w,Mc,Tc,xt)
+    cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
+    #cf_w, k_comp, k_reyn = compressible_mixed_flat_plate(Re_w,Mc,Tc,xt)
 
     # correction for airfoils
     k_w = np.array([[0.0]] * len(Mc))
 
-    for i in range(len(Mc)):
-
-        if Mc[i] < 0.95:
-        
-            k_w[i] = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc[i]**2. * ( np.cos(sweep_w))**2.) )  \
+    k_w[Mc < 0.95] = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc[Mc < 0.95]**2. * ( np.cos(sweep_w))**2.) )  \
                      + ( C**2. * (np.cos(sweep_w))**2. * t_c_w**2. * (1. + 5.*(np.cos(sweep_w)**2.)) ) \
-                        / (2.*(1.-(Mc[i]*np.cos(sweep_w))**2.))       
+                        / (2.*(1.-(Mc[Mc < 0.95]*np.cos(sweep_w))**2.)) 
+    
+    k_w[Mc >= 0.95] =  1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
+
+    #for i in range(len(Mc)):
+
+        #if Mc[i] < 0.95:
+        
+            #k_w[i] = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc[i]**2. * ( np.cos(sweep_w))**2.) )  \
+                     #+ ( C**2. * (np.cos(sweep_w))**2. * t_c_w**2. * (1. + 5.*(np.cos(sweep_w)**2.)) ) \
+                        #/ (2.*(1.-(Mc[i]*np.cos(sweep_w))**2.))       
             
-        else:
-            k_w[i] = 1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
+        #else:
+            #k_w[i] = 1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
     
     # --------------------------------------------------------
     # find the final result
@@ -106,10 +135,7 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
         reynolds_factor           = k_reyn , 
         form_factor               = k_w    ,
     )
-    try:
-        conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
-    except:
-        print("Drag Polar Mode")
+    conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
     
     # done!
     return wing_parasite_drag

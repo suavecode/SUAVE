@@ -16,6 +16,7 @@ compute_speed_of_sound = air.compute_speed_of_sound
 # python imports
 import os, sys, shutil
 from copy import deepcopy
+import copy
 from warnings import warn
 
 # package imports
@@ -55,18 +56,21 @@ def wave_drag_lift(conditions,configuration,wing):
     Sref = wing.sref
     
     # Conditions
-    Mc  = freestream.mach_number
+    Mc  = copy.copy(freestream.mach_number)
 
     # Length-wise aspect ratio
     ARL = total_length**2/Sref
     
     # Lift coefficient
-    CL = conditions.aerodynamics.lift_coefficient
+    CL = copy.copy(conditions.aerodynamics.lift_coefficient)
     
     # Computations
     x = np.pi*ARL/4
-    beta = np.sqrt(Mc**2-1)
-    wave_drag_lift = CL**2*x/4*(np.sqrt(1+(beta/x)**2)-1)
+    beta = np.array([[0.0]] * len(Mc))
+    beta[Mc >= 1.05] = np.sqrt(Mc[Mc >= 1.05]**2-1)
+    wave_drag_lift = np.array([[0.0]] * len(Mc))
+    wave_drag_lift[Mc >= 1.05] = CL[Mc >= 1.05]**2*x/4*(np.sqrt(1+(beta[Mc >= 1.05]/x)**2)-1)
+    wave_drag_lift[0:len(Mc[Mc >= 1.05]),0] = wave_drag_lift[Mc >= 1.05]
 
     
     # Dump data to conditions

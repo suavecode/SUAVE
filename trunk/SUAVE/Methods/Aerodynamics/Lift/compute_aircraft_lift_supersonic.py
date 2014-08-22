@@ -42,6 +42,7 @@ from SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations.vortex_lift import v
 # python imports
 import os, sys, shutil
 from copy import deepcopy
+from copy import copy
 from warnings import warn
 
 # package imports
@@ -89,69 +90,45 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
     AoA            = conditions.aerodynamics.angle_of_attack
     
     # pack for interpolate
-    X_interp = AoA    
+    X_interp = AoA
+	
+    # Check case
+    wings_lift_model = configuration.surrogate_models_sub.lift_coefficient
+    wings_lift = wings_lift_model(X_interp)  
+    compress_corr = 1./(np.sqrt(1.-Mc**2.))
+    wings_lift_comp = wings_lift * compress_corr
+    wings_lift_comp1 = copy(wings_lift_comp)
+    
+    
     wings_lift = np.array([[0.0]] * len(Mc))
     wings_lift_comp = np.array([[0.0]] * len(Mc))
     compress_corr = np.array([[0.0]] * len(Mc))
     aircraft_lift_total = np.array([[0.0]] * len(Mc))
     vortex_cl = np.array([[0.0]] * len(Mc))
     #print aircraft_lift_total
-    
     wing = geometry.Wings[0]
     
-    for i in range(len(Mc)):
-
-        if Mc[i] <= 1.05:
         
-            # the lift surrogate model for wings only
-            #print("Low Mach")
-            wings_lift_model = configuration.surrogate_models_sub.lift_coefficient
-    
         
-            # compressibility correction
-            if Mc[i] < 0.95:
-                compress_corr[i] = 1./(np.sqrt(1.-Mc[i]**2.))
-            else:
-                compress_corr[i] = 1./(np.sqrt(1.-0.95**2)) # basic approximation for now
-            
-            # interpolate
-            #print wings_lift_model(X_interp)
-            wings_lift[i] = wings_lift_model(X_interp[i]) + vortex_lift(X_interp[i],configuration,wing)
-            #print wings_lift[i]
-            if wing.vortexlift is True:
-                vortex_cl[i] = vortex_lift(X_interp[i],configuration,wing)
-            else:
-                vortex_cl[i] = 0.0
-            
-            # correct lift
-            wings_lift_comp[i] = wings_lift[i] * compress_corr[i]            
+    # Subsonic setup
+    wings_lift_model = configuration.surrogate_models_sub.lift_coefficient
+    compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
+    compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment
+    wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05])
+    if wing.vortexlift is True:
+        vortex_cl[Mc < 1.0] = vortex_lift(X_interp[Mc < 1.0],configuration,wing) # This was initialized at 0.0
+    wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05]) + vortex_cl[Mc <= 1.05]
     
-        elif Mc[i] > 1.05:
-            
-            # Supersonic lift calculation - less accurate for low mach numbers
-            #print("High Mach")
-            wings_lift_model = configuration.surrogate_models_sup.lift_coefficient
-            
-            # compressibility correction
-            compress_corr[i] = 1./(np.sqrt(Mc[i]**2.-1.))
-            
-            # interpolate
-            #print wings_lift_model(X_interp)
-            wings_lift[i] = wings_lift_model(X_interp[i])# + vortex_lift(X_interp[i],configuration,wing)
-            vortex_cl[i] = 0.0
-            #print wings_lift[i]
-            
-            # correct lift
-            wings_lift_comp[i] = wings_lift[i] * compress_corr[i]                
-            
-
+    # Supersonic setup
+    wings_lift_model = configuration.surrogate_models_sup.lift_coefficient
+    compress_corr[Mc > 1.05] = 1./(np.sqrt(Mc[Mc > 1.05]**2.-1.))
+    wings_lift[Mc > 1.05] = wings_lift_model(X_interp[Mc > 1.05])
+    
+    wings_lift_comp = wings_lift * compress_corr    
+    if wings_lift_comp[5] != wings_lift_comp1[5]:
+        a = 0
         
-        # total lift, accounting one fuselage
-        aircraft_lift_total[i] = wings_lift_comp[i] * fus_correction 
-    
-    #print("From compute_aircraft_lift_supersonic")
-    #print aircraft_lift_total
-    #raw_input()
+    aircraft_lift_total = wings_lift_comp * fus_correction
     # store results
     lift_results = Result(
         total                = aircraft_lift_total ,
@@ -161,12 +138,9 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
         fuselage_correction_factor        = fus_correction ,
         vortex                            = vortex_cl ,
     )
-    try:
-        conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
+    conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
         
-        conditions.aerodynamics.lift_coefficient= aircraft_lift_total
-    except(AttributeError):
-        print("Drag Polar Mode")
+    conditions.aerodynamics.lift_coefficient= aircraft_lift_total
 
     return aircraft_lift_total
 

@@ -147,13 +147,17 @@ class Fidelity_Zero_Supersonic(Aerodynamics_Surrogate):
         X_data = np.array([AoA_data]).T        
         
         # assign models
-        Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        X_data = np.reshape(X_data,-1)
+        # assign models
+        #Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        Interpolation = np.poly1d(np.polyfit(X_data, CL_data ,1))
         
         #Interpolation = Fidelity_Zero.Interpolation
         self.models.lift_coefficient = Interpolation
         
         # assign to configuration
-        self.configuration.surrogate_models_sub = self.models
+        self.configuration.surrogate_models_sub = Data()
+        self.configuration.surrogate_models_sub.lift_coefficient = Interpolation
                 
         return
     
@@ -169,13 +173,17 @@ class Fidelity_Zero_Supersonic(Aerodynamics_Surrogate):
         X_data = np.array([AoA_data]).T        
         
         # assign models
-        Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        X_data = np.reshape(X_data,-1)
+        # assign models
+        #Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
+        Interpolation = np.poly1d(np.polyfit(X_data, CL_data ,1))
         
         #Interpolation = Fidelity_Zero.Interpolation
         self.models.lift_coefficient = Interpolation
         
         # assign to configuration
-        self.configuration.surrogate_models_sup = self.models
+        self.configuration.surrogate_models_sup = Data()
+        self.configuration.surrogate_models_sup.lift_coefficient = Interpolation
                 
         return    
         

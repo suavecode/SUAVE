@@ -16,6 +16,7 @@ compute_speed_of_sound = air.compute_speed_of_sound
 # python imports
 import os, sys, shutil
 from copy import deepcopy
+import copy
 from warnings import warn
 
 # package imports
@@ -49,8 +50,7 @@ def wave_drag_volume(conditions,configuration,wing):
     Sref = wing.sref
     
     # conditions
-    Mc  = freestream.mach_number
-
+    Mc  = copy.copy(freestream.mach_number)
     # length-wise aspect ratio
     ARL = total_length**2/Sref
     #print "ARL = " + str(ARL)
@@ -60,8 +60,11 @@ def wave_drag_volume(conditions,configuration,wing):
     
     # Computations
     x = np.pi*ARL/4
-    beta = np.sqrt(Mc**2-1)
-    wave_drag_volume = 4*t_c_w**2*(beta**2+2*x**2)/(beta**2+x**2)**1.5
+    beta = np.array([[0.0]] * len(Mc))
+    wave_drag_volume = np.array([[0.0]] * len(Mc))    
+    beta[Mc >= 1.05] = np.sqrt(Mc[Mc >= 1.05]**2-1)
+    wave_drag_volume[Mc >= 1.05] = 4*t_c_w**2*(beta[Mc >= 1.05]**2+2*x**2)/(beta[Mc >= 1.05]**2+x**2)**1.5
+    wave_drag_volume[0:len(Mc[Mc >= 1.05]),0] = wave_drag_volume[Mc >= 1.05]
 
     
     # dump data to conditions
