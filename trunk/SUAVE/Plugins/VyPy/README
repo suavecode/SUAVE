@@ -1,0 +1,24 @@
+VyPy
+====
+
+github.com/aerialhedgehog/VyPy
+
+An Optimization Toolbox
+
+This package contains modules useful for surrogate-based optimization.
+
+- Gaussian Process Regression Toolbox
+    VyPy.regression.gpr
+
+- An Abstracted Optimization Interface
+    VyPy.optimize
+    
+- Extended Dictionaries for Data
+    VyPy.data.DataBunch
+    
+- Parallelization Tools
+    VyPy.parallel (a work in progress)
+    
+Contributing Developers:
+    Trent Lukaczyk 
+    
