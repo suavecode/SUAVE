@@ -75,7 +75,7 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
         
         # Use main wing reference area for drag coefficients
         if i_wing == 0:
-            Sref_main = wing.sref  
+            Sref_main = wing.Areas.reference
             
 	# Get main fuselage data - note that name of fuselage is important here
 	# This should be changed to be general # ----------------------------------------------------------------
@@ -142,7 +142,7 @@ def drag_div(Mc_ii,wing,i_wing,cl):
 
     # Check if the wing is designed for high subsonic cruise
     # If so use arbitrary divergence point as correlation will not work
-    if wing.highmach is True:
+    if wing.high_mach is True:
         
         # Divergence mach number
         MDiv = np.array([0.95] * len(Mc_ii))
@@ -150,7 +150,7 @@ def drag_div(Mc_ii,wing,i_wing,cl):
         
     else:
         # Unpack wing
-        t_c_w   = wing.t_c
+        t_c_w   = wing.thickness_to_chord
         sweep_w = wing.sweep
         
         # Check if this is the main wing, other wings are assumed to have no lift
@@ -186,7 +186,7 @@ def drag_div(Mc_ii,wing,i_wing,cl):
     # Compressibility drag
     
     # Sweep correlation cannot be used if the wing has a high mach design
-    if wing.highmach is True:
+    if wing.high_mach is True:
 	cd_c = dcdc_cos3g
     else:
 	cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
@@ -221,7 +221,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     
     # Convert coefficient to full aircraft value
     if i_wing != 0:
-        cd_c = cd_c*wing.sref/Sref_main
+        cd_c = cd_c*wing.Areas.reference/Sref_main
 	
     # Include fuselage and propulsors for one iteration
     if i_wing == 0:
@@ -232,7 +232,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
 	
 	# Fuselage wave drag
         if len(main_fuselage) > 0:
-            fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.length_total,main_fuselage.Deff/2.0,Sref_main)
+            fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.Lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
         else:
             raise ValueError('Main fuselage does not have a total length')
 	    

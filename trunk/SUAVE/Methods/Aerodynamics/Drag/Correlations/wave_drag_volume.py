@@ -46,8 +46,8 @@ def wave_drag_volume(conditions,configuration,wing):
     # unpack inputs
     freestream = conditions.freestream
     
-    total_length = wing.chord_root
-    Sref = wing.sref
+    total_length = wing.Chords.root
+    Sref = wing.Areas.reference
     
     # conditions
     Mc  = copy.copy(freestream.mach_number)
@@ -56,7 +56,7 @@ def wave_drag_volume(conditions,configuration,wing):
     #print "ARL = " + str(ARL)
     
     # thickness to chord
-    t_c_w = wing.t_c
+    t_c_w = wing.thickness_to_chord
     
     # Computations
     x = np.pi*ARL/4

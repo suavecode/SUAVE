@@ -265,7 +265,7 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     for wing in geometry.Wings.values():
         
         [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
+        total_lift_coeff += wing_lift_coeff * wing.Areas.reference / vehicle_reference_area
 
     return total_lift_coeff
     
@@ -281,7 +281,7 @@ def calculate_lift_linear_supersonic(conditions,configuration,geometry):
     for wing in geometry.Wings.values():
         
         wing_lift_coeff = linear_supersonic_lift(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
+        total_lift_coeff += wing_lift_coeff * wing.Areas.reference / vehicle_reference_area
     
     return total_lift_coeff    
 

@@ -55,7 +55,7 @@ def datcom(wing,mach):
     try:
         ar = wing.effective_aspect_ratio
     except AttributeError:   
-        ar = wing.ar
+        ar = wing.aspect_ratio
     sweep  = wing.sweep # Value is at the leading edge
     
     #Compute relevent parameters

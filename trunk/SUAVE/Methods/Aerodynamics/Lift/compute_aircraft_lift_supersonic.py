@@ -108,7 +108,7 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
     compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
     compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment
     wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05])
-    if wing.vortexlift is True:
+    if wing.vortex_lift is True:
         vortex_cl[Mc < 1.0] = vortex_lift(X_interp[Mc < 1.0],configuration,wing) # This was initialized at 0.0
     wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05]) + vortex_cl[Mc <= 1.05]
     

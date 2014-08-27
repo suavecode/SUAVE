@@ -3,6 +3,7 @@
 from Component import Component
 from Component_Exception import Component_Exception
 
+from Mass_Properties import Mass_Properties
 from Mass_Props import Mass_Props
 from Physical_Component import Physical_Component
 
