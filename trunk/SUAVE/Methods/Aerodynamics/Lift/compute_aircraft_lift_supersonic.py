@@ -91,13 +91,6 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
     
     # pack for interpolate
     X_interp = AoA
-	
-    # Check case
-    wings_lift_model = configuration.surrogate_models_sub.lift_coefficient
-    wings_lift = wings_lift_model(X_interp)  
-    compress_corr = 1./(np.sqrt(1.-Mc**2.))
-    wings_lift_comp = wings_lift * compress_corr
-    wings_lift_comp1 = copy(wings_lift_comp)
     
     
     wings_lift = np.array([[0.0]] * len(Mc))
@@ -125,8 +118,6 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
     wings_lift[Mc > 1.05] = wings_lift_model(X_interp[Mc > 1.05])
     
     wings_lift_comp = wings_lift * compress_corr    
-    if wings_lift_comp[5] != wings_lift_comp1[5]:
-        a = 0
         
     aircraft_lift_total = wings_lift_comp * fus_correction
     # store results

@@ -39,6 +39,10 @@ def main():
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
     
+    velocity   = results.Segments["Climb - 9"].conditions.freestream.velocity[:,0]
+    Thrust = results.Segments["Climb - 9"].conditions.frames.body.thrust_force_vector[:,0]
+    power = velocity*Thrust/1000.0    
+    
     # plot results
     post_process(vehicle,mission,results)
     
@@ -65,7 +69,7 @@ def define_vehicle():
 
     cell_power_weight = 1500 # W/kg
 
-    n_select = 2
+    n_select = 3
     if n_select == 0:
         vehicle_propellant = SUAVE.Attributes.Propellants.Jet_A()
         vehicle.Mass_Props.m_full       = 53000    # kg

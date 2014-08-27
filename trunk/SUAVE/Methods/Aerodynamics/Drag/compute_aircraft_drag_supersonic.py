@@ -1,7 +1,7 @@
 # compute_aircraft_drag.py
 # 
 # Created:  Anil V., Dec 2013
-# Modified: Anil, Trent, Tarik, Feb 2014 
+# Modified: T. MacDonald, Aug 2014
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -29,7 +29,7 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 def compute_aircraft_drag_supersonic(conditions,configuration,geometry=None):
-    """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag(conditions,configuration,geometry)
+    """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag_supersonic(conditions,configuration,geometry)
         computes the lift associated with an aircraft 
         
         Inputs:
@@ -56,47 +56,31 @@ def compute_aircraft_drag_supersonic(conditions,configuration,geometry=None):
             
     """    
     
-    # unpack inputs
+    # Unpack inputs
     trim_correction_factor = configuration.trim_drag_correction_factor
-    try:
-        drag_breakdown = conditions.aerodynamics.drag_breakdown
-    except:
-        print("Drag Polar Mode")
+    drag_breakdown = conditions.aerodynamics.drag_breakdown
     
-    # various drag components
+    # Various drag components
     parasite_total        = parasite_drag_aircraft_supersonic(conditions,configuration,geometry) 
     induced_total         = induced_drag_aircraft_supersonic (conditions,configuration,geometry)
     compressibility_total = compressibility_drag_total_supersonic(conditions,configuration,geometry) 
-    #compressibility_total = compressibility_drag_wing(conditions,configuration,geometry) 
     miscellaneous_drag    = miscellaneous_drag_aircraft(conditions,configuration,geometry)
     
     
-    # untrimmed drag
+    # Untrimmed drag
     aircraft_untrimmed = parasite_total        \
                        + induced_total         \
                        + compressibility_total \
                        + miscellaneous_drag 
     
-    # trim correction
+    # Trim correction
     aircraft_total_drag = aircraft_untrimmed * trim_correction_factor
-    try:
-        drag_breakdown.miscellaneous.trim_correction_factor = trim_correction_factor
+    drag_breakdown.miscellaneous.trim_correction_factor = trim_correction_factor
     
-        # store to results
-        drag_breakdown.total     = aircraft_total_drag
-        drag_breakdown.untrimmed = aircraft_untrimmed
-    except:
-        print("Drag Polar Mode")        
+    # Store to results
+    drag_breakdown.total     = aircraft_total_drag
+    drag_breakdown.untrimmed = aircraft_untrimmed       
     
-    # Drag debug outputs
-    #print "Parasite Drag = " + str(parasite_total[1])
-    #print "Induced Drag = " + str(induced_total[1])
-    #print "Compressibility Drag = " + str(compressibility_total[1])
-    #print "Misc Drag = " + str(miscellaneous_drag[1])
-    #print "Trim Factor = " + str(trim_correction_factor)    
-    #print "Total Drag = " + str(aircraft_total_drag[1])
-    
-    # done!
     return aircraft_total_drag
 
 

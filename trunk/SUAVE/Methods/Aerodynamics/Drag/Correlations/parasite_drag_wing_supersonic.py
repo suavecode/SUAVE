@@ -97,8 +97,8 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
     Re_w = roc * V * mac_w/muc    
     
     # skin friction  coefficient
-    cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
-    #cf_w, k_comp, k_reyn = compressible_mixed_flat_plate(Re_w,Mc,Tc,xt)
+    #cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
+    cf_w, k_comp, k_reyn = compressible_mixed_flat_plate(Re_w,Mc,Tc,xt)
 
     # correction for airfoils
     k_w = np.array([[0.0]] * len(Mc))
