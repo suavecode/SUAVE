@@ -29,8 +29,21 @@ from SUAVE.Components.Energy.Converters.Propeller_Design import Propeller_Design
 # ----------------------------------------------------------------------
 def main():
     
-    # build the vehicle
-    vehicle = define_vehicle()
+    weight      = 200.0 #Kg
+    weight_last = 0.0 
+    delta       = weight - weight_last
+    
+    while delta > 0.5:
+    
+        # build the vehicle
+        vehicle = define_vehicle(weight)
+        
+        weight_last = weight
+        weight      = vehicle.Mass_Props.mass
+        delta       = np.abs(weight - weight_last)
+        
+    print('Converged Vehicle Weight:')
+    print(weight)
     
     # define the mission
     mission = define_mission(vehicle)
@@ -48,7 +61,7 @@ def main():
 #   Build the Vehicle
 # ----------------------------------------------------------------------
 
-def define_vehicle():
+def define_vehicle(weight):
     
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -62,15 +75,15 @@ def define_vehicle():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.Mass_Props.m_full       = 200.0
-    vehicle.Mass_Props.m_empty      = 200.0
-    vehicle.Mass_Props.m_takeoff    = 200.0 
+    vehicle.Mass_Props.m_full    = weight
+    vehicle.Mass_Props.m_empty   = weight
+    vehicle.Mass_Props.m_takeoff = weight 
     
     # basic parameters
     vehicle.delta         = 0.                # deg
     vehicle.S             = 80.               # m^2
     vehicle.Ultimate_Load = 2.0
-    vehicle.qm            = 0.5*1.225*(25.**2.) #Max q
+    vehicle.qm            = 0.5*1.225*(20.**2.) #Max q
     vehicle.Ltb           = 10.
     
     # ------------------------------------------------------------------        
@@ -120,13 +133,13 @@ def define_vehicle():
     wing.symmetric = True          
     wing.t_c       = 0.12                       #
     wing.taper     = 1                          #
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #      
+    wing.twist_rc  = 0.0*Units.degrees     #
+    wing.twist_tc  = 0.0*Units.degrees     #      
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = wing.sref/wing.span
+    wing.chord_mac  = wing.sref/wing.span
     wing.S_exposed  = 0.8*wing.area_wetted  #
     wing.S_affected = 0.6*wing.area_wetted  #      
     wing.e          = 0.95                   #
@@ -151,13 +164,13 @@ def define_vehicle():
     wing.symmetric = True          
     wing.t_c       = 0.12                       #
     wing.taper     = 1                          #
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #          
+    wing.twist_rc  = 0.0*Units.degrees     #
+    wing.twist_tc  = 0.0*Units.degrees     #          
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = wing.sref/wing.span
+    wing.chord_mac  = wing.sref/wing.span
     wing.S_exposed  = 0.8*wing.area_wetted  #
     wing.S_affected = 0.6*wing.area_wetted  #      
     wing.e          = 0.95                  #
@@ -254,7 +267,7 @@ def define_vehicle():
     
     # Component 8 the Battery
     bat                 = SUAVE.Components.Energy.Storages.Battery()
-    bat.Mass_Props.mass = 150. #kg
+    bat.Mass_Props.mass = 83. #kg
     bat.type            = 'Li-Ion'
     bat.R0              = 0.07
     net.battery         = bat
@@ -291,10 +304,27 @@ def define_vehicle():
     # --- Cruise Configuration ---
     config = vehicle.new_configuration("cruise")
     # this configuration is derived from vehicle.Configs.takeoff
+    
+    # ------------------------------------------------------------------
+    #   Add up all of the masses
+    # ------------------------------------------------------------------
+    wingmass  = vehicle.Wings['Main Wing'].Mass_Props.mass
+    HTmass    = vehicle.Wings['Horizontal Stabilizer'].Mass_Props.mass
+    VTmass    = vehicle.Wings['Vertical Stabilizer'].Mass_Props.mass
+    batmass   = bat.Mass_Props.mass
+    motmass   = motor.Mass_Props.mass
+    paylmass  = payload.Mass_Props.mass
+    panelmass = panel.Mass_Props.mass
+    
+    total_mass = (wingmass + HTmass + VTmass + batmass +
+                  motmass + paylmass + panelmass)
+    
+    vehicle.Mass_Props.mass = total_mass
 
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
+    
     
     return vehicle
 
@@ -315,62 +345,14 @@ def define_mission(vehicle):
     
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
-    
-    # ------------------------------------------------------------------
-    #   Climb Segment: Constant Speed, constant throttle
-    # ------------------------------------------------------------------
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Throttle_Constant_Speed()
-    segment.tag = "Climb 1"
-    
-    # connect vehicle configuration
-    segment.config = vehicle.Configs.takeoff
-    
-    # define segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
-    segment.altitude_start = 14.0   * Units.km
-    segment.altitude_end   = 18.0   * Units.km
-    segment.air_speed      = 30.0  * Units['m/s']
-    segment.throttle       = 0.6
-    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
-    segment.latitude       = 37.4300
-    segment.longitude      = -122.1700
-    
-    
-    # add to misison
-    mission.append_segment(segment)
-    
-    # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant rate
-    # ------------------------------------------------------------------    
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "Climb - 2"
-    
-    # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
-    
-    # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
-    segment.altitude_start = 18.0   * Units.km # Optional
-    segment.altitude_end   = 28.0   * Units.km
-    segment.air_speed      = 30.0 * Units['m/s']
-    segment.climb_rate     = 0.5   * Units['m/s']
-
-    # add to mission
-    mission.append_segment(segment)
+    planet     = SUAVE.Attributes.Planets.Earth()
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
-    segment.tag = "Cruise"
+    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Altitude_Radius_Loiter()
+    segment.tag = "Loiter"
     
     # connect vehicle configuration
     segment.config = vehicle.Configs.cruise
@@ -379,32 +361,17 @@ def define_mission(vehicle):
     segment.atmosphere = atmosphere
     segment.planet     = planet        
     
-    segment.altitude   = 28.0  * Units.km     # Optional
-    segment.air_speed  = 40.0 * Units['m/s']
-    segment.distance   = 200.0 * Units.km
+    segment.altitude       = 20.0  * Units.km     # Optional
+    segment.air_speed      = 50.0  * Units['m/s']
+    segment.radius         = 2.0   * Units.km
+    segment.time           = 2.0   * Units.minutes
+    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
+    segment.latitude       = 37.4300
+    segment.longitude      = -122.1700    
+    segment.numerics.n_control_points = 32
         
     mission.append_segment(segment)
-
-    # ------------------------------------------------------------------    
-    #   First Descent Segment: constant speed, constant segment rate
-    # ------------------------------------------------------------------    
-
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "Descent - 1"
     
-    # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
-    
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet   
-    
-    segment.altitude_end = 18.   * Units.km
-    segment.air_speed    = 40.0 * Units['m/s']
-    segment.descent_rate = 0.8  * Units['m/s']
-    
-    # add to mission
-    mission.append_segment(segment) 
 
     # ------------------------------------------------------------------    
     #   Mission definition complete    
@@ -580,7 +547,7 @@ def post_process(vehicle,mission,results):
         energy = results.Segments[i].conditions.propulsion.solar_flux[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Solar Flux (W/m^2)')
+    axes.set_ylabel('Solar Flux ($W/m^{2}$)')
     axes.grid(True)      
     
     # ------------------------------------------------------------------    
@@ -612,18 +579,44 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Battery Draw
     # ------------------------------------------------------------------
-    plt.figure("Battery Draw")
+    plt.figure("Battery Charging")
     axes = plt.gca()    
     for i in range(len(results.Segments)):     
         time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
         energy = results.Segments[i].conditions.propulsion.battery_draw[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Battery Draw (Watts)')
+    axes.set_ylabel('Battery Charging (Watts)')
+    axes.grid(True)    
+    
+    # ------------------------------------------------------------------    
+    #   Propulsive efficiency
+    # ------------------------------------------------------------------
+    plt.figure("Prop")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        etap = results.Segments[i].conditions.propulsion.etap[:,0] 
+        axes.plot(time, etap, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Etap')
     axes.grid(True)      
     
+    # ------------------------------------------------------------------    
+    #   Flight Path
+    # ------------------------------------------------------------------
+    plt.figure("Flight Path")
+    axes = plt.gca()    
+    for i in range(len(results.Segments)):     
+        lat = results.Segments[i].conditions.frames.planet.latitude[:,0] 
+        lon = results.Segments[i].conditions.frames.planet.longitude[:,0] 
+        axes.plot(lon, lat, 'bo-')
+    axes.set_ylabel('Latitude')
+    axes.set_xlabel('Longitude')
+    axes.grid(True)       
     
-    plt.show()     
+    
+    plt.show() 
     
     return     
 

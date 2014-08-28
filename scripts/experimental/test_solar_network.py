@@ -32,12 +32,12 @@ from SUAVE.Components.Energy.Converters.Propeller_Design import Propeller_Design
 #Propeller design specs
 design_altitude = 0.0 * Units.km
 Velocity        = 10.0  # freestream m/s
-RPM             = 5887.
+RPM             = 5100.
 Blades          = 2.0
 Radius          = .4064
 Hub_Radius      = 0.02
-Thrust          = 0.0    #Specify either thrust or power to design for
-Power           = 12042.0 #Specify either thrust or power to design for
+Thrust          = 235. #Specify either thrust or power to design for
+Power           = 0.0  #Specify either thrust or power to design for
 atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
 p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
 
@@ -82,24 +82,24 @@ net.propeller = prop
 
 # Component 4 the Motor
 motor = SUAVE.Components.Energy.Converters.Motor()
-motor.Res = 0.005
-motor.io = 10
+motor.Res = 0.008
+motor.io = 4.5
 motor.kv = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
 motor.propradius = prop.Prop_attributes.R
 motor.propCp = prop.Prop_attributes.Cp
 motor.G   = 1. # Gear ratio
 motor.etaG = 1. # Gear box efficiency
-motor.exp_i = 260. # Expected current
+motor.exp_i = 160. # Expected current
 net.motor = motor    
 
 # Component 6 the Payload
-payload = SUAVE.Components.Energy.Sinks.Payload()
+payload = SUAVE.Components.Energy.Peripherals.Payload()
 payload.draw = 0. #Watts 
 payload.Mass_Props.mass = 0.0 * Units.kg
 net.payload = payload
 
 # Component 7 the Avionics
-avionics = SUAVE.Components.Energy.Sinks.Avionics()
+avionics = SUAVE.Components.Energy.Peripherals.Avionics()
 avionics.draw = 0. #Watts  
 net.avionics = avionics
 

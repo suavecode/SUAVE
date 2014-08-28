@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import time
 from SUAVE.Structure                    import Data, Data_Exception
 from SUAVE.Structure                    import Container as ContainerBase
 from SUAVE.Attributes.Planets           import Planet
@@ -78,6 +79,11 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.frames.body.thrust_force_vector      = ones_3col * 0
         conditions.frames.body.transform_to_inertial    = np.empty([0,0,0])
         
+        # planet frame conditions
+        conditions.frames.planet = Data()
+        conditions.frames.planet.latitude        = ones_1col * 0
+        conditions.frames.planet.longitude       = ones_1col * 0
+        
         # freestream conditions
         conditions.freestream.velocity           = ones_1col * 0
         conditions.freestream.mach_number        = ones_1col * 0
@@ -136,13 +142,19 @@ class Aerodynamic_Segment(Base_Segment):
         
         # process initials
         if initials:
-            energy_initial = initials.propulsion.battery_energy[0,0]
-
+            energy_initial    = initials.propulsion.battery_energy[0,0]
+            longitude_initial = initials.frames.planet.longitude[0,0]
+            latitude_initial  = initials.frames.planet.latitude[0,0]
+            
         else:
-            energy_initial = self.battery_energy
+            energy_initial    = self.battery_energy
+            longitude_initial = self.longitude
+            latitude_initial  = self.latitude
             
         # apply initials
         conditions.propulsion.battery_energy[:,0]   = energy_initial
+        conditions.frames.planet.longitude[:,0]     = longitude_initial
+        conditions.frames.planet.latitude[:,0]      = latitude_initial
         
         return conditions
     
@@ -423,7 +435,7 @@ class Aerodynamic_Segment(Base_Segment):
         # pack aerodynamics angles
         conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
         conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
-        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]        
+        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]    
         
         # pack transformation tensor
         conditions.frames.body.transform_to_inertial = T_body2inertial
@@ -470,7 +482,7 @@ class Aerodynamic_Segment(Base_Segment):
         D = orientation_product(T_wind2inertial,wind_drag_force_vector)
         T = orientation_product(T_body2inertial,body_thrust_force_vector)
         W = inertial_gravity_force_vector
-        
+
         # sum of the forces
         F = L + D + T + W
         # like a boss

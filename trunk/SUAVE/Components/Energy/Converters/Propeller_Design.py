@@ -63,6 +63,8 @@ def Propeller_Design(Prop_attributes):
     Cl    = Prop_attributes.Des_CL # Design Lift Coefficient
     nu    = Prop_attributes.nu     # Kinematic Viscosity
     rho   = Prop_attributes.rho    # Density
+    a     = Prop_attributes.a      # Speed of Sound
+    T     = Prop_attributes.T      # Temperature
     
     tol   = 1e-10# Convergence tolerance
     N     = 20. # Number of Stations
@@ -101,11 +103,23 @@ def Propeller_Design(Prop_attributes):
         
         G       = F*x*np.cos(phi)*np.sin(phi) #Circulation function
         Wc      = 4.*np.pi*lamda*G*V*R*zeta/(Cl*B)
+        Ma      = Wc/a
         RE      = Wc/nu
 
         #Step 4, determine epsilon and alpha from airfoil data
+        
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        #There is also RE scaling
+        Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
 
-        Cd     = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
+        #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        Tw_Tinf = 1. + 1.78*(Ma**2)
+        Tp_Tinf = 1. + 0.035*(Ma**2) + 0.45*(Tw_Tinf-1.)
+        Tp      = Tp_Tinf*T
+        Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+        
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        
         alpha   = Cl/(2.*np.pi)
         epsilon = Cd/Cl
         

@@ -52,13 +52,47 @@ class Solar_Network(Data):
         solar_logic = self.solar_logic
         battery     = self.battery
         
-        #Time and location of the mission start
-        conditions.frames.planet          = Data()
-        conditions.frames.planet.lat      = 37.4300
-        conditions.frames.planet.lon      = -122.1700
-        conditions.frames.planet.timedate = time.strptime("Sat, Jun 21 12:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
+
+        #================================
+        # Lat/Lon
+        #================================
         
-        #Set battery energy
+        # Time of the mission start
+        conditions.frames.planet.timedate  = time.strptime("Sat, Jun 21 12:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
+        
+        # Unpack some conditions
+        V          = conditions.freestream.velocity[:,0]
+        altitude   = conditions.freestream.altitude[:,0]
+        phi        = conditions.frames.body.inertial_rotations[:,0]
+        theta      = conditions.frames.body.inertial_rotations[:,1]
+        psi        = conditions.frames.body.inertial_rotations[:,2]
+        I          = numerics.integrate_time
+        alpha      = conditions.aerodynamics.angle_of_attack[:,0]
+        earthstuff = SUAVE.Attributes.Planets.Earth()
+        Re         = earthstuff.mean_radius   
+        
+        gamma     = theta - alpha
+        R         = altitude + Re
+        lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
+        lamda     = np.dot(I,lamdadot) / Units.deg # Latitude
+        mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
+        mu        = np.dot(I,mudot) / Units.deg # Longitude
+
+        shape     = np.shape(conditions.freestream.velocity)
+        mu        = np.reshape(mu,shape) 
+        lamda     = np.reshape(lamda,shape)
+
+        lat = conditions.frames.planet.latitude[0,0]
+        lon = conditions.frames.planet.longitude[0,0]
+        
+        conditions.frames.planet.latitude  = lat + lamda
+        conditions.frames.planet.longitude = lon + mu    
+        
+        #===================================
+        #
+        #===================================
+       
+        # Set battery energy
         battery.CurrentEnergy = conditions.propulsion.battery_energy
         
         # step 1

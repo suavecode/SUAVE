@@ -52,8 +52,8 @@ class solar(Energy_Component):
         
         # Unpack
         timedate  = conditions.frames.planet.timedate
-        latitude  = conditions.frames.planet.lat
-        longitude = conditions.frames.planet.lon
+        latitude  = conditions.frames.planet.latitude
+        longitude = conditions.frames.planet.longitude
         phip      = conditions.frames.body.inertial_rotations[:,0]
         thetap    = conditions.frames.body.inertial_rotations[:,1]
         psip      = conditions.frames.body.inertial_rotations[:,2]
@@ -95,7 +95,7 @@ class solar(Energy_Component):
         gammas = np.sign(HRA)*np.abs((np.cos(psi)*np.sin(latitude*np.pi/180.)-np.sin(delta))/(np.sin(psi)*np.cos(latitude*np.pi/180)))
         
         # Slope of the solar panel, Bower AIAA 2011-7072 EQN 15
-        beta = np.arccos(np.cos(thetap)*np.cos(phip))
+        beta = np.reshape(np.arccos(np.cos(thetap)*np.cos(phip)),np.shape(gammas))
         
         # Angle of incidence, Duffie/Beckman 1.6.3
         theta = np.arccos(np.cos(psi)*np.cos(beta)+np.sin(psi)*np.sin(beta)*np.cos(gammas-gamma))
@@ -119,7 +119,7 @@ class solar(Energy_Component):
                 Id = 1.1*Io*(0.7**(AM**0.678))
                 
                 # Horizontal Solar Flux on the panel
-                Ih = Id*(np.cos(latitude*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude*np.pi/180.)*np.sin(delta[ii,0]))              
+                Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))              
                  
                 # Solar flux on the inclined panel, Duffie/Beckman 1.8.1
                 I = Ih*np.cos(theta[ii,0])/np.cos(psi[ii,0])
@@ -129,7 +129,7 @@ class solar(Energy_Component):
                 Id = 1.1*Io
                 
                 # Horizontal Solar Flux on the panel
-                Ih = Id*(np.cos(latitude*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude*np.pi/180.)*np.sin(delta[ii,0]))           
+                Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))           
        
                 # Solar flux on the inclined panel, Duffie/Beckman 1.8.1
                 I = Ih*np.cos(theta[ii,0])/np.cos(psi[ii,0])

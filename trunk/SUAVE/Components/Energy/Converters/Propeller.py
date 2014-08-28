@@ -68,14 +68,15 @@ class Propeller(Energy_Component):
         mu    = conditions.freestream.viscosity
         V     = conditions.freestream.velocity[:,0]
         a     = conditions.freestream.speed_of_sound
+        T     = conditions.freestream.temperature
         
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
            
         ######
-        # Enter airfoil data
+        # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
         ######
-        
+
         #Things that don't change with iteration
         N       = len(c) #Number of stations
         chi0    = Rh/R # Where the propeller blade actually starts
@@ -114,8 +115,8 @@ class Propeller(Energy_Component):
             vt    = Ut - Wt
             alpha = beta - np.arctan2(Wa,Wt)
             W     = np.sqrt(Wa**2. + Wt**2.)
-            Re    = W*c*nu
-            #Ma    = W/a #a is the speed of sound
+            Re    = W*c/nu
+            Ma    = W/a #a is the speed of sound
             
             lamdaw = r*Wa/(R*Wt)
             f      = (B/2.)*(1.-r/R)/lamdaw
@@ -125,7 +126,10 @@ class Propeller(Energy_Component):
             Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))**2.)
             
             #Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*np.pi*alpha
+            Clvals = 2.*np.pi*alpha
+            
+            #Scale for Mach, this is Karmen_Tsien
+            Cl = Clvals/(np.sqrt(1-Ma**2)+((Ma**2)/(1+np.sqrt(1-Ma**2)))*Clvals/2)
             
             Rsquiggly = Gamma - 0.5*W*c*Cl   
             
@@ -145,7 +149,18 @@ class Propeller(Energy_Component):
             diff   = abs(psiold-psi)
             psiold = psi
     
-        Cd       = 0.01385 #From xfoil of the DAE51 at RE=150k, Cl=0.7
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        #There is also RE scaling
+        Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        
+        #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        Tw_Tinf = 1. + 1.78*(Ma**2)
+        Tp_Tinf = 1. + 0.035*(Ma**2) + 0.45*(Tw_Tinf-1.)
+        Tp      = Tp_Tinf*T
+        Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+        
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        
         epsilon  = Cd/Cl
         deltar   = (r[1]-r[0])
         thrust   = rho[:,0]*B*np.transpose(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1))
@@ -157,8 +172,10 @@ class Propeller(Energy_Component):
 
         thrust[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0
-        
-        #etap     = V*thrust/(power)
 
+        etap     = V*thrust/(power)
+        
+        conditions.propulsion.etap = np.reshape(etap,np.shape(conditions.freestream.density))       
+        
         return thrust, torque, power, Cp
     
