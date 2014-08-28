@@ -94,6 +94,7 @@ def empty(vehicle):
     thrust_sls = vehicle.Propulsors['Turbo Fan'].Thrust.design
     
     S_gross_w  = vehicle.reference_area
+    #S_gross_w  = vehicle.Wings['Main Wing'].Areas.reference
     b          = vehicle.Wings['Main Wing'].Spans.projected
     lambda_w   = vehicle.Wings['Main Wing'].taper
     t_c_w      = vehicle.Wings['Main Wing'].thickness_to_chord

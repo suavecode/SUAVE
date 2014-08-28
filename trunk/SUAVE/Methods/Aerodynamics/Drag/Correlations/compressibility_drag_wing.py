@@ -54,7 +54,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     for i_wing, wing, in enumerate(wings.values()):
         
         # unpack wing
-        t_c_w   = wing.t_c
+        t_c_w   = wing.thickness_to_chord
         sweep_w = wing.sweep
         
         if i_wing == 0:

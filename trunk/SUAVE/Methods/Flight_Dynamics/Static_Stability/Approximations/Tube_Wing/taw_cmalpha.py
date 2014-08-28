@@ -70,21 +70,21 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 
     # Unpack inputs
     Sref  = geometry.reference_area
-    mac   = geometry.Wings['Main Wing'].chord_mac
+    mac   = geometry.Wings['Main Wing'].Chords.mean_aerodynamic
     C_Law = conditions.lift_curve_slope
     x_cg  = configuration.mass_props.pos_cg[0]
     x_rqc = geometry.Wings['Main Wing'].origin[0]
     w_f   = geometry.Fuselages.Fuselage.width
-    l_f   = geometry.Fuselages.Fuselage.length_total
+    l_f   = geometry.Fuselages.Fuselage.Lengths.total
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
     for surf in geometry.Wings:
         #Unpack inputs
-        s         = surf.sref
+        s         = surf.Areas.reference
         x_surf    = surf.origin[0]
-        x_ac_surf = surf.aero_center[0]
+        x_ac_surf = surf.aerodynamic_center[0]
         eta       = surf.eta
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha

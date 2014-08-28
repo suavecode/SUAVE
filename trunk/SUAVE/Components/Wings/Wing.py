@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
+from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
 from Airfoils import Airfoil
 
 # ------------------------------------------------------------
@@ -15,36 +15,55 @@ from Airfoils import Airfoil
 class Wing(Lofted_Body):
     def __defaults__(self):
         self.tag = 'Wing'
-        self.symmetric    = True
+        self.Mass_Properties = Mass_Properties()
+        self.position  = [0.0,0.0,0.0]
+        self.symmetric = True
+        
         self.sweep        = 0.0
         self.taper        = 0.0
         self.dihedral     = 0.0
-        self.span         = 0.0
         self.aspect_ratio = 0.0
-        self.aero_center  = [0.0,0.0,0.0]
-        self.total_area   = 0.0
-        self.total_span   = 0.0
-        self.avg_chord    = 0.0
-        self.mac_chord    = 0.0
-        self.ref          = Data()
-        self.ref.A        = 0.0
-        self.ref.span     = 0.0
-        self.ref.chord    = 0.0
-        self.t_c          = 0.0
-        self.totals       = Data()
-        self.totals.area  = 0.0
-        self.totals.span  = 0.0
-        self.totals.proj_span = 0.0
-        self.Sections     = SectionContainer()
-        self.Segments     = SegmentContainer()
-        self.highlift     = False
-        self.flaps_chord  = 0.0
-        self.flaps_angle  = 0.0
-        self.slats_angle  = 0.0
-        self.hl           = 0
-        self.flap_type    = 'none'
-        self.S_affected   = 0.
-        self.vertical     = False
+        self.thickness_to_chord = 0.0
+        self.span_efficiency = 0.9
+        self.aerodynamic_center = [0.0,0.0,0.0]
+        
+        self.Spans = Data()
+        self.Spans.projected = 0.0
+        
+        self.Areas = Data()
+        self.Areas.reference = 0.0
+        self.Areas.exposed = 0.0
+        self.Areas.affected = 0.0
+        self.Areas.wetted = 0.0
+        
+        self.Chords = Data()
+        self.Chords.mean_aerodynamic = 0.0
+        self.Chords.mean_geometric = 0.0
+        self.Chords.root = 0.0
+        self.Chords.tip = 0.0
+        
+        self.Twists = Data()
+        self.Twists.root = 0.0
+        self.Twists.tip = 0.0
+        
+        self.Flaps = Data()
+        self.Flaps.chord = 0.0
+        self.Flaps.angle = 0.0
+        self.Flaps.span_start = 0.0
+        self.Flaps.span_end = 0.0
+        self.Flaps.type = None
+        
+        self.Slats = Data()
+        self.Slats.chord = 0.0
+        self.Slats.angle = 0.0
+        self.Slats.span_start = 0.0
+        self.Slats.span_end = 0.0
+        self.Slats.type = None        
+        
+        self.high_lift     = False
+        self.high_mach     = False
+        self.vortex_lift   = False
+        self.transition_x  = 0.0
           
         
     def append_segment(self,segment):

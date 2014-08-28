@@ -104,9 +104,9 @@ class Fidelity_Zero(Data):
             
             # Calculate change in downwash with respect to change in angle of attack
             for surf in geometry.Wings:
-                e = surf.e
-                sref = surf.sref
-                span = (surf.ar * sref ) ** 0.5
+                e = surf.span_efficiency
+                sref = surf.Areas.reference
+                span = (surf.aspect_ratio * sref ) ** 0.5
                 surf.CL_alpha = datcom(surf,mach)
                 surf.ep_alpha = Supporting_Functions.ep_alpha(surf.CL_alpha, sref, span, e)
             
@@ -118,15 +118,15 @@ class Fidelity_Zero(Data):
                 # Dynamic Stability Approximation Methods
                 if not aero.has_key('cn_r'):  
                     cDw = aero.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
-                    l_v = geometry.Wings['Vertical Stabilizer'].origin[0] + geometry.Wings['Vertical Stabilizer'].aero_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aero_center[0]
-                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].sref, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
+                    l_v = geometry.Wings['Vertical Stabilizer'].origin[0] + geometry.Wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aerodynamic_center[0]
+                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].Areas.reference, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
                 if not aero.has_key('cl_p'):
                     aero.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
                     
                 if not aero.has_key('cl_beta'):
                     aero.cl_beta = 0 # Need to see if there is a low fidelity way to calculate cl_beta
                 
-                l_t = geometry.Wings['Horizontal Stabilizer'].origin[0] + geometry.Wings['Horizontal Stabilizer'].aero_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aero_center[0] #Need to check this is the length of the horizontal tail moment arm       
+                    l_t = geometry.Wings['Horizontal Stabilizer'].origin[0] + geometry.Wings['Horizontal Stabilizer'].aerodynamic_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
                 
                 if not aero.has_key('cm_q'):
                     aero.cm_q = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha

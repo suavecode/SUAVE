@@ -77,7 +77,7 @@ def define_vehicle():
 
     # basic parameters
     vehicle.delta    = 25.0                     # deg
-    vehicle.S        = 124.862                  # 
+    vehicle.reference_area        = 124.862                  # 
     vehicle.A_engine = np.pi*(0.9525)**2
     vehicle.Ultimate_Load     = 3.5
     vehicle.Limit_Load    = 1.5
@@ -94,26 +94,26 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.sref      = 124.862        #
-    wing.ar        = 8              #
-    wing.span      = 35.66          #
-    wing.sweep     = 25 * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.1            #
-    wing.taper     = 0.16           #
-    wing.origin    = [20,0,0]       # Not correct location
-    wing.aero_center =[3,0,0]      # Not correct location (Position from the wing origin)
+    wing.Areas.reference = 124.862    #
+    wing.aspect_ratio    = 8        #
+    wing.Spans.projected = 35.66      #
+    wing.sweep           = 25 * Units.deg
+    wing.symmetric       = False
+    wing.thickness_to_chord = 0.1
+    wing.taper           = 0.16
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = 12.5                  #
-    wing.S_exposed   = 0.8*wing.area_wetted  #
-    wing.S_affected  = 0.6*wing.area_wetted  #
-    wing.e           = 0.9                   #
-    wing.twist_rc    = 3.0*Units.degrees     #
-    wing.twist_tc    = 3.0*Units.degrees     #
-    wing.highlift    = False                 #
+    wing.Chords.mean_aerodynamic = 12.5
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 3.0*Units.degrees
+    wing.Twists.tip  = 3.0*Units.degrees
+    wing.origin          = [20,0,0]
+    wing.aerodynamic_center = [3,0,0] 
+    wing.vertical   = False
     wing.eta         = 1.0
     #wing.hl          = 1                    #
     #wing.flaps_chord = 20                   #
@@ -131,26 +131,27 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.sref      = 32.488         #
-    wing.ar        = 6.16           #
-    wing.span      = 14.146         #
-    wing.sweep     = 30 * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.08           #
-    wing.taper     = 0.4            #
+    wing.Areas.reference = 32.488    #
+    wing.aspect_ratio    = 6.16      #
+    wing.Spans.projected = 14.146      #
+    wing.sweep           = 30 * Units.deg
+    wing.symmetric       = True
+    wing.thickness_to_chord = 0.08
+    wing.taper           = 0.4
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 8.0                   #
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 3.0*Units.degrees     #
-    wing.twist_tc   = 3.0*Units.degrees     #
-    wing.eta        = 0.9
-    wing.origin    = [50,0,0]       # Not correct location
-    wing.aero_center =[2,0,0]      # Not correct location (Position from the Wing origin)   
+    wing.Chords.mean_aerodynamic = 8.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 3.0*Units.degrees
+    wing.Twists.tip  = 3.0*Units.degrees  
+    wing.origin          = [50,0,0]
+    wing.aerodynamic_center = [2,0,0]
+    wing.vertical   = False 
+    wing.eta         = 0.9  
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -163,28 +164,28 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.sref      = 32.488         #
-    wing.ar        = 1.91           #
-    wing.span      = 7.877          #
-    wing.sweep     = 25 * Units.deg #
-    wing.symmetric = False          #
-    wing.t_c       = 0.08           #
-    wing.taper     = 0.25           #
-    wing.origin    = [50,0,0]       # Not correct location
-    wing.aero_center =[2,0,0]      # Not correct location (Position from the wing origin)
-    wing.T_tail    = "no"           # Maybe change the naming convention
+    wing.Areas.reference = 32.488    #
+    wing.aspect_ratio    = 1.91      #
+    wing.Spans.projected = 7.877      #
+    wing.sweep           = 25 * Units.deg
+    wing.symmetric       = False
+    wing.thickness_to_chord = 0.08
+    wing.taper           = 0.4
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 8.0                   #
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #  
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 0.0*Units.degrees     #
-    wing.twist_tc   = 0.0*Units.degrees     #
-    wing.vertical   = True  
-    wing.eta        = 1.0
+    wing.Chords.mean_aerodynamic = 8.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 0.0*Units.degrees  
+    wing.origin          = [50,0,0]
+    wing.aerodynamic_center = [2,0,0]    
+    wing.vertical   = True 
+    wing.t_tail     = False
+    wing.eta         = 1.0
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -197,19 +198,19 @@ def define_vehicle():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
     
-    fuselage.num_coach_seats = 200  #
-    fuselage.seats_abreast   = 6    #
-    fuselage.seat_pitch      = 1    #
-    fuselage.fineness_nose   = 1.6  #
-    fuselage.fineness_tail   = 2.    #
-    fuselage.fwdspace        = 6.    #
-    fuselage.aftspace        = 5.    #
-    fuselage.width           = 4.    #
-    fuselage.height          = 4.    #
-    fuselage.side_area       = 4.* 59.8 #  Not correct
-    fuselage.height_at_quarter_length = 4. # Not correct
-    fuselage.height_at_three_quarters_length = 4. # Not correct
-    fuselage.height_at_vroot_quarter_chord = 4. # Not correct
+    fuselage.number_coach_seats = 200
+    fuselage.seats_abreast = 6
+    fuselage.seat_pitch = 1
+    fuselage.Fineness.nose = 1.6
+    fuselage.Fineness.tail = 2.
+    fuselage.Lengths.fore_space = 6.
+    fuselage.Lengths.aft_space  = 5.
+    fuselage.width = 4.
+    fuselage.Heights.maximum          = 4.    #
+    fuselage.Areas.side_projected       = 4.* 59.8 #  Not correct
+    fuselage.Heights.at_quarter_length = 4. # Not correct
+    fuselage.Heights.at_three_quarters_length = 4. # Not correct
+    fuselage.Heights.at_wing_root_quarter_chord = 4. # Not correct
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
@@ -238,6 +239,8 @@ def define_vehicle():
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
     turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
+    turbofan.Thrust = Data()
+    turbofan.Thrust.design = 25000.0
     turbofan.design_thrust                 = 25000.0  #
     turbofan.no_of_engines                 = 2.0      #
     
