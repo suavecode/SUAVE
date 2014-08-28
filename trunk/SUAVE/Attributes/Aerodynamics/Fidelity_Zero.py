@@ -92,7 +92,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
-        geometry.reference_area = vehicle.S
+        geometry.reference_area = vehicle.reference_area
               
         
         # arrays

@@ -67,8 +67,8 @@ class Fidelity_Zero(Data):
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
-        geometry.reference_area = vehicle.S
-        configuration.mass_props = vehicle.Mass_Props
+        geometry.reference_area = vehicle.reference_area
+        configuration.mass_props = vehicle.Mass_Properties
         
     
     def __call__(self,conditions):
