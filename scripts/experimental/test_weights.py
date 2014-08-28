@@ -12,7 +12,7 @@ from SUAVE.Structure import (
 # new units style
 a = 4 * Units.mm # convert into base units
 b = a / Units.mm # convert out of base units
-
+    
 vehicle = Data()
 vehicle.Envelope = Data()
 vehicle.Mass_Properties = Data()
@@ -92,4 +92,4 @@ vehicle.Wings['Vertical Stabilizer'].t_tail              = "false"              
 
 weight = Tube_Wing.empty(vehicle)
 
-print(weight.empty)
+print weight.empty
