@@ -33,8 +33,9 @@ modules = [
     'regression/test_mission_Embraer_E190.py',
     'regression/tut_mission_Cessna_172_ic.py',
     'tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py',
-    'regression/test_weights.py'
-    'regression/DC_10_noise.py'
+    'regression/test_weights.py',
+    'regression/DC_10_noise.py',
+    'regression/the_aircraft_function/test_the_aircraft_function.py',
 ]
 
 

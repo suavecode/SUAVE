@@ -9,9 +9,7 @@ from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
-# new units style
-a = 4 * Units.mm # convert into base units
-b = a / Units.mm # convert out of base units
+
 def main():
     
     vehicle = Data()
