@@ -49,8 +49,8 @@ def main():
         
         #break 
     
-        velocity   = results.Segments["Climb - 9"].conditions.freestream.velocity[:,0]
-        Thrust     = results.Segments["Climb - 9"].conditions.frames.body.thrust_force_vector[:,0]
+        velocity   = results.Segments["Climb - 10"].conditions.freestream.velocity[:,0]
+        Thrust     = results.Segments["Climb - 10"].conditions.frames.body.thrust_force_vector[:,0]
         power      = velocity*Thrust 
         max_power = np.max(power)
     
@@ -95,7 +95,7 @@ def define_vehicle():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
-    n_select = 3
+    n_select = 2
     if n_select == 0:
         vehicle_propellant = SUAVE.Attributes.Propellants.Jet_A()
         vehicle.Mass_Props.m_full       = 53000    # kg
@@ -426,13 +426,35 @@ def define_mission(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet        
     
-    segment.altitude_end = 15.54 * Units.km # 51000 ft
+    segment.altitude_end = 12.95 * Units.km # 51000 ft
     segment.mach_number_start = 1.0
-    segment.mach_number_end  = 1.4
+    segment.mach_number_end  = 1.22
     segment.climb_rate   = 1000    * Units['ft/min']
     
     # add to mission
-    mission.append_segment(segment)   
+    mission.append_segment(segment)  
+    
+    # ------------------------------------------------------------------
+    #   Eighth Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------    
+    
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment.tag = "Climb - 10"
+    
+    # connect vehicle configuration
+    segment.config = vehicle.Configs.cruise
+    
+    # segment attributes
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet        
+    
+    segment.altitude_end = 15.54 * Units.km # 51000 ft
+    segment.mach_number_start = 1.22
+    segment.mach_number_end  = 1.4
+    segment.climb_rate   = 200    * Units['ft/min']
+    
+    # add to mission
+    mission.append_segment(segment) 
     
     
     # ------------------------------------------------------------------    
@@ -451,7 +473,7 @@ def define_mission(vehicle):
     
     segment.altitude   = 15.54  * Units.km     # Optional
     segment.mach       = 1.4
-    segment.distance   = 4000.0 * Units.nmi
+    segment.distance   = 3687.0 * Units.nmi
         
     mission.append_segment(segment)
 
