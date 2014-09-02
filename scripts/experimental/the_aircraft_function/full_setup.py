@@ -44,23 +44,28 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.Mass_Props.m_full       = 79015.8   # kg
-    vehicle.Mass_Props.m_empty      = 62746.4   # kg
-    vehicle.Mass_Props.m_takeoff    = 79015.8   # kg
-    vehicle.Mass_Props.m_flight_min = 66721.59  # kg
-    vehicle.Mass_Props.pos_cg       = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.Mass_Props.I_cg         = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.Mass_Properties.max_takeoff               = 79015.8   # kg
+    vehicle.Mass_Properties.operating_empty           = 62746.4   # kg
+    vehicle.Mass_Properties.takeoff                   = 79015.8   # kg
+    #vehicle.Mass_Properties.m_flight_min              = 66721.59  # kg
+    vehicle.Mass_Properties.max_zero_fuel             = 0.9 * vehicle.Mass_Properties.max_takeoff 
+    vehicle.Mass_Properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
+    vehicle.Mass_Properties.Moments_Of_Inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.Mass_Properties.cargo                     = 10000.  * Units.kilogram   
+    
+    # envelope properties
+    vehicle.Envelope.ultimate_load = 3.5
+    vehicle.Envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.delta    = 25.0                     # deg
-    vehicle.reference_area        = 124.862                  # 
-    vehicle.A_engine = np.pi*(0.9525)**2
-    vehicle.Ultimate_Load     = 3.5
-    vehicle.Limit_Load    = 1.5
-    vehicle.control  = "fully powered" 
-    vehicle.accessories = "medium range"
+    #vehicle.delta    = 25.0                     # deg
+    vehicle.reference_area        = 124.862       
     vehicle.passengers = 170
-    vehicle.cargo_weight = 10000.  * Units.kilogram    
+    #vehicle.A_engine = np.pi*(0.9525)**2
+    #vehicle.control  = "fully powered" 
+    #vehicle.accessories = "medium range"
+
+    #vehicle.cargo_weight = 10000.  * Units.kilogram    
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -225,7 +230,7 @@ def vehicle_setup():
     
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
-    turbofan.analysis_type                 = '1D'     #
+    #turbofan.analysis_type                 = '1D'     #
     turbofan.diffuser_pressure_ratio       = 0.98     #
     turbofan.fan_pressure_ratio            = 1.7      #
     turbofan.fan_nozzle_pressure_ratio     = 0.99     #
@@ -235,8 +240,8 @@ def vehicle_setup():
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
     turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
-    turbofan.design_thrust                 = 25000.0  #
-    turbofan.no_of_engines                 = 2.0      #
+    turbofan.Thrust.design                 = 25000.0  #
+    turbofan.number_of_engines             = 2.0      #
     
     # size the turbofan
     turbofan.A2          =   1.753
@@ -307,7 +312,7 @@ def vehicle_setup():
     # CLmax for a given configuration may be informed by user
     landing_config.maximum_lift_coefficient = 2.
     #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.Mass_Props.m_landing = 0.85 * vehicle.Mass_Props.m_takeoff
+    landing_config.Mass_Properties.m_landing = 0.85 * vehicle.Mass_Properties.takeoff
     
 
     # ------------------------------------------------------------------
@@ -330,7 +335,7 @@ def mission_setup(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Props.m_full # linked copy updates if parent changes
+    mission.m0 = vehicle.Mass_Properties.takeoff # linked copy updates if parent changes
     
     # atmospheric model
     planet = SUAVE.Attributes.Planets.Earth()

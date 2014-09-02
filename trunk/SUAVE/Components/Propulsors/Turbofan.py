@@ -49,7 +49,10 @@ class TurboFanPASS(Propulsor):
         self.inlet    = Data()
         self.diverter = Data()
         self.nozzle   = Data()
+        self.Thrust   = Data()
         self.analysis_type= 'pass'
+        self.Thrust.design = 0.0
+        self.number_of_engine = 0.0
         
         
         #--geometry pass like
