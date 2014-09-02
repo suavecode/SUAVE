@@ -94,6 +94,7 @@ def empty(vehicle):
     thrust_sls = vehicle.Propulsors['Turbo Fan'].Thrust.design
     
     S_gross_w  = vehicle.reference_area
+    #S_gross_w  = vehicle.Wings['Main Wing'].Areas.reference
     b          = vehicle.Wings['Main Wing'].Spans.projected
     lambda_w   = vehicle.Wings['Main Wing'].taper
     t_c_w      = vehicle.Wings['Main Wing'].thickness_to_chord
@@ -108,7 +109,7 @@ def empty(vehicle):
     num_eng    = vehicle.Propulsors['Turbo Fan'].number_of_engines
     num_pax    = vehicle.passengers
     wt_cargo   = vehicle.Mass_Properties.cargo
-    num_seats  = vehicle.Fuselages.Fuselage.num_coach_seats
+    num_seats  = vehicle.Fuselages.Fuselage.number_coach_seats
     ctrl_type  = vehicle.Systems.control
     ac_type    = vehicle.Systems.accessories  
     l_w2h      = vehicle.Wings['Horizontal Stabilizer'].position[0] + vehicle.Wings['Horizontal Stabilizer'].aerodynamic_center[0] - vehicle.Wings['Main Wing'].position[0] - vehicle.Wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm

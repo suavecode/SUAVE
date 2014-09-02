@@ -6,7 +6,7 @@
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from Component import Component
-from Mass_Props import Mass_Props
+from Mass_Properties import Mass_Properties
 
 
 # ----------------------------------------------------------------------
@@ -19,7 +19,7 @@ class Physical_Component(Component):
     """
     def __defaults__(self):
         self.tag = 'Component'
-        self.Mass_Props = Mass_Props()
+        self.Mass_Properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
         self.symmetric = False
     
@@ -40,7 +40,7 @@ class Container(Component.Container):
             if isinstance(Comp,PhysicalComponentContainer):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
-                total += Comp.Mass_Props.mass
+                total += Comp.Mass_Properties.mass
         return total
     
     

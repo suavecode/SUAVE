@@ -31,7 +31,7 @@ class Vehicle(Data):
         self.Propulsors = Components.Propulsors.Propulsor.Container()
         self.Energy     = Components.Energy.Energy()
         self.Systems    = Components.Systems.System.Container()
-        self.Mass_Props = Components.Mass_Props()
+        self.Mass_Properties = Components.Mass_Properties()
         self.Cost       = Components.Cost()
         self.Envelope   = Components.Envelope()
         self.Configs    = ConfigContainer()
