@@ -101,8 +101,8 @@ class Motor(Energy_Component):
         Res  = self.Res
         v    = self.inputs.voltage[:,0]
         omeg = self.omega(conditions)*G
-        #etaG = self.etaG
-        #io   = self.io + self.exp_i*(1-etaG)  
+        etaG = self.etaG
+        io   = self.io + self.exp_i*(1-etaG)  
         
         i=(v-omeg/Kv)/Res
 

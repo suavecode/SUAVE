@@ -58,7 +58,7 @@ class Solar_Network(Data):
         #================================
         
         # Time of the mission start
-        conditions.frames.planet.timedate  = time.strptime("Sat, Jun 21 12:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
+        conditions.frames.planet.timedate  = time.strptime("Thu, Mar 20 05:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
         
         # Unpack some conditions
         V          = conditions.freestream.velocity[:,0]
@@ -82,11 +82,11 @@ class Solar_Network(Data):
         mu        = np.reshape(mu,shape) 
         lamda     = np.reshape(lamda,shape)
 
-        lat = conditions.frames.planet.latitude[0,0]
-        lon = conditions.frames.planet.longitude[0,0]
+        #lat = conditions.frames.planet.latitude[0,0]
+        #lon = conditions.frames.planet.longitude[0,0]
         
-        conditions.frames.planet.latitude  = lat + lamda
-        conditions.frames.planet.longitude = lon + mu    
+        #conditions.frames.planet.latitude  = lat + lamda
+        #conditions.frames.planet.longitude = lon + mu    
         
         #===================================
         #
@@ -144,12 +144,15 @@ class Solar_Network(Data):
         # Run the esc
         esc.currentin()
         # link
-        solar_logic.inputs.currentesc = esc.outputs.currentin*self.num_motors
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.num_motors
+        solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         #
         solar_logic.logic(conditions,numerics)
         # link
         battery.inputs.batlogic = solar_logic.outputs.batlogic
         battery.energy_calc(numerics)
+        
+        
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)

@@ -267,7 +267,7 @@ def define_vehicle(weight):
     
     # Component 8 the Battery
     bat                 = SUAVE.Components.Energy.Storages.Battery()
-    bat.Mass_Props.mass = 200. #kg
+    bat.Mass_Props.mass = 100. #kg
     bat.type            = 'Li-Ion'
     bat.R0              = 0.07
     net.battery         = bat

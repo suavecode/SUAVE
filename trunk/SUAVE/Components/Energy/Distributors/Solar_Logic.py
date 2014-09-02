@@ -29,6 +29,7 @@ class Solar_Logic(Energy_Component):
         
         self.MPPTeff       = 0.0
         self.systemvoltage = 0.0
+        
     
     def voltage(self):
         """ The system voltage
@@ -68,16 +69,17 @@ class Solar_Logic(Energy_Component):
                
         """
         #Unpack
-        pin        = self.inputs.powerin[:,0]
-        pavionics  = self.inputs.pavionics
-        ppayload   = self.inputs.ppayload
-        volts      = self.voltage()
-        esccurrent = self.inputs.currentesc
-        I          = numerics.integrate_time
+        pin         = self.inputs.powerin[:,0]
+        pavionics   = self.inputs.pavionics
+        ppayload    = self.inputs.ppayload
+        volts_motor = self.inputs.volts_motor[:,0]
+        volts       = self.voltage()
+        esccurrent  = self.inputs.currentesc
+        I           = numerics.integrate_time
         
         pavail = pin*self.MPPTeff
         
-        plevel = pavail -pavionics -ppayload - volts*esccurrent
+        plevel = pavail -pavionics -ppayload - volts_motor*esccurrent
         
         # Integrate the plevel over time to assess the energy consumption
         # or energy storage
