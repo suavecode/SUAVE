@@ -109,7 +109,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # ==============================================
     engine_number = 0.
     for propulsor in vehicle.Propulsors : # may have than one propulsor
-        engine_number += propulsor.no_of_engines
+        engine_number += propulsor.number_of_engines
     if engine_number == 0:
         raise ValueError, "No engine found in the vehicle"
 

@@ -47,11 +47,11 @@ def vehicle_setup():
     vehicle.Mass_Properties.max_takeoff               = 79015.8   # kg
     vehicle.Mass_Properties.operating_empty           = 62746.4   # kg
     vehicle.Mass_Properties.takeoff                   = 79015.8   # kg
-    #vehicle.Mass_Properties.m_flight_min              = 66721.59  # kg
     vehicle.Mass_Properties.max_zero_fuel             = 0.9 * vehicle.Mass_Properties.max_takeoff 
+    vehicle.Mass_Properties.cargo                     = 10000.  * Units.kilogram   
+    
     vehicle.Mass_Properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
     vehicle.Mass_Properties.Moments_Of_Inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
-    vehicle.Mass_Properties.cargo                     = 10000.  * Units.kilogram   
     
     # envelope properties
     vehicle.Envelope.ultimate_load = 3.5
@@ -312,7 +312,7 @@ def vehicle_setup():
     # CLmax for a given configuration may be informed by user
     landing_config.maximum_lift_coefficient = 2.
     #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.Mass_Properties.m_landing = 0.85 * vehicle.Mass_Properties.takeoff
+    landing_config.Mass_Properties.landing = 0.85 * vehicle.Mass_Properties.takeoff
     
 
     # ------------------------------------------------------------------

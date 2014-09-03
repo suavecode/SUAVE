@@ -26,20 +26,17 @@ class Vehicle(Data):
 
     def __defaults__(self):
         self.tag = 'Vehicle'
-        self.Fuselages  = Components.Fuselages.Fuselage.Container()
-        self.Wings      = Components.Wings.Wing.Container()
-        self.Propulsors = Components.Propulsors.Propulsor.Container()
-        self.Energy     = Components.Energy.Energy()
-        self.Systems    = Components.Systems.System.Container()
-        self.Mass_Properties = Components.Mass_Properties()
-        self.Cost       = Components.Cost()
-        self.Envelope   = Components.Envelope()
-        self.Configs    = ConfigContainer()
+        self.Fuselages       = Components.Fuselages.Fuselage.Container()
+        self.Wings           = Components.Wings.Wing.Container()
+        self.Propulsors      = Components.Propulsors.Propulsor.Container()
+        self.Energy          = Components.Energy.Energy()
+        self.Systems         = Components.Systems.System.Container()
+        self.Mass_Properties = Vehicle_Mass_Properties()
+        self.Cost            = Components.Cost()
+        self.Envelope        = Components.Envelope()
+        self.Configs         = ConfigContainer()
 
         self.max_lift_coefficient_factor = 1.0
-
-        # Temporary
-        self.PASS       = Components.Component()
 
     _component_root_map = None
 
@@ -57,9 +54,7 @@ class Vehicle(Data):
             Components.Energy.Distributors.Distributor : self['Energy']['Distributors'] ,
             Components.Energy.Converters.Converter     : self['Energy']['Converters']   ,
             Components.Energy.Networks.Network         : self['Energy']['Networks']     ,
-            #Components.Mass_Props                      : self['Mass_Props']             ,
-            #Components.Envelope                        : self['Envelope']               ,
-            #Components.PASS                            : self['PASS']                   ,
+            Components.Envelope                        : self['Envelope']               ,
         }
 
         return
@@ -167,3 +162,49 @@ class ConfigContainer(Container):
 
 class FunctionContainer(Container):
     pass
+
+
+class Vehicle_Mass_Properties(Components.Mass_Properties):
+    
+    """ Vehicle_Mass_Properties():
+        The vehicle's mass properties.  includes high level weight statement values
+        
+        Attributes:
+        
+            max_takeoff
+            max_zero
+            
+            takeoff
+            cargo
+            operating_empty
+            payload
+            passenger
+            crew
+            fuel
+            
+            center_of_gravity
+            Moments_Of_Inertia :
+                center 
+                tensor
+            
+    """
+    
+    def __defaults__(self):
+        
+        self.max_takeoff     = 0.0
+        self.max_zero_fuel   = 0.0
+        self.takeoff         = 0.0
+        self.landing         = 0.0
+        self.cargo           = 0.0
+        self.operating_empty = 0.0
+        self.payload         = 0.0
+        self.passenger       = 0.0
+        self.crew            = 0.0
+        self.fuel            = 0.0
+        
+        # ambiguous in this context
+        del self.mass
+        del self.volume
+        
+        
+        
