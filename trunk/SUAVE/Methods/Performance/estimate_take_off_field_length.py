@@ -57,8 +57,8 @@ def estimate_take_off_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.Mass_Props.m_takeoff
-    reference_area  = config.S
+    weight          = config.Mass_Properties.max_takeoff
+    reference_area  = config.reference_area
     try:
         V2_VS_ratio = config.V2_VS_ratio
     except:
