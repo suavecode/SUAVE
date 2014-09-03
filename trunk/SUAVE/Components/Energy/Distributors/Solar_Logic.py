@@ -72,7 +72,7 @@ class Solar_Logic(Energy_Component):
         pin         = self.inputs.powerin[:,0]
         pavionics   = self.inputs.pavionics
         ppayload    = self.inputs.ppayload
-        volts_motor = self.inputs.volts_motor[:,0]
+        volts_motor = self.inputs.volts_motor
         volts       = self.voltage()
         esccurrent  = self.inputs.currentesc
         I           = numerics.integrate_time

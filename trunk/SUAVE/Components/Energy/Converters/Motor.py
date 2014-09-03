@@ -60,7 +60,7 @@ class Motor(Energy_Component):
         Kv    = self.kv/G
         R     = self.propradius
         Cp    = self.propCp
-        v     = self.inputs.voltage[:,0]
+        v     = self.inputs.voltage
 
         #Omega
         #This is solved by setting the torque of the motor equal to the torque of the prop
@@ -99,7 +99,7 @@ class Motor(Energy_Component):
         G    = self.G
         Kv   = self.kv
         Res  = self.Res
-        v    = self.inputs.voltage[:,0]
+        v    = self.inputs.voltage
         omeg = self.omega(conditions)*G
         etaG = self.etaG
         io   = self.io + self.exp_i*(1-etaG)  

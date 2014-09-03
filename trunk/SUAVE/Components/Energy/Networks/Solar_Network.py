@@ -58,7 +58,7 @@ class Solar_Network(Data):
         #================================
         
         # Time of the mission start
-        conditions.frames.planet.timedate  = time.strptime("Thu, Mar 20 05:30:00  2014", "%a, %b %d %H:%M:%S %Y",)  
+        conditions.frames.planet.timedate  = time.strptime("Thu, Mar 20 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",)  
         
         # Unpack some conditions
         V          = conditions.freestream.velocity[:,0]
@@ -128,19 +128,28 @@ class Solar_Network(Data):
             propeller.inputs.omega =  motor.outputs.omega #Relink the motor
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
             diff = abs(Cplast-motor.propCp) #Check to see if it converged
+        
             
+        # Check to see if magic thrust is needed
+        eta = conditions.propulsion.throttle[:,0]
+        P[eta>1.1] = P[eta>1.1]*eta[eta>1.1]
+        F[eta>1.1] = F[eta>1.1]*eta[eta>1.1]
+        
         # Run the avionics
         avionics.power()
         # link
         solar_logic.inputs.pavionics =  avionics.outputs.power
+        
         # Run the payload
         payload.power()
         # link
         solar_logic.inputs.ppayload = payload.outputs.power
+        
         # Run the motor for current
         motor.current(conditions)
         # link
         esc.inputs.currentout =  motor.outputs.current
+        
         # Run the esc
         esc.currentin()
         # link
@@ -151,8 +160,6 @@ class Solar_Network(Data):
         # link
         battery.inputs.batlogic = solar_logic.outputs.batlogic
         battery.energy_calc(numerics)
-        
-        
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)

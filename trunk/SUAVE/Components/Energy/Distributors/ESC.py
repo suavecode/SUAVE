@@ -15,7 +15,7 @@ import numpy as np
 import scipy as sp
 from SUAVE.Attributes import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-
+from copy import deepcopy
 # ----------------------------------------------------------------------
 #  Electronic Speed Controller Class
 # ----------------------------------------------------------------------
@@ -40,11 +40,14 @@ class ESC(Energy_Component):
                 The ESC's output voltage is linearly related to throttle setting
                
         """
-        # Unpack
-        eta = conditions.propulsion.throttle
+        # Unpack, deep copy since I replace values
+        eta = deepcopy(conditions.propulsion.throttle[:,0])
         
         # Negative throttle is bad
         eta[eta<=0.0] = 0.0
+        
+        # Cap the throttle
+        eta[eta>=1.1] = 1.1
         
         voltsin  = self.inputs.voltagein
         voltsout = eta*voltsin
