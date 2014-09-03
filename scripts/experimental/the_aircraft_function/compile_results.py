@@ -46,9 +46,9 @@ def compile_results(vehicle,mission,results):
     # pack
     results.output = Data()
     results.output.stability = Data()
-    results.output.weight_empty = vehicle.Mass_Props.m_empty
+    results.output.weight_empty = vehicle.Mass_Properties.empty
     results.output.fuel_burn = max(conditions.weights.total_mass[:,0]) - min(conditions.weights.total_mass[:,0])
-    #results.output.max_usable_fuel = vehicle.Mass_Props.max_usable_fuel
+    #results.output.max_usable_fuel = vehicle.Mass_Properties.max_usable_fuel
     results.output.noise = results.noise    
     results.output.mission_time_min = max(conditions.frames.inertial.time[:,0] / Units.min)
     results.output.max_altitude_km = max(conditions.freestream.altitude[:,0] / Units.km)

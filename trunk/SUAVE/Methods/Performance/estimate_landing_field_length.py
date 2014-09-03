@@ -27,7 +27,7 @@ def estimate_landing_field_length(vehicle,config,airport):
             vehicle	 - SUAVE type vehicle
 
             config   - data dictionary with fields:
-                Mass_Props.m_landing       - Landing weight to be evaluated
+                Mass_Properties.landing    - Landing weight to be evaluated
                 S                          - Wing Area
                 Vref_VS_ratio              - Ratio between Approach Speed and Stall speed
                                              [optional. Default value = 1.23]
@@ -149,7 +149,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     # mass properties
-    vehicle.Mass_Props.m_takeoff = 50000. #
+    vehicle.Mass_Properties.takeoff = 50000. #
 
     # basic parameters
     vehicle.delta    = 22.                      # deg
@@ -280,7 +280,7 @@ if __name__ == '__main__':
     w_vec = np.linspace(20000.,44000.,10)
     landing_field_length = np.zeros_like(w_vec)
     for id_w,weight in enumerate(w_vec):
-        landing_config.Mass_Props.m_landing = weight
+        landing_config.Mass_Properties.landing = weight
         landing_field_length[id_w] = estimate_landing_field_length(vehicle,landing_config,airport)
         print 'Weight (kg): ',str('%7.0f' % w_vec[id_w]),' ; LFL (m): ' , str('%6.1f' % landing_field_length[id_w])
 

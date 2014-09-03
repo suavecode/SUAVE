@@ -219,9 +219,9 @@ def set_wing(component,mass_props = None):
     
     # mass properties
     if mass_props and mass_props.has_key(wing.tag):
-        wing.Mass_Props.update(mass_props[wing.tag])
-        wing.Mass_Props.density       = float(component.General_Parms.Density)
-        wing.Mass_Props.shell_density = float(component.General_Parms.ShellMassArea)         
+        wing.Mass_Properties.update(mass_props[wing.tag])
+        wing.Mass_Properties.density       = float(component.General_Parms.Density)
+        wing.Mass_Properties.shell_density = float(component.General_Parms.ShellMassArea)         
     
     return wing
     
@@ -342,9 +342,9 @@ def set_fuselage(vehicle,component,mass_props=None):
     
     # mass properties
     if mass_props and mass_props.has_key(name):
-        fuselage.Mass_Props.update(mass_props[name])
-        fuselage.Mass_Props.density = float(component.General_Parms.Density)
-        fuselage.Mass_Props.shell_density = float(component.General_Parms.ShellMassArea)         
+        fuselage.Mass_Properties.update(mass_props[name])
+        fuselage.Mass_Properties.density = float(component.General_Parms.Density)
+        fuselage.Mass_Properties.shell_density = float(component.General_Parms.ShellMassArea)         
 
     # add to vehicle
     vehicle.append_component(fuselage)    
@@ -487,9 +487,9 @@ def set_engine(vehicle,component,mass_props):
 
     # mass properties
     if mass_props and mass_props.has_key(name):
-        fuselage.Mass_Props.update(mass_props[name])
-        fuselage.Mass_Props.density = float(component.General_Parms.Density)
-        fuselage.Mass_Props.shell_density = float(component.General_Parms.ShellMassArea)         
+        fuselage.Mass_Properties.update(mass_props[name])
+        fuselage.Mass_Properties.density = float(component.General_Parms.Density)
+        fuselage.Mass_Properties.shell_density = float(component.General_Parms.ShellMassArea)         
 
     # attach to vehcile
     vehicle.append_component(engine)
@@ -521,15 +521,15 @@ def read_vsp_massprops(filename):
         data = line.split()
         
         # dump data
-        mass_props = SUAVE.Components.Mass_Props()
+        mass_props = SUAVE.Components.Mass_Properties()
         mass_props['tag'] = this_data[0]
         
         data = map(float,data[1:])
         
         mass_props["mass"]   = data[1]
         mass_props["volume"] = data[11]
-        mass_props["pos_cg"] = data[2:4+1]
-        mass_props["I_cg"]   = [ [ data[i] for i in (5,8,9)  ] ,
+        mass_props["center_of_gravity"] = data[2:4+1]
+        mass_props["Moments_Of_Inertia"]["tensor"] = [ [ data[i] for i in (5,8,9)  ] ,
                                  [ data[i] for i in (8,6,10) ] ,
                                  [ data[i] for i in (9,10,7) ] ]
     

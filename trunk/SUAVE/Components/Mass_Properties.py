@@ -12,7 +12,7 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 # ----------------------------------------------------------------------
 
 class Mass_Properties(Data):
-    """ SUAVE.Components.Mass_Props()
+    """ SUAVE.Components.Mass_Properties()
         mass properties for a physical component
     """
     def __defaults__(self):

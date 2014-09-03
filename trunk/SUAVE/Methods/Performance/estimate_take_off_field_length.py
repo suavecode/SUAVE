@@ -27,7 +27,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
             vehicle	 - SUAVE type vehicle
 
             config   - data dictionary with fields:
-                Mass_Props.m_takeoff       - Takeoff weight to be evaluated
+                Mass_Properties.takeoff       - Takeoff weight to be evaluated
                 S                          - Wing Area
                 V2_VS_ratio                - Ratio between V2 and Stall speed
                                              [optional. Default value = 1.20]
@@ -207,7 +207,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     # mass properties
-    vehicle.Mass_Props.m_takeoff = 50000. #
+    vehicle.Mass_Properties.takeoff = 50000. #
 
     # basic parameters
     vehicle.delta    = 22.                      # deg
@@ -337,7 +337,7 @@ if __name__ == '__main__':
     for id_eng,engine_number in enumerate(engines):
         vehicle.Propulsors.TurboFan.no_of_engines = engine_number
         for id_w,weight in enumerate(w_vec):
-            configuration.Mass_Props.m_takeoff = weight
+            configuration.Mass_Properties.takeoff = weight
             takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(vehicle,configuration,airport)
             print 'Weight (kg): ',str('%7.0f' % w_vec[id_w]),' ; TOFL (m): ' , str('%6.1f' % takeoff_field_length[id_w,id_eng])
 

@@ -62,10 +62,8 @@ def define_vehicle():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.Mass_Props.m_full       = 51800.    # kg
-    vehicle.Mass_Props.m_empty      = 30100.    # kg
-    vehicle.Mass_Props.m_takeoff    = 51800.    # kg
-    vehicle.Mass_Props.m_flight_min = 30100.    # kg
+    vehicle.Mass_Properties.empty      = 30100.    # kg
+    vehicle.Mass_Properties.takeoff    = 51800.    # kg
 
     # basic parameters
     vehicle.delta    = 22.                      # deg
