@@ -14,8 +14,8 @@
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Attributes.Aerodynamics import Conditions
-from fuel_cell_network import Network
-import fuel_cell_network
+from battery_network import Network
+import battery_network
 
 import numpy as np
 import scipy as sp
@@ -37,39 +37,11 @@ def main():
     mission = define_mission(vehicle)
     
     # evaluate the mission
+    results = evaluate_mission(vehicle,mission)
     
-    
-    base_weight = 22500 # kg
-    cell_power_weight = 1500 # W/kg
-    
-    flag = 100
-    while (flag > 20.0):
-    
-        results = evaluate_mission(vehicle,mission)
-        
-        #break 
-    
-        velocity   = results.Segments["Climb - 9"].conditions.freestream.velocity[:,0]
-        Thrust     = results.Segments["Climb - 9"].conditions.frames.body.thrust_force_vector[:,0]
-        power      = velocity*Thrust 
-        max_power = np.max(power)
-    
-        current_empty_weight = vehicle.Mass_Props.m_empty
-        current_takeoff_weight = vehicle.Mass_Props.m_takeoff
-        mass_diff = current_empty_weight - base_weight
-        fuel_weight = current_takeoff_weight - current_empty_weight
-        cell_weight_needed = max_power/cell_power_weight
-        
-        vehicle.Mass_Props.m_empty = base_weight + cell_weight_needed
-        vehicle.Mass_Props.m_takeoff = vehicle.Mass_Props.m_empty + fuel_weight
-        vehicle.Mass_Props.m_full = vehicle.Mass_Props.m_takeoff + 1000.0
-        
-        vehicle.Configs.cruise.Mass_Props.m_empty = vehicle.Mass_Props.m_empty
-        vehicle.Configs.cruise.Mass_Props.m_takeoff = vehicle.Mass_Props.m_takeoff
-        vehicle.Configs.cruise.Mass_Props.m_full = vehicle.Mass_Props.m_full
-        
-        flag = abs(cell_weight_needed-mass_diff)
-        print flag
+    velocity   = results.Segments["Climb - 9"].conditions.freestream.velocity[:,0]
+    Thrust = results.Segments["Climb - 9"].conditions.frames.body.thrust_force_vector[:,0]
+    power = velocity*Thrust/1000.0    
     
     # plot results
     post_process(vehicle,mission,results)
@@ -95,6 +67,8 @@ def define_vehicle():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
+    cell_power_weight = 1500 # W/kg
+
     n_select = 3
     if n_select == 0:
         vehicle_propellant = SUAVE.Attributes.Propellants.Jet_A()
@@ -108,9 +82,9 @@ def define_vehicle():
         vehicle.Mass_Props.m_takeoff    = 72000    # kg   
     elif n_select == 2:
         vehicle_propellant = SUAVE.Attributes.Propellants.Liquid_Natural_Gas()
-        vehicle.Mass_Props.m_full       = 67000    # kg
-        vehicle.Mass_Props.m_empty      = 42000    # kg
-        vehicle.Mass_Props.m_takeoff    = 66000    # kg          
+        vehicle.Mass_Props.m_full       = 77000    # kg
+        vehicle.Mass_Props.m_empty      = 52000    # kg
+        vehicle.Mass_Props.m_takeoff    = 76000    # kg          
     elif n_select == 3:
         vehicle_propellant = SUAVE.Attributes.Propellants.Liquid_H2()
         vehicle.Mass_Props.m_full       = 53000    # kg
@@ -142,29 +116,29 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
 
-    wing.Areas.reference    = 125.4    #
-    wing.aspect_ratio       = 3.63     #
-    wing.Spans.projected    = 21.0     #
-    wing.sweep              = 0 * Units.deg
-    wing.symmetric          = True
+    wing.Areas.reference = 125.4    #
+    wing.aspect_ratio    = 3.63     #
+    wing.Spans.projected = 21.0     #
+    wing.sweep           = 0 * Units.deg
+    wing.symmetric       = True
     wing.thickness_to_chord = 0.03
-    wing.taper              = 0.7
+    wing.taper           = 0.7
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 7.0
-    wing.Areas.exposed           = 0.8*wing.Areas.wetted
-    wing.Areas.affected          = 0.6*wing.Areas.wetted
-    wing.span_efficiency         = 0.74
-    wing.Twists.root             = 0.0*Units.degrees
-    wing.Twists.tip              = 2.0*Units.degrees
-    wing.vertical                = False
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.74
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 2.0*Units.degrees
+    wing.vertical = False
     
-    wing.high_lift               = False                 #
-    wing.high_mach               = True
-    wing.vortex_lift             = False
-    wing.transistion_x           = 0.9
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
+    wing.transistion_x = 0.9
     
     #print wing
     # add to vehicle
@@ -246,20 +220,21 @@ def define_vehicle():
     fuselage.tag = 'Fuselage'
     
     fuselage.number_coach_seats = 0
-    fuselage.seats_abreast      = 2
-    fuselage.seat_pitch         = 0
-    fuselage.Fineness.nose      = 4.0
-    fuselage.Fineness.tail      = 4.0
+    fuselage.seats_abreast = 2
+    fuselage.seat_pitch = 0
+    fuselage.Fineness.nose = 4.0
+    fuselage.Fineness.tail = 4.0
     fuselage.Lengths.fore_space = 16.3
     fuselage.Lengths.aft_space  = 16.3
-    fuselage.width              = 2.2
-    fuselage.Heights.maximum    = 1.9
+    fuselage.width = 2.2
+    fuselage.Heights.maximum = 1.9
     
     # size fuselage planform
     SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
+
     
     
     # ------------------------------------------------------------------
@@ -279,13 +254,13 @@ def define_vehicle():
     net = Network()
     
     net.propellant = vehicle_propellant
-    net.fuel_cell = fuel_cell_network.Fuel_Cell()
-    net.fuel_cell.inputs.propellant = vehicle_propellant
-    net.fuel_cell.efficiency = 0.8
-    net.fuel_cell.max_mdot = 1.0
-    net.motor = fuel_cell_network.Motor()
+    net.battery = battery_network.Battery()
+    net.battery.inputs.propellant = vehicle_propellant
+    net.battery.efficiency = 0.8
+    net.battery.max_power = 40000000.0
+    net.motor = battery_network.Motor()
     net.motor.efficiency = 0.95
-    net.propulsor = fuel_cell_network.Propulsor()
+    net.propulsor = battery_network.Propulsor()
     net.propulsor.A0 = (.5)**2*np.pi
 
 #    vehicle.append_component(net)
@@ -564,8 +539,6 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     fig = plt.figure("Throttle and Fuel Burn")
     tot_energy = 0.0
-    #base_time = 0.0
-    max_power = (vehicle.Mass_Props.m_empty - 22500.0)*1500
     for segment in results.Segments.values():
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
         eta  = segment.conditions.propulsion.throttle[:,0]
@@ -588,21 +561,20 @@ def post_process(vehicle,mission,results):
         power = velocity*Thrust/1000.0
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , power , 'bo-' )
-        axes.plot( time , np.array([max_power/1000.0] * len(time)) , 'r--')
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Power Required (kW)')
         axes.grid(True)   
         
         power = velocity*Thrust
-        mdot_power = mdot*segment.config.propulsion_model.propellant.specific_energy
+        P_power = eta*40000000.0
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , power/mdot_power , 'bo-' )
+        axes.plot( time , power/P_power , 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Total Efficiency')
         axes.grid(True)          
         
         tot_energy = tot_energy + np.trapz(power/1000.0,time*60)
-    print 'Integrated Power Required: %.0f kJ' % tot_energy
+    print 'Integrated Energy Required: %.0f kJ' % tot_energy
                   
 
     # ------------------------------------------------------------------    
@@ -665,16 +637,31 @@ def post_process(vehicle,mission,results):
         axes.plot(time, mass_from_mdot, 'b--')
         axes.plot(time, mass, 'bo-')
         mass_base = mass_from_mdot[-1]
+        
+    battery_density = 5.0 # MJ/kg
+    battery_weight = vehicle.Mass_Props.m_takeoff - vehicle.Mass_Props.m_empty
+    battery_energy = battery_density*battery_weight*1000.0
+    
+    end_time = time[-1]
+    
+    plot_time = np.array([battery_energy/tot_energy*end_time,battery_energy/tot_energy*end_time])
+    
+    mass_bounds = np.array([vehicle.Mass_Props.m_takeoff-1000,vehicle.Mass_Props.m_takeoff+1000])
+    
+    axes.plot(plot_time,mass_bounds,'r--')
+    
+    
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Vehicle Mass (kg)')
     axes.grid(True)
+    
     
     mo = vehicle.Mass_Props.m_full
     mf = mass[-1]
     D_m = mo-mf
     spec_energy = vehicle.Propulsors[0].propellant.specific_energy
     tot_energy = D_m*spec_energy
-    print "Total Energy Used          %.0f kJ (does not account for efficiency loses)" % (tot_energy/1000.0)
+    #print "Total Energy Used          %.0f kJ (does not account for efficiency loses)" % (tot_energy/1000.0)
 
     # ------------------------------------------------------------------    
     #   Concorde Debug

@@ -42,23 +42,18 @@ class Energy_Component(Physical_Component):
         
         return
 
-class Fuel_Cell(Energy_Component):
+class Battery(Energy_Component):
     def __defaults__(self):
         self.efficiency = 0.8
         self.inputs.propellant = SUAVE.Attributes.Propellants.Jet_A1()
-        self.max_mdot = 2.0
+        self.max_power = 40000000
         
     def power(self,conditions):
-        spec_energy = self.inputs.propellant.specific_energy
         eta = copy.copy(conditions.propulsion.throttle)
-        if np.any(abs(eta)>100):
-            print 'Warning: Fuel Cell throttle values outside +-100 have not been tested'
-        self.outputs.power = spec_energy*eta*self.max_mdot*self.efficiency
-        if abs(eta[-1]-1.0) > 0.01:
-            a = 0
-        if abs(self.outputs.power[-1]) < 5*10**7:
-            a = 0                 
-        self.outputs.mdot = eta*self.max_mdot
+        #if np.any(abs(eta)>100):
+            #print 'Warning: Fuel Cell throttle values outside +-100 have not been tested'
+        self.outputs.power = self.max_power*eta*self.efficiency
+        self.outputs.mdot = 0.0
 
 class Motor(Energy_Component):
     def __defaults__(self):
@@ -134,7 +129,7 @@ class Propulsor(Energy_Component):
         F = gamma*M0**2*(Me/M0*np.sqrt(Te/T0)-1)*P0*self.A0
         F[neg_flag == 1] = -F[neg_flag == 1]
         F = F[:,0]
-        mdot = mdot[:,0]
+        mdot = np.zeros_like(F)
         P = np.zeros_like(F)        
         F[np.isnan(F)] = conditions.propulsion.throttle*-1.0*power/2e2
         
@@ -147,7 +142,7 @@ class Propulsor(Energy_Component):
 class Network(Data):
     def __defaults__(self):
         self.propellant  = None
-        self.fuel_cell   = None
+        self.battery   = None
         self.motor       = None
         self.propulsor   = None
         self.payload     = None
@@ -159,7 +154,7 @@ class Network(Data):
     
         # unpack
         propellant  = self.propellant
-        fuel_cell   = self.fuel_cell
+        battery     = self.battery
         motor       = self.motor
         propulsor   = self.propulsor
         payload     = self.payload
@@ -167,25 +162,19 @@ class Network(Data):
         # step 1
 
         # step 2
-        #if abs(fuel_cell.outputs.power[-1]) < 5*10**7:
-            #a = 0        
-        fuel_cell.power(conditions)
-        if abs(fuel_cell.outputs.power[-1]) < 5*10**7:
-            a = 0        
-        fuel_cell.power_generated = copy.copy(fuel_cell.outputs.power)
-            
+        battery.power(conditions)
         # link
-        motor.inputs.powerin = fuel_cell.outputs.power
-        mdot = fuel_cell.outputs.mdot
+        motor.inputs.powerin = battery.outputs.power
+        mdot = battery.outputs.mdot
+        P = battery.outputs.power
         # step 3
         motor.power(conditions)
         # link
         propulsor.inputs.power =  motor.outputs.power
         #print(motor.outputs.omega)
         # step 6
-        F, mdotP, P, e = propulsor.evaluate(conditions)
+        F, mdot, PP, e = propulsor.evaluate(conditions)
         # Package for solver
-        mdot = mdot[:,0]
         self.propulsive_efficiency = e
         
         return F, mdot, P

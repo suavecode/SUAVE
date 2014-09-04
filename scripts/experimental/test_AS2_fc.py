@@ -69,7 +69,7 @@ def define_vehicle():
 
     cell_power_weight = 1500 # W/kg
 
-    n_select = 3
+    n_select = 1
     if n_select == 0:
         vehicle_propellant = SUAVE.Attributes.Propellants.Jet_A()
         vehicle.Mass_Props.m_full       = 53000    # kg
@@ -115,27 +115,29 @@ def define_vehicle():
     
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
-    
-    wing.sref      = 125.4          #
-    wing.ar        = 3.63           #
-    wing.span      = 21.0           #
-    wing.sweep     = 0  * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.03           #
-    wing.taper     = 0.7              # Estimated based on drawing
+
+    wing.Areas.reference = 125.4    #
+    wing.aspect_ratio    = 3.63     #
+    wing.Spans.projected = 21.0     #
+    wing.sweep           = 0 * Units.deg
+    wing.symmetric       = True
+    wing.thickness_to_chord = 0.03
+    wing.taper           = 0.7
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = 7.0                   #
-    wing.S_exposed   = 0.8*wing.area_wetted  #
-    wing.S_affected  = 0.6*wing.area_wetted  #
-    wing.e           = 0.74                   # Actual value is unknown
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 2.0*Units.degrees     #
-    wing.highlift    = False                 #
-    wing.highmach    = True
-    wing.vortexlift  = False
+    wing.Chords.mean_aerodynamic = 7.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.74
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 2.0*Units.degrees
+    wing.vertical = False
+    
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
     wing.transistion_x = 0.9
     
     #print wing
@@ -149,26 +151,29 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.sref      = 24.5           #
-    wing.ar        = 2.0            #
-    wing.span      = 7.0            #
-    wing.sweep     = 0  * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.03           #
-    wing.taper     = 0.5              # Estimated based on drawing
+    
+    wing.Areas.reference = 24.5     #
+    wing.aspect_ratio    = 2.0      #
+    wing.Spans.projected = 7.0      #
+    wing.sweep           = 0 * Units.deg
+    wing.symmetric       = True
+    wing.thickness_to_chord = 0.03
+    wing.taper           = 0.5
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = 3.0                   #
-    wing.S_exposed   = 0.8*wing.area_wetted  #
-    wing.S_affected  = 0.6*wing.area_wetted  #
-    wing.e           = 0.74                   # Actual value is unknown
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #
-    wing.highlift    = False                 #
-    wing.highmach    = True
-    wing.vortexlift  = False
+    wing.Chords.mean_aerodynamic = 3.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.74
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 2.0*Units.degrees
+    wing.vertical = False
+    
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
     wing.transistion_x = 0.9
     
     #print wing
@@ -183,27 +188,24 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertcal Stabilizer'    
     
-    wing.sref      = 33.91          #
-    wing.ar        = 1.3            # 
-    wing.span      = 3.5            #
-    wing.sweep     = 45 * Units.deg # Estimate
-    wing.symmetric = False          #
-    wing.t_c       = 0.04           # Estimate
-    wing.taper     = 0.5            # Estimate
-    wing.highmach  = True
-    wing.transistion_x = 0.7
-    
+    wing.Areas.reference = 33.91    #
+    wing.aspect_ratio    = 1.3      #
+    wing.Spans.projected = 3.5      #
+    wing.sweep           = 45 * Units.deg
+    wing.symmetric       = False
+    wing.thickness_to_chord = 0.04
+    wing.taper           = 0.5
+
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 4.2                   # Estimate
-    wing.S_exposed  = 1.0*wing.area_wetted  #
-    wing.S_affected = 0.0*wing.area_wetted  #  
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 0.0*Units.degrees     #
-    wing.twist_tc   = 0.0*Units.degrees     #
-    wing.vertical   = True    
-        
+    wing.Chords.mean_aerodynamic = 4.2
+    wing.Areas.exposed = 1.0*wing.Areas.wetted
+    wing.Areas.affected = 0.0*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 0.0*Units.degrees
+    wing.vertical = True
     
         
     # add to vehicle
@@ -217,15 +219,15 @@ def define_vehicle():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
     
-    fuselage.num_coach_seats = 0    # Actually ~12, using 0 for length simplicity
-    fuselage.seats_abreast   = 2    #
-    fuselage.seat_pitch      = 0    #
-    fuselage.fineness_nose   = 4    # This is a large underestimate needed for accurate parasite drag
-    fuselage.fineness_tail   = 4    #
-    fuselage.fwdspace        = 16.3 #
-    fuselage.aftspace        = 16.3 #
-    fuselage.width           = 2.2  #
-    fuselage.height          = 1.9  #
+    fuselage.number_coach_seats = 0
+    fuselage.seats_abreast = 2
+    fuselage.seat_pitch = 0
+    fuselage.Fineness.nose = 4.0
+    fuselage.Fineness.tail = 4.0
+    fuselage.Lengths.fore_space = 16.3
+    fuselage.Lengths.aft_space  = 16.3
+    fuselage.width = 2.2
+    fuselage.Heights.maximum = 1.9
     
     # size fuselage planform
     SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
@@ -536,6 +538,8 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     fig = plt.figure("Throttle and Fuel Burn")
     tot_energy = 0.0
+    #base_time = 0.0
+    max_power = (vehicle.Mass_Props.m_empty - 22500.0)*1500
     for segment in results.Segments.values():
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
         eta  = segment.conditions.propulsion.throttle[:,0]
@@ -558,6 +562,7 @@ def post_process(vehicle,mission,results):
         power = velocity*Thrust/1000.0
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , power , 'bo-' )
+        axes.plot( time , np.array([max_power/1000.0] * len(time)) , 'r--')
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Power Required (kW)')
         axes.grid(True)   
