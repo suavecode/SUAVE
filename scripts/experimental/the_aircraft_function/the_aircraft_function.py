@@ -130,8 +130,8 @@ def evaluate_noise(vehicle,mission,results):
     mission_profile = results.mission_profile
     
     weight_landing    = mission_profile.Segments[-1].conditions.weights.total_mass[-1,0]
-    number_of_engines = vehicle.Propulsors['Turbo Fan'].no_of_engines
-    thrust_sea_level  = vehicle.Propulsors['Turbo Fan'].design_thrust
+    number_of_engines = vehicle.Propulsors['Turbo Fan'].number_of_engines
+    thrust_sea_level  = vehicle.Propulsors['Turbo Fan'].Thrust.design
     thrust_landing    = mission_profile.Segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
     
     from SUAVE.Methods.Noise.Correlations import shevell as evaluate_noise

@@ -78,7 +78,7 @@ def vehicle_setup():
     wing.aspect_ratio    = 8        #
     wing.Spans.projected = 35.66      #
     wing.sweep           = 25 * Units.deg
-    wing.symmetric       = False
+    wing.symmetric       = True
     wing.thickness_to_chord = 0.1
     wing.taper           = 0.16
     
@@ -102,10 +102,6 @@ def vehicle_setup():
     wing.aerodynamic_center = [3,0,0] 
     wing.vertical   = False
     wing.eta         = 1.0
-    #wing.hl          = 1                    #
-    #wing.flaps_chord = 20                   #
-    #wing.flaps_angle = 20                   #
-    #wing.slats_angle = 10                   #
     
     # add to vehicle
     vehicle.append_component(wing)

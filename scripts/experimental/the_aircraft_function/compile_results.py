@@ -46,7 +46,7 @@ def compile_results(vehicle,mission,results):
     # pack
     results.output = Data()
     results.output.stability = Data()
-    results.output.weight_empty = vehicle.Mass_Properties.empty
+    results.output.weight_empty = vehicle.Mass_Properties.operating_empty
     results.output.fuel_burn = max(conditions.weights.total_mass[:,0]) - min(conditions.weights.total_mass[:,0])
     #results.output.max_usable_fuel = vehicle.Mass_Properties.max_usable_fuel
     results.output.noise = results.noise    

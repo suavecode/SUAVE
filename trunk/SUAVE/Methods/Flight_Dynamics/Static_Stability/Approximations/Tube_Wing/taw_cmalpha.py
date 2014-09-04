@@ -72,7 +72,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     Sref  = geometry.reference_area
     mac   = geometry.Wings['Main Wing'].Chords.mean_aerodynamic
     C_Law = conditions.lift_curve_slope
-    x_cg  = configuration.mass_props.pos_cg[0]
+    x_cg  = configuration.Mass_Properties.center_of_gravity[0]
     x_rqc = geometry.Wings['Main Wing'].origin[0]
     w_f   = geometry.Fuselages.Fuselage.width
     l_f   = geometry.Fuselages.Fuselage.Lengths.total
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     aircraft.reference        = reference
     aircraft.Lifting_Surfaces = Lifting_Surfaces
     aircraft.fuselage         = fuselage
-    aircraft.Mass_Props.pos_cg[0] = 112. * Units.feet    
+    aircraft.Mass_Properties.center_of_gravity[0] = 112. * Units.feet    
     
     #Method Test
     print '<<Test run of the taw_cmalpha() method>>'

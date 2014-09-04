@@ -104,13 +104,14 @@ class Fidelity_Zero(Data):
             # unpack
             configuration = self.configuration
             geometry      = self.geometry
+            Stability_Model = self.Stability_Model
             q             = conditions.freestream.dynamic_pressure
             Sref          = geometry.reference_area    
             mach          = conditions.freestream.mach_number
             velocity      = conditions.freestream.velocity
             density       = conditions.freestream.density
-            Span          = geometry.Wings['Main Wing'].span
-            mac           = geometry.Wings['Main Wing'].chord_mac
+            Span          = geometry.Wings['Main Wing'].Spans.projected
+            mac           = geometry.Wings['Main Wing'].Chords.mean_aerodynamic
             aero          = conditions.aerodynamics
             
             # Calculate CL_alpha 
