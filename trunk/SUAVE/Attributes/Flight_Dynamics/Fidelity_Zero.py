@@ -53,18 +53,18 @@ class Fidelity_Zero(Data):
         
         self.configuration = Data()
         self.geometry      = Data()
-        self.Stability_Model = Data()
-        self.Stability_Model.Short_Period = Data()
-        self.Stability_Model.Short_Period.natural_frequency = 0.0
-        self.Stability_Model.Short_Period.damping_ratio = 0.0
-        self.Stability_Model.Phugoid = Data()
-        self.Stability_Model.Phugoid.damping_ratio = 0.0
-        self.Stability_Model.Phugoid.natural_frequency = 0.0
-        self.Stability_Model.roll_tau = 0.0
-        self.Stability_Model.spiral_tau = 0.0 
-        self.Stability_Model.Dutch_Roll = Data()
-        self.Stability_Model.Dutch_Roll.damping_ratio = 0.0
-        self.Stability_Model.Dutch_Roll.natural_frequency = 0.0
+        self.stability_model = Data()
+        self.stability_model.short_period = Data()
+        self.stability_model.short_period.natural_frequency = 0.0
+        self.stability_model.short_period.damping_ratio = 0.0
+        self.stability_model.phugoid = Data()
+        self.stability_model.phugoid.damping_ratio = 0.0
+        self.stability_model.phugoid.natural_frequency = 0.0
+        self.stability_model.roll_tau = 0.0
+        self.stability_model.spiral_tau = 0.0 
+        self.stability_model.dutch_roll = Data()
+        self.stability_model.dutch_roll.damping_ratio = 0.0
+        self.stability_model.dutch_roll.natural_frequency = 0.0
         
         
         
@@ -75,7 +75,7 @@ class Fidelity_Zero(Data):
         # unpack
         geometry         = self.geometry
         configuration    = self.configuration
-        Stability_Model  = self.Stability_Model
+        stability_model  = self.stability_model
         
         # copy geometry
         for k in ['Fuselages','Wings','propulsors']:
@@ -104,7 +104,7 @@ class Fidelity_Zero(Data):
             # unpack
             configuration = self.configuration
             geometry      = self.geometry
-            Stability_Model = self.Stability_Model
+            stability_model = self.stability_model
             q             = conditions.freestream.dynamic_pressure
             Sref          = geometry.reference_area    
             mach          = conditions.freestream.mach_number
@@ -153,16 +153,16 @@ class Fidelity_Zero(Data):
                 if not aero.has_key('cz_alpha'):
                     aero.cz_alpha = Supporting_Functions.cz_alpha(aero.drag_coefficient,conditions.lift_curve_slope)                   
                 
-                Stability_Model.Dutch_Roll = Approximations.dutch_roll(velocity, aero.cn_beta, Sref, density, Span, configuration.mass_properties.moments_of_inertia.tensor[2][2], aero.cn_r)
+                stability_model.dutch_roll = Approximations.dutch_roll(velocity, aero.cn_beta, Sref, density, Span, configuration.mass_properties.moments_of_inertia.tensor[2][2], aero.cn_r)
                 
                 if aero.cl_p != 0:                 
-                    Stability_Model.roll_tau = Approximations.roll(configuration.mass_properties.momen[2][2], Sref, density, velocity, Span, aero.cl_p)
+                    stability_model.roll_tau = Approximations.roll(configuration.mass_properties.momen[2][2], Sref, density, velocity, Span, aero.cl_p)
                     if aero.cl_beta != 0:
                         aero.cy_phi = Supporting_Functions.cy_phi(aero.lift_coefficient)
                         aero.cl_r = Supporting_Functions.cl_r( aero.lift_coefficient) # Will need to be changed
-                        Stability_Model.spiral_tau = Approximations.spiral(conditions.weights.total_mass, velocity, density, Sref, aero.cl_p, aero.cn_beta, aero.cy_phi, aero.cl_beta, aero.cn_r, aero.cl_r)
-                Stability_Model.Short_Period = Approximations.short_period(velocity, density, Sref, mac, aero.cm_q, aero.cz_alpha, conditions.weights.total_mass, aero.cm_alpha, configuration.mass_properties.moments_of_inertia.tensor[1][1], aero.cm_alpha_dot)
-                Stability_Model.Phugoid = Approximations.phugoid(conditions.freestream.gravity, conditions.freestream.velocity, aero.drag_coefficient, aero.lift_coefficient)
+                        stability_model.spiral_tau = Approximations.spiral(conditions.weights.total_mass, velocity, density, Sref, aero.cl_p, aero.cn_beta, aero.cy_phi, aero.cl_beta, aero.cn_r, aero.cl_r)
+                stability_model.short_period = Approximations.short_period(velocity, density, Sref, mac, aero.cm_q, aero.cz_alpha, conditions.weights.total_mass, aero.cm_alpha, configuration.mass_properties.moments_of_inertia.tensor[1][1], aero.cm_alpha_dot)
+                stability_model.phugoid = Approximations.phugoid(conditions.freestream.gravity, conditions.freestream.velocity, aero.drag_coefficient, aero.lift_coefficient)
                 
                 # Dynamic Stability Full Linearized Methods
                 if aero.has_key('cy_beta') and aero.cl_p != 0 and aero.cl_beta != 0:
@@ -184,13 +184,13 @@ class Fidelity_Zero(Data):
                 
                     lateral_directional = Full_Linearized_Equations.lateral_directional(velocity, aero.cn_beta , Sref, density, Span, configuration.mass_properties.moments_of_inertia.tensor[2][2], aero.cn_r, configuration.mass_properties.Moments_Of_Inertia.tensor[0][0], aero.cl_p, configuration.mass_properties.moments_of_inertia.tensor[0][2], aero.cl_r, aero.cl_beta, aero.cn_p, aero.cy_phi, aero.cy_psi, aero.cy_beta, conditions.weights.total_mass)
                     longitudinal = Full_Linearized_Equations.longitudinal(velocity, density, Sref, mac, aero.cm_q, aero.cz_alpha, conditions.weights.total_mass, aero.cm_alpha, configuration.mass_properties.moments_of_inertia.tensor[1][1], aero.cm_alpha_dot, aero.cz_u, aero.cz_alpha_dot, aero.cz_q, -aero.lift_coefficient, theta, aero.cx_u, aero.cx_alpha)                    
-                    Stability_Model.Dutch_Roll.natural_frequency = lateral_directional.dutch_natural_frequency
-                    Stability_Model.Dutch_Roll.damping_ratio = lateral_directional.dutch_damping_ratio
-                    Stability_Model.spiral_tau = lateral_directional.spiral_tau
-                    Stability_Model.roll_tau = lateral_directional.roll_tau
-                    Stability_Model.Short_Period.natural_frequency = longitudinal.short_natural_frequency
-                    Stability_Model.Short_Period.damping_ratio = longitudinal.short_damping_ratio
-                    Stability_Model.Phugoid.natural_frequency = longitudinal.phugoid_natural_frequency
-                    Stability_Model.Phugoid.damping_ratio = longitudinal.phugoid_damping_ratio
+                    stability_model.dutch_roll.natural_frequency = lateral_directional.dutch_natural_frequency
+                    stability_model.dutch_roll.damping_ratio = lateral_directional.dutch_damping_ratio
+                    stability_model.spiral_tau = lateral_directional.spiral_tau
+                    stability_model.roll_tau = lateral_directional.roll_tau
+                    stability_model.short_period.natural_frequency = longitudinal.short_natural_frequency
+                    stability_model.short_period.damping_ratio = longitudinal.short_damping_ratio
+                    stability_model.phugoid.natural_frequency = longitudinal.phugoid_natural_frequency
+                    stability_model.phugoid.damping_ratio = longitudinal.phugoid_damping_ratio
             
             return 
