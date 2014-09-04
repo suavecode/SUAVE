@@ -110,8 +110,8 @@ def empty(vehicle):
     num_pax    = vehicle.passengers
     wt_cargo   = vehicle.mass_properties.cargo
     num_seats  = vehicle.Fuselages.Fuselage.number_coach_seats
-    ctrl_type  = vehicle.Systems.control
-    ac_type    = vehicle.Systems.accessories  
+    ctrl_type  = vehicle.systems.control
+    ac_type    = vehicle.systems.accessories  
     l_w2h      = vehicle.Wings['Horizontal Stabilizer'].position[0] + vehicle.Wings['Horizontal Stabilizer'].aerodynamic_center[0] - vehicle.Wings['Main Wing'].position[0] - vehicle.Wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
     
     S_fus      = vehicle.Fuselages.Fuselage.Areas.wetted

@@ -62,8 +62,8 @@ def vehicle_setup():
     vehicle.reference_area        = 124.862       
     vehicle.passengers = 170
     #vehicle.A_engine = np.pi*(0.9525)**2
-    vehicle.Systems.control  = "fully powered" 
-    vehicle.Systems.accessories = "medium range"
+    vehicle.systems.control  = "fully powered" 
+    vehicle.systems.accessories = "medium range"
 
     #vehicle.cargo_weight = 10000.  * Units.kilogram    
     

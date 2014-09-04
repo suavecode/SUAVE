@@ -30,9 +30,9 @@ class Vehicle(Data):
         self.Wings           = Components.Wings.Wing.Container()
         self.propulsors      = Components.Propulsors.Propulsor.Container()
         self.energy          = Components.Energy.Energy()
-        self.Systems         = Components.Systems.System.Container()
+        self.systems         = Components.Systems.System.Container()
         self.mass_properties = Vehicle_Mass_Properties()
-        self.Cost            = Components.Cost()
+        self.cost            = Components.Cost()
         self.envelope        = Components.Envelope()
         self.Configs         = ConfigContainer()
 
@@ -47,8 +47,8 @@ class Vehicle(Data):
         self._component_root_map = {
             Components.Fuselages.Fuselage              : self['Fuselages']              ,
             Components.Wings.Wing                      : self['Wings']                  ,
-            Components.Systems.System                  : self['Systems']                ,
-            Components.Cost                            : self['Cost']                   ,
+            Components.Systems.System                  : self['systems']                ,
+            Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
             Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
             Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
