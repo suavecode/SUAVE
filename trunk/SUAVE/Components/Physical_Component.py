@@ -19,7 +19,7 @@ class Physical_Component(Component):
     """
     def __defaults__(self):
         self.tag = 'Component'
-        self.Mass_Properties = Mass_Properties()
+        self.mass_properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
         self.symmetric = False
     
@@ -40,7 +40,7 @@ class Container(Component.Container):
             if isinstance(Comp,PhysicalComponentContainer):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
-                total += Comp.Mass_Properties.mass
+                total += Comp.mass_properties.mass
         return total
     
     

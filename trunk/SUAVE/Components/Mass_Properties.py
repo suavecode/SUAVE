@@ -21,6 +21,6 @@ class Mass_Properties(Data):
         self.volume = 0.0
         self.center_of_gravity = [0.0,0.0,0.0]
         
-        self.Moments_Of_Inertia = Data()
-        self.Moments_Of_Inertia.center = [0.0,0.0,0.0]
-        self.Moments_Of_Inertia.tensor   = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
+        self.moments_of_inertia = Data()
+        self.moments_of_inertia.center = [0.0,0.0,0.0]
+        self.moments_of_inertia.tensor   = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]

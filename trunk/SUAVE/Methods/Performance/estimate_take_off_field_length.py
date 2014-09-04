@@ -57,7 +57,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.Mass_Properties.max_takeoff
+    weight          = config.mass_properties.max_takeoff
     reference_area  = config.reference_area
     try:
         V2_VS_ratio = config.V2_VS_ratio
@@ -108,7 +108,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # Determining vehicle number of engines
     # ==============================================
     engine_number = 0.
-    for propulsor in vehicle.Propulsors : # may have than one propulsor
+    for propulsor in vehicle.propulsors : # may have than one propulsor
         engine_number += propulsor.number_of_engines
     if engine_number == 0:
         raise ValueError, "No engine found in the vehicle"

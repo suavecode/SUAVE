@@ -44,18 +44,18 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.Mass_Properties.max_takeoff               = 79015.8   # kg
-    vehicle.Mass_Properties.operating_empty           = 62746.4   # kg
-    vehicle.Mass_Properties.takeoff                   = 79015.8   # kg
-    vehicle.Mass_Properties.max_zero_fuel             = 0.9 * vehicle.Mass_Properties.max_takeoff 
-    vehicle.Mass_Properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
+    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
-    vehicle.Mass_Properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.Mass_Properties.Moments_Of_Inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
+    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
     
     # envelope properties
-    vehicle.Envelope.ultimate_load = 3.5
-    vehicle.Envelope.limit_load    = 1.5
+    vehicle.envelope.ultimate_load = 3.5
+    vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
     #vehicle.delta    = 25.0                     # deg
@@ -235,7 +235,7 @@ def vehicle_setup():
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
     turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
-    turbofan.Thrust.design                 = 25000.0  #
+    turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
     
     # size the turbofan
@@ -274,7 +274,7 @@ def vehicle_setup():
     #   Simple Propulsion Model
     # ------------------------------------------------------------------     
     
-    vehicle.propulsion_model = vehicle.Propulsors
+    vehicle.propulsion_model = vehicle.propulsors
 
     # ------------------------------------------------------------------
     #   Define Configurations
@@ -307,7 +307,7 @@ def vehicle_setup():
     # CLmax for a given configuration may be informed by user
     landing_config.maximum_lift_coefficient = 2.
     #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.Mass_Properties.landing = 0.85 * vehicle.Mass_Properties.takeoff
+    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
     
 
     # ------------------------------------------------------------------
@@ -330,7 +330,7 @@ def mission_setup(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Properties.takeoff # linked copy updates if parent changes
+    mission.m0 = vehicle.mass_properties.takeoff # linked copy updates if parent changes
     
     # atmospheric model
     planet = SUAVE.Attributes.Planets.Earth()

@@ -21,4 +21,4 @@ from Payload import Payload
 class Person(Payload):
     def __defaults__(self):
         self.tag = 'Person'
-        self.Mass_Properties.mass = 90.718474     # kg, = 200 lb
+        self.mass_properties.mass = 90.718474     # kg, = 200 lb

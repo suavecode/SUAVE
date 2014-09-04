@@ -116,7 +116,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     b      = geometry.Wings['Main Wing'].Spans.projected
     sweep  = geometry.Wings['Main Wing'].sweep
     AR     = geometry.Wings['Main Wing'].aspect_ratio
-    z_w    = configuration.Mass_Properties.center_of_gravity[2]
+    z_w    = configuration.mass_properties.center_of_gravity[2]
     S_bs   = geometry.Fuselages.Fuselage.Areas.side_projected
     l_f    = geometry.Fuselages.Fuselage.Lengths.total
     h_max  = geometry.Fuselages.Fuselage.Heights.maximum
@@ -129,7 +129,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     x_v    = geometry.Wings['Vertical Stabilizer'].origin[0]
     b_v    = geometry.Wings['Vertical Stabilizer'].Spans.projected
     ac_vLE = geometry.Wings['Vertical Stabilizer'].aerodynamic_center[0]
-    x_cg   = configuration.Mass_Properties.center_of_gravity[0]
+    x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
     mu     = conditions.freestream.viscosity
     rho    = conditions.freestream.density
@@ -252,7 +252,7 @@ if __name__ == '__main__':
     aircraft.wing       = wing
     aircraft.fuselage   = fuselage
     aircraft.vertical   = vertical
-    aircraft.Mass_Properties.center_of_gravity[0] = 112.2 * Units.feet
+    aircraft.mass_properties.center_of_gravity[0] = 112.2 * Units.feet
     
     segment            = SUAVE.Attributes.Missions.Segments.Segment()
     segment.M          = 0.198

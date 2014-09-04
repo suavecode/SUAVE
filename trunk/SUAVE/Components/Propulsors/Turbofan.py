@@ -49,9 +49,9 @@ class TurboFanPASS(Propulsor):
         self.inlet    = Data()
         self.diverter = Data()
         self.nozzle   = Data()
-        self.Thrust   = Data()
+        self.thrust   = Data()
         self.analysis_type= 'pass'
-        self.Thrust.design = 0.0
+        self.thrust.design = 0.0
         self.number_of_engines = 0.0
         
         

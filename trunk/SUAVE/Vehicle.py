@@ -28,12 +28,12 @@ class Vehicle(Data):
         self.tag = 'Vehicle'
         self.Fuselages       = Components.Fuselages.Fuselage.Container()
         self.Wings           = Components.Wings.Wing.Container()
-        self.Propulsors      = Components.Propulsors.Propulsor.Container()
-        self.Energy          = Components.Energy.Energy()
+        self.propulsors      = Components.Propulsors.Propulsor.Container()
+        self.energy          = Components.Energy.Energy()
         self.Systems         = Components.Systems.System.Container()
-        self.Mass_Properties = Vehicle_Mass_Properties()
+        self.mass_properties = Vehicle_Mass_Properties()
         self.Cost            = Components.Cost()
-        self.Envelope        = Components.Envelope()
+        self.envelope        = Components.Envelope()
         self.Configs         = ConfigContainer()
 
         self.max_lift_coefficient_factor = 1.0
@@ -49,12 +49,12 @@ class Vehicle(Data):
             Components.Wings.Wing                      : self['Wings']                  ,
             Components.Systems.System                  : self['Systems']                ,
             Components.Cost                            : self['Cost']                   ,
-            Components.Propulsors.Propulsor            : self['Propulsors']             ,
-            Components.Energy.Storages.Storage         : self['Energy']['Storages']     ,
-            Components.Energy.Distributors.Distributor : self['Energy']['Distributors'] ,
-            Components.Energy.Converters.Converter     : self['Energy']['Converters']   ,
-            Components.Energy.Networks.Network         : self['Energy']['Networks']     ,
-            Components.Envelope                        : self['Envelope']               ,
+            Components.Propulsors.Propulsor            : self['propulsors']             ,
+            Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
+            Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
+            Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
+            Components.Energy.Networks.Network         : self['energy']['Networks']     ,
+            Components.Envelope                        : self['envelope']               ,
         }
 
         return

@@ -24,7 +24,7 @@ def compute_maximum_ground_speed(config,segment,tol=1e-6,guess=0.0):
     
     state = State(); z = np.zeros(m)
     z[2] = segment.airport.altitude                                 # m    
-    z[4] = config.Mass_Properties.takeoff                           # kg
+    z[4] = config.mass_properties.takeoff                           # kg
     state.alpha = 0.0                                               # rad
 
     # estimate liftoff speed in this configuration

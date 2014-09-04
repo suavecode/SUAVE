@@ -88,7 +88,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         n_conditions = len(AoA)
         
         # copy geometry
-        for k in ['Fuselages','Wings','Propulsors']:
+        for k in ['Fuselages','Wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area

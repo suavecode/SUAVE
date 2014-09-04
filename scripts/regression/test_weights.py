@@ -14,42 +14,42 @@ def main():
     
     vehicle = Data()
     vehicle.Envelope = Data()
-    vehicle.Mass_Properties = Data()
+    vehicle.mass_properties = Data()
     vehicle.Propulsors = Data()
     vehicle.Propulsors['Turbo Fan'] = Data()
     vehicle.Propulsors['Turbo Fan'].Thrust = Data()
-    vehicle.Propulsors['Turbo Fan'].Mass_Properties = Data()
+    vehicle.Propulsors['Turbo Fan'].mass_properties = Data()
     vehicle.Fuselages = Data()
     vehicle.Fuselages.Fuselage = Data()
     vehicle.Fuselages.Fuselage.Areas = Data()
     vehicle.Fuselages.Fuselage.Heights = Data()
     vehicle.Fuselages.Fuselage.Lengths = Data()
-    vehicle.Fuselages.Fuselage.Mass_Properties = Data()
+    vehicle.Fuselages.Fuselage.mass_properties = Data()
     vehicle.Systems = Data()
     vehicle.Wings = Data()
     vehicle.Wings['Main Wing'] = Data()
     vehicle.Wings['Main Wing'].Spans = Data()
     vehicle.Wings['Main Wing'].Chords = Data()
-    vehicle.Wings['Main Wing'].Mass_Properties = Data()
+    vehicle.Wings['Main Wing'].mass_properties = Data()
     vehicle.Wings['Horizontal Stabilizer'] = Data()
     vehicle.Wings['Horizontal Stabilizer'].Areas = Data()
     vehicle.Wings['Horizontal Stabilizer'].Spans = Data()
     vehicle.Wings['Horizontal Stabilizer'].Chords = Data()
-    vehicle.Wings['Horizontal Stabilizer'].Mass_Properties = Data()
+    vehicle.Wings['Horizontal Stabilizer'].mass_properties = Data()
     vehicle.Wings['Vertical Stabilizer'] = Data()
     vehicle.Wings['Vertical Stabilizer'].Areas = Data()
     vehicle.Wings['Vertical Stabilizer'].Spans = Data()
-    vehicle.Wings['Vertical Stabilizer'].Mass_Properties = Data()
+    vehicle.Wings['Vertical Stabilizer'].mass_properties = Data()
     
     
     # Parameters Required
     vehicle.Envelope.ultimate_load                      = 3.5                             # Ultimate load
-    vehicle.Mass_Properties.max_takeoff                 = 79015.8 * Units.kilograms       # Maximum takeoff weight in kilograms
-    vehicle.Mass_Properties.max_zero_fuel               = 79015.8 * 0.9 * Units.kilograms # Maximum zero fuel weight in kilograms
+    vehicle.mass_properties.max_takeoff                 = 79015.8 * Units.kilograms       # Maximum takeoff weight in kilograms
+    vehicle.mass_properties.max_zero_fuel               = 79015.8 * 0.9 * Units.kilograms # Maximum zero fuel weight in kilograms
     vehicle.Envelope.limit_load                         = 1.5                             # Limit Load
     vehicle.Propulsors['Turbo Fan'].number_of_engines   = 2.                              # Number of engines on the aircraft
     vehicle.passengers                                  = 170.                            # Number of passengers
-    vehicle.Mass_Properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
+    vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
     vehicle.Fuselages.Fuselage.num_coach_seats          = 200.                            # Number of seats on aircraft
     vehicle.Systems.control                             = "fully powered"                 # Specify fully powered, partially powered or anything else is fully aerodynamic
     vehicle.Systems.accessories                         = "medium-range"                  # Specify what type of aircraft you have

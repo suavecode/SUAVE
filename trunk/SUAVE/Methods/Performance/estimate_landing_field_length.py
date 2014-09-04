@@ -56,7 +56,7 @@ def estimate_landing_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.Mass_Properties.landing
+    weight          = config.mass_properties.landing
     reference_area  = config.reference_area
     try:
         Vref_VS_ratio = config.Vref_VS_ratio

@@ -91,7 +91,7 @@ def empty(vehicle):
     """     
 
     # Unpack inputs
-    thrust_sls = vehicle.Propulsors['Turbo Fan'].Thrust.design
+    thrust_sls = vehicle.propulsors['Turbo Fan'].thrust.design
     
     S_gross_w  = vehicle.reference_area
     #S_gross_w  = vehicle.Wings['Main Wing'].Areas.reference
@@ -102,13 +102,13 @@ def empty(vehicle):
     mac_w      = vehicle.Wings['Main Wing'].Chords.mean_aerodynamic
     wing_c_r   = vehicle.Wings['Main Wing'].Chords.root
     
-    Nult       = vehicle.Envelope.ultimate_load
-    Nlim       = vehicle.Envelope.limit_load
-    TOW        = vehicle.Mass_Properties.max_takeoff
-    wt_zf      = vehicle.Mass_Properties.max_zero_fuel
-    num_eng    = vehicle.Propulsors['Turbo Fan'].number_of_engines
+    Nult       = vehicle.envelope.ultimate_load
+    Nlim       = vehicle.envelope.limit_load
+    TOW        = vehicle.mass_properties.max_takeoff
+    wt_zf      = vehicle.mass_properties.max_zero_fuel
+    num_eng    = vehicle.propulsors['Turbo Fan'].number_of_engines
     num_pax    = vehicle.passengers
-    wt_cargo   = vehicle.Mass_Properties.cargo
+    wt_cargo   = vehicle.mass_properties.cargo
     num_seats  = vehicle.Fuselages.Fuselage.number_coach_seats
     ctrl_type  = vehicle.Systems.control
     ac_type    = vehicle.Systems.accessories  
@@ -148,11 +148,11 @@ def empty(vehicle):
     wt_empty           = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
                           wt_tail_horizontal + output_3.wt_tail_vertical + output_3.wt_rudder) 
     
-    vehicle.Wings['Main Wing'].Mass_Properties.mass = wt_wing
-    vehicle.Wings['Horizontal Stabilizer'].Mass_Properties.mass = wt_tail_horizontal
-    vehicle.Wings['Vertical Stabilizer'].Mass_Properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
-    vehicle.Fuselages.Fuselage.Mass_Properties.mass = wt_fuselage
-    vehicle.Propulsors['Turbo Fan'].Mass_Properties.mass = wt_engine_jet
+    vehicle.Wings['Main Wing'].mass_properties.mass = wt_wing
+    vehicle.Wings['Horizontal Stabilizer'].mass_properties.mass = wt_tail_horizontal
+    vehicle.Wings['Vertical Stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
+    vehicle.Fuselages.Fuselage.mass_properties.mass = wt_fuselage
+    vehicle.propulsors['Turbo Fan'].mass_properties.mass = wt_engine_jet
     
     # packup outputs
     output             = payload(TOW, wt_empty, num_pax,wt_cargo)
