@@ -56,11 +56,13 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     
     # from wings
     for wing in wings.values():
+        parasite_drag = parasite_drag_wing(conditions,configuration,wing)
         conditions.aerodynamics.drag_breakdown.parasite[wing.tag].parasite_drag_coefficient = parasite_drag * wing.Areas.reference/vehicle_reference_area
         total_parasite_drag += parasite_drag * wing.Areas.reference/vehicle_reference_area
         
     # from fuselage
     for fuselage in fuselages.values():
+        parasite_drag = parasite_drag_fuselage(conditions,configuration,fuselage)
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.Areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.Areas.front_projected/vehicle_reference_area
         
