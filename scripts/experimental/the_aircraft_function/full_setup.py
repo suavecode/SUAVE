@@ -74,9 +74,9 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.Areas.reference = 124.862    #
+    wing.areas.reference = 124.862    #
     wing.aspect_ratio    = 10.18       #
-    wing.Spans.projected = 35.66      #
+    wing.spans.projected = 35.66      #
     wing.sweep           = 25 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.1
@@ -86,18 +86,18 @@ def vehicle_setup():
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
     # Note that the wing sizing function will overwrite span
-    wing.Chords.root  = 6.81
-    wing.Chords.tip   = 1.09
-    wing.Areas.wetted = wing.Areas.reference*2.0 
+    wing.chords.root  = 6.81
+    wing.chords.tip   = 1.09
+    wing.areas.wetted = wing.areas.reference*2.0 
     # The span that would normally be overwritten here doesn't match
     # ---------------------------------------------------------
     
-    wing.Chords.mean_aerodynamic = 12.5
-    wing.Areas.exposed = 0.8*wing.Areas.wetted
-    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 12.5
+    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.9
-    wing.Twists.root = 3.0*Units.degrees
-    wing.Twists.tip  = 3.0*Units.degrees
+    wing.twists.root = 3.0*Units.degrees
+    wing.twists.tip  = 3.0*Units.degrees
     wing.origin          = [20,0,0]
     wing.aerodynamic_center = [3,0,0] 
     wing.vertical   = False
@@ -113,9 +113,9 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.Areas.reference = 32.488    #
+    wing.areas.reference = 32.488    #
     wing.aspect_ratio    = 6.16      #
-    wing.Spans.projected = 14.146      #
+    wing.spans.projected = 14.146      #
     wing.sweep           = 30 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.08
@@ -124,17 +124,17 @@ def vehicle_setup():
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
     # Note that the wing sizing function will overwrite span
-    wing.Chords.root  = 3.28
-    wing.Chords.tip   = 1.31
-    wing.Areas.wetted = wing.Areas.reference*2.0 
+    wing.chords.root  = 3.28
+    wing.chords.tip   = 1.31
+    wing.areas.wetted = wing.areas.reference*2.0 
     # ---------------------------------------------------------
     
-    wing.Chords.mean_aerodynamic = 8.0
-    wing.Areas.exposed = 0.8*wing.Areas.wetted
-    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 8.0
+    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.9
-    wing.Twists.root = 3.0*Units.degrees
-    wing.Twists.tip  = 3.0*Units.degrees  
+    wing.twists.root = 3.0*Units.degrees
+    wing.twists.tip  = 3.0*Units.degrees  
     wing.origin          = [50,0,0]
     wing.aerodynamic_center = [2,0,0]
     wing.vertical   = False 
@@ -150,9 +150,9 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.Areas.reference = 32.488    #
+    wing.areas.reference = 32.488    #
     wing.aspect_ratio    = 1.91      #
-    wing.Spans.projected = 7.877      #
+    wing.spans.projected = 7.877      #
     wing.sweep           = 25 * Units.deg
     wing.symmetric       = False
     wing.thickness_to_chord = 0.08
@@ -161,17 +161,17 @@ def vehicle_setup():
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
     # Note that the wing sizing function will overwrite span
-    wing.Chords.root  = 6.60
-    wing.Chords.tip   = 1.65
-    wing.Areas.wetted = wing.Areas.reference*2.0 
+    wing.chords.root  = 6.60
+    wing.chords.tip   = 1.65
+    wing.areas.wetted = wing.areas.reference*2.0 
     # ---------------------------------------------------------
     
-    wing.Chords.mean_aerodynamic = 8.0
-    wing.Areas.exposed = 0.8*wing.Areas.wetted
-    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 8.0
+    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.9
-    wing.Twists.root = 0.0*Units.degrees
-    wing.Twists.tip  = 0.0*Units.degrees  
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 0.0*Units.degrees  
     wing.origin          = [50,0,0]
     wing.aerodynamic_center = [2,0,0]    
     wing.vertical   = True 
@@ -191,26 +191,26 @@ def vehicle_setup():
     fuselage.number_coach_seats = 200
     fuselage.seats_abreast = 6
     fuselage.seat_pitch = 1
-    fuselage.Fineness.nose = 1.6
-    fuselage.Fineness.tail = 2.
-    fuselage.Lengths.fore_space = 6.
-    fuselage.Lengths.aft_space  = 5.
+    fuselage.fineness.nose = 1.6
+    fuselage.fineness.tail = 2.
+    fuselage.lengths.fore_space = 6.
+    fuselage.lengths.aft_space  = 5.
     fuselage.width = 4.
-    fuselage.Heights.maximum          = 4.    #
-    fuselage.Areas.side_projected       = 4.* 59.8 #  Not correct
-    fuselage.Heights.at_quarter_length = 4. # Not correct
-    fuselage.Heights.at_three_quarters_length = 4. # Not correct
-    fuselage.Heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.maximum          = 4.    #
+    fuselage.areas.side_projected       = 4.* 59.8 #  Not correct
+    fuselage.heights.at_quarter_length = 4. # Not correct
+    fuselage.heights.at_three_quarters_length = 4. # Not correct
+    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
     # A function exists to do this
-    fuselage.Lengths.nose  = 6.4
-    fuselage.Lengths.tail  = 8.0
-    fuselage.Lengths.cabin = 44.0
-    fuselage.Lengths.total = 58.4
-    fuselage.Areas.wetted  = 688.64
-    fuselage.Areas.front_projected = 12.57
+    fuselage.lengths.nose  = 6.4
+    fuselage.lengths.tail  = 8.0
+    fuselage.lengths.cabin = 44.0
+    fuselage.lengths.total = 58.4
+    fuselage.areas.wetted  = 688.64
+    fuselage.areas.front_projected = 12.57
     fuselage.effective_diameter        = 4.0
     
     # add to vehicle

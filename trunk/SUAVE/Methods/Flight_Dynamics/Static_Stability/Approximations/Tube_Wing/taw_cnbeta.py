@@ -112,22 +112,22 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_other = []
 
     # Unpack inputs
-    S      = geometry.Wings['Main Wing'].Areas.reference
-    b      = geometry.Wings['Main Wing'].Spans.projected
+    S      = geometry.Wings['Main Wing'].areas.reference
+    b      = geometry.Wings['Main Wing'].spans.projected
     sweep  = geometry.Wings['Main Wing'].sweep
     AR     = geometry.Wings['Main Wing'].aspect_ratio
     z_w    = configuration.mass_properties.center_of_gravity[2]
-    S_bs   = geometry.Fuselages.Fuselage.Areas.side_projected
-    l_f    = geometry.Fuselages.Fuselage.Lengths.total
-    h_max  = geometry.Fuselages.Fuselage.Heights.maximum
+    S_bs   = geometry.Fuselages.Fuselage.areas.side_projected
+    l_f    = geometry.Fuselages.Fuselage.lengths.total
+    h_max  = geometry.Fuselages.Fuselage.heights.maximum
     w_max  = geometry.Fuselages.Fuselage.width
-    h1     = geometry.Fuselages.Fuselage.Heights.at_quarter_length
-    h2     = geometry.Fuselages.Fuselage.Heights.at_three_quarters_length
-    d_i    = geometry.Fuselages.Fuselage.Heights.at_wing_root_quarter_chord
+    h1     = geometry.Fuselages.Fuselage.heights.at_quarter_length
+    h2     = geometry.Fuselages.Fuselage.heights.at_three_quarters_length
+    d_i    = geometry.Fuselages.Fuselage.heights.at_wing_root_quarter_chord
     other  = configuration.other
-    S_v    = geometry.Wings['Vertical Stabilizer'].Areas.reference
+    S_v    = geometry.Wings['Vertical Stabilizer'].areas.reference
     x_v    = geometry.Wings['Vertical Stabilizer'].origin[0]
-    b_v    = geometry.Wings['Vertical Stabilizer'].Spans.projected
+    b_v    = geometry.Wings['Vertical Stabilizer'].spans.projected
     ac_vLE = geometry.Wings['Vertical Stabilizer'].aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity

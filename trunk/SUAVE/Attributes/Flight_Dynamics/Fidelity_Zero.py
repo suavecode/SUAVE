@@ -110,8 +110,8 @@ class Fidelity_Zero(Data):
             mach          = conditions.freestream.mach_number
             velocity      = conditions.freestream.velocity
             density       = conditions.freestream.density
-            Span          = geometry.Wings['Main Wing'].Spans.projected
-            mac           = geometry.Wings['Main Wing'].Chords.mean_aerodynamic
+            Span          = geometry.Wings['Main Wing'].spans.projected
+            mac           = geometry.Wings['Main Wing'].chords.mean_aerodynamic
             aero          = conditions.aerodynamics
             
             # Calculate CL_alpha 
@@ -121,7 +121,7 @@ class Fidelity_Zero(Data):
             # Calculate change in downwash with respect to change in angle of attack
             for surf in geometry.Wings:
                 e = surf.span_efficiency
-                sref = surf.Areas.reference
+                sref = surf.areas.reference
                 span = (surf.aspect_ratio * sref ) ** 0.5
                 surf.CL_alpha = datcom(surf,mach)
                 surf.ep_alpha = Supporting_Functions.ep_alpha(surf.CL_alpha, sref, span, e)
@@ -135,7 +135,7 @@ class Fidelity_Zero(Data):
                 if not aero.has_key('cn_r'):  
                     cDw = aero.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
                     l_v = geometry.Wings['Vertical Stabilizer'].origin[0] + geometry.Wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aerodynamic_center[0]
-                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].Areas.reference, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
+                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
                 if not aero.has_key('cl_p'):
                     aero.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
                     

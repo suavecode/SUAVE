@@ -95,12 +95,12 @@ def empty(vehicle):
     
     S_gross_w  = vehicle.reference_area
     #S_gross_w  = vehicle.Wings['Main Wing'].Areas.reference
-    b          = vehicle.Wings['Main Wing'].Spans.projected
+    b          = vehicle.Wings['Main Wing'].spans.projected
     lambda_w   = vehicle.Wings['Main Wing'].taper
     t_c_w      = vehicle.Wings['Main Wing'].thickness_to_chord
     sweep_w    = vehicle.Wings['Main Wing'].sweep
-    mac_w      = vehicle.Wings['Main Wing'].Chords.mean_aerodynamic
-    wing_c_r   = vehicle.Wings['Main Wing'].Chords.root
+    mac_w      = vehicle.Wings['Main Wing'].chords.mean_aerodynamic
+    wing_c_r   = vehicle.Wings['Main Wing'].chords.root
     
     Nult       = vehicle.envelope.ultimate_load
     Nlim       = vehicle.envelope.limit_load
@@ -114,21 +114,21 @@ def empty(vehicle):
     ac_type    = vehicle.systems.accessories  
     l_w2h      = vehicle.Wings['Horizontal Stabilizer'].position[0] + vehicle.Wings['Horizontal Stabilizer'].aerodynamic_center[0] - vehicle.Wings['Main Wing'].position[0] - vehicle.Wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
     
-    S_fus      = vehicle.Fuselages.Fuselage.Areas.wetted
+    S_fus      = vehicle.Fuselages.Fuselage.areas.wetted
     diff_p_fus = vehicle.Fuselages.Fuselage.differential_pressure
     w_fus      = vehicle.Fuselages.Fuselage.width
-    h_fus      = vehicle.Fuselages.Fuselage.Heights.maximum
-    l_fus      = vehicle.Fuselages.Fuselage.Lengths.total
+    h_fus      = vehicle.Fuselages.Fuselage.heights.maximum
+    l_fus      = vehicle.Fuselages.Fuselage.lengths.total
     
-    S_h            = vehicle.Wings['Horizontal Stabilizer'].Areas.reference
-    b_h            = vehicle.Wings['Horizontal Stabilizer'].Spans.projected
+    S_h            = vehicle.Wings['Horizontal Stabilizer'].areas.reference
+    b_h            = vehicle.Wings['Horizontal Stabilizer'].spans.projected
     sweep_h        = vehicle.Wings['Horizontal Stabilizer'].sweep
-    mac_h          = vehicle.Wings['Horizontal Stabilizer'].Chords.mean_aerodynamic
+    mac_h          = vehicle.Wings['Horizontal Stabilizer'].chords.mean_aerodynamic
     t_c_h          = vehicle.Wings['Horizontal Stabilizer'].thickness_to_chord
-    h_tail_exposed = vehicle.Wings['Horizontal Stabilizer'].Areas.exposed / vehicle.Wings['Horizontal Stabilizer'].Areas.wetted
+    h_tail_exposed = vehicle.Wings['Horizontal Stabilizer'].areas.exposed / vehicle.Wings['Horizontal Stabilizer'].areas.wetted
     
-    S_v        = vehicle.Wings['Vertical Stabilizer'].Areas.reference
-    b_v        = vehicle.Wings['Vertical Stabilizer'].Spans.projected
+    S_v        = vehicle.Wings['Vertical Stabilizer'].areas.reference
+    b_v        = vehicle.Wings['Vertical Stabilizer'].spans.projected
     t_c_v      = vehicle.Wings['Vertical Stabilizer'].thickness_to_chord
     sweep_v    = vehicle.Wings['Vertical Stabilizer'].sweep
     t_tail     = vehicle.Wings['Vertical Stabilizer'].t_tail     
