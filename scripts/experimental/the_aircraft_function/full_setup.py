@@ -75,7 +75,7 @@ def vehicle_setup():
     wing.tag = 'Main Wing'
     
     wing.Areas.reference = 124.862    #
-    wing.aspect_ratio    = 8        #
+    wing.aspect_ratio    = 10.18       #
     wing.Spans.projected = 35.66      #
     wing.sweep           = 25 * Units.deg
     wing.symmetric       = True
@@ -156,7 +156,7 @@ def vehicle_setup():
     wing.sweep           = 25 * Units.deg
     wing.symmetric       = False
     wing.thickness_to_chord = 0.08
-    wing.taper           = 0.4
+    wing.taper           = 0.25
     
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
@@ -211,7 +211,6 @@ def vehicle_setup():
     fuselage.Lengths.total = 58.4
     fuselage.Areas.wetted  = 688.64
     fuselage.Areas.front_projected = 12.57
-    #fuselage.Areas.front_projected     = 12.57 # ?? CHECK
     fuselage.effective_diameter        = 4.0
     
     # add to vehicle

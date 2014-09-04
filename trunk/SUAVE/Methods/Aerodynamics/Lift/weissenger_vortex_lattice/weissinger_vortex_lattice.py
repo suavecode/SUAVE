@@ -39,16 +39,16 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     
     
     
-    span       = wing.Spans.projected
-    root_chord = wing.Chords.root
-    tip_chord  = wing.Chords.tip
-    sweep      = wing.sweep
-    taper      = wing.taper
-    twist_rc   = wing.Twists.root
-    twist_tc   = wing.Twists.tip
-    sym_para   = wing.symmetric
-    AR         = wing.aspect_ratio
-    Sref       = wing.Areas.reference
+    span        = wing.Spans.projected
+    root_chord  = wing.Chords.root
+    tip_chord   = wing.Chords.tip
+    sweep       = wing.sweep
+    taper       = wing.taper
+    twist_rc    = wing.Twists.root
+    twist_tc    = wing.Twists.tip
+    sym_para    = wing.symmetric
+    AR          = wing.aspect_ratio
+    Sref        = wing.Areas.reference
     orientation = wing.vertical
 
     n  = configuration.number_panels_spanwise
