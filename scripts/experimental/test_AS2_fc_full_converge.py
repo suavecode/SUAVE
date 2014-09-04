@@ -41,35 +41,87 @@ def main():
     
     base_weight = 22500 # kg
     cell_power_weight = 1500 # W/kg
+    range_goal = 3000.0 # nmi
     
-    flag = 100
-    while (flag > 20.0):
+    results = evaluate_mission(vehicle,mission)
+    
+    fuel_flag = 10
+    while (fuel_flag > 20.0):
     
         results = evaluate_mission(vehicle,mission)
         
-        break 
-    
-        velocity   = results.Segments["Climb - 10"].conditions.freestream.velocity[:,0]
-        Thrust     = results.Segments["Climb - 10"].conditions.frames.body.thrust_force_vector[:,0]
-        power      = velocity*Thrust 
-        max_power = np.max(power)
-    
-        current_empty_weight = vehicle.Mass_Props.m_empty
-        current_takeoff_weight = vehicle.Mass_Props.m_takeoff
-        mass_diff = current_empty_weight - base_weight
-        fuel_weight = current_takeoff_weight - current_empty_weight
-        cell_weight_needed = max_power/cell_power_weight
+        dist_base = 0.0
+        max_range = 0.0
+        tot_energy = 0.0
+        for segment in results.Segments.values():
+            time = segment.conditions.frames.inertial.time[:,0] / Units.min
+            velocity   = segment.conditions.freestream.velocity[:,0]
+            Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+            power = velocity*Thrust
+            tot_energy = tot_energy + np.trapz(power,time*60)
+        print 'Integrated Power Required: %.0f J' % tot_energy    
+            
+        for segment in results.Segments.values():
+            masses = segment.conditions.weights.total_mass
+            time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+            velocity   = segment.conditions.freestream.velocity[:,0]            
+            distance = np.array([dist_base] * len(time))
+            distance[1:] = integrate.cumtrapz(velocity*1.94,time/60.0)+dist_base 
+            dist_base = distance[-1]
+            for ii in range(len(masses)-1):
+                if masses[ii] == masses[ii+1]:
+                    max_range = distance[ii]
+                    break
+            if max_range != 0.0:
+                break
+            
+        if max_range != 0:
+            m_takeoff   = vehicle.Mass_Props.m_takeoff
+            m_empty     = vehicle.Mass_Props.m_empty
+            m_fuel      = m_takeoff - m_empty
+            #m_fuel      = m_fuel * range_goal/max_range
+            spec_energy = vehicle.propulsion_model.propellant.specific_energy
+            m_fuel      = tot_energy/spec_energy
+            vehicle.Mass_Props.m_takeoff = m_empty+m_fuel
+            vehicle.Configs.cruise.Mass_Props.m_takeoff = m_empty+m_fuel
+            
+            fuel_flag = abs(max_range-range_goal)
+            print 'Max Range: %.0f' % max_range
+            print 'Range Goal: %.0f' % range_goal
+            print 'Range Error: %.0f' % fuel_flag
+
+        else:
+            fuel_flag = 10
+
+        fuel_flag = 10
+        cell_flag = 100
+        while (cell_flag > 20.0):
         
-        vehicle.Mass_Props.m_empty = base_weight + cell_weight_needed
-        vehicle.Mass_Props.m_takeoff = vehicle.Mass_Props.m_empty + fuel_weight
-        vehicle.Mass_Props.m_full = vehicle.Mass_Props.m_takeoff + 1000.0
+            results = evaluate_mission(vehicle,mission)
+            
+            #break 
         
-        vehicle.Configs.cruise.Mass_Props.m_empty = vehicle.Mass_Props.m_empty
-        vehicle.Configs.cruise.Mass_Props.m_takeoff = vehicle.Mass_Props.m_takeoff
-        vehicle.Configs.cruise.Mass_Props.m_full = vehicle.Mass_Props.m_full
+            velocity   = results.Segments["Climb - 10"].conditions.freestream.velocity[:,0]
+            Thrust     = results.Segments["Climb - 10"].conditions.frames.body.thrust_force_vector[:,0]
+            power      = velocity*Thrust 
+            max_power = np.max(power)
         
-        flag = abs(cell_weight_needed-mass_diff)
-        print flag
+            current_empty_weight = vehicle.Mass_Props.m_empty
+            current_takeoff_weight = vehicle.Mass_Props.m_takeoff
+            mass_diff = current_empty_weight - base_weight
+            fuel_weight = current_takeoff_weight - current_empty_weight
+            cell_weight_needed = max_power/cell_power_weight
+            
+            vehicle.Mass_Props.m_empty = base_weight + cell_weight_needed
+            vehicle.Mass_Props.m_takeoff = vehicle.Mass_Props.m_empty + fuel_weight
+            vehicle.Mass_Props.m_full = vehicle.Mass_Props.m_takeoff + 1000.0
+            
+            vehicle.Configs.cruise.Mass_Props.m_empty = vehicle.Mass_Props.m_empty
+            vehicle.Configs.cruise.Mass_Props.m_takeoff = vehicle.Mass_Props.m_takeoff
+            vehicle.Configs.cruise.Mass_Props.m_full = vehicle.Mass_Props.m_full
+            
+            cell_flag = abs(cell_weight_needed-mass_diff)
+            print cell_flag
     
     # plot results
     post_process(vehicle,mission,results)
@@ -591,14 +643,18 @@ def post_process(vehicle,mission,results):
     for segment in results.Segments.values():
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
         eta  = segment.conditions.propulsion.throttle[:,0]
+        max_mdot = segment.config.propulsion_model.fuel_cell.max_mdot
+        e = segment.config.propulsion_model.fuel_cell.efficiency
+        spec_energy = segment.config.propulsion_model.fuel_cell.inputs.propellant.specific_energy
+        power = spec_energy*eta*max_mdot*e
         mdot = segment.conditions.propulsion.fuel_mass_rate[:,0]
         velocity   = segment.conditions.freestream.velocity[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
         
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , eta , 'bo-' )
+        axes.plot( time , power/1000.0 , 'bo-' )
         axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Throttle')
+        axes.set_ylabel('Power Output (kW)')
         axes.grid(True)
         
         #axes = fig.add_subplot(3,1,2)
