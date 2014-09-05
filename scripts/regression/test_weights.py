@@ -13,81 +13,81 @@ from SUAVE.Structure import (
 def main():
     
     vehicle = Data()
-    vehicle.Envelope = Data()
+    vehicle.envelope = Data()
     vehicle.mass_properties = Data()
-    vehicle.Propulsors = Data()
-    vehicle.Propulsors['Turbo Fan'] = Data()
-    vehicle.Propulsors['Turbo Fan'].Thrust = Data()
-    vehicle.Propulsors['Turbo Fan'].mass_properties = Data()
-    vehicle.Fuselages = Data()
-    vehicle.Fuselages.Fuselage = Data()
-    vehicle.Fuselages.Fuselage.Areas = Data()
-    vehicle.Fuselages.Fuselage.Heights = Data()
-    vehicle.Fuselages.Fuselage.Lengths = Data()
-    vehicle.Fuselages.Fuselage.mass_properties = Data()
-    vehicle.Systems = Data()
-    vehicle.Wings = Data()
-    vehicle.Wings['Main Wing'] = Data()
-    vehicle.Wings['Main Wing'].Spans = Data()
-    vehicle.Wings['Main Wing'].Chords = Data()
-    vehicle.Wings['Main Wing'].mass_properties = Data()
-    vehicle.Wings['Horizontal Stabilizer'] = Data()
-    vehicle.Wings['Horizontal Stabilizer'].Areas = Data()
-    vehicle.Wings['Horizontal Stabilizer'].Spans = Data()
-    vehicle.Wings['Horizontal Stabilizer'].Chords = Data()
-    vehicle.Wings['Horizontal Stabilizer'].mass_properties = Data()
-    vehicle.Wings['Vertical Stabilizer'] = Data()
-    vehicle.Wings['Vertical Stabilizer'].Areas = Data()
-    vehicle.Wings['Vertical Stabilizer'].Spans = Data()
-    vehicle.Wings['Vertical Stabilizer'].mass_properties = Data()
+    vehicle.propulsors = Data()
+    vehicle.propulsors['Turbo Fan'] = Data()
+    vehicle.propulsors['Turbo Fan'].thrust = Data()
+    vehicle.propulsors['Turbo Fan'].mass_properties = Data()
+    vehicle.fuselages = Data()
+    vehicle.fuselages.fuselage = Data()
+    vehicle.fuselages.fuselage.areas = Data()
+    vehicle.fuselages.fuselage.heights = Data()
+    vehicle.fuselages.fuselage.lengths = Data()
+    vehicle.fuselages.fuselage.mass_properties = Data()
+    vehicle.systems = Data()
+    vehicle.wings = Data()
+    vehicle.wings['Main Wing'] = Data()
+    vehicle.wings['Main Wing'].spans = Data()
+    vehicle.wings['Main Wing'].chords = Data()
+    vehicle.wings['Main Wing'].mass_properties = Data()
+    vehicle.wings['Horizontal Stabilizer'] = Data()
+    vehicle.wings['Horizontal Stabilizer'].areas = Data()
+    vehicle.wings['Horizontal Stabilizer'].spans = Data()
+    vehicle.wings['Horizontal Stabilizer'].chords = Data()
+    vehicle.wings['Horizontal Stabilizer'].mass_properties = Data()
+    vehicle.wings['Vertical Stabilizer'] = Data()
+    vehicle.wings['Vertical Stabilizer'].areas = Data()
+    vehicle.wings['Vertical Stabilizer'].spans = Data()
+    vehicle.wings['Vertical Stabilizer'].mass_properties = Data()
     
     
     # Parameters Required
-    vehicle.Envelope.ultimate_load                      = 3.5                             # Ultimate load
+    vehicle.envelope.ultimate_load                      = 3.5                             # Ultimate load
     vehicle.mass_properties.max_takeoff                 = 79015.8 * Units.kilograms       # Maximum takeoff weight in kilograms
     vehicle.mass_properties.max_zero_fuel               = 79015.8 * 0.9 * Units.kilograms # Maximum zero fuel weight in kilograms
-    vehicle.Envelope.limit_load                         = 1.5                             # Limit Load
-    vehicle.Propulsors['Turbo Fan'].number_of_engines   = 2.                              # Number of engines on the aircraft
+    vehicle.envelope.limit_load                         = 1.5                             # Limit Load
+    vehicle.propulsors['Turbo Fan'].number_of_engines   = 2.                              # Number of engines on the aircraft
     vehicle.passengers                                  = 170.                            # Number of passengers
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
-    vehicle.Fuselages.Fuselage.num_coach_seats          = 200.                            # Number of seats on aircraft
-    vehicle.Systems.control                             = "fully powered"                 # Specify fully powered, partially powered or anything else is fully aerodynamic
-    vehicle.Systems.accessories                         = "medium-range"                  # Specify what type of aircraft you have
+    vehicle.fuselages.fuselage.number_coach_seats          = 200.                            # Number of seats on aircraft
+    vehicle.systems.control                             = "fully powered"                 # Specify fully powered, partially powered or anything else is fully aerodynamic
+    vehicle.systems.accessories                         = "medium-range"                  # Specify what type of aircraft you have
     
     vehicle.reference_area                              = 124.862  * Units.meter**2  # Wing gross area in square meters
-    vehicle.Wings['Main Wing'].Spans.projected          = 50.      * Units.meter     # Span in meters
-    vehicle.Wings['Main Wing'].taper                    = 0.2                        # Taper ratio
-    vehicle.Wings['Main Wing'].thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
-    vehicle.Wings['Main Wing'].sweep                    = .4363323 * Units.rad       # sweep angle in degrees
-    vehicle.Wings['Main Wing'].Chords.root              = 15.      * Units.meter     # Wing root chord length
-    vehicle.Wings['Main Wing'].Chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
-    vehicle.Wings['Main Wing'].position                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
-    vehicle.Wings['Main Wing'].aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
+    vehicle.wings['Main Wing'].spans.projected          = 50.      * Units.meter     # Span in meters
+    vehicle.wings['Main Wing'].taper                    = 0.2                        # Taper ratio
+    vehicle.wings['Main Wing'].thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
+    vehicle.wings['Main Wing'].sweep                    = .4363323 * Units.rad       # sweep angle in degrees
+    vehicle.wings['Main Wing'].chords.root              = 15.      * Units.meter     # Wing root chord length
+    vehicle.wings['Main Wing'].chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
+    vehicle.wings['Main Wing'].position                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
+    vehicle.wings['Main Wing'].aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
     
     
-    vehicle.Fuselages.Fuselage.Areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
-    vehicle.Fuselages.Fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
-    vehicle.Fuselages.Fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
-    vehicle.Fuselages.Fuselage.Heights.maximum          = 4.        * Units.meter     # Height of the fuselage
-    vehicle.Fuselages.Fuselage.Lengths.total            = 58.4      * Units.meter     # Length of the fuselage
+    vehicle.fuselages.fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
+    vehicle.fuselages.fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
+    vehicle.fuselages.fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
+    vehicle.fuselages.fuselage.heights.maximum          = 4.        * Units.meter     # Height of the fuselage
+    vehicle.fuselages.fuselage.lengths.total            = 58.4      * Units.meter     # Length of the fuselage
     
-    vehicle.Propulsors['Turbo Fan'].Thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons
+    vehicle.propulsors['Turbo Fan'].thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons
     
-    vehicle.Wings['Horizontal Stabilizer'].Areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].Spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].Chords.mean_aerodynamic  = 5.      * Units.meters    # Length of the mean aerodynamic chord of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].Areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].Areas.wetted             = 249.724                   # Wetted area of the horizontal tail
-    vehicle.Wings['Horizontal Stabilizer'].position                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
-    vehicle.Wings['Horizontal Stabilizer'].aerodynamic_center       = [3,0,0]                   # Location of aerodynamic center from origin of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic  = 5.      * Units.meters    # Length of the mean aerodynamic chord of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].areas.wetted             = 249.724                   # Wetted area of the horizontal tail
+    vehicle.wings['Horizontal Stabilizer'].position                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
+    vehicle.wings['Horizontal Stabilizer'].aerodynamic_center       = [3,0,0]                   # Location of aerodynamic center from origin of the horizontal tail
     
-    vehicle.Wings['Vertical Stabilizer'].Areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
-    vehicle.Wings['Vertical Stabilizer'].Spans.projected     = 15.     * Units.meters    # Span of the vertical tail
-    vehicle.Wings['Vertical Stabilizer'].thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail
-    vehicle.Wings['Vertical Stabilizer'].sweep               = 40.     * Units.deg       # Sweep of the vertical tail
-    vehicle.Wings['Vertical Stabilizer'].t_tail              = "false"                   # Set to "yes" for a T-tail
+    vehicle.wings['Vertical Stabilizer'].areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
+    vehicle.wings['Vertical Stabilizer'].spans.projected     = 15.     * Units.meters    # Span of the vertical tail
+    vehicle.wings['Vertical Stabilizer'].thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail
+    vehicle.wings['Vertical Stabilizer'].sweep               = 40.     * Units.deg       # Sweep of the vertical tail
+    vehicle.wings['Vertical Stabilizer'].t_tail              = "false"                   # Set to "yes" for a T-tail
     
     weight = Tube_Wing.empty(vehicle)
     

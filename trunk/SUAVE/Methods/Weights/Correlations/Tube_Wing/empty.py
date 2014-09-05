@@ -109,16 +109,16 @@ def empty(vehicle):
     num_eng    = vehicle.propulsors['Turbo Fan'].number_of_engines
     num_pax    = vehicle.passengers
     wt_cargo   = vehicle.mass_properties.cargo
-    num_seats  = vehicle.fuselages.Fuselage.number_coach_seats
+    num_seats  = vehicle.fuselages.fuselage.number_coach_seats
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories  
     l_w2h      = vehicle.wings['Horizontal Stabilizer'].position[0] + vehicle.wings['Horizontal Stabilizer'].aerodynamic_center[0] - vehicle.wings['Main Wing'].position[0] - vehicle.wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
     
-    S_fus      = vehicle.fuselages.Fuselage.areas.wetted
-    diff_p_fus = vehicle.fuselages.Fuselage.differential_pressure
-    w_fus      = vehicle.fuselages.Fuselage.width
-    h_fus      = vehicle.fuselages.Fuselage.heights.maximum
-    l_fus      = vehicle.fuselages.Fuselage.lengths.total
+    S_fus      = vehicle.fuselages.fuselage.areas.wetted
+    diff_p_fus = vehicle.fuselages.fuselage.differential_pressure
+    w_fus      = vehicle.fuselages.fuselage.width
+    h_fus      = vehicle.fuselages.fuselage.heights.maximum
+    l_fus      = vehicle.fuselages.fuselage.lengths.total
     
     S_h            = vehicle.wings['Horizontal Stabilizer'].areas.reference
     b_h            = vehicle.wings['Horizontal Stabilizer'].spans.projected
@@ -151,7 +151,7 @@ def empty(vehicle):
     vehicle.wings['Main Wing'].mass_properties.mass = wt_wing
     vehicle.wings['Horizontal Stabilizer'].mass_properties.mass = wt_tail_horizontal
     vehicle.wings['Vertical Stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
-    vehicle.fuselages.Fuselage.mass_properties.mass = wt_fuselage
+    vehicle.fuselages.fuselage.mass_properties.mass = wt_fuselage
     vehicle.propulsors['Turbo Fan'].mass_properties.mass = wt_engine_jet
     
     # packup outputs
