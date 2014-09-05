@@ -34,8 +34,6 @@ def main():
     
     post_process(vehicle,mission,results)
     
-    plt.show(block=True)
-    
     return
 
 
@@ -44,3 +42,4 @@ def main():
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
     main()
+    plt.show(block=True) # here so as to not block the regression test
