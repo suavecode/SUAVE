@@ -40,7 +40,7 @@ def induced_drag_aircraft_supersonic(conditions,configuration,geometry):
     # unpack inputs
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
-    ar            = geometry.Wings[0].ar # TODO: get estimate from weissinger
+    ar            = geometry.wings[0].ar # TODO: get estimate from weissinger
     Mc            = conditions.freestream.mach_number
     
     # start the result

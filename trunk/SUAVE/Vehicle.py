@@ -26,15 +26,15 @@ class Vehicle(Data):
 
     def __defaults__(self):
         self.tag = 'Vehicle'
-        self.Fuselages       = Components.Fuselages.Fuselage.Container()
-        self.Wings           = Components.Wings.Wing.Container()
+        self.fuselages       = Components.Fuselages.Fuselage.Container()
+        self.wings           = Components.Wings.Wing.Container()
         self.propulsors      = Components.Propulsors.Propulsor.Container()
         self.energy          = Components.Energy.Energy()
         self.systems         = Components.Systems.System.Container()
         self.mass_properties = Vehicle_Mass_Properties()
         self.cost            = Components.Cost()
         self.envelope        = Components.Envelope()
-        self.Configs         = ConfigContainer()
+        self.configs         = ConfigContainer()
 
         self.max_lift_coefficient_factor = 1.0
 
@@ -45,8 +45,8 @@ class Vehicle(Data):
         super(Vehicle,self).__init__(*args,**kwarg)
 
         self._component_root_map = {
-            Components.Fuselages.Fuselage              : self['Fuselages']              ,
-            Components.Wings.Wing                      : self['Wings']                  ,
+            Components.Fuselages.Fuselage              : self['fuselages']              ,
+            Components.Wings.Wing                      : self['wings']                  ,
             Components.Systems.System                  : self['systems']                ,
             Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
@@ -94,7 +94,7 @@ class Vehicle(Data):
 
     def new_configuration(self,tag,ref_index=None,new_index=None):
         """ config = SUAVE.Vehicle.new_configuration(name,ref=None,index=None)
-            start a new configuration, with tag name, appended to Vehicle.Configs[]
+            start a new configuration, with tag name, appended to vehicle.configs[]
             each new configuration is a linked copy to its reference
             the first configuration is a linked copy to Vehicle
 
@@ -103,7 +103,7 @@ class Vehicle(Data):
                 ref_index - optional, index or key to reference the configuration
                             default, will referernce to the last configuration
                 new_index - optional, index before which to add the configuration
-                            default, will append to the end of Vehicle.Configs
+                            default, will append to the end of vehicle.configs
 
             Outputs:
                 config - a reference to the new configuration
@@ -114,13 +114,13 @@ class Vehicle(Data):
         """
 
         # first config
-        if not self.Configs:
+        if not self.configs:
             # linked copy from self
             #new_config = self.linked_copy()
             new_config = deepcopy(self)
 
             # avoid recursion problems
-            del new_config.Configs
+            del new_config.configs
 
         # not first config
         else:
@@ -128,18 +128,18 @@ class Vehicle(Data):
             if ref_index is None: ref_index = -1
 
             # get linked copy
-            #new_config = self.Configs[ref_index].linked_copy()
-            new_config = deepcopy(self.Configs[ref_index])
+            #new_config = self.configs[ref_index].linked_copy()
+            new_config = deepcopy(self.configs[ref_index])
 
         # prepare new config
         new_config.tag = tag
         new_config.Functions = FunctionContainer()
 
         # new_index default is end
-        if new_index is None: new_index = len(self.Configs)
+        if new_index is None: new_index = len(self.configs)
 
         # insert new config
-        self.Configs.insert(new_index,tag,new_config)
+        self.configs.insert(new_index,tag,new_config)
 
         return new_config
 

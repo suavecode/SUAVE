@@ -62,11 +62,11 @@ def evaluate_weights(vehicle,results):
     breakdown = empty(vehicle)
      
     # pack
-    #vehicle.Mass_Props.breakdown = breakdown
-    #vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    vehicle.mass_properties.breakdown = breakdown
+    vehicle.mass_properties.m_empty = vehicle.mass_properties.breakdown.empty
     
-    #for config in vehicle.Configs:
-        #config.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    for config in vehicle.configs:
+        config.mass_properties.m_empty = vehicle.mass_properties.breakdown.empty
     
     results.weight_breakdown = breakdown
     
@@ -82,8 +82,8 @@ def evaluate_field_length(vehicle,mission,results):
     # unpack
     airport = mission.airport
     
-    takeoff_config = vehicle.Configs.takeoff
-    landing_config = vehicle.Configs.landing
+    takeoff_config = vehicle.configs.takeoff
+    landing_config = vehicle.configs.landing
     
     from SUAVE.Methods.Performance import estimate_take_off_field_length
     from SUAVE.Methods.Performance import estimate_landing_field_length    

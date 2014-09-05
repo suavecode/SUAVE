@@ -88,7 +88,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         n_conditions = len(AoA)
         
         # copy geometry
-        for k in ['Fuselages','Wings','propulsors']:
+        for k in ['fuselages','wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
@@ -215,7 +215,7 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area

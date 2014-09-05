@@ -97,7 +97,7 @@ def compute_aircraft_lift_supersonic(conditions,configuration,geometry):
     vortex_cl = np.array([[0.0]] * len(Mc))
     #print aircraft_lift_total
     
-    wing = geometry.Wings[0]
+    wing = geometry.wings[0]
     
     for i in range(len(Mc)):
 

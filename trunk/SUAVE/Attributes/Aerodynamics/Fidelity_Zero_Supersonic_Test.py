@@ -88,7 +88,7 @@ class Fidelity_Zero_Supersonic(Aerodynamics_Surrogate):
         n_conditions = len(AoA)
         
         # copy geometry
-        for k in ['Fuselages','Wings','Propulsors']:
+        for k in ['fuselages','wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
@@ -212,7 +212,7 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
         total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
@@ -228,7 +228,7 @@ def calculate_lift_linear_supersonic(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         wing_lift_coeff = linear_supersonic_lift(conditions,configuration,wing)
         total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area

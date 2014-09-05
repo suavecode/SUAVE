@@ -286,12 +286,12 @@ def vehicle_setup():
 
     # --- Cruise Configuration ---
     config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.Configs.takeoff
+    # this configuration is derived from vehicle.configs.takeoff
 
     # --- Takeoff Configuration ---
-    takeoff_config = vehicle.Configs.takeoff
-    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    takeoff_config = vehicle.configs.takeoff
+    takeoff_config.wings['Main Wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     takeoff_config.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
@@ -300,8 +300,8 @@ def vehicle_setup():
 
     # --- Landing Configuration ---
     landing_config = vehicle.new_configuration("landing")
-    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    landing_config.wings['Main Wing'].flaps_angle =  30. * Units.deg
+    landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user
@@ -353,7 +353,7 @@ def mission_setup(vehicle):
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.takeoff
+    segment.config = vehicle.configs.takeoff
     
     # define segment attributes
     segment.atmosphere     = atmosphere
@@ -377,7 +377,7 @@ def mission_setup(vehicle):
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere     = atmosphere
@@ -402,7 +402,7 @@ def mission_setup(vehicle):
     segment.tag = "Climb - 3"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -424,7 +424,7 @@ def mission_setup(vehicle):
     segment.tag = "Cruise"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere = atmosphere
@@ -444,7 +444,7 @@ def mission_setup(vehicle):
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -466,7 +466,7 @@ def mission_setup(vehicle):
     segment.tag = "Descent - 2"
 
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
 
     # segment attributes
     segment.atmosphere   = atmosphere

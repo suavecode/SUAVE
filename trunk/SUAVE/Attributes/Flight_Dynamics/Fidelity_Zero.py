@@ -78,7 +78,7 @@ class Fidelity_Zero(Data):
         stability_model  = self.stability_model
         
         # copy geometry
-        for k in ['Fuselages','Wings','propulsors']:
+        for k in ['fuselages','wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
@@ -110,16 +110,16 @@ class Fidelity_Zero(Data):
             mach          = conditions.freestream.mach_number
             velocity      = conditions.freestream.velocity
             density       = conditions.freestream.density
-            Span          = geometry.Wings['Main Wing'].spans.projected
-            mac           = geometry.Wings['Main Wing'].chords.mean_aerodynamic
+            Span          = geometry.wings['Main Wing'].spans.projected
+            mac           = geometry.wings['Main Wing'].chords.mean_aerodynamic
             aero          = conditions.aerodynamics
             
             # Calculate CL_alpha 
             if not conditions.has_key('lift_curve_slope'):
-                conditions.lift_curve_slope = (datcom(geometry.Wings['Main Wing'],mach))
+                conditions.lift_curve_slope = (datcom(geometry.wings['Main Wing'],mach))
             
             # Calculate change in downwash with respect to change in angle of attack
-            for surf in geometry.Wings:
+            for surf in geometry.wings:
                 e = surf.span_efficiency
                 sref = surf.areas.reference
                 span = (surf.aspect_ratio * sref ) ** 0.5
@@ -134,21 +134,21 @@ class Fidelity_Zero(Data):
                 # Dynamic Stability Approximation Methods
                 if not aero.has_key('cn_r'):  
                     cDw = aero.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
-                    l_v = geometry.Wings['Vertical Stabilizer'].origin[0] + geometry.Wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aerodynamic_center[0]
-                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.Wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.Wings['Vertical Stabilizer'].eta, geometry.Wings['Vertical Stabilizer'].CL_alpha)
+                    l_v = geometry.wings['Vertical Stabilizer'].origin[0] + geometry.wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0]
+                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['Vertical Stabilizer'].eta, geometry.wings['Vertical Stabilizer'].CL_alpha)
                 if not aero.has_key('cl_p'):
                     aero.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
                     
                 if not aero.has_key('cl_beta'):
                     aero.cl_beta = 0 # Need to see if there is a low fidelity way to calculate cl_beta
                 
-                    l_t = geometry.Wings['Horizontal Stabilizer'].origin[0] + geometry.Wings['Horizontal Stabilizer'].aerodynamic_center[0] - geometry.Wings['Main Wing'].origin[0] - geometry.Wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
+                    l_t = geometry.wings['Horizontal Stabilizer'].origin[0] + geometry.wings['Horizontal Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
                 
                 if not aero.has_key('cm_q'):
                     aero.cm_q = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
                 
                 if not aero.has_key('cm_alpha_dot'):
-                    aero.cm_alpha_dot = Supporting_Functions.cm_alphadot(aero.cm_alpha, geometry.Wings['Horizontal Stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha
+                    aero.cm_alpha_dot = Supporting_Functions.cm_alphadot(aero.cm_alpha, geometry.wings['Horizontal Stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha
                     
                 if not aero.has_key('cz_alpha'):
                     aero.cz_alpha = Supporting_Functions.cz_alpha(aero.drag_coefficient,conditions.lift_curve_slope)                   
@@ -174,7 +174,7 @@ class Fidelity_Zero(Data):
                             aero.cL_u = 0
                         aero.cz_u = Supporting_Functions.cz_u(aero.lift_coefficient,velocity,aero.cL_u)
                     if not aero.has_key('cz_alpha_dot'):
-                        aero.cz_alpha_dot = Supporting_Functions.cz_alphadot(aero.cm_alpha, geometry.Wings['Horizontal Stabilizer'].ep_alpha)
+                        aero.cz_alpha_dot = Supporting_Functions.cz_alphadot(aero.cm_alpha, geometry.wings['Horizontal Stabilizer'].ep_alpha)
                     if not aero.has_key('cz_q'):
                         aero.cz_q = Supporting_Functions.cz_q(aero.cm_alpha)
                     if not aero.has_key('cx_u'):

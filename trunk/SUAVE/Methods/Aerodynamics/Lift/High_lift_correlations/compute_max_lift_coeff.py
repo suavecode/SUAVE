@@ -61,7 +61,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
 
     #unpack
     max_lift_coefficient_factor = vehicle.max_lift_coefficient_factor
-    for wing in vehicle.Wings:
+    for wing in vehicle.wings:
     
         if not isinstance(wing,Wings.Main_Wing): continue
         #geometrical data
