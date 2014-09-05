@@ -20,11 +20,11 @@ def main():
     vehicle.propulsors['Turbo Fan'].thrust = Data()
     vehicle.propulsors['Turbo Fan'].mass_properties = Data()
     vehicle.fuselages = Data()
-    vehicle.fuselages.fuselage = Data()
-    vehicle.fuselages.fuselage.areas = Data()
-    vehicle.fuselages.fuselage.heights = Data()
-    vehicle.fuselages.fuselage.lengths = Data()
-    vehicle.fuselages.fuselage.mass_properties = Data()
+    vehicle.fuselages.Fuselage = Data()
+    vehicle.fuselages.Fuselage.areas = Data()
+    vehicle.fuselages.Fuselage.heights = Data()
+    vehicle.fuselages.Fuselage.lengths = Data()
+    vehicle.fuselages.Fuselage.mass_properties = Data()
     vehicle.systems = Data()
     vehicle.wings = Data()
     vehicle.wings['Main Wing'] = Data()
@@ -50,7 +50,7 @@ def main():
     vehicle.propulsors['Turbo Fan'].number_of_engines   = 2.                              # Number of engines on the aircraft
     vehicle.passengers                                  = 170.                            # Number of passengers
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
-    vehicle.fuselages.fuselage.number_coach_seats          = 200.                            # Number of seats on aircraft
+    vehicle.fuselages.Fuselage.number_coach_seats          = 200.                            # Number of seats on aircraft
     vehicle.systems.control                             = "fully powered"                 # Specify fully powered, partially powered or anything else is fully aerodynamic
     vehicle.systems.accessories                         = "medium-range"                  # Specify what type of aircraft you have
     
@@ -65,11 +65,11 @@ def main():
     vehicle.wings['Main Wing'].aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
     
     
-    vehicle.fuselages.fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
-    vehicle.fuselages.fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
-    vehicle.fuselages.fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
-    vehicle.fuselages.fuselage.heights.maximum          = 4.        * Units.meter     # Height of the fuselage
-    vehicle.fuselages.fuselage.lengths.total            = 58.4      * Units.meter     # Length of the fuselage
+    vehicle.fuselages.Fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
+    vehicle.fuselages.Fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
+    vehicle.fuselages.Fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
+    vehicle.fuselages.Fuselage.heights.maximum          = 4.        * Units.meter     # Height of the fuselage
+    vehicle.fuselages.Fuselage.lengths.total            = 58.4      * Units.meter     # Length of the fuselage
     
     vehicle.propulsors['Turbo Fan'].thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons
     
