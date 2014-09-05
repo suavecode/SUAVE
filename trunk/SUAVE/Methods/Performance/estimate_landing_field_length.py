@@ -125,123 +125,14 @@ def estimate_landing_field_length(vehicle,config,airport):
     # return
     return landing_field_length
 
+
+
+
 # ----------------------------------------------------------------------
 #   Module Tests
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 
-# ----------------------------------------------------------------------
-#   Build the Vehicle
-# ----------------------------------------------------------------------
-
-def define_vehicle():
-
-    # ------------------------------------------------------------------
-    #   Initialize the Vehicle
-    # ------------------------------------------------------------------
-
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'EMBRAER E190AR'
-
-
-    # ------------------------------------------------------------------
-    #   Vehicle-level Properties
-    # ------------------------------------------------------------------
-
-    # mass properties
-    vehicle.Mass_Properties.takeoff = 50000. #
-
-    # basic parameters
-    vehicle.delta    = 22.                      # deg
-    vehicle.S        = 92.                      # m^2
-    vehicle.A_engine = np.pi*( 57*0.0254 /2. )**2.
-
-    # ------------------------------------------------------------------
-    #   Main Wing
-    # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
-
-    wing.sref      = vehicle.S     #
-    wing.sweep     = vehicle.delta * Units.deg #
-    wing.t_c       = 0.11          #
-    wing.taper     = 0.28          #
-
-
-    wing.chord_mac   = 3.66                  #
-    wing.S_affected  = 0.6*wing.sref         # part of high lift system
-    wing.flap_type   = 'double_slotted'
-    wing.flaps_chord  = 0.28
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-    # ------------------------------------------------------------------
-    #  Turbofan
-    # ------------------------------------------------------------------
-
-    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'TurboFan'
-
-    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
-    vehicle.fuel_density = turbofan.propellant.density
-
-    turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.98     #
-    turbofan.fan_pressure_ratio            = 1.6      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.99     #
-    turbofan.lpc_pressure_ratio            = 1.9      #
-    turbofan.hpc_pressure_ratio            = 10.0     #
-    turbofan.burner_pressure_ratio         = 0.95     #
-    turbofan.turbine_nozzle_pressure_ratio = 0.99     #
-    turbofan.Tt4                           = 1450.0   #
-    turbofan.bypass_ratio                  = 5.4      #
-    turbofan.design_thrust                 = 25000.0  #
-    turbofan.no_of_engines                 = 2      #
-
-    # turbofan sizing conditions
-    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
-
-    sizing_segment.M   = 0.78          #
-    sizing_segment.alt = 10.0         #
-    sizing_segment.T   = 218.0        #
-    sizing_segment.p   = 0.239*10**5  #
-
-    # size the turbofan
-    turbofan.engine_sizing_1d(sizing_segment)
-
-    # add to vehicle
-    vehicle.append_component(turbofan)
-
-    # ------------------------------------------------------------------
-    #   Simple Propulsion Model
-    # ------------------------------------------------------------------
-
-    vehicle.propulsion_model = vehicle.Propulsors
-
-
-    # ------------------------------------------------------------------
-    #   Define Configurations
-    # ------------------------------------------------------------------
-
-    # --- Cruise Configuration ---
-    config = vehicle.new_configuration("cruise")
-    # this configuration is derived from the baseline vehicle
-
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    config.wings["Main Wing"].flaps_angle = 15.
-    # this configuration is derived from the vehicle.configs.cruise
-
-    # ------------------------------------------------------------------
-    #   Vehicle Definition Complete
-    # ------------------------------------------------------------------
-
-    return vehicle
-
-
-# this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
@@ -249,6 +140,117 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     import SUAVE
     from SUAVE.Attributes   import Units
+
+    # ----------------------------------------------------------------------
+    #   Build the Vehicle
+    # ----------------------------------------------------------------------
+    
+    def define_vehicle():
+    
+        # ------------------------------------------------------------------
+        #   Initialize the Vehicle
+        # ------------------------------------------------------------------
+    
+        vehicle = SUAVE.Vehicle()
+        vehicle.tag = 'EMBRAER E190AR'
+    
+    
+        # ------------------------------------------------------------------
+        #   Vehicle-level Properties
+        # ------------------------------------------------------------------
+    
+        # mass properties
+        vehicle.Mass_Properties.takeoff = 50000. #
+    
+        # basic parameters
+        vehicle.delta    = 22.                      # deg
+        vehicle.S        = 92.                      # m^2
+        vehicle.A_engine = np.pi*( 57*0.0254 /2. )**2.
+    
+        # ------------------------------------------------------------------
+        #   Main Wing
+        # ------------------------------------------------------------------
+    
+        wing = SUAVE.Components.Wings.Main_Wing()
+        wing.tag = 'Main Wing'
+    
+        wing.sref      = vehicle.S     #
+        wing.sweep     = vehicle.delta * Units.deg #
+        wing.t_c       = 0.11          #
+        wing.taper     = 0.28          #
+    
+    
+        wing.chord_mac   = 3.66                  #
+        wing.S_affected  = 0.6*wing.sref         # part of high lift system
+        wing.flap_type   = 'double_slotted'
+        wing.flaps_chord  = 0.28
+    
+        # add to vehicle
+        vehicle.append_component(wing)
+    
+        # ------------------------------------------------------------------
+        #  Turbofan
+        # ------------------------------------------------------------------
+    
+        turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
+        turbofan.tag = 'TurboFan'
+    
+        turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
+        vehicle.fuel_density = turbofan.propellant.density
+    
+        turbofan.analysis_type                 = '1D'     #
+        turbofan.diffuser_pressure_ratio       = 0.98     #
+        turbofan.fan_pressure_ratio            = 1.6      #
+        turbofan.fan_nozzle_pressure_ratio     = 0.99     #
+        turbofan.lpc_pressure_ratio            = 1.9      #
+        turbofan.hpc_pressure_ratio            = 10.0     #
+        turbofan.burner_pressure_ratio         = 0.95     #
+        turbofan.turbine_nozzle_pressure_ratio = 0.99     #
+        turbofan.Tt4                           = 1450.0   #
+        turbofan.bypass_ratio                  = 5.4      #
+        turbofan.design_thrust                 = 25000.0  #
+        turbofan.no_of_engines                 = 2      #
+    
+        # turbofan sizing conditions
+        sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+    
+        sizing_segment.M   = 0.78          #
+        sizing_segment.alt = 10.0         #
+        sizing_segment.T   = 218.0        #
+        sizing_segment.p   = 0.239*10**5  #
+    
+        # size the turbofan
+        turbofan.engine_sizing_1d(sizing_segment)
+    
+        # add to vehicle
+        vehicle.append_component(turbofan)
+    
+        # ------------------------------------------------------------------
+        #   Simple Propulsion Model
+        # ------------------------------------------------------------------
+    
+        vehicle.propulsion_model = vehicle.Propulsors
+    
+    
+        # ------------------------------------------------------------------
+        #   Define Configurations
+        # ------------------------------------------------------------------
+    
+        # --- Cruise Configuration ---
+        config = vehicle.new_configuration("cruise")
+        # this configuration is derived from the baseline vehicle
+    
+        # --- Takeoff Configuration ---
+        config = vehicle.new_configuration("takeoff")
+        config.wings["Main Wing"].flaps_angle = 15.
+        # this configuration is derived from the vehicle.configs.cruise
+    
+        # ------------------------------------------------------------------
+        #   Vehicle Definition Complete
+        # ------------------------------------------------------------------
+    
+        return vehicle
+
 
     # ----------------------------------------------------------------------
     #   Main

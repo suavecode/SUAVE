@@ -17,14 +17,10 @@ import pylab as plt
 
 import copy, time
 
-from full_setup import full_setup
+from full_setup            import full_setup
 from the_aircraft_function import the_aircraft_function
-from post_process import post_process
+from post_process          import post_process
 
-
-# debugging
-from warnings import simplefilter
-simplefilter('error',Warning)
 
 # ----------------------------------------------------------------------
 #   Main

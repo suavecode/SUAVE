@@ -144,7 +144,7 @@ def set_wing(component,mass_props = None):
     
     # segments
     # vsp section = suave segment
-    segments = wing.Segments
+    segments = wing.segments
     for i,section in enumerate(component.Section_List.Section):
         
         # new wing segment

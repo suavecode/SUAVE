@@ -36,7 +36,7 @@ class Result(Data):
         """ Add a Results Segment  """
         tag = new_seg['tag']
         new_seg = Segment(new_seg)
-        self.Segments[tag] = new_seg
+        self.segments[tag] = new_seg
         return
 
 class Container(ContainerBase):

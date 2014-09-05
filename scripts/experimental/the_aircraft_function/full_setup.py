@@ -329,9 +329,6 @@ def mission_setup(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'The Test Mission'
 
-    # initial mass
-    mission.m0 = vehicle.mass_properties.takeoff # linked copy updates if parent changes
-    
     # atmospheric model
     planet = SUAVE.Attributes.Planets.Earth()
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
