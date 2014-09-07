@@ -14,12 +14,13 @@ from SUAVE.Attributes.Constants import Composition
 
 class Liquid(Data):
 
-    """ Physical constants of a gas """
+    """ Physical constants of a liquid """
 
     def __defaults__(self):
 
-        self.MolecularMass  = 0.0               
-        self.Composition    = Composition( Liquid = 1.0 )
-        self.h_vap=0.                 #heat of vaporization of water [J/kg]
-        self.rho=0.                   #density (kg/
-        self.T_vap=0.                   #boiling point [K]
+        self.molecular_mass  = 0.0               
+        self.composition    = Data()
+        self.composition.liquid = 1.0
+        self.heat_of_vaporization=0.                 #heat of vaporization of water [J/kg]
+        self.density=0.                   #density (kg/
+        self.boiling_point=0.                   #boiling point [K]

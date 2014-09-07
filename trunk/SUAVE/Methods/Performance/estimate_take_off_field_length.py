@@ -72,7 +72,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     T_delta_ISA = T + delta_isa
     sigma_disa = (p/p0) / (T_delta_ISA/T0)
     rho = rho0 * sigma_disa
-    a_delta_ISA = atmo.gas.compute_speed_of_sound(T_delta_ISA)
+    a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
     mew = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
     sea_level_gravity = atmo.planet.sea_level_gravity
 
