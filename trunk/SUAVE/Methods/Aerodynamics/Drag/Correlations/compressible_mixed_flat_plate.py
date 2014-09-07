@@ -54,8 +54,7 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     
     Rex = Re*xt
     if xt == 0.0:
-        Rex[:] = 0.001
-        xt = 0.001
+        Rex[:] = 0.0001
 
     theta = 0.671*xt/np.sqrt(Rex)
     xeff = (27.78*theta*Re**0.2)**1.25
@@ -63,7 +62,10 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     
     cf_turb  = 0.455/np.power(np.log10(Rext),2.58)
     cf_lam   = 1.328/np.sqrt(Rex)
-    cf_start = 0.455/np.power(np.log10(Re*xeff),2.58)
+    if xt > 0.0:
+        cf_start = 0.455/np.power(np.log10(Re*xeff),2.58)
+    else:
+        cf_start = 0.0
     
     cf_inc = cf_lam*xt + cf_turb*(1-xt+xeff) - cf_start*xeff
 

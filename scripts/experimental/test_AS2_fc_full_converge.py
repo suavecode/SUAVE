@@ -41,47 +41,56 @@ def main():
     
     base_weight = 22500 # kg
     cell_power_weight = 1500 # W/kg
-    range_goal = 3000.0 # nmi
+    range_goal = 5000.0 # nmi
     
     results = evaluate_mission(vehicle,mission)
     
-    fuel_flag = 10
+    fuel_flag = 100
     while (fuel_flag > 20.0):
     
         results = evaluate_mission(vehicle,mission)
         
         dist_base = 0.0
         max_range = 0.0
-        tot_energy = 0.0
-        for segment in results.Segments.values():
-            time = segment.conditions.frames.inertial.time[:,0] / Units.min
-            velocity   = segment.conditions.freestream.velocity[:,0]
-            Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-            power = velocity*Thrust
-            tot_energy = tot_energy + np.trapz(power,time*60)
-        print 'Integrated Power Required: %.0f J' % tot_energy    
+        fuel_base = 0.0
+        goal_flag = False
             
         for segment in results.Segments.values():
             masses = segment.conditions.weights.total_mass
             time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-            velocity   = segment.conditions.freestream.velocity[:,0]            
+            velocity   = segment.conditions.freestream.velocity[:,0]
+            mdot = segment.conditions.propulsion.fuel_mass_rate[:,0]
             distance = np.array([dist_base] * len(time))
             distance[1:] = integrate.cumtrapz(velocity*1.94,time/60.0)+dist_base 
             dist_base = distance[-1]
+            fuel_used = np.array([fuel_base] * len(time))
+            fuel_used[1:] = integrate.cumtrapz(mdot,time*60.0) + fuel_base
+            fuel_base = fuel_used[-1]
             for ii in range(len(masses)-1):
+                if (distance[ii] >= range_goal) and not goal_flag:
+                    tot_fuel = fuel_used[ii]
+                    goal_flag = True
                 if masses[ii] == masses[ii+1]:
                     max_range = distance[ii]
+                    if not goal_flag:
+                        tot_fuel = fuel_used[ii]
                     break
             if max_range != 0.0:
                 break
             
+        print 'Fuel Used: %.0f kg' % tot_fuel  
+        m_takeoff   = vehicle.Mass_Props.m_takeoff
+        m_empty     = vehicle.Mass_Props.m_empty
+        m_fuel      = m_takeoff - m_empty        
+        print 'Fuel Available: %.0f kg' % m_fuel        
+            
         if max_range != 0:
             m_takeoff   = vehicle.Mass_Props.m_takeoff
             m_empty     = vehicle.Mass_Props.m_empty
-            m_fuel      = m_takeoff - m_empty
+            #m_fuel      = m_takeoff - m_empty
             #m_fuel      = m_fuel * range_goal/max_range
             spec_energy = vehicle.propulsion_model.propellant.specific_energy
-            m_fuel      = tot_energy/spec_energy
+            m_fuel      = tot_fuel
             vehicle.Mass_Props.m_takeoff = m_empty+m_fuel
             vehicle.Configs.cruise.Mass_Props.m_takeoff = m_empty+m_fuel
             
@@ -93,7 +102,6 @@ def main():
         else:
             fuel_flag = 10
 
-        fuel_flag = 10
         cell_flag = 100
         while (cell_flag > 20.0):
         
