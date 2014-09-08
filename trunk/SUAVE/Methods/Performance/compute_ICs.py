@@ -6,7 +6,6 @@
 
 import numpy as np
 import math
-import SUAVE.Methods.Units
 import copy
 
 from SUAVE.Structure            import Data

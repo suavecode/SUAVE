@@ -8,7 +8,6 @@
 # ----------------------------------------------------------------------
 
 # SUave Imports
-import SUAVE.Methods.Units
 from SUAVE.Structure            import Data
 from SUAVE.Attributes           import Units
 
