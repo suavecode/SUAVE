@@ -41,7 +41,8 @@ class ESC(Energy_Component):
                
         """
         # Unpack, deep copy since I replace values
-        eta = deepcopy(conditions.propulsion.throttle[:,0])
+        eta      = deepcopy(conditions.propulsion.throttle[:,0])
+        voltsin  = self.inputs.voltagein
         
         # Negative throttle is bad
         eta[eta<=0.0] = 0.0
@@ -49,7 +50,6 @@ class ESC(Energy_Component):
         # Cap the throttle
         eta[eta>=1.1] = 1.1
         
-        voltsin  = self.inputs.voltagein
         voltsout = eta*voltsin
         
         # Pack the output

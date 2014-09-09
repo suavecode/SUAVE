@@ -9,6 +9,7 @@
 
 # local imports
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 
 # suave imports
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
@@ -56,6 +57,8 @@ def parasite_drag_wing(conditions,configuration,wing):
     span_w       = wing.span    
     S_exposed_w  = wing.S_exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
     S_affected_w = wing.S_affected    
+    xtu           = wing.transition_x_u
+    xtl           = wing.transition_x_l
     
     # compute wetted area # TODO: calcualte as preprocessing
     Swet = 2. * (1.0+ 0.2*t_c_w) * S_exposed_w    
@@ -71,8 +74,11 @@ def parasite_drag_wing(conditions,configuration,wing):
     V    = Mc * compute_speed_of_sound( Tc, pc ) #input gamma and R
     Re_w = roc * V * mac_w/muc    
     
-    # skin friction  coefficient
-    cf_w, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_w,Mc,Tc)
+    # skin friction  coefficient, upper
+    cf_w_u, k_comp_u, k_reyn_u = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtu)
+    
+    # skin friction  coefficient, lower
+    cf_w_l, k_comp_l, k_reyn_l = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtl)    
 
     # correction for airfoils
     k_w = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc**2. * ( np.cos(sweep_w))**2.) )  \
@@ -81,7 +87,7 @@ def parasite_drag_wing(conditions,configuration,wing):
     
     # --------------------------------------------------------
     # find the final result
-    wing_parasite_drag = k_w * cf_w * Swet / Sref 
+    wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
     # --------------------------------------------------------
     
     # dump data to conditions
@@ -89,9 +95,9 @@ def parasite_drag_wing(conditions,configuration,wing):
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
         parasite_drag_coefficient = wing_parasite_drag ,
-        skin_friction_coefficient = cf_w   ,
-        compressibility_factor    = k_comp ,
-        reynolds_factor           = k_reyn , 
+        skin_friction_coefficient = (cf_w_u+cf_w_l)/2.   ,
+        compressibility_factor    = k_comp_u ,
+        reynolds_factor           = k_reyn_l , 
         form_factor               = k_w    ,
     )
     conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result

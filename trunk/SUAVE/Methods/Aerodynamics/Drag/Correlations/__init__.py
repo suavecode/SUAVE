@@ -18,3 +18,4 @@ from wave_drag_propulsor import wave_drag_propulsor
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from wing_form_factor import wing_form_factor
 from body_form_factor import body_form_factor
+from compressible_mixed_flat_plate import compressible_mixed_flat_plate

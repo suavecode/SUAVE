@@ -71,7 +71,7 @@ class Propeller(Energy_Component):
         T     = conditions.freestream.temperature
         
         nu    = mu/rho
-        tol   = 1e-5 # Convergence tolerance
+        tol   = 1e-6 # Convergence tolerance
            
         ######
         # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
@@ -108,7 +108,9 @@ class Propeller(Energy_Component):
         psiold = np.zeros_like(c)
         diff   = np.ones_like(c)
         
+        ii = 0
         while (np.any(diff>tol)):
+            ii= ii+1
             Wa    = 0.5*Ua + 0.5*U*np.sin(psi)
             Wt    = 0.5*Ut + 0.5*U*np.cos(psi)           
             #va    = Wa - Ua

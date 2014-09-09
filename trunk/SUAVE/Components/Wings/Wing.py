@@ -15,36 +15,38 @@ from Airfoils import Airfoil
 class Wing(Lofted_Body):
     def __defaults__(self):
         self.tag = 'Wing'
-        self.symmetric    = True
-        self.sweep        = 0.0
-        self.taper        = 0.0
-        self.dihedral     = 0.0
-        self.span         = 0.0
-        self.aspect_ratio = 0.0
-        self.aero_center  = [0.0,0.0,0.0]
-        self.total_area   = 0.0
-        self.total_span   = 0.0
-        self.avg_chord    = 0.0
-        self.mac_chord    = 0.0
-        self.ref          = Data()
-        self.ref.A        = 0.0
-        self.ref.span     = 0.0
-        self.ref.chord    = 0.0
-        self.t_c          = 0.0
-        self.totals       = Data()
-        self.totals.area  = 0.0
-        self.totals.span  = 0.0
+        self.symmetric      = True
+        self.sweep          = 0.0
+        self.taper          = 0.0
+        self.dihedral       = 0.0
+        self.span           = 0.0
+        self.aspect_ratio   = 0.0
+        self.aero_center    = [0.0,0.0,0.0]
+        self.total_area     = 0.0
+        self.total_span     = 0.0
+        self.avg_chord      = 0.0
+        self.mac_chord      = 0.0
+        self.ref            = Data()
+        self.ref.A          = 0.0
+        self.ref.span       = 0.0
+        self.ref.chord      = 0.0
+        self.t_c            = 0.0
+        self.totals         = Data()
+        self.totals.area    = 0.0
+        self.totals.span    = 0.0
         self.totals.proj_span = 0.0
-        self.Sections     = SectionContainer()
-        self.Segments     = SegmentContainer()
-        self.highlift     = False
-        self.flaps_chord  = 0.0
-        self.flaps_angle  = 0.0
-        self.slats_angle  = 0.0
-        self.hl           = 0
-        self.flap_type    = 'none'
-        self.S_affected   = 0.
-        self.vertical     = False
+        self.Sections       = SectionContainer()
+        self.Segments       = SegmentContainer()
+        self.highlift       = False
+        self.flaps_chord    = 0.0
+        self.flaps_angle    = 0.0
+        self.slats_angle    = 0.0
+        self.hl             = 0
+        self.flap_type      = 'none'
+        self.S_affected     = 0.
+        self.vertical       = False
+        self.transition_x_u = 0.0
+        self.transition_x_l = 0.0
           
         
     def append_segment(self,segment):
