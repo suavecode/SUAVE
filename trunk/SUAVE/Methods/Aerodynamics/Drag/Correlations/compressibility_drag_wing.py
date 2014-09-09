@@ -57,6 +57,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         t_c_w   = wing.thickness_to_chord
         sweep_w = wing.sweep
         
+        # Currently uses vortex lattice model on all wings
         if i_wing == 0:
             cl_w = wing_lifts
         else:
@@ -90,7 +91,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
         # increment
-        #total_compressibility_drag += cd_c  ## todo when there is a lift break down by wing
+        total_compressibility_drag += cd_c
         
         # dump data to conditions
         wing_results = Result(
@@ -105,7 +106,6 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     #: for each wing
     
     # dump total comp drag
-    total_compressibility_drag = drag_breakdown.compressible[1+0].compressibility_drag
     drag_breakdown.compressible.total = total_compressibility_drag
 
     return total_compressibility_drag
