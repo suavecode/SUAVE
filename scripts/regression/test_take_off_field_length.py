@@ -1,4 +1,4 @@
-# test_landing_field_length.py
+# test_take_off_field_length.py
 #
 # Created:  Tarik, Carlos, Celso, Jun 2014
 # Modified: Emilio Botero
@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Structure            import Data
 from SUAVE.Attributes           import Units
 from SUAVE.Attributes   import Units
-from SUAVE.Methods.Performance.estimate_landing_field_length import estimate_landing_field_length
+from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 
 # package imports
 import numpy as np
@@ -133,15 +133,14 @@ def main():
     # --- Vehicle definition ---
     vehicle = define_vehicle()
 
-
-    # --- Landing Configuration ---
-    landing_config = vehicle.configs.takeoff
-    landing_config.wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
-    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
-    landing_config.Vref_VS_ratio = 1.23
+    # --- Takeoff Configuration ---
+    configuration = vehicle.configs.takeoff
+    configuration.wings['Main Wing'].flaps_angle =  20. * Units.deg
+    configuration.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    configuration.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user
-    # landing_config.maximum_lift_coefficient = 2.XX
+    # configuration.maximum_lift_coefficient = 2.XX
 
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
@@ -150,34 +149,45 @@ def main():
     airport.delta_isa  =  0.0
     airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
 
-    # =====================================
-    # Landing field length evaluation
-    # =====================================
-    w_vec = np.linspace(20000.,44000.,10)
-    landing_field_length = np.zeros_like(w_vec)
-    for id_w,weight in enumerate(w_vec):
-        landing_config.mass_properties.landing = weight
-        landing_field_length[id_w] = estimate_landing_field_length(vehicle,landing_config,airport)
+    w_vec = np.linspace(40000.,52000.,10)
+    engines = (2,3,4)
+    takeoff_field_length = np.zeros((len(w_vec),len(engines)))
+    for id_eng,engine_number in enumerate(engines):
+        vehicle.propulsors.TurboFan.number_of_engines = engine_number
+        for id_w,weight in enumerate(w_vec):
+            configuration.mass_properties.takeoff = weight
+            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(vehicle,configuration,airport)
 
-    truth_LFL = np.array([705.78061286, 766.55136124, 827.32210962, 888.092858, 948.86360638, 
-                          1009.63435476, 1070.40510314, 1131.17585152, 1191.9465999, 1252.71734828])
+    truth_TOFL = np.array([[  850.19992906,   567.03906016,   411.69975426],
+                           [  893.11528215,   592.95224563,   430.3183183 ],
+                           [  937.78501446,   619.84892797,   449.62233042],
+                           [  984.23928481,   647.73943813,   469.61701137],
+                           [ 1032.50914159,   676.63434352,   490.30766781],
+                           [ 1082.62653274,   706.54445208,   511.69969462],
+                           [ 1134.62431541,   737.48081617,   533.79857721],
+                           [ 1188.53626527,   769.45473631,   556.60989361],
+                           [ 1244.39708554,   802.47776475,   580.13931657],
+                           [ 1302.24241572,   836.56170886,   604.39261547]])
     
-    LFL_error = np.max(np.abs(landing_field_length-truth_LFL))
+    TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))
     
-    print 'Maximum Landing Field Length Error= %.4e' % LFL_error
+    print 'Maximum Take OFF Field Length Error= %.4e' % TOFL_error
+    
     
     import pylab as plt
-    title = "LFL vs W"
+    title = "TOFL vs W"
     plt.figure(1); plt.hold
-    plt.plot(w_vec,landing_field_length, 'k-', label = 'Landing Field Length')
+    plt.plot(w_vec,takeoff_field_length[:,0], 'k-', label = '2 Engines')
+    plt.plot(w_vec,takeoff_field_length[:,1], 'r-', label = '3 Engines')
+    plt.plot(w_vec,takeoff_field_length[:,2], 'b-', label = '4 Engines')
 
     plt.title(title); plt.grid(True)
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
-    plt.ylabel('Landing Field Length (m)')
-    #plt.show('True')
+    plt.ylabel('Takeoff field length (m)')
     
-    assert( LFL_error   < 1e-5 )
+    
+    assert( TOFL_error   < 1e-5 )
 
     return 
     
