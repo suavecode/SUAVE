@@ -16,7 +16,7 @@ class Liquid_Natural_Gas(Propellant):
 
     def __defaults__(self):
 
-        self.tag = 'Liquid Natural Gas'
+        self.tag = 'Liquid_Natural_Gas'
         self.reactant = 'O2'
         self.density = 414.2                                    # kg/m^3 
         self.specific_energy = 53.6e6                           # J/kg
