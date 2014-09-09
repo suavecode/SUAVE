@@ -56,7 +56,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.mass_properties.max_takeoff
+    weight          = config.mass_properties.takeoff
     reference_area  = config.reference_area
     try:
         V2_VS_ratio = config.V2_VS_ratio
@@ -66,15 +66,15 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    p0, T0, rho0, a0, mew0 = atmo.compute_values(0)
-    p , T , rho , a , mew  = atmo.compute_values(altitude)
+    p0, T0, rho0, a0, mu0 = atmo.compute_values(0)
+    p , T , rho , a , mu  = atmo.compute_values(altitude)
     T_delta_ISA = T + delta_isa
     sigma_disa = (p/p0) / (T_delta_ISA/T0)
     rho = rho0 * sigma_disa
     a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
-    mew = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
+    mu = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
     sea_level_gravity = atmo.planet.sea_level_gravity
-
+    
     # ==============================================
     # Determining vehicle maximum lift coefficient
     # ==============================================
@@ -85,11 +85,12 @@ def estimate_take_off_field_length(vehicle,config,airport):
         from SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        p_stall , T_stall , rho_stall , a_stall , mew_stall  = atmo.compute_values(10000. * Units.ft)
-        conditions = Data()
-        conditions.rho = rho_stall
-        conditions.mew = mew_stall
-        conditions.V = 90. * Units.knots
+        p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
+        conditions                      = Data()
+        conditions.freestream           = Data()
+        conditions.freestream.density   = rho_stall
+        conditions.freestream.viscosity = mu_stall
+        conditions.freestream.velocity  = 90. * Units.knots
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
             config.maximum_lift_coefficient = maximum_lift_coefficient
@@ -115,25 +116,18 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # ==============================================
     # Getting engine thrust
     # ==============================================
-    #state = Data()
-    #state.q  = np.atleast_1d(0.5 * rho * speed_for_thrust**2)
-    #state.g0 = np.atleast_1d(sea_level_gravity)
-    #state.V  = np.atleast_1d(speed_for_thrust)
-    #state.M  = np.atleast_1d(speed_for_thrust/ a_delta_ISA)
-    #state.T  = np.atleast_1d(T_delta_ISA)
-    #state.p  = np.atleast_1d(p)
     eta      = np.atleast_1d(1.)
     conditions = Data()
     conditions.freestream = Data()
     conditions.propulsion = Data()
 
     conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
-    conditions.freestream.gravity = np.array([np.atleast_1d(sea_level_gravity)])
-    conditions.freestream.velocity = np.array([np.atleast_1d(speed_for_thrust)])
-    conditions.freestream.mach_number = np.array([np.atleast_1d(speed_for_thrust/ a_delta_ISA)])
-    conditions.freestream.temperature = np.array([np.atleast_1d(T_delta_ISA)])
-    conditions.freestream.pressure = np.array([np.atleast_1d(p)])
-    conditions.propulsion.throttle = np.array([np.atleast_1d(1.)])   
+    conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
+    conditions.freestream.velocity         = np.array([np.atleast_1d(speed_for_thrust)])
+    conditions.freestream.mach_number      = np.array([np.atleast_1d(speed_for_thrust/ a_delta_ISA)])
+    conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
+    conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
+    conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
 
     thrust, mdot, P = vehicle.propulsion_model(eta, conditions) # total thrust
 
@@ -182,19 +176,11 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # return
     return takeoff_field_length
 
-
-
-
-
-
-
 # ----------------------------------------------------------------------
 #   Module Tests
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 
-
-# this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
 
     # ----------------------------------------------------------------------
@@ -202,8 +188,6 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     import SUAVE
     from SUAVE.Attributes   import Units
-
-
 
     # ----------------------------------------------------------------------
     #   Build the Vehicle
@@ -224,12 +208,10 @@ if __name__ == '__main__':
         # ------------------------------------------------------------------
     
         # mass properties
-        vehicle.Mass_Properties.takeoff = 50000. #
+        vehicle.mass_properties.takeoff = 50000. #
     
         # basic parameters
-        vehicle.delta    = 22.                      # deg
-        vehicle.S        = 92.                      # m^2
-        vehicle.A_engine = np.pi*( 57*0.0254 /2. )**2.
+        vehicle.reference_area  = 92.    # m^2
     
         # ------------------------------------------------------------------
         #   Main Wing
@@ -238,14 +220,13 @@ if __name__ == '__main__':
         wing = SUAVE.Components.Wings.Main_Wing()
         wing.tag = 'Main Wing'
     
-        wing.sref      = vehicle.S     #
-        wing.sweep     = vehicle.delta * Units.deg #
-        wing.t_c       = 0.11          #
-        wing.taper     = 0.28          #
+        wing.areas.reference    = vehicle.reference_area
+        wing.sweep              = 22. * Units.deg  # deg
+        wing.thickness_to_chord = 0.11
+        wing.taper              = 0.28          
     
-    
-        wing.chord_mac   = 3.66                  #
-        wing.S_affected  = 0.6*wing.sref         # part of high lift system
+        wing.chords.mean_aerodynamic = 3.66
+        wing.areas.affected          = 0.6*wing.areas.reference # part of high lift system
         wing.flap_type   = 'double_slotted'
         wing.flaps_chord  = 0.28
     
@@ -263,17 +244,17 @@ if __name__ == '__main__':
         vehicle.fuel_density = turbofan.propellant.density
     
         turbofan.analysis_type                 = '1D'     #
-        turbofan.diffuser_pressure_ratio       = 0.995  #
-        turbofan.fan_pressure_ratio            = 1.8   #
-        turbofan.fan_nozzle_pressure_ratio     = 0.97 #
-        turbofan.lpc_pressure_ratio            = 1.80    #
-        turbofan.hpc_pressure_ratio            = 12.   #
-        turbofan.burner_pressure_ratio         = 0.95   #
-        turbofan.turbine_nozzle_pressure_ratio = 0.98    #
-        turbofan.Tt4                           = 1600.   #
-        turbofan.bypass_ratio                  = 5.2     #
-        turbofan.design_thrust                 = 20200.   #
-        turbofan.no_of_engines                 = 2      #
+        turbofan.diffuser_pressure_ratio       = 0.98     #
+        turbofan.fan_pressure_ratio            = 1.6      #
+        turbofan.fan_nozzle_pressure_ratio     = 0.99     #
+        turbofan.lpc_pressure_ratio            = 1.9      #
+        turbofan.hpc_pressure_ratio            = 10.0     #
+        turbofan.burner_pressure_ratio         = 0.95     #
+        turbofan.turbine_nozzle_pressure_ratio = 0.99     #
+        turbofan.Tt4                           = 1450.0   #
+        turbofan.bypass_ratio                  = 5.4      #
+        turbofan.thrust.design                 = 25000.0  #
+        turbofan.number_of_engines             = 2      #
     
         # turbofan sizing conditions
         sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
@@ -293,7 +274,7 @@ if __name__ == '__main__':
         #   Simple Propulsion Model
         # ------------------------------------------------------------------
     
-        vehicle.propulsion_model = vehicle.Propulsors
+        vehicle.propulsion_model = vehicle.propulsors
     
     
         # ------------------------------------------------------------------
@@ -314,7 +295,7 @@ if __name__ == '__main__':
         # ------------------------------------------------------------------
     
         return vehicle
-
+    
 
     # ----------------------------------------------------------------------
     #   Main
@@ -343,9 +324,9 @@ if __name__ == '__main__':
     engines = (2,3,4)
     takeoff_field_length = np.zeros((len(w_vec),len(engines)))
     for id_eng,engine_number in enumerate(engines):
-        vehicle.Propulsors.TurboFan.no_of_engines = engine_number
+        vehicle.propulsors.TurboFan.number_of_engines = engine_number
         for id_w,weight in enumerate(w_vec):
-            configuration.Mass_Properties.takeoff = weight
+            configuration.mass_properties.takeoff = weight
             takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(vehicle,configuration,airport)
             print 'Weight (kg): ',str('%7.0f' % w_vec[id_w]),' ; TOFL (m): ' , str('%6.1f' % takeoff_field_length[id_w,id_eng])
 

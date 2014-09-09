@@ -35,6 +35,8 @@ class Vehicle(Data):
         self.cost            = Components.Cost()
         self.envelope        = Components.Envelope()
         self.configs         = ConfigContainer()
+        self.reference_area  = 0.0
+        self.passengers      = 0.0
 
         self.max_lift_coefficient_factor = 1.0
 

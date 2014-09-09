@@ -105,7 +105,7 @@ class TurboFanPASS(Propulsor):
         pitn=self.turbine_nozzle_pressure_ratio
         Tt4=self.Tt4
         aalpha=self.bypass_ratio
-        FD=self.design_thrust
+        FD=self.thrust.design
         htf=self.propellant.specific_energy
     
 

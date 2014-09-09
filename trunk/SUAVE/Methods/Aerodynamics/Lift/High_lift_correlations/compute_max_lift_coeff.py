@@ -11,6 +11,7 @@
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Components import Wings
+from SUAVE.Structure  import Data
 
 # python imports
 import os, sys, shutil
@@ -65,23 +66,23 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     
         if not isinstance(wing,Wings.Main_Wing): continue
         #geometrical data
-        Sref       = vehicle.S
-        Swing      = wing.sref
-        tc         = wing.t_c * 100
-        chord_mac  = wing.chord_mac
+        Sref       = vehicle.reference_area
+        Swing      = wing.areas.reference
+        tc         = wing.thickness_to_chord * 100
+        chord_mac  = wing.chords.mean_aerodynamic
         sweep      = wing.sweep
         taper      = wing.taper
         flap_chord = wing.flaps_chord
         flap_angle = wing.flaps_angle
         slat_angle = wing.slats_angle
-        Swf        = wing.S_affected  #portion of wing area with flaps
+        Swf        = wing.areas.affected  #portion of wing area with flaps
         flap_type  = wing.flap_type
 
         # conditions data
-        V    =  conditions.V
-        roc  =  conditions.rho
-        nu   =  conditions.mew
-
+        V    = conditions.freestream.velocity 
+        roc  = conditions.freestream.density 
+        nu   = conditions.freestream.viscosity
+        
         ##Mcr  =  segment.M
 
         #--cl max based on airfoil t_c
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
     vehicle = SUAVE.Vehicle()
     # basic data
-    vehicle.S        = 92.        # m^2
+    vehicle.reference_area              = 92.        # m^2
     vehicle.max_lift_coefficient_factor = 1.10
 
     # ------------------------------------------------------------------
@@ -140,17 +141,17 @@ if __name__ == '__main__':
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'Main Wing'
 
-    wing.sref      = vehicle.S       #
-    wing.sweep     = 22. * Units.deg #
-    wing.symmetric = True            #
-    wing.t_c       = 0.11            #
-    wing.taper     = 0.28            #
-    wing.chord_mac   = 3.66
+    wing.areas.reference         = vehicle.reference_area
+    wing.sweep                   = 22. * Units.deg
+    wing.symmetric               = True
+    wing.thickness_to_chord      = 0.11
+    wing.taper                   = 0.28
+    wing.chords.mean_aerodynamic = 3.66
 
     wing.flaps_chord = 0.28
     wing.flaps_angle = 30.  * Units.deg
     wing.slats_angle = 15.  * Units.deg
-    wing.S_affected  = 0.60 * wing.sref
+    wing.areas.affected  = 0.60 * wing.areas.reference 
     wing.flap_type   = 'double_slat'
 
     # add to vehicle
@@ -163,28 +164,27 @@ if __name__ == '__main__':
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
 
-    wing.sref      = 26.         #
-    #wing.span      = 100            #
-    wing.sweep     = 34.5 * Units.deg #
-    wing.symmetric = True
-    wing.t_c       = 0.11          #
-    wing.chord_mac   = 2.
+    wing.areas.reference         = 26.
+    wing.sweep                   = 34.5 * Units.deg
+    wing.symmetric               = True
+    wing.thickness_to_chord      = 0.11
+    wing.chords.mean_aerodynamic = 2.
 
     # add to vehicle
     vehicle.append_component(wing)
 
     # ------------------------------------------------------------------
-    #   Vertcal Stabilizer
+    #   Vertical Stabilizer
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertcal Stabilizer'
-    wing.sref      = 16.0        #
-    wing.sweep     = 35. * Units.deg  #
-    wing.symmetric = False
-    wing.t_c       = 0.12          #
-    wing.taper     = 0.10          #
-    wing.chord_mac   = 2
+    wing.tag = 'Vertical Stabilizer'
+    wing.areas.reference         = 16.0
+    wing.sweep                   = 35. * Units.deg
+    wing.symmetric               = False
+    wing.thickness_to_chord      = 0.12
+    wing.taper                   = 0.10
+    wing.chords.mean_aerodynamic = 2
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -197,25 +197,27 @@ if __name__ == '__main__':
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
 
-    fuselage.num_coach_seats = 114  #
-    fuselage.seat_pitch      = 0.7455    # m
-    fuselage.seats_abreast   = 4    #
-    fuselage.fineness_nose   = 2.0  #
-    fuselage.fineness_tail   = 3.0  #
-    fuselage.fwdspace        = 0    #
-    fuselage.aftspace        = 0    #
-    fuselage.width           = 3.0  #
-    fuselage.height          = 3.4  #
+    fuselage.number_coach_seats = 114  #
+    fuselage.seat_pitch         = 0.7455    # m
+    fuselage.seats_abreast      = 4    #
+    fuselage.fineness.nose      = 2.0  #
+    fuselage.fineness.tail      = 3.0  #
+    fuselage.fwdspace           = 0    #
+    fuselage.aftspace           = 0    #
+    fuselage.width              = 3.0  #
+    fuselage.heights.maximum    = 3.4  #
 
     # add to vehicle
     vehicle.append_component(fuselage)
 
-    condition = SUAVE.Structure.Data()
-    condition.M = 0.3
-    condition.V = 51. #m/s
-    condition.rho = 1.1225 #kg/m?
-    condition.mew = 1.79E-05
+    conditions = Data()
+    conditions.freestream = Data()
+    conditions.freestream.mach_number = 0.3
+    conditions.freestream.velocity    = 51. #m/s
+    conditions.freestream.density     = 1.1225 #kg/m?
+    conditions.freestream.viscosity   = 1.79E-05
 
-    Cl_max_ls, Cd_ind = compute_max_lift_coeff(vehicle,condition)
+
+    Cl_max_ls, Cd_ind = compute_max_lift_coeff(vehicle,conditions)
     print 'CLmax : ', Cl_max_ls, 'dCDi :' , Cd_ind
 
