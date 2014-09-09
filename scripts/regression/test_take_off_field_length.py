@@ -184,8 +184,7 @@ def main():
     plt.title(title); plt.grid(True)
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
-    plt.ylabel('Takeoff field length (m)')
-    
+    plt.ylabel('Takeoff field length (m)')    
     
     assert( TOFL_error   < 1e-5 )
 
@@ -197,4 +196,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-        
+    plt.show()

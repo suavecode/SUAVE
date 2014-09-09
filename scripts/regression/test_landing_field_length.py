@@ -175,7 +175,6 @@ def main():
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
     plt.ylabel('Landing Field Length (m)')
-    #plt.show('True')
     
     assert( LFL_error   < 1e-5 )
 
@@ -187,4 +186,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    plt.show()
         
