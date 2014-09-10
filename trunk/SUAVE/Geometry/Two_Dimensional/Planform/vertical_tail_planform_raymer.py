@@ -34,8 +34,8 @@ def vertical_tail_planform_raymer(Vtail, Wing,  l_vt,c_vt):
     .08= military cargo/bomber, .09= jet transport
     """
     
-    Vtail.sref=Wing.span*c_vt*Wing.sref/l_vt
+    Vtail.areas.reference=Wing.spans.projected*c_vt*Wing.areas.reference/l_vt
   
-    wing_planform(Vtail)
+    #wing_planform(Vtail)
     return 0
     

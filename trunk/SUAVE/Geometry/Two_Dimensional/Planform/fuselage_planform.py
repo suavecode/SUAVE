@@ -55,12 +55,12 @@ def fuselage_planform(Fuselage):
     number_seats    = Fuselage.number_coach_seats
     seat_pitch      = Fuselage.seat_pitch
     seats_abreast   = Fuselage.seats_abreast
-    nose_fineness   = Fuselage.Fineness.nose
-    tail_fineness   = Fuselage.Fineness.tail
-    forward_extra   = Fuselage.Lengths.fore_space
-    aft_extra       = Fuselage.Lengths.aft_space
+    nose_fineness   = Fuselage.fineness.nose
+    tail_fineness   = Fuselage.fineness.tail
+    forward_extra   = Fuselage.lengths.fore_space
+    aft_extra       = Fuselage.lengths.aft_space
     fuselage_width  = Fuselage.width
-    fuselage_height = Fuselage.Heights.maximum
+    fuselage_height = Fuselage.heights.maximum
     
     # process
     nose_length  = nose_fineness * fuselage_width
@@ -90,12 +90,12 @@ def fuselage_planform(Fuselage):
     reference_area = cross_section_area
     
     # update
-    Fuselage.Lengths.nose  = nose_length
-    Fuselage.Lengths.tail  = tail_length
-    Fuselage.Lengths.cabin = cabin_length
-    Fuselage.Lengths.total = fuselage_length
-    Fuselage.Areas.wetted  = wetted_area
-    Fuselage.Areas.front_projected = cross_section_area
+    Fuselage.lengths.nose  = nose_length
+    Fuselage.lengths.tail  = tail_length
+    Fuselage.lengths.cabin = cabin_length
+    Fuselage.lengths.total = fuselage_length
+    Fuselage.areas.wetted  = wetted_area
+    Fuselage.areas.front_projected = cross_section_area
     #Fuselage.Areas.front_projected     = reference_area # ?? CHECK
     Fuselage.effective_diameter         = Deff
     
