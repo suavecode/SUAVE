@@ -143,7 +143,7 @@ def main():
     for i, tests in drag_tests.items():
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
     
-    return
+    return conditions, configuration, geometry, test_num
     
 
 def vehicle_setup():
@@ -469,8 +469,32 @@ def reg_values():
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
 if __name__ == '__main__':
-    main()
+    (conditions, configuration, geometry, test_num) = main()
     
     print 'Aero regression test passed!'
+    
+    # --------------------------------------------------------------------
+    # Drag Polar
+    # --------------------------------------------------------------------  
+    
+    # Cruise conditions (except Mach number)
+    conditions.freestream.mach_number = np.array([0.2]*test_num)
+    conditions.freestream.density = np.array([0.3804534]*test_num)
+    conditions.freestream.viscosity = np.array([1.43408227e-05]*test_num)
+    conditions.freestream.temperature = np.array([218.92391647]*test_num)
+    conditions.freestream.pressure = np.array([23908.73408391]*test_num)
+    
+    compute_aircraft_lift(conditions, configuration, None) # geometry is third variable, not used
+    CL = conditions.aerodynamics.lift_breakdown.total    
+    
+    compute_aircraft_drag(conditions, configuration, geometry)
+    CD = conditions.aerodynamics.drag_breakdown.total
+    
+    plt.figure("Drag Polar")
+    axes = plt.gca()     
+    axes.plot(CD,CL,'bo-')
+    axes.set_xlabel('$C_D$')
+    axes.set_ylabel('$C_L$')
+    
     
     plt.show(block=True) # here so as to not block the regression test
