@@ -1,7 +1,7 @@
-# opt_AS2_fc_min_weight.py
+# opt_AS2_fc_max_range.py
 # 
 # Created:  Tim MacDonald, 6/25/14
-# Modified: Tim MacDonald, 9/10/14
+# Modified: Tim MacDonald, 9/11/14
 
 """ evaluate a mission with an AS2
 """
@@ -48,14 +48,15 @@ def main():
     
     results = evaluate_mission(vehicle,mission)
     
-    #inputs = np.array([base_weight,base_weight+10000.0])/10000.0
-    inputs = np.array([48396.0,61895.0])/10000.0
+    inputs = np.array([48396.0,61895.0,2000.0])/10000.0
+   
     
     outputs = sp.optimize.fmin_slsqp(opt_func,inputs,args=(vehicle,mission),f_eqcons=constraints,iter=25,acc=1e-5)
     
     
     vehicle.Mass_Props.m_empty = outputs[0]*10000.0
     vehicle.Mass_Props.m_takeoff = outputs[1]*10000.0
+    mission.Segments['Cruise'].distance = (outputs[2]*10000.0 - 1313.0) * Units.nmi
     
     results = evaluate_mission(vehicle,mission)
     
@@ -78,22 +79,37 @@ def opt_func(inputs,vehicle,mission):
     vehicle.Mass_Props.m_takeoff = inputs[1]*10000.0
     vehicle.Configs.cruise.Mass_Props.m_empty   = inputs[0]*10000.0
     vehicle.Configs.cruise.Mass_Props.m_takeoff = inputs[1]*10000.0
+    mission.Segments['Cruise'].distance = (inputs[2]*10000.0 - 1313.0) * Units.nmi
     
     results = evaluate_mission(vehicle,mission)
     
     m_empty = vehicle.Configs.cruise.Mass_Props.m_empty
     mass_base = vehicle.Configs.cruise.Mass_Props.m_takeoff
+    dist_base = 0.0
+    max_flag = False
     for i in range(len(results.Segments)):
         time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        velocity   = results.Segments[i].conditions.freestream.velocity[:,0]  
         mass = results.Segments[i].conditions.weights.total_mass[:,0]
         mdot = results.Segments[i].conditions.propulsion.fuel_mass_rate[:,0]
         mass_from_mdot = np.array([mass_base] * len(time))
         mass_from_mdot[1:] = -integrate.cumtrapz(mdot,time*60.0)+mass_base
         mass_base = mass_from_mdot[-1]
-             
+        distance = np.array([dist_base] * len(time))
+        distance[1:] = integrate.cumtrapz(velocity*1.94,time/60.0)+dist_base
+        dist_base = distance[-1]         
+        for ii,m in enumerate(mass_from_mdot):
+            if (m < m_empty):
+                max_range = copy.copy(distance[ii])
+                #mass_base = mass_from_mdot[ii]
+                max_flag = True
+                break
+        if max_flag is True:
+            break                  
+        max_range = copy.copy(dist_base)
         
-    m_fuel = vehicle.Configs.cruise.Mass_Props.m_takeoff - mass_base
-    output = m_fuel
+    #m_fuel = vehicle.Configs.cruise.Mass_Props.m_takeoff - mass_base
+    output = -max_range
     
     print output
     
@@ -105,6 +121,7 @@ def constraints(inputs,vehicle,mission):
     vehicle.Mass_Props.m_takeoff = inputs[1]*10000.0
     vehicle.Configs.cruise.Mass_Props.m_empty   = inputs[0]*10000.0
     vehicle.Configs.cruise.Mass_Props.m_takeoff = inputs[1]*10000.0
+    mission.Segments['Cruise'].distance = (inputs[2]*10000.0 - 1313.0) * Units.nmi
     
     m_empty = vehicle.Configs.cruise.Mass_Props.m_empty
     mass_base = vehicle.Configs.cruise.Mass_Props.m_takeoff
@@ -161,7 +178,7 @@ def define_vehicle():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
-    n_select = 3
+    n_select = 2
     if n_select == 0:
         vehicle_propellant = SUAVE.Attributes.Propellants.Jet_A()
         vehicle.Mass_Props.m_full       = 53000    # kg
@@ -541,7 +558,7 @@ def define_mission(vehicle):
     segment.mach       = 1.4
     # 1687 for 3000 nmi
     
-    desired_range = 4000.0
+    desired_range = 3000.0
     cruise_dist = desired_range - 1313.0
     segment.distance   = cruise_dist * Units.nmi
         
