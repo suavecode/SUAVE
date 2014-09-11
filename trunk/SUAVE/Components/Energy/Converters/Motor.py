@@ -52,11 +52,11 @@ class Motor(Energy_Component):
         #Unpack
         V     = conditions.freestream.velocity[:,0]
         rho   = conditions.freestream.density[:,0]
-        Res   = self.Res
+        Res   = self.res
         etaG  = self.etaG
         exp_i = self.exp_i
         io    = self.io + exp_i*(1-etaG)
-        G     = self.G
+        G     = self.g
         Kv    = self.kv/G
         R     = self.propradius
         Cp    = self.propCp
@@ -96,9 +96,9 @@ class Motor(Energy_Component):
         """    
         
         # Unpack
-        G    = self.G
+        G    = self.g
         Kv   = self.kv
-        Res  = self.Res
+        Res  = self.res
         v    = self.inputs.voltage
         omeg = self.omega(conditions)*G
         etaG = self.etaG

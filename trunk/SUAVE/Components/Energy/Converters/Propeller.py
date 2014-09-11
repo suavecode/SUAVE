@@ -58,11 +58,11 @@ class Propeller(Energy_Component):
            """
            
         #Unpack    
-        B     = self.Prop_attributes.B      # Number of Blades
-        R     = self.Prop_attributes.R      # Tip Radius
-        Rh    = self.Prop_attributes.Rh     # Hub Radius
-        beta  = self.Prop_attributes.beta   # Twist
-        c     = self.Prop_attributes.c      # Chord distribution
+        B     = self.prop_attributes.B      # Number of Blades
+        R     = self.prop_attributes.R      # Tip Radius
+        Rh    = self.prop_attributes.Rh     # Hub Radius
+        beta  = self.prop_attributes.beta   # Twist
+        c     = self.prop_attributes.c      # Chord distribution
         omega = self.inputs.omega           # Rotation Rate in rad/s
         rho   = conditions.freestream.density
         mu    = conditions.freestream.viscosity
@@ -71,7 +71,7 @@ class Propeller(Energy_Component):
         T     = conditions.freestream.temperature
         
         nu    = mu/rho
-        tol   = 1e-6 # Convergence tolerance
+        tol   = 1e-5 # Convergence tolerance
            
         ######
         # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
@@ -108,9 +108,7 @@ class Propeller(Energy_Component):
         psiold = np.zeros_like(c)
         diff   = np.ones_like(c)
         
-        ii = 0
         while (np.any(diff>tol)):
-            ii= ii+1
             Wa    = 0.5*Ua + 0.5*U*np.sin(psi)
             Wt    = 0.5*Ut + 0.5*U*np.cos(psi)           
             #va    = Wa - Ua

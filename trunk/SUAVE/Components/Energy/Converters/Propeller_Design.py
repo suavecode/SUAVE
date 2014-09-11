@@ -30,7 +30,7 @@ Data, Container, Data_Exception, Data_Warning,
 #  Main
 # ----------------------------------------------------------------------
     
-def Propeller_Design(Prop_attributes):
+def Propeller_Design(prop_attributes):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -53,18 +53,18 @@ def Propeller_Design(Prop_attributes):
 
     """    
     #Unpack
-    Pc    = Prop_attributes.Pc     # Design Power coefficient
-    Tc    = Prop_attributes.Tc     # Design Thrust coefficient
-    B     = Prop_attributes.B      # Number of Blades
-    R     = Prop_attributes.R      # Tip Radius
-    Rh    = Prop_attributes.Rh     # Hub Radius
-    omega = Prop_attributes.omega  # Rotation Rate in rad/s
-    V     = Prop_attributes.V      # Freestream Velocity
-    Cl    = Prop_attributes.Des_CL # Design Lift Coefficient
-    nu    = Prop_attributes.nu     # Kinematic Viscosity
-    rho   = Prop_attributes.rho    # Density
-    a     = Prop_attributes.a      # Speed of Sound
-    T     = Prop_attributes.T      # Temperature
+    Pc    = prop_attributes.Pc     # Design Power coefficient
+    Tc    = prop_attributes.Tc     # Design Thrust coefficient
+    B     = prop_attributes.B      # Number of Blades
+    R     = prop_attributes.R      # Tip Radius
+    Rh    = prop_attributes.Rh     # Hub Radius
+    omega = prop_attributes.omega  # Rotation Rate in rad/s
+    V     = prop_attributes.V      # Freestream Velocity
+    Cl    = prop_attributes.Des_CL # Design Lift Coefficient
+    nu    = prop_attributes.nu     # Kinematic Viscosity
+    rho   = prop_attributes.rho    # Density
+    a     = prop_attributes.a      # Speed of Sound
+    T     = prop_attributes.T      # Temperature
     
     tol   = 1e-10# Convergence tolerance
     N     = 20. # Number of Stations
@@ -205,9 +205,9 @@ def Propeller_Design(Prop_attributes):
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
 
-    Prop_attributes.c    = c
-    Prop_attributes.beta = beta
-    Prop_attributes.Cp   = Cp
+    prop_attributes.c    = c
+    prop_attributes.beta = beta
+    prop_attributes.Cp   = Cp
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller
@@ -217,4 +217,4 @@ def Propeller_Design(Prop_attributes):
     #print(eta)
     #print(efficiency)
     
-    return Prop_attributes
+    return prop_attributes

@@ -25,7 +25,7 @@ class Battery(Energy_Component):
     def __defaults__(self):
         
         self.type = 'Li-Ion'
-        self.Mass_Props.mass = 0.0
+        self.mass_properties.mass = 0.0
         self.CurrentEnergy = 0.0
         self.R0 = 0.07446
         
@@ -47,13 +47,13 @@ class Battery(Energy_Component):
         
         #These need to be fixed
         if self.type=='Li-Ion':
-            return 0.90*(10**6)*self.Mass_Props.mass
+            return 0.90*(10**6)*self.mass_properties.mass
         
         elif self.type=='Li-Po':
-            return 0.90*(10**6)*self.Mass_Props.mass
+            return 0.90*(10**6)*self.mass_properties.mass
         
         elif self.type=='Li-S':
-            return 500.*3600.*self.Mass_Props.mass        
+            return 500.*3600.*self.mass_properties.mass        
     
     def energy_calc(self,numerics):
         
@@ -71,9 +71,11 @@ class Battery(Energy_Component):
         C = 3600.*pbat/self.max_energy()
         
         # Empirical value for discharge
+        x[x<-35.] = -35. # Fix x so it doesn't warn
+        
         f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) 
         
-        f[x<0.0] = 0.0
+        f[x<0.0] = 0.0 # Negative f's don't make sense
         
         # Model discharge characteristics based on changing resistance
         R = Rbat*(1+C*f)

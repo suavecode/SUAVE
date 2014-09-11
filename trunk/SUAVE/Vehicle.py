@@ -47,31 +47,16 @@ class Vehicle(Data):
         super(Vehicle,self).__init__(*args,**kwarg)
 
         self._component_root_map = {
-<<<<<<< HEAD
-            Components.Fuselages.Fuselage              : self['Fuselages']              ,
-            Components.Wings.Wing                      : self['Wings']                  ,
-            Components.Systems.System                  : self['Systems']                ,
-            Components.Cost                            : self['Cost']                   ,
-            Components.Propulsors.Propulsor            : self['Propulsors']             ,
-            #Components.Energy.Storages.Storage         : self['Energy']['Storages']     ,
-            #Components.Energy.Distributors.Distributor : self['Energy']['Distributors'] ,
-            #Components.Energy.Converters.Converter     : self['Energy']['Converters']   ,
-            #Components.Energy.Networks.Network         : self['Energy']['Networks']     ,
-            #Components.Mass_Props                      : self['Mass_Props']             ,
-            #Components.Envelope                        : self['Envelope']               ,
-            #Components.PASS                            : self['PASS']                   ,
-=======
             Components.Fuselages.Fuselage              : self['fuselages']              ,
             Components.Wings.Wing                      : self['wings']                  ,
             Components.Systems.System                  : self['systems']                ,
             Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
-            Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
-            Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
-            Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
-            Components.Energy.Networks.Network         : self['energy']['Networks']     ,
+            #Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
+            #Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
+            #Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
+            #Components.Energy.Networks.Network         : self['energy']['Networks']     ,
             Components.Envelope                        : self['envelope']               ,
->>>>>>> master
         }
 
         return

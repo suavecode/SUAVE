@@ -42,18 +42,20 @@ atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
 p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
 
 #Design the Propeller
-Prop_attributes = Data()
-Prop_attributes.nu     = mu/rho
-Prop_attributes.B      = Blades 
-Prop_attributes.V      = Velocity
-Prop_attributes.omega  = RPM*(2.*np.pi/60.0)
-Prop_attributes.R      = Radius
-Prop_attributes.Rh     = Hub_Radius
-Prop_attributes.Des_CL = 0.7
-Prop_attributes.rho    = rho
-Prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
-Prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
-Prop_attributes        = Propeller_Design(Prop_attributes)
+prop_attributes = Data()
+prop_attributes.nu     = mu/rho
+prop_attributes.B      = Blades 
+prop_attributes.V      = Velocity
+prop_attributes.omega  = RPM*(2.*np.pi/60.0)
+prop_attributes.R      = Radius
+prop_attributes.Rh     = Hub_Radius
+prop_attributes.Des_CL = 0.7
+prop_attributes.rho    = rho
+prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
+prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
+prop_attributes.a      = a
+prop_attributes.T      = T
+prop_attributes        = Propeller_Design(prop_attributes)
 
 # build network
 net = Solar_Network()
@@ -77,17 +79,17 @@ net.esc = esc
 
 # Component 5 the Propeller
 prop = SUAVE.Components.Energy.Converters.Propeller()
-prop.Prop_attributes = Prop_attributes
+prop.prop_attributes = prop_attributes
 net.propeller = prop
 
 # Component 4 the Motor
 motor = SUAVE.Components.Energy.Converters.Motor()
-motor.Res = 0.008
+motor.res = 0.008
 motor.io = 4.5
 motor.kv = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
-motor.propradius = prop.Prop_attributes.R
-motor.propCp = prop.Prop_attributes.Cp
-motor.G   = 1. # Gear ratio
+motor.propradius = prop.prop_attributes.R
+motor.propCp = prop.prop_attributes.Cp
+motor.g   = 1. # Gear ratio
 motor.etaG = 1. # Gear box efficiency
 motor.exp_i = 160. # Expected current
 net.motor = motor    
@@ -95,7 +97,7 @@ net.motor = motor
 # Component 6 the Payload
 payload = SUAVE.Components.Energy.Peripherals.Payload()
 payload.draw = 0. #Watts 
-payload.Mass_Props.mass = 0.0 * Units.kg
+payload.mass_properties.mass = 0.0 * Units.kg
 net.payload = payload
 
 # Component 7 the Avionics
@@ -105,7 +107,7 @@ net.avionics = avionics
 
 # Component 8 the Battery
 bat = SUAVE.Components.Energy.Storages.Battery()
-bat.Mass_Props.mass = 50.  #kg
+bat.mass_properties.mass = 50.  #kg
 bat.type = 'Li-Ion'
 bat.R0 = 0.07446
 net.battery = bat
@@ -123,6 +125,7 @@ conditions.freestream      = Data()
 conditions.frames          = Data()
 conditions.frames.body     = Data()
 conditions.frames.inertial = Data()
+conditions.frames.planet   = Data()
 numerics                   = Data()
 
 conditions.propulsion.throttle            = np.transpose(np.array([[1.0, 1.0]]))

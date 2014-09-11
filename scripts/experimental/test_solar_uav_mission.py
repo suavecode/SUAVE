@@ -56,22 +56,21 @@ def define_vehicle():
     
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Solar'
-    vehicle.Propulsors.propulsor = SUAVE.Components.Energy.Networks.Solar_Network()
+    vehicle.propulsors.propulsor = SUAVE.Components.Energy.Networks.Solar_Network()
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.Mass_Props.m_full       = 200.0
-    vehicle.Mass_Props.m_empty      = 200.0
-    vehicle.Mass_Props.m_takeoff    = 200.0 
+    vehicle.mass_properties.takeoff         = 200 * Units.kg
+    vehicle.mass_properties.operating_empty = 200 * Units.kg
+    vehicle.mass_properties.max_takeoff     = 200 * Units.kg 
     
     # basic parameters
-    vehicle.delta         = 0.                # deg
-    vehicle.S             = 80.               # m^2
-    vehicle.Ultimate_Load = 2.0
-    vehicle.qm            = 0.5*1.225*(25.**2.) #Max q
-    vehicle.Ltb           = 10.
+    vehicle.reference_area          = 80.               # m^2         
+    vehicle.envelope.ultimate_load  = 2.0
+    vehicle.qm                      = 0.5*1.225*(25.**2.) #Max q
+    vehicle.Ltb                     = 10. # Tail boom length
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -80,28 +79,30 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.sref      = vehicle.S     #
-    wing.span      = 40.          #m
-    wing.ar        = (wing.span**2)/vehicle.S 
-    wing.sweep     = vehicle.delta * Units.deg #
-    wing.symmetric = True          #
-    wing.t_c       = 0.12          #
-    wing.taper     = 1             #    
+    wing.areas.reference    = vehicle.reference_area     #
+    wing.spans.projected    = 40.          #m
+    wing.aspect_ratio       = (wing.spans.projected*2)/wing.areas.reference 
+    wing.sweep              = 0. * Units.deg #
+    wing.symmetric          = True          #
+    wing.thickness_to_chord = 0.12          #
+    wing.taper              = 1.             #    
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = wing.sref/wing.span   #
-    wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
-    wing.S_affected  = 0.6*wing.area_wetted  # part of high lift system
-    wing.e           = 0.97                  #
-    wing.alpha_rc    = 0.0                   #
-    wing.alpha_tc    = 0.0                   #
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #  
-    wing.highlift    = False     
-    wing.Nwr         = 20.
-    wing.Nwer        = 2.
+    wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
+    wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
+    wing.areas.affected          = 0.6*wing.areas.wetted # part of high lift system
+    wing.span_efficiency         = 0.97                  #
+    wing.twists.root             = 0.0*Units.degrees     #
+    wing.twists.tip              = 0.0*Units.degrees     #  
+    wing.highlift                = False  
+    wing.vertical                = False 
+    wing.eta                     = 1.0
+    wing.Nwr                     = 26.
+    wing.Nwer                    = 2.
+    wing.transition_x_u          = 0.6
+    wing.transition_x_l          = 0.9
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -113,26 +114,25 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.sref      = vehicle.S*.15  #m^2
-    wing.ar        = 20            #
-    wing.span      = np.sqrt(wing.ar*wing.sref)
-    wing.sweep     = 0 * Units.deg              #
-    wing.symmetric = True          
-    wing.t_c       = 0.12                       #
-    wing.taper     = 1                          #
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #      
-    
+    wing.areas.reference    = vehicle.reference_area*.15  #m^2
+    wing.aspect_ratio       = 20.            #
+    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.sweep              = 0 * Units.deg   #
+    wing.symmetric          = True          
+    wing.thickness_to_chord = 0.12                       #
+    wing.taper              = 1.             #
+    wing.twists.root        = 0.0*Units.degrees     #
+    wing.twists.tip         = 0.0*Units.degrees     #
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = wing.sref/wing.span
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #      
-    wing.e          = 0.95                   #
-    wing.alpha_rc   = 0.                   #
-    wing.alpha_tc   = 0.                   #
-    wing.Nwr        = 5.
+    wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
+    wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
+    wing.areas.affected          = 0.6*wing.areas.wetted # part of high lift system    
+    wing.span_efficiency         = 0.95                   #
+    wing.twists.root             = 0.                     #
+    wing.twists.tip              = 0.                     #
+    wing.Nwr                     = 5.
   
     # add to vehicle
     vehicle.append_component(wing)    
@@ -144,26 +144,26 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.sref      = vehicle.S*.1 #m^2
-    wing.ar        = 20             #
-    wing.span      = np.sqrt(wing.ar*wing.sref)
-    wing.sweep     = 0 * Units.deg              #
-    wing.symmetric = True          
-    wing.t_c       = 0.12                       #
-    wing.taper     = 1                          #
-    wing.twist_rc    = 0.0*Units.degrees     #
-    wing.twist_tc    = 0.0*Units.degrees     #          
+    wing.areas.reference    = vehicle.reference_area*.1 #m^2
+    wing.aspect_ratio       = 20.             #
+    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.sweep              = 0 * Units.deg         #
+    wing.symmetric          = True          
+    wing.thickness_to_chord = 0.12                  #
+    wing.taper              = 1.                    #
+    wing.twists.root        = 0.0*Units.degrees     #
+    wing.twists.tip         = 0.0*Units.degrees     #       
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = wing.sref/wing.span
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #      
-    wing.e          = 0.95                  #
-    wing.alpha_rc   = 0.                    #
-    wing.alpha_tc   = 0.                    #
-    wing.Nwr        = 5.
+    wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
+    wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
+    wing.areas.affected          = 0.6*wing.areas.wetted # part of high lift system
+    wing.span_efficiency         = 0.97                  #
+    wing.twists.root             = 0.0*Units.degrees     #
+    wing.twists.tip              = 0.0*Units.degrees     #  
+    wing.Nwr                     = 5.
   
     # add to vehicle
     vehicle.append_component(wing)  
@@ -183,9 +183,9 @@ def define_vehicle():
     
     # Component 2 the solar panels
     panel                 = SUAVE.Components.Energy.Converters.Solar_Panel()
-    panel.A               = vehicle.S + vehicle.Wings['Horizontal Stabilizer'].sref
+    panel.A               = vehicle.reference_area + vehicle.wings['Horizontal Stabilizer'].areas.reference
     panel.eff             = 0.22
-    panel.Mass_Props.mass = panel.A*.55
+    panel.mass_properties.mass = panel.A*.55
     net.solar_panel       = panel
     
     # Component 3 the ESC
@@ -209,42 +209,42 @@ def define_vehicle():
     p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
     
     # Design the Propeller
-    Prop_attributes        = Data()
-    Prop_attributes.nu     = mu/rho
-    Prop_attributes.a      = a
-    Prop_attributes.T      = T
-    Prop_attributes.B      = Blades 
-    Prop_attributes.V      = Velocity
-    Prop_attributes.omega  = RPM*(2.*np.pi/60.0)
-    Prop_attributes.R      = Radius
-    Prop_attributes.Rh     = Hub_Radius
-    Prop_attributes.Des_CL = 0.7
-    Prop_attributes.rho    = rho
-    Prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
-    Prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
-    Prop_attributes        = Propeller_Design(Prop_attributes)
+    prop_attributes        = Data()
+    prop_attributes.nu     = mu/rho
+    prop_attributes.a      = a
+    prop_attributes.T      = T
+    prop_attributes.B      = Blades 
+    prop_attributes.V      = Velocity
+    prop_attributes.omega  = RPM*(2.*np.pi/60.0)
+    prop_attributes.R      = Radius
+    prop_attributes.Rh     = Hub_Radius
+    prop_attributes.Des_CL = 0.7
+    prop_attributes.rho    = rho
+    prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
+    prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
+    prop_attributes        = Propeller_Design(prop_attributes)
     
     prop                 = SUAVE.Components.Energy.Converters.Propeller()
-    prop.Prop_attributes = Prop_attributes
+    prop.prop_attributes = prop_attributes
     net.propeller        = prop
 
     # Component 4 the Motor
     motor     = SUAVE.Components.Energy.Converters.Motor()
-    motor.Res             = 0.008
+    motor.res             = 0.008
     motor.io              = 4.5
     motor.kv              = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
-    motor.propradius      = prop.Prop_attributes.R
-    motor.propCp          = prop.Prop_attributes.Cp
-    motor.G               = 20. # Gear ratio
+    motor.propradius      = prop.prop_attributes.R
+    motor.propCp          = prop.prop_attributes.Cp
+    motor.g               = 20. # Gear ratio
     motor.etaG            = .98 # Gear box efficiency
     motor.exp_i           = 160. # Expected current
-    motor.Mass_Props.mass = 2.0
+    motor.mass_properties.mass = 2.0
     net.motor             = motor    
     
     # Component 6 the Payload
     payload                 = SUAVE.Components.Energy.Peripherals.Payload()
     payload.draw            = 250. #Watts 
-    payload.Mass_Props.mass = 25.0 * Units.kg
+    payload.mass_properties.mass = 25.0 * Units.kg
     net.payload             = payload
     
     # Component 7 the Avionics
@@ -254,7 +254,7 @@ def define_vehicle():
     
     # Component 8 the Battery
     bat                 = SUAVE.Components.Energy.Storages.Battery()
-    bat.Mass_Props.mass = 150. #kg
+    bat.mass_properties.mass = 150. #kg
     bat.type            = 'Li-Ion'
     bat.R0              = 0.07
     net.battery         = bat
@@ -265,7 +265,7 @@ def define_vehicle():
     logic.MPPTeff       = 0.95
     net.solar_logic     = logic
     
-    vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
+    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -311,7 +311,7 @@ def define_mission(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Props.m_full # linked copy updates if parent changes
+    mission.m0 = vehicle.mass_properties.max_takeoff # linked copy updates if parent changes
     
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -325,7 +325,7 @@ def define_mission(vehicle):
     segment.tag = "Climb 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.takeoff
+    segment.config = vehicle.configs.takeoff
     
     # define segment attributes
     segment.atmosphere     = atmosphere
@@ -351,7 +351,7 @@ def define_mission(vehicle):
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere     = atmosphere
@@ -373,7 +373,7 @@ def define_mission(vehicle):
     segment.tag = "Cruise"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere = atmosphere
@@ -393,7 +393,7 @@ def define_mission(vehicle):
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -434,9 +434,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Throttle History")
     axes = plt.gca()
-    for i in range(len(results.Segments)):
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta  = results.Segments[i].conditions.propulsion.throttle[:,0]
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
         
         axes.plot(time, eta, 'bo-')
     axes.set_xlabel('Time (mins)')
@@ -445,9 +445,9 @@ def post_process(vehicle,mission,results):
     
     plt.figure("Angle of Attack History")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         axes.plot(time, aoa, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Angle of Attack (deg)')
@@ -458,9 +458,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Altitude")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
         axes.plot(time, altitude, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Altitude (km)')
@@ -470,7 +470,7 @@ def post_process(vehicle,mission,results):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -499,7 +499,7 @@ def post_process(vehicle,mission,results):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -532,7 +532,7 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     fig = plt.figure("Drag Components")
     axes = plt.gca()    
-    for i, segment in enumerate(results.Segments.values()):
+    for i, segment in enumerate(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
@@ -562,9 +562,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Battery Energy")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.Segments[i].conditions.propulsion.battery_energy[:,0] 
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.battery_energy[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Battery Energy (J)')
@@ -575,12 +575,12 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Solar Flux")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.Segments[i].conditions.propulsion.solar_flux[:,0] 
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.solar_flux[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Solar Flux (W/m^2)')
+    axes.set_ylabel('Solar Flux ($W/m^{2}$)')
     axes.grid(True)      
     
     # ------------------------------------------------------------------    
@@ -588,9 +588,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Current Draw")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.Segments[i].conditions.propulsion.current[:,0] 
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.current[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Current Draw (Amps)')
@@ -601,9 +601,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Motor RPM")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.Segments[i].conditions.propulsion.rpm[:,0] 
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.rpm[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Motor RPM')
@@ -612,20 +612,47 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     #   Battery Draw
     # ------------------------------------------------------------------
-    plt.figure("Battery Draw")
+    plt.figure("Battery Charging")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.Segments[i].conditions.propulsion.battery_draw[:,0] 
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.battery_draw[:,0] 
         axes.plot(time, energy, 'bo-')
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Battery Draw (Watts)')
+    axes.set_ylabel('Battery Charging (Watts)')
+    axes.grid(True)    
+    
+    # ------------------------------------------------------------------    
+    #   Propulsive efficiency
+    # ------------------------------------------------------------------
+    plt.figure("Prop")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        etap = results.segments[i].conditions.propulsion.etap[:,0] 
+        axes.plot(time, etap, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Etap')
     axes.grid(True)      
+    
+    # ------------------------------------------------------------------    
+    #   Flight Path
+    # ------------------------------------------------------------------
+    plt.figure("Flight Path")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):     
+        lat = results.segments[i].conditions.frames.planet.latitude[:,0] 
+        lon = results.segments[i].conditions.frames.planet.longitude[:,0] 
+        axes.plot(lon, lat, 'bo-')
+    axes.set_ylabel('Latitude')
+    axes.set_xlabel('Longitude')
+    axes.grid(True)       
     
     
     plt.show()     
     
     return     
+  
 
 # ---------------------------------------------------------------------- 
 #   Module Tests

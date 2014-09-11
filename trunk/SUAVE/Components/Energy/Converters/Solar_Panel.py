@@ -22,7 +22,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 class Solar_Panel(Energy_Component):
     
     def __defaults__(self):
-        self.A   = 0.0
+        self.area   = 0.0
         self.eff = 0.0
     
     def power(self):
@@ -30,7 +30,7 @@ class Solar_Panel(Energy_Component):
         # Unpack
         flux=self.inputs.flux
         
-        p = flux*self.A*self.eff
+        p = flux*self.area*self.eff
         
         # Store to outputs
         self.outputs.power = p

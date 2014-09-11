@@ -79,27 +79,27 @@ def empty(vehicle):
     
     #Unpack
 
-    Sw     = vehicle.Wings['Main Wing'].sref
-    bw     = vehicle.Wings['Main Wing'].span
-    cw     = vehicle.Wings['Main Wing'].chord_mac
-    Nwr    = vehicle.Wings['Main Wing'].Nwr
-    t_cw   = vehicle.Wings['Main Wing'].t_c
-    Nwer   = vehicle.Wings['Main Wing'].Nwer
+    Sw     = vehicle.wings['Main Wing'].areas.reference
+    bw     = vehicle.wings['Main Wing'].spans.projected
+    cw     = vehicle.wings['Main Wing'].chords.mean_aerodynamic
+    Nwr    = vehicle.wings['Main Wing'].Nwr
+    t_cw   = vehicle.wings['Main Wing'].thickness_to_chord
+    Nwer   = vehicle.wings['Main Wing'].Nwer
     
-    #S_h    = vehicle.Wings['Horizontal Stabilizer'].sref
-    #b_h    = vehicle.Wings['Horizontal Stabilizer'].span
-    #chs    = vehicle.Wings['Horizontal Stabilizer'].chord_mac
-    #Nhsr   = vehicle.Wings['Horizontal Stabilizer'].Nwr
-    #t_ch   = vehicle.Wings['Horizontal Stabilizer'].t_c
+    #S_h    = vehicle.wings['Horizontal Stabilizer'].areas.reference
+    #b_h    = vehicle.wings['Horizontal Stabilizer'].spans.projected
+    #chs    = vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic
+    #Nhsr   = vehicle.wings['Horizontal Stabilizer'].Nwr
+    #t_ch   = vehicle.wings['Horizontal Stabilizer'].thickness_to_chord
     
-    #S_v    = vehicle.Wings['Vertical Stabilizer'].sref
-    #b_v    = vehicle.Wings['Vertical Stabilizer'].span
-    #cvs    = vehicle.Wings['Vertical Stabilizer'].chord_mac
-    #Nvsr   = vehicle.Wings['Vertical Stabilizer'].Nwr
-    #t_cv   = vehicle.Wings['Vertical Stabilizer'].t_c
+    #S_v    = vehicle.wings['Vertical Stabilizer'].areas.reference
+    #b_v    = vehicle.wings['Vertical Stabilizer'].spans.projected
+    #cvs    = vehicle.wings['Vertical Stabilizer'].chords.mean_aerodynamic
+    #Nvsr   = vehicle.wings['Vertical Stabilizer'].Nwr
+    #t_cv   = vehicle.wings['Vertical Stabilizer'].thickness_to_chord
     
-    nult   = vehicle.Ultimate_Load
-    gw     = vehicle.Mass_Props.m_full
+    nult   = vehicle.envelope.ultimate_load
+    gw     = vehicle.mass_properties.max_takeoff
     qm     = vehicle.qm
     #Ltb    = vehicle.Ltb    
     
@@ -115,10 +115,10 @@ def empty(vehicle):
     ##Fuselage weight
     #wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
     
-    vehicle.Wings['Main Wing'].Mass_Props.mass             = wt_wing
-    #vehicle.Wings['Horizontal Stabilizer'].Mass_Props.mass = wt_ht
-    #vehicle.Wings['Vertical Stabilizer'].Mass_Props.mass   = wt_vt
-    #vehicle.Fuselages.Fuselage.Mass_Props.mass = wt_tb
+    vehicle.wings['Main Wing'].mass_properties.mass             = wt_wing
+    #vehicle.wings['Horizontal Stabilizer'].mass_properties.mass = wt_ht
+    #vehicle.wings['Vertical Stabilizer'].mass_properties.mass   = wt_vt
+    #vehicle.Fuselages.Fuselage.mass_properties.mass = wt_tb
     
     weight                 = Data()
     weight.wing            = wt_wing
