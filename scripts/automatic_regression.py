@@ -67,9 +67,9 @@ def main():
     for module in modules:
         passed = test_module(module)
         if passed:
-            results[module] = 'Passed'
+            results[module] = '  Passed'
         else:
-            results[module] = 'FAILED'
+            results[module] = '* FAILED'
     
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')

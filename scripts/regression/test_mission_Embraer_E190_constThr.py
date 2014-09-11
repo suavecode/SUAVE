@@ -310,23 +310,11 @@ def check_results(new_results):
     
     return
 
-    
 def load_results():
     return SUAVE.Plugins.VyPy.data.load('results_mission_E190_constThr.pkl')
     
 def save_results(results):
     SUAVE.Plugins.VyPy.data.save(results,'results_mission_E190_constThr.pkl')
-
-def get_key(data,keys):
-    """ gets a datadict key via recursion
-    """
-    if isinstance(keys,str):
-        keys = keys.split('.')
-    k = keys.pop(0)
-    if keys:
-        return get_key(data[k],keys)
-    else:
-        return data[k]
     
 if __name__ == '__main__': 
     main()
