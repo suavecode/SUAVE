@@ -3,7 +3,7 @@
 # Created:  SUave Team, Aug 2014
 # Modified: 
 
-""" setup file for a mission with a E190
+""" setup file for a mission with a 737
 """
 
 
@@ -72,18 +72,18 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Embraer_E190'    
+    vehicle.tag = 'Boeing 737-800'    
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 51800.0   # kg
-    vehicle.mass_properties.operating_empty           = 30100.0   # kg
-    vehicle.mass_properties.takeoff                   = 51800.0   # kg
+    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
-    vehicle.mass_properties.cargo                     = 0.0 * Units.kilogram   
+    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
@@ -93,8 +93,8 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area         = 92.00
-    vehicle.passengers             = 114
+    vehicle.reference_area         = 124.862       
+    vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
     
@@ -105,25 +105,25 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.aspect_ratio            = 8.4
-    wing.sweep                   = 22.0 * Units.deg
-    wing.thickness_to_chord      = 0.11
+    wing.aspect_ratio            = 10.18
+    wing.sweep                   = 25 * Units.deg
+    wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.16
-    wing.span_efficiency         = 1.0
+    wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 27.8 
+    wing.spans.projected         = 35.66    
     
-    wing.chords.root             = 5.7057
-    wing.chords.tip              = 0.9129
-    wing.chords.mean_aerodynamic = 3.8878
+    wing.chords.root             = 6.81
+    wing.chords.tip              = 1.09
+    wing.chords.mean_aerodynamic = 12.5
     
-    wing.areas.reference         = 92.0
+    wing.areas.reference         = 124.862 
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted
     
-    wing.twists.root             = 2.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
+    wing.twists.root             = 3.0 * Units.degrees
+    wing.twists.tip              = 3.0 * Units.degrees
     
     wing.origin                  = [20,0,0]
     wing.aerodynamic_center      = [3,0,0] 
@@ -143,25 +143,25 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.aspect_ratio            = 5.5     
-    wing.sweep                   = 34.5 * Units.deg
-    wing.thickness_to_chord      = 0.11
-    wing.taper                   = 0.11
+    wing.aspect_ratio            = 6.16      #
+    wing.sweep                   = 30 * Units.deg
+    wing.thickness_to_chord      = 0.08
+    wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 11.958
+    wing.spans.projected         = 14.146      #
 
-    wing.chords.root             = 3.9175
-    wing.chords.tip              = 0.4309
-    wing.chords.mean_aerodynamic = 2.6401
+    wing.chords.root             = 3.28
+    wing.chords.tip              = 1.31    
+    wing.chords.mean_aerodynamic = 8.0
 
-    wing.areas.reference         = 26.0
+    wing.areas.reference         = 32.488    #
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted
     
-    wing.twists.root             = 2.0 * Units.degrees
-    wing.twists.tip              = 2.0 * Units.degrees  
+    wing.twists.root             = 3.0 * Units.degrees
+    wing.twists.tip              = 3.0 * Units.degrees  
     
     wing.origin                  = [50,0,0]
     wing.aerodynamic_center      = [2,0,0]
@@ -181,19 +181,19 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.aspect_ratio            = 1.7      #
+    wing.aspect_ratio            = 1.91      #
     wing.sweep                   = 25 * Units.deg
-    wing.thickness_to_chord      = 0.12
-    wing.taper                   = 0.10
+    wing.thickness_to_chord      = 0.08
+    wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 5.2153     #    
+    wing.spans.projected         = 7.877      #    
 
-    wing.chords.root             = 5.5779
-    wing.chords.tip              = 0.5577
-    wing.chords.mean_aerodynamic = 3.7524
+    wing.chords.root             = 6.60
+    wing.chords.tip              = 1.65
+    wing.chords.mean_aerodynamic = 8.0
     
-    wing.areas.reference         = 16.0    #
+    wing.areas.reference         = 32.488    #
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted
@@ -206,9 +206,10 @@ def vehicle_setup():
     
     wing.vertical                = True 
     wing.symmetric               = False
+    wing.t_tail                  = False
     
     wing.eta                     = 1.0
-    
+        
     # add to vehicle
     vehicle.append_component(wing)
 
@@ -220,31 +221,31 @@ def vehicle_setup():
     fuselage.tag = 'Fuselage'
     
     fuselage.number_coach_seats    = vehicle.passengers
-    fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 0.7455
+    fuselage.seats_abreast         = 6
+    fuselage.seat_pitch            = 1
     
-    fuselage.fineness.nose         = 2.0
-    fuselage.fineness.tail         = 3.0
+    fuselage.fineness.nose         = 1.6
+    fuselage.fineness.tail         = 2.
     
-    fuselage.lengths.nose          = 6.0
-    fuselage.lengths.tail          = 9.0
-    fuselage.lengths.cabin         = 21.24
-    fuselage.lengths.total         = 36.24   
-    fuselage.lengths.fore_space    = 0.
-    fuselage.lengths.aft_space     = 0.    
+    fuselage.lengths.nose          = 6.4
+    fuselage.lengths.tail          = 8.0
+    fuselage.lengths.cabin         = 44.0
+    fuselage.lengths.total         = 58.4    
+    fuselage.lengths.fore_space    = 6.
+    fuselage.lengths.aft_space     = 5.    
     
-    fuselage.width                 = 3.0
+    fuselage.width                 = 4.
     
-    fuselage.heights.maximum       = 3.4    #
-    fuselage.heights.at_quarter_length          = 3.4 # Not correct
-    fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.maximum       = 4.    #
+    fuselage.heights.at_quarter_length          = 4. # Not correct
+    fuselage.heights.at_three_quarters_length   = 4. # Not correct
+    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
 
-    fuselage.areas.side_projected  = 239.20
-    fuselage.areas.wetted          = 327.01
-    fuselage.areas.front_projected = 8.0110
+    fuselage.areas.side_projected  = 4.* 59.8 #  Not correct
+    fuselage.areas.wetted          = 688.64
+    fuselage.areas.front_projected = 12.57
     
-    fuselage.effective_diameter    = 3.2
+    fuselage.effective_diameter    = 4.0
     
     fuselage.differential_pressure = 10**5 * Units.pascal    # Maximum differential pressure
     
@@ -260,32 +261,37 @@ def vehicle_setup():
     
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
-    turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.99     #
+    #turbofan.analysis_type                 = '1D'     #
+    turbofan.diffuser_pressure_ratio       = 0.98     #
     turbofan.fan_pressure_ratio            = 1.7      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.98     #
-    turbofan.lpc_pressure_ratio            = 1.9      #
-    turbofan.hpc_pressure_ratio            = 10.0     #
+    turbofan.fan_nozzle_pressure_ratio     = 0.99     #
+    turbofan.lpc_pressure_ratio            = 1.14     #
+    turbofan.hpc_pressure_ratio            = 13.415   #
     turbofan.burner_pressure_ratio         = 0.95     #
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
-    turbofan.Tt4                           = 1500.0   #
+    turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
-    turbofan.thrust.design                 = 20300.0  #
-    turbofan.number_of_engines                 = 2.0      #
-    
-    # turbofan sizing conditions
-    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
-    
-    sizing_segment.M   = 0.78          #
-    sizing_segment.alt = 10.668         #
-    sizing_segment.T   = 223.0        #
-    sizing_segment.p   = 0.265*10**5  # 
+    turbofan.thrust.design                 = 25000.0  #
+    turbofan.number_of_engines             = 2.0      #
     
     # size the turbofan
-    turbofan.engine_sizing_1d(sizing_segment)     
+    turbofan.A2          =   1.753
+    turbofan.df          =   1.580
+    turbofan.nacelle_dia =   1.580
+    turbofan.A2_5        =   0.553
+    turbofan.dhc         =   0.857
+    turbofan.A7          =   0.801
+    turbofan.A5          =   0.191
+    turbofan.Ao          =   1.506
+    turbofan.mdt         =   9.51
+    turbofan.mlt         =  22.29
+    turbofan.mdf         = 355.4
+    turbofan.mdlc        =  55.53
+    turbofan.D           =   1.494
+    turbofan.mdhc        =  49.73  
     
     # add to vehicle
-    vehicle.append_component(turbofan)   
+    vehicle.append_component(turbofan)    
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -350,6 +356,7 @@ def vehicle_setup():
 # ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
+
 def mission_setup(vehicle):
     
     # ------------------------------------------------------------------
@@ -357,11 +364,11 @@ def mission_setup(vehicle):
     # ------------------------------------------------------------------
 
     mission = SUAVE.Attributes.Missions.Mission()
-    mission.tag = 'EMBRAER_E190AR test mission'
+    mission.tag = 'The Test Mission'
 
     # atmospheric model
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     
     #airport
     airport = SUAVE.Attributes.Airports.Airport()
@@ -369,15 +376,15 @@ def mission_setup(vehicle):
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     
-    mission.airport = airport    
+    mission.airport = airport
     
     
     # ------------------------------------------------------------------
-    #   First Climb Segment: Constant Speed, Constant Climb Rate
+    #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_250KCAS"
+    segment.tag = "Climb - 1"
     
     # connect vehicle configuration
     segment.config = vehicle.configs.takeoff
@@ -387,20 +394,21 @@ def mission_setup(vehicle):
     segment.planet         = planet    
     
     segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.048 * Units.km
-    segment.air_speed      = 138.0 * Units['m/s']
-    segment.climb_rate     = 3000. * Units['ft/min']
+    segment.altitude_end   = 3.0   * Units.km
+    segment.air_speed      = 125.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
     
     # add to misison
     mission.append_segment(segment)
-
+    
     
     # ------------------------------------------------------------------
-    #   Second Climb Segment: Constant Speed, Constant Climb Rate
+    #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_TRANSITION"
+    #segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
+    segment.tag = "Climb - 2"
     
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
@@ -409,44 +417,24 @@ def mission_setup(vehicle):
     segment.atmosphere     = atmosphere
     segment.planet         = planet    
     
-    segment.altitude_end   = 3.657 * Units.km
-    segment.air_speed      = 168.0 * Units['m/s']
-    segment.climb_rate     = 2500. * Units['ft/min']
-
-    # add to mission
-    mission.append_segment(segment)
-
-    
-    # ------------------------------------------------------------------
-    #   Third Climb Segment: Constant Speed, Constant Climb Rate
-    # ------------------------------------------------------------------    
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_280KCAS"
-
-    # connect vehicle configuration
-    segment.config = vehicle.configs.cruise
-    
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet        
-    
-    segment.altitude_end = 25000. * Units.ft
-    segment.air_speed    = 200.0  * Units['m/s']
-    segment.climb_rate   = 1800.  * Units['ft/min']
-    
+    #segment.altitude_start = 3.0   * Units.km ## Optional
+    segment.altitude_end   = 8.0   * Units.km
+    segment.air_speed      = 190.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.mach_number    = 0.5
+    #segment.climb_rate     = 6.0   * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
 
     
     # ------------------------------------------------------------------
-    #   Fourth Climb Segment: Constant Speed, Constant Climb Rate
+    #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_M0.78"
-
+    segment.tag = "Climb - 3"
+    
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
     
@@ -454,34 +442,12 @@ def mission_setup(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet        
     
-    segment.altitude_end = 32000. * Units.ft
-    segment.air_speed    = 230.0  * Units['m/s']
-    segment.climb_rate   = 900.   * Units['ft/min']
+    segment.altitude_end = 10.668 * Units.km
+    segment.air_speed    = 226.0  * Units['m/s']
+    segment.climb_rate   = 3.0    * Units['m/s']
     
     # add to mission
-    mission.append_segment(segment)      
-
-   
-    # ------------------------------------------------------------------
-    #   Fifth Climb Segment: Constant Speed, Constant Climb Rate
-    # ------------------------------------------------------------------    
-    
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "CLIMB_Final"
-
-    # connect vehicle configuration
-    segment.config = vehicle.configs.cruise
-    
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet        
-    
-    segment.altitude_end = 37000. * Units.ft
-    segment.air_speed    = 230.0  * Units['m/s']
-    segment.climb_rate   = 200.   * Units['ft/min']
-
-    # add to mission
-    mission.append_segment(segment)    
+    mission.append_segment(segment)
     
     
     # ------------------------------------------------------------------    
@@ -498,10 +464,10 @@ def mission_setup(vehicle):
     segment.atmosphere = atmosphere
     segment.planet     = planet        
     
-    segment.air_speed  = 230.  * Units['m/s']
-    segment.distance   = 2050. * Units.nmi
-    
-    # add to mission
+    #segment.altitude   = 10.668  * Units.km     # Optional
+    segment.air_speed  = 230.412 * Units['m/s']
+    segment.distance   = 3933.65 * Units.km
+        
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------    
@@ -509,7 +475,7 @@ def mission_setup(vehicle):
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "DESCENT_M0.77"
+    segment.tag = "Descent - 1"
     
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
@@ -518,57 +484,33 @@ def mission_setup(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet   
     
-    segment.altitude_end = 9.31  * Units.km
-    segment.air_speed    = 230.0 * Units['m/s']
-    segment.descent_rate = 2600. * Units['ft/min']
-
+    segment.altitude_end = 5.0   * Units.km
+    segment.air_speed    = 170.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
+    
     # add to mission
     mission.append_segment(segment)
     
-
     # ------------------------------------------------------------------    
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "DESCENT_290KCAS"
+    segment.tag = "Descent - 2"
 
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
-    
+
     # segment attributes
     segment.atmosphere   = atmosphere
-    segment.planet       = planet   
-    
-    segment.altitude_end = 3.657 * Units.km
-    segment.air_speed    = 200.0 * Units['m/s']
-    segment.descent_rate = 2300. * Units['ft/min']    
-
-    # append to mission
-    mission.append_segment(segment)
-    
-    
-    # ------------------------------------------------------------------    
-    #   Third Descent Segment: consant speed, constant segment rate
-    # ------------------------------------------------------------------    
-
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "DESCENT_250KCAS"
-
-    # connect vehicle configuration
-    segment.config = vehicle.configs.cruise
-    
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet   
+    segment.planet       = planet    
     
     segment.altitude_end = 0.0   * Units.km
-    segment.air_speed    = 140.0 * Units['m/s']
-    segment.descent_rate = 1500. * Units['ft/min']    
-    
+    segment.air_speed    = 145.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
+
     # append to mission
     mission.append_segment(segment)
-
     
     # ------------------------------------------------------------------    
     #   Mission definition complete    
@@ -576,13 +518,10 @@ def mission_setup(vehicle):
     
     return mission
 
-#: def define_mission()
-
 
 def check_results(new_results):
     
     # load old results
-    #save_results(new_results)
     old_results = load_results()
     
     # check segment values
@@ -641,10 +580,10 @@ def check_results(new_results):
 
     
 def load_results():
-    return SUAVE.Plugins.VyPy.data.load('results_mission_E190.pkl')
+    return SUAVE.Plugins.VyPy.data.load('results_mission_B737.pkl')
     
 def save_results(results):
-    SUAVE.Plugins.VyPy.data.save(results,'results_mission_E190.pkl')
+    SUAVE.Plugins.VyPy.data.save(results,'results_mission_B737.pkl')
 
 def get_key(data,keys):
     """ gets a datadict key via recursion
