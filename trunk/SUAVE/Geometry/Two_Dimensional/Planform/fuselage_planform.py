@@ -25,42 +25,42 @@ from SUAVE.Structure  import Data
 # ----------------------------------------------------------------------
 
 
-def fuselage_planform(Fuselage):
-    """ err = SUAVE.Geometry.fuselage_planform(Fuselage)
+def fuselage_planform(fuselage):
+    """ err = SUAVE.Geometry.fuselage_planform(fuselage)
     
         Assumptions:
             fuselage cross section is an ellipse
             ellipse circumference approximated
             
         Inputs:
-            Fuselage.num_coach_seats
-            Fuselage.seat_pitch
-            Fuselage.fineness_nose
-            Fuselage.fineness_tail
-            Fuselage.fwdspace
-            Fuselage.aftspace
-            Fuselage.width
-            Fuselage.height            
+            fuselage.num_coach_seats
+            fuselage.seat_pitch
+            fuselage.fineness_nose
+            fuselage.fineness_tail
+            fuselage.fwdspace
+            fuselage.aftspace
+            fuselage.width
+            fuselage.height            
             
         Outputs:
-            Fuselage.length_nose
-            Fuselage.length_tail
-            Fuselage.length_cabin
-            Fuselage.length_total
-            Fuselage.area_wetted
+            fuselage.length_nose
+            fuselage.length_tail
+            fuselage.length_cabin
+            fuselage.length_total
+            fuselage.area_wetted
             
     """
     
     # unpack
-    number_seats    = Fuselage.number_coach_seats
-    seat_pitch      = Fuselage.seat_pitch
-    seats_abreast   = Fuselage.seats_abreast
-    nose_fineness   = Fuselage.fineness.nose
-    tail_fineness   = Fuselage.fineness.tail
-    forward_extra   = Fuselage.lengths.fore_space
-    aft_extra       = Fuselage.lengths.aft_space
-    fuselage_width  = Fuselage.width
-    fuselage_height = Fuselage.heights.maximum
+    number_seats    = fuselage.number_coach_seats
+    seat_pitch      = fuselage.seat_pitch
+    seats_abreast   = fuselage.seats_abreast
+    nose_fineness   = fuselage.fineness.nose
+    tail_fineness   = fuselage.fineness.tail
+    forward_extra   = fuselage.lengths.fore_space
+    aft_extra       = fuselage.lengths.aft_space
+    fuselage_width  = fuselage.width
+    fuselage_height = fuselage.heights.maximum
     
     # process
     nose_length  = nose_fineness * fuselage_width
@@ -90,13 +90,13 @@ def fuselage_planform(Fuselage):
     reference_area = cross_section_area
     
     # update
-    Fuselage.lengths.nose  = nose_length
-    Fuselage.lengths.tail  = tail_length
-    Fuselage.lengths.cabin = cabin_length
-    Fuselage.lengths.total = fuselage_length
-    Fuselage.areas.wetted  = wetted_area
-    Fuselage.areas.front_projected = cross_section_area
-    #Fuselage.Areas.front_projected     = reference_area # ?? CHECK
-    Fuselage.effective_diameter         = Deff
+    fuselage.lengths.nose  = nose_length
+    fuselage.lengths.tail  = tail_length
+    fuselage.lengths.cabin = cabin_length
+    fuselage.lengths.total = fuselage_length
+    fuselage.areas.wetted  = wetted_area
+    fuselage.areas.front_projected = cross_section_area
+    #fuselage.areas.front_projected     = reference_area # ?? CHECK
+    fuselage.effective_diameter         = Deff
     
     return 0
