@@ -33,6 +33,6 @@ def horizontal_tail_planform_raymer(Htail, Wing,  l_ht,c_ht):
     1.= military cargo/bomber, 1.= jet transport
     """
     
-    Htail.sref=Wing.mac*c_ht*Wing.sref/l_ht
-    wing_planform(Htail)
+    Htail.areas.reference=Wing.chords.mean_aerodynamic*c_ht*Wing.areas.reference/l_ht
+    #wing_planform(Htail)
     return 0    
