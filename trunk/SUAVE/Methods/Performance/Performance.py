@@ -22,18 +22,18 @@ def evaluate_mission(mission):
     results = copy.deepcopy(mission)
 
     # evaluate each segment 
-    for i in range(len(results.Segments)):
+    for i in range(len(results.segments)):
 
-        segment = results.Segments[i]
-        # print mission.Segments[i]
+        segment = results.segments[i]
+        # print mission.segments[i]
 
         # determine ICs for this segment
         if i == 0:                                              # first segment of mission
             segment.m0 = results.m0
             segment.t0 = 0.0
         else:                                                   # inherit ICs from previous segment
-            segment.m0 = results.Segments[i-1].m[-1]
-            segment.t0 = results.Segments[i-1].t[-1]
+            segment.m0 = results.segments[i-1].m[-1]
+            segment.t0 = results.segments[i-1].t[-1]
 
         # run segment
         pseudospectral(segment)

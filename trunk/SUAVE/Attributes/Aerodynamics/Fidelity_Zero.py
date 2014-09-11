@@ -70,9 +70,6 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         self.configuration.number_panels_spanwise  = 5
         self.configuration.number_panels_chordwise = 1
         
-        #self.conditions_table = Conditions(
-            #angle_of_attack = np.array([-10.,-5.,0.,5.,10.]) * Units.deg ,
-        #)
         self.conditions_table = Conditions(
             angle_of_attack = np.array([-10.,-5.,0.,5.,10.]) * Units.deg ,
         )        
@@ -91,11 +88,11 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         n_conditions = len(AoA)
         
         # copy geometry
-        for k in ['Fuselages','Wings','Propulsors']:
+        for k in ['fuselages','wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
-        geometry.reference_area = vehicle.S
+        geometry.reference_area = vehicle.reference_area
               
         
         # arrays
@@ -113,7 +110,6 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
             
             # these functions are inherited from Aerodynamics() or overridden
             CL[i] = calculate_lift_vortex_lattice(konditions, configuration, geometry)
-
             
         # store table
         conditions_table.lift_coefficient = CL
@@ -133,13 +129,13 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         CL_data  = conditions_table.lift_coefficient
         
         # pack for surrogate
-        X_data = np.array([AoA_data]).T 
-        
-        X_data = np.reshape(X_data,-1)
+        X_data = np.array([AoA_data]).T        
         
         # assign models
+        X_data = np.reshape(X_data,-1)
+        # assign models
         #Interpolation = Aerodynamics_1d_Surrogate.Interpolation(X_data,CL_data)
-        Interpolation = np.poly1d(np.polyfit(X_data,CL_data,1))
+        Interpolation = np.poly1d(np.polyfit(X_data, CL_data ,1))
         
         #Interpolation = Fidelity_Zero.Interpolation
         self.models.lift_coefficient = Interpolation
@@ -219,28 +215,12 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
+        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
 
     return total_lift_coeff
-    
-def calculate_lift_linear_supersonic(conditions,configuration,geometry):
-    """ Calculate total vehicle lift coefficient using linear supersonic theory
-    """
-    
-    # unpack
-    vehicle_reference_area = geometry.reference_area
-    
-    # iterate over wings
-    total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
-        
-        wing_lift_coeff = linear_supersonic_lift(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.sref / vehicle_reference_area
-    
-    return total_lift_coeff    
 
 
 

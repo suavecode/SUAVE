@@ -105,6 +105,9 @@ class Motor(Energy_Component):
         io   = self.io + self.exp_i*(1-etaG)  
         
         i=(v-omeg/Kv)/Res
+        
+        # This line means the motor cannot recharge the battery
+        i[i < 0.0] = 0.0
 
         # Pack
         self.outputs.current = i

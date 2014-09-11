@@ -48,8 +48,8 @@ def compressibility_drag_total_supersonic(conditions,configuration,geometry):
     """
 
     # unpack
-    wings      = geometry.Wings
-    fuselages   = geometry.Fuselages
+    wings      = geometry.wings
+    fuselages   = geometry.fuselages
     propulsor = geometry.Propulsors[0]
     #print geometry
     #w = input("Press any key to continue")

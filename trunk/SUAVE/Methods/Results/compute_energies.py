@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-
+from SUAVE.Structure                    import Data, Data_Exception
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
@@ -17,7 +17,16 @@ def compute_energies(results,summary=False):
 
         segment = results.Segments[i]
         eta=segment.conditions.propulsion.throttle[:,0]
-        segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(eta,segment.conditions)
+        state = Data()
+        state.q  = segment.conditions.freestream.dynamic_pressure[:,0]
+        state.g0 = segment.conditions.freestream.gravity[:,0]
+        state.V  = segment.conditions.freestream.velocity[:,0]
+        state.M  = segment.conditions.freestream.mach_number[:,0]
+        state.T  = segment.conditions.freestream.temperature[:,0]
+        state.p  = segment.conditions.freestream.pressure[:,0]
+        
+        
+        segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(eta,state)
         
         # time integration operator
         '''

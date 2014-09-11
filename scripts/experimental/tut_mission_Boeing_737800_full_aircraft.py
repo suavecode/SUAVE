@@ -20,6 +20,12 @@ import pylab as plt
 
 import copy, time
 
+from SUAVE.Methods.Performance import estimate_take_off_field_length
+from SUAVE.Methods.Performance import estimate_landing_field_length
+
+from SUAVE.Structure import (
+Data, Container, Data_Exception, Data_Warning,
+)
 
 # ----------------------------------------------------------------------
 #   Main
@@ -32,6 +38,8 @@ def main():
     # define the mission
     mission = define_mission(vehicle)
     
+    fldlength = evaluate_field_length(vehicle)
+        
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
     
@@ -61,7 +69,7 @@ def define_vehicle():
 
     # mass properties
     vehicle.Mass_Props.m_full       = 79015.8   # kg
-    vehicle.Mass_Props.m_empty      = 62746.4   # kg
+    #vehicle.Mass_Props.m_empty      = 62746.4   # kg
     vehicle.Mass_Props.m_takeoff    = 79015.8   # kg
     vehicle.Mass_Props.m_flight_min = 66721.59  # kg
     vehicle.Mass_Props.pos_cg       = [60 * Units.feet, 0, 0]  # Not correct
@@ -69,7 +77,7 @@ def define_vehicle():
 
     # basic parameters
     vehicle.delta    = 25.0                     # deg
-    vehicle.S        = 124.862                  # 
+    vehicle.reference_area        = 124.862                  # 
     vehicle.A_engine = np.pi*(0.9525)**2
     vehicle.Ultimate_Load     = 3.5
     vehicle.Limit_Load    = 1.5
@@ -86,26 +94,26 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.sref      = 124.862        #
-    wing.ar        = 8              #
-    wing.span      = 35.66          #
-    wing.sweep     = 25 * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.1            #
-    wing.taper     = 0.16           #
-    wing.origin    = [20,0,0]       # Not correct location
-    wing.aero_center =[3,0,0]      # Not correct location (Position from the wing origin)
+    wing.Areas.reference = 124.862    #
+    wing.aspect_ratio    = 8        #
+    wing.Spans.projected = 35.66      #
+    wing.sweep           = 25 * Units.deg
+    wing.symmetric       = False
+    wing.thickness_to_chord = 0.1
+    wing.taper           = 0.16
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac   = 12.5                  #
-    wing.S_exposed   = 0.8*wing.area_wetted  #
-    wing.S_affected  = 0.6*wing.area_wetted  #
-    wing.e           = 0.9                   #
-    wing.twist_rc    = 3.0*Units.degrees     #
-    wing.twist_tc    = 3.0*Units.degrees     #
-    wing.highlift    = False                 #
+    wing.Chords.mean_aerodynamic = 12.5
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 3.0*Units.degrees
+    wing.Twists.tip  = 3.0*Units.degrees
+    wing.origin          = [20,0,0]
+    wing.aerodynamic_center = [3,0,0] 
+    wing.vertical   = False
     wing.eta         = 1.0
     #wing.hl          = 1                    #
     #wing.flaps_chord = 20                   #
@@ -123,26 +131,27 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.sref      = 32.488         #
-    wing.ar        = 6.16           #
-    wing.span      = 14.146         #
-    wing.sweep     = 30 * Units.deg #
-    wing.symmetric = True           #
-    wing.t_c       = 0.08           #
-    wing.taper     = 0.4            #
+    wing.Areas.reference = 32.488    #
+    wing.aspect_ratio    = 6.16      #
+    wing.Spans.projected = 14.146      #
+    wing.sweep           = 30 * Units.deg
+    wing.symmetric       = True
+    wing.thickness_to_chord = 0.08
+    wing.taper           = 0.4
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 8.0                   #
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 3.0*Units.degrees     #
-    wing.twist_tc   = 3.0*Units.degrees     #
-    wing.eta        = 0.9
-    wing.origin    = [50,0,0]       # Not correct location
-    wing.aero_center =[2,0,0]      # Not correct location (Position from the Wing origin)   
+    wing.Chords.mean_aerodynamic = 8.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 3.0*Units.degrees
+    wing.Twists.tip  = 3.0*Units.degrees  
+    wing.origin          = [50,0,0]
+    wing.aerodynamic_center = [2,0,0]
+    wing.vertical   = False 
+    wing.eta         = 0.9  
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -155,28 +164,28 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.sref      = 32.488         #
-    wing.ar        = 1.91           #
-    wing.span      = 7.877          #
-    wing.sweep     = 25 * Units.deg #
-    wing.symmetric = False          #
-    wing.t_c       = 0.08           #
-    wing.taper     = 0.25           #
-    wing.origin    = [50,0,0]       # Not correct location
-    wing.aero_center =[2,0,0]      # Not correct location (Position from the wing origin)
-    wing.T_tail    = "no"           # Maybe change the naming convention
+    wing.Areas.reference = 32.488    #
+    wing.aspect_ratio    = 1.91      #
+    wing.Spans.projected = 7.877      #
+    wing.sweep           = 25 * Units.deg
+    wing.symmetric       = False
+    wing.thickness_to_chord = 0.08
+    wing.taper           = 0.4
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chord_mac  = 8.0                   #
-    wing.S_exposed  = 0.8*wing.area_wetted  #
-    wing.S_affected = 0.6*wing.area_wetted  #  
-    wing.e          = 0.9                   #
-    wing.twist_rc   = 0.0*Units.degrees     #
-    wing.twist_tc   = 0.0*Units.degrees     #
-    wing.vertical   = True  
-    wing.eta        = 1.0
+    wing.Chords.mean_aerodynamic = 8.0
+    wing.Areas.exposed = 0.8*wing.Areas.wetted
+    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.span_efficiency = 0.9
+    wing.Twists.root = 0.0*Units.degrees
+    wing.Twists.tip  = 0.0*Units.degrees  
+    wing.origin          = [50,0,0]
+    wing.aerodynamic_center = [2,0,0]    
+    wing.vertical   = True 
+    wing.t_tail     = False
+    wing.eta         = 1.0
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -189,19 +198,19 @@ def define_vehicle():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
     
-    fuselage.num_coach_seats = 200  #
-    fuselage.seats_abreast   = 6    #
-    fuselage.seat_pitch      = 1    #
-    fuselage.fineness_nose   = 1.6  #
-    fuselage.fineness_tail   = 2.    #
-    fuselage.fwdspace        = 6.    #
-    fuselage.aftspace        = 5.    #
-    fuselage.width           = 4.    #
-    fuselage.height          = 4.    #
-    fuselage.side_area       = 4.* 59.8 #  Not correct
-    fuselage.height_at_quarter_length = 4. # Not correct
-    fuselage.height_at_three_quarters_length = 4. # Not correct
-    fuselage.height_at_vroot_quarter_chord = 4. # Not correct
+    fuselage.number_coach_seats = 200
+    fuselage.seats_abreast = 6
+    fuselage.seat_pitch = 1
+    fuselage.Fineness.nose = 1.6
+    fuselage.Fineness.tail = 2.
+    fuselage.Lengths.fore_space = 6.
+    fuselage.Lengths.aft_space  = 5.
+    fuselage.width = 4.
+    fuselage.Heights.maximum          = 4.    #
+    fuselage.Areas.side_projected       = 4.* 59.8 #  Not correct
+    fuselage.Heights.at_quarter_length = 4. # Not correct
+    fuselage.Heights.at_three_quarters_length = 4. # Not correct
+    fuselage.Heights.at_wing_root_quarter_chord = 4. # Not correct
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
@@ -218,7 +227,7 @@ def define_vehicle():
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
     turbofan.tag = 'Turbo Fan'
     
-    turbofan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
+    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
     turbofan.analysis_type                 = '1D'     #
     turbofan.diffuser_pressure_ratio       = 0.98     #
@@ -230,6 +239,8 @@ def define_vehicle():
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
     turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
+    turbofan.Thrust = Data()
+    turbofan.Thrust.design = 25000.0
     turbofan.design_thrust                 = 25000.0  #
     turbofan.no_of_engines                 = 2.0      #
     
@@ -248,6 +259,18 @@ def define_vehicle():
     vehicle.append_component(turbofan)
 
     vehicle.Mass_Props.breakdown = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle)
+    vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    
+    # ------------------------------------------------------------------
+    # compute wing fuel capacity
+    # ------------------------------------------------------------------
+    vehicle.Mass_Props.fuel_density = turbofan.propellant.density
+
+    wing = vehicle.Wings['Main Wing']
+    SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
+    vehicle.Mass_Props.max_usable_fuel = wing.fuel_volume * vehicle.Mass_Props.fuel_density # [kg]
+    
+    
 
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -455,6 +478,36 @@ def define_mission(vehicle):
 
 
 # ----------------------------------------------------------------------
+#   Evaluate the Field Length
+# ----------------------------------------------------------------------
+def evaluate_field_length(vehicle):
+    
+    # ---------------------------
+    # Check field performance
+    # ---------------------------
+    # define takeoff and landing configuration
+    #print ' Defining takeoff and landing configurations'
+    takeoff_config,landing_config = define_field_configs(vehicle)
+
+    # define airport to be evaluated
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    # evaluate takeoff / landing
+    #print ' Estimating takeoff performance'
+    TOFL = estimate_take_off_field_length(vehicle,takeoff_config,airport)
+    #print ' Estimating landing performance'
+    LFL = estimate_landing_field_length(vehicle,landing_config,airport)
+    
+    fldlength      = Data()
+    fldlength.TOFL = TOFL
+    fldlength.LFL  = LFL
+    
+    return fldlength
+
+# ----------------------------------------------------------------------
 #   Evaluate the Mission
 # ----------------------------------------------------------------------
 def evaluate_mission(vehicle,mission):
@@ -619,23 +672,30 @@ def post_process(vehicle,mission,results):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
-        axes = fig.add_subplot(3,1,1)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Lift (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,2)
+        axes = fig.add_subplot(4,1,2)
         axes.plot( time , Drag , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag (N)')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(4,1,3)
         axes.plot( time , Thrust , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Thrust (N)')
+        axes.grid(True)        
+        
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Pitching_moment , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Pitching_moment (~)')
         axes.grid(True)
         
     # ------------------------------------------------------------------    
@@ -704,6 +764,38 @@ def post_process(vehicle,mission,results):
 
 # Check stability using something of the form
 # cm_alpha = results.Segments.Cruise.conditions.aerodynamics.cm_alpha
+
+
+# ----------------------------------------------------------------------
+#   Define takeoff and landing configuration
+# ----------------------------------------------------------------------
+def define_field_configs(vehicle):
+
+    # Imports
+    import copy
+
+    # --- Takeoff Configuration ---
+    takeoff_config = vehicle.Configs.takeoff
+    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    takeoff_config.V2_VS_ratio = 1.21
+    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
+    takeoff_config.maximum_lift_coefficient = 2.
+    #takeoff_config.max_lift_coefficient_factor = 1.0
+
+    # --- Landing Configuration ---
+    landing_config = vehicle.new_configuration("landing")
+    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
+    landing_config.Vref_VS_ratio = 1.23
+    # CLmax for a given configuration may be informed by user
+    landing_config.maximum_lift_coefficient = 2.
+    #landing_config.max_lift_coefficient_factor = 1.0
+    landing_config.Mass_Props.m_landing = 0.85 * vehicle.Mass_Props.m_takeoff
+
+    return takeoff_config,landing_config
 
 
 # ---------------------------------------------------------------------- 

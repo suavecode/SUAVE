@@ -14,7 +14,7 @@ from evaluate_segment import evaluate_segment
 def evaluate_mission(mission):
 
     mission = copy.deepcopy(mission)
-    segments = mission.Segments
+    segments = mission.segments
     
     # evaluate each segment 
     for i,segment in enumerate(segments.values()):

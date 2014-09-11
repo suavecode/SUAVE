@@ -112,24 +112,24 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_other = []
 
     # Unpack inputs
-    S      = geometry.Wings['Main Wing'].sref
-    b      = geometry.Wings['Main Wing'].span
-    sweep  = geometry.Wings['Main Wing'].sweep
-    AR     = geometry.Wings['Main Wing'].ar
-    z_w    = configuration.mass_props.pos_cg[2]
-    S_bs   = geometry.Fuselages.Fuselage.side_area
-    l_f    = geometry.Fuselages.Fuselage.length_total
-    h_max  = geometry.Fuselages.Fuselage.height
-    w_max  = geometry.Fuselages.Fuselage.width
-    h1     = geometry.Fuselages.Fuselage.height_at_quarter_length
-    h2     = geometry.Fuselages.Fuselage.height_at_three_quarters_length
-    d_i    = geometry.Fuselages.Fuselage.height_at_vroot_quarter_chord
+    S      = geometry.wings['Main Wing'].areas.reference
+    b      = geometry.wings['Main Wing'].spans.projected
+    sweep  = geometry.wings['Main Wing'].sweep
+    AR     = geometry.wings['Main Wing'].aspect_ratio
+    z_w    = configuration.mass_properties.center_of_gravity[2]
+    S_bs   = geometry.fuselages.Fuselage.areas.side_projected
+    l_f    = geometry.fuselages.Fuselage.lengths.total
+    h_max  = geometry.fuselages.Fuselage.heights.maximum
+    w_max  = geometry.fuselages.Fuselage.width
+    h1     = geometry.fuselages.Fuselage.heights.at_quarter_length
+    h2     = geometry.fuselages.Fuselage.heights.at_three_quarters_length
+    d_i    = geometry.fuselages.Fuselage.heights.at_wing_root_quarter_chord
     other  = configuration.other
-    S_v    = geometry.Wings['Vertical Stabilizer'].sref
-    x_v    = geometry.Wings['Vertical Stabilizer'].origin[0]
-    b_v    = geometry.Wings['Vertical Stabilizer'].span
-    ac_vLE = geometry.Wings['Vertical Stabilizer'].aero_center[0]
-    x_cg   = configuration.mass_props.pos_cg[0]
+    S_v    = geometry.wings['Vertical Stabilizer'].areas.reference
+    x_v    = geometry.wings['Vertical Stabilizer'].origin[0]
+    b_v    = geometry.wings['Vertical Stabilizer'].spans.projected
+    ac_vLE = geometry.wings['Vertical Stabilizer'].aerodynamic_center[0]
+    x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
     mu     = conditions.freestream.viscosity
     rho    = conditions.freestream.density
@@ -182,7 +182,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     #Compute vertical tail contribution
     l_v    = x_v + ac_vLE - x_cg
-    CLa_v  = geometry.Wings['Vertical Stabilizer'].CL_alpha
+    CLa_v  = geometry.wings['Vertical Stabilizer'].CL_alpha
     #k_v correlated from Roskam Fig. 10.12. NOT SMOOTH.
     bf     = b_v/d_i
     if bf < 2.0:
@@ -191,7 +191,7 @@ def taw_cnbeta(geometry,conditions,configuration):
         k_v = 0.76 + 0.24*(bf-2.0)/1.5
     else:
         k_v = 1.0
-    quarter_chord_sweep = convert_sweep(geometry.Wings['Main Wing'])
+    quarter_chord_sweep = convert_sweep(geometry.wings['Main Wing'])
     k_sweep  = (1.0+np.cos(quarter_chord_sweep))
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
     Cy_bv    = -k_v*CLa_v*dsdb_e*(S_v/S)  #ASSUMING SINGLE VERTICAL TAIL
@@ -252,7 +252,7 @@ if __name__ == '__main__':
     aircraft.wing       = wing
     aircraft.fuselage   = fuselage
     aircraft.vertical   = vertical
-    aircraft.Mass_Props.pos_cg[0] = 112.2 * Units.feet
+    aircraft.mass_properties.center_of_gravity[0] = 112.2 * Units.feet
     
     segment            = SUAVE.Attributes.Missions.Segments.Segment()
     segment.M          = 0.198

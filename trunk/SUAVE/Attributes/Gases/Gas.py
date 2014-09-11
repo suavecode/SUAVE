@@ -18,6 +18,7 @@ class Gas(Data):
 
     def __defaults__(self):
 
-        self.MolecularMass  = 0.0    
-        self.R              = 0.0              
-        self.Composition    = Composition( Gas = 1.0 )
+        self.molecular_mass  = 0.0    
+        self.gas_specific_constant              = 0.0              
+        self.composition = Data()
+        self.composition.gas = 1.0

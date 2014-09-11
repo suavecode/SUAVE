@@ -104,8 +104,8 @@ def payload_range(vehicle,mission,cruise_segment_tag):
     R       = [0,0,0]
 
     # Locate cruise segment to be variated
-    for i in range(len(mission.Segments)):          #loop for all segments
-        if mission.Segments[i].tag.upper() == cruise_segment_tag.upper() :
+    for i in range(len(mission.segments)):          #loop for all segments
+        if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
             segmentNum = i
             break
 
@@ -119,11 +119,11 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             print('   EVALUATING POINT : ' + str(i+1))
 
         # Define takeoff weight
-        mission.Segments[0].config.Mass_Props.m_takeoff = TOW[i] # we should redefine design weights names....
+        mission.segments[0].config.Mass_Props.m_takeoff = TOW[i] # we should redefine design weights names....
 
         # Evaluate mission with current TOW
         results = SUAVE.Methods.Performance.evaluate_mission(mission)
-        segment = results.Segments[segmentNum]
+        segment = results.segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
         #
@@ -140,7 +140,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             iter = iter + 1
             
             # Current total fuel burned in mission
-            TotalFuel  = TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1]
+            TotalFuel  = TOW[i] - results.segments[-1].conditions.weights.total_mass[-1]
 
             # Difference between burned fuel and target fuel
             missingFuel = FUEL[i] - TotalFuel
@@ -153,14 +153,14 @@ def payload_range(vehicle,mission,cruise_segment_tag):
 
             # Estimated distance that will result in total fuel burn = target fuel
             DeltaDist  =  CruiseSR *  missingFuel
-            mission.Segments[segmentNum].distance = (CruiseDist + DeltaDist)
+            mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
             results = SUAVE.Methods.Performance.evaluate_mission(mission)
-            segment = results.Segments[segmentNum]
+            segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel
-            err = ( TOW[i] - results.Segments[-1].conditions.weights.total_mass[-1] ) - FUEL[i]
+            err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1] ) - FUEL[i]
 
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
@@ -168,7 +168,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
                   + str('%8.0F' % (err+FUEL[i]))+' (kg) | Error : '+str('%8.0F' % err))
 
         # Allocating resulting range in ouput array.
-        R[i] = ( results.Segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
+        R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
 
     # Inserting point (0,0) in output arrays
     R.insert(0,0)

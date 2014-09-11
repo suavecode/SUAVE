@@ -53,13 +53,13 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     C_fus = configuration.fuselage_parasite_drag_form_factor
     freestream = conditions.freestream
     
-    Sref        = fuselage.reference_area
-    Swet        = fuselage.wetted_area
+    Sref        = fuselage.areas.front_projected
+    Swet        = fuselage.areas.wetted
     
-    l_fus  = fuselage.length_cabin
+    l_fus  = fuselage.lengths.cabin
     d_fus  = fuselage.width
-    l_nose = fuselage.length_nose
-    l_tail = fuselage.length_tail
+    l_nose = fuselage.lengths.nose
+    l_tail = fuselage.lengths.tail
     
     # conditions
     Mc  = freestream.mach_number

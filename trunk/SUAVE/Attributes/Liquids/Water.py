@@ -26,11 +26,12 @@ class Water(Liquid):
 
     def __defaults__(self):
 
-        self.MolecularMass = 18.             # kg/kmol
-        self.Composition = Composition( H2O=1.0)
-        self.h_vap=2260.*1000                #heat of vaporization of water [J/kg]
-        self.rho=1000.                       #density of water
-        self.T_vap=373.15                    #boiling point (K)
+        self.molecular_mass = 18.             # kg/kmol
+        self.composition = Data()
+        self.composition.H2O = 1.0
+        self.heat_of_vaporization=2260.*1000                #heat of vaporization of water [J/kg]
+        self.density=1000.                       #density of water
+        self.boiling_point=373.15                    #boiling point (K)
 
 
     def compute_cp(self,T=300,p=101325):

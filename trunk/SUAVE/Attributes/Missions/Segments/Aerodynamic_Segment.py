@@ -120,7 +120,7 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.energies.total_energy         = ones_1col * 0
         conditions.energies.total_efficiency     = ones_1col * 0
         conditions.energies.gravity_energy       = ones_1col * 0
-        conditions.energies.propulusion_power    = ones_1col * 0
+        conditions.energies.propulsion_power     = ones_1col * 0
         
         return
     
@@ -370,7 +370,7 @@ class Aerodynamic_Segment(Base_Segment):
         # pack conditions
         conditions.frames.body.thrust_force_vector[:,:] = F_vec[:,:]
         conditions.propulsion.fuel_mass_rate[:,0]       = mdot[:,0]
-        conditions.energies.propulusion_power[:,0]      = P[:,0]
+        conditions.energies.propulsion_power[:,0]      = P[:,0]
         
         return conditions
     
@@ -379,7 +379,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         # unpack
         m0        = conditions.weights.total_mass[0,0]
-        m_empty   = self.config.Mass_Props.m_empty
+        m_empty   = self.config.mass_properties.operating_empty
         mdot_fuel = conditions.propulsion.fuel_mass_rate
         I         = numerics.integrate_time
         g         = conditions.freestream.gravity

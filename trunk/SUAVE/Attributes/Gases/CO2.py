@@ -13,6 +13,7 @@
 # classes
 from Gas import Gas
 from SUAVE.Attributes.Constants import Composition
+from SUAVE.Structure import Data, Data_Exception, Data_Warning
 
 # ----------------------------------------------------------------------
 #  CO2
@@ -21,7 +22,8 @@ from SUAVE.Attributes.Constants import Composition
 class CO2(Gas):
     """ Physcial constants specific to CO2 """
     def __defaults__(self):
-        self.MolecularMass = 44.01           # kg/kmol
-        self.R = 188.9                       # m^2/s^2-K, specific gas constant
-        self.Composition = Composition( CO2 = 1.0 )
+        self.molecular_mass = 44.01           # kg/kmol
+        self.gas_specific_constant = 188.9                       # m^2/s^2-K, specific gas constant
+        self.composition = Data()
+        self.composition.CO2 = 1.0
  

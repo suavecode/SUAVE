@@ -126,7 +126,6 @@ def test():
     
     aircraft.append_component(fus)
 
-
     turbofan=Turbofan()
     turbofan.nacelle_dia= 4.0
     aircraft.append_component(turbofan)

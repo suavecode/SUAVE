@@ -43,8 +43,8 @@ def parasite_drag_aircraft_supersonic(conditions,configuration,geometry):
     """
 
     # unpack inputs
-    wings     = geometry.Wings
-    fuselages = geometry.Fuselages
+    wings     = geometry.wings
+    fuselages = geometry.fuselages
     vehicle_reference_area = geometry.reference_area
     try:
         drag_breakdown = conditions.aerodynamics.drag_breakdown

@@ -46,8 +46,8 @@ def compressibility_drag_wing_supersonic(conditions,configuration,geometry):
     """
 
     # unpack
-    wings      = geometry.Wings
-    fuselages   = geometry.Fuselages
+    wings      = geometry.wings
+    fuselages   = geometry.fuselages
     wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown

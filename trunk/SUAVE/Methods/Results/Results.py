@@ -14,7 +14,7 @@ import Units
 def compute_energies(results,summary=False):
 
     # evaluate each segment 
-    for i in range(len(results.Segments)):
+    for i in range(len(results.segments)):
 
         segment = results.Segments[i]
         segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(segment.eta,segment)
