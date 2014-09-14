@@ -23,7 +23,7 @@ from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-def full_setup():
+def full_setup_737800():
 
     vehicle = vehicle_setup()
     mission = mission_setup(vehicle)
@@ -44,8 +44,8 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.max_takeoff               = 79010.0   # kg
+    vehicle.mass_properties.operating_empty           = 41145.0   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
@@ -58,8 +58,8 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area        = 124.862       
-    vehicle.passengers = 170
+    vehicle.reference_area        = 125.0      
+    vehicle.passengers = 160
     vehicle.systems.control  = "fully powered" 
     vehicle.systems.accessories = "medium range"
     
@@ -70,9 +70,9 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.areas.reference = 124.862    #
-    wing.aspect_ratio    = 10.18       #
-    wing.spans.projected = 35.66      #
+    wing.areas.reference = 125.0      #
+    wing.aspect_ratio    = 9.45       #
+    wing.spans.projected = 35.7       #
     wing.sweep           = 25 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.1
@@ -109,13 +109,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.areas.reference = 32.488    #
+    wing.areas.reference = 32.78     #
     wing.aspect_ratio    = 6.16      #
-    wing.spans.projected = 14.146      #
+    wing.spans.projected = 14.35     #
     wing.sweep           = 30 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.08
-    wing.taper           = 0.4
+    wing.taper           = 0.2
     
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
@@ -146,13 +146,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.areas.reference = 32.488    #
+    wing.areas.reference = 26.44     #
     wing.aspect_ratio    = 1.91      #
-    wing.spans.projected = 7.877      #
-    wing.sweep           = 25 * Units.deg
+    wing.spans.projected = 7.877     #
+    wing.sweep           = 35 * Units.deg
     wing.symmetric       = False
     wing.thickness_to_chord = 0.08
-    wing.taper           = 0.25
+    wing.taper           = 0.27
     
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
@@ -163,7 +163,7 @@ def vehicle_setup():
     # ---------------------------------------------------------
     
     wing.chords.mean_aerodynamic = 8.0
-    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.exposed = 1.0*wing.areas.wetted
     wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.9
     wing.twists.root = 0.0*Units.degrees
@@ -184,7 +184,7 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
     
-    fuselage.number_coach_seats = 200
+    fuselage.number_coach_seats = 160
     fuselage.seats_abreast = 6
     fuselage.seat_pitch = 1
     fuselage.fineness.nose = 1.6
@@ -194,9 +194,9 @@ def vehicle_setup():
     fuselage.width = 4.
     fuselage.heights.maximum          = 4.    #
     fuselage.areas.side_projected       = 4.* 59.8 #  Not correct
-    fuselage.heights.at_quarter_length = 4. # Not correct
-    fuselage.heights.at_three_quarters_length = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.at_quarter_length = 4. 
+    fuselage.heights.at_three_quarters_length = 4. 
+    fuselage.heights.at_wing_root_quarter_chord = 4. 
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
