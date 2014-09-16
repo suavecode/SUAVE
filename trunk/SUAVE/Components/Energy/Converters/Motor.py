@@ -24,11 +24,14 @@ class Motor(Energy_Component):
     
     def __defaults__(self):
         
-        self.Res        = 0.0
-        self.io         = 0.0
-        self.kv         = 0.0
-        self.propradius = 0.0
-        self.propCp     = 0.0
+        self.resistance         = 0.0
+        self.no_load_current    = 0.0
+        self.speed_constant     = 0.0
+        self.propeller_radius   = 0.0
+        self.propeller_Cp       = 0.0
+        self.gear_ratio         = 0.0
+        self.gearbox_efficiency = 0.0
+        self.expected_current   = 0.0
     
     def omega(self,conditions):
         """ The motor's rotation rate
@@ -52,14 +55,14 @@ class Motor(Energy_Component):
         #Unpack
         V     = conditions.freestream.velocity[:,0]
         rho   = conditions.freestream.density[:,0]
-        Res   = self.res
-        etaG  = self.etaG
-        exp_i = self.exp_i
-        io    = self.io + exp_i*(1-etaG)
-        G     = self.g
-        Kv    = self.kv/G
-        R     = self.propradius
-        Cp    = self.propCp
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        Kv    = self.speed_constant/G
+        R     = self.propeller_radius
+        Cp    = self.propeller_Cp 
         v     = self.inputs.voltage
 
         #Omega
@@ -96,13 +99,14 @@ class Motor(Energy_Component):
         """    
         
         # Unpack
-        G    = self.g
-        Kv   = self.kv
-        Res  = self.res
+        G    = self.gear_ratio
+        Kv   = self.speed_constant
+        Res  = self.resistance
         v    = self.inputs.voltage
         omeg = self.omega(conditions)*G
-        etaG = self.etaG
-        io   = self.io + self.exp_i*(1-etaG)  
+        etaG = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
         
         i=(v-omeg/Kv)/Res
         

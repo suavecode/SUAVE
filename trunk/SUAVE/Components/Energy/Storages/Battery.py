@@ -27,7 +27,7 @@ class Battery(Energy_Component):
         self.type = 'Li-Ion'
         self.mass_properties.mass = 0.0
         self.CurrentEnergy = 0.0
-        self.R0 = 0.07446
+        self.resistance = 0.0
         
     def max_energy(self):
         """ The maximum energy the battery can hold
@@ -61,7 +61,7 @@ class Battery(Energy_Component):
         Ibat  = self.inputs.batlogic.Ibat
         pbat  = self.inputs.batlogic.pbat
         edraw = self.inputs.batlogic.e
-        Rbat  = self.R0
+        Rbat  = self.resistance
         I     = numerics.integrate_time
         
         # X value

@@ -11,6 +11,7 @@ from SUAVE.Attributes.Atmospheres       import Atmosphere
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 from SUAVE.Methods.Utilities            import atleast_2d_col
 from SUAVE.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product, orientation_transpose
+from SUAVE.Attributes.Units             import Units
 from Base_Segment import Base_Segment
 
 # ----------------------------------------------------------------------
@@ -81,6 +82,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         # planet frame conditions
         conditions.frames.planet = Data()
+        conditions.frames.planet.time_date       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
         conditions.frames.planet.latitude        = ones_1col * 0
         conditions.frames.planet.longitude       = ones_1col * 0
         
@@ -122,8 +124,9 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.energies.gravity_energy       = ones_1col * 0
         conditions.energies.propulsion_power     = ones_1col * 0
         
+        conditions.scalar = 1.0
+        
         return
-    
     
     
     # ------------------------------------------------------------------
@@ -145,16 +148,19 @@ class Aerodynamic_Segment(Base_Segment):
             energy_initial    = initials.propulsion.battery_energy[0,0]
             longitude_initial = initials.frames.planet.longitude[0,0]
             latitude_initial  = initials.frames.planet.latitude[0,0]
+            #timeanddate       = initials.frames.planet.time_date
             
         else:
             energy_initial    = self.battery_energy
             longitude_initial = self.longitude
             latitude_initial  = self.latitude
+            #timeanddate       = self.time_date
             
         # apply initials
-        conditions.propulsion.battery_energy[:,0]   = energy_initial
-        conditions.frames.planet.longitude[:,0]     = longitude_initial
-        conditions.frames.planet.latitude[:,0]      = latitude_initial
+        conditions.propulsion.battery_energy[:,0] = energy_initial
+        conditions.frames.planet.longitude[:,0]   = longitude_initial
+        conditions.frames.planet.latitude[:,0]    = latitude_initial
+        #conditions.frames.planet.time_date        = timeanddate
         
         return conditions
     
@@ -167,6 +173,9 @@ class Aerodynamic_Segment(Base_Segment):
         
         # angle of attacks
         conditions = self.compute_orientations(conditions)
+        
+        # position, NOTE: This code is fully functioning and complete!
+        #conditions = self.compute_position(conditions,numerics)
         
         # aerodynamics
         conditions = self.compute_aerodynamics(aero_model,conditions)
@@ -491,6 +500,42 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
         
         return conditions
+    
+    def compute_position(self,conditions,numerics):
+        
+        # unpack orientations and velocities
+        V          = conditions.freestream.velocity[:,0]
+        altitude   = conditions.freestream.altitude[:,0]
+        phi        = conditions.frames.body.inertial_rotations[:,0]
+        theta      = conditions.frames.body.inertial_rotations[:,1]
+        psi        = conditions.frames.body.inertial_rotations[:,2]
+        I          = numerics.integrate_time
+        alpha      = conditions.aerodynamics.angle_of_attack[:,0]
+        Re         = self.planet.mean_radius
+        
+        # The flight path and radius
+        gamma     = theta - alpha
+        R         = altitude + Re
+        
+        # Find the velocities and integrate the positions
+        lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
+        lamda     = np.dot(I,lamdadot) / Units.deg # Latitude
+        mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
+        mu        = np.dot(I,mudot) / Units.deg # Longitude
+
+        # Reshape the size of the vectorss
+        shape     = np.shape(conditions.freestream.velocity)
+        mu        = np.reshape(mu,shape) 
+        lamda     = np.reshape(lamda,shape)
+        
+        # Pack'r up
+        lat = conditions.frames.planet.latitude[0,0]
+        lon = conditions.frames.planet.longitude[0,0]        
+        conditions.frames.planet.latitude  = lat + lamda
+        conditions.frames.planet.longitude = lon + mu    
+        
+        return conditions
+        
           
 
 # ----------------------------------------------------------------------

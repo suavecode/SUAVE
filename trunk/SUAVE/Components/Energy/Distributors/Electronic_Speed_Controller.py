@@ -20,11 +20,11 @@ from copy import deepcopy
 #  Electronic Speed Controller Class
 # ----------------------------------------------------------------------
 
-class ESC(Energy_Component):
+class Electronic_Speed_Controller(Energy_Component):
     
     def __defaults__(self):
         
-        self.eff = 0.0
+        self.efficiency = 0.0
     
     def voltageout(self,conditions):
         """ The electronic speed controllers voltage out
@@ -47,7 +47,7 @@ class ESC(Energy_Component):
         eta[eta<=0.0] = 0.0
         
         # Cap the throttle
-        eta[eta>=1.1] = 1.1
+        eta[eta>=1.0] = 1.0
         
         voltsin  = self.inputs.voltagein
         voltsout = eta*voltsin
@@ -73,7 +73,7 @@ class ESC(Energy_Component):
         """
         
         # Unpack
-        eff        = self.eff
+        eff        = self.efficiency
         currentout = self.inputs.currentout
         
         currentin  = currentout/eff

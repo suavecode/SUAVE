@@ -41,7 +41,7 @@ class Constant_Speed_Altitude_Radius_Loiter(Aerodynamic_Segment):
         
         # --- Unknowns
         unknowns = self.unknowns
-        unknowns.controls.throttle = np.ones([1,1])
+        unknowns.controls.throttle = np.ones([1,1])*0.5
         unknowns.controls.theta    = np.zeros([1,1])
         unknowns.controls.psi      = np.zeros([1,1])
         
@@ -108,15 +108,17 @@ class Constant_Speed_Altitude_Radius_Loiter(Aerodynamic_Segment):
         time =  t_nondim * (seg_time) + t_initial
         conditions.frames.inertial.time[:,0] = time[:,0]
         
-        angle    = np.remainder(time*omega,2*np.pi)
+        angle = np.remainder(time*omega,2*np.pi)
         
         # the acceleration in the inertial frame
         conditions.frames.inertial.acceleration_vector[:,0] = np.sin(angle[:,0])*ar
         conditions.frames.inertial.acceleration_vector[:,1] = np.cos(angle[:,0])*ar
+        conditions.frames.inertial.acceleration_vector[:,2] = 0.0*ar
         
         # the velocity in the inertial frame
         conditions.frames.inertial.velocity_vector[:,0] = air_speed*np.cos(angle[:,0])        
         conditions.frames.inertial.velocity_vector[:,1] = air_speed*np.sin(angle[:,0])
+        conditions.frames.inertial.velocity_vector[:,2] = air_speed*0.0
 
         # freestream details
         conditions.freestream.altitude[:,0] = alt

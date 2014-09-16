@@ -52,24 +52,28 @@ def Propeller_Design(prop_attributes):
               Based on Design of Optimum Propellers by Adkins and Liebeck
 
     """    
-    #Unpack
-    Pc    = prop_attributes.Pc     # Design Power coefficient
-    Tc    = prop_attributes.Tc     # Design Thrust coefficient
-    B     = prop_attributes.B      # Number of Blades
-    R     = prop_attributes.R      # Tip Radius
-    Rh    = prop_attributes.Rh     # Hub Radius
-    omega = prop_attributes.omega  # Rotation Rate in rad/s
-    V     = prop_attributes.V      # Freestream Velocity
-    Cl    = prop_attributes.Des_CL # Design Lift Coefficient
-    nu    = prop_attributes.nu     # Kinematic Viscosity
-    rho   = prop_attributes.rho    # Density
-    a     = prop_attributes.a      # Speed of Sound
-    T     = prop_attributes.T      # Temperature
+    # Unpack
+    B      = prop_attributes.number_blades
+    R      = prop_attributes.tip_radius
+    Rh     = prop_attributes.hub_radius
+    omega  = prop_attributes.angular_velocity # Rotation Rate in rad/s
+    V      = prop_attributes.freestream_velocity # Freestream Velocity
+    Cl     = prop_attributes.design_Cl # Design Lift Coefficient
+    alt    = prop_attributes.design_altitude
+    Thrust = prop_attributes.design_thrust
+    Power  = prop_attributes.design_power
     
-    tol   = 1e-10# Convergence tolerance
-    N     = 20. # Number of Stations
+    # Calculate atmospheric properties
+    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    p, T, rho, a, mu = atmosphere.compute_values(alt)
+    nu = mu/rho
     
-    #Figure out how to enter airfoil data
+    # Nondimensional thrust
+    Tc = 2.*Thrust/(rho*(V**2.)*np.pi*(R**2.))
+    Pc = 2.*Power/(rho*(V**3.)*np.pi*(R**2.))    
+    
+    tol   = 1e-10 # Convergence tolerance
+    N     = 20.   # Number of Stations
 
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
@@ -86,8 +90,6 @@ def Propeller_Design(prop_attributes):
     n       = omega/(2*np.pi)       # Cycles per second
     D       = 2.*R
     J       = V/(D*n)
-    
-    
     
     while diff>tol:
         #Things that need a loop
@@ -205,8 +207,8 @@ def Propeller_Design(prop_attributes):
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
 
-    prop_attributes.c    = c
-    prop_attributes.beta = beta
+    prop_attributes.twist_distribution = beta
+    prop_attributes.chord_distribution = c
     prop_attributes.Cp   = Cp
     
     #These are used to check, the values here were used to verify against

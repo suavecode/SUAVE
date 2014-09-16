@@ -60,7 +60,7 @@ class Container(Physical_Component.Container):
     
     def __call__(self,conditions,numerics):
         
-        segment=Data()
+        segment = Data()
         segment.q  = conditions.freestream.dynamic_pressure[:,0]
         segment.g0 = conditions.freestream.gravity[:,0]
         segment.V  = conditions.freestream.velocity[:,0]

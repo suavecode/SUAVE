@@ -51,52 +51,12 @@ class Solar_Network(Data):
         payload     = self.payload
         solar_logic = self.solar_logic
         battery     = self.battery
-        
-
-        #================================
-        # Lat/Lon
-        #================================
-        
-        # Time of the mission start
-        conditions.frames.planet.timedate  = time.strptime("Thu, Mar 20 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",)  
-        
-        # Unpack some conditions
-        V          = conditions.freestream.velocity[:,0]
-        altitude   = conditions.freestream.altitude[:,0]
-        phi        = conditions.frames.body.inertial_rotations[:,0]
-        theta      = conditions.frames.body.inertial_rotations[:,1]
-        psi        = conditions.frames.body.inertial_rotations[:,2]
-        I          = numerics.integrate_time
-        alpha      = conditions.aerodynamics.angle_of_attack[:,0]
-        earthstuff = SUAVE.Attributes.Planets.Earth()
-        Re         = earthstuff.mean_radius   
-        
-        gamma     = theta - alpha
-        R         = altitude + Re
-        lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
-        lamda     = np.dot(I,lamdadot) / Units.deg # Latitude
-        mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
-        mu        = np.dot(I,mudot) / Units.deg # Longitude
-
-        shape     = np.shape(conditions.freestream.velocity)
-        mu        = np.reshape(mu,shape) 
-        lamda     = np.reshape(lamda,shape)
-
-        #lat = conditions.frames.planet.latitude[0,0]
-        #lon = conditions.frames.planet.longitude[0,0]
-        
-        #conditions.frames.planet.latitude  = lat + lamda
-        #conditions.frames.planet.longitude = lon + mu    
-        
-        #===================================
-        #
-        #===================================
        
         # Set battery energy
         battery.CurrentEnergy = conditions.propulsion.battery_energy
         
         # step 1
-        solar_flux.solar_flux(conditions)
+        solar_flux.solar_radiation(conditions)
         # link
         solar_panel.inputs.flux = solar_flux.outputs.flux
         # step 2
@@ -106,7 +66,7 @@ class Solar_Network(Data):
         # step 3
         solar_logic.voltage()
         # link
-        esc.inputs.voltagein =  solar_logic.outputs.systemvoltage
+        esc.inputs.voltagein =  solar_logic.outputs.system_voltage
         # Step 4
         esc.voltageout(conditions)
         # link
@@ -119,7 +79,7 @@ class Solar_Network(Data):
         F, Q, P, Cplast = propeller.spin(conditions)
        
         # iterate the Cp here
-        diff = abs(Cplast-motor.propCp)
+        diff = abs(Cplast-motor.propeller_Cp)
         tol = 1e-6
         
         while (np.any(diff>tol)):
@@ -132,8 +92,8 @@ class Solar_Network(Data):
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0]
-        P[eta>1.1] = P[eta>1.1]*eta[eta>1.1]
-        F[eta>1.1] = F[eta>1.1]*eta[eta>1.1]
+        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
+        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
         
         # Run the avionics
         avionics.power()
@@ -153,7 +113,7 @@ class Solar_Network(Data):
         # Run the esc
         esc.currentin()
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.num_motors
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_motors
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         #
         solar_logic.logic(conditions,numerics)
@@ -174,9 +134,9 @@ class Solar_Network(Data):
         conditions.propulsion.battery_energy = np.reshape(battery_energy,np.shape(solar_flux.outputs.flux))
         
         #Create the outputs
-        F    = self.num_motors * F
+        F    = self.number_motors * F
         mdot = np.zeros_like(F)
-        P    = self.num_motors * P
+        P    = self.number_motors * P
         
         return F, mdot, P
             

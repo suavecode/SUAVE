@@ -25,9 +25,9 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Solar Class
 # ----------------------------------------------------------------------
-class solar(Energy_Component):
+class Solar_Radiation(Energy_Component):
 
-    def solar_flux(self,conditions):  
+    def solar_radiation(self,conditions):  
         
         """ Computes the adjusted solar flux in watts per square meter.
               
@@ -45,13 +45,13 @@ class solar(Energy_Component):
                   sflux - adjusted solar flux
                   
               Assumptions:
-                  Solar intensity =1367 W/m^2
-                  Includes a diffuse component of 10% of the direct component
+                  Solar intensity =1305 W/m^2
+                  Includes a diffuse component of 0% of the direct component
                   Altitudes are not excessive 
         """        
         
         # Unpack
-        timedate  = conditions.frames.planet.timedate
+        timedate  = conditions.frames.planet.time_date
         latitude  = conditions.frames.planet.latitude
         longitude = conditions.frames.planet.longitude
         phip      = conditions.frames.body.inertial_rotations[:,0]
@@ -65,10 +65,13 @@ class solar(Energy_Component):
         TUTC      = timedate.tm_sec + 60.*timedate.tm_min+ 60.*60.*timedate.tm_hour + np.mod(times,24.*60.*60.)
         
         # Gamma is defined to be due south, so
-        gamma = psip-np.pi
+        gamma = np.reshape(psip-np.pi,np.shape(latitude))
         
         # Solar intensity external to the Earths atmosphere
-        Io = 1367.0
+        Io = 1305.0
+        
+        # Indirect component adjustment
+        Ind = 1.0
         
         # B
         B = (360./365.0)*(day-81.)*np.pi/180.0
@@ -104,6 +107,7 @@ class solar(Energy_Component):
 
         for ii in range(len(psi[:,0])):
         
+            # Within the lower atmosphere
             if (psi[ii,0]>=-np.pi/2.)&(psi[ii,0]<96.70995*np.pi/180.)&(altitude[ii,0]<9000.):
                  
                 # Using a homogeneous spherical model
@@ -116,7 +120,7 @@ class solar(Energy_Component):
                  
                 AM = (((r+c)**2)*(np.cos(psi[ii,0])**2)+2.*r*(1.-c)-c**2 +1.)**(0.5)-(r+c)*np.cos(psi[ii,0])
                  
-                Id = 1.1*Io*(0.7**(AM**0.678))
+                Id = Ind*Io*(0.7**(AM**0.678))
                 
                 # Horizontal Solar Flux on the panel
                 Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))              
@@ -124,9 +128,10 @@ class solar(Energy_Component):
                 # Solar flux on the inclined panel, Duffie/Beckman 1.8.1
                 I = Ih*np.cos(theta[ii,0])/np.cos(psi[ii,0])
                  
+            # Outside the atmospheric effects
             elif (psi[ii,0]>=-np.pi/2.)&(psi[ii,0]<96.70995*np.pi/180.)&(altitude[ii,0]>=9000.):
                  
-                Id = 1.1*Io
+                Id = Ind*Io
                 
                 # Horizontal Solar Flux on the panel
                 Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))           

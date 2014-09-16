@@ -39,6 +39,10 @@ modules = [
     'regression/the_aircraft_function/test_the_aircraft_function.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
+    'regression/test_solar_network.py',
+    'regression/test_solar_radiation.py',
+    'regression/test_propeller.py',
+    
     
     # tutorials
     'tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py',

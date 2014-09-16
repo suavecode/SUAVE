@@ -22,7 +22,7 @@ import matplotlib
 import copy, time
 
 from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
-from SUAVE.Components.Energy.Converters.Propeller_Design import Propeller_Design
+from SUAVE.Methods.Propulsion.Propeller_Design      import Propeller_Design
 
 # ----------------------------------------------------------------------
 #   Main
@@ -181,109 +181,93 @@ def define_vehicle(weight):
     # add to vehicle
     vehicle.append_component(wing)  
     
-    # ------------------------------------------------------------------
-    #   Propulsor
-    # ------------------------------------------------------------------
+    #------------------------------------------------------------------
+    # Propulsor
+    #------------------------------------------------------------------
     
     # build network
-    net             = Solar_Network()
-    net.num_motors  = 1.
-    net.nacelle_dia = 0.2
+    net = Solar_Network()
+    net.number_motors = 1.
+    net.nacelle_dia   = 0.2
     
     # Component 1 the Sun?
-    sun            = SUAVE.Components.Energy.Properties.solar()
+    sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
     net.solar_flux = sun
     
     # Component 2 the solar panels
-    panel                 = SUAVE.Components.Energy.Converters.Solar_Panel()
-    panel.A               = vehicle.reference_area + vehicle.wings['Horizontal Stabilizer'].areas.reference
-    panel.eff             = 0.22
-    panel.mass_properties.mass = panel.A*.55
-    net.solar_panel       = panel
+    panel = SUAVE.Components.Energy.Converters.Solar_Panel()
+    panel.area                 = vehicle.reference_area
+    panel.efficiency           = 0.2
+    panel.mass_properties.mass = panel.area*0.6
+    net.solar_panel            = panel
     
     # Component 3 the ESC
-    esc     = SUAVE.Components.Energy.Distributors.ESC()
-    esc.eff = 0.95 # Gundlach for brushless motors
-    net.esc = esc
+    esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc.efficiency = 0.95 # Gundlach for brushless motors
+    net.esc       = esc
     
     # Component 5 the Propeller
     
-    # Propeller design point
-    design_altitude = 23.0 * Units.km
-    Velocity        = 50.0 # freestream m/s
-    RPM             = 300.
-    Blades          = 2.0
-    Radius          = 4.25
-    Hub_Radius      = 0.0508
-    Thrust          = 0.0     #Specify either thrust or power to design for
-    Power           = 13000.0 #Specify either thrust or power to design for
-    
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
-    
     # Design the Propeller
-    prop_attributes        = Data()
-    prop_attributes.nu     = mu/rho
-    prop_attributes.a      = a
-    prop_attributes.T      = T
-    prop_attributes.B      = Blades 
-    prop_attributes.V      = Velocity
-    prop_attributes.omega  = RPM*(2.*np.pi/60.0)
-    prop_attributes.R      = Radius
-    prop_attributes.Rh     = Hub_Radius
-    prop_attributes.Des_CL = 0.7
-    prop_attributes.rho    = rho
-    prop_attributes.Tc     = 2.*Thrust/(rho*(Velocity**2.)*np.pi*(Radius**2.))
-    prop_attributes.Pc     = 2.*Power/(rho*(Velocity**3.)*np.pi*(Radius**2.))
-    prop_attributes        = Propeller_Design(prop_attributes)
+    prop_attributes = Data()
+    prop_attributes.number_blades       = 2.0
+    prop_attributes.freestream_velocity = 50.0 # freestream m/s
+    prop_attributes.angular_velocity    = 300.*(2.*np.pi/60.0)
+    prop_attributes.tip_radius          = 4.25
+    prop_attributes.hub_radius          = 0.0508
+    prop_attributes.design_Cl           = 0.7
+    prop_attributes.design_altitude     = 23.0 * Units.km
+    prop_attributes.design_thrust       = 0.0
+    prop_attributes.design_power        = 10000.0
+    prop_attributes                     = Propeller_Design(prop_attributes)
     
-    prop                 = SUAVE.Components.Energy.Converters.Propeller()
+    prop = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes = prop_attributes
     net.propeller        = prop
 
     # Component 4 the Motor
-    motor     = SUAVE.Components.Energy.Converters.Motor()
-    motor.res             = 0.008
-    motor.io              = 4.5
-    motor.kv              = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
-    motor.propradius      = prop.prop_attributes.R
-    motor.propCp          = prop.prop_attributes.Cp
-    motor.g               = 20. # Gear ratio
-    motor.etaG            = .98 # Gear box efficiency
-    motor.exp_i           = 160. # Expected current
+    motor = SUAVE.Components.Energy.Converters.Motor()
+    motor.resistance           = 0.008
+    motor.no_load_current      = 4.5
+    motor.speed_constant       = 120.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
+    motor.propeller_radius     = prop.prop_attributes.tip_radius
+    motor.propeller_Cp         = prop.prop_attributes.Cp
+    motor.gear_ratio           = 20. # Gear ratio
+    motor.gearbox_efficiency   = .98 # Gear box efficiency
+    motor.expected_current     = 160. # Expected current
     motor.mass_properties.mass = 2.0
-    net.motor             = motor    
+    net.motor                  = motor    
     
     # Component 6 the Payload
-    payload                 = SUAVE.Components.Energy.Peripherals.Payload()
-    payload.draw            = 250. #Watts 
+    payload = SUAVE.Components.Energy.Peripherals.Payload()
+    payload.power_draw           = 100. #Watts 
     payload.mass_properties.mass = 25.0 * Units.kg
-    net.payload             = payload
+    net.payload                  = payload
     
     # Component 7 the Avionics
-    avionics      = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.draw = 25. #Watts  
-    net.avionics  = avionics
-    
-    # Component 8 the Battery
-    bat                 = SUAVE.Components.Energy.Storages.Battery()
-    bat.mass_properties.mass = 150. #kg
-    bat.type            = 'Li-Ion'
-    bat.R0              = 0.07
-    net.battery         = bat
+    avionics = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics.power_draw = 0. #Watts  
+    net.avionics        = avionics      
+
+    # Component 8 the Battery # I already assume 250 Wh/kg for batteries
+    bat = SUAVE.Components.Energy.Storages.Battery()
+    bat.mass_properties.mass = 120 * Units.kg
+    bat.type                 = 'Li-Ion'
+    bat.resistance           = 0.0 #This needs updating
+    net.battery              = bat
    
     #Component 9 the system logic controller and MPPT
-    logic               = SUAVE.Components.Energy.Distributors.Solar_Logic()
-    logic.systemvoltage = 65.0
-    logic.MPPTeff       = 0.95
-    net.solar_logic     = logic
+    logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
+    logic.system_voltage  = 70.0
+    logic.MPPT_efficiency = 0.95
+    net.solar_logic       = logic
     
+    # Calculate the vehicle mass
     vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
-    
     aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     vehicle.aerodynamics_model = aerodynamics
@@ -367,7 +351,7 @@ def define_mission(vehicle):
     segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
     segment.latitude       = 37.4300
     segment.longitude      = -122.1700
-    
+    segment.time_date      = time.strptime("Thu, Mar 20 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
     
     # add to misison
     mission.append_segment(segment)

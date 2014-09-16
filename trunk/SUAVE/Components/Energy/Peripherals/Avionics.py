@@ -24,7 +24,7 @@ class Avionics(Energy_Component):
     
     def __defaults__(self):
         
-        self.draw = 0.0
+        self.power_draw = 0.0
         
     def power(self):
         """ The avionics input power
@@ -39,6 +39,6 @@ class Avionics(Energy_Component):
                 This device just draws power
                
         """
-        self.outputs.power = self.draw
+        self.outputs.power = self.power_draw
         
-        return self.draw
+        return self.power_draw

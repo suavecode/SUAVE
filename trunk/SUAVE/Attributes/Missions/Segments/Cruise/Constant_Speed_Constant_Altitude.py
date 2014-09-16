@@ -41,7 +41,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         
         # --- Unknowns
         unknowns = self.unknowns
-        unknowns.controls.throttle = np.ones([1,1])
+        unknowns.controls.throttle = np.ones([1,1])*0.5
         unknowns.controls.theta    = np.zeros([1,1])
         
         # --- Residuals

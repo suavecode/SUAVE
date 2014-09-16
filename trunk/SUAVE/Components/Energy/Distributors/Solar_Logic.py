@@ -27,9 +27,8 @@ class Solar_Logic(Energy_Component):
     
     def __defaults__(self):
         
-        self.MPPTeff       = 0.0
-        self.systemvoltage = 0.0
-        
+        self.MPPT_efficiency = 0.0
+        self.system_voltage  = 0.0
     
     def voltage(self):
         """ The system voltage
@@ -44,9 +43,9 @@ class Solar_Logic(Energy_Component):
                 this function practically does nothing
                
         """
-        volts = self.systemvoltage
+        volts = self.system_voltage
         
-        self.outputs.systemvoltage = volts
+        self.outputs.system_voltage = volts
         
         return volts
 
@@ -77,7 +76,7 @@ class Solar_Logic(Energy_Component):
         esccurrent  = self.inputs.currentesc
         I           = numerics.integrate_time
         
-        pavail = pin*self.MPPTeff
+        pavail = pin*self.MPPT_efficiency
         
         plevel = pavail -pavionics -ppayload - volts_motor*esccurrent
         

@@ -27,12 +27,12 @@ class Propeller(Energy_Component):
     
     def __defaults__(self):
         
-        self.Prop_attributes      = Data
-        self.Prop_attributes.B    = 0.0    # Number of Blades
-        self.Prop_attributes.R    = 0.0    # Tip Radius
-        self.Prop_attributes.Rh   = 0.0    # Hub Radius
-        self.Prop_attributes.beta = 0.0    # Twist
-        self.Prop_attributes.c    = 0.0    # Chords
+        self.prop_attributes = Data
+        self.prop_attributes.number_blades      = 0.0
+        self.prop_attributes.tip_radius         = 0.0
+        self.prop_attributes.hub_radius         = 0.0
+        self.prop_attributes.twist_distribution = 0.0
+        self.prop_attributes.chord_distribution = 0.0
         
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
@@ -58,17 +58,17 @@ class Propeller(Energy_Component):
            """
            
         #Unpack    
-        B     = self.prop_attributes.B      # Number of Blades
-        R     = self.prop_attributes.R      # Tip Radius
-        Rh    = self.prop_attributes.Rh     # Hub Radius
-        beta  = self.prop_attributes.beta   # Twist
-        c     = self.prop_attributes.c      # Chord distribution
-        omega = self.inputs.omega           # Rotation Rate in rad/s
-        rho   = conditions.freestream.density
-        mu    = conditions.freestream.viscosity
+        B     = self.prop_attributes.number_blades
+        R     = self.prop_attributes.tip_radius
+        Rh    = self.prop_attributes.hub_radius
+        beta  = self.prop_attributes.twist_distribution
+        c     = self.prop_attributes.chord_distribution
+        omega = self.inputs.omega
+        rho   = conditions.freestream.density[:,0]
+        mu    = conditions.freestream.viscosity[:,0]
         V     = conditions.freestream.velocity[:,0]
-        a     = conditions.freestream.speed_of_sound
-        T     = conditions.freestream.temperature
+        a     = conditions.freestream.speed_of_sound[:,0]
+        T     = conditions.freestream.temperature[:,0]
         
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
@@ -115,8 +115,8 @@ class Propeller(Energy_Component):
             vt    = Ut - Wt
             alpha = beta - np.arctan2(Wa,Wt)
             W     = np.sqrt(Wa**2. + Wt**2.)
-            Re    = W*c/nu
-            Ma    = W/a #a is the speed of sound
+            Re    = np.transpose(np.transpose(W*c)/nu)
+            Ma    = np.transpose(np.transpose(W)/a) #a is the speed of sound
             
             lamdaw = r*Wa/(R*Wt)
             f      = (B/2.)*(1.-r/R)/lamdaw
@@ -156,19 +156,19 @@ class Propeller(Energy_Component):
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma**2)
         Tp_Tinf = 1. + 0.035*(Ma**2) + 0.45*(Tw_Tinf-1.)
-        Tp      = Tp_Tinf*T
-        Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+        Tp      = np.transpose(np.transpose(Tp_Tinf)*T)
+        Rp_Rinf = np.transpose(np.transpose(Tp_Tinf**2.5)*np.transpose(Tp+110.4)/(T+110.4))
         
         Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
         epsilon  = Cd/Cl
         deltar   = (r[1]-r[0])
-        thrust   = rho[:,0]*B*np.transpose(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1))
-        torque   = rho[:,0]*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)
+        thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1))
+        torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)
         power    = torque*omega       
        
         D        = 2*R
-        Cp       = power/(rho[:,0]*(n**3)*(D**5))
+        Cp       = power/(rho*(n**3)*(D**5))
 
         thrust[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0
