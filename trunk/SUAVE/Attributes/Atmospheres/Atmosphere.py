@@ -8,6 +8,7 @@
 import numpy as np
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Constants import Constant, Composition
+from SUAVE.Structure import Data, Data_Exception, Data_Warning
 
 # other
 from numpy import sqrt, exp, abs
@@ -23,12 +24,13 @@ class Atmosphere(Constant):
 
     def __defaults__(self):
         self.tag = 'Constant-property atmopshere'
-        self.p      = 0.0      # Pa
-        self.T      = 0.0      # K
-        self.rho    = 0.0      # kg/m^3
-        self.a      = 0.0      # m/s
-        self.mew    = 0.0      # Pa-s
-        self.Composition = Composition( Gas = 1.0 )
+        self.pressure              = 0.0      # Pa
+        self.temperature           = 0.0      # K
+        self.density               = 0.0      # kg/m^3
+        self.speed_of_sound        = 0.0      # m/s
+        self.dynamic_viscosity     = 0.0      # Pa-s
+        self.composition           = Data()
+        self.composition.gas       = 1.0
 
     def compute_values(self,altitude,type="all"):
     
@@ -50,22 +52,22 @@ class Atmosphere(Constant):
 
         # return requested data
         if type.lower() in all_vars:
-            return (self.p*O, self.T*O, self.rho*O, self.a*O, self.mew*O)
+            return (self.pressure*O, self.temperature*O, self.density*O, self.speed_of_sound*O, self.dynamic_viscosity*O)
 
         if type.lower() in pressure:
-            return self.p*O
+            return self.pressure*O
                       
         elif type.lower() in temp:
-            return self.T*O
+            return self.temperature*O
 
         elif type.lower() in density:
-            return self.rho*O
+            return self.density*O
             
         elif type.lower() in speedofsound:
-            return self.a*O
+            return self.speed_of_sound*O
 
         elif type.lower() in viscosity:
-            return self.mew*O
+            return self.dynamic_viscosity*O
 
         else:
             print "Unknown data, " + type + ", request; no data returned."

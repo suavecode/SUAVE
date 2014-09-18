@@ -40,11 +40,11 @@ def main():
     global Vdesc2
     global Vdesc3
     
-    m_guess=  68262.5002421 
-    Ereq_guess = 148551581278.0                 # required energy
-    Preq_guess=  11195719.6775
-    disp_results=0                              #1 for displaying results, 0 for optimize    
-    target_range=3600
+    m_guess=  68034.87698497
+    Ereq_guess = 121026815736.0               # required energy
+    Preq_guess=   8706687.62184 
+    disp_results=1                              #1 for displaying results, 0 for optimize    
+    target_range=5600
     
     wclimb1=3000.*(Units.ft/Units.minute)
     wclimb2=2500.*(Units.ft/Units.minute)
@@ -85,7 +85,7 @@ def main():
     Vclimb_5=230;      i_Vclimb_5=copy.copy(i);       i+=1
     desc_alt_1=2.;     i_desc_alt_1=copy.copy(i);     i+=1
     desc_alt_2=1;      i_desc_alt_2=copy.copy(i);     i+=1
-    cruise_range=2.9;  i_cruise_range=copy.copy(i);   i+=1 #cruise range in km
+    cruise_range=2900;  i_cruise_range=copy.copy(i);   i+=1 #cruise range in km
  
     
     
@@ -128,36 +128,45 @@ def main():
     #inputs=   [  2.53815497e+00 ,  4.61192540e+00 ,  5.81856327e+00,   5.88529881e+00,   5.95456804e+00 ,  1.76614416e+00,  -4.91528402e+00  , 1.31966981e-04,  7.96927333e+01 ,  1.20086331e+02 ,  1.75800907e+02  , 1.73174135e+02,   1.77817946e+02 ,  2.36432755e+02  , 5.94550201e+00 ,  2.42198671e+00,  2.13912785e+03]
     
     #esp=2000 W-h/kg, range=2800 km
-    #inputs= [  7.53482229e-03  , 6.49233091e-02 ,  1.20810096e-01,  2.01424400e+00,  3.39129235e+00 , -1.71564783e+00 , -2.67122313e+00 ,  5.43999748e+00,  6.71274238e+01 ,  1.08151651e+02 ,  1.33576522e+02 ,  1.57998757e+02,  1.92499932e+02  , 1.87534371e+02 ,  3.38252346e+00  , 1.60816078e-01,  2.37620408e+00]
-    
-    
+    #inputs=[ 0.467209021655 , 1.27293988564 , 1.85802379477 , 1.8621555086 , 1.8671215789 ,-0.707681912748 , -1.31788259783 , 0.143355045854 , 0.538928037207 , 1.13491212744 , 1.92048423657 , 1.46775596285 , 2.85787886319 , 4.52876031895 , 1.60762801081 , 1.54643552768 , 2.67558189044 ]
     
     #esp=2000 W-h/kg, range=3200 km
-    #inputs=  [  1.07497758e-02 ,  1.04811672e-01  , 1.12160476e-01,   1.92308955e+00, 3.51472784e+00 , -1.20933616e+00 , -1.29446962e+00 ,  2.68094048e+01,  5.77462540e+01 ,  1.17719684e+02 ,  1.72260614e+02 ,  1.60715351e+02,  1.80263298e+02 ,  1.98223497e+02 ,  3.19427408e+00  , 1.15888742e-01,   2.72376802e+00]
-    
-    #esp=2000 W-h/kg, range=3600 km
-    inputs=[  1.13598955e-00  , 1.23056203e-00   ,1.33609461e-00  , 1.89227380e+00,
-   3.29330607e+00 , 2.19344850e+00 , .22925708e+00 ,  1.11520327e-01,
-   6.3210909e+01 ,  1.18885066e+02 ,  1.75558962e+02 ,  1.55906624e+02,
-   1.78475625e+02,   1.97106394e+02 ,  3.17647633e+00 ,  1.10782912e-01,
-   3.38150410e+00]
+    #inputs=[ 0.470029448307 , 1.26947524619 , 1.85810727593 , 1.86213329794 , 1.86694875807 , -0.691113957423 , -1.31307426953 , 0.142700687499 , 0.581284773469 , 1.13387366919 , 1.92609226134 , 1.57023731049 , 2.91504989357 , 4.66307617502 , 1.58758074085 , 1.54640434974 , 3.0755932169 ]
+   
+
+   #esp=2000 W-h/kg, range=3600 km
+    #inputs=[ 0.475476458321 , 1.26203711498 , 1.85814404874 , 1.86212146795 , 1.86691124225 , -0.674056519244 , -1.31112001738 , 0.142223790287 , 0.626399491242 , 1.14291602718 , 1.93198873427 , 1.59487731726 , 2.89755838438 , 4.64721234556 , 1.579735713 , 1.5463960166 , 3.47560016152 ]
     
     
     
-    #inputs=  [  1.07497758e-02 ,  1.04811672e-01  , 1.12160476e-01,   1.92308955e+00, 3.51472784e+00 , -1.20933616e+00 , -1.29446962e+00 ,  2.68094048e+01,  5.77462540e+01 ,  1.17719684e+02 ,  1.72260614e+02 ,  1.60715351e+02,  1.80263298e+02 ,  1.98223497e+02 ,  3.19427408e+00  , 1.15888742e-01,   3.12376802e+00]
-    
+   
     
     #esp=2000 W-h/kg, range=3800 km
-    #inputs=   [  1.14000485e-02 ,  1.02516843e-01 ,  1.02778126e-01 ,  2.01869606e+00,   3.30190936e+00 , -1.15209092e+00 , -1.20566084e+00 ,  2.80193096e+01,  6.35652267e+01 ,  1.20636713e+02 ,  1.63933143e+02 ,  1.42494037e+02, 1.83863319e+02 ,  2.03597979e+02 ,  2.84623471e+00 ,  1.09156224e-01, 3.17706673e+03]
+    #inputs=[ 0.47715012641 , 1.26298351675 , 1.85719754626 , 1.85945629174 , 1.87098293017, -0.668964227128 , -1.31828904855 , 0.142979804655 , 0.647129378964 , 1.1519159059 , 1.92717914003 , 1.60602814877 , 2.97807881922 , 4.66737619502 , 1.59555455298 , 1.54812129622 , 3.67532550007 ]
     
+   
     
     #esp=2000 W-h/kg, range=4000 km
-    #inputs= [  2.27507759e-01 ,  3.16854074e-01  , 1.09791502e+00,   1.09791507e+00,   3.29274921e+00,  -2.07951010e+00,  -2.07972416e+00 ,  2.11728612e+01,  5.36796922e+01,   1.37703538e+02,   1.91558674e+02 ,  1.69790391e+02,  1.87686904e+02,   2.25043316e+02,   5.06279569e-01 ,  1.00512039e-01,  3.39986802e+03]
+    #inputs=[ 0.491767140436 , 1.27058254361 , 1.85794702776 , 1.85878043005 , 1.85925137562, -0.665607182541 , -1.32002260329 , 0.144436076491 , 0.674617108957 , 1.14098351656 , 1.92345824026 , 1.62813110765 , 3.05625539135 , 4.67822931505 , 1.58321993017 , 1.54946691238 , 3.87611025656 ]
     
     #esp=2000 W-h/kg, range=4400 km
-    #inputs= [  2.26570439e-01  , 3.07569300e-01 ,  1.09012543e+00 ,  1.09012548e+00,   3.28630034e+00 , -2.07425560e+00 , -2.07431246e+00 ,  2.11808396e+01,  5.36865414e+01 ,  1.37703642e+02 ,  1.91560496e+02 ,  1.69783253e+02,  1.87686904e+02 ,  2.25076432e+02 ,  5.04680979e-01 ,  1.00000009e-01,  3.79986430e+03]
+    #inputs= [ 0.491076682602 , 1.2739056184 , 1.85786391596 , 1.85876113889 , 1.85925553583, -0.665494713287 , -1.28458141386 , 0.147215877787 , 0.723623929342 , 1.18597407947 , 1.9315405453 , 1.61376009129 , 3.06757818663 , 4.62147883133 , 1.57104386153 , 1.54937172862 , 4.27610857514 ]
     
+    
+    
+    #esp=2000 W-h/kg, range=4800 km
+    #inputs= [ 0.488304800042 , 1.30480539663 , 1.85623876629 , 1.85866209269 , 1.86283747334 , -0.662853251298 , -1.27974927486 , 0.145756108049 , 0.786262717677 , 1.18369357756 , 1.96791351625 , 1.60255185453 , 3.05472358099 , 4.5962675229 , 1.5929518542 , 1.54881790245 , 4.67609500617 ]
+    
+    
+    #esp=2000 W-h/kg, range=5200 km
+    #inputs= [ 0.494469134893 , 1.37780676066 , 1.85564259255 , 1.85771194918 , 1.85887508966 , -0.661184242357 , -1.274571189 , 0.146431340215 , 0.836903976357 , 1.19464466793 , 1.97403457512 , 1.61340016387 , 3.01965789885 , 4.64087960543 , 1.59917190572 , 1.55246578773 , 5.07614324659 ]
+    
+    #esp=2000 W-h/kg, range=5600 km
+    inputs= [ 0.485221871951 , 1.35392973839 , 1.856096857 , 1.85778349155 , 1.85826003839 , -0.670633940334 , -1.27850964161 , 0.147907540489 , 0.902220698898 , 1.19366780453 , 1.94767565835 , 1.60002989374 , 3.02131095632 , 4.62567711756 , 1.60699232975 , 1.55257546111 , 5.47617433263 ]
     #out=sp.optimize.basinhopping(run, inpuSts, niter=1E5)
+    
+    
+    
     #out=sp.optimize.fmin_bfgs(run,inputs)
     
     #bounds for bfgs
@@ -165,8 +174,8 @@ def main():
         mass_out=run(inputs)
     else: #you are running an optimization
         #bounds for simulated annealing
-        lower_bounds=[.01,.01,0.1,0.1, 0.1, -5., -5.,0.01, 50., 50.,50., 50., 50., 50., .1,.1, 1800./1000.]
-        upper_bounds=[8.,10, 10., 10., 12., 5., 5., 25., 250., 230., 230., 230., 230., 230., 11., 11., 3800./1000.]
+        lower_bounds=[.01,.01,0.1,0.1, 0.1, -5., -5.,0.01, 50., 50.,50., 50., 50., 50., .1,.1, 1800.]
+        upper_bounds=[8.,10, 10., 10., 12., 5., 5., 25., 250., 230., 230., 230., 230., 230., 11., 11., 3800.]
         mybounds=[]
         for i in range(len(lower_bounds)):
             mybounds.append((lower_bounds[i], upper_bounds[i]))
@@ -184,22 +193,22 @@ def main():
         {'type':'ineq', 'fun': lambda inputs: inputs[i_climb_alt_5]-inputs[i_climb_alt_4]},
         {'type':'ineq', 'fun': lambda inputs: inputs[i_alpha_rc]-inputs[i_alpha_tc]},
         {'type':'ineq', 'fun': lambda inputs: inputs[i_desc_alt_1]-inputs[i_desc_alt_2]},
-        {'type':'ineq', 'fun': lambda inputs: inputs[i_climb_alt_1]/np.tan(np.arcsin(wclimb1/inputs[i_Vclimb_1]))+ 
-        (inputs[i_climb_alt_2]-inputs[i_climb_alt_1])/np.tan(np.arcsin(wclimb2/inputs[i_Vclimb_2]))+
-        (inputs[i_climb_alt_3]-inputs[i_climb_alt_2])/np.tan(np.arcsin(wclimb3/inputs[i_Vclimb_3]))+
-        (inputs[i_climb_alt_4]-inputs[i_climb_alt_3])/np.tan(np.arcsin(wclimb4/inputs[i_Vclimb_4]))+
-        (inputs[i_climb_alt_5]-inputs[i_climb_alt_4])/np.tan(np.arcsin(wclimb5/inputs[i_Vclimb_5]))+
-        inputs[i_cruise_range]*1000.+
-        (inputs[i_climb_alt_5]-inputs[i_desc_alt_1])/np.tan(np.arcsin(wdesc1/Vdesc1))+
-        (inputs[i_desc_alt_1]-inputs[i_desc_alt_2])/np.tan(np.arcsin(wdesc2/Vdesc2))+
-        inputs[i_desc_alt_2]/np.tan(np.arcsin(wdesc3/Vdesc3))-target_range})
+        {'type':'ineq', 'fun': lambda inputs: inputs[i_climb_alt_1]/np.tan(np.arcsin(wclimb1/(100*inputs[i_Vclimb_1])))+ 
+        (inputs[i_climb_alt_2]-inputs[i_climb_alt_1])/np.tan(np.arcsin(wclimb2/(100*inputs[i_Vclimb_2])))+
+        (inputs[i_climb_alt_3]-inputs[i_climb_alt_2])/np.tan(np.arcsin(wclimb3/(100*inputs[i_Vclimb_3])))+
+        (inputs[i_climb_alt_4]-inputs[i_climb_alt_3])/np.tan(np.arcsin(wclimb4/(100*inputs[i_Vclimb_4])))+
+        (inputs[i_climb_alt_5]-inputs[i_climb_alt_4])/np.tan(np.arcsin(wclimb5/(100*inputs[i_Vclimb_5])))+
+        inputs[i_cruise_range]*1000+
+        (inputs[i_climb_alt_5]-inputs[i_desc_alt_1])/np.tan(np.arcsin(wdesc1/(100*Vdesc1)))+
+        (inputs[i_desc_alt_1]-inputs[i_desc_alt_2])/np.tan(np.arcsin(wdesc2/(100*Vdesc2)))+
+        inputs[i_desc_alt_2]/np.tan(np.arcsin(wdesc3/(100*Vdesc3)))-target_range})
         
         
         #{'type':'ineq', 'fun': lambda inputs: inputs[5]-inputs[6]},
         
     
-        sp.optimize.minimize(run, inputs, method='SLSQP', bounds=mybounds, constraints=cons)
-        #sp.optimize.minimize(run, inputs, method='Nelder-Mead', bounds=mybounds, constraints=cons)
+        #sp.optimize.minimize(run, inputs, method='SLSQP', bounds=mybounds, constraints=cons)
+        sp.optimize.minimize(run, inputs, method='Nelder-Mead', bounds=mybounds, constraints=cons)
         #print mybounds
         #print inputs
         #out=sp.optimize.fmin(run, inputs)
@@ -253,16 +262,19 @@ def run(inputs):                #sizing loop to enable optimization
     alpha_rc=inputs[i];          i+=1
     alpha_tc=inputs[i];          i+=1
     wing_sweep=inputs[i];        i+=1
-    vehicle_S=inputs[i];         i+=1
-    Vclimb_1=inputs[i];          i+=1
-    Vclimb_2=inputs[i];          i+=1
-    Vclimb_3=inputs[i];          i+=1
-    Vclimb_4=inputs[i];          i+=1
-    Vclimb_5=inputs[i];          i+=1
+    vehicle_S=inputs[i]*100;         i+=1
+    Vclimb_1=inputs[i]*100;          i+=1
+    Vclimb_2=inputs[i]*100;          i+=1
+    Vclimb_3=inputs[i]*100;          i+=1
+    Vclimb_4=inputs[i]*100;          i+=1
+    Vclimb_5=inputs[i]*100;          i+=1
     desc_alt_1=inputs[i];        i+=1
     desc_alt_2=inputs[i];        i+=1
-    cruise_range=inputs[i]*1000.;      i+=1
+    cruise_range=inputs[i]*1000;      i+=1
 
+    
+    
+    
     #V_cruise =inputs[i];         i+=1
     V_cruise=230.
     
@@ -309,8 +321,9 @@ def run(inputs):                #sizing loop to enable optimization
         #min_Ebat[i]=min(results.Segments[i].Ecurrent)
         aoa=results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         #Smin_Ebat_lis[i]=min(results.Segments[i].Ecurrent_lis)
-        max_alpha[i]=max(np.degrees(aoa))
-        min_alpha[i]=min(np.degrees(aoa))
+        
+        max_alpha[i]=max(aoa)
+        min_alpha[i]=min(aoa)
         
     max_alpha=max(max_alpha)
     min_alpha=min(min_alpha)
@@ -349,45 +362,57 @@ def run(inputs):                #sizing loop to enable optimization
         
     else: #include penalty functions if you are not displaying the results
         #add penalty functions for twist, ensuring that trailing edge is >-5 degrees
-        vehicle.Mass_Props.m_full+=100000.*abs(min(0, alpha_tc+5))
-        vehicle.Mass_Props.m_full+=100000.*abs(max(0, alpha_rc-5))
+     
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(min(0, alpha_tc+5))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(max(0, alpha_rc-5))
         #now add penalty function if range is not met
-        vehicle.Mass_Props.m_full+=100.*abs(min(results.Segments[-1].conditions.frames.inertial.position_vector[-1,0]/1000-target_range,0,))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=1000.*abs(min(results.Segments[-1].conditions.frames.inertial.position_vector[-1,0]/1000-target_range,0,))
         #add penalty function for washin
-        vehicle.Mass_Props.m_full+=10000.*abs(min(0, alpha_rc-alpha_tc))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, alpha_rc-alpha_tc))
     
         #make sure that angle of attack is below 30 degrees but above -30 degrees
-        vehicle.Mass_Props.m_full+=10000.*abs(min(0, 30-max_alpha))+10000.*abs(min(0, 30+min_alpha))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, 30-max_alpha))+10000.*abs(min(0, 30+min_alpha))
     
         #now add penalty function if wing sweep is too high
-        vehicle.Mass_Props.m_full+=10000.*abs(min(0, 30.-wing_sweep, wing_sweep))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, 30.-wing_sweep, wing_sweep))
     
         #penalty function in case altitude segments don't match up
-        vehicle.Mass_Props.m_full+=100000*abs(min(climb_alt_5-climb_alt_4, climb_alt_5-climb_alt_3, climb_alt_5-climb_alt_2, climb_alt_5-climb_alt_1,
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=100000*abs(min(climb_alt_5-climb_alt_4, climb_alt_5-climb_alt_3, climb_alt_5-climb_alt_2, climb_alt_5-climb_alt_1,
         climb_alt_4-climb_alt_3, climb_alt_4-climb_alt_2, climb_alt_4-climb_alt_1,
         climb_alt_3-climb_alt_2, climb_alt_2-climb_alt_1, climb_alt_3-climb_alt_1, 0.))
     
         #penalty function in case descent altitude segments don't match up
-        vehicle.Mass_Props.m_full+=100000*abs(min(0., climb_alt_5-desc_alt_1, desc_alt_1-desc_alt_2))
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=100000*abs(min(0., climb_alt_5-desc_alt_1, desc_alt_1-desc_alt_2))
      
         #penalty function to make sure that cruise velocity >=E-190 cruise
-        vehicle.Mass_Props.m_full+=100000*abs(max(0,230.-V_cruise))                                                         
+        results.Segments[-1].conditions.weights.total_mass[-1,0]+=100000*abs(max(0,230.-V_cruise))    
+        
     #print vehicle.Mass_Props.m_full/(results.Segments[-1].vectors.r[-1,0]/1000.),' ', vehicle.Mass_Props.m_full, ' ',results.Segments[-1].vectors.r[-1,0]/1000. , inputs
-    results.Segments[-1].conditions.weights.total_mass[-1,0], ' ',results.Segments[-1].conditions.frames.inertial.position_vector[-1,0] , inputs
+    print 'landing mass=', results.Segments[-1].conditions.weights.total_mass[-1,0], ' total range=',results.Segments[-1].conditions.frames.inertial.position_vector[-1,0] /1000
+    
     print Ereq_guess, Preq_guess
     time2=time.time()
     iteration_number+=1
     print 't=', time2-time1, 'seconds'
     print 'iteration number=', iteration_number
-    print inputs
-    print 'm=', results.Segments[-1].conditions.weights.total_mass[-1,0]
+    
+    #print inputs of each iteration so they can be directly copied
+    
+    print '[',
+    for j in range(len(inputs)):
+        print inputs[j],
+        if j!=len(inputs)-1:
+            print ',',
+    print ']'
+    
+    #print 'total range=', results.Segments[-1].conditions.frames.inertial.position_vector[-1,0]/1000, ' km'
     """
     if np.isnan(vehicle.Mass_Props.m_full):
         vehicle.Mass_Props.m_full=1E50  #put penalty in case nan values appear
     """
     
-    
-        
+  
+    #print vehicle
     return results.Segments[-1].conditions.weights.total_mass[-1,0]#/(results.Segments[-1].vectors.r[-1,0]/1000.) 
 
  
@@ -542,6 +567,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     vertical.ar        = 1.7          #
     #wing.span      = 100           #
     vertical.sweep     = wing_sweep * Units.deg  #
+    vertical.span      = 5.3     * Units.meters    # Span of the vertical tail
     vertical.symmetric = False    
     vertical.t_c       = 0.12          #
     vertical.taper     = 0.10          #
@@ -560,9 +586,9 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     vertical.twist_tc   =0.
     
     vertical.area      = vertical.sref     * Units.meters**2 # Area of the vertical tail
-    vertical.span      = 5.3     * Units.meters    # Span of the vertical tail
+   
     vertical.t_tail    = "no"                      # Set to "yes" for a T-tail
-
+    vertical.taper     = 0.10  
     # add to vehicle
     vehicle.append_component(vertical)
     
@@ -652,8 +678,8 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     engine_mass=SUAVE.Methods.Weights.Correlations.Propulsion.engine_jet(DuctedFan.design_thrust*Units.N)
     propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/DuctedFan.no_of_engines,DuctedFan.no_of_engines)
    
-    propulsion_mass=motor_mass
-    DuctedFan.Mass_Props.mass=propulsion_mass*DuctedFan.no_of_engines
+    #propulsion_mass=motor_mass
+    DuctedFan.Mass_Props.mass=propulsion_mass
     DuctedFan.battery=battery
     #DuctedFan.battery_lis=battery_lis
     fuselage.diff_p=max(abs(p2-p1),0)   #assume its pressurized to 2/3 atmospheric pressure
@@ -706,7 +732,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     m_air=0
     '''
     weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine1,wing,vehicle,fuselage,horizontal,vertical)
-    vehicle.Mass_Props.m_full=weight.empty+battery.Mass_Props.mass+vehicle.num_eng*DuctedFan.Mass_Props.mass+(vehicle.num_pax+4.)*250.*Units.lb
+    vehicle.Mass_Props.m_full=weight.empty+battery.Mass_Props.mass+DuctedFan.Mass_Props.mass+(vehicle.num_pax+4.)*250.*Units.lb
     """
     vehicle.Mass_Props.m_full=fuselage.Mass_Props.mass+main_wing.Mass_Props.mass+battery.Mass_Props.mass+battery_lis.Mass_Props.mass+m_landing_gear+ \
     v_stab.Mass_Props.mass+h_stab.Mass_Props.mass+m_pl+DuctedFan.Mass_Props.mass+m_fuel+m_systems+m_air
@@ -1036,7 +1062,8 @@ def evaluate_mission(vehicle,mission):
     #battery_lis = vehicle.Energy.Storages['Battery_Li_S']
     Pbat_loss=np.zeros_like(results.Segments[0].P_e)   #initialize battery losses
    
-    results.Segments[0].t=results.Segments[0].conditions.frames.inertial.time[:,0]
+    #results.Segments[0].t=results.Segments[0].conditions.frames.inertial.time[:,0]
+    
     #Ecurrent=np.zeros_like( results.Segments[0].t)      #initialize battery energies
     #Ecurrent_lis=np.zeros_like(results.Segments[0].conditions.frames.inertial.time[:,0])
    
@@ -1046,8 +1073,8 @@ def evaluate_mission(vehicle,mission):
     j=0
     
     for i in range(len(results.Segments)):
-        results.Segments[i].t=results.Segments[0].conditions.frames.inertial.time[:,0]
-        
+        results.Segments[i].t=results.Segments[i].conditions.frames.inertial.time[:,0]
+       
         results.Segments[i].Ecurrent=np.zeros_like(results.Segments[i].t)
         results.Segments[i].mdot=np.zeros_like(results.Segments[i].t)
         #results.Segments[i].Ecurrent_lis=np.zeros_like(results.Segments[i].t)

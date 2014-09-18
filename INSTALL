@@ -131,11 +131,14 @@ directory, you can try these approaches to install SUAVE
 
 # -----------------------------------------------------------
 #   Install to local site-packages
-This involves the install option --user, and only works
-for full-installs.
+This involves the install option --user, and should work for 
+either a full install or developer install
 
-Command:
+Full Install Command:
     $ python setup.py install --user
+
+Developer Install Command:
+    $ python setup.py develop --user	
     
 # -----------------------------------------------------------
 #   Start a local site-packages folder 

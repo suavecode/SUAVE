@@ -88,20 +88,20 @@ def main():
     
     # Calculating error percentage
     error = Data()
-    error.longitudinal_short_zeta = (Blakelock.longitudinal_short_zeta - longitudinal.short_zeta) / Blakelock.longitudinal_short_zeta
-    error.longitudinal_short_w_n = (Blakelock.longitudinal_short_w_n - longitudinal.short_w_n) / Blakelock.longitudinal_short_w_n
-    error.longitudinal_phugoid_zeta = (Blakelock.longitudinal_phugoid_zeta - longitudinal.phugoid_zeta) / Blakelock.longitudinal_phugoid_zeta
-    error.longitudinal_phugoid_w_n = (Blakelock.longitudinal_phugoid_w_n - longitudinal.phugoid_w_n) / Blakelock.longitudinal_phugoid_w_n
-    error.short_period_w_n = (Blakelock.short_period_short_w_n - short_period.short_w_n) / Blakelock.short_period_short_w_n
-    error.short_period_short_zeta = (Blakelock.short_period_short_zeta - short_period.short_zeta) / Blakelock.short_period_short_zeta
-    error.phugoid_phugoid_w_n = (Blakelock.phugoid_phugoid_w_n - phugoid.phugoid_w_n) / Blakelock.phugoid_phugoid_w_n
-    error.phugoid_phugoid_zeta = (Blakelock.phugoid_phugoid_zeta - phugoid.phugoid_zeta) / Blakelock.phugoid_phugoid_zeta
-    error.lateral_directional_dutch_w_n = (Blakelock.lateral_directional_dutch_w_n - lateral_directional.dutch_w_n) / Blakelock.lateral_directional_dutch_w_n
-    error.lateral_directional_dutch_zeta = (Blakelock.lateral_directional_dutch_zeta - lateral_directional.dutch_zeta) / Blakelock.lateral_directional_dutch_zeta                              
+    error.longitudinal_short_zeta = (Blakelock.longitudinal_short_zeta - longitudinal.short_damping_ratio) / Blakelock.longitudinal_short_zeta
+    error.longitudinal_short_w_n = (Blakelock.longitudinal_short_w_n - longitudinal.short_natural_frequency) / Blakelock.longitudinal_short_w_n
+    error.longitudinal_phugoid_zeta = (Blakelock.longitudinal_phugoid_zeta - longitudinal.phugoid_damping_ratio) / Blakelock.longitudinal_phugoid_zeta
+    error.longitudinal_phugoid_w_n = (Blakelock.longitudinal_phugoid_w_n - longitudinal.phugoid_natural_frequency) / Blakelock.longitudinal_phugoid_w_n
+    error.short_period_w_n = (Blakelock.short_period_short_w_n - short_period.natural_frequency) / Blakelock.short_period_short_w_n
+    error.short_period_short_zeta = (Blakelock.short_period_short_zeta - short_period.damping_ratio) / Blakelock.short_period_short_zeta
+    error.phugoid_phugoid_w_n = (Blakelock.phugoid_phugoid_w_n - phugoid.natural_frequency) / Blakelock.phugoid_phugoid_w_n
+    error.phugoid_phugoid_zeta = (Blakelock.phugoid_phugoid_zeta - phugoid.damping_ratio) / Blakelock.phugoid_phugoid_zeta
+    error.lateral_directional_dutch_w_n = (Blakelock.lateral_directional_dutch_w_n - lateral_directional.dutch_natural_frequency) / Blakelock.lateral_directional_dutch_w_n
+    error.lateral_directional_dutch_zeta = (Blakelock.lateral_directional_dutch_zeta - lateral_directional.dutch_damping_ratio) / Blakelock.lateral_directional_dutch_zeta                              
     error.lateral_directional_spiral_tau = (Blakelock.lateral_directional_spiral_tau - lateral_directional.spiral_tau) / Blakelock.lateral_directional_spiral_tau
     error.lateral_directional_roll_tau = (Blakelock.lateral_directional_roll_tau - lateral_directional.roll_tau) / Blakelock.lateral_directional_roll_tau
-    error.dutch_roll_dutch_w_n = (Blakelock.dutch_roll_dutch_w_n - dutch_roll.dutch_w_n) / Blakelock.dutch_roll_dutch_w_n
-    error.dutch_roll_dutch_zeta = (Blakelock.dutch_roll_dutch_zeta - dutch_roll.dutch_zeta) / Blakelock.dutch_roll_dutch_zeta
+    error.dutch_roll_dutch_w_n = (Blakelock.dutch_roll_dutch_w_n - dutch_roll.natural_frequency) / Blakelock.dutch_roll_dutch_w_n
+    error.dutch_roll_dutch_zeta = (Blakelock.dutch_roll_dutch_zeta - dutch_roll.damping_ratio) / Blakelock.dutch_roll_dutch_zeta
     error.spiral_tau = (Blakelock.spiral_tau - spiral_tau) / Blakelock.spiral_tau                               
     error.roll_tau = (Blakelock.roll_tau - roll_tau) / Blakelock.roll_tau
     

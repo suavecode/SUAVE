@@ -57,8 +57,8 @@ def dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r):
     zeta = -Cn_r /8. * (2.*S_gross_w*density*span**3./I_z/Cn_Beta)**0.5 # damping ratio
     
     output = Data() 
-    output.dutch_w_n = w_n
-    output.dutch_zeta = zeta
+    output.natural_frequency = w_n
+    output.damping_ratio = zeta
     
     
     return output

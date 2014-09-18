@@ -7,6 +7,7 @@
 # classes
 from Gas import Gas
 from SUAVE.Attributes.Constants import Universe, Composition
+from SUAVE.Structure import Data, Data_Exception, Data_Warning
 
 # modules
 #import numpy as np
@@ -25,17 +26,18 @@ class Air(Gas):
 
     def __defaults__(self):
 
-        self.MolecularMass = 28.96442        # kg/kmol
-        self.R = 287.0528742                 # m^2/s^2-K, specific gas constant
-        self.Composition = Composition( N2  = 0.78084 ,
-                                        O2  = 0.20946 ,
-                                        Ar  = 0.00934 ,
-                                        CO2 = 0.00036,
-                                        Other = 0.00)
+        self.molecular_mass = 28.96442        # kg/kmol
+        self.gas_specific_constant = 287.0528742                 # m^2/s^2-K, specific gas constant
+        self.composition = Data()
+        self.composition.O2 = 0.20946
+        self.composition.Ar = 0.00934
+        self.composition.CO2 = 0.00036
+        self.composition.N2  = 0.78084
+        self.composition.other = 0.00
 
     def compute_density(self,T=300,p=101325):
 
-            return p/(self.R*T)
+            return p/(self.gas_specific_constant*T)
 
     def compute_speed_of_sound(self,T=300,p=101325,variable_gamma=False):
 
@@ -44,7 +46,7 @@ class Air(Gas):
         else:
             g = 1.40
 
-        return np.sqrt(g*self.R*T)
+        return np.sqrt(g*self.gas_specific_constant*T)
 
     def compute_cv(self,T=300,p=101325):
 

@@ -53,7 +53,7 @@ def phugoid(g, velocity, CD, CL):
     zeta = CD/(CL*(2.)**0.5)
     
     output = Data()
-    output.phugoid_w_n = w_n
-    output.phugoid_zeta = zeta
+    output.natural_frequency = w_n
+    output.damping_ratio = zeta
     
     return output

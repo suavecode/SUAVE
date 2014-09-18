@@ -41,7 +41,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     """
 
     # unpack
-    wings      = geometry.Wings
+    wings      = geometry.wings
     wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -54,9 +54,10 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     for i_wing, wing, in enumerate(wings.values()):
         
         # unpack wing
-        t_c_w   = wing.t_c
+        t_c_w   = wing.thickness_to_chord
         sweep_w = wing.sweep
         
+        # Currently uses vortex lattice model on all wings
         if i_wing == 0:
             cl_w = wing_lifts
         else:
@@ -90,9 +91,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
         # increment
-        #total_compressibility_drag += cd_c  ## todo when there is a lift break down by wing
-        if mach[15] > 0.85 and cl[15] > 0.1:
-            h = 0        
+        total_compressibility_drag += cd_c
         
         # dump data to conditions
         wing_results = Result(
@@ -107,9 +106,6 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     #: for each wing
     
     # dump total comp drag
-    total_compressibility_drag = 0.0
-    for jj in range(1,i_wing+2):
-        total_compressibility_drag = drag_breakdown.compressible[jj].compressibility_drag + total_compressibility_drag
     drag_breakdown.compressible.total = total_compressibility_drag
 
     return total_compressibility_drag

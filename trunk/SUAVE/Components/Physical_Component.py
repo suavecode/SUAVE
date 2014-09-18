@@ -15,11 +15,11 @@ from Mass_Properties import Mass_Properties
 
 class Physical_Component(Component):
     """ SUAVE.Components.Physical_Component()
-        a component that has a Mass_Props Data
+        a component that has a Mass_Properties Data
     """
     def __defaults__(self):
         self.tag = 'Component'
-        self.Mass_Properties = Mass_Properties()
+        self.mass_properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
         self.symmetric = False
     
@@ -29,7 +29,7 @@ class Container(Component.Container):
         
         Methods:
             sum_mass(): will recursively search the data tree and sum
-                        any Comp.Mass_Props.mass, and return the total sum
+                        any Comp.Mass_Properties.mass, and return the total sum
     """    
     def sum_mass(self):
         """ an example of how to recursivly sum the mass of 
@@ -40,7 +40,7 @@ class Container(Component.Container):
             if isinstance(Comp,PhysicalComponentContainer):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
-                total += Comp.Mass_Properties.mass
+                total += Comp.mass_properties.mass
         return total
     
     

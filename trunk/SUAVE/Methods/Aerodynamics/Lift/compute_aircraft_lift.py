@@ -120,11 +120,6 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
     return aircraft_lift_total
 
 
-
 if __name__ == '__main__':   
     #test()
     raise RuntimeError , 'module test failed, not implemented'
-
-
-#-------runn this caase  - have a local test case---------------------
-

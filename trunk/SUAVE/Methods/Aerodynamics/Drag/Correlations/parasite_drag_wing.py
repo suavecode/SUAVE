@@ -46,16 +46,17 @@ def parasite_drag_wing(conditions,configuration,wing):
     # unpack inputs
     C = configuration.wing_parasite_drag_form_factor
     freestream = conditions.freestream
-    Sref = wing.sref
+    Sref = wing.areas.reference
     
     # wing
-    mac_w        = wing.chord_mac
-    t_c_w        = wing.t_c
+    mac_w        = wing.chords.mean_aerodynamic
+    t_c_w        = wing.thickness_to_chord
     sweep_w      = wing.sweep
-    arw_w        = wing.ar
-    span_w       = wing.span    
-    S_exposed_w  = wing.S_exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
-    S_affected_w = wing.S_affected    
+    arw_w        = wing.aspect_ratio
+    span_w       = wing.spans.projected
+    S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
+    S_affected_w = wing.areas.affected  
+    xt           = wing.transition_x
     
     # compute wetted area # TODO: calcualte as preprocessing
     Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w    

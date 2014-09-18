@@ -15,7 +15,6 @@
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Structure import Data
-from compile_results import compile_results
 
 import numpy as np
 
@@ -62,11 +61,11 @@ def evaluate_weights(vehicle,results):
     breakdown = empty(vehicle)
      
     # pack
-    #vehicle.Mass_Props.breakdown = breakdown
-    #vehicle.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    vehicle.mass_properties.breakdown = breakdown
+    vehicle.mass_properties.operational_empty = vehicle.mass_properties.breakdown.empty
     
-    #for config in vehicle.Configs:
-        #config.Mass_Props.m_empty = vehicle.Mass_Props.breakdown.empty
+    for config in vehicle.configs:
+        config.mass_properties.operational_empty = vehicle.mass_properties.breakdown.empty
     
     results.weight_breakdown = breakdown
     
@@ -82,8 +81,8 @@ def evaluate_field_length(vehicle,mission,results):
     # unpack
     airport = mission.airport
     
-    takeoff_config = vehicle.Configs.takeoff
-    landing_config = vehicle.Configs.landing
+    takeoff_config = vehicle.configs.takeoff
+    landing_config = vehicle.configs.landing
     
     from SUAVE.Methods.Performance import estimate_take_off_field_length
     from SUAVE.Methods.Performance import estimate_landing_field_length    
@@ -127,14 +126,14 @@ def evaluate_mission(vehicle,mission,results):
 def evaluate_noise(vehicle,mission,results):
     
     # unpack
+    from SUAVE.Methods.Noise.Correlations import shevell as evaluate_noise
+    
     mission_profile = results.mission_profile
     
-    weight_landing    = mission_profile.Segments[-1].conditions.weights.total_mass[-1,0]
-    number_of_engines = vehicle.Propulsors['Turbo Fan'].no_of_engines
-    thrust_sea_level  = vehicle.Propulsors['Turbo Fan'].design_thrust
-    thrust_landing    = mission_profile.Segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
-    
-    from SUAVE.Methods.Noise.Correlations import shevell as evaluate_noise
+    weight_landing    = mission_profile.segments[-1].conditions.weights.total_mass[-1,0]
+    number_of_engines = vehicle.propulsors['Turbo Fan'].number_of_engines
+    thrust_sea_level  = vehicle.propulsors['Turbo Fan'].thrust.design
+    thrust_landing    = mission_profile.segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
     
     # evaluate
     noise = evaluate_noise( weight_landing    , 
@@ -152,15 +151,42 @@ def evaluate_noise(vehicle,mission,results):
 #   Compile Useful Results
 # ----------------------------------------------------------------------
 
-#def compile_results(vehicle,mission,results):
+def compile_results(vehicle,mission,results):
     
-    # unpack
-    
-    # evaluate
-    
+    # merge all segment conditions
+    def stack_condition(a,b):
+        if isinstance(a,np.ndarray):
+            return np.vstack([a,b])
+        else:
+            return None
+
+    conditions = None
+    for segment in results.mission_profile.segments:
+        if conditions is None:
+            conditions = segment.conditions
+            continue
+        conditions = conditions.do_recursive(stack_condition,segment.conditions)
+      
     # pack
+    results.output = Data()
+    results.output.stability = Data()
+    results.output.weight_empty = vehicle.mass_properties.operating_empty
+    results.output.fuel_burn = max(conditions.weights.total_mass[:,0]) - min(conditions.weights.total_mass[:,0])
+    #results.output.max_usable_fuel = vehicle.mass_properties.max_usable_fuel
+    results.output.noise = results.noise    
+    results.output.mission_time_min = max(conditions.frames.inertial.time[:,0] / Units.min)
+    results.output.max_altitude_km = max(conditions.freestream.altitude[:,0] / Units.km)
+    results.output.range_nmi = results.mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0] / Units.nmi
+    results.output.field_length = results.field_length
+    results.output.stability.cm_alpha = max(conditions.aerodynamics.cm_alpha[:,0])
+    results.output.stability.cn_beta = max(conditions.aerodynamics.cn_beta[:,0])
+
     
-    #return results
+    #TODO: revisit how this is calculated
+    results.output.second_segment_climb_rate = results.mission_profile.segments['Climb - 2'].climb_rate
+
+    
+    return results
 
 
 # ---------------------------------------------------------------------- 

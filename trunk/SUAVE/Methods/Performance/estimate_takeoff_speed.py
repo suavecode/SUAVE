@@ -6,7 +6,6 @@
 
 import numpy as np
 import math
-import SUAVE.Methods.Units
 import copy
 
 from SUAVE.Structure            import Data
@@ -23,7 +22,7 @@ def estimate_takeoff_speed(config,segment,tol=1e-6,guess=0.0):
     N = segment.options.Npoints; m = 5; z = np.zeros(m)
     
     state = State(); 
-    m0 = config.Mass_Props.m_takeoff                                 # kg
+    m0 = config.Mass_Properties.takeoff                                 # kg
     g0 = segment.planet.sea_level_gravity                          # m/s^2
     z[2] = segment.airport.altitude                                 # m    
     z[4] = m0                                                       # kg

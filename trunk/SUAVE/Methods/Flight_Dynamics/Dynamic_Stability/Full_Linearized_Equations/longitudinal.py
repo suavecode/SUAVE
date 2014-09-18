@@ -117,9 +117,9 @@ def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
     phugoid_zeta = poly2[1]/poly2[2]*0.5/phugoid_w_n
     
     output = Data()
-    output.short_w_n = short_w_n
-    output.short_zeta = short_zeta
-    output.phugoid_w_n = phugoid_w_n
-    output.phugoid_zeta = phugoid_zeta    
+    output.short_natural_frequency = short_w_n
+    output.short_damping_ratio = short_zeta
+    output.phugoid_natural_frequency = phugoid_w_n
+    output.phugoid_damping_ratio = phugoid_zeta    
     
     return output

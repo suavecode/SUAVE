@@ -77,7 +77,7 @@ def define_vehicle():
 
     # basic parameters
     vehicle.delta    = 25.0                     # deg
-    vehicle.S        = 124.862                  # 
+    vehicle.reference_area        = 124.862                  # 
     vehicle.A_engine = np.pi*(0.9525)**2
     vehicle.Ultimate_Load     = 3.5
     vehicle.Limit_Load    = 1.5
@@ -125,6 +125,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
+
     wing.tag = 'Horizontal Stabilizer' 
     
     wing.Areas.reference = 32.488    #
@@ -147,7 +148,8 @@ def define_vehicle():
     wing.origin          = [50,0,0]
     wing.aerodynamic_center = [2,0,0]
     wing.vertical   = False 
-    wing.eta         = 0.9
+    wing.eta         = 0.9  
+
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -235,6 +237,8 @@ def define_vehicle():
     turbofan.turbine_nozzle_pressure_ratio = 0.99     #
     turbofan.Tt4                           = 1450.0   #
     turbofan.bypass_ratio                  = 5.4      #
+    turbofan.Thrust = Data()
+    turbofan.Thrust.design = 25000.0
     turbofan.design_thrust                 = 25000.0  #
     turbofan.no_of_engines                 = 2.0      #
     turbofan.engine_length                 = 4.0

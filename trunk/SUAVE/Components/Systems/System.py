@@ -22,6 +22,10 @@ from SUAVE.Components import Component
 class System(Component):
     def __defaults__(self):
         self.tag = 'System'
+        self.mass_properties = mass_properties()
+        self.position  = [0.0,0.0,0.0]
+        self.control = None
+        self.accessories = None
 
 class Container(Component.Container):
     pass

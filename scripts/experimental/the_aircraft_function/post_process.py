@@ -17,9 +17,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Throttle History")
     axes = plt.gca()
-    for i in range(len(results.Segments)):
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta  = results.Segments[i].conditions.propulsion.throttle[:,0]
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
         axes.plot(time, eta, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Throttle')
@@ -32,9 +32,9 @@ def post_process(vehicle,mission,results):
 
     plt.figure("Angle of Attack History")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         axes.plot(time, aoa, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Angle of Attack (deg)')
@@ -46,9 +46,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Fuel Burn Rate")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.Segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
         axes.plot(time, mdot, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Fuel Burn Rate (kg/s)')
@@ -60,9 +60,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Altitude")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
         axes.plot(time, altitude, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Altitude (km)')
@@ -74,9 +74,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     plt.figure("Vehicle Mass")
     axes = plt.gca()
-    for i in range(len(results.Segments)):
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.segments[i].conditions.weights.total_mass[:,0]
         axes.plot(time, mass, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Vehicle Mass (kg)')
@@ -87,7 +87,7 @@ def post_process(vehicle,mission,results):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -124,7 +124,7 @@ def post_process(vehicle,mission,results):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -157,7 +157,7 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     fig = plt.figure("Drag Components")
     axes = plt.gca()    
-    for i, segment in enumerate(results.Segments.values()):
+    for i, segment in enumerate(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown

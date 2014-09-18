@@ -536,7 +536,7 @@ class Ducted_Fan_Bat(Propulsor):
         pifn=self.fan_nozzle_pressure_ratio
         A7=self.A7  
         Ao=self.Ao
-        no_eng=self.no_of_engines 
+        no_eng=self.number_of_engines 
         
         throttle=eta
        

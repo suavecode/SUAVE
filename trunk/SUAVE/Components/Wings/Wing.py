@@ -15,10 +15,14 @@ from Airfoils import Airfoil
 class Wing(Lofted_Body):
     def __defaults__(self):
         self.tag = 'Wing'
-        self.Mass_Properties = Mass_Properties()
-        self.position  = [0.0,0.0,0.0]
-        self.symmetric = False
 
+        self.mass_properties = Mass_Properties()
+        self.position  = [0.0,0.0,0.0]
+        
+        self.symmetric = True
+        self.vertical  = False
+        self.t_tail    = False
+        
         self.sweep        = 0.0
         self.taper        = 0.0
         self.dihedral     = 0.0
@@ -27,43 +31,44 @@ class Wing(Lofted_Body):
         self.span_efficiency = 0.9
         self.aerodynamic_center = [0.0,0.0,0.0]
         
-        self.Spans = Data()
-        self.Spans.projected = 0.0
+        self.spans = Data()
+        self.spans.projected = 0.0
         
-        self.Areas = Data()
-        self.Areas.reference = 0.0
-        self.Areas.exposed = 0.0
-        self.Areas.affected = 0.0
-        self.Areas.wetted = 0.0
+        self.areas = Data()
+        self.areas.reference = 0.0
+        self.areas.exposed = 0.0
+        self.areas.affected = 0.0
+        self.areas.wetted = 0.0
         
-        self.Chords = Data()
-        self.Chords.mean_aerodynamic = 0.0
-        self.Chords.mean_geometric = 0.0
-        self.Chords.root = 0.0
-        self.Chords.tip = 0.0
+        self.chords = Data()
+        self.chords.mean_aerodynamic = 0.0
+        self.chords.mean_geometric = 0.0
+        self.chords.root = 0.0
+        self.chords.tip = 0.0
         
-        self.Twists = Data()
-        self.Twists.root = 0.0
-        self.Twists.tip = 0.0
+        self.twists = Data()
+        self.twists.root = 0.0
+        self.twists.tip = 0.0
         
-        self.Flaps = Data()
-        self.Flaps.chord = 0.0
-        self.Flaps.angle = 0.0
-        self.Flaps.span_start = 0.0
-        self.Flaps.span_end = 0.0
-        self.Flaps.type = None
+        self.flaps = Data()
+        self.flaps.chord = 0.0
+        self.flaps.angle = 0.0
+        self.flaps.span_start = 0.0
+        self.flaps.span_end = 0.0
+        self.flaps.type = None
         
-        self.Slats = Data()
-        self.Slats.chord = 0.0
-        self.Slats.angle = 0.0
-        self.Slats.span_start = 0.0
-        self.Slats.span_end = 0.0
-        self.Slats.type = None        
+        self.slats = Data()
+        self.slats.chord = 0.0
+        self.slats.angle = 0.0
+        self.slats.span_start = 0.0
+        self.slats.span_end = 0.0
+        self.slats.type = None        
         
         self.high_lift     = False
         self.high_mach     = False
         self.vortex_lift   = False
-        self.transistion_x=0.0     # Normalized 0 to 1
+        self.transition_x  = 0.0
+          
         
     def append_segment(self,segment):
         """ adds a segment to the wing """

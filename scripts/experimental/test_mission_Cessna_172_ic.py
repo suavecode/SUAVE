@@ -54,10 +54,8 @@ def define_vehicle():
     vehicle.tag = 'Cessna 172'
     
     # vehicle-level properties
-    vehicle.Mass_Props.m_full       = 1110.0 # kg
-    vehicle.Mass_Props.m_empty      = 743.0  # kg
-    vehicle.Mass_Props.m_takeoff    = 1110.0 # kg
-    vehicle.Mass_Props.m_flight_min = 750.0  # kg
+    vehicle.Mass_Properties.empty      = 743.0  # kg
+    vehicle.Mass_Properties.takeoff    = 1110.0 # kg
     vehicle.delta                   = 0.0    # deg  
     
     
