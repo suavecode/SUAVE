@@ -190,8 +190,8 @@ def define_vehicle():
     fuselage.Fineness.tail = 4.0
     fuselage.Lengths.fore_space = 16.3
     fuselage.Lengths.aft_space  = 16.3
-    fuselage.width = 2.2
-    fuselage.Heights.maximum = 1.9
+    fuselage.width = 2.35
+    fuselage.Heights.maximum = 2.55
     
     # size fuselage planform
     SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
