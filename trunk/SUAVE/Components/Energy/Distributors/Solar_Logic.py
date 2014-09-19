@@ -68,7 +68,7 @@ class Solar_Logic(Energy_Component):
                
         """
         #Unpack
-        pin         = self.inputs.powerin[:,0]
+        pin         = self.inputs.powerin[:,0,None]
         pavionics   = self.inputs.pavionics
         ppayload    = self.inputs.ppayload
         volts_motor = self.inputs.volts_motor
@@ -82,7 +82,7 @@ class Solar_Logic(Energy_Component):
         
         # Integrate the plevel over time to assess the energy consumption
         # or energy storage
-        e = np.dot(I,plevel)
+        e = np.dot(I.T,plevel)
         
         # Send or take power out of the battery, Pack up
         batlogic      = Data()

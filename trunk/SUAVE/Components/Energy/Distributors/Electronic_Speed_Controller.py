@@ -41,7 +41,7 @@ class Electronic_Speed_Controller(Energy_Component):
                
         """
         # Unpack, deep copy since I replace values
-        eta = deepcopy(conditions.propulsion.throttle[:,0])
+        eta = deepcopy(conditions.propulsion.throttle[:,0,None])
         
         # Negative throttle is bad
         eta[eta<=0.0] = 0.0

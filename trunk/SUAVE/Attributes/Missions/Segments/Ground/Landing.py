@@ -36,6 +36,9 @@ class Landing(Ground_Segment):
         self.velocity_end         = 0.0
         self.friction_coefficient = 0.4
         self.throttle             = 0.0
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
 
 
     def initialize_conditions(self,conditions,numerics,initials=None):

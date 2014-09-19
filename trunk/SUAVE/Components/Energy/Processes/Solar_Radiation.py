@@ -51,12 +51,12 @@ class Solar_Radiation(Energy_Component):
         """        
         
         # Unpack
-        timedate  = conditions.frames.planet.time_date
+        timedate  = conditions.frames.planet.start_time
         latitude  = conditions.frames.planet.latitude
         longitude = conditions.frames.planet.longitude
-        phip      = conditions.frames.body.inertial_rotations[:,0]
-        thetap    = conditions.frames.body.inertial_rotations[:,1]
-        psip      = conditions.frames.body.inertial_rotations[:,2]
+        phip      = conditions.frames.body.inertial_rotations[:,0,None]
+        thetap    = conditions.frames.body.inertial_rotations[:,1,None]
+        psip      = conditions.frames.body.inertial_rotations[:,2,None]
         altitude  = conditions.freestream.altitude
         times     = conditions.frames.inertial.time
         
@@ -65,7 +65,7 @@ class Solar_Radiation(Energy_Component):
         TUTC      = timedate.tm_sec + 60.*timedate.tm_min+ 60.*60.*timedate.tm_hour + np.mod(times,24.*60.*60.)
         
         # Gamma is defined to be due south, so
-        gamma = np.reshape(psip-np.pi,np.shape(latitude))
+        gamma = psip - np.pi
         
         # Solar intensity external to the Earths atmosphere
         Io = 1305.0
@@ -104,46 +104,37 @@ class Solar_Radiation(Energy_Component):
         theta = np.arccos(np.cos(psi)*np.cos(beta)+np.sin(psi)*np.sin(beta)*np.cos(gammas-gamma))
         
         flux = np.zeros_like(psi)
-
-        for ii in range(len(psi[:,0])):
         
-            # Within the lower atmosphere
-            if (psi[ii,0]>=-np.pi/2.)&(psi[ii,0]<96.70995*np.pi/180.)&(altitude[ii,0]<9000.):
-                 
-                # Using a homogeneous spherical model
-                earthstuff = SUAVE.Attributes.Planets.Earth()
-                Re = earthstuff.mean_radius
-                 
-                Yatm = 9. # The atmospheres thickness in km
-                r = Re/Yatm
-                c = altitude[ii,0]/9000. # Converted from m to km
-                 
-                AM = (((r+c)**2)*(np.cos(psi[ii,0])**2)+2.*r*(1.-c)-c**2 +1.)**(0.5)-(r+c)*np.cos(psi[ii,0])
-                 
-                Id = Ind*Io*(0.7**(AM**0.678))
-                
-                # Horizontal Solar Flux on the panel
-                Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))              
-                 
-                # Solar flux on the inclined panel, Duffie/Beckman 1.8.1
-                I = Ih*np.cos(theta[ii,0])/np.cos(psi[ii,0])
-                 
-            # Outside the atmospheric effects
-            elif (psi[ii,0]>=-np.pi/2.)&(psi[ii,0]<96.70995*np.pi/180.)&(altitude[ii,0]>=9000.):
-                 
-                Id = Ind*Io
-                
-                # Horizontal Solar Flux on the panel
-                Ih = Id*(np.cos(latitude[ii]*np.pi/180.)*np.cos(delta[ii,0])*np.cos(HRA[ii,0])+np.sin(latitude[ii]*np.pi/180.)*np.sin(delta[ii,0]))           
-       
-                # Solar flux on the inclined panel, Duffie/Beckman 1.8.1
-                I = Ih*np.cos(theta[ii,0])/np.cos(psi[ii,0])
-                 
-            else:
-                I = 0.
-             
-            # Adjusted Solar flux on a horizontal panel
-            flux[ii,0] = max(0.,I)
+        earth = SUAVE.Attributes.Planets.Earth()
+        Re = earth.mean_radius
+        
+        # Atmospheric properties
+        Yatm = 9. # The atmospheres thickness in km
+        r    = Re/Yatm
+        c    = altitude/9000.
+        
+        # Air mass
+        AM = np.zeros_like(psi)
+        AM[altitude<9000.] = (((r+c[altitude<9000.])**2)*(np.cos(psi[altitude<9000.])**2)+2.*r*(1.-c[altitude<9000.])-c[altitude<9000.]**2 +1.)**(0.5)-(r+c[altitude<9000.])*np.cos(psi[altitude<9000.])
+        
+        # Direct component 
+        Id = Ind*Io*(0.7**(AM**0.678))
+        
+        # Horizontal flux
+        Ih = Id*(np.cos(latitude*np.pi/180.)*np.cos(delta)*np.cos(HRA)+np.sin(latitude*np.pi/180.)*np.sin(delta))              
+        
+        # Flux on the inclined panel, if the altitude is less than 9000 meters
+        I = Ih*np.cos(theta)/np.cos(psi)
+        
+        # Now update if the plane is outside the majority of the atmosphere, (9km)
+        Id = Ind*Io
+        Ih = Id*(np.cos(latitude*np.pi/180.)*np.cos(delta)*np.cos(HRA)+np.sin(latitude*np.pi/180.)*np.sin(delta))           
+        I[altitude>9000.] = Ih[altitude>9000.]*np.cos(theta[altitude>9000.])/np.cos(psi[altitude>9000.])
+        
+        # Now if the sun is on the other side of the Earth...
+        I[((psi<-np.pi/2.)|(psi>96.70995*np.pi/180.))] = 0
+        
+        flux = np.maximum(0.0,I)        
         
         # Store to outputs
         self.outputs.flux = flux      

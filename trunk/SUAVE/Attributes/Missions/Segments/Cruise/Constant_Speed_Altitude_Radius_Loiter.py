@@ -32,7 +32,9 @@ class Constant_Speed_Altitude_Radius_Loiter(Aerodynamic_Segment):
         self.altitude  = None # Optional
         self.air_speed = 10. * km/hr
         self.distance  = 10. * km
-
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
         
         # -- Conditions 
         

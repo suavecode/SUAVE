@@ -17,7 +17,7 @@ import numpy as np
 import copy, time
 
 from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
-from SUAVE.Methods.Propulsion.Propeller_Design      import Propeller_Design
+from SUAVE.Methods.Propulsion import propeller_design
 
 def main():
 
@@ -70,7 +70,7 @@ def main():
     prop_attributes.design_altitude     = design_altitude
     prop_attributes.design_thrust       = Thrust
     prop_attributes.design_power        = Power
-    prop_attributes                     = Propeller_Design(prop_attributes)
+    prop_attributes                     = propeller_design(prop_attributes)
     
     # Create and attach this propeller
     prop                 = SUAVE.Components.Energy.Converters.Propeller()
@@ -128,30 +128,30 @@ def main():
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
     
-    conditions.propulsion.throttle            = np.transpose(np.array([[1.0, 1.0]]))
-    conditions.freestream.velocity            = np.transpose(np.array([[1.0, 1.0]]))
-    conditions.freestream.density             = np.transpose(np.array([rho, rho]))
-    conditions.freestream.viscosity           = np.transpose(np.array([[mu, mu]]))
-    conditions.freestream.speed_of_sound      = np.transpose(np.array([[a, a]]))
-    conditions.freestream.altitude            = np.transpose(np.array([[design_altitude, design_altitude]]))
+    conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
+    conditions.freestream.velocity            = np.array([[1.0],[1.0]])
+    conditions.freestream.density             = np.array([rho,rho])
+    conditions.freestream.viscosity           = np.array([mu, mu])
+    conditions.freestream.speed_of_sound      = np.array([a, a])
+    conditions.freestream.altitude            = np.array([[design_altitude], [design_altitude]])
     conditions.propulsion.battery_energy      = bat.max_energy()*np.ones_like(conditions.freestream.altitude)
-    conditions.frames.body.inertial_rotations = np.ones([2,3]) * 0.0
-    conditions.frames.inertial.time           = np.transpose(np.array([[0.0, 1.0]]))
-    numerics.integrate_time                   = np.array([[0, 0], [0, 1]])
-    conditions.frames.planet.time_date        = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
-    conditions.frames.planet.latitude         = np.transpose(np.array([[0.0, 0.0]]))
-    conditions.frames.planet.longitude        = np.transpose(np.array([[0.0, 0.0]]))
-    conditions.freestream.temperature         = np.transpose(np.array([T, T]))
+    conditions.frames.body.inertial_rotations = np.zeros([2,3])
+    conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
+    numerics.integrate_time                   = np.array([[0, 0],[0, 1]])
+    conditions.frames.planet.start_time       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
+    conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
+    conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
+    conditions.freestream.temperature         = np.array([T, T])
     
     # Run the network and print the results
     F, mdot, P = net(conditions,numerics)
     
     # Truth results
-    truth_F   = [ 538.00449442,  538.00449442]
-    truth_P   = [ 14272.1902522,  14272.1902522]
+    truth_F   = [[538.00449442], [538.00449442]]
+    truth_P   = [[14272.1902522],[14272.1902522]]
     truth_i   = [[ 249.31622624],[ 249.31622624]]
     truth_rpm = [[ 6668.4094191],[ 6668.4094191]]
-    truth_bat =  [45000000. , 44987534.18868808]
+    truth_bat = [[45000000.] , [44987534.18868808]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))

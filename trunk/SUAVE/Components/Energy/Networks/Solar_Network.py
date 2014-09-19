@@ -91,7 +91,7 @@ class Solar_Network(Data):
         
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta = conditions.propulsion.throttle[:,0]
+        eta = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
         
@@ -128,10 +128,10 @@ class Solar_Network(Data):
         battery_energy                       = battery.CurrentEnergy
         
         conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
-        conditions.propulsion.rpm            = np.reshape(rpm,np.shape(solar_flux.outputs.flux))
-        conditions.propulsion.current        = np.reshape(current,np.shape(solar_flux.outputs.flux))
-        conditions.propulsion.battery_draw   = np.reshape(battery_draw,np.shape(solar_flux.outputs.flux))
-        conditions.propulsion.battery_energy = np.reshape(battery_energy,np.shape(solar_flux.outputs.flux))
+        conditions.propulsion.rpm            = rpm
+        conditions.propulsion.current        = current
+        conditions.propulsion.battery_draw   = battery_draw
+        conditions.propulsion.battery_energy = battery_energy
         
         #Create the outputs
         F    = self.number_motors * F

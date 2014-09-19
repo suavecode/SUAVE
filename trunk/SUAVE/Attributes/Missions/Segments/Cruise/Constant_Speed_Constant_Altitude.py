@@ -5,6 +5,7 @@
 
 # python imports
 import numpy as np
+import time
 
 # SUAVE imports
 from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
@@ -32,8 +33,10 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         self.altitude  = None # Optional
         self.air_speed = 10. * km/hr
         self.distance  = 10. * km
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0     
 
-        
         # -- Conditions 
         
         # uses a ton of defaults from Aerodynamic_Segment

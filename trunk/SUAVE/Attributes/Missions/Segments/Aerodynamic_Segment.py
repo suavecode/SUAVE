@@ -28,8 +28,9 @@ class Aerodynamic_Segment(Base_Segment):
         self.tag = 'Aerodynamic Segment'
         
         # atmosphere and planet
-        self.planet     = Planet()
-        self.atmosphere = Atmosphere()        
+        self.planet     = None
+        self.atmosphere = None  
+        self.start_time = time.gmtime()
         
         
         # --- Conditions and Unknowns
@@ -82,7 +83,7 @@ class Aerodynamic_Segment(Base_Segment):
         
         # planet frame conditions
         conditions.frames.planet = Data()
-        conditions.frames.planet.time_date       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
+        conditions.frames.planet.start_time      = None
         conditions.frames.planet.latitude        = ones_1col * 0
         conditions.frames.planet.longitude       = ones_1col * 0
         
@@ -148,19 +149,17 @@ class Aerodynamic_Segment(Base_Segment):
             energy_initial    = initials.propulsion.battery_energy[0,0]
             longitude_initial = initials.frames.planet.longitude[0,0]
             latitude_initial  = initials.frames.planet.latitude[0,0]
-            #timeanddate       = initials.frames.planet.time_date
             
         else:
             energy_initial    = self.battery_energy
             longitude_initial = self.longitude
             latitude_initial  = self.latitude
-            #timeanddate       = self.time_date
             
         # apply initials
         conditions.propulsion.battery_energy[:,0] = energy_initial
         conditions.frames.planet.longitude[:,0]   = longitude_initial
         conditions.frames.planet.latitude[:,0]    = latitude_initial
-        #conditions.frames.planet.time_date        = timeanddate
+        conditions.frames.planet.start_time       = self.start_time
         
         return conditions
     
@@ -363,9 +362,7 @@ class Aerodynamic_Segment(Base_Segment):
         F, mdot, P = propulsion_model(conditions,numerics)
         
         F_vec = np.zeros([N,3])
-        F_vec[:,0] = F[:]
-        mdot = atleast_2d_col( mdot )
-        P    = atleast_2d_col( P    )
+        F_vec[:,0] = F[:,0]
         
         ## TODO ---
         ## call propulsion model

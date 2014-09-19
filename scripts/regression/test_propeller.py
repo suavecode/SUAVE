@@ -15,7 +15,8 @@ Data, Container, Data_Exception, Data_Warning,
 
 import numpy as np
 import copy, time
-from SUAVE.Methods.Propulsion.Propeller_Design      import Propeller_Design
+from SUAVE.Methods.Propulsion import propeller_design
+
 def main():
     
     # This script could fail if either the design or analysis scripts fail,
@@ -34,7 +35,7 @@ def main():
     prop_attributes.design_altitude     = 0.0 * Units.km
     prop_attributes.design_thrust       = 0.0
     prop_attributes.design_power        = 7000.
-    prop_attributes                     = Propeller_Design(prop_attributes)    
+    prop_attributes                     = propeller_design(prop_attributes)    
 
     # Find the operating conditions
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -62,7 +63,7 @@ def main():
     # Truth values
     F_truth      = 166.41590262
     Q_truth      = 45.21732911
-    P_truth      = 9470.2952633
+    P_truth      = 9470.2952633 # Over 9000!
     Cplast_truth = 0.00085898
     
     error = Data()

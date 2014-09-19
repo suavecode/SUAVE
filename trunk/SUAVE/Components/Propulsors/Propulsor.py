@@ -120,7 +120,7 @@ class Container(Physical_Component.Container):
                 P += F[mask]*segment.V[mask]/etaPe[mask]    # W
             #print mdot   
             
-        return F, mdot, P
+        return F[:,None], mdot[:,None], P[:,None]
 
     def power_flow(self,eta,segment):
 

@@ -30,7 +30,7 @@ Data, Container, Data_Exception, Data_Warning,
 #  Main
 # ----------------------------------------------------------------------
     
-def Propeller_Design(prop_attributes):
+def propeller_design(prop_attributes):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:

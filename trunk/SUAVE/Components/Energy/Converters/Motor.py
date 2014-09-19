@@ -53,8 +53,8 @@ class Motor(Energy_Component):
                
         """
         #Unpack
-        V     = conditions.freestream.velocity[:,0]
-        rho   = conditions.freestream.density[:,0]
+        V     = conditions.freestream.velocity[:,0,None]
+        rho   = conditions.freestream.density[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current

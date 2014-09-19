@@ -22,7 +22,7 @@ import matplotlib
 import copy, time
 
 from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
-from SUAVE.Methods.Propulsion.Propeller_Design import Propeller_Design
+from SUAVE.Methods.Propulsion import propeller_design
 
 # ----------------------------------------------------------------------
 #   Main
@@ -99,8 +99,8 @@ def define_vehicle():
     wing.highlift                = False  
     wing.vertical                = False 
     wing.eta                     = 1.0
-    wing.Nwr                     = 26.
-    wing.Nwer                    = 2.
+    wing.number_ribs             = 26. # ?
+    wing.number_end_ribs         = 2.
     wing.transition_x_u          = 0.
     wing.transition_x_l          = 0.
     
@@ -132,7 +132,7 @@ def define_vehicle():
     wing.span_efficiency         = 0.95                   #
     wing.twists.root             = 0.                     #
     wing.twists.tip              = 0.                     #
-    wing.Nwr                     = 5.
+    wing.number_ribs             = 5.
   
     # add to vehicle
     vehicle.append_component(wing)    
@@ -163,7 +163,7 @@ def define_vehicle():
     wing.span_efficiency         = 0.97                  #
     wing.twists.root             = 0.0*Units.degrees     #
     wing.twists.tip              = 0.0*Units.degrees     #  
-    wing.Nwr                     = 5.
+    wing.number_ribs             = 5.
   
     # add to vehicle
     vehicle.append_component(wing)  
@@ -206,7 +206,7 @@ def define_vehicle():
     prop_attributes.design_altitude     = 23.0 * Units.km
     prop_attributes.design_thrust       = 0.0
     prop_attributes.design_power        = 10000.0
-    prop_attributes                     = Propeller_Design(prop_attributes)
+    prop_attributes                     = propeller_design(prop_attributes)
     
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes = prop_attributes
@@ -250,7 +250,7 @@ def define_vehicle():
     net.solar_logic       = logic
     
     # Calculate the vehicle mass
-    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
+    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -295,12 +295,9 @@ def define_mission(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'The Test Mission'
 
-    # initial mass
-    mission.m0 = vehicle.mass_properties.max_takeoff # linked copy updates if parent changes
-    
-    # atmospheric model
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet = SUAVE.Attributes.Planets.Earth()
+    mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
+    mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.planet      = SUAVE.Attributes.Planets.Earth()
     
     # ------------------------------------------------------------------
     #   Climb Segment: Constant Speed, constant throttle
@@ -312,10 +309,7 @@ def define_mission(vehicle):
     # connect vehicle configuration
     segment.config = vehicle.configs.takeoff
     
-    # define segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
+    # segment attributes 
     segment.altitude_start = 14.0   * Units.km
     segment.altitude_end   = 18.0   * Units.km
     segment.air_speed      = 30.0  * Units['m/s']
@@ -323,7 +317,6 @@ def define_mission(vehicle):
     segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
     segment.latitude       = 37.4300
     segment.longitude      = -122.1700
-    
     
     # add to misison
     mission.append_segment(segment)
@@ -336,12 +329,9 @@ def define_mission(vehicle):
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
-    segment.config = vehicle.configs.cruise
+    segment.config = vehicle.configs.cruise  
     
-    # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
+    # segment attributes 
     segment.altitude_start = 18.0   * Units.km # Optional
     segment.altitude_end   = 28.0   * Units.km
     segment.air_speed      = 30.0 * Units['m/s']
@@ -360,10 +350,7 @@ def define_mission(vehicle):
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
     
-    # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    
+    # segment attributes     
     segment.altitude   = 28.0  * Units.km     # Optional
     segment.air_speed  = 40.0 * Units['m/s']
     segment.distance   = 200.0 * Units.km
@@ -381,9 +368,6 @@ def define_mission(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet   
-    
     segment.altitude_end = 18.   * Units.km
     segment.air_speed    = 40.0 * Units['m/s']
     segment.descent_rate = 0.8  * Units['m/s']

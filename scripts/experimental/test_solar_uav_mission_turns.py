@@ -263,7 +263,7 @@ def define_vehicle(weight):
     net.solar_logic       = logic
     
     # Calculate the vehicle mass
-    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
+    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -324,12 +324,9 @@ def define_mission(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'The Test Mission'
 
-    # initial mass
-    mission.m0 = vehicle.mass_properties.max_takeoff # linked copy updates if parent changes
-    
-    # atmospheric model
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    planet     = SUAVE.Attributes.Planets.Earth()
+    mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
+    mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.planet      = SUAVE.Attributes.Planets.Earth()
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -342,9 +339,6 @@ def define_mission(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    
     segment.altitude       = 20.0  * Units.km     # Optional
     segment.air_speed      = 50.0  * Units['m/s']
     segment.radius         = 2.0   * Units.km

@@ -65,7 +65,7 @@ class Battery(Energy_Component):
         I     = numerics.integrate_time
         
         # X value
-        x = np.divide(self.CurrentEnergy,self.max_energy())[:,0]
+        x = np.divide(self.CurrentEnergy,self.max_energy())[:,0,None]
         
         # C rate from 
         C = 3600.*pbat/self.max_energy()

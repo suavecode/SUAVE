@@ -82,20 +82,20 @@ def empty(vehicle):
     Sw     = vehicle.wings['Main Wing'].areas.reference
     bw     = vehicle.wings['Main Wing'].spans.projected
     cw     = vehicle.wings['Main Wing'].chords.mean_aerodynamic
-    Nwr    = vehicle.wings['Main Wing'].Nwr
+    Nwr    = vehicle.wings['Main Wing'].number_ribs
     t_cw   = vehicle.wings['Main Wing'].thickness_to_chord
-    Nwer   = vehicle.wings['Main Wing'].Nwer
+    Nwer   = vehicle.wings['Main Wing'].number_end_ribs
     
     #S_h    = vehicle.wings['Horizontal Stabilizer'].areas.reference
     #b_h    = vehicle.wings['Horizontal Stabilizer'].spans.projected
     #chs    = vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic
-    #Nhsr   = vehicle.wings['Horizontal Stabilizer'].Nwr
+    #Nhsr   = vehicle.wings['Horizontal Stabilizer'].number_ribs
     #t_ch   = vehicle.wings['Horizontal Stabilizer'].thickness_to_chord
     
     #S_v    = vehicle.wings['Vertical Stabilizer'].areas.reference
     #b_v    = vehicle.wings['Vertical Stabilizer'].spans.projected
     #cvs    = vehicle.wings['Vertical Stabilizer'].chords.mean_aerodynamic
-    #Nvsr   = vehicle.wings['Vertical Stabilizer'].Nwr
+    #Nvsr   = vehicle.wings['Vertical Stabilizer'].number_ribs
     #t_cv   = vehicle.wings['Vertical Stabilizer'].thickness_to_chord
     
     nult   = vehicle.envelope.ultimate_load

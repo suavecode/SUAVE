@@ -5,4 +5,4 @@ import Propulsion
 import Tube_Wing
 import Tube_Wing_Torenbeek
 import BWB
-import Solar_HPA
+import Human_Powered
