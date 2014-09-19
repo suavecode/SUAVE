@@ -157,7 +157,7 @@ def main():
     wing.areas.reference           = 136.0 * Units.feet**2
     wing.spans.projected           = 26.3  * Units.feet
     wing.chords.mean_aerodynamic = 5.4 * Units.feet
-    wing.sweep       = 195   * Units.deg # Leading edge
+    wing.sweep       = 19.5   * Units.deg # Leading edge
     wing.taper          = 3.1/7.03
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
@@ -216,7 +216,7 @@ def main():
     error.cm_a_SIAI = (cm_a - expected)/expected
 
     for k,v in error.items():
-        assert(np.abs(v)<0.005)
+        assert(np.abs(v)<0.01)
         
     return
 

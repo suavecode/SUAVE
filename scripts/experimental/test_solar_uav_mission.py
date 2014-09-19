@@ -81,7 +81,7 @@ def define_vehicle():
     
     wing.areas.reference    = vehicle.reference_area     #
     wing.spans.projected    = 40.          #m
-    wing.aspect_ratio       = (wing.spans.projected*2)/wing.areas.reference 
+    wing.aspect_ratio       = (wing.spans.projected**2)/wing.areas.reference 
     wing.sweep              = 0. * Units.deg #
     wing.symmetric          = True          #
     wing.thickness_to_chord = 0.12          #

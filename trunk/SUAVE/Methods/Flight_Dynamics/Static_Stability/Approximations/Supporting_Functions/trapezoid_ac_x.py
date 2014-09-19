@@ -40,10 +40,10 @@ def trapezoid_ac_x(wing):
     """                 
 
     #Unpack inputs
-    S     = wing.area
-    b     = wing.span
+    S     = wing.areas.reference
+    b     = wing.spans.projected
     l     = wing.taper
-    sweep = wing.sweep_le
+    sweep = wing.sweep
     symm  = wing.symmetric
     
     #Get MAC

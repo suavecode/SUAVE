@@ -32,20 +32,22 @@ modules = [
     # regression
     'regression/test_atmosphere.py',
     'regression/test_dynamicstability.py',
-    'regression/test_mission_Embraer_E190.py',
-    'regression/tut_mission_Cessna_172_ic.py',
     'regression/test_weights.py',
     'regression/DC_10_noise.py',
-    'regression/the_aircraft_function/test_the_aircraft_function.py',
+    'regression/test_mission_B737.py',
+    'regression/test_mission_Embraer_E190.py',
+    'regression/test_mission_Embraer_E190_constThr.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
     'regression/test_solar_network.py',
     'regression/test_solar_radiation.py',
     'regression/test_propeller.py',
-    
+    'regression/test_aerodynamics.py',
+    'regression/test_cmalpha.py',
+    'regression/test_cnbeta.py',
     
     # tutorials
-    'tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py',
+    
 ]
 
 
@@ -70,9 +72,9 @@ def main():
     for module in modules:
         passed = test_module(module)
         if passed:
-            results[module] = 'Passed'
+            results[module] = '  Passed'
         else:
-            results[module] = 'Failed'
+            results[module] = '* FAILED'
     
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
@@ -133,7 +135,7 @@ def test_module(module_path):
     if passed:
         sys.stdout.write('# Passed: %s \n' % module_name)
     else:
-        sys.stdout.write('# Failed: %s \n' % module_name)
+        sys.stdout.write('# FAILED: %s \n' % module_name)
     sys.stdout.write('# Test Duration: %.4f min \n' % ((time.time()-tic)/60) )
     sys.stdout.write('\n')
     

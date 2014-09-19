@@ -16,6 +16,7 @@ from SUAVE.Methods.Performance.estimate_landing_field_length import estimate_lan
 
 # package imports
 import numpy as np
+import pylab as plt
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
@@ -166,7 +167,6 @@ def main():
     
     print 'Maximum Landing Field Length Error= %.4e' % LFL_error
     
-    import pylab as plt
     title = "LFL vs W"
     plt.figure(1); plt.hold
     plt.plot(w_vec,landing_field_length, 'k-', label = 'Landing Field Length')

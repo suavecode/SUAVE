@@ -82,7 +82,7 @@ class Solar_Logic(Energy_Component):
         
         # Integrate the plevel over time to assess the energy consumption
         # or energy storage
-        e = np.dot(I.T,plevel)
+        e = np.dot(I,plevel)
         
         # Send or take power out of the battery, Pack up
         batlogic      = Data()
