@@ -119,6 +119,8 @@ class Motor(Energy_Component):
         #Q = (i-io)/Kv
         #print(i*v)
         #pshaft= (i-io)*(v-i*Res)   
-        #etam=(1-io/i)*(1-i*Res/v)
+        etam=(1-io/i)*(1-i*Res/v)
+        conditions.propulsion.etam = etam
+        #print etam
         
         return i
