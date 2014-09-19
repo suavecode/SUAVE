@@ -14,6 +14,7 @@ from Airfoils import Airfoil
 
 class Wing(Lofted_Body):
     def __defaults__(self):
+        
         self.tag = 'Wing'
         self.mass_properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
@@ -21,7 +22,6 @@ class Wing(Lofted_Body):
         self.symmetric = True
         self.vertical  = False
         self.t_tail    = False
-        
         self.sweep        = 0.0
         self.taper        = 0.0
         self.dihedral     = 0.0
@@ -66,8 +66,8 @@ class Wing(Lofted_Body):
         self.high_lift     = False
         self.high_mach     = False
         self.vortex_lift   = False
-        self.transition_x  = 0.0
-          
+        self.transition_x_u = 0.0
+        self.transition_x_l = 0.0        
         
     def append_segment(self,segment):
         """ adds a segment to the wing """

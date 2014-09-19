@@ -325,9 +325,8 @@ def mission_setup(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'The Test Mission'
 
-    # atmospheric model
-    planet = SUAVE.Attributes.Planets.Earth()
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.planet      = SUAVE.Attributes.Planets.Earth()
     
     #airport
     airport = SUAVE.Attributes.Airports.Airport()
@@ -349,9 +348,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.takeoff
     
     # define segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.0   * Units.km
     segment.air_speed      = 125.0 * Units['m/s']
@@ -373,9 +369,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
     #segment.altitude_start = 3.0   * Units.km ## Optional
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
@@ -398,9 +391,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet        
-    
     segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
@@ -420,9 +410,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet        
-    
     #segment.altitude   = 10.668  * Units.km     # Optional
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = 3933.65 * Units.km
@@ -440,9 +427,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet   
-    
     segment.altitude_end = 5.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
@@ -462,9 +446,6 @@ def mission_setup(vehicle):
     segment.config = vehicle.configs.cruise
 
     # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet    
-    
     segment.altitude_end = 0.0   * Units.km
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']

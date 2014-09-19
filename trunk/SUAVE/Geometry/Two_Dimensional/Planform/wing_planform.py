@@ -57,7 +57,6 @@ def wing_planform(wing):
     # calculate
     #ar = span**2. / sref
     span = sqrt(ar*sref)
-    
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     

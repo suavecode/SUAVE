@@ -52,10 +52,10 @@ class Vehicle(Data):
             Components.Systems.System                  : self['systems']                ,
             Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
-            Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
-            Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
-            Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
-            Components.Energy.Networks.Network         : self['energy']['Networks']     ,
+            #Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
+            #Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
+            #Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
+            #Components.Energy.Networks.Network         : self['energy']['Networks']     ,
             Components.Envelope                        : self['envelope']               ,
         }
 

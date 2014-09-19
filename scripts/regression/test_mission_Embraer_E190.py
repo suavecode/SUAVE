@@ -582,7 +582,6 @@ def mission_setup(vehicle):
 def check_results(new_results):
     
     # load old results
-    #save_results(new_results)
     old_results = load_results()
     
     # check segment values
