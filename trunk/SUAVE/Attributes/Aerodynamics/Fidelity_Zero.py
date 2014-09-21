@@ -15,9 +15,9 @@ import SUAVE
 from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
+from SUAVE.Methods.Aerodynamics.Lift.weissenger_vortex_lattice import weissinger_vortex_lattice
+#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
+from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
 from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 
 
