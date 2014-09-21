@@ -62,15 +62,24 @@ def define_vehicle():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.Mass_Props.m_full       = 53000    # kg
-    vehicle.Mass_Props.m_empty      = 22500    # kg
-    vehicle.Mass_Props.m_takeoff    = 52163    # kg
-    vehicle.Mass_Props.m_flight_min = 25000    # kg - Note: Actual value is unknown
+    vehicle.mass_properties.max_takeoff          = 52163    # kg
+    vehicle.mass_properties.operating_empty      = 22500    # kg
+    vehicle.mass_properties.takeoff              = 52163    # kg
+    vehicle.mass_properties.max_zero_fuel        = 0.9 * vehicle.mass_properties.max_takeoff 
+    vehicle.mass_properties.cargo                = 10000.  * Units.kilogram
+
+    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
+    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+
+    # envelope properties
+    vehicle.envelope.ultimate_load = 3.5
+    vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.delta    = 0.0                      # deg
-    vehicle.S        = 125.4                    # m^2
-    vehicle.A_engine = np.pi*(1.0/2)**2       # m^2   
+    vehicle.reference_area        = 124.862       
+    vehicle.passengers            = 8
+    vehicle.systems.control  = "fully powered" 
+    vehicle.systems.accessories = "long range"
     
     
     # ------------------------------------------------------------------        
@@ -80,9 +89,9 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
 
-    wing.Areas.reference = 125.4    #
+    wing.areas.reference = 125.4    #
     wing.aspect_ratio    = 3.63     #
-    wing.Spans.projected = 21.0     #
+    wing.spans.projected = 21.0     #
     wing.sweep           = 0 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.03
@@ -91,12 +100,14 @@ def define_vehicle():
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.Chords.mean_aerodynamic = 7.0
-    wing.Areas.exposed = 0.8*wing.Areas.wetted
-    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 7.0
+    wing.areas.exposed = 0.8*wing.Areas.wetted
+    wing.areas.affected = 0.6*wing.Areas.wetted
     wing.span_efficiency = 0.74
-    wing.Twists.root = 0.0*Units.degrees
-    wing.Twists.tip  = 2.0*Units.degrees
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 2.0*Units.degrees
+    wing.origin             = [20,0,0]
+    wing.aerodynamic_center = [3,0,0]     
     wing.vertical = False
     
     wing.high_lift    = False                 #
@@ -291,7 +302,7 @@ def define_mission(vehicle):
     mission.tag = 'The Test Mission'
 
     # initial mass
-    mission.m0 = vehicle.Mass_Props.m_full # linked copy updates if parent changes
+    mission.m0 = vehicle.mass_properties.m_full # linked copy updates if parent changes
     
     # atmospheric model
     atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -597,7 +608,7 @@ def post_process(vehicle,mission,results):
     axes.set_ylabel('Vehicle Mass (kg)')
     axes.grid(True)
     
-    mo = vehicle.Mass_Props.m_full
+    mo = vehicle.mass_properties.m_full
     mf = mass[-1]
     D_m = mo-mf
     spec_energy = vehicle.Propulsors[0].propellant.specific_energy

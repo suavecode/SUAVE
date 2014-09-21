@@ -23,7 +23,7 @@ from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-def full_setup():
+def full_setup_AS2():
 
     vehicle = vehicle_setup()
     mission = mission_setup(vehicle)
@@ -37,20 +37,20 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing 737-800'    
+    vehicle.tag = 'Aerion AS2'    
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.operating_empty           = 62746.4   # kg
-    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_takeoff               = 52163   # kg
+    vehicle.mass_properties.operating_empty           = 22500
+    vehicle.mass_properties.takeoff                   = 52163
     vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
-    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.cargo                     = 1000.  * Units.kilogram   
     
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
+    vehicle.mass_properties.center_of_gravity         = [26.3 * Units.feet, 0, 0] 
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
     
     # envelope properties
@@ -58,10 +58,10 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area        = 124.862       
-    vehicle.passengers = 170
-    vehicle.systems.control  = "fully powered" 
-    vehicle.systems.accessories = "medium range"
+    vehicle.reference_area      = 124.862       
+    vehicle.passengers          = 8
+    vehicle.systems.control     = "fully powered" 
+    vehicle.systems.accessories = "long range"
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -70,34 +70,39 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
     
-    wing.areas.reference = 124.862    #
-    wing.aspect_ratio    = 10.18       #
-    wing.spans.projected = 35.66      #
-    wing.sweep           = 25 * Units.deg
+    wing.areas.reference = 125.4    #
+    wing.aspect_ratio    = 3.63     #
+    wing.spans.projected = 21.0     #
+    wing.sweep           = 0 * Units.deg
     wing.symmetric       = True
-    wing.thickness_to_chord = 0.1
-    wing.taper           = 0.16
+    wing.thickness_to_chord = 0.03
+    wing.taper           = 0.7
     
     
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
     # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 6.81
-    wing.chords.tip   = 1.09
+    wing.chords.root  = 12.9
+    wing.chords.tip   = 1.0
     wing.areas.wetted = wing.areas.reference*2.0 
     # The span that would normally be overwritten here doesn't match
     # ---------------------------------------------------------
     
-    wing.chords.mean_aerodynamic = 12.5
+    wing.chords.mean_aerodynamic = 7.0
     wing.areas.exposed = 0.8*wing.areas.wetted
     wing.areas.affected = 0.6*wing.areas.wetted
-    wing.span_efficiency = 0.9
-    wing.twists.root = 3.0*Units.degrees
-    wing.twists.tip  = 3.0*Units.degrees
+    wing.span_efficiency = 0.74
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 2.0*Units.degrees
     wing.origin          = [20,0,0]
-    wing.aerodynamic_center = [3,0,0] 
+    wing.aerodynamic_center = [5,0,0] 
     wing.vertical   = False
-    wing.eta         = 1.0
+    wing.eta        = 1.0
+    
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
+    wing.transistion_x = 0.9    
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -109,32 +114,32 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Horizontal Stabilizer'
     
-    wing.areas.reference = 32.488    #
-    wing.aspect_ratio    = 6.16      #
-    wing.spans.projected = 14.146      #
-    wing.sweep           = 30 * Units.deg
+    wing.areas.reference = 24.5     #
+    wing.aspect_ratio    = 2.0      #
+    wing.spans.projected = 7.0      #
+    wing.sweep           = 0 * Units.deg
     wing.symmetric       = True
-    wing.thickness_to_chord = 0.08
-    wing.taper           = 0.4
+    wing.thickness_to_chord = 0.03
+    wing.taper           = 0.5
     
-    # size the wing planform ----------------------------------
-    # These can be determined by the wing sizing function
-    # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 3.28
-    wing.chords.tip   = 1.31
-    wing.areas.wetted = wing.areas.reference*2.0 
-    # ---------------------------------------------------------
+    # size the wing planform
+    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chords.mean_aerodynamic = 8.0
+    wing.chords.mean_aerodynamic = 3.0
     wing.areas.exposed = 0.8*wing.areas.wetted
     wing.areas.affected = 0.6*wing.areas.wetted
-    wing.span_efficiency = 0.9
-    wing.twists.root = 3.0*Units.degrees
-    wing.twists.tip  = 3.0*Units.degrees  
-    wing.origin          = [50,0,0]
+    wing.span_efficiency = 0.74
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 2.0*Units.degrees  
+    wing.origin          = [46,0,0]
     wing.aerodynamic_center = [2,0,0]
     wing.vertical   = False 
     wing.eta         = 0.9  
+    
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
+    wing.transistion_x = 0.9    
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -146,33 +151,33 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'    
     
-    wing.areas.reference = 32.488    #
-    wing.aspect_ratio    = 1.91      #
-    wing.spans.projected = 7.877      #
-    wing.sweep           = 25 * Units.deg
+    wing.areas.reference = 33.91    #
+    wing.aspect_ratio    = 1.3      #
+    wing.spans.projected = 3.5      #
+    wing.sweep           = 45 * Units.deg
     wing.symmetric       = False
-    wing.thickness_to_chord = 0.08
-    wing.taper           = 0.25
+    wing.thickness_to_chord = 0.04
+    wing.taper           = 0.5
     
-    # size the wing planform ----------------------------------
-    # These can be determined by the wing sizing function
-    # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 6.60
-    wing.chords.tip   = 1.65
-    wing.areas.wetted = wing.areas.reference*2.0 
-    # ---------------------------------------------------------
+    # size the wing planform
+    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.chords.mean_aerodynamic = 8.0
-    wing.areas.exposed = 0.8*wing.areas.wetted
-    wing.areas.affected = 0.6*wing.areas.wetted
+    wing.chords.mean_aerodynamic = 4.2
+    wing.areas.exposed = 1.0*wing.areas.wetted
+    wing.areas.affected = 1.0*wing.areas.wetted
     wing.span_efficiency = 0.9
     wing.twists.root = 0.0*Units.degrees
     wing.twists.tip  = 0.0*Units.degrees  
-    wing.origin          = [50,0,0]
+    wing.origin          = [40,0,0]
     wing.aerodynamic_center = [2,0,0]    
     wing.vertical   = True 
     wing.t_tail     = False
     wing.eta         = 1.0
+    
+    wing.high_lift    = False                 #
+    wing.high_mach    = True
+    wing.vortex_lift  = False
+    wing.transistion_x = 0.9    
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -184,74 +189,71 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
     
-    fuselage.number_coach_seats = 200
-    fuselage.seats_abreast = 6
+    fuselage.number_coach_seats = 8
+    fuselage.seats_abreast = 2
     fuselage.seat_pitch = 1
-    fuselage.fineness.nose = 1.6
-    fuselage.fineness.tail = 2.
-    fuselage.lengths.fore_space = 6.
-    fuselage.lengths.aft_space  = 5.
-    fuselage.width = 4.
-    fuselage.heights.maximum          = 4.    #
+    fuselage.fineness.nose = 4.0 # These finenesses are smaller than the real value due to limitations of existing functions
+    fuselage.fineness.tail = 4.0
+    fuselage.lengths.fore_space = 16.3
+    fuselage.lengths.aft_space  = 16.3
+    fuselage.width = 2.35
+    fuselage.heights.maximum            = 2.55    #
     fuselage.areas.side_projected       = 4.* 59.8 #  Not correct
-    fuselage.heights.at_quarter_length = 4. # Not correct
-    fuselage.heights.at_three_quarters_length = 4. # Not correct
+    fuselage.heights.at_quarter_length  = 4. # Not correct
+    fuselage.heights.at_three_quarters_length   = 4. # Not correct
     fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
     # A function exists to do this
-    fuselage.lengths.nose  = 6.4
-    fuselage.lengths.tail  = 8.0
-    fuselage.lengths.cabin = 44.0
-    fuselage.lengths.total = 58.4
-    fuselage.areas.wetted  = 688.64
-    fuselage.areas.front_projected = 12.57
-    fuselage.effective_diameter        = 4.0
+    fuselage.lengths.nose  = 12.0
+    fuselage.lengths.tail  = 25.5
+    fuselage.lengths.cabin = 11.5
+    fuselage.lengths.total = 49.0
+    fuselage.areas.wetted  = 615.0
+    fuselage.areas.front_projected = 5.1
+    fuselage.effective_diameter    = 2.4
     
     # add to vehicle
     vehicle.append_component(fuselage)
     
     # ------------------------------------------------------------------
-    #  Turbofan
+    #  Turbojet
     # ------------------------------------------------------------------    
     
-    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbojet = SUAVE.Components.Propulsors.Turbojet_SupersonicPASS()
+    turbojet.tag = 'Turbo Fan'
     
-    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
+    turbojet.propellant = SUAVE.Attributes.Propellants.Jet_A1()
     
-    #turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.98     #
-    turbofan.fan_pressure_ratio            = 1.7      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.99     #
-    turbofan.lpc_pressure_ratio            = 1.14     #
-    turbofan.hpc_pressure_ratio            = 13.415   #
-    turbofan.burner_pressure_ratio         = 0.95     #
-    turbofan.turbine_nozzle_pressure_ratio = 0.99     #
-    turbofan.Tt4                           = 1450.0   #
-    turbofan.bypass_ratio                  = 5.4      #
-    turbofan.thrust.design                 = 25000.0  #
-    turbofan.number_of_engines             = 2.0      #
+    turbojet.analysis_type                 = '1D'     #
+    turbojet.diffuser_pressure_ratio       = 1.0      # 1.0 either not known or not relevant
+    turbojet.fan_pressure_ratio            = 1.0      #
+    turbojet.fan_nozzle_pressure_ratio     = 1.0      #
+    turbojet.lpc_pressure_ratio            = 5.0      #
+    turbojet.hpc_pressure_ratio            = 10.0     #
+    turbojet.burner_pressure_ratio         = 1.0      #
+    turbojet.turbine_nozzle_pressure_ratio = 1.0      #
+    turbojet.Tt4                           = 1500.0   #
+    turbojet.thrust.design                 = 15000.0 * Units.lb  # 31350 lbs
+    turbojet.number_of_engines                 = 3.0      #
+    turbojet.engine_length                 = 8.0      # meters - includes 3.4m inlet
     
-    # size the turbofan
-    turbofan.A2          =   1.753
-    turbofan.df          =   1.580
-    turbofan.nacelle_dia =   1.580
-    turbofan.A2_5        =   0.553
-    turbofan.dhc         =   0.857
-    turbofan.A7          =   0.801
-    turbofan.A5          =   0.191
-    turbofan.Ao          =   1.506
-    turbofan.mdt         =   9.51
-    turbofan.mlt         =  22.29
-    turbofan.mdf         = 355.4
-    turbofan.mdlc        =  55.53
-    turbofan.D           =   1.494
-    turbofan.mdhc        =  49.73  
+    # turbojet sizing conditions
+    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
     
+    # Note: Sizing designed to give roughly nominal values - M = 2.02 is not achieved at 35,000 ft
+    
+    sizing_segment.M   = 2.02                    #
+    sizing_segment.alt = 35000 * Units.ft        #
+    sizing_segment.T   = 218.0                   #
+    sizing_segment.p   = 0.239*10**5             #
+    
+    # size the turbojet
+    turbojet.engine_sizing_1d(sizing_segment) 
+    # turbojet.nacelle_dia = 0.5
     # add to vehicle
-    vehicle.append_component(turbofan)    
+    vehicle.append_component(turbojet)    
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model

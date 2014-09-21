@@ -72,7 +72,8 @@ class Turbojet_SupersonicPASS(Propulsor):
         self.Tt4 = 1400
         self.bypass_ratio = 0.0
         self.mdhc = 0.0        
-        self.design_thrust = 1.0
+        self.thrust = Data()
+        self.thrust.design = 1.0
         self.no_of_engines=0.0
         
         #----geometry
@@ -104,7 +105,7 @@ class Turbojet_SupersonicPASS(Propulsor):
         pitn=self.turbine_nozzle_pressure_ratio
         Tt4=self.Tt4
         aalpha=0 # Changes from a turbofan to turbojet
-        FD=self.design_thrust
+        FD=self.thrust.design
     
     
      #global fm
@@ -538,7 +539,7 @@ class Turbojet_SupersonicPASS(Propulsor):
         aalpha=0 # TURBOJETT
         mdhc=self.mdhc  
         A22=self.A2 
-        no_eng=self.no_of_engines 
+        no_eng=self.number_of_engines
         
         throttle=eta
        
