@@ -48,7 +48,7 @@ def main():
     payload_range_results = payload_range(vehicle,mission,cruise_segment_tag)
 
     # check the results
-##    check_results(results)
+    check_results(results)
 
     # post process the results
     plot_mission(vehicle,mission,results)
