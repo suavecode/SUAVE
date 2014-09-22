@@ -109,11 +109,12 @@ def payload_range(vehicle,mission,cruise_segment_tag):
 
     # loop for each point of Payload Range Diagram
     for i in range(len(TOW)):
+##    for i in [2]:
         if iprint:
             print('   EVALUATING POINT : ' + str(i+1))
 
         # Define takeoff weight
-        mission.segments[0].config.mass_properties.max_takeoff = TOW[i]
+        mission.segments[0].config.mass_properties.takeoff = TOW[i]
 
         # Evaluate mission with current TOW
         results = SUAVE.Methods.Performance.evaluate_mission(mission)
@@ -134,14 +135,14 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             iter = iter + 1
 
             # Current total fuel burned in mission
-            TotalFuel  = TOW[i] - results.segments[-1].conditions.weights.total_mass[-1]
+            TotalFuel  = TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0]
 
             # Difference between burned fuel and target fuel
             missingFuel = FUEL[i] - TotalFuel
 
             # Current distance and fuel consuption in the cruise segment
             CruiseDist = segment.distance                # Distance [m]
-            CruiseFuel = segment.conditions.weights.total_mass[0] - segment.conditions.weights.total_mass[-1]    # [kg]
+            CruiseFuel = segment.conditions.weights.total_mass[0,0] - segment.conditions.weights.total_mass[-1,0]    # [kg]
             # Current specific range (m/kg)
             CruiseSR    = CruiseDist / CruiseFuel        # [m/kg]
 
@@ -154,7 +155,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel
-            err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1] ) - FUEL[i]
+            err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i]
 
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
