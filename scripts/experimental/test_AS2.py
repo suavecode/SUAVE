@@ -117,7 +117,8 @@ def define_vehicle():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transition_x = 0.9
+    wing.transition_x_upper = 0.9
+    wing.transition_x_lower = 0.9
     
     #print wing
     # add to vehicle
@@ -153,7 +154,8 @@ def define_vehicle():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transition_x = 0.9
+    wing.transition_x_upper = 0.9
+    wing.transition_x_lower = 0.9
     
     #print wing
     # add to vehicle
@@ -185,6 +187,8 @@ def define_vehicle():
     wing.twists.root = 0.0*Units.degrees
     wing.twists.tip  = 0.0*Units.degrees
     wing.vertical = True
+    wing.transition_x_upper = 0.9
+    wing.transition_x_lower = 0.9    
     
         
     # add to vehicle

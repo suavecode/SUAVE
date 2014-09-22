@@ -106,21 +106,15 @@ def parasite_drag_wing(conditions,configuration,wing):
 
     # correction for airfoils
 
+    k_w = np.array([[0.0]] * len(Mc))
 
-    k_w = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc**2. * ( np.cos(sweep_w))**2.) )  \
-             + ( C**2. * (np.cos(sweep_w))**2. * t_c_w**2. * (1. + 5.*(np.cos(sweep_w)**2.)) ) \
-                / (2.*(1.-(Mc*np.cos(sweep_w))**2.))       
-    
-
-
+    k_w[Mc < 0.95] = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc[Mc < 0.95]**2. * ( np.cos(sweep_w))**2.) )  \
+                     + ( C**2. * (np.cos(sweep_w))**2. * t_c_w**2. * (1. + 5.*(np.cos(sweep_w)**2.)) ) \
+                        / (2.*(1.-(Mc[Mc < 0.95]*np.cos(sweep_w))**2.))
 
 
 
-
-
-
-
-
+    k_w[Mc >= 0.95] =  1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
 
 
 
