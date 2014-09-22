@@ -37,8 +37,30 @@ def parasite_drag_wing(conditions,configuration,wing):
         computes the parastite drag associated with a wing 
         
         Inputs:
+            conditions
+            -freestream mach number
+            -freestream density
+            -freestream viscosity
+            -freestream temperature
+            -freestream pressuve
+            
+            configuration
+            -wing parasite drag form factor
+            
+            wing
+            -S reference
+            -mean aerodynamic chord
+            -thickness to chord ratio
+            -sweep
+            -aspect ratio
+            -span
+            -S exposed
+            -S affected
+            -transition x
             
         Outputs:
+            wing parasite drag coefficient with refernce area as the
+            reference area of the input wing
         
         Assumptions:
         
