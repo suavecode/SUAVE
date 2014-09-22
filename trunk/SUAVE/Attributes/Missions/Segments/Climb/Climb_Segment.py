@@ -5,6 +5,7 @@
 
 # python imports
 import numpy as np
+import time
 
 # SUAVE imports
 from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
@@ -31,7 +32,10 @@ class Climb_Segment(Aerodynamic_Segment):
         
         self.altitude_start = None      # optional
         self.altitude_end   = 10. * km
-        
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
+       
         return
 
     # ------------------------------------------------------------------

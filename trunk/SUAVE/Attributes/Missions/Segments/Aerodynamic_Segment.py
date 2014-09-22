@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import time
 from SUAVE.Structure                    import Data, Data_Exception
 from SUAVE.Structure                    import Container as ContainerBase
 from SUAVE.Attributes.Planets           import Planet
@@ -10,6 +11,7 @@ from SUAVE.Attributes.Atmospheres       import Atmosphere
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 from SUAVE.Methods.Utilities            import atleast_2d_col
 from SUAVE.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product, orientation_transpose
+from SUAVE.Attributes.Units             import Units
 from Base_Segment import Base_Segment
 
 # ----------------------------------------------------------------------
@@ -26,8 +28,9 @@ class Aerodynamic_Segment(Base_Segment):
         self.tag = 'Aerodynamic Segment'
         
         # atmosphere and planet
-        self.planet     = Planet()
-        self.atmosphere = Atmosphere()        
+        self.planet     = None
+        self.atmosphere = None  
+        self.start_time = time.gmtime()
         
         
         # --- Conditions and Unknowns
@@ -78,6 +81,12 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.frames.body.thrust_force_vector      = ones_3col * 0
         conditions.frames.body.transform_to_inertial    = np.empty([0,0,0])
         
+        # planet frame conditions
+        conditions.frames.planet = Data()
+        conditions.frames.planet.start_time      = None
+        conditions.frames.planet.latitude        = ones_1col * 0
+        conditions.frames.planet.longitude       = ones_1col * 0
+        
         # freestream conditions
         conditions.freestream.velocity           = ones_1col * 0
         conditions.freestream.mach_number        = ones_1col * 0
@@ -103,6 +112,7 @@ class Aerodynamic_Segment(Base_Segment):
         # propulsion conditions
         conditions.propulsion.throttle           = ones_1col * 0
         conditions.propulsion.fuel_mass_rate     = ones_1col * 0
+        conditions.propulsion.battery_energy     = ones_1col * 0
         conditions.propulsion.thrust_breakdown   = Data()
         
         # weights conditions
@@ -115,8 +125,9 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.energies.gravity_energy       = ones_1col * 0
         conditions.energies.propulsion_power     = ones_1col * 0
         
+        conditions.scalar = 1.0
+        
         return
-    
     
     
     # ------------------------------------------------------------------
@@ -130,6 +141,29 @@ class Aerodynamic_Segment(Base_Segment):
     #   Base_Segment.solve_residuals()
     #   Base_Segment.post_process()
     
+    def initialize_conditions(self, conditions, numerics, initials=None):
+        Base_Segment.initialize_conditions(self,conditions, numerics, initials)
+        
+        # process initials
+        if initials:
+            energy_initial    = initials.propulsion.battery_energy[0,0]
+            longitude_initial = initials.frames.planet.longitude[0,0]
+            latitude_initial  = initials.frames.planet.latitude[0,0]
+            
+        else:
+            energy_initial    = self.battery_energy
+            longitude_initial = self.longitude
+            latitude_initial  = self.latitude
+            
+        # apply initials
+        conditions.propulsion.battery_energy[:,0] = energy_initial
+        conditions.frames.planet.longitude[:,0]   = longitude_initial
+        conditions.frames.planet.latitude[:,0]    = latitude_initial
+        conditions.frames.planet.start_time       = self.start_time
+        
+        return conditions
+    
+    
     def update_conditions(self,conditions,numerics,unknowns):
         
         # unpack models
@@ -138,6 +172,9 @@ class Aerodynamic_Segment(Base_Segment):
         
         # angle of attacks
         conditions = self.compute_orientations(conditions)
+        
+        # position, NOTE: This code is fully functioning and complete!
+        #conditions = self.compute_position(conditions,numerics)
         
         # aerodynamics
         conditions = self.compute_aerodynamics(aero_model,conditions)
@@ -322,22 +359,10 @@ class Aerodynamic_Segment(Base_Segment):
         
         N = self.numerics.n_control_points
         
-        eta = conditions.propulsion.throttle[:,0]
-        
-        #state = Data()
-        #state.q  = conditions.freestream.dynamic_pressure[:,0]
-        #state.g0 = conditions.freestream.gravity[:,0]
-        #state.V  = conditions.freestream.velocity[:,0]
-        #state.M  = conditions.freestream.mach_number[:,0]
-        #state.T  = conditions.freestream.temperature[:,0]
-        #state.p  = conditions.freestream.pressure[:,0]
-        
-        F, mdot, P = propulsion_model(eta, conditions)
+        F, mdot, P = propulsion_model(conditions,numerics)
         
         F_vec = np.zeros([N,3])
-        F_vec[:,0] = F[:]
-        mdot = atleast_2d_col( mdot )
-        P    = atleast_2d_col( P    )
+        F_vec[:,0] = F[:,0]
         
         ## TODO ---
         ## call propulsion model
@@ -416,7 +441,7 @@ class Aerodynamic_Segment(Base_Segment):
         # pack aerodynamics angles
         conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
         conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
-        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]        
+        conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]    
         
         # pack transformation tensor
         conditions.frames.body.transform_to_inertial = T_body2inertial
@@ -463,7 +488,7 @@ class Aerodynamic_Segment(Base_Segment):
         D = orientation_product(T_wind2inertial,wind_drag_force_vector)
         T = orientation_product(T_body2inertial,body_thrust_force_vector)
         W = inertial_gravity_force_vector
-        
+
         # sum of the forces
         F = L + D + T + W
         # like a boss
@@ -472,6 +497,42 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
         
         return conditions
+    
+    def compute_position(self,conditions,numerics):
+        
+        # unpack orientations and velocities
+        V          = conditions.freestream.velocity[:,0]
+        altitude   = conditions.freestream.altitude[:,0]
+        phi        = conditions.frames.body.inertial_rotations[:,0]
+        theta      = conditions.frames.body.inertial_rotations[:,1]
+        psi        = conditions.frames.body.inertial_rotations[:,2]
+        I          = numerics.integrate_time
+        alpha      = conditions.aerodynamics.angle_of_attack[:,0]
+        Re         = self.planet.mean_radius
+        
+        # The flight path and radius
+        gamma     = theta - alpha
+        R         = altitude + Re
+        
+        # Find the velocities and integrate the positions
+        lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
+        lamda     = np.dot(I,lamdadot) / Units.deg # Latitude
+        mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
+        mu        = np.dot(I,mudot) / Units.deg # Longitude
+
+        # Reshape the size of the vectorss
+        shape     = np.shape(conditions.freestream.velocity)
+        mu        = np.reshape(mu,shape) 
+        lamda     = np.reshape(lamda,shape)
+        
+        # Pack'r up
+        lat = conditions.frames.planet.latitude[0,0]
+        lon = conditions.frames.planet.longitude[0,0]        
+        conditions.frames.planet.latitude  = lat + lamda
+        conditions.frames.planet.longitude = lon + mu    
+        
+        return conditions
+        
           
 
 # ----------------------------------------------------------------------

@@ -1,5 +1,4 @@
 
-
 from parasite_drag_wing import parasite_drag_wing
 from parasite_drag_fuselage import parasite_drag_fuselage
 from parasite_drag_aircraft import parasite_drag_aircraft

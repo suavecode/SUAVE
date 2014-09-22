@@ -5,6 +5,7 @@
 
 # python imports
 import numpy as np
+import time
 
 # SUAVE imports
 from Unknown_Throttle import Unknown_Throttle
@@ -34,7 +35,10 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         self.altitude_end   = 10. * km
         self.climb_rate     = 3.  * Units.m / Units.s
         self.air_speed      = 100 * Units.m / Units.s
-        
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0
+   
         return
 
     # ------------------------------------------------------------------

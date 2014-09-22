@@ -1,8 +1,5 @@
 
 # classes
-from Converter import Converter
-from Fuel_Cell import Fuel_Cell
-from PEM_FC import PEM_FC
-
-# packages
-# ...
+from Motor import Motor
+from Propeller import Propeller
+from Solar_Panel import Solar_Panel
