@@ -113,11 +113,11 @@ def post_process(vehicle,mission,results):
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)        
         
-        #axes = fig.add_subplot(4,1,4)
-        #axes.plot( time , Pitching_moment , 'bo-' )
-        #axes.set_xlabel('Time (min)')
-        #axes.set_ylabel('Pitching_moment (~)')
-        #axes.grid(True)
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Pitching_moment , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Pitching_moment (~)')
+        axes.grid(True)
         
         
     # ------------------------------------------------------------------    
