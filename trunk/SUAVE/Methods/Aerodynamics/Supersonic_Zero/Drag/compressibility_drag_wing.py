@@ -12,7 +12,7 @@ from SUAVE.Attributes.Results.Result import Result
 from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
 )
-from SUAVE.Methods.Aerodynamics.Drag.Correlations import \
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      wave_drag_lift, wave_drag_volume
 
 from wave_drag_lift import wave_drag_lift

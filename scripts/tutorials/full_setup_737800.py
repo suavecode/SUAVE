@@ -234,6 +234,8 @@ def vehicle_setup():
     turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
     
+    turbofan.lengths.engine                = 3.0
+    
     # size the turbofan
     turbofan.A2          =   1.753
     turbofan.df          =   1.580

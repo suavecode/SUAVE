@@ -341,61 +341,56 @@ def mission_setup(vehicle):
     
     mission.airport = airport
     
+
     
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
-    # ------------------------------------------------------------------
+    #   Sixth Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.configs.takeoff
+    segment.config = vehicle.configs.cruise
     
-    # define segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
+    # segment attributes
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet        
+
+    segment.altitude_start = 0.0    * Units.km
+    segment.altitude_end = 3.05     * Units.km
+    segment.air_speed    = 128.6    * Units['m/s']
+    segment.climb_rate   = 4000    * Units['ft/min']
     
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.0   * Units.km
-    segment.air_speed      = 125.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
-    
-    # add to misison
-    mission.append_segment(segment)
-    
+    # add to mission
+    mission.append_segment(segment)     
     
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Seventh Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    #segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet    
-    
-    #segment.altitude_start = 3.0   * Units.km ## Optional
-    segment.altitude_end   = 8.0   * Units.km
-    segment.air_speed      = 190.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
-    #segment.mach_number    = 0.5
-    #segment.climb_rate     = 6.0   * Units['m/s']
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet        
+
+    segment.altitude_end = 4.57     * Units.km
+    segment.air_speed    = 205.8    * Units['m/s']
+    segment.climb_rate   = 1000    * Units['ft/min']
     
     # add to mission
-    mission.append_segment(segment)
-
+    mission.append_segment(segment) 
     
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Eighth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
     segment.tag = "Climb - 3"
     
     # connect vehicle configuration
@@ -405,19 +400,42 @@ def mission_setup(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet        
     
-    segment.altitude_end = 10.668 * Units.km
-    segment.air_speed    = 226.0  * Units['m/s']
-    segment.climb_rate   = 3.0    * Units['m/s']
+    segment.altitude_end = 9.77 * Units.km # 
+    segment.mach_number_start = 0.64
+    segment.mach_number_end  = 1.0 
+    segment.climb_rate   = 1000    * Units['ft/min']
     
     # add to mission
-    mission.append_segment(segment)
+    mission.append_segment(segment)  
+    
+    # ------------------------------------------------------------------
+    #   Eighth Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------    
+    
+    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment.tag = "Climb - 4"
+    
+    # connect vehicle configuration
+    segment.config = vehicle.configs.cruise
+    
+    # segment attributes
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet        
+    
+    segment.altitude_end = 15.54 * Units.km # 51000 ft
+    segment.mach_number_start = 1.0
+    segment.mach_number_end  = 1.4
+    segment.climb_rate   = 1000    * Units['ft/min']
+    
+    # add to mission
+    mission.append_segment(segment)   
     
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -427,9 +445,9 @@ def mission_setup(vehicle):
     segment.atmosphere = atmosphere
     segment.planet     = planet        
     
-    #segment.altitude   = 10.668  * Units.km     # Optional
-    segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = 3933.65 * Units.km
+    segment.altitude   = 15.54  * Units.km     # Optional
+    segment.mach       = 1.4
+    segment.distance   = 4000.0 * Units.nmi
         
     mission.append_segment(segment)
 
@@ -437,7 +455,7 @@ def mission_setup(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -447,20 +465,44 @@ def mission_setup(vehicle):
     segment.atmosphere   = atmosphere
     segment.planet       = planet   
     
-    segment.altitude_end = 5.0   * Units.km
-    segment.air_speed    = 170.0 * Units['m/s']
+    segment.altitude_end = 6.8  * Units.km
+    segment.mach_number_start = 1.4
+    segment.mach_number_end = 1.0
     segment.descent_rate = 5.0   * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
     
+    
+    # ------------------------------------------------------------------    
+    #   Second Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------    
 
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
+    segment.tag = "Descent - 2"
+    
+    # connect vehicle configuration
+    segment.config = vehicle.configs.cruise
+    
+    # segment attributes
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet   
+    
+    segment.altitude_end = 3.0  * Units.km
+    segment.mach_number_start = 1.0
+    segment.mach_number_end = 0.65
+    segment.descent_rate = 5.0   * Units['m/s']
+    
+    # add to mission
+    mission.append_segment(segment)
+      
+    
     # ------------------------------------------------------------------    
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "Descent - 2"
+    segment.tag = "Descent - 3"
 
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
@@ -470,11 +512,11 @@ def mission_setup(vehicle):
     segment.planet       = planet    
     
     segment.altitude_end = 0.0   * Units.km
-    segment.air_speed    = 145.0 * Units['m/s']
+    segment.air_speed    = 130.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
     # append to mission
-    mission.append_segment(segment)
+    mission.append_segment(segment)       
 
     
     # ------------------------------------------------------------------    

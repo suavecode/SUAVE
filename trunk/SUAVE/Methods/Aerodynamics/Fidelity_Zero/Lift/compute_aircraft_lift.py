@@ -24,7 +24,7 @@ from SUAVE.Geometry.Two_Dimensional.Planform import fuselage_planform
 #from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Aerodynamics_Surrogate
 #from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Interpolation
 from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
-from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
 
 
 

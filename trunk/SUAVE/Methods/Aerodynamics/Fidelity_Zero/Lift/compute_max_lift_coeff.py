@@ -21,8 +21,8 @@ from warnings import warn
 # package imports
 import numpy as np
 import scipy as sp
-from SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations.compute_slat_lift import compute_slat_lift
-from SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations.compute_flap_lift import compute_flap_lift
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_slat_lift import compute_slat_lift
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import compute_flap_lift
 
 # ----------------------------------------------------------------------
 #  compute_max_lift_coeff
