@@ -81,4 +81,4 @@ def datcom(wing,mach):
     
     #Compute aerodynamic surface 3D lift curve slope using the DATCOM formula
     
-    return np.array([cL_alpha]).T
+    return np.array(cL_alpha)
