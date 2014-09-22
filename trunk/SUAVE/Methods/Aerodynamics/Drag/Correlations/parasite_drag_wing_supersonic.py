@@ -80,7 +80,7 @@ def parasite_drag_wing_supersonic(conditions,configuration,wing):
     span_w       = wing.Spans.projected
     S_exposed_w  = wing.Areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
     S_affected_w = wing.Areas.affected 
-    xt           = wing.transistion_x
+    xt           = wing.transition_x
     
     # compute wetted area # TODO: calcualte as preprocessing
     Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w    

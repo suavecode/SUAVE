@@ -17,7 +17,7 @@ from SUAVE.Attributes import Units
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift.linear_supersonic_lift import linear_supersonic_lift
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag_supersonic
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
 from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 
 
@@ -88,11 +88,11 @@ class Supersonic_Zero(Aerodynamics_Surrogate):
         n_conditions = len(AoA)
         
         # copy geometry
-        for k in ['Fuselages','Wings','Propulsors']:
+        for k in ['fuselages','wings','propulsors']:
             geometry[k] = deepcopy(vehicle[k])
         
         # reference area
-        geometry.reference_area = vehicle.S
+        geometry.reference_area = vehicle.reference_area
               
         
         # arrays
@@ -214,12 +214,12 @@ class Supersonic_Zero(Aerodynamics_Surrogate):
         Sref          = geometry.reference_area
                 
         # lift needs to compute first, updates data needed for drag
-        CL = SUAVE.Methods.Aerodynamics.Lift.compute_aircraft_lift_supersonic(conditions,configuration,geometry)
+        CL = SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift.compute_aircraft_lift(conditions,configuration,geometry)
         
 
         
         # drag computes second
-        CD = compute_aircraft_drag_supersonic(conditions,configuration,geometry)
+        CD = compute_aircraft_drag(conditions,configuration,geometry)
         
         
         # pack conditions
@@ -262,10 +262,10 @@ def calculate_lift_vortex_lattice(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.Areas.reference / vehicle_reference_area
+        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
 
     return total_lift_coeff
     
@@ -278,10 +278,10 @@ def calculate_lift_linear_supersonic(conditions,configuration,geometry):
     
     # iterate over wings
     total_lift_coeff = 0.0
-    for wing in geometry.Wings.values():
+    for wing in geometry.wings.values():
         
         wing_lift_coeff = linear_supersonic_lift(conditions,configuration,wing)
-        total_lift_coeff += wing_lift_coeff * wing.Areas.reference / vehicle_reference_area
+        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
     
     return total_lift_coeff    
 

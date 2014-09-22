@@ -53,9 +53,9 @@ def compressibility_drag_total(conditions,configuration,geometry):
     """
 
     # Unpack
-    wings       = geometry.Wings
-    fuselages   = geometry.Fuselages
-    propulsor   = geometry.Propulsors[0]
+    wings       = geometry.wings
+    fuselages   = geometry.fuselages
+    propulsor   = geometry.propulsors[0]
 
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -73,14 +73,14 @@ def compressibility_drag_total(conditions,configuration,geometry):
         
         # Use main wing reference area for drag coefficients
         if i_wing == 0:
-            Sref_main = wing.Areas.reference
+            Sref_main = wing.areas.reference
             
 	# Get main fuselage data - note that name of fuselage is important here
 	# This should be changed to be general # ----------------------------------------------------------------
 	main_fuselage = fuselages.Fuselage
 	    
 	# Get number of engines data
-        num_engines = propulsor.no_of_engines
+        num_engines = propulsor.number_of_engines
         
         # Get the lift coefficient of the wing.
 	# Note that this is not the total CL
@@ -219,7 +219,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     
     # Convert coefficient to full aircraft value
     if i_wing != 0:
-        cd_c = cd_c*wing.Areas.reference/Sref_main
+        cd_c = cd_c*wing.areas.reference/Sref_main
 	
     # Include fuselage and propulsors for one iteration
     if i_wing == 0:
@@ -230,12 +230,12 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
 	
 	# Fuselage wave drag
         if len(main_fuselage) > 0:
-            fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.Lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
+            fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
         else:
             raise ValueError('Main fuselage does not have a total length')
 	    
 	# Propulsor wave drag	
-        prop_drag[mach >= 1.05] = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.no_of_engines
+        prop_drag[mach >= 1.05] = wave_drag_body_of_rev(propulsor.lengths.engine_total,propulsor.nacelle_dia/2.0,Sref_main)*propulsor.number_of_engines
         
         # Pack values
         cd_c[mach >= 1.05] = cd_c[mach >= 1.05] + fuse_drag[mach >= 1.05]

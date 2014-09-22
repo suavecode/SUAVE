@@ -22,6 +22,10 @@ import pylab as plt
 
 import copy, time
 
+from SUAVE.Structure import (
+Data, Container, Data_Exception, Data_Warning,
+)
+
 
 # ----------------------------------------------------------------------
 #   Main
@@ -101,8 +105,8 @@ def define_vehicle():
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = 7.0
-    wing.areas.exposed = 0.8*wing.Areas.wetted
-    wing.areas.affected = 0.6*wing.Areas.wetted
+    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.74
     wing.twists.root = 0.0*Units.degrees
     wing.twists.tip  = 2.0*Units.degrees
@@ -113,7 +117,7 @@ def define_vehicle():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transistion_x = 0.9
+    wing.transition_x = 0.9
     
     #print wing
     # add to vehicle
@@ -127,9 +131,9 @@ def define_vehicle():
     wing.tag = 'Horizontal Stabilizer'
     
     
-    wing.Areas.reference = 24.5     #
+    wing.areas.reference = 24.5     #
     wing.aspect_ratio    = 2.0      #
-    wing.Spans.projected = 7.0      #
+    wing.spans.projected = 7.0      #
     wing.sweep           = 0 * Units.deg
     wing.symmetric       = True
     wing.thickness_to_chord = 0.03
@@ -138,18 +142,18 @@ def define_vehicle():
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.Chords.mean_aerodynamic = 3.0
-    wing.Areas.exposed = 0.8*wing.Areas.wetted
-    wing.Areas.affected = 0.6*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 3.0
+    wing.areas.exposed = 0.8*wing.areas.wetted
+    wing.areas.affected = 0.6*wing.areas.wetted
     wing.span_efficiency = 0.74
-    wing.Twists.root = 0.0*Units.degrees
-    wing.Twists.tip  = 2.0*Units.degrees
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 2.0*Units.degrees
     wing.vertical = False
     
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transistion_x = 0.9
+    wing.transition_x = 0.9
     
     #print wing
     # add to vehicle
@@ -163,9 +167,9 @@ def define_vehicle():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertcal Stabilizer'    
     
-    wing.Areas.reference = 33.91    #
+    wing.areas.reference = 33.91    #
     wing.aspect_ratio    = 1.3      #
-    wing.Spans.projected = 3.5      #
+    wing.spans.projected = 3.5      #
     wing.sweep           = 45 * Units.deg
     wing.symmetric       = False
     wing.thickness_to_chord = 0.04
@@ -174,12 +178,12 @@ def define_vehicle():
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
-    wing.Chords.mean_aerodynamic = 4.2
-    wing.Areas.exposed = 1.0*wing.Areas.wetted
-    wing.Areas.affected = 0.0*wing.Areas.wetted
+    wing.chords.mean_aerodynamic = 4.2
+    wing.areas.exposed = 1.0*wing.areas.wetted
+    wing.areas.affected = 0.0*wing.areas.wetted
     wing.span_efficiency = 0.9
-    wing.Twists.root = 0.0*Units.degrees
-    wing.Twists.tip  = 0.0*Units.degrees
+    wing.twists.root = 0.0*Units.degrees
+    wing.twists.tip  = 0.0*Units.degrees
     wing.vertical = True
     
         
@@ -197,12 +201,12 @@ def define_vehicle():
     fuselage.number_coach_seats = 0
     fuselage.seats_abreast = 2
     fuselage.seat_pitch = 0
-    fuselage.Fineness.nose = 4.0
-    fuselage.Fineness.tail = 4.0
-    fuselage.Lengths.fore_space = 16.3
-    fuselage.Lengths.aft_space  = 16.3
+    fuselage.fineness.nose = 4.0
+    fuselage.fineness.tail = 4.0
+    fuselage.lengths.fore_space = 16.3
+    fuselage.lengths.aft_space  = 16.3
     fuselage.width = 2.35
-    fuselage.Heights.maximum = 2.55
+    fuselage.heights.maximum = 2.55
     
     # size fuselage planform
     SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
@@ -231,8 +235,10 @@ def define_vehicle():
     turbojet.turbine_nozzle_pressure_ratio = 1.0      #
     turbojet.Tt4                           = 1500.0   #
     turbojet.design_thrust                 = 15000.0 * Units.lb  # 31350 lbs
-    turbojet.no_of_engines                 = 3.0      #
+    turbojet.number_of_engines             = 3.0      #
     turbojet.engine_length                 = 8.0      # meters - includes 3.4m inlet
+    turbojet.lengths = Data()
+    turbojet.lengths.engine_total               = 8.0
     
     # turbojet sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
@@ -256,7 +262,7 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero_Supersonic()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Supersonic_Zero()
     aerodynamics.initialize(vehicle)
 
     vehicle.aerodynamics_model = aerodynamics
@@ -265,7 +271,7 @@ def define_vehicle():
     #   Simple Propulsion Model
     # ------------------------------------------------------------------     
     
-    vehicle.propulsion_model = vehicle.Propulsors
+    vehicle.propulsion_model = vehicle.propulsors
 
     # ------------------------------------------------------------------
     #   Define Configurations
@@ -301,12 +307,17 @@ def define_mission(vehicle):
     mission = SUAVE.Attributes.Missions.Mission()
     mission.tag = 'The Test Mission'
 
-    # initial mass
-    mission.m0 = vehicle.mass_properties.m_full # linked copy updates if parent changes
-    
     # atmospheric model
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet = SUAVE.Attributes.Planets.Earth()
+    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    
+    mission.airport = airport
     
 
     
@@ -318,7 +329,7 @@ def define_mission(vehicle):
     segment.tag = "Climb - 6"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -340,7 +351,7 @@ def define_mission(vehicle):
     segment.tag = "Climb - 7"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -361,7 +372,7 @@ def define_mission(vehicle):
     segment.tag = "Climb - 8"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -383,7 +394,7 @@ def define_mission(vehicle):
     segment.tag = "Climb - 9"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -406,7 +417,7 @@ def define_mission(vehicle):
     segment.tag = "Cruise"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere = atmosphere
@@ -426,7 +437,7 @@ def define_mission(vehicle):
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -449,7 +460,7 @@ def define_mission(vehicle):
     segment.tag = "Descent - 2"
     
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
     
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -472,7 +483,7 @@ def define_mission(vehicle):
     segment.tag = "Descent - 5"
 
     # connect vehicle configuration
-    segment.config = vehicle.Configs.cruise
+    segment.config = vehicle.configs.cruise
 
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -527,7 +538,7 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     fig = plt.figure("Throttle and Fuel Burn")
     tot_energy = 0.0
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
         eta  = segment.conditions.propulsion.throttle[:,0]
         mdot = segment.conditions.propulsion.fuel_mass_rate[:,0]
@@ -571,9 +582,9 @@ def post_process(vehicle,mission,results):
     
     plt.figure("Angle of Attack History")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.Segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         axes.plot(time, aoa, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Angle of Attack (deg)')
@@ -586,9 +597,9 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     plt.figure("Altitude")
     axes = plt.gca()    
-    for i in range(len(results.Segments)):     
-        time     = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        altitude = results.Segments[i].conditions.freestream.altitude[:,0] / Units.km
+    for i in range(len(results.segments)):     
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
         axes.plot(time, altitude, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Altitude (km)')
@@ -600,18 +611,18 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------    
     plt.figure("Vehicle Mass")
     axes = plt.gca()
-    for i in range(len(results.Segments)):
-        time = results.Segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mass = results.Segments[i].conditions.weights.total_mass[:,0]
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.segments[i].conditions.weights.total_mass[:,0]
         axes.plot(time, mass, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Vehicle Mass (kg)')
     axes.grid(True)
     
-    mo = vehicle.mass_properties.m_full
+    mo = vehicle.mass_properties.max_takeoff
     mf = mass[-1]
     D_m = mo-mf
-    spec_energy = vehicle.Propulsors[0].propellant.specific_energy
+    spec_energy = vehicle.propulsors[0].propellant.specific_energy
     tot_energy = D_m*spec_energy
     print "Total Energy Used          %.0f kJ (does not account for efficiency loses)" % (tot_energy/1000.0)
 
@@ -621,7 +632,7 @@ def post_process(vehicle,mission,results):
      
     fig = plt.figure("Velocity and Density")
     dist_base = 0.0
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
             
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         velocity   = segment.conditions.freestream.velocity[:,0]
@@ -656,7 +667,7 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -692,7 +703,7 @@ def post_process(vehicle,mission,results):
     # ------------------------------------------------------------------
     
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.Segments.values():
+    for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -728,7 +739,7 @@ def post_process(vehicle,mission,results):
     
     fig = plt.figure("Drag Components")
     axes = plt.gca()    
-    for i, segment in enumerate(results.Segments.values()):
+    for i, segment in enumerate(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown

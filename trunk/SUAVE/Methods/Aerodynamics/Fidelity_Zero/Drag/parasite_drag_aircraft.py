@@ -9,8 +9,10 @@
 # ----------------------------------------------------------------------
 
 # suave 
-from SUAVE.Methods.Aerodynamics.Drag.Correlations import \
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
      parasite_drag_wing, parasite_drag_fuselage
+from parasite_drag_wing import parasite_drag_wing
+from parasite_drag_fuselage import parasite_drag_fuselage
 
 from SUAVE.Attributes.Results import Result
 

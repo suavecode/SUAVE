@@ -53,7 +53,7 @@ import scipy as sp
 #  The Function
 # ----------------------------------------------------------------------
 
-def compute_aircraft_lift(conditions,configuration,geometry=None):
+def compute_aircraft_lift(conditions,configuration,geometry):
     """ SUAVE.Methods.Aerodynamics.compute_aircraft_lift(conditions,configuration,geometry)
         computes the lift associated with an aircraft 
         
@@ -98,6 +98,8 @@ def compute_aircraft_lift(conditions,configuration,geometry=None):
     
     # interpolate
     wings_lift = wings_lift_model(X_interp)  
+    
+    wing = geometry.wings[0]
     if wing.vortex_lift is True:
         vortex_cl = vortex_lift(X_interp,configuration,wing) # This was initialized at 0.0
         wings_lift = wings_lift + vortex_cl   

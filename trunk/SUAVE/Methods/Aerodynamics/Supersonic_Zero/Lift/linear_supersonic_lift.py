@@ -41,16 +41,16 @@ def linear_supersonic_lift(conditions,configuration,wing):
     """
 
     # Unpack
-    span       = wing.Spans.projected
-    root_chord = wing.Chords.root
-    tip_chord  = wing.Chords.tip
+    span       = wing.spans.projected
+    root_chord = wing.chords.root
+    tip_chord  = wing.chords.tip
     sweep      = wing.sweep
     taper      = wing.taper
-    twist_rc   = wing.Twists.root
-    twist_tc   = wing.Twists.tip
+    twist_rc   = wing.twists.root
+    twist_tc   = wing.twists.tip
     sym_para   = wing.symmetric
     AR         = wing.aspect_ratio
-    Sref       = wing.Areas.reference
+    Sref       = wing.areas.reference
     orientation = wing.vertical
 
     aoa = conditions.aerodynamics.angle_of_attack

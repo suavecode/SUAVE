@@ -31,7 +31,7 @@ from post_process          import post_process
 
 def main():
     
-    vehicle, mission = full_setup_737800()
+    vehicle, mission = full_setup_AS2()
     
     results = the_aircraft_function(vehicle,mission)
     

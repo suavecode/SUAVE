@@ -1,6 +1,4 @@
 
-import compute_aircraft_drag
-import parasite_drag_wing
 
 from parasite_drag_wing import parasite_drag_wing
 from parasite_drag_fuselage import parasite_drag_fuselage
@@ -13,3 +11,6 @@ from wave_drag_volume import wave_drag_volume
 from wave_drag_body_of_rev import wave_drag_body_of_rev
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
+from compressibility_drag_total import compressibility_drag_total
+
+from compute_aircraft_drag import compute_aircraft_drag

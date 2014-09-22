@@ -9,8 +9,8 @@
 # ----------------------------------------------------------------------
 
 # suave 
-from SUAVE.Methods.Aerodynamics.Drag.Correlations import \
-     parasite_drag_wing_supersonic, parasite_drag_fuselage_supersonic
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
+     parasite_drag_wing, parasite_drag_fuselage
 
 from SUAVE.Attributes.Results import Result
 
@@ -43,8 +43,8 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     """
 
     # unpack inputs
-    wings     = geometry.Wings
-    fuselages = geometry.Fuselages
+    wings     = geometry.wings
+    fuselages = geometry.fuselages
     vehicle_reference_area = geometry.reference_area
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
@@ -56,15 +56,15 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     
     # from wings
     for wing in wings.values():
-        parasite_drag = parasite_drag_wing_supersonic(conditions,configuration,wing)
-        conditions.aerodynamics.drag_breakdown.parasite[wing.tag].parasite_drag_coefficient = parasite_drag * wing.Areas.reference/vehicle_reference_area
-        total_parasite_drag += parasite_drag * wing.Areas.reference/vehicle_reference_area
+        parasite_drag = parasite_drag_wing(conditions,configuration,wing)
+        conditions.aerodynamics.drag_breakdown.parasite[wing.tag].parasite_drag_coefficient = parasite_drag * wing.areas.reference/vehicle_reference_area
+        total_parasite_drag += parasite_drag * wing.areas.reference/vehicle_reference_area
         
     # from fuselage
     for fuselage in fuselages.values():
-        parasite_drag = parasite_drag_fuselage_supersonic(conditions,configuration,fuselage)
-        conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.Areas.front_projected/vehicle_reference_area
-        total_parasite_drag += parasite_drag * fuselage.Areas.front_projected/vehicle_reference_area
+        parasite_drag = parasite_drag_fuselage(conditions,configuration,fuselage)
+        conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+        total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         
     # dump to condtitions
     drag_breakdown.parasite.total = total_parasite_drag

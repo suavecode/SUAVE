@@ -61,9 +61,9 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
     # Various drag components
-    parasite_total        = parasite_drag_aircraft_supersonic(conditions,configuration,geometry) 
-    induced_total         = induced_drag_aircraft_supersonic (conditions,configuration,geometry)
-    compressibility_total = compressibility_drag_total_supersonic(conditions,configuration,geometry) 
+    parasite_total        = parasite_drag_aircraft(conditions,configuration,geometry) 
+    induced_total         = induced_drag_aircraft(conditions,configuration,geometry)
+    compressibility_total = compressibility_drag_total(conditions,configuration,geometry) 
     miscellaneous_drag    = miscellaneous_drag_aircraft(conditions,configuration,geometry)
     
     

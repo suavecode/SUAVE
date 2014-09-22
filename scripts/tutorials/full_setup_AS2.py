@@ -102,7 +102,7 @@ def vehicle_setup():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transistion_x = 0.9    
+    wing.transition_x = 0.9    
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -139,7 +139,7 @@ def vehicle_setup():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transistion_x = 0.9    
+    wing.transition_x = 0.9    
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -177,7 +177,7 @@ def vehicle_setup():
     wing.high_lift    = False                 #
     wing.high_mach    = True
     wing.vortex_lift  = False
-    wing.transistion_x = 0.9    
+    wing.transition_x = 0.9    
         
     # add to vehicle
     vehicle.append_component(wing)
@@ -236,8 +236,10 @@ def vehicle_setup():
     turbojet.turbine_nozzle_pressure_ratio = 1.0      #
     turbojet.Tt4                           = 1500.0   #
     turbojet.thrust.design                 = 15000.0 * Units.lb  # 31350 lbs
-    turbojet.number_of_engines                 = 3.0      #
+    turbojet.number_of_engines             = 3.0      #
     turbojet.engine_length                 = 8.0      # meters - includes 3.4m inlet
+    turbojet.lengths = Data()
+    turbojet.lengths.engine_total                = 8.0
     
     # turbojet sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
@@ -259,7 +261,7 @@ def vehicle_setup():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Supersonic_Zero()
     aerodynamics.initialize(vehicle)
     
     # build stability model

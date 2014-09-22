@@ -99,7 +99,7 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     aircraft_lift_total = np.array([[0.0]] * len(Mc))
     vortex_cl = np.array([[0.0]] * len(Mc))
     #print aircraft_lift_total
-    wing = geometry.Wings[0]
+    wing = geometry.wings[0]
     
         
         

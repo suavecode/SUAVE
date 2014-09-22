@@ -172,7 +172,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         Sref          = geometry.reference_area
                 
         # lift needs to compute first, updates data needed for drag
-        CL = SUAVE.Methods.Aerodynamics.Lift.compute_aircraft_lift(conditions,configuration,geometry)
+        CL = SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_aircraft_lift(conditions,configuration,geometry)
         
         # drag computes second
         CD = compute_aircraft_drag(conditions,configuration,geometry)

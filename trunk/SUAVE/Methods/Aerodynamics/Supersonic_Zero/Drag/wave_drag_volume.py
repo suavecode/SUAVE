@@ -46,8 +46,8 @@ def wave_drag_volume(conditions,configuration,wing):
     # unpack inputs
     freestream = conditions.freestream
     
-    total_length = wing.Chords.root
-    Sref = wing.Areas.reference
+    total_length = wing.chords.root
+    Sref = wing.areas.reference
     
     # conditions
     Mc  = copy.copy(freestream.mach_number)

@@ -9,8 +9,12 @@ from SUAVE.Structure import Data
 #from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
 #from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
+#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
+#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
+
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import compute_aircraft_lift
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
+
 
 import numpy as np
 import pylab as plt
@@ -31,7 +35,8 @@ def main():
     
     AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
     
-    lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models.lift_coefficient
+    #lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models.lift_coefficient
+    lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models_sub.lift_coefficient
     
     wing_lift = lift_model(AoA)
     
@@ -55,14 +60,23 @@ def main():
     random.seed(1)
     Mc = np.linspace(0.05,0.9,test_num)
     random.shuffle(Mc)
+    AoA = AoA.reshape(test_num,1)
+    Mc = Mc.reshape(test_num,1)
+    
     rho = np.linspace(0.3,1.3,test_num)
     random.shuffle(rho)
+    rho = rho.reshape(test_num,1)
+    
     mu = np.linspace(5*10**-6,20*10**-6,test_num)
     random.shuffle(mu)
+    mu = mu.reshape(test_num,1)
+    
     T = np.linspace(200,300,test_num)
     random.shuffle(T)
+    T = T.reshape(test_num,1)
+    
     pressure = np.linspace(10**5,10**6,test_num)
-
+    pressure = pressure.reshape(test_num,1)
     
     conditions = Data()
     
@@ -98,6 +112,7 @@ def main():
     lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
                        0.5075275 ,  0.67883681,  0.92787301,  1.40470556,  2.08126751,
                        1.69661601])
+    lift_r = lift_r.reshape(test_num,1)
     
     lift_test = np.abs((lift-lift_r)/lift)
     
@@ -129,6 +144,16 @@ def main():
     cd_tot         = drag_breakdown.total
     
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
+    cd_c_r = cd_c_r.reshape(test_num,1)
+    cd_i_r = cd_i_r.reshape(test_num,1)
+    cd_m_r = cd_m_r.reshape(test_num,1)
+    cd_m_fuse_base_r = cd_m_fuse_base_r.reshape(test_num,1)
+    cd_m_fuse_up_r = cd_m_fuse_up_r.reshape(test_num,1)
+    cd_m_nac_base_r = cd_m_nac_base_r.reshape(test_num,1)
+    cd_m_ctrl_r = cd_m_ctrl_r.reshape(test_num,1)
+    cd_p_fuse_r = cd_p_fuse_r.reshape(test_num,1)
+    cd_p_wing_r = cd_p_wing_r.reshape(test_num,1)
+    cd_tot_r = cd_tot_r.reshape(test_num,1)
     
     drag_tests = Data()
     drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
@@ -354,6 +379,8 @@ def vehicle_setup():
     turbofan.bypass_ratio                  = 5.4      #
     turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
+    turbofan.lengths = Data()
+    turbofan.lengths.engine_total          = 3.0
     
     # size the turbofan
     turbofan.A2          =   1.753
@@ -378,7 +405,8 @@ def vehicle_setup():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    #aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Supersonic_Zero()
     aerodynamics.initialize(vehicle)
     
     # build stability model
@@ -482,24 +510,24 @@ if __name__ == '__main__':
     # Drag Polar
     # --------------------------------------------------------------------  
     
-    # Cruise conditions (except Mach number)
-    conditions.freestream.mach_number = np.array([0.2]*test_num)
-    conditions.freestream.density = np.array([0.3804534]*test_num)
-    conditions.freestream.viscosity = np.array([1.43408227e-05]*test_num)
-    conditions.freestream.temperature = np.array([218.92391647]*test_num)
-    conditions.freestream.pressure = np.array([23908.73408391]*test_num)
+    ## Cruise conditions (except Mach number)
+    #conditions.freestream.mach_number = np.array([0.2]*test_num)
+    #conditions.freestream.density = np.array([0.3804534]*test_num)
+    #conditions.freestream.viscosity = np.array([1.43408227e-05]*test_num)
+    #conditions.freestream.temperature = np.array([218.92391647]*test_num)
+    #conditions.freestream.pressure = np.array([23908.73408391]*test_num)
     
-    compute_aircraft_lift(conditions, configuration, geometry) # geometry is third variable, not used
-    CL = conditions.aerodynamics.lift_breakdown.total    
+    #compute_aircraft_lift(conditions, configuration, geometry) # geometry is third variable, not used
+    #CL = conditions.aerodynamics.lift_breakdown.total    
     
-    compute_aircraft_drag(conditions, configuration, geometry)
-    CD = conditions.aerodynamics.drag_breakdown.total
+    #compute_aircraft_drag(conditions, configuration, geometry)
+    #CD = conditions.aerodynamics.drag_breakdown.total
     
-    plt.figure("Drag Polar")
-    axes = plt.gca()     
-    axes.plot(CD,CL,'bo-')
-    axes.set_xlabel('$C_D$')
-    axes.set_ylabel('$C_L$')
+    #plt.figure("Drag Polar")
+    #axes = plt.gca()     
+    #axes.plot(CD,CL,'bo-')
+    #axes.set_xlabel('$C_D$')
+    #axes.set_ylabel('$C_L$')
     
     
-    plt.show(block=True) # here so as to not block the regression test
+    #plt.show(block=True) # here so as to not block the regression test

@@ -52,8 +52,8 @@ def wave_drag_lift(conditions,configuration,wing):
 
     # Unpack
     freestream = conditions.freestream
-    total_length = wing.Chords.root
-    Sref = wing.Areas.reference
+    total_length = wing.chords.root
+    Sref = wing.areas.reference
     
     # Conditions
     Mc  = copy.copy(freestream.mach_number)
