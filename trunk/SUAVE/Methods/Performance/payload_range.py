@@ -56,49 +56,43 @@ def payload_range(vehicle,mission,cruise_segment_tag):
     ##      output_type: 3: Print + Write + Plot    (complete)
 
     #unpack
-    try:
-        OEW = vehicle.Mass_Props.OEW
-    except AttributeError:
-        print "Error calculating Payload Range Diagram: Vehicle OEW not defined"
+    masses = vehicle.mass_properties
+    if not masses.operating_empty:
+        print "Error calculating Payload Range Diagram: Vehicle Operating Empty not defined"
         return True
+    else:
+        OEW = masses.operating_empty
 
-    try:
-        MZFW = vehicle.Mass_Props.MZFW
-    except AttributeError:
+    if not masses.max_zero_fuel:
         print "Error calculating Payload Range Diagram: Vehicle MZFW not defined"
         return True
+    else:
+        MZFW = vehicle.mass_properties.max_zero_fuel
 
-    try:
-        MTOW = vehicle.Mass_Props.MTOW
-    except AttributeError:
+    if not masses.max_takeoff:
         print "Error calculating Payload Range Diagram: Vehicle MTOW not defined"
         return True
+    else:
+        MTOW = vehicle.mass_properties.max_takeoff
 
-    try:
-        MaxPLD = vehicle.Mass_Props.MaxPLD # If payload max not defined, calculate based in design weights
-        MaxPLD = min(MaxPLD , MZFW - OEW)
-    except:
-        MaxPLD = MZFW - OEW
+    if not masses.max_payload:
+        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
+    else:
+        MaxPLD = vehicle.mass_properties.max_payload
+        MaxPLD = min(MaxPLD , MZFW - OEW) #limit in structural capability
 
-    try:
-        MaxFuel = vehicle.Mass_Props.MaxUsableFuel # If max fuel capacity not defined
+    if not masses.max_fuel:
+        MaxFuel = MTOW - OEW # If not defined, calculate based in design weights
+    else:
+        MaxFuel = vehicle.mass_properties.max_fuel  # If max fuel capacity not defined
         MaxFuel = min(MaxFuel, MTOW - OEW)
-    except:
-        try:
-            fuel_tank_volume   = vehicle.fuel_tank_volume           # [m3]
-            fuel_density       = vehicle.fuel_density               # [kg/m3]
-            fuel_tank_capacity = fuel_tank_volume * fuel_density    # [kg]
-        except AttributeError:
-            print "Error in Payload Range Diagram: Vehicle fuel capacity not defined"
-            return True
-        fuel_structural_limit = MTOW - OEW
-        MaxFuel = min(fuel_tank_capacity, fuel_structural_limit)
+
 
     # Define payload range points
     #Point  = [ RANGE WITH MAX. PLD   , RANGE WITH MAX. FUEL , FERRY RANGE   ]
-    TOW     = [ MTOW                  , MTOW                 , OEW + MaxFuel ]
-    FUEL    = [ TOW[1] - OEW - MaxPLD , MaxFuel              , MaxFuel       ]
-    PLD     = [ MaxPLD                , MTOW - MaxFuel - OEW , 0.            ]
+    TOW     = [ MTOW                               , MTOW                   , OEW + MaxFuel ]
+    FUEL    = [ min(TOW[1] - OEW - MaxPLD,MaxFuel) , MaxFuel                , MaxFuel       ]
+    PLD     = [ MaxPLD                             , MTOW - MaxFuel - OEW   , 0.            ]
 
     # allocating Range array
     R       = [0,0,0]
@@ -119,7 +113,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             print('   EVALUATING POINT : ' + str(i+1))
 
         # Define takeoff weight
-        mission.segments[0].config.Mass_Props.m_takeoff = TOW[i] # we should redefine design weights names....
+        mission.segments[0].config.mass_properties.max_takeoff = TOW[i]
 
         # Evaluate mission with current TOW
         results = SUAVE.Methods.Performance.evaluate_mission(mission)
@@ -135,10 +129,10 @@ def payload_range(vehicle,mission,cruise_segment_tag):
         tol = 1.     # fuel convergency tolerance
         err = 9999.  # error to be minimized
         iter = 0     # iteration count
-        
+
         while abs(err) > tol and iter < maxIter:
             iter = iter + 1
-            
+
             # Current total fuel burned in mission
             TotalFuel  = TOW[i] - results.segments[-1].conditions.weights.total_mass[-1]
 
@@ -228,3 +222,10 @@ def payload_range(vehicle,mission,cruise_segment_tag):
         plt.show(True)
 
     return payload_range
+
+
+# ----------------------------------------------------------------------
+#   Module Test
+# ----------------------------------------------------------------------
+if __name__ == '__main__':
+    print(' Error: No test defined ! ')

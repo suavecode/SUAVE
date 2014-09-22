@@ -167,15 +167,15 @@ class FunctionContainer(Container):
 
 
 class Vehicle_Mass_Properties(Components.Mass_Properties):
-    
+
     """ Vehicle_Mass_Properties():
         The vehicle's mass properties.  includes high level weight statement values
-        
+
         Attributes:
-        
+
             max_takeoff
             max_zero
-            
+
             takeoff
             cargo
             operating_empty
@@ -183,30 +183,34 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
             passenger
             crew
             fuel
-            
+
             center_of_gravity
             Moments_Of_Inertia :
-                center 
+                center
                 tensor
-            
+
     """
-    
+
     def __defaults__(self):
-        
-        self.max_takeoff     = 0.0
-        self.max_zero_fuel   = 0.0
-        self.takeoff         = 0.0
-        self.landing         = 0.0
-        self.cargo           = 0.0
+
         self.operating_empty = 0.0
+        self.max_takeoff     = 0.0
+        self.takeoff         = 0.0
+        self.max_landing     = 0.0
+        self.landing         = 0.0
+        self.max_cargo       = 0.0
+        self.cargo           = 0.0
+        self.max_payload     = 0.0
         self.payload         = 0.0
         self.passenger       = 0.0
         self.crew            = 0.0
+        self.max_fuel        = 0.0
         self.fuel            = 0.0
-        
+        self.max_zero_fuel   = 0.0
+
         # ambiguous in this context
         del self.mass
         del self.volume
-        
-        
-        
+
+
+
