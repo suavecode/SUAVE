@@ -35,7 +35,6 @@ modules = [
     'regression/test_weights.py',
     'regression/DC_10_noise.py',
     'regression/test_mission_B737.py',
-    'regression/test_mission_Embraer_E190.py',
     'regression/test_mission_Embraer_E190_constThr.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
@@ -45,6 +44,7 @@ modules = [
     'regression/test_aerodynamics.py',
     'regression/test_cmalpha.py',
     'regression/test_cnbeta.py',
+    #'regression/test_payload_range.py',
     
     # tutorials
     
