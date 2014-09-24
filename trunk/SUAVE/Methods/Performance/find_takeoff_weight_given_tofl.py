@@ -58,17 +58,13 @@ def find_takeoff_weight_given_tofl(vehicle,takeoff_config,airport,target_tofl):
         takeoff_config.mass_properties.takeoff = tow
         tofl[id] = estimate_take_off_field_length(vehicle,takeoff_config,airport)
 
-    max_tow = np.interp(target_tofl,tofl,tow_vec)
+    target_tofl = np.atleast_1d(target_tofl)
+    max_tow = np.zeros_like(target_tofl)
+
+    for id,toflid in enumerate(target_tofl):
+        max_tow[id] = np.interp(toflid,tofl,tow_vec)
 
 #reset the initial takeoff weight
     takeoff_config.mass_properties.max_takeoff = tow_ref
 
     return max_tow
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-    raise RuntimeError , 'test failed, not implemented'
