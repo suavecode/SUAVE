@@ -31,36 +31,36 @@ def the_aircraft_function_EMBRAER(vehicle,mission):
     results = Data()
 
     # evaluate weights
-    print ' Estimating weights'
+    #print ' Estimating weights'
     results = evaluate_weights(vehicle,results)
 
     # evaluate field length
-    print ' Evaluate field length'
+    #print ' Evaluate field length'
     results = evaluate_field_length(vehicle,mission,results)
 
     # evaluate range for required payload
-    print ' Evaluate range for required payload'
+    #print ' Evaluate range for required payload'
     results = evaluate_range_for_design_payload(vehicle,mission,results)
 
     # evaluate range from short field
-    print ' Evaluate range from short field'
+    #print ' Evaluate range from short field'
     results = evaluate_range_from_short_field(vehicle,mission,results)
 
     # evaluate design mission for fuel consuption
-    print ' Evaluate design mission for fuel consuption'
+    #print ' Evaluate design mission for fuel consuption'
     results = evaluate_mission_for_fuel(vehicle,mission,results)
 
     # evaluate noise
-    print ' Evaluate noise'
+    #print ' Evaluate noise'
     results = evaluate_noise(vehicle,mission,results)
 
     # compile results
     results = compile_results(vehicle,mission,results)
 
-    print results.field_length
-    print results.design_payload_mission
-    print results.short_field
-    print results.mission_for_fuel
+    #print results.field_length
+    #print results.design_payload_mission
+    #print results.short_field
+    #print results.mission_for_fuel
 
 
     return results

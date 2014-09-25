@@ -109,7 +109,7 @@ class Propeller(Energy_Component):
         psiold = np.zeros_like(c)
         diff   = np.ones_like(c)
         
-        
+        ii = 0
         while (np.any(diff>tol)):
             Wa    = 0.5*Ua + 0.5*U*np.sin(psi)
             Wt    = 0.5*Ut + 0.5*U*np.cos(psi)           
@@ -157,6 +157,10 @@ class Propeller(Energy_Component):
             psi    = psi + dpsi
             diff   = abs(psiold-psi)
             psiold = psi
+            
+            ii += 1
+            if ii>100:
+                break
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
