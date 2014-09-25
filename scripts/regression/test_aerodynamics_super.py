@@ -40,6 +40,7 @@ def main():
     
     wing_lift = lift_model(AoA)
     
+    # Truth value
     wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
                             0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
                             1.47463553])
@@ -109,6 +110,8 @@ def main():
     compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift = conditions.aerodynamics.lift_breakdown.total
+    
+    # Truth value
     lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
                        0.5075275 ,  0.67883681,  0.92787301,  1.40470556,  2.08126751,
                        1.69661601])
@@ -143,7 +146,9 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
     
+    # Truth values
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
+    
     cd_c_r = cd_c_r.reshape(test_num,1)
     cd_i_r = cd_i_r.reshape(test_num,1)
     cd_m_r = cd_m_r.reshape(test_num,1)
@@ -462,6 +467,9 @@ def vehicle_setup():
     return vehicle    
 
 def reg_values():
+    
+    # Truth values from drag
+    
     cd_c_r = np.array([  1.41429794e-08,   2.96579619e-09,   1.03047740e-22,   4.50771390e-09,
                          1.27784183e-03,   1.31214322e-04,   3.98984222e-09,   6.19742191e-11,
                          8.21182714e-05,   1.20217216e-03,   5.63926215e-14])
@@ -487,17 +495,17 @@ def reg_values():
     cd_m_ctrl_r     = np.array([ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
                                  0.0001,  0.0001,  0.0001,  0.0001])
     
-    cd_p_fuse_r     = np.array([ 0.00820962,  0.00930905,  0.01424494,  0.00910656,  0.00948239,
-                                 0.00784983,  0.00951998,  0.01176829,  0.00932894,  0.0084477 ,
-                                 0.00963328])
+    cd_p_fuse_r     = np.array([  0.00861449,  0.01003034,  0.01543476,  0.00983168,  0.01004746,
+                                  0.00840775,  0.01029339,  0.01273788,  0.01002575,  0.00900746,
+                                  0.01043446])
     
     cd_p_wing_r     = np.array([ 0.00398269,  0.00401536,  0.00619387,  0.00388993,  0.00442375,
                                  0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
                                  0.00407611])
     
-    cd_tot_r        = np.array([ 0.1932699 ,  0.03831545,  0.0308818 ,  0.01663778,  0.02077124,
-                                 0.02450112,  0.03535412,  0.05560036,  0.09709544,  0.19340945,
-                                 0.13436521])
+    cd_tot_r        = np.array([ 0.19368287,  0.03905116,  0.03209541,  0.01737741,  0.0213476 ,
+                                 0.02507019,  0.03614299,  0.05658934,  0.09780619,  0.19398041,
+                                 0.13518241])
     
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
