@@ -11,83 +11,69 @@ from SUAVE.Structure import (
 
 
 def main():
-    
-    vehicle = Data()
-    vehicle.envelope = Data()
-    vehicle.mass_properties = Data()
-    vehicle.propulsors = Data()
-    vehicle.propulsors['Turbo Fan'] = Data()
-    vehicle.propulsors['Turbo Fan'].thrust = Data()
-    vehicle.propulsors['Turbo Fan'].mass_properties = Data()
-    vehicle.fuselages = Data()
-    vehicle.fuselages.Fuselage = Data()
-    vehicle.fuselages.Fuselage.areas = Data()
-    vehicle.fuselages.Fuselage.heights = Data()
-    vehicle.fuselages.Fuselage.lengths = Data()
-    vehicle.fuselages.Fuselage.mass_properties = Data()
-    vehicle.systems = Data()
-    vehicle.wings = Data()
-    vehicle.wings['Main Wing'] = Data()
-    vehicle.wings['Main Wing'].spans = Data()
-    vehicle.wings['Main Wing'].chords = Data()
-    vehicle.wings['Main Wing'].mass_properties = Data()
-    vehicle.wings['Horizontal Stabilizer'] = Data()
-    vehicle.wings['Horizontal Stabilizer'].areas = Data()
-    vehicle.wings['Horizontal Stabilizer'].spans = Data()
-    vehicle.wings['Horizontal Stabilizer'].chords = Data()
-    vehicle.wings['Horizontal Stabilizer'].mass_properties = Data()
-    vehicle.wings['Vertical Stabilizer'] = Data()
-    vehicle.wings['Vertical Stabilizer'].areas = Data()
-    vehicle.wings['Vertical Stabilizer'].spans = Data()
-    vehicle.wings['Vertical Stabilizer'].mass_properties = Data()
-    
+    vehicle = SUAVE.Vehicle()# Create the vehicle for testing
     
     # Parameters Required
     vehicle.envelope.ultimate_load                      = 3.5                             # Ultimate load
     vehicle.mass_properties.max_takeoff                 = 79015.8 * Units.kilograms       # Maximum takeoff weight in kilograms
     vehicle.mass_properties.max_zero_fuel               = 79015.8 * 0.9 * Units.kilograms # Maximum zero fuel weight in kilograms
     vehicle.envelope.limit_load                         = 1.5                             # Limit Load
-    vehicle.propulsors['Turbo Fan'].number_of_engines   = 2.                              # Number of engines on the aircraft
+    
+    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
+    turbofan.tag = 'Turbo Fan'    
+    turbofan.number_of_engines   = 2.                              # Number of engines on the aircraft
+    turbofan.thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons    
+    vehicle.append_component(turbofan) 
+
     vehicle.passengers                                  = 170.                            # Number of passengers
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
-    vehicle.fuselages.Fuselage.number_coach_seats          = 200.                            # Number of seats on aircraft
     vehicle.systems.control                             = "fully powered"                 # Specify fully powered, partially powered or anything else is fully aerodynamic
     vehicle.systems.accessories                         = "medium-range"                  # Specify what type of aircraft you have
     
     vehicle.reference_area                              = 124.862  * Units.meter**2  # Wing gross area in square meters
-    vehicle.wings['Main Wing'].spans.projected          = 50.      * Units.meter     # Span in meters
-    vehicle.wings['Main Wing'].taper                    = 0.2                        # Taper ratio
-    vehicle.wings['Main Wing'].thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
-    vehicle.wings['Main Wing'].sweep                    = .4363323 * Units.rad       # sweep angle in degrees
-    vehicle.wings['Main Wing'].chords.root              = 15.      * Units.meter     # Wing root chord length
-    vehicle.wings['Main Wing'].chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
-    vehicle.wings['Main Wing'].position                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
-    vehicle.wings['Main Wing'].aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Main Wing'
+    wing.spans.projected          = 50.      * Units.meter     # Span in meters
+    wing.taper                    = 0.2                        # Taper ratio
+    wing.thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
+    wing.sweep                    = .4363323 * Units.rad       # sweep angle in degrees
+    wing.chords.root              = 15.      * Units.meter     # Wing root chord length
+    wing.chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
+    wing.position                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
+    wing.aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
+    vehicle.append_component(wing)
     
+    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage.tag = 'Fuselage'    
+    fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
+    fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
+    fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
+    fuselage.heights.maximum          = 4.        * Units.meter     # Height of the fuselage
+    fuselage.lengths.total            = 58.4      * Units.meter     # Length of the fuselage
+    fuselage.number_coach_seats       = 200.       
+    vehicle.append_component(fuselage)
     
-    vehicle.fuselages.Fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
-    vehicle.fuselages.Fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
-    vehicle.fuselages.Fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
-    vehicle.fuselages.Fuselage.heights.maximum          = 4.        * Units.meter     # Height of the fuselage
-    vehicle.fuselages.Fuselage.lengths.total            = 58.4      * Units.meter     # Length of the fuselage
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Horizontal Stabilizer'    
+    wing.areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
+    wing.spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
+    wing.sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
+    wing.chords.mean_aerodynamic  = 5.      * Units.meters    # Length of the mean aerodynamic chord of the horizontal tail
+    wing.thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
+    wing.areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
+    wing.areas.wetted             = 249.724                   # Wetted area of the horizontal tail
+    wing.position                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
+    wing.aerodynamic_center       = [3,0,0]                   # Location of aerodynamic center from origin of the horizontal tail
+    vehicle.append_component(wing)    
     
-    vehicle.propulsors['Turbo Fan'].thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons
-    
-    vehicle.wings['Horizontal Stabilizer'].areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic  = 5.      * Units.meters    # Length of the mean aerodynamic chord of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].areas.wetted             = 249.724                   # Wetted area of the horizontal tail
-    vehicle.wings['Horizontal Stabilizer'].position                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
-    vehicle.wings['Horizontal Stabilizer'].aerodynamic_center       = [3,0,0]                   # Location of aerodynamic center from origin of the horizontal tail
-    
-    vehicle.wings['Vertical Stabilizer'].areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
-    vehicle.wings['Vertical Stabilizer'].spans.projected     = 15.     * Units.meters    # Span of the vertical tail
-    vehicle.wings['Vertical Stabilizer'].thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail
-    vehicle.wings['Vertical Stabilizer'].sweep               = 40.     * Units.deg       # Sweep of the vertical tail
-    vehicle.wings['Vertical Stabilizer'].t_tail              = "false"                   # Set to "yes" for a T-tail
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Vertical Stabilizer'    
+    wing.areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
+    wing.spans.projected     = 15.     * Units.meters    # Span of the vertical tail
+    wing.thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail
+    wing.sweep               = 40.     * Units.deg       # Sweep of the vertical tail
+    wing.t_tail              = "false"                   # Set to "yes" for a T-tail
+    vehicle.append_component(wing)   
     
     weight = Tube_Wing.empty(vehicle)
     

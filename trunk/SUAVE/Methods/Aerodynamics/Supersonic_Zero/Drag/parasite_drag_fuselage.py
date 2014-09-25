@@ -50,7 +50,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
 
     # unpack inputs
     form_factor = configuration.fuselage_parasite_drag_form_factor
-    C_fus = configuration.fuselage_parasite_drag_form_factor
+
     freestream = conditions.freestream
     
     Sref        = fuselage.areas.front_projected
@@ -90,7 +90,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
     du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
     
-    k_fus = (1 + cf_fus*du_max_u)**2
+    k_fus = (1 + form_factor*du_max_u)**2
     
     #for i in range(len(Mc)):
         #if Mc[i] < 0.95:
