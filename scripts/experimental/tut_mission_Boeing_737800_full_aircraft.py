@@ -115,10 +115,6 @@ def define_vehicle():
     wing.aerodynamic_center = [3,0,0] 
     wing.vertical   = False
     wing.eta         = 1.0
-    #wing.hl          = 1                    #
-    #wing.flaps_chord = 20                   #
-    #wing.flaps_angle = 20                   #
-    #wing.slats_angle = 10                   #
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -129,7 +125,8 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+
+    wing.tag = 'Horizontal Stabilizer' 
     
     wing.Areas.reference = 32.488    #
     wing.aspect_ratio    = 6.16      #
@@ -138,7 +135,7 @@ def define_vehicle():
     wing.symmetric       = True
     wing.thickness_to_chord = 0.08
     wing.taper           = 0.4
-    
+
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
@@ -152,6 +149,7 @@ def define_vehicle():
     wing.aerodynamic_center = [2,0,0]
     wing.vertical   = False 
     wing.eta         = 0.9  
+
   
     # add to vehicle
     vehicle.append_component(wing)
@@ -171,7 +169,7 @@ def define_vehicle():
     wing.symmetric       = False
     wing.thickness_to_chord = 0.08
     wing.taper           = 0.4
-    
+
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
@@ -243,6 +241,7 @@ def define_vehicle():
     turbofan.Thrust.design = 25000.0
     turbofan.design_thrust                 = 25000.0  #
     turbofan.no_of_engines                 = 2.0      #
+    turbofan.engine_length                 = 4.0
     
     # turbofan sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
@@ -276,7 +275,8 @@ def define_vehicle():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero_Supersonic()
+    #aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     
     # build stability model
@@ -672,7 +672,7 @@ def post_process(vehicle,mission,results):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
+        #Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
         axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , 'bo-' )
@@ -692,11 +692,11 @@ def post_process(vehicle,mission,results):
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)        
         
-        axes = fig.add_subplot(4,1,4)
-        axes.plot( time , Pitching_moment , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Pitching_moment (~)')
-        axes.grid(True)
+        #axes = fig.add_subplot(4,1,4)
+        #axes.plot( time , Pitching_moment , 'bo-' )
+        #axes.set_xlabel('Time (min)')
+        #axes.set_ylabel('Pitching_moment (~)')
+        #axes.grid(True)
         
     # ------------------------------------------------------------------    
     #   Aerodynamics 2

@@ -22,7 +22,7 @@ class Fuselage(Lofted_Body):
         self.number_coach_seats = 0.0
         self.seats_abreast = 0.0
         self.seat_pitch = 1.0
-        
+
         self.areas = Data()
         self.areas.front_projected = 0.0
         self.areas.side_projected = 0.0
@@ -51,6 +51,11 @@ class Fuselage(Lofted_Body):
         
         self.differential_pressure = 0.0
             
+        self.Fineness = Data()
+        self.Fineness.nose = 0.0
+        self.Fineness.tail = 0.0
+        
+        self.differential_pressure = 0.0
         
 class Container(Physical_Component.Container):
     pass

@@ -35,7 +35,6 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         self.battery_energy = 0.0
         self.latitude       = 0.0
         self.longitude      = 0.0     
-        self.time_date      = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
         
         return
 

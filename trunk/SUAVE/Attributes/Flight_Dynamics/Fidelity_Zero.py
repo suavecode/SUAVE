@@ -142,7 +142,9 @@ class Fidelity_Zero(Data):
                 if not aero.has_key('cl_beta'):
                     aero.cl_beta = 0 # Need to see if there is a low fidelity way to calculate cl_beta
                 
+
                     l_t = geometry.wings['Horizontal Stabilizer'].origin[0] + geometry.wings['Horizontal Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
+
                 
                 if not aero.has_key('cm_q'):
                     aero.cm_q = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
