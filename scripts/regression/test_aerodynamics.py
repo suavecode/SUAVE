@@ -6,8 +6,11 @@
 import SUAVE
 from SUAVE.Attributes import Units
 from SUAVE.Structure import Data
-from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
+#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
+#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
+
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
 
 import numpy as np
 import pylab as plt
@@ -82,12 +85,14 @@ def main():
     for k in ['fuselages','wings','propulsors']:
         geometry[k] = deepcopy(vehicle[k])    
     geometry.reference_area = vehicle.reference_area  
+    #geometry.wings[0] = Data()
+    #geometry.wings[0].vortex_lift = False
     
     # --------------------------------------------------------------------
     # Test compute Lift
     # --------------------------------------------------------------------
     
-    compute_aircraft_lift(conditions, configuration, None) # geometry is third variable, not used
+    compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift = conditions.aerodynamics.lift_breakdown.total
     lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
@@ -454,17 +459,17 @@ def reg_values():
     cd_m_ctrl_r     = np.array([ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
                                  0.0001,  0.0001,  0.0001,  0.0001])
     
-    cd_p_fuse_r     = np.array([ 0.00820962,  0.00930905,  0.01424494,  0.00910656,  0.00948239,
-                                 0.00784983,  0.00951998,  0.01176829,  0.00932894,  0.0084477 ,
-                                 0.00963328])
+    cd_p_fuse_r     = np.array([  0.00861449,  0.01003034,  0.01543476,  0.00983168,  0.01004746,
+                                  0.00840775,  0.01029339,  0.01273788,  0.01002575,  0.00900746,
+                                  0.01043446])
     
     cd_p_wing_r     = np.array([ 0.00398269,  0.00401536,  0.00619387,  0.00388993,  0.00442375,
                                  0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
                                  0.00407611])
     
-    cd_tot_r        = np.array([ 0.1932699 ,  0.03831545,  0.0308818 ,  0.01663778,  0.02077124,
-                                 0.02450112,  0.03535412,  0.05560036,  0.09709544,  0.19340945,
-                                 0.13436521])
+    cd_tot_r        = np.array([ 0.19368287,  0.03905116,  0.03209541,  0.01737741,  0.0213476 ,
+                                 0.02507019,  0.03614299,  0.05658934,  0.09780619,  0.19398041,
+                                 0.13518241])
     
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
@@ -484,7 +489,7 @@ if __name__ == '__main__':
     conditions.freestream.temperature = np.array([218.92391647]*test_num)
     conditions.freestream.pressure = np.array([23908.73408391]*test_num)
     
-    compute_aircraft_lift(conditions, configuration, None) # geometry is third variable, not used
+    compute_aircraft_lift(conditions, configuration, geometry) # geometry is third variable, not used
     CL = conditions.aerodynamics.lift_breakdown.total    
     
     compute_aircraft_drag(conditions, configuration, geometry)

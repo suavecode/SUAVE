@@ -16,14 +16,8 @@ class Liquid_H2(Propellant):
 
     def __defaults__(self):
 
-        self.tag = 'H2 Liquid'
+        self.tag = 'Liquid_H2'
         self.reactant = 'O2'
-        self.density = 70.99                                    # kg/m^3
+        self.density = 59.9                                     # kg/m^3
         self.specific_energy = 141.86e6                         # J/kg
-        self.energy_density = 10071.0e6                         # J/m^3
-        self.max_mass_fraction = {'Air' : 0.013197, 'O2' : 0.0630}  # kg propellant / kg oxidizer
-        self.temperatures = Data()
-        self.temperatures.flash = 0.0                           # K
-        self.temperatures.autoignition = 0.0                    # K
-        self.temperatures.freeze = 0.0                          # K
-        self.temperatures.boiling = 0.0                         # K
+        self.energy_density = 8491.0e6                          # J/m^3

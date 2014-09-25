@@ -97,6 +97,7 @@ def empty(vehicle):
     TOW        = vehicle.mass_properties.max_takeoff
     wt_zf      = vehicle.mass_properties.max_zero_fuel
     num_pax    = vehicle.passengers
+
     wt_cargo   = vehicle.mass_properties.cargo
     num_seats  = vehicle.fuselages.Fuselage.number_coach_seats
     ctrl_type  = vehicle.systems.control

@@ -76,6 +76,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     x_rqc = geometry.wings['Main Wing'].origin[0]
     w_f   = geometry.fuselages.Fuselage.width
     l_f   = geometry.fuselages.Fuselage.lengths.total
+
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
