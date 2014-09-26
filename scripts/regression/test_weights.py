@@ -39,7 +39,7 @@ def main():
     wing.sweep                    = .4363323 * Units.rad       # sweep angle in degrees
     wing.chords.root              = 15.      * Units.meter     # Wing root chord length
     wing.chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
-    wing.position                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
+    wing.origin                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
     wing.aerodynamic_center       = [3,0,0]  * Units.meters    # Location of aerodynamic center from origin of the main wing
     vehicle.append_component(wing)
     
@@ -62,7 +62,7 @@ def main():
     wing.thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
     wing.areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
     wing.areas.wetted             = 249.724                   # Wetted area of the horizontal tail
-    wing.position                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
+    wing.origin                 = [45,0,0]                  # Location of horizontal tail from origin of the vehicle
     wing.aerodynamic_center       = [3,0,0]                   # Location of aerodynamic center from origin of the horizontal tail
     vehicle.append_component(wing)    
     
