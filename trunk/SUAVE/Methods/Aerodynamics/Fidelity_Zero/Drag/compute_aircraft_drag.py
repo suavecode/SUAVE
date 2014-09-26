@@ -62,24 +62,32 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     """    
     
     # unpack inputs
-    trim_correction_factor = configuration.trim_drag_correction_factor
-    drag_breakdown = conditions.aerodynamics.drag_breakdown
-    
+    trim_correction_factor     = configuration.trim_drag_correction_factor
+    drag_coefficient_increment = configuration.drag_coefficient_increment
+    drag_breakdown             = conditions.aerodynamics.drag_breakdown
+
     # various drag components
-    parasite_total        = parasite_drag_aircraft     (conditions,configuration,geometry) 
+    parasite_total        = parasite_drag_aircraft     (conditions,configuration,geometry)
     induced_total         = induced_drag_aircraft      (conditions,configuration,geometry)
-    compressibility_total = compressibility_drag_wing  (conditions,configuration,geometry)    
+    compressibility_total = compressibility_drag_wing  (conditions,configuration,geometry)
     miscellaneous_drag    = miscellaneous_drag_aircraft(conditions,configuration,geometry)
-    
+
     # untrimmed drag
     aircraft_untrimmed = parasite_total        \
                        + induced_total         \
                        + compressibility_total \
-                       + miscellaneous_drag 
-    
+                       + miscellaneous_drag
+
+    # start additional corrections
+    aircraft_total_drag = aircraft_untrimmed
+
     # trim correction
-    aircraft_total_drag = aircraft_untrimmed * trim_correction_factor
+    aircraft_total_drag *= trim_correction_factor
     drag_breakdown.miscellaneous.trim_correction_factor = trim_correction_factor
+
+    # add drag_coefficient_increment
+    aircraft_total_drag += drag_coefficient_increment
+    drag_breakdown.drag_coefficient_increment = drag_coefficient_increment
 
     # store to results
     drag_breakdown.total     = aircraft_total_drag
@@ -95,7 +103,6 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':    
     raise RuntimeError , 'module test failed, not implemented'
-
 
 
 #--------------test this case as well--------------
