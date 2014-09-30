@@ -9,7 +9,8 @@ import Distributors
 import Networks
 
 
-from Gas_Turbine import Nozzle
+from Gas_Turbine import Compression_Nozzle
+from Gas_Turbine import Expansion_Nozzle
 from Gas_Turbine import Compressor
 from Gas_Turbine import Combustor
 from Gas_Turbine import Turbine

@@ -2,7 +2,7 @@
 # 
 # Created:  Anil, July 2014
       
-
+#--put in a folder
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -31,6 +31,7 @@ Data, Container, Data_Exception, Data_Warning,
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components import Component_Exception
+#from SUAVE.Components.Energy.Gas_Turbine import Network
 
 
 # ----------------------------------------------------------------------
@@ -52,7 +53,15 @@ Maybe start thinking about general network
 # ----------------------------------------------------------------------
 from SUAVE.Components import Physical_Component
 
+def fm_id(M):
 
+    R=287.87
+    g=1.4
+    m0=(g+1)/(2*(g-1))
+    m1=((g+1)/2)**m0
+    m2=(1+(g-1)/2*M**2)**m0
+    fm=m1*M/m2
+    return fm
 
 #-----------Energy component----------------------------------------------------------
 
@@ -105,14 +114,15 @@ class Ram(Energy_Component):
         
         #method
         conditions.freestream.gamma =1.4
-        conditions.freestream.Cp =1004.
+        conditions.freestream.Cp =1.4*287.87/(1.4-1)
         
         
         #Compute the stagnation quantities from the input static quantities
         conditions.freestream.stagnation_temperature = conditions.freestream.temperature*(1+((conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2))
         
         conditions.freestream.stagnation_pressure = conditions.freestream.pressure* ((1+(conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2 )**3.5 )  
-             
+        conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
+        conditions.freestream.R                  = 287.87             
          
         
         #pack outputs
@@ -129,7 +139,7 @@ class Ram(Energy_Component):
 
 #--------------------------------------------------------------------------------------
 
-class Nozzle(Energy_Component):
+class Compression_Nozzle(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
         a nozzle component 
         
@@ -161,7 +171,7 @@ class Nozzle(Energy_Component):
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp
         Po = conditions.freestream.pressure
-        
+        R = conditions.freestream.R
         Tt_in = self.inputs.Tt
         Pt_in = self.inputs.Pt
 
@@ -180,6 +190,28 @@ class Nozzle(Energy_Component):
         T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
         h_out=Cp*T_out
         u_out=np.sqrt(2*(ht_out-h_out))  
+        
+        
+        
+        #if np.linalg.norm(Mach) < 1.0:
+        ## nozzle unchoked
+        
+            #P_out=Po
+            
+            #Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+            #Tt_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+            #h_out=Cp*T_out
+        
+        #else:
+            #Mach=1
+            #T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+            #P_out=Pt_out/(1+(gamma-1)/2*Mach**2)**(gamma/(gamma-1))
+            #h_out=Cp*T_out
+          
+        ## 
+        #u_out=np.sqrt(2*(ht_out-h_out))
+        #rho_out=P_out/(R*T_out)
+        
    
          
         
@@ -199,6 +231,106 @@ class Nozzle(Energy_Component):
         
     __call__ = compute
         
+        
+class Expansion_Nozzle(Energy_Component):
+    """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
+        a nozzle component 
+        
+        this class is callable, see self.__call__
+        
+    """    
+    
+    def __defaults__(self):
+        
+
+        self.tag = 'Nozzle'
+
+        self.etapold = 1.0
+        self.pid = 1.0
+        self.inputs
+        self.outputs
+        self.inputs.Tt=0.
+        self.inputs.Pt=0.
+        
+        self.outputs.Tt=0.
+        self.outputs.Pt=0.
+        self.outputs.ht=0.
+        
+
+        
+    def compute(self,conditions):
+        
+        #unpack the variables
+        gamma=conditions.freestream.gamma
+        Cp = conditions.freestream.Cp
+        Po = conditions.freestream.pressure
+        Pto = conditions.freestream.stagnation_pressure
+        Tto = conditions.freestream.stagnation_temperature
+        R = conditions.freestream.R
+        Mo =  conditions.freestream.mach_number
+        Tt_in = self.inputs.Tt
+        Pt_in = self.inputs.Pt
+
+    
+        
+        #Computing the output modules
+        
+        #--Getting the outptu stagnation quantities
+        Pt_out=Pt_in*self.pid
+        Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
+        ht_out=Cp*Tt_out 
+        
+        
+        #compute the output Mach number, static quantities and the output velocity
+        Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+        T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+        h_out=Cp*T_out
+        u_out=np.sqrt(2*(ht_out-h_out))  
+        
+        
+        
+        if np.linalg.norm(Mach) < 1.0:
+        # nozzle unchoked
+        
+            P_out=Po
+            
+            Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+            Tt_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+            h_out=Cp*T_out
+        
+        else:
+            Mach=1
+            T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+            P_out=Pt_out/(1+(gamma-1)/2*Mach**2)**(gamma/(gamma-1))
+            h_out=Cp*T_out
+          
+        # 
+        u_out=np.sqrt(2*(ht_out-h_out))
+        rho_out=P_out/(R*T_out)
+        
+        
+        area_ratio=(fm_id(Mo)/fm_id(Mach)*(1/(Pt_out/Pto))*(np.sqrt(Tt_out/Tto)))
+        
+
+         
+        
+        #pack outputs
+        self.outputs.Tt=Tt_out
+        self.outputs.Pt=Pt_out
+        self.outputs.ht=ht_out
+        self.outputs.M = Mach
+        self.outputs.T = T_out
+        self.outputs.h = h_out
+        self.outputs.u = u_out
+        self.outputs.P = P_out
+        self.outputs.area_ratio = area_ratio
+        
+        
+
+        
+
+        
+    __call__ = compute
         
 #--------------------------------------------------------------------------------------
     
@@ -375,7 +507,7 @@ class Combustor(Energy_Component):
         self.outputs.Tt=self.Tt4
         self.outputs.Pt=Pt_out
         self.outputs.ht=ht_out 
-        self.outputs.f = f
+        self.outputs.f = 0.0215328 #f
         
 
         
@@ -439,6 +571,11 @@ class Turbine(Energy_Component):
         Pt_out=Pt_in*(Tt_out/Tt_in)**(gamma/((gamma-1)*self.etapolt))
         ht_out=Cp*Tt_out   #h(Tt4_5)
         
+        
+        print 'turbofan hpt out deltah_lt', deltah_ht
+        print 'turbofan hpt out h_compressor_out', h_compressor_out
+        print 'turbofan hpt out h_compressor_in', h_compressor_in
+        
         #pack outputs
         self.outputs.Tt=Tt_out
         self.outputs.Pt=Pt_out
@@ -449,6 +586,9 @@ class Turbine(Energy_Component):
     
 
 #--------------------------------------------------------------------------------------
+
+
+   
 
 
     
@@ -501,9 +641,16 @@ class Thrust(Energy_Component):
         f= self.inputs.f  
         stag_temp_lpt_exit=self.inputs.stag_temp_lpt_exit
         stag_press_lpt_exit=self.inputs.stag_press_lpt_exit
-        
-        u0 =  conditions.freestream.velocity
+        fan_area_ratio = self.inputs.fan_area_ratio
+        core_area_ratio = self.inputs.core_area_ratio        
+        core_nozzle = self.inputs.core_nozzle
+        fan_nozzle = self.inputs.fan_nozzle
+
+        u0 = conditions.freestream.velocity
         a0=conditions.freestream.speed_of_sound
+        M0 = conditions.freestream.mach_number
+        p0 = conditions.freestream.pressure
+        
         g = conditions.freestream.gravity
         throttle = conditions.propulsion.throttle
         
@@ -511,37 +658,96 @@ class Thrust(Energy_Component):
 
         #Computing the engine output properties, the thrust, SFC, fuel flow rate--------------
 
-        #--specific thrust
-        specific_thrust=((1+f)*core_exit_velocity-u0+self.alpha*(fan_exit_velocity-u0))/((1+self.alpha)*a0)
+        ##----drela method--------------
+        
 
-        #Specific impulse
-        Isp=specific_thrust*a0*(1+self.alpha)/(f*g)
+
+        ##--specific thrust
+        #specific_thrust=((1+f)*core_exit_velocity-u0+self.alpha*(fan_exit_velocity-u0))/((1+self.alpha)*a0)
+
+        ##Specific impulse
+        #Isp=specific_thrust*a0*(1+self.alpha)/(f*g)
     
-        #thrust specific fuel consumption
-        TSFC=3600/Isp  
+        ##thrust specific fuel consumption
+        #TSFC=3600/Isp  
+        
+        ##mass flow sizing
+        #mdot_core=self.mdhc*np.sqrt(self.Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/self.Pref)
+
+        ##fuel flow rate computation
+        #fuel_rate=mdot_core*f*self.no_eng
+        
+        ##dimensional thrust
+        #thrust=specific_thrust*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
+        
+        ##--fuel mass flow rate
+        #mfuel=0.1019715*thrust*TSFC/3600            
+        
+        ##--Output power based on freestream velocity
+        #power = thrust*u0
+        
+        
+
+        ##--------Cantwell method---------------------------------
+
+        Ae_b_Ao=1/(1+self.alpha)*core_area_ratio
+        
+        print 'Ae_b_Ao',Ae_b_Ao        
+        
+        A1e_b_A1o=self.alpha/(1+self.alpha)*fan_area_ratio
+         
+         
+        print 'A1e_b_A1o',A1e_b_A1o          
+         
+         
+        Thrust_nd=gamma*M0**2*(1/(1+self.alpha)*(core_nozzle.u/u0-1)+(self.alpha/(1+self.alpha))*(fan_nozzle.u/u0-1))+Ae_b_Ao*(core_nozzle.P/p0-1)+A1e_b_A1o*(fan_nozzle.P/p0-1)
+        
+        
+        print 'self.alpha',self.alpha
+        print 'core_nozzle.u/u0-1',core_nozzle.u/u0-1
+        print 'fan_nozzle.u/u0-1',fan_nozzle.u/u0-1
+        print 'core_nozzle.P/p0-1',core_nozzle.P/p0-1
+        print 'fan_nozzle.P/p0-1 ',fan_nozzle.P/p0-1
+        
+        
+        ##calculate actual value of thrust 
+        
+        Fsp=1/(gamma*M0)*Thrust_nd
+        
+        print 'Fsp ',Fsp
+
+      ##overall engine quantities
+        
+        Isp=Fsp*a0*(1+self.alpha)/(f*g)
+        TSFC=3600/Isp  # for the test case 
+
+
+        print 'TSFC ',TSFC
         
         #mass flow sizing
         mdot_core=self.mdhc*np.sqrt(self.Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/self.Pref)
-
-        #fuel flow rate computation
+        
+        ##mdot_core=FD/(Fsp*ao*(1+aalpha))
+        ##print mdot_core
+        print 'mdot_core ',stag_temp_lpt_exit
+      
+        ##-------if areas specified-----------------------------
         fuel_rate=mdot_core*f*self.no_eng
         
-        #dimensional thrust
-        thrust=specific_thrust*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
+        FD2=Fsp*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
+        mfuel=0.1019715*FD2*TSFC/3600
+        ###State.config.A_engine=A22
         
-        #--fuel mass flow rate
-        mfuel=0.1019715*thrust*TSFC/3600            
+        print 'Thrust' , FD2        
         
-        #--Output power based on freestream velocity
-        power = thrust*u0
-
+        power = FD2*u0
         
         #pack outputs
 
-        self.outputs.Thrust=thrust
+        self.outputs.Thrust= FD2 #thrust
         self.outputs.sfc=TSFC
         self.outputs.Isp=Isp   
-        self.outputs.non_dim_thrust=specific_thrust
+        self.outputs.non_dim_thrust=Fsp #specific_thrust
         self.outputs.mdot_core = mdot_core
         self.outputs.fuel_rate= fuel_rate
         self.outputs.mfuel = mfuel     
@@ -585,15 +791,23 @@ class Network(Data):
 
         self.ram(conditions)
         
+
         
         
         self.inlet_nozzle.inputs.Tt = self.ram.outputs.Tt #conditions.freestream.stagnation_temperature
         self.inlet_nozzle.inputs.Pt = self.ram.outputs.Pt #conditions.freestream.stagnation_pressure
         
+    
+        print 'ram out temp ', self.ram.outputs.Tt
+        print 'ram out press', self.ram.outputs.Pt    
+        
+        
         self.inlet_nozzle(conditions)   
         
         
-        
+        print 'inlet nozzle out temp ', self.inlet_nozzle.outputs.Tt
+        print 'inlet nozzle out press', self.inlet_nozzle.outputs.Pt         
+        print 'inlet nozzle out h', self.inlet_nozzle.outputs.ht         
 
         #---Flow through core------------------------------------------------------
         
@@ -603,7 +817,9 @@ class Network(Data):
         
         self.low_pressure_compressor(conditions) 
         
-        
+        print 'low_pressure_compressor out temp ', self.low_pressure_compressor.outputs.Tt
+        print 'low_pressure_compressor out press', self.low_pressure_compressor.outputs.Pt 
+        print 'low_pressure_compressor out h', self.low_pressure_compressor.outputs.ht
         #--high pressure compressor
         
         self.high_pressure_compressor.inputs.Tt = self.low_pressure_compressor.outputs.Tt
@@ -611,6 +827,9 @@ class Network(Data):
         
         self.high_pressure_compressor(conditions) 
         
+        print 'high_pressure_compressor out temp ', self.high_pressure_compressor.outputs.Tt
+        print 'high_pressure_compressor out press', self.high_pressure_compressor.outputs.Pt            
+        print 'high_pressure_compressor out h', self.high_pressure_compressor.outputs.ht
         
         
         #Fan
@@ -619,8 +838,13 @@ class Network(Data):
         self.fan.inputs.Tt = self.inlet_nozzle.outputs.Tt
         self.fan.inputs.Pt = self.inlet_nozzle.outputs.Pt
         
-        self.fan(conditions)         
+        self.fan(conditions) 
         
+        print 'fan out temp ', self.fan.outputs.Tt
+        print 'fan out press', self.fan.outputs.Pt     
+        print 'fan out h', self.fan.outputs.ht
+        
+
         
         #--Combustor
         self.combustor.inputs.Tt = self.high_pressure_compressor.outputs.Tt
@@ -630,8 +854,10 @@ class Network(Data):
         
         self.combustor(conditions)
         
-        
-        
+        print 'combustor out temp ', self.combustor.outputs.Tt
+        print 'combustor out press', self.combustor.outputs.Pt          
+        print 'combustor out f', self.combustor.outputs.f
+        print 'combustor out h', self.combustor.outputs.ht
         #high pressure turbine
         
         self.high_pressure_turbine.inputs.Tt = self.combustor.outputs.Tt
@@ -645,8 +871,9 @@ class Network(Data):
         
         self.high_pressure_turbine(conditions)
         
-        
-        
+        print 'high_pressure_turbine out temp ', self.high_pressure_turbine.outputs.Tt
+        print 'high_pressure_turbine out press', self.high_pressure_turbine.outputs.Pt        
+        print 'high_pressure_turbine out h', self.high_pressure_turbine.outputs.ht
         #high pressure turbine        
         
         self.low_pressure_turbine.inputs.Tt = self.high_pressure_turbine.outputs.Tt
@@ -660,7 +887,9 @@ class Network(Data):
         
         self.low_pressure_turbine(conditions)
         
-        
+        print 'low_pressure_turbine out temp ', self.low_pressure_turbine.outputs.Tt
+        print 'low_pressure_turbine out press', self.low_pressure_turbine.outputs.Pt        
+        print 'low_pressure_turbine out h', self.low_pressure_turbine.outputs.ht        
         
         #core nozzle  
         
@@ -669,6 +898,9 @@ class Network(Data):
         
         self.core_nozzle(conditions)   
         
+        print 'core_nozzle out temp ', self.core_nozzle.outputs.Tt
+        print 'core_nozzle out press', self.core_nozzle.outputs.Pt        
+        print 'core_nozzle out h', self.core_nozzle.outputs.ht        
 
         
 
@@ -681,15 +913,21 @@ class Network(Data):
         
         self.fan_nozzle(conditions)   
          
-        
+        print 'fan_nozzle out temp ', self.fan_nozzle.outputs.Tt
+        print 'fan_nozzle out press', self.fan_nozzle.outputs.Pt        
+        print 'fan_nozzle out h', self.fan_nozzle.outputs.ht         
         
         #compute thrust
         
         self.thrust.inputs.fan_exit_velocity = self.fan_nozzle.outputs.u
         self.thrust.inputs.core_exit_velocity = self.core_nozzle.outputs.u 
         self.thrust.inputs.f  = self.combustor.outputs.f
-        self.thrust.inputs.stag_temp_lpt_exit  = self.low_pressure_turbine.outputs.Tt
-        self.thrust.inputs.stag_press_lpt_exit = self.low_pressure_turbine.outputs.Pt
+        self.thrust.inputs.stag_temp_lpt_exit  = self.low_pressure_compressor.outputs.Tt
+        self.thrust.inputs.stag_press_lpt_exit = self.low_pressure_compressor.outputs.Pt
+        self.thrust.inputs.fan_area_ratio = self.fan_nozzle.outputs.area_ratio
+        self.thrust.inputs.core_area_ratio = self.core_nozzle.outputs.area_ratio
+        self.thrust.inputs.fan_nozzle = self.fan_nozzle.outputs
+        self.thrust.inputs.core_nozzle = self.core_nozzle.outputs
         self.thrust(conditions)
         
  
@@ -780,7 +1018,7 @@ def test():
     
     
     #inlet nozzle
-    inlet_nozzle = SUAVE.Components.Energy.Gas_Turbine.Nozzle()
+    inlet_nozzle = SUAVE.Components.Energy.Gas_Turbine.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet nozzle'
     gt_engine.inlet_nozzle = inlet_nozzle
     gt_engine.inlet_nozzle.etapold = 1.0
@@ -837,7 +1075,7 @@ def test():
     
     
     #core nozzle
-    core_nozzle = SUAVE.Components.Energy.Gas_Turbine.Nozzle()
+    core_nozzle = SUAVE.Components.Energy.Gas_Turbine.Expansion_Nozzle()
     core_nozzle.tag = 'core nozzle'
     gt_engine.core_nozzle = core_nozzle
     gt_engine.core_nozzle.etapold = 1.0
@@ -847,7 +1085,7 @@ def test():
 
 
     #fan nozzle
-    fan_nozzle = SUAVE.Components.Energy.Gas_Turbine.Nozzle()
+    fan_nozzle = SUAVE.Components.Energy.Gas_Turbine.Expansion_Nozzle()
     fan_nozzle.tag = 'fan nozzle'
     gt_engine.fan_nozzle = fan_nozzle
     gt_engine.fan_nozzle.etapold = 1.0
