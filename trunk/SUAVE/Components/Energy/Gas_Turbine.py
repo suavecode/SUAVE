@@ -91,13 +91,10 @@ class Ram(Energy_Component):
         
 
         self.tag = 'Ram'
-
-        self.etapold = 1.0
-        self.pid = 1.0
         
-        
-        self.outputs.Tt =1.0
-        self.outputs.Pt =1.0
+    
+        self.outputs.stagnation_temperature=1.0
+        self.outputs.stagnation_pressure =1.0
 
         
 
@@ -126,8 +123,8 @@ class Ram(Energy_Component):
          
         
         #pack outputs
-        self.outputs.Tt =conditions.freestream.stagnation_temperature
-        self.outputs.Pt =conditions.freestream.stagnation_pressure
+        self.outputs.stagnation_temperature =conditions.freestream.stagnation_temperature
+        self.outputs.stagnation_pressure =conditions.freestream.stagnation_pressure
         
         
 
@@ -152,16 +149,15 @@ class Compression_Nozzle(Energy_Component):
 
         self.tag = 'Nozzle'
 
-        self.etapold = 1.0
-        self.pid = 1.0
-        self.inputs
-        self.outputs
-        self.inputs.Tt=0.
-        self.inputs.Pt=0.
+        self.polytropic_efficiency = 1.0
+        self.pressure_ratio = 1.0
+
+        self.inputs.stagnation_temperature=0.
+        self.inputs.stagnation_pressure=0.
         
-        self.outputs.Tt=0.
-        self.outputs.Pt=0.
-        self.outputs.ht=0.
+        self.outputs.stagnation_temperature=0.
+        self.outputs.stagnation_pressure=0.
+        self.outputs.stagnation_enthalpy=0.
         
 
         
@@ -172,16 +168,18 @@ class Compression_Nozzle(Energy_Component):
         Cp = conditions.freestream.Cp
         Po = conditions.freestream.pressure
         R = conditions.freestream.R
-        Tt_in = self.inputs.Tt
-        Pt_in = self.inputs.Pt
+        Tt_in = self.inputs.stagnation_temperature
+        Pt_in = self.inputs.stagnation_pressure
+        pid = self.pressure_ratio
+        etapold =  self.polytropic_efficiency
 
     
         
         #Computing the output modules
         
         #--Getting the outptu stagnation quantities
-        Pt_out=Pt_in*self.pid
-        Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
+        Pt_out=Pt_in*pid
+        Tt_out=Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out=Cp*Tt_out 
         
         
@@ -192,37 +190,15 @@ class Compression_Nozzle(Energy_Component):
         u_out=np.sqrt(2*(ht_out-h_out))  
         
         
-        
-        #if np.linalg.norm(Mach) < 1.0:
-        ## nozzle unchoked
-        
-            #P_out=Po
-            
-            #Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            #Tt_out=Tt_out/(1+(gamma-1)/2*Mach**2)
-            #h_out=Cp*T_out
-        
-        #else:
-            #Mach=1
-            #T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
-            #P_out=Pt_out/(1+(gamma-1)/2*Mach**2)**(gamma/(gamma-1))
-            #h_out=Cp*T_out
-          
-        ## 
-        #u_out=np.sqrt(2*(ht_out-h_out))
-        #rho_out=P_out/(R*T_out)
-        
-   
-         
-        
+
         #pack outputs
-        self.outputs.Tt=Tt_out
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out
-        self.outputs.M = Mach
-        self.outputs.T = T_out
-        self.outputs.h = h_out
-        self.outputs.u = u_out
+        self.outputs.stagnation_temperature=Tt_out
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy=ht_out
+        self.outputs.mach_number = Mach
+        self.outputs.static_temperature = T_out
+        self.outputs.static_enthalpy = h_out
+        self.outputs.velocity = u_out
         
         
 
@@ -245,16 +221,15 @@ class Expansion_Nozzle(Energy_Component):
 
         self.tag = 'Nozzle'
 
-        self.etapold = 1.0
-        self.pid = 1.0
-        self.inputs
-        self.outputs
-        self.inputs.Tt=0.
-        self.inputs.Pt=0.
+        self.polytropic_efficiency = 1.0
+        self.pressure_ratio = 1.0
+
+        self.inputs.stagnation_temperature=0.
+        self.inputs.stagnation_pressure=0.
         
-        self.outputs.Tt=0.
-        self.outputs.Pt=0.
-        self.outputs.ht=0.
+        self.outputs.stagnation_temperature=0.
+        self.outputs.stagnation_pressure=0.
+        self.outputs.stagnation_enthalpy=0.
         
 
         
@@ -268,16 +243,17 @@ class Expansion_Nozzle(Energy_Component):
         Tto = conditions.freestream.stagnation_temperature
         R = conditions.freestream.R
         Mo =  conditions.freestream.mach_number
-        Tt_in = self.inputs.Tt
-        Pt_in = self.inputs.Pt
-
+        Tt_in = self.inputs.stagnation_temperature
+        Pt_in = self.inputs.stagnation_pressure
+        pid = self.pressure_ratio
+        etapold = self.polytropic_efficiency
     
         
         #Computing the output modules
         
         #--Getting the outptu stagnation quantities
-        Pt_out=Pt_in*self.pid
-        Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
+        Pt_out=Pt_in*pid
+        Tt_out=Tt_in*pid**((gamma-1)/(gamma)*etapold)
         ht_out=Cp*Tt_out 
         
         
@@ -315,14 +291,14 @@ class Expansion_Nozzle(Energy_Component):
          
         
         #pack outputs
-        self.outputs.Tt=Tt_out
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out
-        self.outputs.M = Mach
-        self.outputs.T = T_out
-        self.outputs.h = h_out
-        self.outputs.u = u_out
-        self.outputs.P = P_out
+        self.outputs.stagnation_temperature=Tt_out
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy=ht_out
+        self.outputs.mach_number = Mach
+        self.outputs.static_temperature = T_out
+        self.outputs.static_enthalpy = h_out
+        self.outputs.velocity = u_out
+        self.outputs.static_pressure = P_out
         self.outputs.area_ratio = area_ratio
         
         
@@ -347,15 +323,15 @@ class Compressor(Energy_Component):
 
         self.tag = 'Compressor'
 
-        self.etapold = 1.0
-        self.pid = 1.0
+        self.polytropic_efficiency = 1.0
+        self.pressure_ratio = 1.0
         
-        self.inputs.Tt=0.
-        self.inputs.Pt=0.
+        self.inputs.stagnation_temperature=0.
+        self.inputs.stagnation_pressure=0.
         
-        self.outputs.Tt=0.
-        self.outputs.Pt=0.
-        self.outputs.ht=0.        
+        self.outputs.stagnation_temperature=0.
+        self.outputs.stagnation_pressure=0.
+        self.outputs.stagnation_enthalpy=0.        
  
         
         
@@ -365,18 +341,25 @@ class Compressor(Energy_Component):
         #unpack the variables
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp  
-        Tt_in = self.inputs.Tt
-        Pt_in = self.inputs.Pt        
+        Tt_in = self.inputs.stagnation_temperature
+        Pt_in = self.inputs.stagnation_pressure      
+        pid = self.pressure_ratio
+        etapold =  self.polytropic_efficiency
     
         #Compute the output stagnation quantities based on the pressure ratio of the component
-        Pt_out=Pt_in*self.pid
-        Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
+        
+        ht_in = Cp*Tt_in
+        
+        Pt_out=Pt_in*pid
+        Tt_out=Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out=Cp*Tt_out 
+        work_done = ht_out- ht_in
         
         #pack outputs
-        self.outputs.Tt=Tt_out
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out        
+        self.outputs.stagnation_temperature=Tt_out
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy= ht_out 
+        self.outputs.work_done = work_done
         
 
     __call__ = compute
@@ -397,15 +380,15 @@ class Fan(Energy_Component):
 
         self.tag ='Fan'
 
-        self.etapold = 1.0
-        self.pid = 1.0
+        self.polytropic_efficiency = 1.0
+        self.pressure_ratio = 1.0
         
-        self.inputs.Tt=0.
-        self.inputs.Pt=0.
+        self.inputs.stagnation_temperature=0.
+        self.inputs.stagnation_pressure=0.
         
-        self.outputs.Tt=0.
-        self.outputs.Pt=0.
-        self.outputs.ht=0.        
+        self.outputs.stagnation_temperature=0.
+        self.outputs.stagnation_pressure=0.
+        self.outputs.stagnation_enthalpy=0.        
       
         
         
@@ -413,20 +396,26 @@ class Fan(Energy_Component):
         
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp  
-        Tt_in = self.inputs.Tt
-        Pt_in = self.inputs.Pt        
+        Tt_in = self.inputs.stagnation_temperature
+        Pt_in = self.inputs.stagnation_pressure   
+        pid = self.pressure_ratio
+        etapold =  self.polytropic_efficiency        
     
     
         #Compute the output stagnation quantities based on the pressure ratio of the component
-        Pt_out=Pt_in*self.pid
-        Tt_out=Tt_in*self.pid**((gamma-1)/(gamma*self.etapold))
+        ht_in = Cp*Tt_in        
+        
+        Pt_out=Pt_in*pid
+        Tt_out=Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out=Cp*Tt_out    #h(Tt1_8)
         
-        
+        work_done = ht_out- ht_in
         #pack outputs
-        self.outputs.Tt=Tt_out
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out   
+        self.outputs.stagnation_temperature=Tt_out
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy=ht_out 
+        
+        self.outputs.work_done = work_done
         
 
         
@@ -450,21 +439,19 @@ class Combustor(Energy_Component):
         
 
         self.tag = 'Combustor'
-        self.eta = 1.0
-        self.tau = 1.0
-        self.To = 273.0
+
         self.alphac = 0.0 
-        self.Tt4 = 1.0
-        self.fuel = SUAVE.Attributes.Propellants.Jet_A()
+        self.turbine_inlet_temperature = 1.0
+        self.fuel_data = SUAVE.Attributes.Propellants.Jet_A()
         
-        self.inputs.Tt = 1.0
-        self.inputs.Pt = 1.0  
-        self.inputs.nozzle_temp = 1.0     
+        self.inputs.stagnation_temperature = 1.0
+        self.inputs.stagnation_pressure = 1.0  
+        #self.inputs.nozzle_temp = 1.0     
         
-        self.outputs.Tt=1.0
-        self.outputs.Pt=1.0
-        self.outputs.ht=1.0
-        self.outputs.f = 1.0        
+        self.outputs.stagnation_temperature=1.0
+        self.outputs.stagnation_pressure=1.0
+        self.outputs.stagnation_enthalpy=1.0
+        self.outputs.fuel_to_air_ratio = 1.0        
         
         
 
@@ -476,14 +463,17 @@ class Combustor(Energy_Component):
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp
         To = conditions.freestream.temperature
+        Tto = conditions.freestream.stagnation_temperature
         
-        Tt_in = self.inputs.Tt 
-        Pt_in = self.inputs.Pt   
-        Tt_n = self.inputs.nozzle_temp 
-        Tto = self.inputs.freestream_stag_temp
+        Tt_in = self.inputs.stagnation_temperature 
+        Pt_in = self.inputs.stagnation_pressure   
+        Tt_n = self.inputs.nozzle_exit_stagnation_temperature
+        Tt4 = self.turbine_inlet_temperature
+        pib = self.pressure_ratio
+        #Tto = self.inputs.freestream_stag_temp
         
-        htf=self.fuel.specific_energy
-        ht4 = Cp*self.Tt4
+        htf=self.fuel_data.specific_energy
+        ht4 = Cp*Tt4
         ho = Cp*To
         
         
@@ -500,14 +490,14 @@ class Combustor(Energy_Component):
         f = (ht4 - ho)/(htf-ht4)
         #print ((self.Tt4/To)-tau_freestream*(Tt_in/Tt_n))
         
-        ht_out=Cp*self.Tt4
-        Pt_out=Pt_in*self.pib  
+        ht_out=Cp*Tt4
+        Pt_out=Pt_in*pib  
         
         #pack outputs
-        self.outputs.Tt=self.Tt4
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out 
-        self.outputs.f = 0.0215328 #f
+        self.outputs.stagnation_temperature=Tt4
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy=ht_out 
+        self.outputs.fuel_to_air_ratio = f #0.0215328 #f
         
 
         
@@ -529,21 +519,17 @@ class Turbine(Energy_Component):
         
 
         self.tag ='Turbine'
-        self.eta_mech =1.0
-        self.Cp =1004
-        self.gamma =1.4
-        self.etapolt = 1.0
+        self.mechanical_efficiency =1.0
+        self.polytropic_efficiency = 1.0
         
-        self.inputs.Tt = 1.0
-        self.inputs.Pt = 1.0  
-        self.inputs.h_compressor_out = 1.0
-        self.inputs.h_compressor_in = 1.0
-        self.inputs.f = 1.0
+        self.inputs.stagnation_temperature = 1.0
+        self.inputs.stagnation_pressure = 1.0  
+        self.inputs.fuel_to_air_ratio = 1.0
         
 
-        self.outputs.Tt=1.0
-        self.outputs.Pt=1.0
-        self.outputs.ht=1.0    
+        self.outputs.stagnation_temperature=1.0
+        self.outputs.stagnation_pressure=1.0
+        self.outputs.stagnation_enthalpy=1.0    
         
         
      
@@ -554,32 +540,31 @@ class Turbine(Energy_Component):
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp 
         
-        Tt_in =self.inputs.Tt 
-        Pt_in =self.inputs.Pt   
-        h_compressor_out =self.inputs.h_compressor_out 
-        h_compressor_in=self.inputs.h_compressor_in
-        h_fan_out =  self.inputs.h_fan_out
-        h_fan_in = self.inputs.h_fan_in
-        alpha =  self.inputs.alpha
-        f =self.inputs.f        
+        Tt_in =self.inputs.stagnation_temperature 
+        Pt_in =self.inputs.stagnation_pressure   
+
+        alpha =  self.inputs.bypass_ratio
+        f =self.inputs.fuel_to_air_ratio  
+        compressor_work = self.inputs.compressor.work_done
+        fan_work = self.inputs.fan.work_done
+        
+        eta_mech =  self.mechanical_efficiency
+        etapolt =  self.polytropic_efficiency
         
         #Using the stagnation enthalpy drop across the corresponding turbine and the fuel to air ratio to compute the energy drop across the turbine
-        deltah_ht=-1/(1+f)*1/self.eta_mech*((h_compressor_out-h_compressor_in)+ alpha*(h_fan_out-h_fan_in))
+        deltah_ht=-1/(1+f)*1/eta_mech*((compressor_work)+ alpha*(fan_work))
         
         #Compute the output stagnation quantities from the inputs and the energy drop computed above 
         Tt_out=Tt_in+deltah_ht/Cp
-        Pt_out=Pt_in*(Tt_out/Tt_in)**(gamma/((gamma-1)*self.etapolt))
+        Pt_out=Pt_in*(Tt_out/Tt_in)**(gamma/((gamma-1)*etapolt))
         ht_out=Cp*Tt_out   #h(Tt4_5)
         
         
-        print 'turbofan hpt out deltah_lt', deltah_ht
-        print 'turbofan hpt out h_compressor_out', h_compressor_out
-        print 'turbofan hpt out h_compressor_in', h_compressor_in
         
         #pack outputs
-        self.outputs.Tt=Tt_out
-        self.outputs.Pt=Pt_out
-        self.outputs.ht=ht_out        
+        self.outputs.stagnation_temperature=Tt_out
+        self.outputs.stagnation_pressure=Pt_out
+        self.outputs.stagnation_enthalpy=ht_out        
 
         
     __call__ = compute      
@@ -604,26 +589,25 @@ class Thrust(Energy_Component):
         
 
         self.tag ='Thrust'
-        self.alpha=1.0
-        self.mdhc =1.0
-        self.Tref =1.0
-        self.Pref=1.0
-        self.no_eng =1.0
+        self.bypass_ratio=1.0
+        self.compressor_nondimensional_massflow =1.0
+        self.reference_temperature =1.0
+        self.reference_pressure=1.0
+        self.number_of_engines =1.0
 
         
-        self.inputs.fan_exit_velocity =1.0
-        self.inputs.core_exit_velocity =1004.
-        self.inputs.f = 1.0
+
+        self.inputs.fuel_to_air_ratio = 1.0
         
   
 
-        self.outputs.Thrust=1.0
-        self.outputs.sfc=1.0
-        self.outputs.Isp=1.0    
-        self.outputs.non_dim_thrust=1.0
-        self.outputs.mdot_core = 1.0
-        self.outputs.fuel_rate=1.0
-        self.outputs.mfuel = 1.0
+        self.outputs.thrust=1.0
+        self.outputs.thrust_specific_fuel_consumption=1.0
+        self.outputs.specific_impulse=1.0    
+        self.outputs.non_dimensional_thrust=1.0
+        self.outputs.core_mass_flow_rate = 1.0
+        self.outputs.fuel_flow_rate=1.0
+        self.outputs.fuel_mass = 1.0
         self.outputs.power = 1.0
         
         
@@ -636,15 +620,19 @@ class Thrust(Energy_Component):
         gamma=conditions.freestream.gamma
         Cp = conditions.freestream.Cp 
         
-        fan_exit_velocity= self.inputs.fan_exit_velocity 
-        core_exit_velocity=self.inputs.core_exit_velocity 
-        f= self.inputs.f  
+ 
+        f= self.inputs.fuel_to_air_ratio  
         stag_temp_lpt_exit=self.inputs.stag_temp_lpt_exit
         stag_press_lpt_exit=self.inputs.stag_press_lpt_exit
-        fan_area_ratio = self.inputs.fan_area_ratio
-        core_area_ratio = self.inputs.core_area_ratio        
+      
         core_nozzle = self.inputs.core_nozzle
         fan_nozzle = self.inputs.fan_nozzle
+        
+        fan_exit_velocity= self.inputs.fan_nozzle.velocity 
+        core_exit_velocity=self.inputs.core_nozzle.velocity   
+        
+        fan_area_ratio = self.inputs.fan_nozzle.area_ratio
+        core_area_ratio = self.inputs.core_nozzle.area_ratio         
 
         u0 = conditions.freestream.velocity
         a0=conditions.freestream.speed_of_sound
@@ -653,6 +641,12 @@ class Thrust(Energy_Component):
         
         g = conditions.freestream.gravity
         throttle = conditions.propulsion.throttle
+        
+        bypass_ratio =  self.bypass_ratio
+        Tref = self.reference_temperature
+        Pref = self.reference_pressure
+        no_eng = self.number_of_engines
+        mdhc =  self.compressor_nondimensional_massflow
         
 
 
@@ -690,24 +684,19 @@ class Thrust(Energy_Component):
 
         ##--------Cantwell method---------------------------------
 
-        Ae_b_Ao=1/(1+self.alpha)*core_area_ratio
+        Ae_b_Ao=1/(1+bypass_ratio)*core_area_ratio
         
         print 'Ae_b_Ao',Ae_b_Ao        
         
-        A1e_b_A1o=self.alpha/(1+self.alpha)*fan_area_ratio
+        A1e_b_A1o=bypass_ratio/(1+bypass_ratio)*fan_area_ratio
          
          
         print 'A1e_b_A1o',A1e_b_A1o          
          
          
-        Thrust_nd=gamma*M0**2*(1/(1+self.alpha)*(core_nozzle.u/u0-1)+(self.alpha/(1+self.alpha))*(fan_nozzle.u/u0-1))+Ae_b_Ao*(core_nozzle.P/p0-1)+A1e_b_A1o*(fan_nozzle.P/p0-1)
+        Thrust_nd=gamma*M0**2*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
         
         
-        print 'self.alpha',self.alpha
-        print 'core_nozzle.u/u0-1',core_nozzle.u/u0-1
-        print 'fan_nozzle.u/u0-1',fan_nozzle.u/u0-1
-        print 'core_nozzle.P/p0-1',core_nozzle.P/p0-1
-        print 'fan_nozzle.P/p0-1 ',fan_nozzle.P/p0-1
         
         
         ##calculate actual value of thrust 
@@ -718,23 +707,23 @@ class Thrust(Energy_Component):
 
       ##overall engine quantities
         
-        Isp=Fsp*a0*(1+self.alpha)/(f*g)
+        Isp=Fsp*a0*(1+bypass_ratio)/(f*g)
         TSFC=3600/Isp  # for the test case 
 
 
         print 'TSFC ',TSFC
         
         #mass flow sizing
-        mdot_core=self.mdhc*np.sqrt(self.Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/self.Pref)
+        mdot_core=mdhc*np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref)
         
         ##mdot_core=FD/(Fsp*ao*(1+aalpha))
         ##print mdot_core
         print 'mdot_core ',stag_temp_lpt_exit
       
         ##-------if areas specified-----------------------------
-        fuel_rate=mdot_core*f*self.no_eng
+        fuel_rate=mdot_core*f*no_eng
         
-        FD2=Fsp*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
+        FD2=Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
         mfuel=0.1019715*FD2*TSFC/3600
         ###State.config.A_engine=A22
         
@@ -744,13 +733,13 @@ class Thrust(Energy_Component):
         
         #pack outputs
 
-        self.outputs.Thrust= FD2 #thrust
-        self.outputs.sfc=TSFC
-        self.outputs.Isp=Isp   
-        self.outputs.non_dim_thrust=Fsp #specific_thrust
-        self.outputs.mdot_core = mdot_core
-        self.outputs.fuel_rate= fuel_rate
-        self.outputs.mfuel = mfuel     
+        self.outputs.thrust= FD2 #thrust
+        self.outputs.thrust_specific_fuel_consumption=TSFC
+        self.outputs.specific_impulse=Isp   
+        self.outputs.non_dimensional_thrust=Fsp #specific_thrust
+        self.outputs.core_mass_flow_rate = mdot_core
+        self.outputs.fuel_flow_rate= fuel_rate
+        self.outputs.fuel_mass = mfuel     
         self.outputs.power = power  
 
         
@@ -788,119 +777,136 @@ class Network(Data):
         # unpack to shorter component names
         # table the equal signs
   
+  
+        #Unpack components
+        
+        ram = self.ram
+        inlet_nozzle = self.inlet_nozzle
+        low_pressure_compressor = self.low_pressure_compressor
+        high_pressure_compressor = self.high_pressure_compressor
+        fan = self.fan
+        combustor=self.combustor
+        high_pressure_turbine=self.high_pressure_turbine
+        low_pressure_turbine=self.low_pressure_turbine
+        core_nozzle = self.core_nozzle
+        fan_nozzle = self.fan_nozzle
+        thrust = self.thrust
+        
+        
+        
+        #Network
+  
 
-        self.ram(conditions)
+
+        ram(conditions)
         
 
         
         
-        self.inlet_nozzle.inputs.Tt = self.ram.outputs.Tt #conditions.freestream.stagnation_temperature
-        self.inlet_nozzle.inputs.Pt = self.ram.outputs.Pt #conditions.freestream.stagnation_pressure
+        inlet_nozzle.inputs.stagnation_temperature = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
+        inlet_nozzle.inputs.stagnation_pressure = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
         
     
-        print 'ram out temp ', self.ram.outputs.Tt
-        print 'ram out press', self.ram.outputs.Pt    
+        print 'ram out temp ', ram.outputs.stagnation_temperature
+        print 'ram out press', ram.outputs.stagnation_pressure    
         
         
-        self.inlet_nozzle(conditions)   
+        inlet_nozzle(conditions)   
         
         
-        print 'inlet nozzle out temp ', self.inlet_nozzle.outputs.Tt
-        print 'inlet nozzle out press', self.inlet_nozzle.outputs.Pt         
-        print 'inlet nozzle out h', self.inlet_nozzle.outputs.ht         
+        print 'inlet nozzle out temp ', inlet_nozzle.outputs.stagnation_temperature
+        print 'inlet nozzle out press', inlet_nozzle.outputs.stagnation_pressure         
+        print 'inlet nozzle out h', inlet_nozzle.outputs.stagnation_enthalpy         
 
         #---Flow through core------------------------------------------------------
         
         #--low pressure compressor
-        self.low_pressure_compressor.inputs.Tt = self.inlet_nozzle.outputs.Tt
-        self.low_pressure_compressor.inputs.Pt = self.inlet_nozzle.outputs.Pt
+        low_pressure_compressor.inputs.stagnation_temperature = inlet_nozzle.outputs.stagnation_temperature
+        low_pressure_compressor.inputs.stagnation_pressure = inlet_nozzle.outputs.stagnation_pressure
         
-        self.low_pressure_compressor(conditions) 
+        low_pressure_compressor(conditions) 
         
-        print 'low_pressure_compressor out temp ', self.low_pressure_compressor.outputs.Tt
-        print 'low_pressure_compressor out press', self.low_pressure_compressor.outputs.Pt 
-        print 'low_pressure_compressor out h', self.low_pressure_compressor.outputs.ht
+        print 'low_pressure_compressor out temp ', low_pressure_compressor.outputs.stagnation_temperature
+        print 'low_pressure_compressor out press', low_pressure_compressor.outputs.stagnation_pressure 
+        print 'low_pressure_compressor out h', low_pressure_compressor.outputs.stagnation_enthalpy
         #--high pressure compressor
         
-        self.high_pressure_compressor.inputs.Tt = self.low_pressure_compressor.outputs.Tt
-        self.high_pressure_compressor.inputs.Pt = self.low_pressure_compressor.outputs.Pt        
+        high_pressure_compressor.inputs.stagnation_temperature = low_pressure_compressor.outputs.stagnation_temperature
+        high_pressure_compressor.inputs.stagnation_pressure = low_pressure_compressor.outputs.stagnation_pressure        
         
-        self.high_pressure_compressor(conditions) 
+        high_pressure_compressor(conditions) 
         
-        print 'high_pressure_compressor out temp ', self.high_pressure_compressor.outputs.Tt
-        print 'high_pressure_compressor out press', self.high_pressure_compressor.outputs.Pt            
-        print 'high_pressure_compressor out h', self.high_pressure_compressor.outputs.ht
+        print 'high_pressure_compressor out temp ', high_pressure_compressor.outputs.stagnation_temperature
+        print 'high_pressure_compressor out press', high_pressure_compressor.outputs.stagnation_pressure            
+        print 'high_pressure_compressor out h', high_pressure_compressor.outputs.stagnation_enthalpy
         
         
         #Fan
         
         
-        self.fan.inputs.Tt = self.inlet_nozzle.outputs.Tt
-        self.fan.inputs.Pt = self.inlet_nozzle.outputs.Pt
+        fan.inputs.stagnation_temperature = inlet_nozzle.outputs.stagnation_temperature
+        fan.inputs.stagnation_pressure = inlet_nozzle.outputs.stagnation_pressure
         
-        self.fan(conditions) 
+        fan(conditions) 
         
-        print 'fan out temp ', self.fan.outputs.Tt
-        print 'fan out press', self.fan.outputs.Pt     
-        print 'fan out h', self.fan.outputs.ht
+        print 'fan out temp ', fan.outputs.stagnation_temperature
+        print 'fan out press', fan.outputs.stagnation_pressure     
+        print 'fan out h', fan.outputs.stagnation_enthalpy
         
 
         
         #--Combustor
-        self.combustor.inputs.Tt = self.high_pressure_compressor.outputs.Tt
-        self.combustor.inputs.Pt = self.high_pressure_compressor.outputs.Pt   
-        self.combustor.inputs.nozzle_temp = self.inlet_nozzle.outputs.Tt
-        self.combustor.inputs.freestream_stag_temp = self.ram.outputs.Tt
+        combustor.inputs.stagnation_temperature = high_pressure_compressor.outputs.stagnation_temperature
+        combustor.inputs.stagnation_pressure = high_pressure_compressor.outputs.stagnation_pressure   
+        combustor.inputs.nozzle_exit_stagnation_temperature = inlet_nozzle.outputs.stagnation_temperature
         
-        self.combustor(conditions)
+        combustor(conditions)
         
-        print 'combustor out temp ', self.combustor.outputs.Tt
-        print 'combustor out press', self.combustor.outputs.Pt          
-        print 'combustor out f', self.combustor.outputs.f
-        print 'combustor out h', self.combustor.outputs.ht
+        print 'combustor out temp ', combustor.outputs.stagnation_temperature
+        print 'combustor out press', combustor.outputs.stagnation_pressure          
+        print 'combustor out f', combustor.outputs.fuel_to_air_ratio
+        print 'combustor out h', combustor.outputs.stagnation_enthalpy
+        
         #high pressure turbine
         
-        self.high_pressure_turbine.inputs.Tt = self.combustor.outputs.Tt
-        self.high_pressure_turbine.inputs.Pt = self.combustor.outputs.Pt    
-        self.high_pressure_turbine.inputs.h_compressor_out = self.high_pressure_compressor.outputs.ht
-        self.high_pressure_turbine.inputs.h_compressor_in = self.low_pressure_compressor.outputs.ht
-        self.high_pressure_turbine.inputs.f = self.combustor.outputs.f
-        self.high_pressure_turbine.inputs.h_fan_out =  0.0
-        self.high_pressure_turbine.inputs.h_fan_in = 0.0
-        self.high_pressure_turbine.inputs.alpha =0.0    
+        high_pressure_turbine.inputs.stagnation_temperature = combustor.outputs.stagnation_temperature
+        high_pressure_turbine.inputs.stagnation_pressure = combustor.outputs.stagnation_pressure    
+        high_pressure_turbine.inputs.compressor = high_pressure_compressor.outputs
+        high_pressure_turbine.inputs.fuel_to_air_ratio = combustor.outputs.fuel_to_air_ratio
+        high_pressure_turbine.inputs.fan =  fan.outputs
+        high_pressure_turbine.inputs.bypass_ratio =0.0    
         
-        self.high_pressure_turbine(conditions)
+        high_pressure_turbine(conditions)
         
-        print 'high_pressure_turbine out temp ', self.high_pressure_turbine.outputs.Tt
-        print 'high_pressure_turbine out press', self.high_pressure_turbine.outputs.Pt        
-        print 'high_pressure_turbine out h', self.high_pressure_turbine.outputs.ht
-        #high pressure turbine        
+        print 'high_pressure_turbine out temp ', high_pressure_turbine.outputs.stagnation_temperature
+        print 'high_pressure_turbine out press', high_pressure_turbine.outputs.stagnation_pressure       
+        print 'high_pressure_turbine out h', high_pressure_turbine.outputs.stagnation_enthalpy
         
-        self.low_pressure_turbine.inputs.Tt = self.high_pressure_turbine.outputs.Tt
-        self.low_pressure_turbine.inputs.Pt = self.high_pressure_turbine.outputs.Pt    
-        self.low_pressure_turbine.inputs.h_compressor_out = self.low_pressure_compressor.outputs.ht
-        self.low_pressure_turbine.inputs.h_compressor_in = self.inlet_nozzle.outputs.ht
-        self.low_pressure_turbine.inputs.f = self.combustor.outputs.f   
-        self.low_pressure_turbine.inputs.h_fan_out =  self.fan.outputs.ht
-        self.low_pressure_turbine.inputs.h_fan_in =  self.inlet_nozzle.outputs.ht
-        self.low_pressure_turbine.inputs.alpha =  self.thrust.alpha   
+        #low pressure turbine        
         
-        self.low_pressure_turbine(conditions)
+        low_pressure_turbine.inputs.stagnation_temperature = high_pressure_turbine.outputs.stagnation_temperature
+        low_pressure_turbine.inputs.stagnation_pressure = high_pressure_turbine.outputs.stagnation_pressure    
+        low_pressure_turbine.inputs.compressor = low_pressure_compressor.outputs
+        low_pressure_turbine.inputs.fuel_to_air_ratio = combustor.outputs.fuel_to_air_ratio   
+        low_pressure_turbine.inputs.fan =  fan.outputs
+        low_pressure_turbine.inputs.bypass_ratio =  thrust.bypass_ratio   
         
-        print 'low_pressure_turbine out temp ', self.low_pressure_turbine.outputs.Tt
-        print 'low_pressure_turbine out press', self.low_pressure_turbine.outputs.Pt        
-        print 'low_pressure_turbine out h', self.low_pressure_turbine.outputs.ht        
+        low_pressure_turbine(conditions)
+        
+        print 'low_pressure_turbine out temp ', low_pressure_turbine.outputs.stagnation_temperature
+        print 'low_pressure_turbine out press', low_pressure_turbine.outputs.stagnation_pressure        
+        print 'low_pressure_turbine out h', low_pressure_turbine.outputs.stagnation_enthalpy        
         
         #core nozzle  
         
-        self.core_nozzle.inputs.Tt = self.low_pressure_turbine.outputs.Tt
-        self.core_nozzle.inputs.Pt = self.low_pressure_turbine.outputs.Pt     
+        core_nozzle.inputs.stagnation_temperature = low_pressure_turbine.outputs.stagnation_temperature
+        core_nozzle.inputs.stagnation_pressure = low_pressure_turbine.outputs.stagnation_pressure     
         
-        self.core_nozzle(conditions)   
+        core_nozzle(conditions)   
         
-        print 'core_nozzle out temp ', self.core_nozzle.outputs.Tt
-        print 'core_nozzle out press', self.core_nozzle.outputs.Pt        
-        print 'core_nozzle out h', self.core_nozzle.outputs.ht        
+        print 'core_nozzle out temp ', core_nozzle.outputs.stagnation_temperature
+        print 'core_nozzle out press', core_nozzle.outputs.stagnation_pressure        
+        print 'core_nozzle out h', core_nozzle.outputs.stagnation_enthalpy        
 
         
 
@@ -908,35 +914,35 @@ class Network(Data):
         
         #fan nozzle
         
-        self.fan_nozzle.inputs.Tt = self.fan.outputs.Tt
-        self.fan_nozzle.inputs.Pt = self.fan.outputs.Pt        
+        fan_nozzle.inputs.stagnation_temperature = fan.outputs.stagnation_temperature
+        fan_nozzle.inputs.stagnation_pressure = fan.outputs.stagnation_pressure        
         
-        self.fan_nozzle(conditions)   
+        fan_nozzle(conditions)   
          
-        print 'fan_nozzle out temp ', self.fan_nozzle.outputs.Tt
-        print 'fan_nozzle out press', self.fan_nozzle.outputs.Pt        
-        print 'fan_nozzle out h', self.fan_nozzle.outputs.ht         
+        print 'fan_nozzle out temp ', fan_nozzle.outputs.stagnation_temperature
+        print 'fan_nozzle out press', fan_nozzle.outputs.stagnation_pressure        
+        print 'fan_nozzle out h', fan_nozzle.outputs.stagnation_enthalpy         
         
         #compute thrust
         
-        self.thrust.inputs.fan_exit_velocity = self.fan_nozzle.outputs.u
-        self.thrust.inputs.core_exit_velocity = self.core_nozzle.outputs.u 
-        self.thrust.inputs.f  = self.combustor.outputs.f
-        self.thrust.inputs.stag_temp_lpt_exit  = self.low_pressure_compressor.outputs.Tt
-        self.thrust.inputs.stag_press_lpt_exit = self.low_pressure_compressor.outputs.Pt
-        self.thrust.inputs.fan_area_ratio = self.fan_nozzle.outputs.area_ratio
-        self.thrust.inputs.core_area_ratio = self.core_nozzle.outputs.area_ratio
-        self.thrust.inputs.fan_nozzle = self.fan_nozzle.outputs
-        self.thrust.inputs.core_nozzle = self.core_nozzle.outputs
-        self.thrust(conditions)
+        thrust.inputs.fan_exit_velocity = fan_nozzle.outputs.velocity
+        thrust.inputs.core_exit_velocity = core_nozzle.outputs.velocity 
+        thrust.inputs.fuel_to_air_ratio  = combustor.outputs.fuel_to_air_ratio
+        thrust.inputs.stag_temp_lpt_exit  = low_pressure_compressor.outputs.stagnation_temperature
+        thrust.inputs.stag_press_lpt_exit = low_pressure_compressor.outputs.stagnation_pressure
+        thrust.inputs.fan_area_ratio = fan_nozzle.outputs.area_ratio
+        thrust.inputs.core_area_ratio = core_nozzle.outputs.area_ratio
+        thrust.inputs.fan_nozzle = fan_nozzle.outputs
+        thrust.inputs.core_nozzle = core_nozzle.outputs
+        thrust(conditions)
         
  
         #getting the output data from the thrust outputs
         
-        F = self.thrust.outputs.Thrust
-        mdot = self.thrust.outputs.mfuel
-        Isp = self.thrust.outputs.Isp
-        P = self.thrust.outputs.power
+        F = thrust.outputs.thrust
+        mdot = thrust.outputs.fuel_mass
+        Isp = thrust.outputs.specific_impulse
+        P = thrust.outputs.power
 
 
        # return F,mdot,Isp
