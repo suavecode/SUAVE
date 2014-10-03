@@ -39,12 +39,18 @@ def main():
     
     # run the problem
     results = the_aircraft_function(vehicle,mission)
+
+    # plot the new results
+    plot_mission(vehicle,mission,results,'bo-')    
+    
+    # load older results
+    old_results = load_results()
+    
+    # plt the old results
+    plot_mission(vehicle,mission,old_results,'k-')
     
     # check the results
-    check_results(results)
-    
-    # post process the results
-    plot_mission(vehicle,mission,results)
+    check_results(results,old_results)
     
     return
 
@@ -519,10 +525,7 @@ def mission_setup(vehicle):
     return mission
 
 
-def check_results(new_results):
-    
-    # load old results
-    old_results = load_results()
+def check_results(new_results,old_results):
     
     # check segment values
     check_list = [
