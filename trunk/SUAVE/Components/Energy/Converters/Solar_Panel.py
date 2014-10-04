@@ -23,14 +23,14 @@ class Solar_Panel(Energy_Component):
     
     def __defaults__(self):
         self.area   = 0.0
-        self.eff = 0.0
+        self.efficiency = 0.0
     
     def power(self):
         
         # Unpack
         flux=self.inputs.flux
         
-        p = flux*self.area*self.eff
+        p = flux*self.area*self.efficiency
         
         # Store to outputs
         self.outputs.power = p

@@ -83,11 +83,11 @@ class Solar_Network(Data):
         tol = 1e-6
         ii = 0 
         while (np.any(diff>tol)):
-            motor.propCp = Cplast #Change the Cp
+            motor.propeller_Cp  = Cplast #Change the Cp
             motor.omega(conditions) #Rerun the motor
             propeller.inputs.omega =  motor.outputs.omega #Relink the motor
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
-            diff = abs(Cplast-motor.propCp) #Check to see if it converged
+            diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
             ii += 1
             if ii>100:
                 break            

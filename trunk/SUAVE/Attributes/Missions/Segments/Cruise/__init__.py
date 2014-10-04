@@ -2,3 +2,4 @@
 from Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 from Constant_Mach_Constant_Altitude  import Constant_Mach_Constant_Altitude
 from Constant_Speed_Altitude_Radius_Loiter import Constant_Speed_Altitude_Radius_Loiter
+from Solar_Segment import Solar_Segment
