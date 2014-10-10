@@ -96,25 +96,8 @@ class Container(Physical_Component.Container):
             if np.isscalar(etaPe):
                 if etaPe != 0.0:
                     P += F*segment.V/etaPe                  # W
-                    
-                   #Account for mass gain of Li-air battery
-                    try:
-                        self.battery
-                    except AttributeError:
-                        
-                        if propulsor.battery.type=='Li-Air': 
-                            
-                            for i in range(len(P)):
-                                if propulsor.battery.MaxPower>P[i]:
-                                    [Ploss,Mdot]=propulsor.battery(P[i],.01 )       #choose small dt here (has not been solved for yet); its enough to find mass rate gain of battery
-                                else:
-                                    [Ploss,Mdot]=propulsor.battery(propulsor.battery.MaxPower,.01 )
-                                mdot[i]+=Mdot.real
-                                
-                                
-                                
-                                
                    
+                                           
             else:
                 mask = (etaPe != 0.0)
                 P += F[mask]*segment.V[mask]/etaPe[mask]    # W

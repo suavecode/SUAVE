@@ -26,34 +26,72 @@ class Battery(Energy_Component):
         
         self.type = 'Li-Ion'
         self.mass_properties.mass = 0.0
-        self.CurrentEnergy = 0.0
-        self.resistance = 0.0
+        self.current_energy = 0.0
+        self.resistance = 0.07446
+        self.specific_energy=0
+        self.specific_power=0.
+    
+        if self.type=='Li-S':
+            self.specific_energy=500.*Units.Wh/Units.kg
+            self.specific_power=1*Units.kW/Units.kg
+        elif self.type=='Li-ion':
+            self.specific_energy=90*Units.Wh/Units.kg
+            self.specific_power=1*Units.kW/Units.kg
+    def initialize(self, energy, power):
+        #initializes properties of battery based on specific energy and specific power            
+        if self.specific_energy==0:
+            print 'battery specific energy not specified!'
+         
+        if self.specific_power==0:
+            print 'battery specific power not specified!'
+        self.mass_properties.mass= max((energy/(self.specific_energy), self.power/(specific_power)))
+        self.max_energy=self.mass_properties.mass*self.specific_energy #convert total energy to Joules
+        self.max_power= self.mass_properties.mass*self.specific_power #convert total power to Watts
         
-    def max_energy(self):
-        """ The maximum energy the battery can hold
-            
-            Inputs:
-                battery mass
-                battery type
-               
-            Outputs:
-                maximum energy the battery can hold
-               
-            Assumptions:
-                This is a simple battery, based on the model by:
-                AIAA 2012-5045 by Anubhav Datta/Johnson
-               
+         
+    
+    def ragone_optimum(self, energy, power):
         """
+        For Li-S and Li-Ion batteries, determines optimum spot on ragone plot
+        to size the battery
         
-        #These need to be fixed
-        if self.type=='Li-Ion':
-            return 0.90*(10**6)*self.mass_properties.mass
+        Inputs:    
+            energy= energy battery is required to hold [W]
+            power= power battery is required to provide [W]
+
+       Reads:
+            energy
+            power
+
+       Outputs:
+            battery.specific_energy
+            battery.specific_power
+        """
+        if self.type=='Li-S':
+            esp=np.linspace(300,700,500)             #create vector of specific energy (W-h/kg)
+            psp=245.848*np.power(10,-.00478*esp)     #create vector of specific power based on Ragone plot fit curve (kW/kg)
+        elif self.type=='Li-Ion':
+            esp=np.linspace(50,200,500)        
+            psp=88.818*np.power(10,-.01533*esp)
         
-        elif self.type=='Li-Po':
-            return 0.90*(10**6)*self.mass_properties.mass
+        esp=esp*Units.Wh/Units.kg                   #convert specific energy to Joules/kg
+        psp=psp*Units.kW/Units.kg                   #convert specific power to W/kg
+        mass_energy=np.divide(energy, esp)          #vector of battery masses for mission based on energy requirements
+        mass_power=np.divide(power, psp)      #vector of battery masses for mission based on power requirements
+        for j in range(len(mass_energy)-1):
+            mass_req.append(max(mass_energy[j],mass_power[j])) #required mass at each of the battery design points
+        mass=min(mass_req)                          #choose the minimum battery mass that satisfies the mission requirements
+        ibat=np.argmin(mass_req)                    #find index for minimum mass
+        ebat=esp[ibat]*mass                         #total energy in the battery in J 
         
-        elif self.type=='Li-S':
-            return 500.*3600.*self.mass_properties.mass        
+        #output values to Battery component
+
+        self.specific_power=psp[ibat]
+        self.specific_energy=esp[ibat]
+        
+        return
+    
+    
     
     def energy_calc(self,numerics):
         
@@ -65,7 +103,7 @@ class Battery(Energy_Component):
         I     = numerics.integrate_time
         
         # X value
-        x = np.divide(self.CurrentEnergy,self.max_energy())[:,0,None]
+        x = np.divide(self.current_energy,self.max_energy())[:,0,None]
         
         # C rate from 
         C = 3600.*pbat/self.max_energy()
@@ -87,7 +125,11 @@ class Battery(Energy_Component):
         eloss = np.dot(I,Ploss)
         
         # Pack up
-        self.CurrentEnergy = self.CurrentEnergy[0] + edraw + eloss
-        self.CurrentEnergy[self.CurrentEnergy>self.max_energy()] = self.max_energy()
-                    
-        return  
+        self.current_energy = self.CurrentEnergy[0] + edraw + eloss
+        self.CurrentEnergy[self.current_energy>self.max_energy()] = self.max_energy()
+        
+        
+        return
+            
+
+            

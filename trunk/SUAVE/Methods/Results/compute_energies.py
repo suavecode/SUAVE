@@ -13,9 +13,10 @@ from SUAVE.Structure                    import Data, Data_Exception
 def compute_energies(results,summary=False):
 
     # evaluate each segment 
-    for i in range(len(results.Segments)):
+    for i in range(len(results.segments)):
 
-        segment = results.Segments[i]
+        segment = results.segments[i]
+        '''
         eta=segment.conditions.propulsion.throttle[:,0]
         state = Data()
         state.q  = segment.conditions.freestream.dynamic_pressure[:,0]
@@ -24,9 +25,9 @@ def compute_energies(results,summary=False):
         state.M  = segment.conditions.freestream.mach_number[:,0]
         state.T  = segment.conditions.freestream.temperature[:,0]
         state.p  = segment.conditions.freestream.pressure[:,0]
-        
-        
-        segment.P_fuel, segment.P_e = segment.config.Propulsors.power_flow(eta,state)
+        '''
+        print segment.config.propulsors.power_flow
+        segment.P_fuel, segment.P_e = segment.config.propulsors.power_flow(segment.config.conditions.propulsion.throttle, segment.conditions)
         
         # time integration operator
         '''

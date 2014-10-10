@@ -358,7 +358,7 @@ class Aerodynamic_Segment(Base_Segment):
         ## TODO: update propulsion modules
 
         N = self.numerics.n_control_points
-
+        
         F, mdot, P = propulsion_model(conditions,numerics)
 
         F_vec = np.zeros([N,3])
