@@ -78,8 +78,25 @@ class Battery_Li_Air(Energy_Component):
         eloss = np.dot(I,Ploss)
         
         # Pack up
+        '''
         self.current_energy = self.current_energy[0] + edraw + eloss
         self.current_energy[self.current_energy>self.max_energy] = self.max_energy
+        '''
+        
+        self.current_energy=self.current_energy[0]*np.ones_like(eloss)
+   
+
+        delta = 0.0
+        flag  = 0
+        for ii in range(1,len(edraw)):
+            if (edraw[ii,0] > (self.max_energy- self.current_energy[ii-1])):
+                flag = 1 
+                delta = delta + ((self.max_energy- self.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
+                edraw[ii,0] = edraw[ii,0] + delta
+            elif flag ==1:
+                edraw[ii,0] = edraw[ii,0] + delta
+            self.current_energy[ii] = self.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
+        
         
       
         mdot=(pbat+Ploss) *(1.92E-4)/Units.Wh  #weight gain of battery (positive means mass loss)

@@ -167,15 +167,20 @@ def plot_mission(vehicle,mission,results,line_style='bo-'):
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
 
-
-        axes.plot( time , cdp , 'ko-', label='CD_P' )
-        axes.plot( time , cdi , 'bo-', label='CD_I' )
-        axes.plot( time , cdc , 'go-', label='CD_C' )
-        axes.plot( time , cdm , 'yo-', label='CD_M' )
-        axes.plot( time , cd  , 'ro-', label='CD'   )
-
-        if i == 0:
-            axes.legend(loc='upper center')
+        if line_style == 'bo-':
+            axes.plot( time , cdp , 'ko-', label='CD_P' )
+            axes.plot( time , cdi , 'bo-', label='CD_I' )
+            axes.plot( time , cdc , 'go-', label='CD_C' )
+            axes.plot( time , cdm , 'yo-', label='CD_M' )
+            axes.plot( time , cd  , 'ro-', label='CD'   )
+            if i == 0:
+                axes.legend(loc='upper center')            
+        else:
+            axes.plot( time , cdp , line_style )
+            axes.plot( time , cdi , line_style )
+            axes.plot( time , cdc , line_style )
+            axes.plot( time , cdm , line_style )
+            axes.plot( time , cd  , line_style )            
 
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')

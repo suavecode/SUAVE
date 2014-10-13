@@ -30,7 +30,8 @@ class Battery(Energy_Component):
         self.resistance = 0.07446
         self.specific_energy=0
         self.specific_power=0.
-    
+        self.max_energy=0.
+        
         if self.type=='Li-S':
             self.specific_energy=500.*Units.Wh/Units.kg
             self.specific_power=1*Units.kW/Units.kg
@@ -51,7 +52,7 @@ class Battery(Energy_Component):
          
     
     def ragone_optimum(self, energy, power):
-        """
+        '''
         For Li-S and Li-Ion batteries, determines optimum spot on ragone plot
         to size the battery
         
@@ -66,7 +67,7 @@ class Battery(Energy_Component):
        Outputs:
             battery.specific_energy
             battery.specific_power
-        """
+        '''
         if self.type=='Li-S':
             esp=np.linspace(300,700,500)             #create vector of specific energy (W-h/kg)
             psp=245.848*np.power(10,-.00478*esp)     #create vector of specific power based on Ragone plot fit curve (kW/kg)
@@ -90,8 +91,7 @@ class Battery(Energy_Component):
         self.specific_energy=esp[ibat]
         
         return
-    
-    
+              
     
     def energy_calc(self,numerics):
         
@@ -102,9 +102,13 @@ class Battery(Energy_Component):
         Rbat  = self.resistance
         I     = numerics.integrate_time
         
-        # X value
-        x = np.divide(self.current_energy,self.max_energy())[:,0,None]
+        # Maximum energy
+        max_energy = self.max_energy
         
+        #state of charge of the battery
+
+        x = np.divide(self.current_energy,self.max_energy())[:,0,None]
+
         # C rate from 
         C = 3600.*pbat/self.max_energy()
         
@@ -118,18 +122,27 @@ class Battery(Energy_Component):
         # Model discharge characteristics based on changing resistance
         R = Rbat*(1+C*f)
         
-        #Calculate resistive losses
+        # Calculate resistive losses
         Ploss = (Ibat**2)*R
         
         # Energy loss from power draw
         eloss = np.dot(I,Ploss)
         
-        # Pack up
-        self.current_energy = self.CurrentEnergy[0] + edraw + eloss
-        self.CurrentEnergy[self.current_energy>self.max_energy()] = self.max_energy()
-        
-        
-        return
-            
 
-            
+        # Pack up
+        self.current_energy=self.current_energy[0]*np.ones_like(eloss)
+   
+
+        delta = 0.0
+        flag  = 0
+        self.current_energy = self.current_energy[0] * np.ones_like(eloss) 
+        for ii in range(1,len(edraw)):
+            if (edraw[ii,0] > (max_energy- self.current_energy[ii-1])):
+                flag = 1 
+                delta = delta + ((max_energy- self.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
+                edraw[ii,0] = edraw[ii,0] + delta
+            elif flag ==1:
+                edraw[ii,0] = edraw[ii,0] + delta
+            self.current_energy[ii] = self.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
+                    
+        return  

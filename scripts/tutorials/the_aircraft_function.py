@@ -63,10 +63,10 @@ def evaluate_weights(vehicle,results):
      
     # pack
     vehicle.mass_properties.breakdown = breakdown
-    vehicle.mass_properties.operational_empty = vehicle.mass_properties.breakdown.empty
+    vehicle.mass_properties.operating_empty = vehicle.mass_properties.breakdown.empty
     
     for config in vehicle.configs:
-        config.mass_properties.operational_empty = vehicle.mass_properties.breakdown.empty
+        config.mass_properties.operating_empty = vehicle.mass_properties.breakdown.empty
     
     results.weight_breakdown = breakdown
     
