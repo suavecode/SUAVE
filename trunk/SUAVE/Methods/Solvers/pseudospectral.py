@@ -6,7 +6,7 @@
 
 # numpy imports
 import numpy as np
-from scipy.optimize import root
+##from scipy.optimize import root ## TODO: FIXME
 
 # suave functions
 from residuals        import residuals

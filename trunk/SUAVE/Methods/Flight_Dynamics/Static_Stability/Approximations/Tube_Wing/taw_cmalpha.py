@@ -70,21 +70,22 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 
     # Unpack inputs
     Sref  = geometry.reference_area
-    mac   = geometry.Wings['Main Wing'].chord_mac
+    mac   = geometry.wings['Main Wing'].chords.mean_aerodynamic
     C_Law = conditions.lift_curve_slope
-    x_cg  = configuration.mass_props.pos_cg[0]
-    x_rqc = geometry.Wings['Main Wing'].origin[0]
-    w_f   = geometry.Fuselages.Fuselage.width
-    l_f   = geometry.Fuselages.Fuselage.length_total
+    x_cg  = configuration.mass_properties.center_of_gravity[0]
+    x_rqc = geometry.wings['Main Wing'].origin[0]
+    w_f   = geometry.fuselages.Fuselage.width
+    l_f   = geometry.fuselages.Fuselage.lengths.total
+
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
-    for surf in geometry.Wings:
+    for surf in geometry.wings:
         #Unpack inputs
-        s         = surf.sref
+        s         = surf.areas.reference
         x_surf    = surf.origin[0]
-        x_ac_surf = surf.aero_center[0]
+        x_ac_surf = surf.aerodynamic_center[0]
         eta       = surf.eta
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     aircraft.reference        = reference
     aircraft.Lifting_Surfaces = Lifting_Surfaces
     aircraft.fuselage         = fuselage
-    aircraft.Mass_Props.pos_cg[0] = 112. * Units.feet    
+    aircraft.mass_properties.center_of_gravity[0] = 112. * Units.feet    
     
     #Method Test
     print '<<Test run of the taw_cmalpha() method>>'

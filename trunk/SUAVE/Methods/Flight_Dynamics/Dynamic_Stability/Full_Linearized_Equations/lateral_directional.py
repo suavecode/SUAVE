@@ -96,8 +96,8 @@ def lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, 
     roll_tau = 1 * root [3].real
     
     output = Data()
-    output.dutch_w_n = w_n
-    output.dutch_zeta = zeta
+    output.dutch_natural_frequency = w_n
+    output.dutch_damping_ratio = zeta
     output.spiral_tau = spiral_tau
     output.roll_tau = roll_tau    
     

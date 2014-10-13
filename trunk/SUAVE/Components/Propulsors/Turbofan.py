@@ -49,7 +49,10 @@ class TurboFanPASS(Propulsor):
         self.inlet    = Data()
         self.diverter = Data()
         self.nozzle   = Data()
+        self.thrust   = Data()
         self.analysis_type= 'pass'
+        self.thrust.design = 0.0
+        self.number_of_engines = 0.0
         
         
         #--geometry pass like
@@ -72,8 +75,6 @@ class TurboFanPASS(Propulsor):
         self.Tt4 = 1400
         self.bypass_ratio = 1.0
         self.mdhc = 0.0        
-        self.design_thrust = 1.0
-        self.no_of_engines=0.0
         
         #----geometry
         self.A2 = 0.0
@@ -104,7 +105,7 @@ class TurboFanPASS(Propulsor):
         pitn=self.turbine_nozzle_pressure_ratio
         Tt4=self.Tt4
         aalpha=self.bypass_ratio
-        FD=self.design_thrust
+        FD=self.thrust.design
         htf=self.propellant.specific_energy
     
 
@@ -636,7 +637,7 @@ class TurboFanPASS(Propulsor):
         aalpha=self.bypass_ratio
         mdhc=self.mdhc  
         A22=self.A2 
-        no_eng=self.no_of_engines 
+        no_eng=self.number_of_engines 
         htf=self.propellant.specific_energy
         throttle=eta
        

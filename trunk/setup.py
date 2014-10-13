@@ -50,6 +50,11 @@ def install(the_package,version,date):
     packages = list_subpackages(the_package,verbose=False)
     packages = map( '.'.join, packages )
     
+    package_data = {
+        'SUAVE' : [ 'Plugins\pint\default_en.txt' ,
+                    'Plugins\pint\constants_en.txt' ]
+    }
+    
     # run the setup!!!
     setup(
         name = the_package,
@@ -60,6 +65,7 @@ def install(the_package,version,date):
         maintainer = 'The Developers',
         url = 'suave.stanford.edu',
         packages = packages,
+        package_data = package_data,
         license = 'CC BY-NC-SA 4.0',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,

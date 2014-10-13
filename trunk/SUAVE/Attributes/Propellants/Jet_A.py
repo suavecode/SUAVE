@@ -17,7 +17,7 @@ class Jet_A(Propellant):
 
     def __defaults__(self):
 
-        self.tag = 'Jet A'
+        self.tag = 'Jet_A'
         self.reactant = 'O2'
         self.density = 820.0                                    # kg/m^3 (15 C, 1 atm)
         self.specific_energy = 43.02e6                          # J/kg

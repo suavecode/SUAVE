@@ -6,6 +6,8 @@
 
 import copy
 from evaluate_segment import evaluate_segment
+from warnings import warn
+
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -14,7 +16,7 @@ from evaluate_segment import evaluate_segment
 def evaluate_mission(mission):
 
     mission = copy.deepcopy(mission)
-    segments = mission.Segments
+    segments = mission.segments
     
     # evaluate each segment 
     for i,segment in enumerate(segments.values()):
@@ -24,6 +26,13 @@ def evaluate_mission(mission):
             segment.initials = segments.values()[i-1].get_final_conditions()
         else:
             segment.initials = None
+            
+        # unpack mission wide data
+        for k in ['planet','atmosphere','start_time']:
+            if not mission[k] is None:
+                if not segment[k] is None:
+                    warn('segment.%s will be overwritten by mission.%s'%(k,k),Warning)
+                segment[k] = mission[k]
             
         # run segment
         evaluate_segment(segment)

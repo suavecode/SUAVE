@@ -34,6 +34,9 @@ class Takeoff(Ground_Segment):
         self.velocity_end         = 150 * Units.knots
         self.friction_coefficient = 0.04
         self.throttle             = 1.0
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
 
         return
 
@@ -45,7 +48,7 @@ class Takeoff(Ground_Segment):
         # default initial time, position, and mass
         t_initial = 0.0
         r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-        m_initial = self.config.Mass_Props.m_takeoff
+        m_initial = self.config.mass_properties.takeoff
 
         # apply initials
         conditions.weights.total_mass[:,0]   = m_initial

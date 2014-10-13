@@ -23,7 +23,7 @@ from SUAVE.Structure  import Data
 # ----------------------------------------------------------------------
 
 
-def wing_planform(Wing):
+def wing_planform(wing):
     """ err = SUAVE.Geometry.wing_planform(Wing)
     
         basic wing planform calculation
@@ -48,14 +48,15 @@ def wing_planform(Wing):
     """
     
     # unpack
-    sref  = Wing.sref
-    ar    = Wing.ar
-    taper = Wing.taper
-    sweep = Wing.sweep
+    span  = wing.spans.projected
+    sref  = wing.areas.reference
+    taper = wing.taper
+    sweep = wing.sweep
+    ar    = wing.aspect_ratio
     
     # calculate
+    #ar = span**2. / sref
     span = sqrt(ar*sref)
-    
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     
@@ -64,10 +65,11 @@ def wing_planform(Wing):
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
     # update
-    Wing.chord_root  = chord_root
-    Wing.chord_tip   = chord_tip
-    Wing.chord_mac   = mac
-    Wing.area_wetted = swet
-    Wing.span        = span
+    wing.chords.root     = chord_root
+    wing.chords.tip      = chord_tip
+    wing.chords.mean_aerodynamic = mac
+    wing.areas.wetted    = swet
+    wing.aspect_ratio    = ar
+    wing.spans.projected = span
     
-    return 0
+    return wing

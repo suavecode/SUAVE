@@ -4,9 +4,13 @@
 # Wing IDE project file : User-specific branch                   #
 ##################################################################
 [user attributes]
+<<<<<<< HEAD
 debug.breakpoints = {loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/workspace/tarik/test_mission_Embraer_E190_engine_call.py'): {71: (0,
+=======
+debug.breakpoints = {loc('../../trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py'): {193: (0,
+>>>>>>> master
         None,
-        1,
+        0,
         0)}}
 debug.err-values = {None: {},
                     loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/tests/test_aerodynamics.py'): {},
@@ -17,6 +21,7 @@ debug.recent-run-args = {loc('../../../../../../../../../../../../../../Document
         'uninstall',
         'install',
         'build'],
+<<<<<<< HEAD
                          loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/workspace/simple_plot.py'): [''\
         '--verbose-helpful']}
 debug.run-args = {}
@@ -110,6 +115,88 @@ edit.file-encoding = {loc('../../../../../../../../../../../../../../Documents/r
         'UTF-8',
                       loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/pySUAVE/__init__.py'): ''\
         'UTF-8'}
+=======
+                         loc('../../workspace/simple_plot.py'): ['--verbose-'\
+        'helpful']}
+debug.run-args = {loc('../../trunk/setup.py'): 'uninstall',
+                  loc('../../workspace/simple_plot.py'): '--verbose-helpful'}
+debug.show-args-dialog = {loc('../../scripts/automatic_regression.py'): False,
+                          loc('../../scripts/experimental/test_mission_Embraer_E190_constThr.py'): False,
+                          loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'): False,
+                          loc('../../scripts/regression/test_atmosphere.py'): False,
+                          loc('../../tests/automatic_regression.py'): False,
+                          loc('../../tests/test_aerodynamics.py'): False,
+                          loc('../../tests/test_atmosphere.py'): False,
+                          loc('../../tests/test_geometry.py'): False,
+                          loc('../../tests/test_mission_Boeing_737-800.py'): False,
+                          loc('../../tests/test_mission_Boeing_737-800_newaero.py'): False,
+                          loc('../../tests/test_mission_Boeing_737-800_ud.py'): False,
+                          loc('../../tests/test_mission_Cessna_172.py'): False,
+                          loc('../../tests/test_mission_Cessna_172_bat.py'): False,
+                          loc('../../tests/test_mission_Cessna_172bat.py'): False,
+                          loc('../../tests/test_mission_Embraer_E190.py'): False,
+                          loc('../../tests/test_mission_Embraer_E190_constThr.py'): False,
+                          loc('../../tests/test_newMission.py'): False,
+                          loc('../../tests/test_weights.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/Aerodynamics/Aerodynamics_Surrogate.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/Airport/__init__.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/DataBase/Data.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/DataBase/test_data.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/Units.py'): False,
+                          loc('../../trunk/SUAVE/Attributes/test_temp.py'): False,
+                          loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/compute_aircraft_lift.py'): False,
+                          loc('../../trunk/SUAVE/Methods/Airfoils.py'): False,
+                          loc('../../trunk/SUAVE/Methods/Utilities/Chebyshev/chebyshev_data.py'): False,
+                          loc('../../trunk/SUAVE/Methods/Utilities/Plot_Dock.py'): False,
+                          loc('../../trunk/SUAVE/Plugins/VyPy/data/DataBunch.py'): False,
+                          loc('../../trunk/SUAVE/Plugins/VyPy/data/IndexableDict.py'): False,
+                          loc('../../trunk/SUAVE/Plugins/VyPy/data/OrderedBunch.py'): False,
+                          loc('../../trunk/SUAVE/Structure/Data.py'): False,
+                          loc('../../trunk/SUAVE/Structure/test_data.py'): False,
+                          loc('../../trunk/Vehicles/CAD/nasa_bwbconcept/dump_wing.py'): False,
+                          loc('../../trunk/example_data.py'): False,
+                          loc('../../trunk/example_method.py'): False,
+                          loc('../../trunk/test.py'): False,
+                          loc('../../trunk/test_b737_pass.py'): False,
+                          loc('../../trunk/test_b737_pass_new.py'): False,
+                          loc('../../trunk/test_data.py'): False,
+                          loc('../../trunk/test_energy.py'): False,
+                          loc('../../trunk/test_geometry.py'): False,
+                          loc('../../trunk/test_method.py'): False,
+                          loc('../../trunk/test_mission_Cessna_172.py'): False,
+                          loc('../../trunk/test_mission_Cessna_172fc.py'): False,
+                          loc('../../tutorials/test_mission_Cessna_172.py'): False,
+                          loc('../../tutorials/tut_mission_Boeing_737-800.py'): False,
+                          loc('../../tutorials/tut_mission_Boeing_737800.py'): False,
+                          loc('../../tutorials/tut_mission_Cessna_172.py'): False,
+                          loc('../../tutorials/tut_mission_Cessna_172_bat.py'): False,
+                          loc('../../tutorials/tut_mission_Cessna_172_fc.py'): False,
+                          loc('../../tutorials/tut_mission_Cessna_172_ic.py'): False,
+                          loc('../../workspace/mats_test.py'): False,
+                          loc('../../workspace/speed_test.py'): False,
+                          loc('../../workspace/tarik/test_mission_Embraer_E190_engine_call.py'): False,
+                          loc('../../workspace/test_newMission.py'): False,
+                          loc('../../../VyPy_GIT/trunk/VyPy/data/Bunch.py'): False,
+                          loc('../../../VyPy_GIT/trunk/VyPy/data/OrderedBunch.py'): False}
+debug.var-col-widths = [0.42763772175536879,
+                        0.57236227824463115]
+edit.file-encoding = {loc('AeroVehicle.py'): 'UTF-8',
+                      loc('Aerodynamics.py'): 'UTF-8',
+                      loc('Description.py'): 'UTF-8',
+                      loc('Economics.py'): 'UTF-8',
+                      loc('Energy.py'): 'UTF-8',
+                      loc('Environment.py'): 'UTF-8',
+                      loc('Mission.py'): 'UTF-8',
+                      loc('Propulsion.py'): 'UTF-8',
+                      loc('StabilityControl.py'): 'UTF-8',
+                      loc('Structures.py'): 'UTF-8',
+                      loc('Weights.py'): 'UTF-8',
+                      loc('test.py'): 'UTF-8',
+                      loc('../../trunk/Common.py'): 'UTF-8',
+                      loc('../../trunk/Geometry.py'): 'UTF-8',
+                      loc('../../trunk/pySUAVE/__init__.py'): 'UTF-8'}
+>>>>>>> master
 guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                             'windows': [{'name': 'saAvCMY6EmmLu7OSw167cU8Hwy'\
         'OxOB2w',
@@ -117,7 +204,15 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'type': 'panel-tall',
         'view': {'area': 'window-wide',
                  'constraint': None,
+<<<<<<< HEAD
                  'current_pages': [3],
+=======
+                 'current_pages': [0,
+                                   0],
+                 'full-screen': True,
+                 'notebook_display': 'normal',
+                 'notebook_percent': 0.25827107790821768,
+>>>>>>> master
                  'override_title': None,
                  'pagelist': [('debug-stack',
                                'window-wide',
@@ -185,25 +280,32 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'list-files-first': False,
         'tree-states': {'deep': {'expanded-nodes': [(0,),
         (0,
-         2),
-        (0,
-         2,
-         1),
-        (0,
-         2,
-         2),
-        (0,
-         2,
-         2,
-         0),
-        (0,
          4),
         (0,
-         5)],
+         4,
+         0),
+        (0,
+         4,
+         0,
+         0),
+        (0,
+         4,
+         0,
+         0,
+         7),
+        (0,
+         4,
+         0,
+         0,
+         7,
+         0)],
                                  'selected-nodes': [(0,
-        2,
-        1,
-        3)],
+        4,
+        0,
+        0,
+        7,
+        0,
+        7)],
                                  'top-node': (0,)}},
         'tree-style': 'deep'}}),
                                ('refactoring',
@@ -612,13 +714,38 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'constraint': None,
         'current_pages': [1,
                           2],
-        'notebook_display': 'tabs only',
-        'notebook_percent': 0.13421052631578945,
+        'notebook_display': 'normal',
+        'notebook_percent': 0.13157894736842102,
         'override_title': None,
         'pagelist': [('debug-breakpoints',
                       'wide',
                       0,
                       {'tree-state': []}),
+<<<<<<< HEAD
+=======
+                     ('diff',
+                      'wide',
+                      1,
+                      {}),
+                     ('versioncontrol.git',
+                      'wide',
+                      1,
+                      {}),
+                     ('messages',
+                      'wide',
+                      2,
+                      {'current-domain': 0}),
+                     ('debug-modules',
+                      'wide',
+                      1,
+                      {}),
+                     ('os-command',
+                      'wide',
+                      1,
+                      {'last-percent': 0.80000000000000004,
+                       'toolbox-percent': 1.0,
+                       'toolbox-tree-sel': ''}),
+>>>>>>> master
                      ('interactive-search',
                       'wide',
                       0,
@@ -633,8 +760,8 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                        'fOmitBinary': True,
                                        'fRegexFlags': 46,
                                        'fReplaceText': u'i_wing',
-                                       'fReverse': True,
-                                       'fSearchText': u'Battery',
+                                       'fReverse': False,
+                                       'fSearchText': u'conditions',
                                        'fStartPos': 0,
                                        'fStyle': 'text',
                                        'fWholeWords': False,
@@ -688,6 +815,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                        'toolbox-percent': 1.0,
                        'toolbox-tree-sel': ''})],
         'primary_view_state': {'editor_states': ('horizontal',
+<<<<<<< HEAD
         0.13211382113821138,
         ({'bookmarks': ([[loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/tests/test_atmosphere.py'),
                           {},
@@ -1078,11 +1206,438 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                'open_files': [u'../../scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py',
         u'../../scripts/automatic_regression.py',
         u'../../scripts/regression/tut_mission_Cessna_172_ic.py']},
+=======
+        0.097872340425531917,
+        {'bookmarks': ([[loc('../../scripts/experimental/test_weights.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409244265.8099999],
+                        [loc('../../trunk/SUAVE/Methods/Weights/Correlations/Tube_Wing/empty.py'),
+                         {'attrib-starts': [('empty',
+        27)],
+                          'first-line': 118,
+                          'folded-linenos': [],
+                          'sel-line': 114,
+                          'sel-line-start': 5876,
+                          'selection_end': 6002,
+                          'selection_start': 6002},
+                         1409777468.8469999],
+                        [loc('../../trunk/SUAVE/Components/Wings/Wing.py'),
+                         {'attrib-starts': [('Wing',
+        14),
+        ('Wing.__defaults__',
+         15)],
+                          'first-line': 12,
+                          'folded-linenos': [],
+                          'sel-line': 21,
+                          'sel-line-start': 705,
+                          'selection_end': 721,
+                          'selection_start': 721},
+                         1409777469.073],
+                        [loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero_Supersonic.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777469.3859999],
+                        [loc('../../scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777469.7079999],
+                        [loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777469.9909999],
+                        [loc('../../scripts/experimental/the_aircraft_function/full_setup.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777470.3110001],
+                        [loc('../../scripts/experimental/the_aircraft_function/compile_results.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777470.622],
+                        [loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409777499.799],
+                        [loc('../../trunk/SUAVE/Methods/Performance/estimate_landing_field_length.py'),
+                         {'attrib-starts': [],
+                          'first-line': 39,
+                          'folded-linenos': [],
+                          'sel-line': 10,
+                          'sel-line-start': 267,
+                          'selection_end': 269,
+                          'selection_start': 269},
+                         1409780978.737],
+                        [loc('../../trunk/SUAVE/Components/Propulsors/Turbofan.py'),
+                         {'attrib-starts': [('TurboFanPASS',
+        31),
+        ('TurboFanPASS.engine_sizing_1d',
+         95)],
+                          'first-line': 573,
+                          'folded-linenos': [],
+                          'sel-line': 597,
+                          'sel-line-start': 16812,
+                          'selection_end': 16825,
+                          'selection_start': 16825},
+                         1409780978.908],
+                        [loc('../../trunk/SUAVE/Methods/Performance/estimate_take_off_field_length.py'),
+                         {'attrib-starts': [('estimate_take_off_field_length',
+        21)],
+                          'first-line': 2,
+                          'folded-linenos': [],
+                          'sel-line': 63,
+                          'sel-line-start': 2433,
+                          'selection_end': 2434,
+                          'selection_start': 2434},
+                         1409780979.0699999],
+                        [loc('../../trunk/SUAVE/Components/Propulsors/Propulsor.py'),
+                         {'attrib-starts': [('Container',
+        51),
+        ('Container.__call__',
+         60)],
+                          'first-line': 55,
+                          'folded-linenos': [],
+                          'sel-line': 71,
+                          'sel-line-start': 2529,
+                          'selection_end': 2552,
+                          'selection_start': 2552},
+                         1409780979.2249999],
+                        [loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409780987.8269999],
+                        [loc('../../scripts/experimental/the_aircraft_function/full_setup.py'),
+                         {'attrib-starts': [('vehicle_setup',
+        32)],
+                          'first-line': 20,
+                          'folded-linenos': [],
+                          'sel-line': 38,
+                          'sel-line-start': 791,
+                          'selection_end': 816,
+                          'selection_start': 816},
+                         1409784306.575],
+                        [loc('../../trunk/SUAVE/Vehicle.py'),
+                         {'attrib-starts': [('Vehicle',
+        17),
+        ('Vehicle.__defaults__',
+         26)],
+                          'first-line': 25,
+                          'folded-linenos': [],
+                          'sel-line': 33,
+                          'sel-line-start': 1223,
+                          'selection_end': 1279,
+                          'selection_start': 1279},
+                         1409784306.74],
+                        [loc('../../trunk/SUAVE/Components/__init__.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 6,
+                          'sel-line-start': 146,
+                          'selection_end': 150,
+                          'selection_start': 150},
+                         1409784306.902],
+                        [loc('../../trunk/SUAVE.egg-info/SOURCES.txt'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409784341.2980001],
+                        [loc('../../scripts/experimental/the_aircraft_function/full_setup.py'),
+                         {'attrib-starts': [('vehicle_setup',
+        32)],
+                          'first-line': 20,
+                          'folded-linenos': [],
+                          'sel-line': 38,
+                          'sel-line-start': 791,
+                          'selection_end': 816,
+                          'selection_start': 816},
+                         1409784804.8840001],
+                        [loc('../../trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py'),
+                         {'attrib-starts': [('Base_Segment',
+        19),
+        ('Base_Segment.__defaults__',
+         25)],
+                          'first-line': 54,
+                          'folded-linenos': [146,
+        206,
+        241],
+                          'sel-line': 59,
+                          'sel-line-start': 1884,
+                          'selection_end': 1909,
+                          'selection_start': 1903},
+                         1409785019.556]],
+                       19),
+         'current-loc': None,
+         'editor-states': {},
+         'has-focus': False,
+         'locked': False},
+        {'bookmarks': ([(loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/Unknown_Throttle.py'),
+                         {'attrib-starts': [('Unknown_Throttle',
+        21),
+        ('Unknown_Throttle.solve_residuals',
+         89)],
+                          'first-line': 66,
+                          'folded-linenos': [],
+                          'sel-line': 92,
+                          'sel-line-start': 2961,
+                          'selection_end': 2996,
+                          'selection_start': 2989},
+                         1409789609.0079999),
+                        (loc('../../trunk/SUAVE/Attributes/Missions/Segments/Cruise/Constant_Speed_Constant_Altitude.py'),
+                         {'attrib-starts': [('Constant_Speed_Constant_Altitu'\
+        'de',
+        20),
+        ('Constant_Speed_Constant_Altitude.post_process',
+         171)],
+                          'first-line': 151,
+                          'folded-linenos': [],
+                          'sel-line': 173,
+                          'sel-line-start': 6007,
+                          'selection_end': 6077,
+                          'selection_start': 6070},
+                         1409789609.0680001),
+                        (loc('../../trunk/SUAVE/Methods/Performance/evaluate_segment.py'),
+                         {'attrib-starts': [('segment_residuals',
+        78)],
+                          'first-line': 87,
+                          'folded-linenos': [],
+                          'sel-line': 109,
+                          'sel-line-start': 3267,
+                          'selection_end': 3282,
+                          'selection_start': 3270},
+                         1409789609.1170001),
+                        (loc('../../trunk/SUAVE/Attributes/Missions/Segments/Empty_Segment.py'),
+                         {'attrib-starts': [('Empty_Segment',
+        20),
+        ('Empty_Segment.initialize_conditions',
+         109)],
+                          'first-line': 94,
+                          'folded-linenos': [],
+                          'sel-line': 116,
+                          'sel-line-start': 3724,
+                          'selection_end': 3794,
+                          'selection_start': 3783},
+                         1409789609.1630001),
+                        (loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero_Supersonic_Test.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409789609.2130001),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/induced_drag_aircraft.py'),
+                         {'attrib-starts': [('induced_drag_aircraft',
+        26)],
+                          'first-line': 37,
+                          'folded-linenos': [],
+                          'sel-line': 47,
+                          'sel-line-start': 1335,
+                          'selection_end': 1376,
+                          'selection_start': 1375},
+                         1409789609.2650001),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/miscellaneous_drag_aircraft.py'),
+                         {'attrib-starts': [('miscellaneous_drag_aircraft',
+        29)],
+                          'first-line': 16,
+                          'folded-linenos': [],
+                          'sel-line': 35,
+                          'sel-line-start': 1090,
+                          'selection_end': 1109,
+                          'selection_start': 1102},
+                         1409789609.3340001),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_fuselage.py'),
+                         {'attrib-starts': [('parasite_drag_fuselage',
+        37)],
+                          'first-line': 77,
+                          'folded-linenos': [],
+                          'sel-line': 99,
+                          'sel-line-start': 3065,
+                          'selection_end': 3149,
+                          'selection_start': 3149},
+                         1409789609.405),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_aircraft_supersonic.py'),
+                         {'attrib-starts': [('parasite_drag_aircraft_superso'\
+        'nic',
+        29)],
+                          'first-line': 37,
+                          'folded-linenos': [],
+                          'sel-line': 56,
+                          'sel-line-start': 1452,
+                          'selection_end': 1475,
+                          'selection_start': 1463},
+                         1409789609.473),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_fuselage_supersonic.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409789609.5420001),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/wave_drag_body_of_rev.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409789609.6760001),
+                        (loc('../../trunk/SUAVE/Methods/Power/solar_fluxnew.py'),
+                         {'attrib-starts': [('Constant_Speed_Constant_Altitu'\
+        'de',
+        20),
+        ('Constant_Speed_Constant_Altitude.post_process',
+         171)],
+                          'first-line': 160,
+                          'folded-linenos': [],
+                          'sel-line': 182,
+                          'sel-line-start': 6390,
+                          'selection_end': 6409,
+                          'selection_start': 6397},
+                         1409789609.7420001),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/compute_aircraft_drag.py'),
+                         {'attrib-starts': [],
+                          'first-line': 25,
+                          'folded-linenos': [],
+                          'sel-line': 30,
+                          'sel-line-start': 840,
+                          'selection_end': 865,
+                          'selection_start': 844},
+                         1409789610.2049999),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/wave_drag_lift.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409789610.2739999),
+                        (loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/wave_drag_lift2.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 0,
+                          'sel-line-start': 0,
+                          'selection_end': 0,
+                          'selection_start': 0},
+                         1409789610.339),
+                        (loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/Constant_Mach_Constant_Rate.py'),
+                         {'attrib-starts': [('Constant_Mach_Constant_Rate',
+        21)],
+                          'first-line': 35,
+                          'folded-linenos': [],
+                          'sel-line': 57,
+                          'sel-line-start': 1654,
+                          'selection_end': 1677,
+                          'selection_start': 1670},
+                         1409789610.4030001),
+                        (loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py'),
+                         {'attrib-starts': [('Constant_Throttle_Constant_Spe'\
+        'ed',
+        21),
+        ('Constant_Throttle_Constant_Speed.check_inputs',
+         59)],
+                          'first-line': 42,
+                          'folded-linenos': [],
+                          'sel-line': 61,
+                          'sel-line-start': 1907,
+                          'selection_end': 1944,
+                          'selection_start': 1937},
+                         1409789610.4519999),
+                        (loc('../../trunk/SUAVE/Attributes/Missions/Segments/Ground/Takeoff.py'),
+                         {'attrib-starts': [('Takeoff',
+        22),
+        ('Takeoff.initialize_conditions',
+         40)],
+                          'first-line': 28,
+                          'folded-linenos': [],
+                          'sel-line': 47,
+                          'sel-line-start': 1319,
+                          'selection_end': 1351,
+                          'selection_start': 1344},
+                         1409789610.4979999),
+                        [loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/linear_supersonic_lift.py'),
+                         {'attrib-starts': [],
+                          'first-line': 0,
+                          'folded-linenos': [],
+                          'sel-line': 24,
+                          'sel-line-start': 624,
+                          'selection_end': 624,
+                          'selection_start': 624},
+                         1409789610.543],
+                        [loc('../../trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py'),
+                         {'attrib-starts': [('Base_Segment',
+        19),
+        ('Base_Segment.solve_residuals',
+         244)],
+                          'first-line': 231,
+                          'folded-linenos': [],
+                          'sel-line': 244,
+                          'sel-line-start': 9170,
+                          'selection_end': 9211,
+                          'selection_start': 9211},
+                         1409846697.5799999]],
+                       19),
+         'current-loc': None,
+         'editor-states': {},
+         'has-focus': False,
+         'locked': False}),
+                               'open_files': []},
+>>>>>>> master
         'saved_notebook_display': None,
         'split_percents': {0: 0.6510500807754442},
         'splits': 2,
         'tab_location': 'top',
         'user_data': {}},
+<<<<<<< HEAD
                   'saved_notebook_display': None,
                   'split_percents': {0: 0.7894736842105263},
                   'splits': 2,
@@ -1096,6 +1651,118 @@ guimgr.recent-documents = [loc('../../../../../../../../../../../../../../Docume
                            loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/scripts/automatic_regression.py'),
                            loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py')]
 guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Program Files (x86)/Wing IDE 4.1/resources/builtin-pi-files/2.7/__builtin__.pi'): {''\
+=======
+                 'saved_notebook_display': None,
+                 'split_percents': {0: 0.56477732793522262},
+                 'splits': 2,
+                 'tab_location': 'left',
+                 'user_data': {}},
+        'window-alloc': (2524,
+                         0,
+                         140,
+                         768)},
+        {'name': 'saAvCMY6EmmLu7OSw167cU8HwyOxOB2w',
+         'size-state': '',
+         'type': 'panel-tall',
+         'view': {'area': 'window-wide',
+                  'constraint': None,
+                  'current_pages': [6],
+                  'override_title': None,
+                  'pagelist': [('debug-breakpoints',
+                                'window-wide',
+                                0,
+                                {'tree-state': []}),
+                               ('debug-stack',
+                                'window-wide',
+                                0,
+                                {'codeline-mode': 'below'}),
+                               ('debug-io',
+                                'window-wide',
+                                1,
+                                {'attrib-starts': [],
+                                 'first-line': 0,
+                                 'folded-linenos': [],
+                                 'sel-line': 0,
+                                 'sel-line-start': 0,
+                                 'selection_end': 0,
+                                 'selection_start': 0}),
+                               ('debug-probe',
+                                'window-wide',
+                                0,
+                                {'attrib-starts': [],
+                                 'first-line': 1269,
+                                 'folded-linenos': [],
+                                 'history': {u'file:C:/Users/Trent/Dropbox/Research-cloud/Projects/SUAVE_repo/scripts/experimental/the_aircraft_function/test_the_aircraft_function.py': [''\
+        'vehicle.Propulsors\n',
+        'vehi\n',
+        'vehicle\n',
+        'print vehicle\n',
+        'print vehicle.Propulsors\n',
+        'propulsor\n',
+        'propulsor.no_of_engines\n',
+        'propulsor.number_of_engine\n',
+        'propulsor.number_of_engines\n']},
+                                 'sel-line': 1299,
+                                 'sel-line-start': 33140,
+                                 'selection_end': 33167,
+                                 'selection_start': 33150}),
+                               ('debug-exceptions',
+                                'window-wide',
+                                0,
+                                {}),
+                               ('python-shell',
+                                'window-wide',
+                                0,
+                                {'attrib-starts': [],
+                                 'first-line': 0,
+                                 'folded-linenos': [],
+                                 'history': {},
+                                 'sel-line': 2,
+                                 'sel-line-start': 171,
+                                 'selection_end': 171,
+                                 'selection_start': 171}),
+                               ('batch-search',
+                                'window-wide',
+                                0,
+                                {'fScope': {'fFileSetName': u'All Source Files',
+        'fLocation': u'..\\..\\trunk',
+        'fRecursive': True,
+        'fType': 'location'},
+                                 'fSearchSpec': {'fEndPos': None,
+        'fIncludeLinenos': True,
+        'fInterpretBackslashes': False,
+        'fMatchCase': True,
+        'fOmitBinary': True,
+        'fRegexFlags': 44,
+        'fReplaceText': u'',
+        'fReverse': False,
+        'fSearchText': u'',
+        'fStartPos': 0,
+        'fStyle': 'text',
+        'fWholeWords': False,
+        'fWrap': True},
+                                 'fUIOptions': {'fAutoBackground': True,
+        'fFilePrefix': 'short-file',
+        'fFindAfterReplace': True,
+        'fInSelection': False,
+        'fIncremental': True,
+        'fReplaceOnDisk': False,
+        'fShowFirstMatch': False,
+        'fShowLineno': True,
+        'fShowReplaceWidgets': True},
+                                 'replace-entry-expanded': False,
+                                 'search-entry-expanded': False})],
+                  'split_percents': {},
+                  'splits': 1,
+                  'tab_location': 'top',
+                  'user_data': {}},
+         'window-alloc': (21,
+                          19,
+                          1004,
+                          673)}]}
+guimgr.recent-documents = [loc('../../trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py')]
+guimgr.visual-state = {loc('../../../../../../../../Program Files (x86)/Wing IDE 4.1/resources/builtin-pi-files/2.7/__builtin__.pi'): {''\
+>>>>>>> master
         'attrib-starts': [('staticmethod',
                            1883)],
         'first-line': 1867,
@@ -1538,7 +2205,37 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/scripts/experimental/test_atmosphere.py'): {''\
+=======
+                       loc('../../scripts/experimental/b737_h2.py'): {'attri'\
+        'b-starts': [('main',
+                      26)],
+        'first-line': 17,
+        'folded-linenos': [],
+        'sel-line': 36,
+        'sel-line-start': 1276,
+        'selection_end': 1304,
+        'selection_start': 1294},
+                       loc('../../scripts/experimental/opt_Boeing_737-800_bat2.py'): {''\
+        'attrib-starts': [('run',
+                           59)],
+        'first-line': 73,
+        'folded-linenos': [],
+        'sel-line': 92,
+        'sel-line-start': 3629,
+        'selection_end': 3667,
+        'selection_start': 3657},
+                       loc('../../scripts/experimental/test_aerodynamics.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+                       loc('../../scripts/experimental/test_atmosphere.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -1554,7 +2251,19 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 593,
         'selection_end': 628,
         'selection_start': 628},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/scripts/regression/test_atmosphere.py'): {''\
+=======
+                       loc('../../scripts/experimental/test_mission_Embraer_E190_mission_field.py'): {''\
+        'attrib-starts': [('define_field_configs',
+                           459)],
+        'first-line': 454,
+        'folded-linenos': [],
+        'sel-line': 484,
+        'sel-line-start': 16701,
+        'selection_end': 16747,
+        'selection_start': 16720},
+                       loc('../../scripts/experimental/test_propulsion.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -1562,7 +2271,97 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+                       loc('../../scripts/experimental/test_weights.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+                       loc('../../scripts/experimental/the_aircraft_function/compile_results.py'): {''\
+        'attrib-starts': [('compile_results',
+                           29)],
+        'first-line': 26,
+        'folded-linenos': [],
+        'sel-line': 48,
+        'sel-line-start': 1217,
+        'selection_end': 1274,
+        'selection_start': 1259},
+                       loc('../../scripts/experimental/the_aircraft_function/full_setup.py'): {''\
+        'attrib-starts': [('vehicle_setup',
+                           32)],
+        'first-line': 20,
+        'folded-linenos': [],
+        'sel-line': 38,
+        'sel-line-start': 791,
+        'selection_end': 816,
+        'selection_start': 816},
+                       loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 11,
+        'sel-line-start': 271,
+        'selection_end': 305,
+        'selection_start': 305},
+                       loc('../../scripts/regression/test_atmosphere.py'): {''\
+>>>>>>> master
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py'): {''\
+=======
+                       loc('../../scripts/regression/test_dynamicstability.py'): {''\
+        'attrib-starts': [('main',
+                           11)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 106,
+        'sel-line-start': 6402,
+        'selection_end': 6406,
+        'selection_start': 6406},
+                       loc('../../scripts/regression/test_mission_Embraer_E190.py'): {''\
+        'attrib-starts': [('define_vehicle',
+                           48)],
+        'first-line': 44,
+        'folded-linenos': [],
+        'sel-line': 64,
+        'sel-line-start': 1707,
+        'selection_end': 1762,
+        'selection_start': 1762},
+                       loc('../../scripts/regression/test_mission_Embraer_E190_constThr.py'): {''\
+        'attrib-starts': [('define_vehicle',
+                           49)],
+        'first-line': 45,
+        'folded-linenos': [],
+        'sel-line': 65,
+        'sel-line-start': 1807,
+        'selection_end': 1862,
+        'selection_start': 1862},
+                       loc('../../scripts/regression/the_aircraft_function/test_the_aircraft_function.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 10,
+        'sel-line-start': 257,
+        'selection_end': 269,
+        'selection_start': 269},
+                       loc('../../scripts/regression/tut_mission_Cessna_172_ic.py'): {''\
+        'attrib-starts': [],
+        'first-line': 37,
+        'folded-linenos': [],
+        'sel-line': 49,
+        'sel-line-start': 1284,
+        'selection_end': 1314,
+        'selection_start': 1314},
+                       loc('../../scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -1982,11 +2781,27 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/AeroVehicle.py'): {''\
         'attrib-starts': [('AeroVehicle',
                            15),
                           ('AeroVehicle.__init__',
                            25)],
+=======
+                       loc('../../trunk/SUAVE.egg-info/SOURCES.txt'): {'attr'\
+        'ib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+                       loc('../../trunk/SUAVE/AeroVehicle.py'): {'attrib-sta'\
+        'rts': [('AeroVehicle',
+                 15),
+                ('AeroVehicle.__init__',
+                 25)],
+>>>>>>> master
         'first-line': 19,
         'folded-linenos': [],
         'sel-line': 30,
@@ -2102,14 +2917,30 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'attrib-starts': [('Fidelity_Zero',
                            43),
                           ('Fidelity_Zero.__call__',
-                           146)],
-        'first-line': 142,
+                           149)],
+        'first-line': 145,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 151,
         'sel-line-start': 4832,
         'selection_end': 4848,
         'selection_start': 4848},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Aerodynamics/Finite_Wing.py'): {''\
+=======
+        'sel-line': 154,
+        'sel-line-start': 4965,
+        'selection_end': 4981,
+        'selection_start': 4981},
+                       loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero_Supersonic.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+                       loc('../../trunk/SUAVE/Attributes/Aerodynamics/Finite_Wing.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Finite_Wing',
                            13)],
         'first-line': 5,
@@ -2129,18 +2960,25 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 1078,
         'selection_end': 1078,
         'selection_start': 1078},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Aerodynamics/PASS_Aero.py'): {''\
         'attrib-starts': [('PASS_Aero',
                            16),
                           ('PASS_Aero.aircraft_lift',
                            73)],
         'first-line': 68,
+=======
+                       loc('../../trunk/SUAVE/Attributes/Aerodynamics/PASS_Aero.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+>>>>>>> master
         'folded-linenos': [20,
                            146,
                            169,
                            430,
                            457,
                            502],
+<<<<<<< HEAD
         'sel-line': 129,
         'sel-line-start': 3931,
         'selection_end': 3931,
@@ -2155,6 +2993,22 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 249},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Airport.py'): {''\
         'attrib-starts': [],
+=======
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 8,
+        'selection_start': 4},
+                       loc('../../trunk/SUAVE/Attributes/Aerodynamics/__init__.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 5,
+        'sel-line-start': 150,
+        'selection_end': 159,
+        'selection_start': 155},
+                       loc('../../trunk/SUAVE/Attributes/Airport.py'): {'att'\
+        'rib-starts': [],
+>>>>>>> master
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 1,
@@ -2818,8 +3672,24 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Gases/Air.py'): {''\
         'attrib-starts': [],
+=======
+                       loc('../../trunk/SUAVE/Attributes/Flight_Dynamics/Fidelity_Zero.py'): {''\
+        'attrib-starts': [('Fidelity_Zero',
+                           39),
+                          ('Fidelity_Zero.__call__',
+                           88)],
+        'first-line': 140,
+        'folded-linenos': [],
+        'sel-line': 162,
+        'sel-line-start': 7782,
+        'selection_end': 8014,
+        'selection_start': 8014},
+                       loc('../../trunk/SUAVE/Attributes/Gases/Air.py'): {'a'\
+        'ttrib-starts': [],
+>>>>>>> master
         'first-line': 5,
         'folded-linenos': [],
         'sel-line': 19,
@@ -2956,6 +3826,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 878},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Aerodynamic_Segment.py'): {''\
         'attrib-starts': [('Aerodynamic_Segment',
+<<<<<<< HEAD
                            18),
                           ('Aerodynamic_Segment.compute_propulsion',
                            288)],
@@ -2972,10 +3843,21 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 12490,
         'selection_start': 12490},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py'): {''\
+=======
+                           18)],
+        'first-line': 0,
+        'folded-linenos': [160],
+        'sel-line': 18,
+        'sel-line-start': 876,
+        'selection_end': 901,
+        'selection_start': 882},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Base_Segment.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Base_Segment',
                            19),
                           ('Base_Segment.__defaults__',
                            25)],
+<<<<<<< HEAD
         'first-line': 117,
         'folded-linenos': [149,
                            209,
@@ -2985,9 +3867,18 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 4562,
         'selection_start': 4562},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Climb/Climb_Segment.py'): {''\
+=======
+        'first-line': 54,
+        'folded-linenos': [],
+        'sel-line': 55,
+        'sel-line-start': 1885,
+        'selection_end': 1902,
+        'selection_start': 1902},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/Climb_Segment.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Climb_Segment',
                            20)],
-        'first-line': 5,
+        'first-line': 1,
         'folded-linenos': [],
         'sel-line': 20,
         'sel-line-start': 535,
@@ -3044,13 +3935,21 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                           ('Constant_Speed_Constant_Rate.initialize_conditio'\
                            'ns',
                            52)],
-        'first-line': 37,
+        'first-line': 19,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 67,
         'sel-line-start': 2085,
         'selection_end': 2135,
         'selection_start': 2120},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py'): {''\
+=======
+        'sel-line': 71,
+        'sel-line-start': 2268,
+        'selection_end': 2308,
+        'selection_start': 2308},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Constant_Throttle_Constant_Speed',
                            21),
                           ('Constant_Throttle_Constant_Speed.__defaults__',
@@ -3063,16 +3962,22 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 1307},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Climb/Unknown_Throttle.py'): {''\
         'attrib-starts': [('Unknown_Throttle',
-                           21),
-                          ('Unknown_Throttle.__defaults__',
-                           27)],
-        'first-line': 18,
+                           21)],
+        'first-line': 2,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 48,
         'sel-line-start': 1432,
         'selection_end': 1461,
         'selection_start': 1459},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Climb/__init__.py'): {''\
+=======
+        'sel-line': 22,
+        'sel-line-start': 565,
+        'selection_end': 565,
+        'selection_start': 565},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Climb/__init__.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -3141,7 +4046,33 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 789,
         'selection_end': 812,
         'selection_start': 812},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Missions/Segments/Segment.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Ground/Landing.py'): {''\
+        'attrib-starts': [('Landing',
+                           24),
+                          ('Landing.__defaults__',
+                           30)],
+        'first-line': 19,
+        'folded-linenos': [],
+        'sel-line': 34,
+        'sel-line-start': 811,
+        'selection_end': 859,
+        'selection_start': 859},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Ground/Takeoff.py'): {''\
+        'attrib-starts': [('Takeoff',
+                           22),
+                          ('Takeoff.initialize_conditions',
+                           40)],
+        'first-line': 28,
+        'folded-linenos': [],
+        'sel-line': 47,
+        'sel-line-start': 1319,
+        'selection_end': 1367,
+        'selection_start': 1367},
+                       loc('../../trunk/SUAVE/Attributes/Missions/Segments/Segment.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Segment',
                            17),
                           ('Segment.__defaults__',
@@ -3275,13 +4206,21 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                            15),
                           ('Result.__defaults__',
                            19)],
-        'first-line': 6,
+        'first-line': 3,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 20,
         'sel-line-start': 684,
         'selection_end': 702,
         'selection_start': 702},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Attributes/Results/Results.py'): {''\
+=======
+        'sel-line': 27,
+        'sel-line-start': 897,
+        'selection_end': 918,
+        'selection_start': 918},
+                       loc('../../trunk/SUAVE/Attributes/Results/Results.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 15,
         'folded-linenos': [],
@@ -3553,6 +4492,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Energy/Storages/Battery_Li_Ion.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -3562,6 +4502,20 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 0,
         'selection_start': 0},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Energy/Storages/FuelTank.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Components/Energy/Storages/Battery_Li_Ion.py'): {''\
+        'attrib-starts': [('Battery_Li_Ion',
+                           18),
+                          ('Battery_Li_Ion.find_opt_mass',
+                           31)],
+        'first-line': 24,
+        'folded-linenos': [],
+        'sel-line': 42,
+        'sel-line-start': 1463,
+        'selection_end': 1493,
+        'selection_start': 1483},
+                       loc('../../trunk/SUAVE/Components/Energy/Storages/FuelTank.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -3594,6 +4548,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 132,
         'selection_end': 132,
         'selection_start': 132},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Envelope.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -3604,6 +4559,21 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 244},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Fuselage.py'): {''\
         'attrib-starts': [],
+=======
+                       loc('../../trunk/SUAVE/Components/Envelope.py'): {'at'\
+        'trib-starts': [('Envelope',
+                         14),
+                        ('Envelope.__defaults__',
+                         15)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 20,
+        'sel-line-start': 608,
+        'selection_end': 616,
+        'selection_start': 616},
+                       loc('../../trunk/SUAVE/Components/Fuselage.py'): {'at'\
+        'trib-starts': [],
+>>>>>>> master
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 0,
@@ -3657,6 +4627,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 230,
         'selection_end': 230,
         'selection_start': 230},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Mass_Props.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -3667,6 +4638,27 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 230},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/PASS.py'): {''\
         'attrib-starts': [],
+=======
+                       loc('../../trunk/SUAVE/Components/Mass_Properties.py'): {''\
+        'attrib-starts': [('Mass_Properties',
+                           13)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 14,
+        'sel-line-start': 420,
+        'selection_end': 460,
+        'selection_start': 460},
+                       loc('../../trunk/SUAVE/Components/Mass_Props.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 0,
+        'sel-line-start': 0,
+        'selection_end': 0,
+        'selection_start': 0},
+                       loc('../../trunk/SUAVE/Components/PASS.py'): {'attrib'\
+        '-starts': [],
+>>>>>>> master
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 0,
@@ -3697,6 +4689,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 727,
         'selection_end': 756,
         'selection_start': 756},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Payloads/Person.py'): {''\
         'attrib-starts': [],
         'first-line': 3,
@@ -3706,6 +4699,20 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 462,
         'selection_start': 462},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Payloads/Satellite.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Components/Payloads/Person.py'): {''\
+        'attrib-starts': [('Person',
+                           20),
+                          ('Person.__defaults__',
+                           21)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 23,
+        'sel-line-start': 629,
+        'selection_end': 657,
+        'selection_start': 657},
+                       loc('../../trunk/SUAVE/Components/Payloads/Satellite.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -3729,6 +4736,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 164,
         'selection_end': 164,
         'selection_start': 164},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Physical_Component.py'): {''\
         'attrib-starts': [('Physical_Component',
                            15),
@@ -3743,6 +4751,20 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsor.py'): {''\
         'attrib-starts': [('PropulsorContainer',
                            22)],
+=======
+                       loc('../../trunk/SUAVE/Components/Physical_Component.py'): {''\
+        'attrib-starts': [('Container',
+                           25)],
+        'first-line': 12,
+        'folded-linenos': [],
+        'sel-line': 31,
+        'sel-line-start': 1060,
+        'selection_end': 1108,
+        'selection_start': 1108},
+                       loc('../../trunk/SUAVE/Components/Propulsor.py'): {'a'\
+        'ttrib-starts': [('PropulsorContainer',
+                          22)],
+>>>>>>> master
         'first-line': 19,
         'folded-linenos': [],
         'sel-line': 26,
@@ -3837,8 +4859,8 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                            60)],
         'first-line': 55,
         'folded-linenos': [],
-        'sel-line': 77,
-        'sel-line-start': 2540,
+        'sel-line': 71,
+        'sel-line-start': 2529,
         'selection_end': 2552,
         'selection_start': 2552},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsors/Rotor.py'): {''\
@@ -3879,6 +4901,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 370},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsors/Turbofan.py'): {''\
         'attrib-starts': [('TurboFanPASS',
+<<<<<<< HEAD
                            31),
                           ('TurboFanPASS.engine_sizing_1d',
                            92)],
@@ -3889,6 +4912,16 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 16662,
         'selection_start': 16662},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsors/Turbofan_Hybrid_Motor.py'): {''\
+=======
+                           31)],
+        'first-line': 12,
+        'folded-linenos': [],
+        'sel-line': 31,
+        'sel-line-start': 1049,
+        'selection_end': 1067,
+        'selection_start': 1063},
+                       loc('../../trunk/SUAVE/Components/Propulsors/Turbofan_Hybrid_Motor.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -3904,7 +4937,20 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsors/Turbojet_Hybrid_Motor.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Components/Propulsors/Turbojet2.py'): {''\
+        'attrib-starts': [('Turbojet2PASS',
+                           31)],
+        'first-line': 12,
+        'folded-linenos': [],
+        'sel-line': 31,
+        'sel-line-start': 1018,
+        'selection_end': 1037,
+        'selection_start': 1033},
+                       loc('../../trunk/SUAVE/Components/Propulsors/Turbojet_Hybrid_Motor.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -3920,6 +4966,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Propulsors/__init__.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -3930,6 +4977,27 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 149},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Systems.py'): {''\
         'attrib-starts': [],
+=======
+                       loc('../../trunk/SUAVE/Components/Propulsors/Turbojet_Supersonic.py'): {''\
+        'attrib-starts': [('Turbojet_SupersonicPASS',
+                           31)],
+        'first-line': 12,
+        'folded-linenos': [],
+        'sel-line': 31,
+        'sel-line-start': 1053,
+        'selection_end': 1082,
+        'selection_start': 1078},
+                       loc('../../trunk/SUAVE/Components/Propulsors/__init__.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 6,
+        'sel-line-start': 196,
+        'selection_end': 275,
+        'selection_start': 271},
+                       loc('../../trunk/SUAVE/Components/Systems.py'): {'att'\
+        'rib-starts': [],
+>>>>>>> master
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 0,
@@ -4003,7 +5071,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'first-line': 12,
         'folded-linenos': [],
         'sel-line': 21,
-        'sel-line-start': 690,
+        'sel-line-start': 705,
         'selection_end': 721,
         'selection_start': 721},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Components/Wings/__init__.py'): {''\
@@ -4018,8 +5086,8 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
-        'sel-line': 7,
-        'sel-line-start': 132,
+        'sel-line': 6,
+        'sel-line-start': 146,
         'selection_end': 150,
         'selection_start': 150},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Containers/Atmosphere.py'): {''\
@@ -4350,13 +5418,21 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_aircraft.py'): {''\
         'attrib-starts': [('parasite_drag_aircraft',
                            29)],
-        'first-line': 52,
+        'first-line': 38,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 69,
         'sel-line-start': 2033,
         'selection_end': 2033,
         'selection_start': 2033},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_fuselage.py'): {''\
+=======
+        'sel-line': 58,
+        'sel-line-start': 1523,
+        'selection_end': 1523,
+        'selection_start': 1523},
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Drag/Correlations/parasite_drag_fuselage.py'): {''\
+>>>>>>> master
         'attrib-starts': [('parasite_drag_fuselage',
                            37)],
         'first-line': 66,
@@ -4383,7 +5459,29 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 840,
         'selection_end': 865,
         'selection_start': 844},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Aerodynamics/Lift/High_lift_correlations/high_lift.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/High_lift_correlations/compute_max_lift_coeff.py'): {''\
+        'attrib-starts': [('compute_max_lift_coeff',
+                           28)],
+        'first-line': 59,
+        'folded-linenos': [],
+        'sel-line': 118,
+        'sel-line-start': 3976,
+        'selection_end': 4031,
+        'selection_start': 4004},
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/High_lift_correlations/compute_slat_lift.py'): {''\
+        'attrib-starts': [('compute_slat_lift',
+                           16)],
+        'first-line': 17,
+        'folded-linenos': [],
+        'sel-line': 36,
+        'sel-line-start': 1043,
+        'selection_end': 1055,
+        'selection_start': 1051},
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/High_lift_correlations/high_lift.py'): {''\
+>>>>>>> master
         'attrib-starts': [('high_lift',
                            24)],
         'first-line': 63,
@@ -4418,7 +5516,19 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 3440,
         'selection_end': 3460,
         'selection_start': 3444},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Aerodynamics/Lift/weissenger_vortex_lattice/__init__.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/linear_supersonic_lift.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 24,
+        'sel-line-start': 624,
+        'selection_end': 624,
+        'selection_start': 624},
+                       loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/weissenger_vortex_lattice/__init__.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -4543,6 +5653,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Constraints/horizontal_force.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -4561,6 +5672,35 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 474,
         'selection_start': 460},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Coordinates/EulerRotation.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Methods/Constraints/Constraints.py'): {''\
+        'attrib-starts': [('horizontal_force',
+                           13)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 16,
+        'sel-line-start': 516,
+        'selection_end': 551,
+        'selection_start': 541},
+                       loc('../../trunk/SUAVE/Methods/Constraints/horizontal_force.py'): {''\
+        'attrib-starts': [('horizontal_force',
+                           14)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 17,
+        'sel-line-start': 518,
+        'selection_end': 553,
+        'selection_start': 543},
+                       loc('../../trunk/SUAVE/Methods/Constraints/vertical_force.py'): {''\
+        'attrib-starts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 2,
+        'sel-line-start': 74,
+        'selection_end': 117,
+        'selection_start': 117},
+                       loc('../../trunk/SUAVE/Methods/Coordinates/EulerRotation.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -4768,8 +5908,9 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 0},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Input_Output/import_from_PASS.py'): {''\
         'attrib-starts': [],
-        'first-line': 0,
+        'first-line': 8,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 18,
         'sel-line-start': 428,
         'selection_end': 474,
@@ -4784,6 +5925,22 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 18539,
         'selection_start': 18539},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Input_Output/import_from_file.py'): {''\
+=======
+        'sel-line': 17,
+        'sel-line-start': 390,
+        'selection_end': 426,
+        'selection_start': 426},
+                       loc('../../trunk/SUAVE/Methods/Input_Output/import_from_VSP.py'): {''\
+        'attrib-starts': [('read_vsp_massprops',
+                           508)],
+        'first-line': 517,
+        'folded-linenos': [],
+        'sel-line': 539,
+        'sel-line-start': 20388,
+        'selection_end': 20409,
+        'selection_start': 20399},
+                       loc('../../trunk/SUAVE/Methods/Input_Output/import_from_file.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
@@ -4834,15 +5991,33 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 261,
         'selection_end': 300,
         'selection_start': 300},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance.py'): {''\
         'attrib-starts': [('evaluate_mission',
                            19)],
+=======
+                       loc('../../trunk/SUAVE/Methods/Loads/Loads.py'): {'at'\
+        'trib-starts': [('Loads',
+                         21),
+                        ('Loads.current_load_factor',
+                         98)],
+        'first-line': 72,
+        'folded-linenos': [],
+        'sel-line': 104,
+        'sel-line-start': 3269,
+        'selection_end': 3297,
+        'selection_start': 3293},
+                       loc('../../trunk/SUAVE/Methods/Performance.py'): {'at'\
+        'trib-starts': [('evaluate_mission',
+                         19)],
+>>>>>>> master
         'first-line': 14,
         'folded-linenos': [],
         'sel-line': 26,
         'sel-line-start': 782,
         'selection_end': 802,
         'selection_start': 802},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/Performance.py'): {''\
         'attrib-starts': [('initialize_takeoff',
                            258)],
@@ -4853,14 +6028,32 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 11564,
         'selection_start': 11550},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/__init__.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Methods/Performance/Performance.py'): {''\
+        'attrib-starts': [('EvaluateSegment',
+                           42)],
+        'first-line': 124,
+        'folded-linenos': [],
+        'sel-line': 146,
+        'sel-line-start': 5818,
+        'selection_end': 5856,
+        'selection_start': 5852},
+                       loc('../../trunk/SUAVE/Methods/Performance/__init__.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 8,
         'sel-line-start': 339,
+<<<<<<< HEAD
         'selection_end': 339,
         'selection_start': 339},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/aero_segment_functions.py'): {''\
+=======
+        'selection_end': 357,
+        'selection_start': 353},
+                       loc('../../trunk/SUAVE/Methods/Performance/aero_segment_functions.py'): {''\
+>>>>>>> master
         'attrib-starts': [],
         'first-line': 2,
         'folded-linenos': [],
@@ -4877,6 +6070,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 2721,
         'selection_end': 2770,
         'selection_start': 2750},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/estimate_landing_field_length.py'): {''\
         'attrib-starts': [],
         'first-line': 39,
@@ -4886,15 +6080,62 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 269,
         'selection_start': 269},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/estimate_take_off_field_length.py'): {''\
+=======
+                       loc('../../trunk/SUAVE/Methods/Performance/compute_maximum_ground_speed.py'): {''\
+        'attrib-starts': [('compute_maximum_ground_speed',
+                           19)],
+        'first-line': 1,
+        'folded-linenos': [],
+        'sel-line': 26,
+        'sel-line-start': 875,
+        'selection_end': 927,
+        'selection_start': 927},
+                       loc('../../trunk/SUAVE/Methods/Performance/estimate_landing_field_length.py'): {''\
+        'attrib-starts': [('define_vehicle',
+                           136)],
+        'first-line': 164,
+        'folded-linenos': [],
+        'sel-line': 183,
+        'sel-line-start': 7434,
+        'selection_end': 7489,
+        'selection_start': 7485},
+                       loc('../../trunk/SUAVE/Methods/Performance/estimate_take_off_field_length.py'): {''\
+>>>>>>> master
         'attrib-starts': [('estimate_take_off_field_length',
+                           21)],
+        'first-line': 15,
+        'folded-linenos': [],
+        'sel-line': 34,
+        'sel-line-start': 1350,
+        'selection_end': 1426,
+        'selection_start': 1422},
+                       loc('../../trunk/SUAVE/Methods/Performance/estimate_takeoff_speed.py'): {''\
+        'attrib-starts': [('estimate_takeoff_speed',
+                           19)],
+        'first-line': 5,
+        'folded-linenos': [],
+        'sel-line': 25,
+        'sel-line-start': 787,
+        'selection_end': 819,
+        'selection_start': 819},
+                       loc('../../trunk/SUAVE/Methods/Performance/evaluate_PASS.py'): {''\
+        'attrib-starts': [('evaluate_PASS',
                            19)],
         'first-line': 0,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 60,
         'sel-line-start': 2267,
         'selection_end': 2309,
         'selection_start': 2309},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Performance/evaluate_mission.py'): {''\
+=======
+        'sel-line': 19,
+        'sel-line-start': 609,
+        'selection_end': 626,
+        'selection_start': 622},
+                       loc('../../trunk/SUAVE/Methods/Performance/evaluate_mission.py'): {''\
+>>>>>>> master
         'attrib-starts': [('evaluate_mission',
                            13)],
         'first-line': 10,
@@ -4921,9 +6162,24 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 679,
         'selection_end': 718,
         'selection_start': 711},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Power.py'): {''\
         'attrib-starts': [('AddOptBattery',
                            25)],
+=======
+                       loc('../../trunk/SUAVE/Methods/Performance/payload_range.py'): {''\
+        'attrib-starts': [('payload_range',
+                           21)],
+        'first-line': 40,
+        'folded-linenos': [],
+        'sel-line': 59,
+        'sel-line-start': 2062,
+        'selection_end': 2094,
+        'selection_start': 2084},
+                       loc('../../trunk/SUAVE/Methods/Power.py'): {'attrib-s'\
+        'tarts': [('AddOptBattery',
+                   25)],
+>>>>>>> master
         'first-line': 62,
         'folded-linenos': [],
         'sel-line': 79,
@@ -4938,6 +6194,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 128,
         'selection_end': 149,
         'selection_start': 149},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Power/size_fuel_cell.py'): {''\
         'attrib-starts': [],
         'first-line': 0,
@@ -4948,6 +6205,28 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_start': 0},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Propulsion.py'): {''\
         'attrib-starts': [],
+=======
+                       loc('../../trunk/SUAVE/Methods/Power/size_fuel_cell.py'): {''\
+        'attrib-starts': [('size_fuel_cell',
+                           8)],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 24,
+        'sel-line-start': 824,
+        'selection_end': 848,
+        'selection_start': 838},
+                       loc('../../trunk/SUAVE/Methods/Power/size_opt_battery.py'): {''\
+        'attrib-starts': [('size_opt_battery',
+                           15)],
+        'first-line': 30,
+        'folded-linenos': [],
+        'sel-line': 59,
+        'sel-line-start': 3795,
+        'selection_end': 3817,
+        'selection_start': 3807},
+                       loc('../../trunk/SUAVE/Methods/Propulsion.py'): {'att'\
+        'rib-starts': [],
+>>>>>>> master
         'first-line': 1,
         'folded-linenos': [],
         'sel-line': 9,
@@ -5220,8 +6499,8 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                            27)],
         'first-line': 118,
         'folded-linenos': [],
-        'sel-line': 134,
-        'sel-line-start': 5970,
+        'sel-line': 114,
+        'sel-line-start': 5876,
         'selection_end': 6002,
         'selection_start': 6002},
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Methods/Weights/Correlations/Tube_Wing/landing_gear.py'): {''\
@@ -5854,6 +7133,7 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 266,
         'selection_end': 286,
         'selection_start': 286},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/SUAVE/Vehicle.py'): {''\
         'attrib-starts': [('Vehicle',
                            17),
@@ -5870,6 +7150,22 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                            2),
                           ('Weights.__init__',
                            10)],
+=======
+                       loc('../../trunk/SUAVE/Vehicle.py'): {'attrib-starts': [(''\
+        'Vehicle_Mass_Properties',
+        166)],
+        'first-line': 158,
+        'folded-linenos': [],
+        'sel-line': 167,
+        'sel-line-start': 5778,
+        'selection_end': 5782,
+        'selection_start': 5782},
+                       loc('../../trunk/SUAVE/Weights.py'): {'attrib-starts': [(''\
+        'Weights',
+        2),
+        ('Weights.__init__',
+         10)],
+>>>>>>> master
         'first-line': 0,
         'folded-linenos': [],
         'sel-line': 14,
@@ -5990,7 +7286,33 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/trunk/build/lib/SUAVE/Attributes/Missions/Segments/Climb/Constant_Mach.py'): {''\
+=======
+                       loc('../../trunk/build/lib/SUAVE/Attributes/Missions/Segments/Aerodynamic_Segment.py'): {''\
+        'attrib-starts': [('Aerodynamic_Segment',
+                           18),
+                          ('Aerodynamic_Segment.compute_weights',
+                           358)],
+        'first-line': 347,
+        'folded-linenos': [],
+        'sel-line': 362,
+        'sel-line-start': 13954,
+        'selection_end': 13996,
+        'selection_start': 13996},
+                       loc('../../trunk/build/lib/SUAVE/Attributes/Missions/Segments/Base_Segment.py'): {''\
+        'attrib-starts': [('Base_Segment',
+                           19),
+                          ('Base_Segment.initialize_conditions',
+                           158)],
+        'first-line': 172,
+        'folded-linenos': [],
+        'sel-line': 177,
+        'sel-line-start': 6645,
+        'selection_end': 6716,
+        'selection_start': 6706},
+                       loc('../../trunk/build/lib/SUAVE/Attributes/Missions/Segments/Climb/Constant_Mach.py'): {''\
+>>>>>>> master
         'attrib-starts': [('Constant_Mach',
                            17),
                           ('Constant_Mach.initialize',
@@ -6365,9 +7687,23 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/workspace/docked_plotting.py'): {''\
         'attrib-starts': [('demo',
                            37)],
+=======
+                       loc('../../workspace/_notes/changes.txt'): {'attrib-s'\
+        'tarts': [],
+        'first-line': 0,
+        'folded-linenos': [],
+        'sel-line': 3,
+        'sel-line-start': 106,
+        'selection_end': 134,
+        'selection_start': 124},
+                       loc('../../workspace/docked_plotting.py'): {'attrib-s'\
+        'tarts': [('demo',
+                   37)],
+>>>>>>> master
         'first-line': 24,
         'folded-linenos': [],
         'sel-line': 45,
@@ -6406,11 +7742,52 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+<<<<<<< HEAD
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/workspace/tarik/test_mission_Embraer_E190_engine_call.py'): {''\
+=======
+                       loc('../../workspace/tarik - wrapper/compute_load_factor.py'): {''\
+        'attrib-starts': [('compute_load_factor',
+                           20)],
+        'first-line': 7,
+        'folded-linenos': [],
+        'sel-line': 26,
+        'sel-line-start': 820,
+        'selection_end': 846,
+        'selection_start': 836},
+                       loc('../../workspace/tarik - wrapper/estimate_empty_weight.py'): {''\
+        'attrib-starts': [('estimate_empty_weight',
+                           30)],
+        'first-line': 321,
+        'folded-linenos': [],
+        'sel-line': 343,
+        'sel-line-start': 17265,
+        'selection_end': 17291,
+        'selection_start': 17281},
+                       loc('../../workspace/tarik - wrapper/test_mission_Embraer_E190_mission_field_weight_2SU.py'): {''\
+        'attrib-starts': [('define_field_configs',
+                           505)],
+        'first-line': 509,
+        'folded-linenos': [],
+        'sel-line': 528,
+        'sel-line-start': 19623,
+        'selection_end': 19669,
+        'selection_start': 19642},
+                       loc('../../workspace/tarik - wrapper/test_mission_Embraer_E190_mission_field_weight_sized_4SU.py'): {''\
+        'attrib-starts': [('define_field_configs',
+                           543)],
+        'first-line': 547,
+        'folded-linenos': [],
+        'sel-line': 566,
+        'sel-line-start': 21766,
+        'selection_end': 21812,
+        'selection_start': 21785},
+                       loc('../../workspace/tarik/test_mission_Embraer_E190_engine_call.py'): {''\
+>>>>>>> master
         'attrib-starts': [('main',
                            32)],
-        'first-line': 46,
+        'first-line': 39,
         'folded-linenos': [],
+<<<<<<< HEAD
         'sel-line': 62,
         'sel-line-start': 1621,
         'selection_end': 1798,
@@ -6418,6 +7795,15 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
                        loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/workspace/test_newMission.py'): {''\
         'attrib-starts': [('define_mission',
                            272)],
+=======
+        'sel-line': 71,
+        'sel-line-start': 1820,
+        'selection_end': 1824,
+        'selection_start': 1824},
+                       loc('../../workspace/test_newMission.py'): {'attrib-s'\
+        'tarts': [('define_mission',
+                   272)],
+>>>>>>> master
         'first-line': 270,
         'folded-linenos': [],
         'sel-line': 352,
@@ -6578,12 +7964,894 @@ guimgr.visual-state = {loc('../../../../../../../../../../../../../../../../Prog
         'selection_end': 0,
         'selection_start': 0}}
 proj.build-cmd = {None: ('default',
+<<<<<<< HEAD
                          None)}
 proj.env-vars = {None: ('default',
                         [''])}
 proj.pypath = {None: ('custom',
                       path([]))}
 search.replace-history = [u'distance',
+=======
+                         None),
+                  loc('../../../../../../Desktop/untitled-1.py'): ('project',
+        None),
+                  loc('../../scripts/automatic_regression.py'): ('project',
+        None),
+                  loc('../../scripts/experimental/test_dynamicstability.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/experimental/test_mission_Embraer_E190_constThr.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/experimental/test_weights.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/regression/test_atmosphere.py'): ('proj'\
+        'ect',
+        None),
+                  loc('../../scripts/regression/test_dynamicstability.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/regression/the_aircraft_function/test_the_aircraft_function.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/regression/tut_mission_Cessna_172_ic.py'): (''\
+        'project',
+        None),
+                  loc('../../scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py'): (''\
+        'project',
+        None),
+                  loc('../../tests/automatic_regression.py'): ('project',
+        None),
+                  loc('../../tests/test_aerodynamics.py'): ('project',
+        None),
+                  loc('../../tests/test_atmosphere.py'): ('project',
+        None),
+                  loc('../../tests/test_dynamicstability.py'): ('project',
+        None),
+                  loc('../../tests/test_geometry.py'): ('project',
+        None),
+                  loc('../../tests/test_mission_Boeing_737-800.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../tests/test_mission_Boeing_737-800_newaero.py'): (''\
+        'project',
+        None),
+                  loc('../../tests/test_mission_Boeing_737-800_ud.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../tests/test_mission_Cessna_172.py'): ('project',
+        None),
+                  loc('../../tests/test_mission_Cessna_172_bat.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../tests/test_mission_Cessna_172bat.py'): ('projec'\
+        't',
+        None),
+                  loc('../../tests/test_mission_Cessna_172fc.py'): ('project',
+        None),
+                  loc('../../tests/test_mission_Embraer_E190.py'): ('project',
+        None),
+                  loc('../../tests/test_mission_Embraer_E190_constThr.py'): (''\
+        'project',
+        None),
+                  loc('../../tests/test_newMission.py'): ('project',
+        None),
+                  loc('../../tests/test_takeoff_landing_E190.py'): ('project',
+        None),
+                  loc('../../tests/test_weights.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Aerodynamics/Aerodynamics_Surrogate.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Aerodynamics/Conditions.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Airport/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Analysis.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmosphere/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Atmosphere.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/ConstantTemp.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/IntlStandard.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/USStandard.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/US_Standard_1976.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/EarthUSStandard.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Atmospheres/Mars/Atmosphere.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Components/Components.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants.py'): ('projec'\
+        't',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Air.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/CO2.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Composition.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Constant.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Earth.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Gas.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Mars.py'): ('p'\
+        'roject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Planet.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/Universe.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Constants/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Data/Data.py'): ('projec'\
+        't',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/DataBase/Data.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/DataBase/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/DataBase/test_data.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Gasses/Air.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Gasses/CO2.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Gasses/Gas.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Missions/Mission.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Missions/Segment.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/PhysicalData.py'): ('pro'\
+        'ject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Planets/Earth.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Planets/Mars.py'): ('pro'\
+        'ject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Planets/Planet.py'): ('p'\
+        'roject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Propellants/Propellant.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Results.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Results/Result.py'): ('p'\
+        'roject',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/Units.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Attributes/test_temp.py'): ('projec'\
+        't',
+        None),
+                  loc('../../trunk/SUAVE/Components/Component.py'): ('projec'\
+        't',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Converters/Converter.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Converters/FuelCell.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Converters/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Distributors/Distributor.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Distributors/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Energy.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Networks/Network.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Networks/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Storages/Battery.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Storages/FuelTank.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/Storages/Storage.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Energy/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/LoftedBody.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payload.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payloads/Cargo.py'): ('p'\
+        'roject',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payloads/Payload.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payloads/Person.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payloads/Satellite.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Payloads/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/PhysicalComponent.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Propulsors/Propulsor.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Propulsors/Rotor.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Propulsors/Transmission.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Propulsors/Turbofan.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Propulsors/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Systems/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Vehicle.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Wings/Airfoils/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Components/Wings/Wing.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Components/Wings/__init__.py'): ('p'\
+        'roject',
+        None),
+                  loc('../../trunk/SUAVE/Components/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Aerodynamics.py'): ('projec'\
+        't',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/compute_aircraft_lift.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/weissenger_vortex_lattice/weissinger_vortex_lattice.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Airfoils.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Loads.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Performance.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Propulsion/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Utilities/Chebyshev/chebyshev_data.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Utilities/Plot_Dock.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/Weights.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Methods/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Plugins/VyPy/data/DataBunch.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Plugins/VyPy/data/IndexableDict.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Plugins/VyPy/data/OrderedBunch.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Plugins/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/Container.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/Data.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/Geometry3D/Curve.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/Geometry3D/Surface.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/Geometry3D/__init__.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/_autoloader.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../trunk/SUAVE/Structure/_test.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Structure/test_data.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/Vehicle.py'): ('project',
+        None),
+                  loc('../../trunk/SUAVE/__init__.py'): ('project',
+        None),
+                  loc('../../trunk/Vehicles/CAD/nasa_bwbconcept/draw_wing.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/Vehicles/CAD/nasa_bwbconcept/dump_wing.py'): (''\
+        'project',
+        None),
+                  loc('../../trunk/example_data.py'): ('project',
+        None),
+                  loc('../../trunk/example_method.py'): ('project',
+        None),
+                  loc('../../trunk/setup.py'): ('project',
+        None),
+                  loc('../../trunk/test.py'): ('project',
+        None),
+                  loc('../../trunk/test_RK45.py'): ('project',
+        None),
+                  loc('../../trunk/test_atmosphere.py'): ('project',
+        None),
+                  loc('../../trunk/test_b737_pass_new.py'): ('project',
+        None),
+                  loc('../../trunk/test_energy.py'): ('project',
+        None),
+                  loc('../../trunk/test_geometry.py'): ('project',
+        None),
+                  loc('../../trunk/test_method.py'): ('project',
+        None),
+                  loc('../../trunk/test_mission.py'): ('project',
+        None),
+                  loc('../../trunk/test_mission_Cessna_172.py'): ('project',
+        None),
+                  loc('../../trunk/test_mission_Cessna_172fc.py'): ('project',
+        None),
+                  loc('../../trunk/test_package.py'): ('project',
+        None),
+                  loc('../../tutorials/test_mission_Cessna_172.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../tutorials/tut_mission_Boeing_737-800.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../tutorials/tut_mission_Boeing_737800.py'): ('pro'\
+        'ject',
+        None),
+                  loc('../../tutorials/tut_mission_Cessna_172.py'): ('projec'\
+        't',
+        None),
+                  loc('../../tutorials/tut_mission_Cessna_172_bat.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../tutorials/tut_mission_Cessna_172_fc.py'): ('pro'\
+        'ject',
+        None),
+                  loc('../../tutorials/tut_mission_Cessna_172_ic.py'): ('pro'\
+        'ject',
+        None),
+                  loc('../../workspace/docked_plotting.py'): ('project',
+        None),
+                  loc('../../workspace/mats_test.py'): ('project',
+        None),
+                  loc('../../workspace/simple_plot.py'): ('project',
+        None),
+                  loc('../../workspace/speed_test.py'): ('project',
+        None),
+                  loc('../../workspace/tarik/test_mission_Embraer_E190_engine_call.py'): (''\
+        'project',
+        None),
+                  loc('../../workspace/test_newMission.py'): ('project',
+        None),
+                  loc('../../../VyPy_GIT/trunk/VyPy/data/Bunch.py'): ('proje'\
+        'ct',
+        None),
+                  loc('../../../VyPy_GIT/trunk/VyPy/data/DataDict.py'): ('pr'\
+        'oject',
+        None),
+                  loc('../../../VyPy_GIT/trunk/VyPy/data/OrderedBunch.py'): (''\
+        'project',
+        None)}
+proj.env-vars = {None: ('default',
+                        ['']),
+                 loc('../../../../../../Desktop/untitled-1.py'): ('project',
+        ['']),
+                 loc('../../scripts/automatic_regression.py'): ('project',
+        ['']),
+                 loc('../../scripts/experimental/test_dynamicstability.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/experimental/test_mission_Embraer_E190_constThr.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/experimental/test_weights.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../scripts/experimental/the_aircraft_function/test_the_aircraft_function.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/regression/test_atmosphere.py'): ('proje'\
+        'ct',
+        ['']),
+                 loc('../../scripts/regression/test_dynamicstability.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/regression/the_aircraft_function/test_the_aircraft_function.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/regression/tut_mission_Cessna_172_ic.py'): (''\
+        'project',
+        ['']),
+                 loc('../../scripts/tutorials/mission_Boeing_737800/tut_mission_Boeing_737800.py'): (''\
+        'project',
+        ['']),
+                 loc('../../tests/automatic_regression.py'): ('project',
+        ['']),
+                 loc('../../tests/test_aerodynamics.py'): ('project',
+        ['']),
+                 loc('../../tests/test_atmosphere.py'): ('project',
+        ['']),
+                 loc('../../tests/test_dynamicstability.py'): ('project',
+        ['']),
+                 loc('../../tests/test_geometry.py'): ('project',
+        ['']),
+                 loc('../../tests/test_mission_Boeing_737-800.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../tests/test_mission_Boeing_737-800_newaero.py'): (''\
+        'project',
+        ['']),
+                 loc('../../tests/test_mission_Boeing_737-800_ud.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../tests/test_mission_Cessna_172.py'): ('project',
+        ['']),
+                 loc('../../tests/test_mission_Cessna_172_bat.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../tests/test_mission_Cessna_172bat.py'): ('project',
+        ['']),
+                 loc('../../tests/test_mission_Cessna_172fc.py'): ('project',
+        ['']),
+                 loc('../../tests/test_mission_Embraer_E190.py'): ('project',
+        ['']),
+                 loc('../../tests/test_mission_Embraer_E190_constThr.py'): (''\
+        'project',
+        ['']),
+                 loc('../../tests/test_newMission.py'): ('project',
+        ['']),
+                 loc('../../tests/test_takeoff_landing_E190.py'): ('project',
+        ['']),
+                 loc('../../tests/test_weights.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Aerodynamics/Aerodynamics_Surrogate.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Aerodynamics/Conditions.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Aerodynamics/Fidelity_Zero.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Airport/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Analysis.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmosphere/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Atmosphere.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/ConstantTemp.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/IntlStandard.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/USStandard.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Earth/US_Standard_1976.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/EarthUSStandard.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Atmospheres/Mars/Atmosphere.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Components/Components.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Air.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/CO2.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Composition.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Constant.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Earth.py'): ('p'\
+        'roject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Gas.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Mars.py'): ('pr'\
+        'oject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Planet.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/Universe.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Constants/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Data/Data.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/DataBase/Data.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/DataBase/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/DataBase/test_data.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Gasses/Air.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Gasses/CO2.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Gasses/Gas.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Missions/Mission.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Missions/Segment.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/PhysicalData.py'): ('proj'\
+        'ect',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Planets/Earth.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Planets/Mars.py'): ('proj'\
+        'ect',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Planets/Planet.py'): ('pr'\
+        'oject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Propellants/Propellant.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Results.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Results/Result.py'): ('pr'\
+        'oject',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/Units.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Attributes/test_temp.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Component.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Converters/Converter.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Converters/FuelCell.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Converters/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Distributors/Distributor.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Distributors/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Energy.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Networks/Network.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Networks/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Storages/Battery.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Storages/FuelTank.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/Storages/Storage.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Energy/__init__.py'): ('p'\
+        'roject',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/LoftedBody.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payload.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payloads/Cargo.py'): ('pr'\
+        'oject',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payloads/Payload.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payloads/Person.py'): ('p'\
+        'roject',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payloads/Satellite.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Payloads/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/PhysicalComponent.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Propulsors/Propulsor.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Propulsors/Rotor.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Propulsors/Transmission.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Propulsors/Turbofan.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Propulsors/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Systems/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Vehicle.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Wings/Airfoils/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Wings/Wing.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/Wings/__init__.py'): ('pr'\
+        'oject',
+        ['']),
+                 loc('../../trunk/SUAVE/Components/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Aerodynamics.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/compute_aircraft_lift.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Aerodynamics/Lift/weissenger_vortex_lattice/weissinger_vortex_lattice.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Airfoils.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Loads.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Performance.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Propulsion/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Utilities/Chebyshev/chebyshev_data.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Utilities/Plot_Dock.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/Weights.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Methods/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Plugins/VyPy/data/DataBunch.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Plugins/VyPy/data/IndexableDict.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Plugins/VyPy/data/OrderedBunch.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Plugins/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/Container.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/Data.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/Geometry3D/Curve.py'): ('p'\
+        'roject',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/Geometry3D/Surface.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/Geometry3D/__init__.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/_autoloader.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/_test.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Structure/test_data.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/Vehicle.py'): ('project',
+        ['']),
+                 loc('../../trunk/SUAVE/__init__.py'): ('project',
+        ['']),
+                 loc('../../trunk/Vehicles/CAD/nasa_bwbconcept/draw_wing.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/Vehicles/CAD/nasa_bwbconcept/dump_wing.py'): (''\
+        'project',
+        ['']),
+                 loc('../../trunk/example_data.py'): ('project',
+        ['']),
+                 loc('../../trunk/example_method.py'): ('project',
+        ['']),
+                 loc('../../trunk/setup.py'): ('project',
+        ['']),
+                 loc('../../trunk/test.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_RK45.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_atmosphere.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_b737_pass.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_b737_pass_new.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_data.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_energy.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_geometry.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_method.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_mission.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_mission_Cessna_172.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_mission_Cessna_172fc.py'): ('project',
+        ['']),
+                 loc('../../trunk/test_package.py'): ('project',
+        ['']),
+                 loc('../../tutorials/test_mission_Cessna_172.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../tutorials/tut_mission_Boeing_737-800.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../tutorials/tut_mission_Boeing_737800.py'): ('proj'\
+        'ect',
+        ['']),
+                 loc('../../tutorials/tut_mission_Cessna_172.py'): ('project',
+        ['']),
+                 loc('../../tutorials/tut_mission_Cessna_172_bat.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../tutorials/tut_mission_Cessna_172_fc.py'): ('proj'\
+        'ect',
+        ['']),
+                 loc('../../tutorials/tut_mission_Cessna_172_ic.py'): ('proj'\
+        'ect',
+        ['']),
+                 loc('../../workspace/docked_plotting.py'): ('project',
+        ['']),
+                 loc('../../workspace/mats_test.py'): ('project',
+        ['']),
+                 loc('../../workspace/simple_plot.py'): ('project',
+        ['']),
+                 loc('../../workspace/speed_test.py'): ('project',
+        ['']),
+                 loc('../../workspace/tarik/test_mission_Embraer_E190_engine_call.py'): (''\
+        'project',
+        ['']),
+                 loc('../../workspace/test_newMission.py'): ('project',
+        ['']),
+                 loc('../../../VyPy_GIT/trunk/VyPy/data/Bunch.py'): ('projec'\
+        't',
+        ['']),
+                 loc('../../../VyPy_GIT/trunk/VyPy/data/DataDict.py'): ('pro'\
+        'ject',
+        ['']),
+                 loc('../../../VyPy_GIT/trunk/VyPy/data/OrderedBunch.py'): (''\
+        'project',
+        [''])}
+proj.pypath = {None: ('custom',
+                      '')}
+search.replace-history = [u' Conditions ',
+                          u'Conditions',
+                          u'Conditions.',
+                          u'Config.',
+                          u'Segment',
+                          u'Segment.',
+                          u'.Frames',
+                          u'Mass_Properties',
+                          u'distance',
+>>>>>>> master
                           u'super(DataBunch,self)',
                           u'OrderedBunch',
                           u'IndexableBunch',
@@ -6594,18 +8862,21 @@ search.replace-history = [u'distance',
                           u'np',
                           u'aerodynamics',
                           u'motor',
-                          u'engine',
-                          u'mission',
-                          u'append_component',
-                          u'wing',
-                          u'Main_Wing',
-                          u'Gas_Dynamics',
-                          u'angle_to_dcm',
-                          u'vehicle_data',
-                          u'find_instances']
-search.search-history = [u'Battery',
-                         u'twise',
+                          u'engine']
+search.search-history = [u'(conditions',
+                         u'(condition',
+                         u'conditions,',
+                         u'unknowns,',
+                         u',unknowns',
+                         u',conditions',
+                         u',Conditions',
+                         u'Conditions',
+                         u'Conditions,',
+                         u' ',
+                         u' conditions ',
+                         u' conditions',
                          u'conditions',
+<<<<<<< HEAD
                          u'df',
                          u'count',
                          u'Base_Segment',
@@ -6639,3 +8910,32 @@ search.search-scope-history = [loc('../../../../../../../../../../../../../../Do
                                loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/ide/Wing/DataClas'),
                                loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/ide/Wing/DataClass'),
                                loc('../../../../../../../../../../../../../../Documents/research/suave/SUAVE/ide/Wing/DataClassData')]
+=======
+                         u'conditions.',
+                         u' conditions.',
+                         u'Condition',
+                         u'configuration.',
+                         u'configuration',
+                         u'config',
+                         u'config.']
+search.search-scope-history = [loc('../../trunk'),
+                               loc('../../scripts/experimental/the_aircraft_function'),
+                               loc('../../scripts/regression'),
+                               loc('../../scripts/tutorials'),
+                               loc('../../../../../../../../Program Files (x86)/Wing IDE 4.1/bin/P'),
+                               loc('../../../../../../../../Program Files (x86)/Wing IDE 4.1/bin/max_lift_coefficient_factor'),
+                               loc('../../trunk/SUAVE/Plugins/VyPy'),
+                               loc('../../../../../../../../Program Files (x86)/Wing IDE 4.1/bin/initialize_differentials'),
+                               loc('../../trunk/SUAVE/Attributes/Missions'),
+                               loc('../../trunk/SUAVE/Methods/Performance'),
+                               loc('../../../../../../../../Windows/system32/P'),
+                               loc('../../../../../../../../Windows/system32/Gass'),
+                               loc('Project Files>'),
+                               loc('pro'),
+                               loc('DataBase'),
+                               loc('DataBase`'),
+                               loc('Data'),
+                               loc('E'),
+                               loc('DataCla'),
+                               loc('DataClas')]
+>>>>>>> master

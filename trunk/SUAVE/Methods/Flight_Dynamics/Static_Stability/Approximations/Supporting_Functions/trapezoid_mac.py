@@ -34,8 +34,8 @@ def trapezoid_mac(wing):
     """                 
 
     #Unpack inputs
-    S = wing.area
-    b = wing.span
+    S = wing.areas.reference
+    b = wing.spans.projected
     l = wing.taper
     
     #Compute root and tip chords

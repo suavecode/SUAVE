@@ -1,6 +1,2 @@
-
 # classes
-from Network import Network
-
-# packages
-# ...
+from Solar_Network import Solar_Network

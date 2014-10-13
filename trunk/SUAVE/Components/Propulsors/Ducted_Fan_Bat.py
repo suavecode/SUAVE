@@ -8,7 +8,7 @@ import numpy #as np
 from SUAVE.Structure import Data, Container
 from Propulsor import Propulsor
 import Segments
-from SUAVE.Components.Energy.Storages import Battery
+#from SUAVE.Components.Energy.Storages import Battery
 # from SUAVE.Methods.Power import RunFuelCell
 # from SUAVE.Components.Energy.Converters import Fuel_Cell
 
@@ -536,7 +536,7 @@ class Ducted_Fan_Bat(Propulsor):
         pifn=self.fan_nozzle_pressure_ratio
         A7=self.A7  
         Ao=self.Ao
-        no_eng=self.no_of_engines 
+        no_eng=self.number_of_engines 
         
         throttle=eta
        

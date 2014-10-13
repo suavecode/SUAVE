@@ -5,7 +5,7 @@
 
 # numpy imports
 import numpy as np
-from scipy.optimize import root
+from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 from copy import deepcopy
 
 # SUAVE imports
@@ -52,15 +52,13 @@ def evaluate_segment(segment):
     guess = unknowns.pack_array('vector')
 
     # solve system
-    x_sol = root( fun    = segment_residuals          ,
-                  x0     = guess                      ,
-                  args   = segment                    ,
-                  method = "hybr"                     ,
-                  #jac    = jacobian_complex           ,
-                  tol    = numerics.tolerance_solution  )
+    x_sol = fsolve( func = segment_residuals           ,
+                    x0   = guess                       ,
+                    args = segment                     ,
+                    xtol = numerics.tolerance_solution  )
     
     # confirm final solution
-    segment_residuals(x_sol.x,segment)
+    segment_residuals(x_sol,segment)
     unknowns   = segment.unknowns    
     conditions = segment.conditions
     numerics   = segment.numerics

@@ -27,25 +27,28 @@ class Landing(Ground_Segment):
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
-    
+
     def __defaults__(self):
 
-	self.tag = "Landing Segment"
-	
-	self.velocity_start       = 150 * Units.knots
-	self.velocity_end         = 0.0
+        self.tag = "Landing Segment"
+
+        self.velocity_start       = 150 * Units.knots
+        self.velocity_end         = 0.0
         self.friction_coefficient = 0.4
-	self.throttle             = 0.0
-	
+        self.throttle             = 0.0
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
+
 
     def initialize_conditions(self,conditions,numerics,initials=None):
-	
-	conditions = Ground_Segment.initialize_conditions(self,conditions,numerics,initials)
-	
-	m_initial = self.config.Mass_Props.m_landing
-	conditions.weights.total_mass[:,0] = m_initial
-	
-	throttle = self.throttle	
+
+        conditions = Ground_Segment.initialize_conditions(self,conditions,numerics,initials)
+
+        m_initial = self.config.mass_properties.landing
+        conditions.weights.total_mass[:,0] = m_initial
+
+        throttle = self.throttle	
         conditions.propulsion.throttle[:,0] = throttle
-	
-	return conditions
+
+        return conditions

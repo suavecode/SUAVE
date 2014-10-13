@@ -27,6 +27,8 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
+from Aerodynamics_Surrogate import Aerodynamics_Surrogate
+
 
 # ----------------------------------------------------------------------
 #  Class

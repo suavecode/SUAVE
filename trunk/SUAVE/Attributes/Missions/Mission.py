@@ -17,11 +17,16 @@ class Mission(Data):
 
     def __defaults__(self):
         self.tag = 'Mission'
-        self.Segments = Base_Segment.Container()
+        self.segments = Base_Segment.Container()
+        
+        # optional
+        self.planet     = None
+        self.atmosphere = None
+        self.start_time = None
 
     def append_segment(self,segment):
         """ Add a Mission Segment  """
-        self.Segments.append(segment)
+        self.segments.append(segment)
         return
 
 class Container(ContainerBase):

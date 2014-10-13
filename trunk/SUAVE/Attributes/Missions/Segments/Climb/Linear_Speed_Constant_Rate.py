@@ -35,7 +35,10 @@ class Linear_Speed_Constant_Rate(Unknown_Throttle):
         self.climb_rate     = 3.  * Units.m / Units.s
         self.air_speed_start      = 100 * Units.m / Units.s
         self.air_speed_end        = 200 * Units.m / Units.s
-        
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0       
+
         return
 
     # ------------------------------------------------------------------

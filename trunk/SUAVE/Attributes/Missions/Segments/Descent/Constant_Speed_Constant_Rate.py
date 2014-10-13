@@ -5,6 +5,7 @@
 
 # python imports
 import numpy as np
+import time
 
 # SUAVE imports
 from SUAVE.Attributes.Missions.Segments import Climb
@@ -34,7 +35,10 @@ class Constant_Speed_Constant_Rate(Climb.Constant_Speed_Constant_Rate):
         self.altitude_end   = 1. * km
         self.descent_rate   = 3.  * deg
         self.air_speed      = 100 * Units.m / Units.s
-        
+        self.battery_energy = 0.0
+        self.latitude       = 0.0
+        self.longitude      = 0.0        
+    
         return
 
     # ------------------------------------------------------------------

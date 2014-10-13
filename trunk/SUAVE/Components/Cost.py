@@ -9,7 +9,10 @@ class Cost(Component):
         self.fuel_price       = 0.0 
         self.oil_price        = 0.0 
         self.insure_rate      = 0.0 
-        self.labor_rate       = 0.0 
+        self.maintenance_rate = 0.0
+        self.pilot_rate       = 0.0
+        self.crew_rate        = 0.0
         self.inflator         = 0.0
+        self.reference_dollars= 0.0
     
     

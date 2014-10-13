@@ -58,7 +58,7 @@ def short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
     zeta = -0.25 * (Cm_q + Cm_alpha_dot + 2. * Iy * Cz_alpha / mass / (mac ** 2.)) * ( mass * mac ** 2. / Iy / (Cm_q * Cz_alpha * 0.5 - 2. * mass * Cm_alpha / density / S_gross_w / mac)) ** 0.5
     
     output = Data()
-    output.short_w_n = w_n
-    output.short_zeta = zeta
+    output.natural_frequency = w_n
+    output.damping_ratio = zeta
     
     return output
