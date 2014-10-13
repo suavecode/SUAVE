@@ -130,7 +130,7 @@ class Fidelity_Zero(Aerodynamics_Surrogate):
         CL_data  = conditions_table.lift_coefficient
 
         # pack for surrogate
-
+        X_data = AoA_data
 
         X_data = np.reshape(X_data,-1)
         # assign models

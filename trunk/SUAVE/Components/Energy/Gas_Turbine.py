@@ -32,7 +32,7 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components import Component_Exception
 #from SUAVE.Components.Energy.Gas_Turbine import Network
-
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
 #  Class
@@ -103,29 +103,50 @@ class Ram(Energy_Component):
         
         #unpack the variables
 
+        print conditions
         Po = conditions.freestream.pressure
         To = conditions.freestream.temperature
-    
+        working_fluid = self.inputs.working_fluid
+        M = conditions.freestream.mach_number
 
     
         
         #method
-        conditions.freestream.gamma =1.4
-        conditions.freestream.Cp =1.4*287.87/(1.4-1)
         
+        
+        
+        gamma              = 1.4        
+        Cp                 = 1.4*287.87/(1.4-1)
+        R                  = 287.87 
+        
+        #gamma              = working_fluid.compute_gamma(To,Po)
+        #Cp                 = working_fluid.compute_cp(To,Po)
+        #R                  = (gamma-1)/gamma * Cp     
+        
+        
+        ao     =  np.sqrt(Cp/(Cp-R)*R*To)
         
         #Compute the stagnation quantities from the input static quantities
-        conditions.freestream.stagnation_temperature = conditions.freestream.temperature*(1+((conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2))
+        stagnation_temperature = To*(1+((gamma-1)/2 *M**2))
+
         
-        conditions.freestream.stagnation_pressure = conditions.freestream.pressure* ((1+(conditions.freestream.gamma-1)/2 *conditions.freestream.mach_number**2 )**3.5 )  
-        conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-        conditions.freestream.R                  = 287.87             
+        stagnation_pressure = Po* ((1+(gamma-1)/2 *M**2 )**3.5 )  
+        
          
         
         #pack outputs
-        self.outputs.stagnation_temperature =conditions.freestream.stagnation_temperature
-        self.outputs.stagnation_pressure =conditions.freestream.stagnation_pressure
+        self.outputs.stagnation_temperature =stagnation_temperature
+        self.outputs.stagnation_pressure =stagnation_pressure
+        self.outputs.gamma              = gamma
+        self.outputs.Cp                 = Cp
+        self.outputs.R                  = R        
         
+        conditions.freestream.stagnation_temperature =  stagnation_temperature
+        conditions.freestream.stagnation_pressure = stagnation_pressure
+        conditions.freestream.gamma              = gamma
+        conditions.freestream.Cp                 = Cp
+        conditions.freestream.R                  = R     
+        conditions.freestream.speed_of_sound     = ao
         
 
         
@@ -263,24 +284,39 @@ class Expansion_Nozzle(Energy_Component):
         h_out=Cp*T_out
         u_out=np.sqrt(2*(ht_out-h_out))  
         
+        i_low = Mach < 1.0
+        i_high = Mach>=1.0
+        
+        P_out = 1.0 *Mach/Mach
+        
+
+        
+        P_out[i_low]=Po[i_low]
+        Mach[i_low]=np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))
+
+
+        Mach[i_high]=1.0*Mach[i_high]/Mach[i_high]
+        P_out[i_high]=Pt_out[i_high]/(1+(gamma-1)/2*Mach[i_high]**2)**(gamma/(gamma-1))
         
         
-        if np.linalg.norm(Mach) < 1.0:
-        # nozzle unchoked
+        #print 'P_out array' ,P_out
         
-            P_out=Po
+        #if np.linalg.norm(Mach) < 1.0:
+        ## nozzle unchoked
+        
+            #P_out=Po
             
-            Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            Tt_out=Tt_out/(1+(gamma-1)/2*Mach**2)
-            h_out=Cp*T_out
+            #Mach=np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+
         
-        else:
-            Mach=1
-            T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
-            P_out=Pt_out/(1+(gamma-1)/2*Mach**2)**(gamma/(gamma-1))
-            h_out=Cp*T_out
+        #else:
+            #Mach=1.0
+            #P_out=Pt_out/(1+(gamma-1)/2*Mach**2)**(gamma/(gamma-1))
+            #print 'pout current',P_out
           
         # 
+        T_out=Tt_out/(1+(gamma-1)/2*Mach**2)
+        h_out=Cp*T_out
         u_out=np.sqrt(2*(ht_out-h_out))
         rho_out=P_out/(R*T_out)
         
@@ -470,6 +506,7 @@ class Combustor(Energy_Component):
         Tt_n = self.inputs.nozzle_exit_stagnation_temperature
         Tt4 = self.turbine_inlet_temperature
         pib = self.pressure_ratio
+        eta_b = self.efficiency
         #Tto = self.inputs.freestream_stag_temp
         
         htf=self.fuel_data.specific_energy
@@ -487,7 +524,7 @@ class Combustor(Energy_Component):
     
         #f=(((self.Tt4/To)-tau_freestream*(Tt_in/Tt_n))/(self.eta*tau-(self.Tt4/To)))
         
-        f = (ht4 - ho)/(htf-ht4)
+        f = (ht4 - ho)/(eta_b*htf-ht4)
         #print ((self.Tt4/To)-tau_freestream*(Tt_in/Tt_n))
         
         ht_out=Cp*Tt4
@@ -686,12 +723,12 @@ class Thrust(Energy_Component):
 
         Ae_b_Ao=1/(1+bypass_ratio)*core_area_ratio
         
-        print 'Ae_b_Ao',Ae_b_Ao        
+        # print 'Ae_b_Ao',Ae_b_Ao        
         
         A1e_b_A1o=bypass_ratio/(1+bypass_ratio)*fan_area_ratio
          
          
-        print 'A1e_b_A1o',A1e_b_A1o          
+        #print 'A1e_b_A1o',A1e_b_A1o          
          
          
         Thrust_nd=gamma*M0**2*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
@@ -703,7 +740,7 @@ class Thrust(Energy_Component):
         
         Fsp=1/(gamma*M0)*Thrust_nd
         
-        print 'Fsp ',Fsp
+        #print 'Fsp ',Fsp
 
       ##overall engine quantities
         
@@ -711,14 +748,14 @@ class Thrust(Energy_Component):
         TSFC=3600/Isp  # for the test case 
 
 
-        print 'TSFC ',TSFC
+        #print 'TSFC ',TSFC
         
         #mass flow sizing
         mdot_core=mdhc*np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref)
         
         ##mdot_core=FD/(Fsp*ao*(1+aalpha))
         ##print mdot_core
-        print 'mdot_core ',stag_temp_lpt_exit
+        #print 'mdot_core ',stag_temp_lpt_exit
       
         ##-------if areas specified-----------------------------
         fuel_rate=mdot_core*f*no_eng
@@ -727,7 +764,7 @@ class Thrust(Energy_Component):
         mfuel=0.1019715*FD2*TSFC/3600
         ###State.config.A_engine=A22
         
-        print 'Thrust' , FD2        
+        #print 'Thrust' , FD2        
         
         power = FD2*u0
         
@@ -752,10 +789,10 @@ class Thrust(Energy_Component):
 
         
 # the network
-class Network(Data):
+class Network(Propulsor):
     def __defaults__(self):
         
-        self.tag = 'Network'
+        self.tag = 'Turbo_Fan'
         #self.Nozzle       = SUAVE.Components.Energy.Gas_Turbine.Nozzle()
         #self.Compressor   = SUAVE.Components.Energy.Gas_Turbine.Compressor()
         #self.Combustor    = SUAVE.Components.Energy.Gas_Turbine.Combustor()
@@ -763,7 +800,9 @@ class Network(Data):
       
 
         self.nacelle_dia = 0.0
-        self.tag         = 'Network'
+        self.number_of_engines = 1.0
+        #self.thrust = Data()
+        #self.tag         = 'Network'
         
     _component_root_map = None
         
@@ -797,7 +836,7 @@ class Network(Data):
         #Network
   
 
-
+        ram.inputs.working_fluid = self.working_fluid
         ram(conditions)
         
 
@@ -807,16 +846,16 @@ class Network(Data):
         inlet_nozzle.inputs.stagnation_pressure = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
         
     
-        print 'ram out temp ', ram.outputs.stagnation_temperature
-        print 'ram out press', ram.outputs.stagnation_pressure    
+        #print 'ram out temp ', ram.outputs.stagnation_temperature
+        #print 'ram out press', ram.outputs.stagnation_pressure    
         
         
         inlet_nozzle(conditions)   
         
         
-        print 'inlet nozzle out temp ', inlet_nozzle.outputs.stagnation_temperature
-        print 'inlet nozzle out press', inlet_nozzle.outputs.stagnation_pressure         
-        print 'inlet nozzle out h', inlet_nozzle.outputs.stagnation_enthalpy         
+        #print 'inlet nozzle out temp ', inlet_nozzle.outputs.stagnation_temperature
+        #print 'inlet nozzle out press', inlet_nozzle.outputs.stagnation_pressure         
+        #print 'inlet nozzle out h', inlet_nozzle.outputs.stagnation_enthalpy         
 
         #---Flow through core------------------------------------------------------
         
@@ -826,9 +865,9 @@ class Network(Data):
         
         low_pressure_compressor(conditions) 
         
-        print 'low_pressure_compressor out temp ', low_pressure_compressor.outputs.stagnation_temperature
-        print 'low_pressure_compressor out press', low_pressure_compressor.outputs.stagnation_pressure 
-        print 'low_pressure_compressor out h', low_pressure_compressor.outputs.stagnation_enthalpy
+        #print 'low_pressure_compressor out temp ', low_pressure_compressor.outputs.stagnation_temperature
+        #print 'low_pressure_compressor out press', low_pressure_compressor.outputs.stagnation_pressure 
+        #print 'low_pressure_compressor out h', low_pressure_compressor.outputs.stagnation_enthalpy
         #--high pressure compressor
         
         high_pressure_compressor.inputs.stagnation_temperature = low_pressure_compressor.outputs.stagnation_temperature
@@ -836,9 +875,9 @@ class Network(Data):
         
         high_pressure_compressor(conditions) 
         
-        print 'high_pressure_compressor out temp ', high_pressure_compressor.outputs.stagnation_temperature
-        print 'high_pressure_compressor out press', high_pressure_compressor.outputs.stagnation_pressure            
-        print 'high_pressure_compressor out h', high_pressure_compressor.outputs.stagnation_enthalpy
+        #print 'high_pressure_compressor out temp ', high_pressure_compressor.outputs.stagnation_temperature
+        #print 'high_pressure_compressor out press', high_pressure_compressor.outputs.stagnation_pressure            
+        #print 'high_pressure_compressor out h', high_pressure_compressor.outputs.stagnation_enthalpy
         
         
         #Fan
@@ -849,9 +888,9 @@ class Network(Data):
         
         fan(conditions) 
         
-        print 'fan out temp ', fan.outputs.stagnation_temperature
-        print 'fan out press', fan.outputs.stagnation_pressure     
-        print 'fan out h', fan.outputs.stagnation_enthalpy
+        #print 'fan out temp ', fan.outputs.stagnation_temperature
+        #print 'fan out press', fan.outputs.stagnation_pressure     
+        #print 'fan out h', fan.outputs.stagnation_enthalpy
         
 
         
@@ -862,10 +901,10 @@ class Network(Data):
         
         combustor(conditions)
         
-        print 'combustor out temp ', combustor.outputs.stagnation_temperature
-        print 'combustor out press', combustor.outputs.stagnation_pressure          
-        print 'combustor out f', combustor.outputs.fuel_to_air_ratio
-        print 'combustor out h', combustor.outputs.stagnation_enthalpy
+        #print 'combustor out temp ', combustor.outputs.stagnation_temperature
+        #print 'combustor out press', combustor.outputs.stagnation_pressure          
+        #print 'combustor out f', combustor.outputs.fuel_to_air_ratio
+        #print 'combustor out h', combustor.outputs.stagnation_enthalpy
         
         #high pressure turbine
         
@@ -878,9 +917,9 @@ class Network(Data):
         
         high_pressure_turbine(conditions)
         
-        print 'high_pressure_turbine out temp ', high_pressure_turbine.outputs.stagnation_temperature
-        print 'high_pressure_turbine out press', high_pressure_turbine.outputs.stagnation_pressure       
-        print 'high_pressure_turbine out h', high_pressure_turbine.outputs.stagnation_enthalpy
+        #print 'high_pressure_turbine out temp ', high_pressure_turbine.outputs.stagnation_temperature
+        #print 'high_pressure_turbine out press', high_pressure_turbine.outputs.stagnation_pressure       
+        #print 'high_pressure_turbine out h', high_pressure_turbine.outputs.stagnation_enthalpy
         
         #low pressure turbine        
         
@@ -893,9 +932,9 @@ class Network(Data):
         
         low_pressure_turbine(conditions)
         
-        print 'low_pressure_turbine out temp ', low_pressure_turbine.outputs.stagnation_temperature
-        print 'low_pressure_turbine out press', low_pressure_turbine.outputs.stagnation_pressure        
-        print 'low_pressure_turbine out h', low_pressure_turbine.outputs.stagnation_enthalpy        
+        #print 'low_pressure_turbine out temp ', low_pressure_turbine.outputs.stagnation_temperature
+        #print 'low_pressure_turbine out press', low_pressure_turbine.outputs.stagnation_pressure        
+        #print 'low_pressure_turbine out h', low_pressure_turbine.outputs.stagnation_enthalpy        
         
         #core nozzle  
         
@@ -904,9 +943,9 @@ class Network(Data):
         
         core_nozzle(conditions)   
         
-        print 'core_nozzle out temp ', core_nozzle.outputs.stagnation_temperature
-        print 'core_nozzle out press', core_nozzle.outputs.stagnation_pressure        
-        print 'core_nozzle out h', core_nozzle.outputs.stagnation_enthalpy        
+        #print 'core_nozzle out temp ', core_nozzle.outputs.stagnation_temperature
+        #print 'core_nozzle out press', core_nozzle.outputs.stagnation_pressure        
+        #print 'core_nozzle out h', core_nozzle.outputs.stagnation_enthalpy        
 
         
 
@@ -919,9 +958,9 @@ class Network(Data):
         
         fan_nozzle(conditions)   
          
-        print 'fan_nozzle out temp ', fan_nozzle.outputs.stagnation_temperature
-        print 'fan_nozzle out press', fan_nozzle.outputs.stagnation_pressure        
-        print 'fan_nozzle out h', fan_nozzle.outputs.stagnation_enthalpy         
+        #print 'fan_nozzle out temp ', fan_nozzle.outputs.stagnation_temperature
+        #print 'fan_nozzle out press', fan_nozzle.outputs.stagnation_pressure        
+        #print 'fan_nozzle out h', fan_nozzle.outputs.stagnation_enthalpy         
         
         #compute thrust
         
@@ -945,8 +984,8 @@ class Network(Data):
         P = thrust.outputs.power
 
 
-       # return F,mdot,Isp
-        return F[:,0],mdot[:,0],P[:,0]  #return the 2d array instead of the 1D array
+        return F,mdot,P
+        #return F[:,0],mdot[:,0],P[:,0]  #return the 2d array instead of the 1D array
 
             
     __call__ = evaluate
