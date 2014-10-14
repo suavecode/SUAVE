@@ -23,7 +23,13 @@ from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-def full_setup_737800():
+from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Components import Component, Physical_Component, Lofted_Body
+from SUAVE.Components import Component_Exception
+from SUAVE.Components.Energy.Gas_Turbine import Network
+
+
+def full_setup_737800_gasturbine_network():
 
     vehicle = vehicle_setup()
     mission = mission_setup(vehicle)
@@ -234,7 +240,7 @@ def vehicle_setup():
     turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
     
-    turbofan.lengths.engine                = 3.0
+ #   turbofan.lengths.engine                = 3.0
     
     # size the turbofan
     turbofan.A2          =   1.753
@@ -252,10 +258,165 @@ def vehicle_setup():
     turbofan.D           =   1.494
     turbofan.mdhc        =  49.73  
     
-
-
     # add to vehicle
-    vehicle.append_component(turbofan)    
+    #vehicle.append_component(turbofan)    
+
+    
+    # ------------------------------------------------------------------
+    #  Turbofan Network
+    # ------------------------------------------------------------------    
+    
+
+    #initialize the gas turbine network
+    gt_engine = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    #gt_engine = SUAVE.Components.Energy.Gas_Turbine.Network()
+
+    gt_engine.tag = 'Turbo Fan'
+    #GT_ENGINE.WORKING_FLUID
+    
+    gt_engine.number_of_engines = 2.0
+    gt_engine.thrust_design = 24000.0
+    
+
+    
+    working_fluid = SUAVE.Attributes.Gases.Air
+    gt_engine.working_fluid = working_fluid
+    
+    
+    #create a ram component to convert the freestream quantities to stagnation quantities
+    ram = SUAVE.Components.Energy.Converters.Ram()
+    #ram = SUAVE.Components.Energy.Gas_Turbine.Ram()
+
+    ram.tag = 'ram'
+    gt_engine.ram = ram
+    
+    
+    
+    
+    #create the inlet nozzle to the engine 
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    #inlet_nozzle = SUAVE.Components.Energy.Gas_Turbine.Compression_Nozzle()
+    inlet_nozzle.tag = 'inlet nozzle'
+    #gt_engine.inlet_nozzle = inlet_nozzle
+    # input the pressure ratio and polytropic effeciency of the nozzle
+    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.pressure_ratio = 0.98
+    gt_engine.inlet_nozzle = inlet_nozzle
+    
+    
+    #low pressure compressor    
+    low_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    #low_pressure_compressor = SUAVE.Components.Energy.Gas_Turbine.Compressor()
+    low_pressure_compressor.tag = 'lpc'
+    # input the pressure ratio and polytropic effeciency of the compressor
+    low_pressure_compressor.polytropic_efficiency = 0.91
+    low_pressure_compressor.pressure_ratio = 1.14    
+    gt_engine.low_pressure_compressor = low_pressure_compressor
+
+    
+    
+
+      
+    #high pressure compressor  
+    high_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    #high_pressure_compressor = SUAVE.Components.Energy.Gas_Turbine.Compressor()
+    high_pressure_compressor.tag = 'hpc'
+    # input the pressure ratio and polytropic effeciency of the compressor
+    high_pressure_compressor.polytropic_efficiency = 0.91
+    high_pressure_compressor.pressure_ratio = 13.415    
+    gt_engine.high_pressure_compressor = high_pressure_compressor
+
+    
+ 
+
+    
+    #low pressure turbine  
+    low_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    #low_pressure_turbine = SUAVE.Components.Energy.Gas_Turbine.Turbine()
+    low_pressure_turbine.tag='lpt'
+    # input the pressure ratio and polytropic effeciency of the turbine
+    low_pressure_turbine.mechanical_efficiency =0.99
+    low_pressure_turbine.polytropic_efficiency = 0.93     
+    gt_engine.low_pressure_turbine = low_pressure_turbine
+      
+    
+    
+    #high pressure turbine  
+    high_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    #high_pressure_turbine = SUAVE.Components.Energy.Gas_Turbine.Turbine()
+    high_pressure_turbine.tag='hpt'
+    # input the pressure ratio and polytropic effeciency of the turbine
+    high_pressure_turbine.mechanical_efficiency =0.99
+    high_pressure_turbine.polytropic_efficiency = 0.93     
+    gt_engine.high_pressure_turbine = high_pressure_turbine 
+      
+    
+    
+    #combustor  
+    combustor = SUAVE.Components.Energy.Converters.Combustor()   
+    #combustor = SUAVE.Components.Energy.Gas_Turbine.Combustor()
+    combustor.tag = 'Comb'
+    # input the effeciency, pressure ratio and the turbine inlet temperature
+    combustor.efficiency = 0.99 #where is this
+    combustor.alphac = 1.0     
+    combustor.turbine_inlet_temperature =   1450
+    combustor.pressure_ratio =   0.95
+    fuel_data = SUAVE.Attributes.Propellants.Jet_A()    
+    gt_engine.combustor = combustor
+
+    
+    
+    #core nozzle
+    core_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    #core_nozzle = SUAVE.Components.Energy.Gas_Turbine.Expansion_Nozzle()
+    core_nozzle.tag = 'core nozzle'
+    # input the pressure ratio and polytropic effeciency of the nozzle
+    core_nozzle.polytropic_efficiency = 0.95
+    core_nozzle.pressure_ratio = 0.99    
+    gt_engine.core_nozzle = core_nozzle
+
+     
+
+
+
+    #fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    #fan_nozzle = SUAVE.Components.Energy.Gas_Turbine.Expansion_Nozzle()
+    fan_nozzle.tag = 'fan nozzle'
+    # input the pressure ratio and polytropic effeciency of the nozzle
+    fan_nozzle.polytropic_efficiency = 0.95
+    fan_nozzle.pressure_ratio = 0.99    
+    gt_engine.fan_nozzle = fan_nozzle
+
+
+    
+    #power out as an output
+    #fan    
+    fan = SUAVE.Components.Energy.Converters.Fan()   
+    #fan = SUAVE.Components.Energy.Gas_Turbine.Fan()
+    fan.tag = 'fan'
+    # input the pressure ratio and polytropic effeciency of the fan
+    fan.polytropic_efficiency = 0.93
+    fan.pressure_ratio = 1.7    
+    gt_engine.fan = fan
+
+    
+    
+    #create a thrust component which computes the thrust of the engine
+    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    #thrust = SUAVE.Components.Energy.Gas_Turbine.Thrust()
+    thrust.tag ='compute_thrust'
+    thrust.bypass_ratio=5.4
+    thrust.compressor_nondimensional_massflow = 49.7272495725 #1.0
+    thrust.reference_temperature =288.15
+    thrust.reference_pressure=1.01325*10**5
+    thrust.number_of_engines =gt_engine.number_of_engines     
+    gt_engine.thrust = thrust
+    gt_engine.thrust.design = 24000.0
+
+    
+    # add to vehicle
+    vehicle.append_component(gt_engine)     
     
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -274,7 +435,7 @@ def vehicle_setup():
     #   Simple Propulsion Model
     # ------------------------------------------------------------------     
     
-    vehicle.propulsion_model = vehicle.propulsors
+    vehicle.propulsion_model = gt_engine
 
     # ------------------------------------------------------------------
     #   Define Configurations
@@ -486,6 +647,4 @@ def mission_setup(vehicle):
 
 if __name__ == '__main__': 
     
-
-    full_setup()
-
+    full_setup_737800_gasturbine_network()

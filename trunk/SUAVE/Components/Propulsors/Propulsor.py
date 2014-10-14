@@ -68,7 +68,9 @@ class Container(Physical_Component.Container):
         segment.T  = conditions.freestream.temperature[:,0]
         segment.p  = conditions.freestream.pressure[:,0]
         
+
         eta        = conditions.propulsion.throttle[:,0]
+
         
         F    = np.zeros_like(eta)
         mdot = np.zeros_like(eta)
