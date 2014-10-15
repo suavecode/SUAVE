@@ -53,9 +53,11 @@ class Basic_Battery_Network(Data):
         
         
         F, mdot, Pe =propulsor(conditions)
-        pbat=-F*conditions.freestream.velocity[0,0]/self.motor_efficiency #power required from the battery
+       
+        #pbat=-F*conditions.freestream.velocity[0,0]/self.motor_efficiency #power required from the battery
+        pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
+       
         
-    
         e = np.dot(I,pbat)  #integrate energy required from ducted fan/motor
         batlogic      = Data()
         batlogic.pbat = pbat
