@@ -39,7 +39,7 @@ def main():
     
     # run the problem
     results = the_aircraft_function(vehicle,mission)
-
+    
     # plot the new results
     plot_mission(vehicle,mission,results,'bo-')    
     
@@ -563,6 +563,8 @@ def check_results(new_results,old_results):
         err = (new_val-old_val)/old_val
         print 'Error at Min:' , err
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
+        
+        print ''
     
     # check high level outputs
     def check_vals(a,b):
@@ -572,6 +574,7 @@ def check_results(new_results,old_results):
                 if err is None: continue
                 print 'outputs' , k
                 print 'Error:' , err
+                print ''
                 assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
         else:
             return (a-b)/a
@@ -589,5 +592,6 @@ def save_results(results):
     SUAVE.Plugins.VyPy.data.save(results,'results_mission_B737.pkl')
     
 if __name__ == '__main__': 
-    main()
+    main()    
     plt.show()
+        
