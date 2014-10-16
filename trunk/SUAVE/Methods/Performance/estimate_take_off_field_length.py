@@ -103,7 +103,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     stall_speed = (2 * weight * sea_level_gravity / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
     V2_speed    = V2_VS_ratio * stall_speed
     speed_for_thrust  = 0.70 * V2_speed
-
+    print 'weight_takeoff=', weight
     # ==============================================
     # Determining vehicle number of engines
     # ==============================================
@@ -128,7 +128,13 @@ def estimate_take_off_field_length(vehicle,config,airport):
     conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
     conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
     conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
-
+    conditions.propulsion.battery_energy   = np.array([np.atleast_1d(1.)])
+    #put in numerics to allow for different propulsors in takeoff/landing model
+    numerics.time                          = np.array([np.atleast_1d(1.)])
+    numerics.differentiate_time            = np.array([np.atleast_1d(1.)])
+    numerics.integrate_time                = np.array([np.atleast_1d(1.)])
+    
+    
     thrust, mdot, P = vehicle.propulsion_model(conditions,numerics) # total thrust
 
     # ==============================================
