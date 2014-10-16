@@ -1,4 +1,4 @@
-# Gas_Turbine.py
+# Ram.py
 #
 # Created:  Anil, July 2014
 
@@ -32,7 +32,6 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Components import Component_Exception
-#from SUAVE.Components.Energy.Gas_Turbine import Network
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
@@ -47,66 +46,58 @@ class Ram(Energy_Component):
     
     def __defaults__(self):
         
-        
+        #set the deafult values
         self.tag = 'Ram'
-        
-        
-        self.outputs.stagnation_temperature=1.0
-        self.outputs.stagnation_pressure =1.0
-    
-    
-    
-    
+        self.outputs.stagnation_temperature  = 1.0
+        self.outputs.stagnation_pressure     = 1.0
+
     def compute(self,conditions):
         
-        #unpack the variables
+        #unpack the values
         
-        print conditions
+        #unpack from conditions
         Po = conditions.freestream.pressure
         To = conditions.freestream.temperature
-        working_fluid = self.inputs.working_fluid
         M = conditions.freestream.mach_number
         
+        #unpack from inputs
+        working_fluid          = self.inputs.working_fluid
+
+
+        #method to compute the ram properties
         
+        #computing the working fluid properties
+        gamma                  = 1.4
+        Cp                     = 1.4*287.87/(1.4-1)
+        R                      = 287.87
         
-        #method
-        
-        
-        
-        gamma              = 1.4
-        Cp                 = 1.4*287.87/(1.4-1)
-        R                  = 287.87
-        
-        #gamma              = working_fluid.compute_gamma(To,Po)
-        #Cp                 = working_fluid.compute_cp(To,Po)
-        #R                  = (gamma-1)/gamma * Cp
-        
-        
-        ao     =  np.sqrt(Cp/(Cp-R)*R*To)
+        #gamma                 = working_fluid.compute_gamma(To,Po)
+        #Cp                    = working_fluid.compute_cp(To,Po)
+        #R                     = (gamma-1)/gamma * Cp
+        ao                     =  np.sqrt(Cp/(Cp-R)*R*To)
         
         #Compute the stagnation quantities from the input static quantities
         stagnation_temperature = To*(1+((gamma-1)/2 *M**2))
-        
-        
-        stagnation_pressure = Po* ((1+(gamma-1)/2 *M**2 )**3.5 )
+        stagnation_pressure    = Po* ((1+(gamma-1)/2 *M**2 )**3.5 )
         
         
         
-        #pack outputs
-        self.outputs.stagnation_temperature =stagnation_temperature
-        self.outputs.stagnation_pressure =stagnation_pressure
-        self.outputs.gamma              = gamma
-        self.outputs.Cp                 = Cp
-        self.outputs.R                  = R
+        #pack computed outputs
         
-        conditions.freestream.stagnation_temperature =  stagnation_temperature
-        conditions.freestream.stagnation_pressure = stagnation_pressure
-        conditions.freestream.gamma              = gamma
-        conditions.freestream.Cp                 = Cp
-        conditions.freestream.R                  = R
-        conditions.freestream.speed_of_sound     = ao
-    
-    
+        #pack the values into conditions
+        self.outputs.stagnation_temperature           = stagnation_temperature
+        self.outputs.stagnation_pressure              = stagnation_pressure
+        self.outputs.gamma                            = gamma
+        self.outputs.Cp                               = Cp
+        self.outputs.R                                = R
+        
+        #pack the values into outputs
+        conditions.freestream.stagnation_temperature  =  stagnation_temperature
+        conditions.freestream.stagnation_pressure     = stagnation_pressure
+        conditions.freestream.gamma                   = gamma
+        conditions.freestream.Cp                      = Cp
+        conditions.freestream.R                       = R
+        conditions.freestream.speed_of_sound          = ao
     
     
     
