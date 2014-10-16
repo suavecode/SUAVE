@@ -1,4 +1,4 @@
-#Lithium_Air_Network.py
+#Basic_Battery_Network.py
 # 
 # Created:  Michael Vegh, September 2014
 # Modified:  
