@@ -16,6 +16,12 @@ Revision - September 17, 2014
 #   Dependencies
 # -----------------------------------------------------------
 
+# Python Version
+
+SUAVE is developed on python versions 2.4 through 2.7.  
+Let us know if you find that it works on additonal versions.
+
+
 # Package Requirements
 
 numpy      - http://sourceforge.net/projects/numpy/files/NumPy/1.8.0/
