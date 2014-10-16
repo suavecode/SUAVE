@@ -20,19 +20,19 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 #  Battery Class
 # ----------------------------------------------------------------------    
 
-class Battery_Li_Air(Energy_Component):
+class Battery_Al_Air(Energy_Component):
     
     def __defaults__(self):
         
-        self.type = 'Li-Air'
+        self.type = 'Al-Air'
         self.mass_properties.mass = 0.0
         self.current_energy = 0.0
         self.resistance = 0.07446
-        self.specific_energy=2000.*Units.Wh/Units.kg    #convert to Joules/kg
-        self.specific_power=0.66*Units.kW/Units.kg      #convert to W/kg
+        self.specific_energy=1300.*Units.Wh/Units.kg    #convert to Joules/kg
+        self.specific_power=0.2*Units.kW/Units.kg      #convert to W/kg
         self.max_energy=0.
         self.max_power=0.
-    def initialize(self, energy, power): 
+    def initialize_mass(self, energy, power): 
         #initializes properties of battery based on specific energy and specific power            
         if self.specific_energy==0:
             print 'battery specific energy not specified!'
@@ -45,6 +45,10 @@ class Battery_Li_Air(Energy_Component):
         self.max_power= self.mass_properties.mass*self.specific_power #convert total power to Watts
         self.current_energy=self.max_energy
  
+    def initialize_energy(self,mass):
+        self.max_energy=mass/self.specific_energy
+        if self.specific_energy==0.:
+            print 'Warning, specific energy not initialized'
     
     def energy_calc(self,numerics):
         
@@ -99,10 +103,10 @@ class Battery_Li_Air(Energy_Component):
         
         
       
-        mdot=(pbat+Ploss) *(1.92E-4)/Units.Wh  #weight gain of battery (positive means mass loss)
+        mdot=(pbat+Ploss) *(0.000220289)/Units.Wh  #weight gain of battery (positive means mass loss)
         return  mdot
     def find_mass_gain(self):               #find total potential mass gain of a lithium air battery
-        mgain=self.max_energy*(1.92E-4)/Units.Wh
+        mgain=self.max_energy*(0.000220289)/Units.Wh
         
         return mgain   
             

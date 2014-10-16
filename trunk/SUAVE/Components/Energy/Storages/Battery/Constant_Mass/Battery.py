@@ -38,7 +38,7 @@ class Battery(Energy_Component):
         elif self.type=='Li-ion':
             self.specific_energy=90*Units.Wh/Units.kg
             self.specific_power=1*Units.kW/Units.kg
-    def initialize(self, energy, power):
+    def initialize_mass(self, energy, power):
         #initializes properties of battery based on specific energy and specific power            
         if self.specific_energy==0:
             print 'battery specific energy not specified!'
@@ -48,8 +48,11 @@ class Battery(Energy_Component):
         self.mass_properties.mass= max((energy/(self.specific_energy), self.power/(specific_power)))
         self.max_energy=self.mass_properties.mass*self.specific_energy #convert total energy to Joules
         self.max_power= self.mass_properties.mass*self.specific_power #convert total power to Watts
-        
-         
+    
+    def initialize_energy(self,mass):
+        self.max_energy=mass/self.specific_energy
+        if self.specific_energy==0.:
+            print 'Warning, specific energy not initialized'
     
     def ragone_optimum(self, energy, power):
         '''
