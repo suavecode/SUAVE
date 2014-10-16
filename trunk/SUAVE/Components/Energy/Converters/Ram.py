@@ -50,6 +50,7 @@ class Ram(Energy_Component):
         self.tag = 'Ram'
         self.outputs.stagnation_temperature  = 1.0
         self.outputs.stagnation_pressure     = 1.0
+        self.inputs.working_fluid = Data()
 
     def compute(self,conditions):
         

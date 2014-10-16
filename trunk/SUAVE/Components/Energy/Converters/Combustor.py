@@ -59,6 +59,7 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_pressure    = 1.0
         self.outputs.stagnation_enthalpy    = 1.0
         self.outputs.fuel_to_air_ratio      = 1.0
+        self.fuel_data                      = Data()
     
     
     
