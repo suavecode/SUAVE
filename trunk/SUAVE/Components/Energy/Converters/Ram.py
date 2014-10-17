@@ -12,7 +12,6 @@
 
 import SUAVE
 
-from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 # python imports
@@ -24,9 +23,6 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
-from SUAVE.Structure import (
-                             Data, Container, Data_Exception, Data_Warning,
-                             )
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
@@ -34,6 +30,9 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
+# ----------------------------------------------------------------------
+#  Ram Component
+# ----------------------------------------------------------------------
 
 class Ram(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Ram
@@ -86,19 +85,19 @@ class Ram(Energy_Component):
         #pack computed outputs
         
         #pack the values into conditions
-        self.outputs.stagnation_temperature           = stagnation_temperature
-        self.outputs.stagnation_pressure              = stagnation_pressure
-        self.outputs.gamma                            = gamma
-        self.outputs.Cp                               = Cp
-        self.outputs.R                                = R
+        self.outputs.stagnation_temperature              = stagnation_temperature
+        self.outputs.stagnation_pressure                 = stagnation_pressure
+        self.outputs.isentropic_expansion_factor         = gamma
+        self.outputs.specific_heat_at_constant_pressure  = Cp
+        self.outputs.universal_gas_constant              = R
         
         #pack the values into outputs
-        conditions.freestream.stagnation_temperature  =  stagnation_temperature
-        conditions.freestream.stagnation_pressure     = stagnation_pressure
-        conditions.freestream.gamma                   = gamma
-        conditions.freestream.Cp                      = Cp
-        conditions.freestream.R                       = R
-        conditions.freestream.speed_of_sound          = ao
+        conditions.freestream.stagnation_temperature               = stagnation_temperature
+        conditions.freestream.stagnation_pressure                  = stagnation_pressure
+        conditions.freestream.isentropic_expansion_factor          = gamma
+        conditions.freestream.specific_heat_at_constant_pressure   = Cp
+        conditions.freestream.universal_gas_constant               = R
+        conditions.freestream.speed_of_sound                       = ao
     
     
     

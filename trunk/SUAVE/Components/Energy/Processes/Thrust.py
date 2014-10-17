@@ -12,7 +12,6 @@
 
 import SUAVE
 
-from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 # python imports
@@ -24,9 +23,6 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
-from SUAVE.Structure import (
-                             Data, Container, Data_Exception, Data_Warning,
-                             )
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
@@ -35,7 +31,9 @@ from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
-
+# ----------------------------------------------------------------------
+#  Thrust Process
+# ----------------------------------------------------------------------
 
 class Thrust(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Thrust
@@ -70,8 +68,8 @@ class Thrust(Energy_Component):
         #unpack the values
         
         #unpacking from conditions
-        gamma                = conditions.freestream.gamma
-        Cp                   = conditions.freestream.Cp
+        gamma                = conditions.freestream.isentropic_expansion_factor
+        Cp                   = conditions.freestream.specific_heat_at_constant_pressure
         u0                   = conditions.freestream.velocity
         a0                   = conditions.freestream.speed_of_sound
         M0                   = conditions.freestream.mach_number

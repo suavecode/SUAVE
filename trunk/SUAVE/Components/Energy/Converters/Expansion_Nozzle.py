@@ -11,7 +11,6 @@
 
 import SUAVE
 
-from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 # python imports
@@ -23,9 +22,6 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
-from SUAVE.Structure import (
-                             Data, Container, Data_Exception, Data_Warning,
-                             )
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
@@ -34,6 +30,9 @@ from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 
+# ----------------------------------------------------------------------
+#  Expansion Nozzle Component
+# ----------------------------------------------------------------------
 
 class Expansion_Nozzle(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
@@ -62,12 +61,12 @@ class Expansion_Nozzle(Energy_Component):
         #unpack the values
         
         #unpack from conditions
-        gamma    = conditions.freestream.gamma
-        Cp       = conditions.freestream.Cp
+        gamma    = conditions.freestream.isentropic_expansion_factor
+        Cp       = conditions.freestream.specific_heat_at_constant_pressure
         Po       = conditions.freestream.pressure
         Pto      = conditions.freestream.stagnation_pressure
         Tto      = conditions.freestream.stagnation_temperature
-        R        = conditions.freestream.R
+        R        = conditions.freestream.universal_gas_constant
         Mo       = conditions.freestream.mach_number
         
         #unpack from inputs

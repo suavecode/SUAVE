@@ -12,7 +12,6 @@
 
 import SUAVE
 
-from SUAVE.Structure import Data
 from SUAVE.Attributes import Units
 
 # python imports
@@ -24,9 +23,6 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
-from SUAVE.Structure import (
-                             Data, Container, Data_Exception, Data_Warning,
-                             )
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
@@ -35,6 +31,9 @@ from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
+# ----------------------------------------------------------------------
+#  Combustor Component
+# ----------------------------------------------------------------------
 
 class Combustor(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Combustor
@@ -63,15 +62,13 @@ class Combustor(Energy_Component):
     
     
     
-    
-    
     def compute(self,conditions):
         
         #unpack the values
         
         #unpacking the values from conditions
-        gamma  = conditions.freestream.gamma
-        Cp     = conditions.freestream.Cp
+        gamma  = conditions.freestream.isentropic_expansion_factor 
+        Cp     = conditions.freestream.specific_heat_at_constant_pressure
         To     = conditions.freestream.temperature
         Tto    = conditions.freestream.stagnation_temperature
         

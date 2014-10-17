@@ -16,16 +16,12 @@ import scipy as sp
 import datetime
 import time
 from SUAVE.Attributes import Units
-from SUAVE.Structure import Data
 
 # python imports
 import os, sys, shutil
 from copy import deepcopy
 from warnings import warn
 
-from SUAVE.Structure import (
-Data, Container, Data_Exception, Data_Warning,
-)
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
@@ -33,12 +29,12 @@ from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
-#--------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+#  Turbofan Network
+# ----------------------------------------------------------------------
 
-
-
-# the network
 class Turbofan_Network(Propulsor):
+    
     def __defaults__(self):
         
         #setting the default values
@@ -47,10 +43,7 @@ class Turbofan_Network(Propulsor):
         self.number_of_engines = 1.0
     
     _component_root_map = None
-    
-    
-    
-    
+        
     
     # linking the different network components
     def evaluate(self,conditions,numerics):
