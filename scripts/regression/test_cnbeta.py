@@ -20,75 +20,78 @@ def main():
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Main Wing'
-    wing.areas.reference           = 5500.0 * Units.feet**2
-    wing.spans.projected           = 196.0  * Units.feet
-    wing.sweep       = 42.0   * Units.deg # Leading edge
-    wing.taper          = 14.7/54.5
-    wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
-    wing.symmetric      = True
-    wing.origin           = np.array([0.0,0,3.6]) * Units.feet  
+    wing.areas.reference = 5500.0 * Units.feet**2
+    wing.spans.projected = 196.0  * Units.feet
+    wing.sweep           = 42.0   * Units.deg # Leading edge
+    wing.chords.root     = 42.9   * Units.feet #54.5
+    wing.chords.tip      = 14.7   * Units.feet
+    wing.chords.mean_aerodynamic = 27.3 * Units.feet
+    wing.taper           = wing.chords.tip / wing.chords.root
+    wing.aspect_ratio    = wing.spans.projected**2/wing.areas.reference
+    wing.symmetric       = True
+    wing.origin          = np.array([58.6,0.,3.6]) * Units.feet  
     
-    reference               = SUAVE.Structure.Container()
-    vehicle.reference_area   = wing.areas.reference
+    reference = SUAVE.Structure.Container()
+    vehicle.reference_area = wing.areas.reference
     vehicle.append_component(wing)
     
-    lifting_surfaces    = []
-    lifting_surfaces.append(wing)
-    
-    wing          = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'
-    vertical = Data()
-    vertical.span         = 32.4   * Units.feet
-    vertical.root_chord   = 38.7   * Units.feet
-    vertical.tip_chord    = 13.4   * Units.feet
-    vertical.sweep     = 50.0   * Units.deg
-    vertical.x_root_LE1   = 180.0  * Units.feet
-    vertical.symmetric    = False
-    dz_centerline         = 13.3   * Units.feet
-    ref_vertical          = extend_to_ref_area(vertical,dz_centerline)    
-    wing.areas.reference     = ref_vertical.ref_area
-    wing.spans.projected     = ref_vertical.ref_span
-    wing.sweep = 50.0   * Units.deg # leading edge
-    wing.taper    = vertical.tip_chord/ref_vertical.ref_root_chord
-    wing.aspect_ratio = ref_vertical.ref_aspect_ratio
-    wing.origin     = np.array([vertical.x_root_LE1 + ref_vertical.root_LE_change,0.,0.]) * Units.feet
+    vertical = SUAVE.Components.Wings.Wing()
+    vertical.spans.exposed = 32.4   * Units.feet
+    vertical.chords.fuselage_intersect = 38.7 * Units.feet
+    vertical.chords.tip    = 13.4   * Units.feet
+    vertical.sweep         = 50.0   * Units.deg # Leading Edge
+    vertical.x_root_LE1    = 180.0  * Units.feet
+    vertical.symmetric     = False
+    dz_centerline          = 13.3   * Units.feet
+    ref_vertical           = extend_to_ref_area(vertical,dz_centerline)
+    wing.areas.reference   = ref_vertical.areas.reference
+    wing.spans.projected   = ref_vertical.spans.projected
+    wing.chords.root       = ref_vertical.chords.root
+    dx_LE_vert             = ref_vertical.root_LE_change
+    wing.chords.tip        = vertical.chords.tip
+    wing.aspect_ratio      = ref_vertical.aspect_ratio
+    wing.sweep             = vertical.sweep
+    wing.taper             = wing.chords.tip/wing.chords.root
+    wing.origin            = np.array([vertical.x_root_LE1 + dx_LE_vert,0.,0.])
     wing.effective_aspect_ratio = 2.2
-    wing.symmetric= True
-    wing.aerodynamic_center = np.array([trapezoid_ac_x(wing),0.0,0.0])
-    Mach = np.array([0.198])
+    wing.symmetric              = False
+    wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])
+    Mach                        = np.array([0.198])
     wing.CL_alpha = datcom(wing,Mach)   
     vehicle.append_component(wing)
-    lifting_surfaces.append(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'Fuselage'
-    fuselage.areas.side_projected = 4696.16 * Units.feet**2
-    fuselage.lengths.total = 229.7 * Units.feet
-    fuselage.heights.maximum = 26.9 * Units.feet
-    fuselage.width = 20.9    * Units.feet
-    fuselage.heights.at_quarter_length = 26   * Units.feet
-    fuselage.heights.at_three_quarters_length = 19.7 * Units.feet
-    fuselage.heights.at_wing_root_quarter_chord = 15.8 * Units.feet
+    fuselage.areas.side_projected               = 4696.16 * Units.feet**2
+    fuselage.lengths.total                      = 229.7   * Units.feet
+    fuselage.heights.maximum                    = 26.9    * Units.feet
+    fuselage.width                              = 20.9    * Units.feet
+    fuselage.heights.at_quarter_length          = 26.0    * Units.feet
+    fuselage.heights.at_three_quarters_length   = 19.7    * Units.feet
+    fuselage.heights.at_wing_root_quarter_chord = 23.8    * Units.feet
     vehicle.append_component(fuselage)
     
     configuration = Data()
     configuration.mass_properties = Data()
     configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([112.0,0,0]) * Units.feet    
+    configuration.mass_properties.center_of_gravity = np.array([112.2,0,6.8]) * Units.feet    
     
     segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
     segment.freestream = Data()
-    segment.freestream.mach_number          = 0.198
+    segment.freestream.mach_number = Mach[0]
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet
     segment.a          = segment.atmosphere.compute_values(altitude / Units.km, type="a")
-    segment.freestream.density        = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
-    segment.freestream.viscosity        = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
-    segment.freestream.velocity      = segment.freestream.mach_number * segment.a    
+    segment.freestream.density   = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
+    segment.freestream.viscosity = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
+    segment.freestream.velocity  = segment.freestream.mach_number * segment.a    
     
     #Method Test   
     cn_b = taw_cnbeta(vehicle,segment,configuration)
-    expected = -0.35 # Should be 0.184
+    print cn_b
+    expected = 0.10045 # Should be 0.184
     error = Data()
     error.cn_b_747 = (cn_b-expected)/expected  
     
