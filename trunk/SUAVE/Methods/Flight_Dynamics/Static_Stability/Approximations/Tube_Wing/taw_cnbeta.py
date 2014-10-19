@@ -200,7 +200,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     CnBeta   = CnBeta_w + CnBeta_f + CnBeta_v + sum(CnBeta_other)
     
-    print "Wing: {}  Fuse: {}   Vert: {}   Othr: {}".format(CnBeta_w,CnBeta_f,CnBeta_v,sum(CnBeta_other))
+    ##print "Wing: {}  Fuse: {}   Vert: {}   Othr: {}".format(CnBeta_w,CnBeta_f,CnBeta_v,sum(CnBeta_other))
     
     return CnBeta
 
