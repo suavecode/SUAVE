@@ -94,9 +94,11 @@ def define_vehicle():
     wing.S_exposed   = 0.8*wing.area_wetted  #
     wing.S_affected  = 0.6*wing.area_wetted  #
     wing.e           = 0.74                   # Actual value is unknown
-    wing.twist_rc    = 3.0*Units.degrees     #
+    wing.twist_rc    = 0.0*Units.degrees     #
     wing.twist_tc    = 3.0*Units.degrees     #
     wing.highlift    = False                 #
+    wing.highmach    = True
+    wing.vortexlift  = True
     #wing.hl          = 1                    #
     #wing.flaps_chord = 20                   #
     #wing.flaps_angle = 20                   #
@@ -121,6 +123,7 @@ def define_vehicle():
     wing.symmetric = False          #
     wing.t_c       = 0.04           # Estimate
     wing.taper     = 0.25           # Estimate
+    wing.highmach  = True
     
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
@@ -189,10 +192,12 @@ def define_vehicle():
     # turbojet sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
     
-    sizing_segment.M   = 2.04         #
-    sizing_segment.alt = 18.0         #
-    sizing_segment.T   = 218.0        #
-    sizing_segment.p   = 0.239*10**5  # 
+    # Note: Sizing designed to give roughly nominal values - M = 2.02 is not achieved at 35,000 ft
+    
+    sizing_segment.M   = 2.02                    #
+    sizing_segment.alt = 35000 * Units.ft        #
+    sizing_segment.T   = 218.0                   #
+    sizing_segment.p   = 0.239*10**5             #
     
     # size the turbojet
     turbojet.engine_sizing_1d(sizing_segment)     
@@ -339,7 +344,7 @@ def define_mission(vehicle):
     
     segment.altitude_end = 15.24 * Units.km # 50000 ft
     segment.mach_number_start = 1.0
-    segment.mach_number_end  = 2.02  
+    segment.mach_number_end  = 2.02 
     segment.climb_rate   = 5.08    * Units['m/s']
     
     # add to mission
@@ -489,7 +494,7 @@ def evaluate_mission(vehicle,mission):
 # ----------------------------------------------------------------------
 def post_process(vehicle,mission,results):
     
-
+    
     # ------------------------------------------------------------------    
     #   Throttle
     # ------------------------------------------------------------------
@@ -508,20 +513,28 @@ def post_process(vehicle,mission,results):
         axes.set_ylabel('Throttle')
         axes.grid(True)
         
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mdot , 'bo-' )
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Fuel Burn Rate (kg/s)')
-        axes.grid(True)  
+        #axes = fig.add_subplot(3,1,2)
+        #axes.plot( time , mdot , 'bo-' )
+        #axes.set_xlabel('Time (mins)')
+        #axes.set_ylabel('Fuel Burn Rate (kg/s)')
+        #axes.grid(True)  
         
         power = velocity*Thrust/1000.0
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(3,1,2)
         axes.plot( time , power , 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Power Required (kW)')
         axes.grid(True)   
         
-        tot_energy = tot_energy + np.trapz(power,time*60)
+        power = velocity*Thrust
+        mdot_power = mdot*segment.config.propulsion_model['Turbojet Variable Nozzle'].propellant.specific_energy
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , power/mdot_power , 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Total Efficiency')
+        axes.grid(True)          
+        
+        tot_energy = tot_energy + np.trapz(power/1000.0,time*60)
     print 'Integrated Power Required: %.0f kJ' % tot_energy
                   
 

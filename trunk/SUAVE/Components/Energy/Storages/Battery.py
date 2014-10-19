@@ -41,7 +41,7 @@ class Battery(Energy_Component):
                
             Assumptions:
                 This is a simple battery, based on the model by:
-                AIAA 2012-5045 by Anubhav Datta/Johnson
+                AIAA 2012-5405 by Anubhav Datta/Johnson
                
         """
         
@@ -64,8 +64,11 @@ class Battery(Energy_Component):
         Rbat  = self.resistance
         I     = numerics.integrate_time
         
+        # Maximum energy
+        max_energy = self.max_energy()
+        
         # X value
-        x = np.divide(self.CurrentEnergy,self.max_energy())[:,0,None]
+        x = np.divide(self.CurrentEnergy,max_energy)[:,0,None]
         
         # C rate from 
         C = 3600.*pbat/self.max_energy()
@@ -80,14 +83,24 @@ class Battery(Energy_Component):
         # Model discharge characteristics based on changing resistance
         R = Rbat*(1+C*f)
         
-        #Calculate resistive losses
+        # Calculate resistive losses
         Ploss = (Ibat**2)*R
         
         # Energy loss from power draw
         eloss = np.dot(I,Ploss)
         
-        # Pack up
-        self.CurrentEnergy = self.CurrentEnergy[0] + edraw + eloss
-        self.CurrentEnergy[self.CurrentEnergy>self.max_energy()] = self.max_energy()
+        # Cap the battery charging to not be more than the battery can store and adjust after
+        # This needs to be replaced by a vectorized operation soon
+        delta = 0.0
+        flag  = 0
+        self.CurrentEnergy = self.CurrentEnergy[0] * np.ones_like(eloss) 
+        for ii in range(1,len(edraw)):
+            if (edraw[ii,0] > (max_energy- self.CurrentEnergy[ii-1])):
+                flag = 1 
+                delta = delta + ((max_energy- self.CurrentEnergy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
+                edraw[ii,0] = edraw[ii,0] + delta
+            elif flag ==1:
+                edraw[ii,0] = edraw[ii,0] + delta
+            self.CurrentEnergy[ii] = self.CurrentEnergy[ii] + edraw[ii] - np.abs(eloss[ii])
                     
         return  

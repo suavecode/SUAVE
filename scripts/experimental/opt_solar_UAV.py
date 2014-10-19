@@ -17,7 +17,7 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
-from SUAVE.Methods.Propulsion.Propeller_Design      import Propeller_Design
+from SUAVE.Methods.Propulsion     import propeller_design
 
 # =============================================================================
 # External Python modules
@@ -50,7 +50,7 @@ def main():
     tinitial = time.time()
     
     # Inputs
-    inputs = np.array([.5,0.5, 0.5, 0.5, 0.5, 0.5, 1.4,0.5, 0.5, 0.5, 0.5, 0.5, .7])
+    inputs = np.array([.2,0.5, 0.5, 0.5, 0.5, 0.5, 1.4,0.5, 0.5, 0.5, 0.5, 0.5, .7])
     
 
     # build the vehicle
@@ -59,12 +59,20 @@ def main():
     # define the mission
     mission = define_mission(vehicle,inputs)  
     
+    #inputs = np.array([4.38426387e-01, 2.78402866e+00, 2.90969814e+00, 1.61344924e+00,
+                       #2.55831700e+00, 1.00000000e-05, 1.61398089e+00, 1.38578361e+00,
+                       #1.25524133e+00, 9.69395115e-01, 2.29906316e+00, 1.00000000e+00])
+                       
+    #inputs = [  2.02840808e-01   1.29508252e+00   8.48112178e-01   1.14300381e+00
+   #1.02964276e+00   1.00000000e-05   1.83272257e+00   5.87133406e-01
+   #5.73175990e-01   1.13395204e+00   2.07268811e+00   9.71275042e-01]
+    
     # Have the optimizer call the wrapper
     mywrap = lambda inputs:wrap(inputs,vehicle,mission)
     
     opt_prob = pyOpt.Optimization('Fb',mywrap)
     opt_prob.addObj('Battery')
-    opt_prob.addVar('x1','c',lower=0.06,upper=0.5,value=inputs[0])
+    opt_prob.addVar('Vehicle Weight','c',lower=0.06,upper=0.5,value=inputs[0])
     opt_prob.addVar('x2','c',lower=1e-5,upper=3.0,value=inputs[1])
     opt_prob.addVar('x3','c',lower=1e-5,upper=3.0,value=inputs[2])
     opt_prob.addVar('x4','c',lower=1e-5,upper=3.0,value=inputs[3])
@@ -75,15 +83,14 @@ def main():
     opt_prob.addVar('x9','c',lower=1e-5,upper=3.0,value=inputs[8])
     opt_prob.addVar('x10','c',lower=1e-5,upper=3.0,value=inputs[9])
     opt_prob.addVar('x11','c',lower=1e-5,upper=3.0,value=inputs[10])
-    opt_prob.addVar('x12','c',lower=1e-5,upper=3.0,value=inputs[11])  
-    opt_prob.addVar('x13','c',lower=1e-5,upper=3.0,value=inputs[12])
-    opt_prob.addConGroup('g',2,'i')
+    opt_prob.addVar('x12','c',lower=1e-5,upper=1.0,value=inputs[11])
+    opt_prob.addConGroup('g',1,'i')
     
     opt = pyOpt.pySNOPT.SNOPT()
 
     print opt_prob
     outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
-    
+                 
     if myrank==0:
 
         vehicle,mission,results = run_plane(outputs[1])
@@ -103,33 +110,17 @@ def main():
 # ----------------------------------------------------------------------
 def wrap(inputs,vehicle,mission):
     
-    # The first element of inputs is the weight, the rest are mission segs
-    # modify the mission with the latest inputs
-    mission.segments.Climb1.climb_rate = inputs[1]
-    mission.segments.Climb2.climb_rate = inputs[2]
-    mission.segments.Climb3.climb_rate = inputs[3]
-    mission.segments.Climb4.climb_rate = inputs[4]
-    mission.segments.Climb5.climb_rate = inputs[5]
-    mission.segments.Cruise1.distance  = inputs[6]*1000 * Units.km
-    
-    mission.segments.Descent1.descent_rate = inputs[7]
-    mission.segments.Descent2.descent_rate = inputs[8]
-    mission.segments.Descent3.descent_rate = inputs[9]
-    mission.segments.Descent4.descent_rate = inputs[10]
-    mission.segments.Descent5.descent_rate = inputs[11]
-    mission.segments.Cruise2.distance      = inputs[12]*1000 * Units.km
-
     # Change vehicle masses
-    weight = inputs[0]*1000
-    vehicle.mass_properties.m_full    = weight
-    vehicle.mass_properties.m_empty   = weight
-    vehicle.mass_properties.m_takeoff = weight   
+    weight = inputs[0]*1000.
+    vehicle.mass_properties.takeoff         = weight
+    vehicle.mass_properties.operating_empty = weight
+    vehicle.mass_properties.max_takeoff     = weight   
     
     print('Inputs')
     print inputs
     
     # Resize
-    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
+    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
     wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
     motmass   = vehicle.propulsion_model.motor.mass_properties.mass
     paylmass  = vehicle.propulsion_model.payload.mass_properties.mass
@@ -139,28 +130,27 @@ def wrap(inputs,vehicle,mission):
     
     vehicle.propulsion_model.battery.mass_properties.mass = batmass
     
-    #Recharge the battery to start, but if battery mass is negative make it very negative, otherwise 10%
-    if (batmass<0.0):
-        mission.segments.Climb1.battery_energy =  batmass * (250 * Units.watts * Units.hr )
-    else:
-        mission.segments.Climb1.battery_energy = batmass * (250 * Units.watts * Units.hr )/10
+    # Update the configs
+    vehicle.configs.takeoff.mass_properties.max_takeoff     = weight
+    vehicle.configs.takeoff.mass_properties.operating_empty = weight
+    vehicle.configs.takeoff.mass_properties.takeoff         = weight
+    vehicle.configs.cruise.mass_properties.max_takeoff      = weight
+    vehicle.configs.cruise.mass_properties.operating_empty  = weight
+    vehicle.configs.cruise.mass_properties.takeoff          = weight    
+    
+    # Redefine the mission
+    mission = define_mission(vehicle,inputs)      
+    
+    #Recharge the battery to start
+    mission.segments.Climb1.battery_energy =  batmass * (250. * Units.watts * Units.hr ) * inputs[11]
     
     # evaluate the mission
     results = evaluate_mission(vehicle,mission)
     
     #Process the results, we want to maximize battery energy
-
-    min_energies  = np.zeros(12)
-    delta_times   = np.zeros(12)
-    max_throttles = np.zeros(12)
-    
-    for i in range(len(results.segments)):     
-        min_energies[i]  = np.amin(results.segments[i].conditions.propulsion.battery_energy[:,0])
-    minimum_energy = np.amin(min_energies)
-    
     end_energy = results.segments[-1].conditions.propulsion.battery_energy[-1,0]
 
-    output = inputs[0]  
+    output = -end_energy/(100.*250.*3600.) #This normalizes the output a bit
     
     print('Output')
     print output
@@ -170,18 +160,10 @@ def wrap(inputs,vehicle,mission):
     else:
         fail = 0
         
-    const = [0,0]
+    const = [0]
     
-    # 24 hour flight
-    const[0] = (24.* Units.hr - (2.*Units.km/(inputs[1])*Units['m/s']) - (2.*Units.km/(inputs[2]*Units['m/s']))
-                 - (2.*Units.km/(inputs[3]*Units['m/s'])) - (2.*Units.km/(inputs[4]*Units['m/s']))
-                 - (2.*Units.km/(inputs[5]*Units['m/s'])) - (inputs[6]*1000* Units.km/(65.0)) 
-                 - (2.*Units.km/(inputs[7]*Units['m/s'])) - (2.*Units.km/(inputs[8]*Units['m/s']))
-                 - (2.*Units.km/(inputs[9]*Units['m/s'])) - (2.*Units.km/(inputs[10]*Units['m/s']))
-                 - (2.*Units.km/(inputs[11]*Units['m/s'])) - (inputs[12]*1000* Units.km/(30.0)))/(3600.)   
-    
-    # The end of the day should have the same as the beginning, say 10% batt
-    const[1] = (batmass * (250 * Units.watts * Units.hr )/10 - end_energy)/(batmass * (250 * Units.watts * Units.hr )/10)
+    # 24 hour flight     
+    const[0] = (24. * Units.hr - results.segments[-1].conditions.frames.inertial.time[-1,0])/(3600.)
     
     print const
     
@@ -263,8 +245,8 @@ def define_vehicle(inputs):
     wing.highlift                = False  
     wing.vertical                = False 
     wing.eta                     = 1.0
-    wing.Nwr                     = 26.
-    wing.Nwer                    = 2.
+    wing.number_ribs             = 26.
+    wing.number_end_ribs         = 2.
     wing.transition_x_u          = 0.6
     wing.transition_x_l          = 0.9
     
@@ -309,7 +291,7 @@ def define_vehicle(inputs):
     prop_attributes.design_altitude     = 23.0 * Units.km
     prop_attributes.design_thrust       = 0.0
     prop_attributes.design_power        = 3500.0
-    prop_attributes                     = Propeller_Design(prop_attributes)
+    prop_attributes                     = propeller_design(prop_attributes)
     
     prop                 = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes = prop_attributes
@@ -342,7 +324,7 @@ def define_vehicle(inputs):
     # ------------------------------------------------------------------
     #   Add up all of the masses
     # ------------------------------------------------------------------
-    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Solar_HPA.empty(vehicle)
+    vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
     wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
     motmass   = motor.mass_properties.mass
     paylmass  = payload.mass_properties.mass
@@ -416,7 +398,7 @@ def define_mission(vehicle,inputs):
     mission.m0 = vehicle.mass_properties.takeoff # linked copy updates if parent changes
     
     # atmospheric model
-    mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
+    mission.start_time  = time.strptime("Thu, Mar 20 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
     mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     mission.planet      = SUAVE.Attributes.Planets.Earth()
     
@@ -514,7 +496,7 @@ def define_mission(vehicle,inputs):
     # segment attributes
     segment.altitude   = 26.0   * Units.km     # Optional
     segment.air_speed  = 65.0   * Units['m/s']
-    segment.distance   = inputs[6]*1000. * Units.km
+    segment.distance   = inputs[5]*1000. * Units.km
         
     mission.append_segment(segment)    
        
@@ -524,7 +506,7 @@ def define_mission(vehicle,inputs):
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "Descent2"
+    segment.tag = "Descent1"
 
     # connect vehicle configuration
     segment.config = vehicle.configs.cruise
@@ -532,10 +514,28 @@ def define_mission(vehicle,inputs):
     # segment attributes
     segment.altitude_end = 24.  * Units.km
     segment.air_speed    = 55.0 * Units['m/s']
-    segment.descent_rate = inputs[8]  * Units['m/s']
+    segment.descent_rate = inputs[6]  * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)      
+    
+    # ------------------------------------------------------------------    
+    #   Descent Segment: constant speed, constant segment rate
+    # ------------------------------------------------------------------    
+
+    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "Descent2"
+    
+    # connect vehicle configuration
+    segment.config = vehicle.configs.cruise
+    
+    # segment attributes
+    segment.altitude_end = 22.  * Units.km
+    segment.air_speed    = 50.0 * Units['m/s']
+    segment.descent_rate = inputs[7]  * Units['m/s']
+    
+    # add to mission
+    mission.append_segment(segment)   
     
     # ------------------------------------------------------------------    
     #   Descent Segment: constant speed, constant segment rate
@@ -548,12 +548,12 @@ def define_mission(vehicle,inputs):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.altitude_end = 22.  * Units.km
-    segment.air_speed    = 50.0 * Units['m/s']
-    segment.descent_rate = inputs[9]  * Units['m/s']
+    segment.altitude_end = 20.  * Units.km
+    segment.air_speed    = 45.0 * Units['m/s']
+    segment.descent_rate = inputs[8]  * Units['m/s']
     
     # add to mission
-    mission.append_segment(segment)   
+    mission.append_segment(segment)      
     
     # ------------------------------------------------------------------    
     #   Descent Segment: constant speed, constant segment rate
@@ -566,27 +566,9 @@ def define_mission(vehicle,inputs):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
-    segment.altitude_end = 20.  * Units.km
-    segment.air_speed    = 45.0 * Units['m/s']
-    segment.descent_rate = inputs[10]  * Units['m/s']
-    
-    # add to mission
-    mission.append_segment(segment)      
-    
-    # ------------------------------------------------------------------    
-    #   Descent Segment: constant speed, constant segment rate
-    # ------------------------------------------------------------------    
-
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "Descent5"
-    
-    # connect vehicle configuration
-    segment.config = vehicle.configs.cruise
-    
-    # segment attributes
     segment.altitude_end = 18.  * Units.km
     segment.air_speed    = 40.0 * Units['m/s']
-    segment.descent_rate = inputs[11]  * Units['m/s']
+    segment.descent_rate = inputs[9]  * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)     
@@ -604,7 +586,7 @@ def define_mission(vehicle,inputs):
     # segment attributes
     segment.altitude   = 18.0  * Units.km     # Optional
     segment.air_speed  = 30.0  * Units['m/s']
-    segment.distance   = inputs[12]*1000. * Units.km
+    segment.distance   = inputs[10]*1000. * Units.km
         
     mission.append_segment(segment)        
     

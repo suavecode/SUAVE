@@ -81,7 +81,7 @@ def estimate_landing_field_length(vehicle,config,airport):
         maximum_lift_coefficient = config.maximum_lift_coefficient
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Lift.High_lift_correlations import compute_max_lift_coeff
+        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
         p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)

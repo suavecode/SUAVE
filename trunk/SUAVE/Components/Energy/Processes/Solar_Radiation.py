@@ -68,7 +68,7 @@ class Solar_Radiation(Energy_Component):
         gamma = psip - np.pi
         
         # Solar intensity external to the Earths atmosphere
-        Io = 1305.0
+        Io = 1367.0
         
         # Indirect component adjustment
         Ind = 1.0
