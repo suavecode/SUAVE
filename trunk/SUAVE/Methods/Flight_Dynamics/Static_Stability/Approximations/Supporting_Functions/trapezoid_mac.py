@@ -34,14 +34,26 @@ def trapezoid_mac(wing):
     """                 
 
     #Unpack inputs
-    S = wing.areas.reference
-    b = wing.spans.projected
-    l = wing.taper
+    S   = wing.areas.reference
+    b   = wing.spans.projected
+    l   = wing.taper
+    c_r = wing.chords.root
+    c_t = wing.chords.tip
+    mac = wing.chords.mean_aerodynamic
     
-    #Compute root and tip chords
-    mgc = S/b               #mean geometric chord
-    c_r = mgc/(1-0.5*(1-l)) #root chord
-    c_t = c_r*l             #tip chord
+    #Get MAC
+    if mac:
+        return mac    
+    
+    # Compute root and tip chords. Find root and tip chords from wing area, span,
+    # and taper if the user has not specified the root and tip chords
+    if not c_t:
+        if not c_r:
+            mgc = S/b               #mean geometric chord
+            c_r = mgc/(1-0.5*(1-l)) #root chord
+            
+        c_t = c_r*l             #tip chord
+    
     
     #Compute mean aerodynamic chord
     mac = (2.0/3.0)*(c_r + c_t - c_r*c_t/(c_r + c_t))
