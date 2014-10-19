@@ -116,7 +116,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     b      = geometry.wings['Main Wing'].spans.projected
     sweep  = geometry.wings['Main Wing'].sweep
     AR     = geometry.wings['Main Wing'].aspect_ratio
-    z_w    = configuration.mass_properties.center_of_gravity[2]
+    z_w    = geometry.wings['Main Wing'].origin[2]
     S_bs   = geometry.fuselages.Fuselage.areas.side_projected
     l_f    = geometry.fuselages.Fuselage.lengths.total
     h_max  = geometry.fuselages.Fuselage.heights.maximum
@@ -157,15 +157,15 @@ def taw_cnbeta(geometry,conditions,configuration):
     if other > 0:
         for body in other:
             #Unpack inputs
-            S_bs   = body.side_area
-            x_le   = body.x_front
-            l_b    = body.length
-            h_max  = body.h_max
-            w_max  = body.w_max
-            h1     = body.height_at_quarter_length
-            h2     = body.height_at_three_quarters_length 
-            x_cg_on_body = (x_cg-x_le)/l_b
+            S_bs   = body.areas.side_projected
+            x_le   = body.origin[0]
+            l_b    = body.lengths.total
+            h_max  = body.heights.maximum
+            w_max  = body.width
+            h1     = body.heights.at_quarter_length
+            h2     = body.heights.at_three_quarters_length 
             #Compute body contribution to Cn_beta
+            x_cg_on_body = (x_cg-x_le)/l_b
             Re_body  = rho*v_inf*l_b/mew
             x1       = x_cg_on_body/l_b
             x2       = l_b**2.0/S_bs
@@ -175,8 +175,8 @@ def taw_cnbeta(geometry,conditions,configuration):
             kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3**2)*kN_1
             kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4**2 - 2.811*np.exp(-4.0*x4))
             K_N      = (-0.47899 + kN_3*kN_2)*0.001
-            K_Rel    = 1.0+0.8*np.log(Re_body/1.0E6)/np.log(50.)  
-                #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
+            #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
+            K_Rel    = 1.0+0.8*np.log(Re_body/1.0E6)/np.log(50.)
             CnBeta_b = -57.3*K_N*K_Rel*S_bs*l_b/S/b
             CnBeta_other.append(CnBeta_b)
     
@@ -199,6 +199,8 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_v = -Cy_bv*l_v/b
     
     CnBeta   = CnBeta_w + CnBeta_f + CnBeta_v + sum(CnBeta_other)
+    
+    print "Wing: {}  Fuse: {}   Vert: {}   Othr: {}".format(CnBeta_w,CnBeta_f,CnBeta_v,sum(CnBeta_other))
     
     return CnBeta
 

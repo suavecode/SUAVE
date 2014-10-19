@@ -16,6 +16,7 @@ from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
+
 # ----------------------------------------------------------------------
 #  Method
 # ----------------------------------------------------------------------
@@ -66,16 +67,21 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
             -April 8, 2014 - The current version only accounts for the effect of
             downwash on the lift curve slopes of lifting surfaces behind other
             lifting surfaces by an efficiency factor.
-    """   
+    """
 
     # Unpack inputs
     Sref  = geometry.reference_area
     mac   = geometry.wings['Main Wing'].chords.mean_aerodynamic
+    c_root= geometry.wings['Main Wing'].chords.root
+    taper = geometry.wings['Main Wing'].taper
+    c_tip = taper*c_root
+    span  = geometry.wings['Main Wing'].spans.projected
+    sweep = geometry.wings['Main Wing'].sweep
     C_Law = conditions.lift_curve_slope
-    x_cg  = configuration.mass_properties.center_of_gravity[0]
-    x_rqc = geometry.wings['Main Wing'].origin[0]
     w_f   = geometry.fuselages.Fuselage.width
     l_f   = geometry.fuselages.Fuselage.lengths.total
+    x_cg  = configuration.mass_properties.center_of_gravity[0]
+    x_rqc = geometry.wings['Main Wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
@@ -85,15 +91,16 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         s         = surf.areas.reference
         x_surf    = surf.origin[0]
         x_ac_surf = surf.aerodynamic_center[0]
-        eta       = surf.eta
+        eta       = surf.dynamic_pressure_ratio
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
+        vertical  = surf.vertical
         #Calculate Cm_alpha contributions
         l_surf    = x_surf + x_ac_surf - x_cg
-        Cma       = -l_surf*s/(mac*Sref)*(CL_alpha)*eta*downw
+        Cma       = -l_surf*s/(mac*Sref)*(CL_alpha*eta*downw)*(1. - vertical)
         CmAlpha_surf.append(Cma)
-        #For debugging
-        #print "Cmalpha_surf: {:.4f}".format(Cma)
+        ##For debugging
+        ##print "Cmalpha_surf: {:.4f}".format(Cma[len(Cma)-1])
     
     #Evaluate the effect of the fuselage on the stability derivative
     p  = x_rqc/l_f
@@ -109,65 +116,72 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
-    from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
     #Parameters Required
     #Using values for a Boeing 747-200  
-    wing                = SUAVE.Components.Wings.Wing()
-    wing.area           = 5500.0 * Units.feet**2
-    wing.span           = 196.0  * Units.feet
-    wing.sweep_le       = 42.0   * Units.deg
-    wing.taper          = 14.7/54.5
-    wing.aspect_ratio   = wing.span**2/wing.area
+    vehicle = SUAVE.Vehicle()
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Main Wing'
+    wing.areas.reference           = 5500.0 * Units.feet**2
+    wing.spans.projected           = 196.0  * Units.feet
+    wing.chords.mean_aerodynamic   = 27.3 * Units.feet
+    wing.chords.root               = 44. * Units.feet  #54.5ft
+    wing.sweep          = 42.0   * Units.deg # Leading edge
+    wing.taper          = 13.85/44.  #14.7/54.5
+    wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
-    wing.x_LE           = 58.6   * Units.feet
-    wing.x_ac_LE        = 112. * Units.feet - wing.x_LE
-    wing.eta            = 1.0
-    wing.downwash_adj   = 1.0
+    wing.vertical       = False
+    wing.origin         = np.array([59.,0,0]) * Units.feet  
+    wing.aerodynamic_center     = np.array([112.2*Units.feet,0.,0.])-wing.origin#16.16 * Units.meters,0.,0,])np.array([trapezoid_ac_x(wing),0., 0.])#
+    wing.dynamic_pressure_ratio = 1.0
+    wing.ep_alpha               = 0.0
     
-    Mach                    = 0.198
-    reference               = SUAVE.Structure.Container()
-    reference.area          = wing.area
-    reference.mac           = 27.3 * Units.feet
-    reference.CL_alpha_wing = datcom(wing,Mach) 
-    wing.CL_alpha           = reference.CL_alpha_wing
+    Mach                        = np.array([0.198])
+    conditions                  = Data()
+    conditions.lift_curve_slope = datcom(wing,Mach)
+    wing.CL_alpha               = conditions.lift_curve_slope
+    vehicle.reference_area      = wing.areas.reference
+    vehicle.append_component(wing)
     
-    horizontal          = SUAVE.Components.Wings.Wing()
-    horizontal.area     = 1490.55* Units.feet**2
-    horizontal.span     = 71.6   * Units.feet
-    horizontal.sweep_le = 44.0   * Units.deg
-    horizontal.taper    = 7.5/32.6
-    horizontal.aspect_ratio = horizontal.span**2/horizontal.area
-    horizontal.x_LE     = 187.0  * Units.feet
-    horizontal.symmetric= True
-    horizontal.eta      = 0.95
-    horizontal.downwash_adj = 1.0 - 2.0*reference.CL_alpha_wing/np.pi/wing.aspect_ratio
-    horizontal.x_ac_LE  = trapezoid_ac_x(horizontal)
-    horizontal.CL_alpha = datcom(horizontal,Mach) 
+    main_wing_CLa = wing.CL_alpha
+    main_wing_ar  = wing.aspect_ratio
     
-    Lifting_Surfaces    = []
-    Lifting_Surfaces.append(wing)
-    Lifting_Surfaces.append(horizontal)
+    wing                     = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Horizontal Stabilizer'
+    wing.areas.reference     = 1490.55* Units.feet**2
+    wing.spans.projected     = 71.6   * Units.feet
+    wing.sweep               = 44.0   * Units.deg # leading edge
+    wing.taper               = 7.5/32.6
+    wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
+    wing.origin              = np.array([187.0,0,0])  * Units.feet
+    wing.symmetric           = True
+    wing.vertical            = False
+    wing.dynamic_pressure_ratio = 0.95
+    wing.ep_alpha            = 2.0*main_wing_CLa/np.pi/main_wing_ar    
+    wing.aerodynamic_center  = [trapezoid_ac_x(wing), 0.0, 0.0]
+    wing.CL_alpha            = datcom(wing,Mach)
+    vehicle.append_component(wing)
     
-    fuselage            = SUAVE.Components.Fuselages.Fuselage()
+    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage.tag = 'Fuselage'
     fuselage.x_root_quarter_chord = 77.0 * Units.feet
-    fuselage.length     = 229.7  * Units.feet
-    fuselage.w_max      = 20.9   * Units.feet 
+    fuselage.lengths.total     = 229.7  * Units.feet
+    fuselage.width      = 20.9   * Units.feet 
+    vehicle.append_component(fuselage)
     
-    aircraft                  = SUAVE.Vehicle()
-    aircraft.reference        = reference
-    aircraft.Lifting_Surfaces = Lifting_Surfaces
-    aircraft.fuselage         = fuselage
-    aircraft.mass_properties.center_of_gravity[0] = 112. * Units.feet    
+    configuration = Data()
+    configuration.mass_properties = Data()
+    configuration.mass_properties.center_of_gravity = Data()
+    configuration.mass_properties.center_of_gravity = np.array([112.2,0,0]) * Units.feet  
     
     #Method Test
     print '<<Test run of the taw_cmalpha() method>>'
-    print 'Boeing 747 at Mach {0}'.format(Mach)
+    print 'Boeing 747 at Mach {0}'.format(Mach[0])
     
-    cm_a = taw_cmalpha(aircraft,Mach)
+    cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
     
     expected = -1.45
-    print 'Cm_alpha       = {0:.4f}'.format(cm_a)
+    print 'Cm_alpha       = {0:.4f}'.format(cm_a[0])
     print 'Expected value = {}'.format(expected)
-    print 'Percent Error  = {0:.2f}%'.format(100.0*(cm_a-expected)/expected)
-    print 'Static Margin  = {0:.4f}'.format(-cm_a/reference.CL_alpha_wing)
+    print 'Percent Error  = {0:.2f}%'.format(100.0*(cm_a[0]-expected)/expected)
+    print 'Static Margin  = {0:.4f}'.format(-cm_a[0]/vehicle.wings['Main Wing'].CL_alpha[0])
     print ' '
