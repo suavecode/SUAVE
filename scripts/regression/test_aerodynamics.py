@@ -354,6 +354,7 @@ def vehicle_setup():
     turbofan.bypass_ratio                  = 5.4      #
     turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
+    turbofan.engine_length                 = 3.0
     
     # size the turbofan
     turbofan.A2          =   1.753
@@ -467,9 +468,9 @@ def reg_values():
                                  0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
                                  0.00407611])
     
-    cd_tot_r        = np.array([ 0.19368287,  0.03905116,  0.03209541,  0.01737741,  0.0213476 ,
-                                 0.02507019,  0.03614299,  0.05658934,  0.09780619,  0.19398041,
-                                 0.13518241])
+    cd_tot_r        = np.array([ 0.19427599,  0.03976739,  0.0332802 ,  0.01807724,  0.02206145,
+                                 0.02565411,  0.0368808 ,  0.05753452,  0.09852189,  0.19461151,
+                                 0.13593163])
     
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
