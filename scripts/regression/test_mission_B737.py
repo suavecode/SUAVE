@@ -44,6 +44,7 @@ def main():
     plot_mission(vehicle,mission,results,'bo-')    
     
     # load older results
+    #save_results(results)
     old_results = load_results()
     
     # plt the old results
@@ -279,6 +280,7 @@ def vehicle_setup():
     turbofan.bypass_ratio                  = 5.4      #
     turbofan.thrust.design                 = 25000.0  #
     turbofan.number_of_engines             = 2.0      #
+    turbofan.engine_length                 = 2.5
     
     # size the turbofan
     turbofan.A2          =   1.753

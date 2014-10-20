@@ -46,6 +46,7 @@ def main():
     plot_mission(vehicle,mission,results,'bo-')    
     
     # load older results
+    #save_results(results)
     old_results = load_results()
     
     # plt the old results
@@ -282,6 +283,7 @@ def vehicle_setup():
     turbofan.bypass_ratio                  = 5.4      #
     turbofan.thrust.design                 = 20300.0  #
     turbofan.number_of_engines                 = 2.0      #
+    turbofan.engine_length                     = 3.0
 
     # turbofan sizing conditions
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
