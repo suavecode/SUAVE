@@ -1,0 +1,24 @@
+# Setup deck to Travis-CI
+
+# language setup
+language: python
+python:
+  - "2.7"
+
+# branches to test
+branches:
+  only:
+    - master
+  
+# install dependencies
+install:
+  - "pip install numpy"
+  - "pip install scipy"
+  - "pip install matplotlib"
+  - "cd trunk"
+  - "python setup.py install"
+  - "cd ../scripts"
+  
+# run test
+script:  
+  - "python automatic_regression.py"
