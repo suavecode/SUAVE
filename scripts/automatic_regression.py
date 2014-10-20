@@ -84,7 +84,13 @@ def main():
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
         
-    return
+    
+    if passed:
+        sys.exit(0)
+    else:
+        sys.exit(1)
+        
+    
 
 
 # ----------------------------------------------------------------------        
