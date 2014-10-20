@@ -147,18 +147,18 @@ def main():
     F, mdot, P = net(conditions,numerics)
     
     # Truth results
-    truth_F   = [[538.00449442], [538.00449442]]
-    truth_P   = [[14272.1902522],[14272.1902522]]
-    truth_i   = [[ 249.31622624],[ 249.31622624]]
-    truth_rpm = [[ 6668.4094191],[ 6668.4094191]]
-    truth_bat = [[45000000.] , [44987534.18868808]]
+    truth_F   = [[ 522.40448791],[ 522.40448791]]
+    truth_P   = [[ 13687.25140962],[ 13687.25140962]]
+    truth_i   = [[ 314.90485916],[ 314.90485916]]
+    truth_rpm = [[ 6581.17653732],[ 6581.17653732]]
+    truth_bat = [[ 45000000.],[ 44984254.75704217]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
     error.Propeller_Power   = np.max(np.abs(P-truth_P))
     error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
     error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
-    error.Battery = np.max(np.abs(bat.CurrentEnergy-truth_bat))
+    error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print  error
     

@@ -43,7 +43,7 @@ def main():
     
     print('Solar Fluxes')
     print fluxes
-    truth_fluxes = [[ 1304.01069749],[ 815.02502004],[  783.55678702],[0.0]]
+    truth_fluxes = [[ 1365.96369614],[  853.74651524],[  820.78323974],[    0.        ]]
 
     
     max_error =  np.max(np.abs(fluxes-truth_fluxes))
