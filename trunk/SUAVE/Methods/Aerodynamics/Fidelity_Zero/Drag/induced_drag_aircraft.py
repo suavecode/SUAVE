@@ -1,3 +1,4 @@
+
 # induced_drag_aircraft.py
 # 
 # Created:  Your Name, Dec 2013
@@ -58,4 +59,5 @@ def induced_drag_aircraft(conditions,configuration,geometry):
     )
     
     # done!
+
     return total_induced_drag
