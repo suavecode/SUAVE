@@ -135,7 +135,7 @@ class Fidelity_Zero(Data):
                 if not aero.has_key('cn_r'):  
                     cDw = aero.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
                     l_v = geometry.wings['Vertical Stabilizer'].origin[0] + geometry.wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0]
-                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['Vertical Stabilizer'].eta, geometry.wings['Vertical Stabilizer'].CL_alpha)
+                    aero.cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['Vertical Stabilizer'].dynamic_pressure_ratio, geometry.wings['Vertical Stabilizer'].CL_alpha)
                 if not aero.has_key('cl_p'):
                     aero.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
                     

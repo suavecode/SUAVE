@@ -51,7 +51,7 @@ def main():
     plot_mission(vehicle,mission,old_results,'k-')
     
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
     
     return
 
@@ -138,7 +138,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
     
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -176,7 +176,7 @@ def vehicle_setup():
     wing.vertical                = False 
     wing.symmetric               = True
     
-    wing.eta                     = 0.9  
+    wing.dynamic_pressure_ratio  = 0.9  
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -215,7 +215,7 @@ def vehicle_setup():
     wing.symmetric               = False
     wing.t_tail                  = False
     
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
         
     # add to vehicle
     vehicle.append_component(wing)
