@@ -11,6 +11,7 @@ branches:
     - master
     
 # setup anaconda
+# based on https://gist.github.com/dan-blanchard/7045057
 before_install:
   - "wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh"
   - "chmod +x miniconda.sh"
@@ -21,7 +22,7 @@ before_install:
 # install packages
 install:
   # dependencies
-  - "conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib"
+  - "conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib pkg_resources"
   # suave
   - "cd trunk"
   - "python setup.py install"
