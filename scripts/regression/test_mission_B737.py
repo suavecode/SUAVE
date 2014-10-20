@@ -272,11 +272,11 @@ def vehicle_setup():
     
     gt_engine.number_of_engines = 2.0
     gt_engine.thrust_design     = 24000.0
-    
+    gt_engine.engine_length     = 2.5
+    gt_engine.nacelle_diameter  = 1.580
 
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
-    turbofan.engine_length                 = 2.5
     
     #add working fluid to the network
     gt_engine.working_fluid = working_fluid

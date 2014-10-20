@@ -39,8 +39,9 @@ class Turbofan_Network(Propulsor):
         
         #setting the default values
         self.tag = 'Turbo_Fan'
-        self.nacelle_dia = 0.0
         self.number_of_engines = 1.0
+        self.nacelle_diameter  = 1.0
+        self.engine_length     = 1.0
     
     _component_root_map = None
         
