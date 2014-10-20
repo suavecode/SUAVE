@@ -33,6 +33,8 @@ def the_aircraft_function(vehicle,mission):
     
     # evaluate weights
     results = evaluate_weights(vehicle,results)
+    
+    print results
 
     # evaluate field length
     results = evaluate_field_length(vehicle,mission,results)

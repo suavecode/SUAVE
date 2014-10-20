@@ -983,6 +983,20 @@ class TurboFanPASS(Propulsor):
         eta_Pe = 0.0
         return CF, Isp, eta_Pe    
     
+    
+    def sea_level_static(self):
+        
+        # turbofan sizing conditions
+        sls_segment = SUAVE.Components.Propulsors.Segments.Segment()
+        
+        sls_segment.M   = 0.          #
+        sls_segment.alt = 10.0         #
+        sls_segment.T   = 288.16        #
+        sls_segment.p   = 101325.  #         
+        eta=1.0
+
+        self._call_(self,eta,sls_segment)
+    
 def fm_id(M):
 
     R=287.87

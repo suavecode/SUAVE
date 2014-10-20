@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from SUAVE.Methods.Aerodynamics import aero
+#from SUAVE.Methods.Aerodynamics import aero
 from SUAVE.Methods.Propulsion import engine_sizing_1d  
 from SUAVE.Methods.Propulsion import engine_analysis_1d
 from SUAVE.Components.Wings import Wing
