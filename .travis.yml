@@ -22,7 +22,7 @@ before_install:
 # install packages
 install:
   # dependencies
-  - "conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib pkg_resources"
+  - "conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib setuptools pip"
   # suave
   - "cd trunk"
   - "python setup.py install"
