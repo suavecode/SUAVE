@@ -2,7 +2,7 @@
 
 language: python
 python:
-  - "2.7_with_system_site_package"
+  - "2.7_with_system_site_packages"
 
 branches:
   only:
