@@ -10,13 +10,9 @@ branches:
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -qq python-numpy python-scipy
+    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
   
 install:
-    # dependencies
-    - pip install setuptools
-    - pip install matplotlib
-    # suave
     - cd trunk
     - python setup.py install
     - cd ../scripts

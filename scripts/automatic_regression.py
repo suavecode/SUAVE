@@ -85,6 +85,8 @@ def main():
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
         
+    # testing for travis
+    passed = False
     
     if passed:
         sys.exit(0)
