@@ -1,33 +1,26 @@
-# Setup deck to Travis-CI
+# Setup deck for Travis-CI
 
-# language setup
 language: python
 python:
-  - "2.7"
+  - "2.7_with_system_site_package"
 
-# branches to test
 branches:
   only:
     - master
-    
-# setup anaconda
-# based on https://gist.github.com/dan-blanchard/7045057
+
 before_install:
-  - "wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh"
-  - "chmod +x miniconda.sh"
-  - "./miniconda.sh -b"
-  - "export PATH=/home/travis/miniconda/bin:$PATH"
-  - "conda update --yes conda"
+    - sudo apt-get update
   
-# install packages
 install:
-  # dependencies
-  - "conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib setuptools pip"
-  # suave
-  - "cd trunk"
-  - "python setup.py install"
-  - "cd ../scripts"
+    # dependencies
+    - pip install numpy
+    - pip install scipy
+    - pip install matplotlib
+    # suave
+    - cd trunk
+    - python setup.py install
+    - cd ../scripts
   
 # run test
 script:  
-  - "python automatic_regression.py"
+    - python automatic_regression.py
