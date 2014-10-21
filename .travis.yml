@@ -2,7 +2,7 @@
 
 language: python
 python:
-  - "2.7"
+  - "2.7_with_system_site_packages"
 
 branches:
   only:
@@ -10,12 +10,11 @@ branches:
 
 before_install:
     - sudo apt-get update
+    - sudo apt-get install -qq python-numpy python-scipy
   
 install:
     # dependencies
     - pip install setuptools
-    - pip install numpy
-    - pip install scipy
     - pip install matplotlib
     # suave
     - cd trunk
