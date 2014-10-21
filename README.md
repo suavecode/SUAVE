@@ -21,9 +21,9 @@ Contributing Developers
     
 Contributing Institutions
 -------------------------
-* Stanford University Aerospace Design Lab [adl.stanford.edu](adl.stanford.edu)
-* Embraer [www.embraer.com](www.embraer.com)
-* Intelligent Automation Inc.  [www.i-a-i.com](www.i-a-i.com)
+* Stanford University Aerospace Design Lab ([adl.stanford.edu](adl.stanford.edu))
+* Embraer ([www.embraer.com](www.embraer.com))
+* Intelligent Automation Inc.  ([www.i-a-i.com](www.i-a-i.com))
     
 Simple Setup
 ------------
