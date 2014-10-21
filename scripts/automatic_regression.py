@@ -10,6 +10,9 @@
 import SUAVE
 from SUAVE.Structure import Ordered_Bunch
 import sys, os, traceback, time
+
+import matplotlib 
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------        
