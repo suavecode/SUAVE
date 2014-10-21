@@ -64,7 +64,7 @@ def install(the_package,version,date):
         license = 'CC BY-NC-SA 4.0',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
-        long_description = read('../README')
+        long_description = read('../README.md')
     )  
     
     return
