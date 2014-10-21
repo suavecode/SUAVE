@@ -2,11 +2,15 @@
 
 language: python
 python:
-  - "2.7_with_system_site_packages"
+    - "2.7_with_system_site_packages"
 
+notifications:
+    email:
+        - suave-developers@lists.stanford.edu
+  
 branches:
-  only:
-    - master
+    only:
+        - master
 
 before_install:
     - sudo apt-get update
