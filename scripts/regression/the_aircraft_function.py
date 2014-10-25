@@ -132,7 +132,7 @@ def evaluate_noise(vehicle,mission,results):
     
     weight_landing    = mission_profile.segments[-1].conditions.weights.total_mass[-1,0]
     number_of_engines = vehicle.propulsors['Turbo Fan'].number_of_engines
-    thrust_sea_level  = vehicle.propulsors['Turbo Fan'].thrust.design
+    thrust_sea_level  = vehicle.propulsors['Turbo Fan'].design_thrust
     thrust_landing    = mission_profile.segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
     
     # evaluate

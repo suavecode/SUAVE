@@ -109,7 +109,7 @@ def empty(vehicle):
         warnings.warn("There is no Turbo Fan Engine Weight being added to the Configuration", stacklevel=1)    
     else:    
         num_eng            = vehicle.propulsors['Turbo Fan'].number_of_engines
-        thrust_sls         = vehicle.propulsors['Turbo Fan'].thrust.design
+        thrust_sls         = vehicle.propulsors['Turbo Fan'].design_thrust
         wt_engine_jet      = Propulsion.engine_jet(thrust_sls)
         wt_propulsion      = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
     

@@ -271,7 +271,7 @@ def vehicle_setup():
     gt_engine.tag               = 'Turbo Fan'
     
     gt_engine.number_of_engines = 2.0
-    gt_engine.thrust_design     = 24000.0
+    gt_engine.design_thrust     = 24000.0
     gt_engine.engine_length     = 2.5
     gt_engine.nacelle_diameter  = 1.580
 
@@ -406,8 +406,7 @@ def vehicle_setup():
     thrust.compressor_nondimensional_massflow = 49.7272495725 #1.0
     thrust.reference_temperature              = 288.15
     thrust.reference_pressure                 = 1.01325*10**5
-    thrust.design = 24000.0
-    thrust.number_of_engines                  =gt_engine.number_of_engines   
+    thrust.number_of_engines                  = gt_engine.number_of_engines
 
     
     # add thrust to the network
