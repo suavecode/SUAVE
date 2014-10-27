@@ -143,7 +143,7 @@ def unpack_inputs(interface,inputs):
 #   Apply Simple Sizing Principles
 # ----------------------------------------------------------------------
 
-def finalize(interface):
+def simple_sizing(interface):
     
     # ------------------------------------------------------------------
     #   Base Vehicle Configuration
