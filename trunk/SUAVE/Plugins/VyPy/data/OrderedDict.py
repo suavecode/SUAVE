@@ -64,11 +64,11 @@ class OrderedDict(Dict):
         
         # a dictionary
         if hasattr(items, 'iterkeys'):
-            for key in other.iterkeys():
-                self[key] = other[key]
+            for key in items.iterkeys():
+                self[key] = items[key]
         elif hasattr(items, 'keys'):
-            for key in other.keys():
-                self[key] = other[key]
+            for key in items.keys():
+                self[key] = items[key]
                 
         # items lists
         elif items:

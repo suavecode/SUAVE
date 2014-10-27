@@ -30,8 +30,8 @@ class Container(Data):
     def __init__(self,*args,**kwarg):
         super(Container,self).__init__(*args,**kwarg)
         self.__defaults__()
-        if len(self):
-            raise Data_Exception , 'Containers cannot have __defaults__'
+        ##if len(self):
+            ##raise Data_Exception , 'Containers cannot have __defaults__'
         
     #def find_instances(self,data_type):
         #if isinstance(data_type,str):
