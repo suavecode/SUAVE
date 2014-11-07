@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 import numpy as np
+from SUAVE.Components.Wings.Wing import Wing
 from SUAVE.Attributes import Units as Units
 from SUAVE.Structure import (
     Data, Container, Data_Exception, Data_Warning,
@@ -26,7 +27,7 @@ def extend_to_ref_area(surface,height_above_centerline):
         stability calculations when the dimensions of the exposed tail are known.
         
         Inputs:
-            surface - a data dictionary with the fields:
+            surface - a SUAVE Wing object with the fields:
                 span - span (height for a vertical tail) of the exposed surface
                 [meters]
                 sweep - leading edge sweep of the aerodynamic surface [radians]
@@ -57,9 +58,9 @@ def extend_to_ref_area(surface,height_above_centerline):
             Assumes a simple trapezoidal half-wing shape.
     """             
     # Unpack inputs
-    b1        = surface.span
-    c_t       = surface.tip_chord
-    c_r1      = surface.root_chord
+    b1        = surface.spans.exposed
+    c_t       = surface.chords.tip
+    c_r1      = surface.chords.fuselage_intersect
     Lambda    = surface.sweep
     dh_center = height_above_centerline
 #    print 'b: {}; dh: {}'.format(b1,dh_center)
@@ -71,11 +72,10 @@ def extend_to_ref_area(surface,height_above_centerline):
     dx_LE  = -dh_center*np.tan(Lambda)
     AR     = b**2/S
     
-    ref_surface                   = Container()
-    ref_surface.ref_span          = b
-    ref_surface.ref_area          = S
-    ref_surface.ref_aspect_ratio  = AR
-    ref_surface.ref_root_chord    = c_root
-    ref_surface.root_LE_change    = dx_LE
+    surface.spans.projected   = b
+    surface.areas.reference   = S
+    surface.aspect_ratio      = AR
+    surface.chords.root       = c_root
+    surface.root_LE_change    = dx_LE
     
-    return ref_surface
+    return surface

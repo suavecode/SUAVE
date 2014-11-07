@@ -1,4 +1,4 @@
-# parasite_drag_fuselage.py
+# parasite_drag_propulsor.py
 # 
 # Created:  Your Name, Dec 2013
 # Modified:         
@@ -35,9 +35,9 @@ import scipy as sp
 
 
 
-def parasite_drag_fuselage(conditions,configuration,fuselage):
-    """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
-        computes the parasite drag associated with a fuselage 
+def parasite_drag_propulsor(conditions,configuration,propulsor):
+    """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
+        computes the parasite drag associated with a propulsor 
         
         Inputs:
 
@@ -49,18 +49,18 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     """
 
     # unpack inputs
-    form_factor = configuration.fuselage_parasite_drag_form_factor
-
+    try:
+        form_factor = configuration.propulsor_parasite_drag_form_factor
+    except(AttributeError):
+        form_factor = 2.3
+        
     freestream = conditions.freestream
     
-    Sref        = fuselage.areas.front_projected
-    Swet        = fuselage.areas.wetted
+    Sref        = propulsor.nacelle_dia**2 / 4 * np.pi
+    Swet        = propulsor.nacelle_dia * np.pi * propulsor.engine_length
     
-    #l_fus  = fuselage.lengths.cabin
-    l_fus = fuselage.lengths.total
-    d_fus  = fuselage.width
-    l_nose = fuselage.lengths.nose
-    l_tail = fuselage.lengths.tail
+    l_prop  = propulsor.engine_length
+    d_prop  = propulsor.nacelle_dia
     
     # conditions
     Mc  = freestream.mach_number
@@ -71,17 +71,23 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
 
     # reynolds number
     V = Mc * compute_speed_of_sound(Tc, pc) 
-    Re_fus = roc * V * l_fus/muc
+    Re_prop = roc * V * l_prop/muc
     
     # skin friction coefficient
-    cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
+    cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
     
     # form factor for cylindrical bodies
-    d_d = float(d_fus)/float(l_fus)
+    try: # Check if propulsor has an intake
+        A_max = propulsor.nacelle_dia
+        A_exit = propulsor.A7
+        A_inflow = propulsor.Ao
+        d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))
+    except:
+        d_d = float(d_prop)/float(l_prop)
     D = np.array([[0.0]] * len(Mc))
     a = np.array([[0.0]] * len(Mc))
     du_max_u = np.array([[0.0]] * len(Mc))
-    k_fus = np.array([[0.0]] * len(Mc))
+    k_prop = np.array([[0.0]] * len(Mc))
     
     D[Mc < 0.95] = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
     a[Mc < 0.95] = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
@@ -91,41 +97,26 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
     du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
     
-    k_fus = (1 + form_factor*du_max_u)**2
-    
-    #for i in range(len(Mc)):
-        #if Mc[i] < 0.95:
-            #D[i] = np.sqrt(1 - (1-Mc[i]**2) * d_d**2)
-            #a[i]        = 2 * (1-Mc[i]**2) * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            #du_max_u[i] = a[i] / ( (2-a[i]) * (1-Mc[i]**2)**0.5 )
-        #else:
-            #D[i] = np.sqrt(1 - d_d**2)
-            #a[i]        = 2  * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            #du_max_u[i] = a[i] / ( (2-a[i]) )            
-        #k_fus[i]    = (1 + cf_fus[i]*du_max_u[i])**2
+    k_prop = (1 + form_factor*du_max_u)**2
     
     # --------------------------------------------------------
     # find the final result    
-
-    fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
+    propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref  
     # --------------------------------------------------------
     
     # dump data to conditions
-    fuselage_result = Result(
-        wetted_area               = Swet   , 
-        reference_area            = Sref   , 
-        parasite_drag_coefficient = fuselage_parasite_drag ,
-        skin_friction_coefficient = cf_fus ,
-        compressibility_factor    = k_comp ,
-        reynolds_factor           = k_reyn , 
-        form_factor               = k_fus  ,
+    propulsor_result = Result(
+        wetted_area               = Swet    , 
+        reference_area            = Sref    , 
+        parasite_drag_coefficient = propulsor_parasite_drag ,
+        skin_friction_coefficient = cf_prop ,
+        compressibility_factor    = k_comp  ,
+        reynolds_factor           = k_reyn  , 
+        form_factor               = k_prop  ,
     )
-    try:
-        conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result
-    except:
-        print("Drag Polar Mode fuse parasite")
+    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
     
-    return fuselage_parasite_drag
+    return propulsor_parasite_drag
 
 
 # ----------------------------------------------------------------------

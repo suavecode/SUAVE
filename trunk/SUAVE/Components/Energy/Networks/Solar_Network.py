@@ -89,8 +89,8 @@ class Solar_Network(Data):
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
             diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
             ii += 1
-            if ii>100:
-                break            
+            #if ii>100:
+                #break            
         
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already

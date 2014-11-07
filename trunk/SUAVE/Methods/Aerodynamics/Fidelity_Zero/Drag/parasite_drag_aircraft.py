@@ -10,9 +10,10 @@
 
 # suave 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
-     parasite_drag_wing, parasite_drag_fuselage
+     parasite_drag_wing, parasite_drag_fuselage, parasite_drag_propulsor
 from parasite_drag_wing import parasite_drag_wing
 from parasite_drag_fuselage import parasite_drag_fuselage
+from parasite_drag_propulsor import parasite_drag_propulsor
 
 from SUAVE.Attributes.Results import Result
 
@@ -47,6 +48,7 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     # unpack inputs
     wings     = geometry.wings
     fuselages = geometry.fuselages
+    propulsors = geometry.propulsors
     vehicle_reference_area = geometry.reference_area
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
@@ -67,6 +69,13 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
         parasite_drag = parasite_drag_fuselage(conditions,configuration,fuselage)
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
+    
+    # from propulsors
+    for propulsor in propulsors.values():
+        parasite_drag = parasite_drag_propulsor(conditions,configuration,propulsor)
+        ref_area = propulsor.nacelle_diameter**2 / 4 * np.pi
+        conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
+        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
         
     # dump to condtitions
     drag_breakdown.parasite.total = total_parasite_drag
