@@ -63,8 +63,8 @@ def main_wing_planform(Wing):
     err = wing_planform(Wing)
     
     # unpack more
-    chord_root    = Wing.chord_root
-    chord_tip     = Wing.chord_tip
+    chord_root    = Wing.chords.root
+    chord_tip     = Wing.chords.tip
     
     # calculate
     chord_mid = chord_root + span_chordext*(chord_tip-chord_root)
