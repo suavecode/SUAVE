@@ -10,12 +10,12 @@
 # engines: number of engines, position by 757
 
 # ----------------------------------------------------------------------
-# Imports
+#  Imports
 # ----------------------------------------------------------------------
 
 import numpy
 from math import pi, sqrt
-from SUAVE.Structure import Data
+from SUAVE.Structure  import Data
 from SUAVE.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 #from SUAVE.Attributes import Constants
 
@@ -51,31 +51,29 @@ def main_wing_planform(Wing):
             Wing.span
     
     """
-
+    
     # unpack
-    span = Wing.span
-    lex = Wing.lex
-    tex = Wing.tex
-    span_chordext = Wing.span_chordext
-
+    span          = Wing.span
+    lex           = Wing.lex
+    tex           = Wing.tex
+    span_chordext = Wing.span_chordext    
+    
     # run basic wing planform
     # mac assumed on trapezoidal reference wing
     err = wing_planform(Wing)
-
+    
     # unpack more
-    chord_root = Wing.chords.root
-    chord_tip = Wing.chords.tip
-
+    chord_root    = Wing.chord_root
+    chord_tip     = Wing.chord_tip
+    
     # calculate
-
-    # this is the trazoidal chord at midwing, naming is confusing
-    chord_mid_trap = chord_root + span_chordext * (chord_tip - chord_root)
-
-    swet = 2 * span / 2 * (span_chordext * (chord_root + lex + tex + chord_mid_trap) +
-                           (1 - span_chordext) * (chord_mid_trap + chord_tip))
-
+    chord_mid = chord_root + span_chordext*(chord_tip-chord_root)
+    
+    swet = 2*span/2*(span_chordext*(chord_root+lex+tex + chord_mid) +
+                     (1-span_chordext)*(chord_mid+chord_tip))    
+    
     # update
-    Wing.chord_mid_trap = chord_mid_trap
-    Wing.swet = swet
+    Wing.chord_mid = chord_mid
+    Wing.swet      = swet
 
     return 0
