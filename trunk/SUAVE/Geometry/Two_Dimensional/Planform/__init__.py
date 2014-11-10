@@ -1,5 +1,6 @@
 
 from fuselage_planform import fuselage_planform
+from fuselage_tube_wing_planform import fuselage_tube_wing_planform
 from horizontal_tail_planform import horizontal_tail_planform
 from main_wing_planform import main_wing_planform
 from vertical_tail_planform import vertical_tail_planform
