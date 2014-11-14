@@ -7,6 +7,9 @@
 #   Imports
 # ----------------------------------------------------------------------  
         
+import matplotlib 
+matplotlib.use('Agg') 
+        
 import SUAVE
 from SUAVE.Structure import Ordered_Bunch
 import sys, os, traceback, time
@@ -35,16 +38,18 @@ modules = [
     'regression/test_weights.py',
     'regression/DC_10_noise.py',
     'regression/test_mission_B737.py',
-    'regression/test_mission_Embraer_E190_constThr.py',
+    #'regression/test_mission_Embraer_E190_constThr.py',
+    #'regression/test_mission_AS2.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
-    'regression/test_solar_network.py',
-    'regression/test_solar_radiation.py',
-    'regression/test_propeller.py',
-    'regression/test_aerodynamics.py',
+    #'regression/test_solar_network.py',
+    #'regression/test_solar_radiation.py',
+    #'regression/test_propeller.py',
+    #'regression/test_aerodynamics.py',
     'regression/test_aerodynamics_super.py',
     'regression/test_cmalpha.py',
     'regression/test_cnbeta.py',
+    #'regression/test_gasturbine_network.py',
     #'regression/test_payload_range.py',
     
     # tutorials
@@ -82,8 +87,13 @@ def main():
     sys.stdout.write('Final Results \n')
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
+           
+    if passed:
+        sys.exit(0)
+    else:
+        sys.exit(1)
         
-    return
+    
 
 
 # ----------------------------------------------------------------------        

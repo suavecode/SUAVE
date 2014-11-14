@@ -252,6 +252,8 @@ def vehicle_setup():
     turbofan.D           =   1.494
     turbofan.mdhc        =  49.73  
     
+
+
     # add to vehicle
     vehicle.append_component(turbofan)    
     
@@ -484,4 +486,6 @@ def mission_setup(vehicle):
 
 if __name__ == '__main__': 
     
+
     full_setup()
+

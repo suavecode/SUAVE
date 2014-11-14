@@ -1,0 +1,26 @@
+# Setup deck for Travis-CI
+
+language: python
+python:
+    - "2.7_with_system_site_packages"
+
+notifications:
+    email:
+        - suave-developers@lists.stanford.edu
+  
+branches:
+    only:
+        - master
+
+before_install:
+    - sudo apt-get update
+    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
+  
+install:
+    - cd trunk
+    - python setup.py install
+    - cd ../scripts
+  
+# run test
+script:  
+    - python automatic_regression.py
