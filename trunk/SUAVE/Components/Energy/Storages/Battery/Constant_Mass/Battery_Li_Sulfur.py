@@ -1,7 +1,7 @@
 #Battery.py
 # 
-# Created:  Michael Vegh
-# Modified: October, 2014
+# Created:  Michael Vegh, November 2014
+# Modified:  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,15 +11,19 @@
 import SUAVE
 
 # package imports
-from SUAVE.Attributes import Units
+import numpy as np
+import scipy as sp
+from SUAVE.Attributes                          import Units
 from SUAVE.Components.Energy.Storages.Battery  import Battery
 # ----------------------------------------------------------------------
 #  Battery Class
 # ----------------------------------------------------------------------    
 
-class Battery_Al_Air(Battery):
+class Battery_Li_Sulfur(Battery):
     
     def __defaults__(self):
-        self.specific_energy=1300.*Units.Wh/Units.kg    #convert to Joules/kg
-        self.specific_power=0.2*Units.kW/Units.kg      #convert to W/kg
-        self.mass_gain_factor=(0.000220289)/Units.Wh
+        self.specific_energy=500*Units.Wh/Units.kg
+        self.specific_power=1*Units.kW/Units.kg
+        self.ragone.const_1=245.848*Units.kW/Units.kg
+        self.ragone.const_2=-.00478/(Units.Wh/Units.kg)
+       
