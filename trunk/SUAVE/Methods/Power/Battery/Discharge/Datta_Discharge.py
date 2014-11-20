@@ -13,7 +13,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 
-def Datta_Discharge(battery,numerics): #adds a battery that is optimized based on power and energy requirements and technology
+def datta_discharge(battery,numerics): #adds a battery that is optimized based on power and energy requirements and technology
     Ibat  = battery.inputs.batlogic.Ibat
     pbat  = battery.inputs.batlogic.pbat
     edraw = battery.inputs.batlogic.e

@@ -11,7 +11,7 @@
 #  Methods
 # ----------------------------------------------------------------------
 
-def Find_Mass_Gain_Rate(battery,power): #adds a battery that is optimized based on power and energy requirements and technology
+def find_mass_gain_rate(battery,power): #adds a battery that is optimized based on power and energy requirements and technology
     
     mdot=-(power) *(battery.mass_gain_factor)  #weight gain of battery (positive means mass loss)
                 
