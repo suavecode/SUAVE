@@ -1,4 +1,4 @@
-"""models discharge losses based on an empirical correlation"""
+"""sizes battery based on total battery properties"""
 #by M. Vegh
 
 """ SUAVE Methods for Energy Systems """
@@ -8,7 +8,6 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------

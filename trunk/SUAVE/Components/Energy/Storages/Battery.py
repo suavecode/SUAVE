@@ -31,6 +31,8 @@ class Battery(Energy_Component):
         self.resistance           = 0.0
         self.max_energy           = 0.0
         self.max_power            = 0.0
+        self.ragone.const_1       = 0.0 #used for ragone functions; 
+        self.ragone.const_2       = 0.0 #specific_power=ragone_const_1*10^(specific_energy*ragone_const_2)
         self.discharge_model      = datta_discharge
         
      
