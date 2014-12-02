@@ -538,7 +538,7 @@ def base_analysis(vehicle):
     #  Weights - Andrew
     weights = SUAVE.Analyses.Weights.Weights()
     weights.features = vehicle
-    analyses.append(weights)    
+    analyses.append(weights)
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis - Anil, MacDonald

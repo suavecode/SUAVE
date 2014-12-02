@@ -29,10 +29,11 @@ class Mission(Data):
     
     def evaluate(self,interface):
         
-        ## TODO
-        # evaluate_mission()
+        from SUAVE.Methods.Performance import evaluate_mission
         
-        return Data()
+        mission_profile = evaluate_mission(self)
+        
+        return mission
     
     
     def merge_conditions(self):

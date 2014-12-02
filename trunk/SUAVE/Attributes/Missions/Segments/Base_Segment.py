@@ -8,6 +8,7 @@ import numpy as np
 from copy import deepcopy
 
 # SUAVE imports
+import SUAVE
 from SUAVE.Structure                    import Data, Data_Exception
 from SUAVE.Structure                    import Container as ContainerBase
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
@@ -36,11 +37,9 @@ class Base_Segment(Data):
         #self.time_initial     = 'previous_segment'
         #self.position_initial = 'previous_segment'
         
-        # --- Vehicle Configuration
+        # --- Vehicle Analyses
         
-        # a linked copy of the vehicle
-        
-        self.config = Data()
+        self.analyses = SUAVE.Analyses.Analysis.Container()
         
         
         # --- Conditions and Unknowns
@@ -193,7 +192,7 @@ class Base_Segment(Data):
         else:
             t_initial = 0.0
             r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-            m_initial = self.config.mass_properties.takeoff
+            m_initial = self.analyses.weights.features.mass_properties.takeoff  # sure why not
             
             
         # apply initials
