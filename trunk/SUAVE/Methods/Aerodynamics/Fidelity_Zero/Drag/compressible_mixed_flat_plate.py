@@ -53,7 +53,8 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
         raise ValueError("Turbulent transition must be between 0 and 1")
     
     if np.any(Re > 10**9) or np.any(Re < 10**5):
-        print 'Warning: Reynolds number outside expected range - in file compressible_mixed_flat_plate.py'
+        #print 'Warning: Reynolds number outside expected range - in file compressible_mixed_flat_plate.py'
+        pass
     
     Rex = Re*xt
     if xt == 0.0:
