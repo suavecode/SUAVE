@@ -20,7 +20,8 @@ class Aerodynamics(Analysis):
         self.settings = Data()
         
         
-    def evaluate(self,condtitions):
+    def evaluate(self,conditions):
+        
         return Results()
     
     __call__ = evaluate

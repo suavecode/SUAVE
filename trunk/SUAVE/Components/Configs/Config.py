@@ -37,7 +37,9 @@ class Config(Data):
         self.update(self._base)
         self.update(self._diff)
         
-    finalize = pull_base
+    def finalize(self):
+        # self.store_diff ## dont do this here, break down stream dependencies
+        self.pull_base()
     
     def __str__(self,indent=''):
         try: 

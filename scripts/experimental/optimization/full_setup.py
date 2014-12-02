@@ -502,6 +502,7 @@ def analyses_setup(configs):
     
     analyses = SUAVE.Analyses.Analysis.Container()
     
+    # build a base analysis for each config
     for tag,config in configs.items():
         analysis = base_analysis(config)
         analyses[tag] = analysis
@@ -534,26 +535,26 @@ def base_analysis(vehicle):
     analyses.append(sizing)
     
     # ------------------------------------------------------------------
-    #  Weights
+    #  Weights - Andrew
     weights = SUAVE.Analyses.Weights.Weights()
     weights.features = vehicle
     analyses.append(weights)    
     
     # ------------------------------------------------------------------
-    #  Aerodynamics Analysis    
+    #  Aerodynamics Analysis - Anil, MacDonald
     aerodynamics = SUAVE.Analyses.Aerodynamics.Aerodynamics()
     aerodynamics.features = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
-    #  Stability Analysis
+    #  Stability Analysis - Momose
     stability = SUAVE.Analyses.Stability.Stability()
     stability.features = vehicle
     analyses.append(stability)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
+    #  Propulsion Analysis - Emilio
     propulsion = SUAVE.Analyses.Propulsion.Propulsion()
     propulsion.features = vehicle    
     analyses.append(propulsion)

@@ -4,6 +4,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
+
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Structure import Container as ContainerBase
 
@@ -18,14 +20,15 @@ class Interface(Data):
     def __defaults__(self):
         self.tag    = 'interface'
         
-        self.configs  = Data()
-        self.analyses = Data()
-        self.strategy = Data()
-        self.results  = Data()
+        self.configs  = SUAVE.Components.Configs.Config.Container()
+        self.analyses = SUAVE.Analyses.Analysis.Container()
+        self.process  = SUAVE.Analyses.Process()
+        self.results  = SUAVE.Analyses.Results()
         
         
     def evaluate(self,inputs):
-        pass
+        for analysis in process:
+            results = analysis.evaluate(inputs)
         
         
         

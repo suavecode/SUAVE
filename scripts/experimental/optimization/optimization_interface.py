@@ -47,27 +47,27 @@ def setup_interface(configs,analyses,missions):
     #   Analysis Strategy
     # ------------------------------------------------------------------
     
-    strategy = interface.strategy
+    process = interface.process
     
     # the input unpacker
-    strategy.unpack_inputs = unpack_inputs
+    process.unpack_inputs = unpack_inputs
     
     # size the base config
-    strategy.simple_sizing = simple_sizing
+    process.simple_sizing = simple_sizing
     
     # finalizes the data dependencies
-    strategy.finalize = finalize
+    process.finalize = finalize
     
     # the missions
-    strategy.missions = missions
+    process.missions = missions
     
     # varius performance studies
-    strategy.field_length = field_length
-    strategy.noise        = noise
-    strategy.performance  = SUAVE.Methods.Performance.evaluate_mission
+    process.field_length = field_length
+    process.noise        = noise
+    process.performance  = SUAVE.Methods.Performance.evaluate_mission
     
     # summarize the results
-    strategy.summary = summarize
+    process.summary = summarize
     
     
     # done!

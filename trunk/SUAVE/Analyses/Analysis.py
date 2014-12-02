@@ -25,6 +25,9 @@ class Analysis(Data):
     def evaluate(self,condtitions):
         return Results()
     
+    def finalize(self):
+        return 
+    
     __call__ = evaluate
         
 
@@ -46,6 +49,11 @@ class Container(ContainerBase):
             results[tag] = result
                 
         return results
+    
+    def finalize(self):
+        for analysis in self:
+            try: analysis.finalize()
+            except AttributeError: pass    
     
     __call__ = evaluate
 
