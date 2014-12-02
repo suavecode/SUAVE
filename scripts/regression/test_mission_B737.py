@@ -96,7 +96,7 @@ def vehicle_setup():
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
     
     # envelope properties
-    vehicle.envelope.ultimate_load = 3.5
+    vehicle.envelope.ultimate_load = 2.5
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
@@ -170,7 +170,7 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [34,0,0]
     wing.aerodynamic_center      = [2,0,0]
     
     wing.vertical                = False 
@@ -208,7 +208,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
     
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [34,0,0]
     wing.aerodynamic_center      = [2,0,0]    
     
     wing.vertical                = True 
@@ -236,25 +236,25 @@ def vehicle_setup():
     
     fuselage.lengths.nose          = 6.4
     fuselage.lengths.tail          = 8.0
-    fuselage.lengths.cabin         = 44.0
-    fuselage.lengths.total         = 58.4    
+    fuselage.lengths.cabin         = 28.85 #44.0
+    fuselage.lengths.total         = 38.02 #58.4    
     fuselage.lengths.fore_space    = 6.
     fuselage.lengths.aft_space     = 5.    
     
-    fuselage.width                 = 4.
+    fuselage.width                 = 3.74 #4.
     
-    fuselage.heights.maximum       = 4.    #
+    fuselage.heights.maximum       = 3.74  #4.    #
     fuselage.heights.at_quarter_length          = 4. # Not correct
     fuselage.heights.at_three_quarters_length   = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.at_vertical_root_quarter_chord = 4. # Not correct
 
-    fuselage.areas.side_projected  = 4.* 59.8 #  Not correct
-    fuselage.areas.wetted          = 688.64
+    fuselage.areas.side_projected  = 3.74* 38.02 #4.* 59.8 #  Not correct
+    fuselage.areas.wetted          = 446.718 #688.64
     fuselage.areas.front_projected = 12.57
     
-    fuselage.effective_diameter    = 4.0
+    fuselage.effective_diameter    = 3.74 #4.0
     
-    fuselage.differential_pressure = 10**5 * Units.pascal    # Maximum differential pressure
+    fuselage.differential_pressure = 5.0e4 * Units.pascal    # Maximum differential pressure
     
     # add to vehicle
     vehicle.append_component(fuselage)
