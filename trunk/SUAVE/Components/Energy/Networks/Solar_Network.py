@@ -16,6 +16,7 @@ import scipy as sp
 import datetime
 import time
 from SUAVE.Attributes import Units
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
@@ -24,20 +25,21 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Network(Data):
-    def __defaults__(self):
-        self.solar_flux    = None
-        self.solar_panel   = None
-        self.motor         = None
-        self.propeller     = None
-        self.esc           = None
-        self.avionics      = None
-        self.payload       = None
-        self.solar_logic   = None
-        self.battery       = None
-        self.nacelle_dia   = 0.0
-        self.engine_length = 0.0
-        self.tag           = 'Network'
+class Solar_Network(Propulsor):
+    def __defaults__(self): 
+        self.solar_flux        = None
+        self.solar_panel       = None
+        self.motor             = None
+        self.propeller         = None
+        self.esc               = None
+        self.avionics          = None
+        self.payload           = None
+        self.solar_logic       = None
+        self.battery           = None
+        self.nacelle_diameter  = 0.0
+        self.engine_length     = 1.0
+        self.number_of_engines = 1.0
+        self.tag               = 'Network'
     
     # manage process with a driver function
     def evaluate(self,conditions,numerics):
