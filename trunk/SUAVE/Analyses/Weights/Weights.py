@@ -5,6 +5,7 @@
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Analyses import Analysis, Results
+from SUAVE.Methods.Weights.Correlations.Tube_Wing import empty
 
 
 # ----------------------------------------------------------------------
@@ -20,8 +21,11 @@ class Weights(Analysis):
         self.settings = Data()
         
         
-    def evaluate(self,condtitions):
-        return Results()
+    def evaluate(self,conditions):
+        
+        results = empty(conditions)
+        
+        return results
     
     __call__ = evaluate
         
