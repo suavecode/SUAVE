@@ -21,8 +21,8 @@ class Vehicle(Analysis.Container):
         self.weights      = None
         self.aerodynamics = None
         self.stability    = None
-        self.propulsion   = None
         self.energy       = None
+        self.propulsion   = None
 
 
     def append(self,analysis):
@@ -50,7 +50,7 @@ class Vehicle(Analysis.Container):
             Analyses_.Weights.Weights           : 'weights'      ,
             Analyses_.Aerodynamics.Aerodynamics : 'aerodynamics' ,
             Analyses_.Stability.Stability       : 'stability'    ,
-            Analyses_.Propulsion.Propulsion     : 'propulsion'   ,
+            Analyses_.Energy.Propulsion         : 'propulsion'   ,
             Analyses_.Energy.Energy             : 'energy'       ,
         }
 
