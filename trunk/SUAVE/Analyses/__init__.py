@@ -7,7 +7,6 @@ from Vehicle import Vehicle
      
 import Aerodynamics
 import Stability
-import Propulsion
 import Energy
 import Weights
 import Geometry

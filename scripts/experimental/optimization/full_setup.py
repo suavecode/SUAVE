@@ -555,7 +555,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Propulsion Analysis - Emilio
-    propulsion = SUAVE.Analyses.Propulsion.Propulsion()
+    propulsion = SUAVE.Analyses.Energy.Propulsion()
     propulsion.features = vehicle    
     analyses.append(propulsion)
     

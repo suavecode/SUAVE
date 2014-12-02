@@ -3,6 +3,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Analyses import Analysis, Results
 
@@ -12,16 +13,22 @@ from SUAVE.Analyses import Analysis, Results
 # ----------------------------------------------------------------------
 
 class Propulsion(Analysis):
-    """ SUAVE.Analyses.Propulsion.Propulsion()
+    """ SUAVE.Analyses.Energy.Propulsion()
     """
     def __defaults__(self):
         self.tag    = 'propulsion'
         self.features = Data()
         self.settings = Data()
         
+        # UPDATE THIS
+        self.network = SUAVE.Components.Energy.Networks.Turbofan_Network()
         
-    def evaluate(self,condtitions):
-        return Results()
+        
+    def evaluate(self,conditions,numerics):
+        
+        F,mdot,P = network.evaluate(conditions,numerics)
+        
+        return F,mdot,P
     
     __call__ = evaluate
         
