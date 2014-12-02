@@ -26,8 +26,9 @@ class Battery(Energy_Component):
         
         self.type = 'Li-Ion'
         self.mass_properties.mass = 0.0
-        self.CurrentEnergy = 0.0
-        self.resistance = 0.0
+        self.energy_density       = 0.0
+        self.current_energy       = 0.0
+        self.resistance           = 0.0
         
     def max_energy(self):
         """ The maximum energy the battery can hold
@@ -47,13 +48,19 @@ class Battery(Energy_Component):
         
         #These need to be fixed
         if self.type=='Li-Ion':
-            return 0.90*(10**6)*self.mass_properties.mass
+            if self.energy_density == 0.0:
+                self.energy_density = 250.*3600.
+            return self.energy_density*self.mass_properties.mass
         
         elif self.type=='Li-Po':
-            return 0.90*(10**6)*self.mass_properties.mass
+            if self.energy_density == 0.0:
+                self.energy_density = 0.90*(10**6)           
+            return self.energy_density*self.mass_properties.mass
         
         elif self.type=='Li-S':
-            return 500.*3600.*self.mass_properties.mass        
+            if self.energy_density == 0.0:
+                self.energy_density = 500.*3600.            
+            return self.energy_density*self.mass_properties.mass       
     
     def energy_calc(self,numerics):
         
@@ -68,17 +75,18 @@ class Battery(Energy_Component):
         max_energy = self.max_energy()
         
         # X value
-        x = np.divide(self.CurrentEnergy,max_energy)[:,0,None]
+        x = np.divide(self.current_energy,max_energy)[:,0,None]
         
         # C rate from 
         C = 3600.*pbat/self.max_energy()
         
         # Empirical value for discharge
-        x[x<-35.] = -35. # Fix x so it doesn't warn
+        x[x<-34.] = -34. # Fix x so it doesn't warn
         
         f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) 
         
         f[x<0.0] = 0.0 # Negative f's don't make sense
+        f[np.isnan(f)] = 0.0
         
         # Model discharge characteristics based on changing resistance
         R = Rbat*(1+C*f)
@@ -93,14 +101,14 @@ class Battery(Energy_Component):
         # This needs to be replaced by a vectorized operation soon
         delta = 0.0
         flag  = 0
-        self.CurrentEnergy = self.CurrentEnergy[0] * np.ones_like(eloss) 
+        self.current_energy = self.current_energy[0] * np.ones_like(eloss) 
         for ii in range(1,len(edraw)):
-            if (edraw[ii,0] > (max_energy- self.CurrentEnergy[ii-1])):
+            if (edraw[ii,0] > (max_energy- self.current_energy[ii-1])):
                 flag = 1 
-                delta = delta + ((max_energy- self.CurrentEnergy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
+                delta = delta + ((max_energy- self.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
                 edraw[ii,0] = edraw[ii,0] + delta
             elif flag ==1:
                 edraw[ii,0] = edraw[ii,0] + delta
-            self.CurrentEnergy[ii] = self.CurrentEnergy[ii] + edraw[ii] - np.abs(eloss[ii])
+            self.current_energy[ii] = self.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
                     
         return  
