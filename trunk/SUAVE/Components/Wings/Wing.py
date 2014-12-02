@@ -18,7 +18,8 @@ class Wing(Lofted_Body):
         self.tag = 'Wing'
         self.mass_properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
-        
+        self.origin_x_ratio = 0
+
         self.symmetric = True
         self.vertical  = False
         self.t_tail    = False
@@ -29,7 +30,7 @@ class Wing(Lofted_Body):
         self.thickness_to_chord = 0.0
         self.span_efficiency = 0.9
         self.aerodynamic_center = [0.0,0.0,0.0]
-        
+
         self.spans = Data()
         self.spans.projected = 0.0
         
