@@ -39,7 +39,7 @@ def main():
     wing.tag = 'Vertical Stabilizer'
     vertical = SUAVE.Components.Wings.Wing()
     vertical.spans.exposed = 32.4   * Units.feet
-    vertical.chords.fuselage_intersect = 38.7 * Units.feet
+    vertical.chords.root   = 38.7 * Units.feet      # vertical.chords.fuselage_intersect
     vertical.chords.tip    = 13.4   * Units.feet
     vertical.sweep         = 50.0   * Units.deg # Leading Edge
     vertical.x_root_LE1    = 180.0  * Units.feet
