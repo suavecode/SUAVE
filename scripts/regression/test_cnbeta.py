@@ -44,8 +44,8 @@ def main():
     vertical.sweep         = 50.0   * Units.deg # Leading Edge
     vertical.x_root_LE1    = 180.0  * Units.feet
     vertical.symmetric     = False
-    dz_centerline          = 13.3   * Units.feet
-    ref_vertical           = extend_to_ref_area(vertical,dz_centerline)
+    vertical.exposed_root_chord_offset = 13.3   * Units.feet
+    ref_vertical           = extend_to_ref_area(vertical)
     wing.areas.reference   = ref_vertical.areas.reference
     wing.spans.projected   = ref_vertical.spans.projected
     wing.chords.root       = ref_vertical.chords.root
