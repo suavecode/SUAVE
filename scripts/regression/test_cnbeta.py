@@ -70,7 +70,7 @@ def main():
     fuselage.width                              = 20.9    * Units.feet
     fuselage.heights.at_quarter_length          = 26.0    * Units.feet
     fuselage.heights.at_three_quarters_length   = 19.7    * Units.feet
-    fuselage.heights.at_wing_root_quarter_chord = 23.8    * Units.feet
+    fuselage.heights.at_vertical_root_quarter_chord = 23.8    * Units.feet
     vehicle.append_component(fuselage)
     
     configuration = Data()
