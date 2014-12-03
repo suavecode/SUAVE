@@ -60,7 +60,7 @@ def extend_to_ref_area(surface):
     """             
     # Unpack inputs
     symm      = surface.symmetric
-    b1        = surface.spans.projected * 0.5 * (2 - symm)
+    b1        = surface.spans.exposed * 0.5 * (2 - symm)
     c_t       = surface.chords.tip
     c_r1      = surface.chords.root
     Lambda    = surface.sweep
