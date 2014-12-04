@@ -18,7 +18,7 @@ from SUAVE.Structure import (
 #  Method
 # ----------------------------------------------------------------------
 
-def extend_to_ref_area(surface,height_above_centerline):
+def extend_to_ref_area(surface):
     """ref_surface = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area(wing,) 
         This method takes inputs describing the exposed portion of a trapezoidal
         aerodynamic surface and calculates the dimensions of a corresponding 
@@ -28,13 +28,14 @@ def extend_to_ref_area(surface,height_above_centerline):
         
         Inputs:
             surface - a SUAVE Wing object with the fields:
-                span - span (height for a vertical tail) of the exposed surface
+                spans.projected - projected span (height for a vertical tail) of the exposed surface
                 [meters]
                 sweep - leading edge sweep of the aerodynamic surface [radians]
-                root_chord - chord length at the junction between the tail and 
+                chords.root - chord length at the junction between the tail and 
                 the fuselage [meters]
-                tip_chord - chord length at the tip of the aerodynamic surface
+                chords.tip - chord length at the tip of the aerodynamic surface
                 [meters]
+                symmetric - Is the wing symmetric across the fuselage centerline?
                 
             height_above_centerline - the displacement from the fuselage
             centerline to the exposed area's physical root chordline [meters]
@@ -58,11 +59,15 @@ def extend_to_ref_area(surface,height_above_centerline):
             Assumes a simple trapezoidal half-wing shape.
     """             
     # Unpack inputs
-    b1        = surface.spans.exposed
+    symm      = surface.symmetric
+    try:
+        b1 = surface.spans.exposed * 0.5 * (2 - symm)
+    except AttributeError:
+        b1 = surface.spans.projected * 0.5 * (2 - symm)
     c_t       = surface.chords.tip
-    c_r1      = surface.chords.fuselage_intersect
+    c_r1      = surface.chords.root
     Lambda    = surface.sweep
-    dh_center = height_above_centerline
+    dh_center = surface.exposed_root_chord_offset
 #    print 'b: {}; dh: {}'.format(b1,dh_center)
     
     #Compute reference area dimensions
@@ -72,9 +77,9 @@ def extend_to_ref_area(surface,height_above_centerline):
     dx_LE  = -dh_center*np.tan(Lambda)
     AR     = b**2/S
     
-    surface.spans.projected   = b
-    surface.areas.reference   = S
-    surface.aspect_ratio      = AR
+    surface.spans.projected   = b * (1 + symm)
+    surface.areas.reference   = S * (1 + symm)
+    surface.aspect_ratio      = AR * (1 + symm)
     surface.chords.root       = c_root
     surface.root_LE_change    = dx_LE
     
