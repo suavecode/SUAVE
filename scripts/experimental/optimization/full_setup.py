@@ -240,7 +240,7 @@ def vehicle_setup():
     
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan_Network()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'Turbo Fan'
     
     # setup
     turbofan.number_of_engines = 2.0
@@ -555,7 +555,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Propulsion Analysis - Emilio
-    propulsion = SUAVE.Analyses.Propulsion.Propulsion()
+    propulsion = SUAVE.Analyses.Energy.Propulsion()
     propulsion.features = vehicle    
     analyses.append(propulsion)
     

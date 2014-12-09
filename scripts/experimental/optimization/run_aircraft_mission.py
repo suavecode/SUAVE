@@ -32,6 +32,8 @@ def main():
     configs.finalize()
     analyses.finalize()
     
+    weights = SUAVE.Analyses.Weights.Weights()
+    breakdown = weights.evaluate(configs.base)
     mission.evaluate(None)
     
     #plot_mission(mission)
