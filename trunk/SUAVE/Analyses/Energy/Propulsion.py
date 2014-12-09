@@ -26,7 +26,7 @@ class Propulsion(Analysis):
         
     def evaluate(self,conditions,numerics):
         
-        network  = self.vehicle.propulsors()
+        network  = self.features.propulsors
         
         F,mdot,P = network.evaluate(conditions,numerics)
         

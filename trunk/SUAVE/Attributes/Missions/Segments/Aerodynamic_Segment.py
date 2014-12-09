@@ -27,9 +27,7 @@ class Aerodynamic_Segment(Base_Segment):
     def __defaults__(self):
         self.tag = 'Aerodynamic Segment'
 
-        # atmosphere and planet
-        self.planet     = None
-        self.atmosphere = None
+        # parameters
         self.start_time = time.gmtime()
 
 
@@ -167,8 +165,8 @@ class Aerodynamic_Segment(Base_Segment):
     def update_conditions(self,conditions,numerics,unknowns):
 
         # unpack models
-        aero_model = self.config.aerodynamics_model
-        prop_model = self.config.propulsion_model
+        aero_model = self.analyses.aerodynamics
+        prop_model = self.analyses.propulsion
 
         # angle of attacks
         conditions = self.compute_orientations(conditions)
@@ -193,11 +191,11 @@ class Aerodynamic_Segment(Base_Segment):
     # post processing
     def post_process(self,conditions,numerics,unknowns):
 
-        aero_model = self.config.aerodynamics_model
-
-        if not aero_model.stability is None:
-            conditions = aero_model.stability(conditions)
-
+        if self.analyses.has_key('stability'):
+            stability  = self.analyses.stability
+            results = stability(conditions)
+            conditions.stability.update(results)
+            
         return conditions
 
     # ----------------------------------------------------------------------
@@ -385,7 +383,7 @@ class Aerodynamic_Segment(Base_Segment):
 
         # unpack
         m0        = conditions.weights.total_mass[0,0]
-        m_empty   = self.config.mass_properties.operating_empty
+        m_empty   = self.analyses.weights.features.mass_properties.operating_empty
         mdot_fuel = conditions.propulsion.fuel_mass_rate
         I         = numerics.integrate_time
         g         = conditions.freestream.gravity
@@ -508,7 +506,7 @@ class Aerodynamic_Segment(Base_Segment):
         psi        = conditions.frames.body.inertial_rotations[:,2]
         I          = numerics.integrate_time
         alpha      = conditions.aerodynamics.angle_of_attack[:,0]
-        Re         = self.planet.mean_radius
+        Re         = self.analyses.planet.mean_radius
 
         # The flight path and radius
         gamma     = theta - alpha

@@ -138,8 +138,8 @@ class Ground_Segment(Aerodynamic_Segment):
         v0       = self.velocity_start
         vf       = self.velocity_end
         alt      = self.altitude
-        atmo     = self.atmosphere
-        planet   = self.planet
+        atmo     = self.analyses.atmosphere
+        planet   = self.analyses.planet
         conditions.ground.incline[:,0]              = self.ground_incline
         conditions.ground.friction_coefficient[:,0] = self.friction_coefficient
         N        = len(conditions.frames.inertial.velocity_vector[:,0])
@@ -180,8 +180,8 @@ class Ground_Segment(Aerodynamic_Segment):
         conditions.frames.inertial.velocity_vector[1:,0] = velocity_x
 
         # unpack models
-        aero_model = self.config.aerodynamics_model
-        prop_model = self.config.propulsion_model
+        aero_model = self.analyses.aerodynamics
+        prop_model = self.analyses.propulsion
 
         # freestream conditions
         conditions = self.compute_freestream(conditions)

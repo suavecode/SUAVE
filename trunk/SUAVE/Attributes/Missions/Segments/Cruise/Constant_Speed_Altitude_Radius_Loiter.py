@@ -85,8 +85,8 @@ class Constant_Speed_Altitude_Radius_Loiter(Aerodynamic_Segment):
         alt       = self.altitude
         seg_time  = self.time
         air_speed = self.air_speed
-        atmo      = self.atmosphere
-        planet    = self.planet
+        atmo      = self.analyses.atmosphere
+        planet    = self.analyses.planet
         radius    = self.radius
         t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]

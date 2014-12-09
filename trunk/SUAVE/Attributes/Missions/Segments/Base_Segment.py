@@ -174,7 +174,7 @@ class Base_Segment(Data):
                 time_initial comes from either initials.frames.inertial.time[0,0] 
                                             or is set to 0.0
                 weight_initial comes from either initialse.weights.total_mass[0,0]
-                                              or self.config.mass_properties.takeoff
+                               or self.analyses.weights.features.mass_properties.takeoff
                 
         """
         

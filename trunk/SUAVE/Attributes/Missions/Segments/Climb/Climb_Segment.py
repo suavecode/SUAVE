@@ -81,8 +81,8 @@ class Climb_Segment(Aerodynamic_Segment):
         # unpack inputs
         alt0     = self.altitude_start 
         altf     = self.altitude_end
-        atmo     = self.atmosphere
-        planet   = self.planet
+        atmo     = self.analyses.atmosphere
+        planet   = self.analyses.planet
         t_nondim = numerics.dimensionless_time
         
         # check for initial altitude

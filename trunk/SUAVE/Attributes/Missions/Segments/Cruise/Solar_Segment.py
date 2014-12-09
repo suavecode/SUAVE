@@ -84,8 +84,8 @@ class Solar_Segment(Aerodynamic_Segment):
         alt       = self.altitudes
         seg_time  = self.time
         air_speed = self.air_speeds
-        atmo      = self.atmosphere
-        planet    = self.planet
+        atmo      = self.analyses.atmosphere
+        planet    = self.analyses.planet
         t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]
         

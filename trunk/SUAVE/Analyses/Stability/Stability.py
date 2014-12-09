@@ -6,7 +6,7 @@
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from SUAVE.Analyses import Analysis, Results
 
-from SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero import Fidelity_Zero as stability
+from SUAVE.Attributes.Flight_Dynamics import Fidelity_Zero
 
 
 # ----------------------------------------------------------------------
@@ -21,7 +21,7 @@ class Stability(Analysis):
         self.features = Data()
         self.settings = Data()
         
-        self.stability = stability()
+        self.stability = Fidelity_Zero()
         
         
     def evaluate(self,conditions):

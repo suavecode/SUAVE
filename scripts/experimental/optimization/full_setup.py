@@ -556,8 +556,19 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis - Emilio
     propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.features = vehicle    
+    propulsion.features = vehicle
     analyses.append(propulsion)
+    
+    # ------------------------------------------------------------------
+    #  Planet Analysis
+    planet = SUAVE.Analyses.Planet.Planet()
+    analyses.append(planet)
+    
+    # ------------------------------------------------------------------
+    #  Atmosphere Analysis
+    atmosphere = SUAVE.Analyses.Atmosphere.Atmosphere()
+    atmosphere.features.planet = planet
+    analyses.append(atmosphere)    
     
     # done!
     return analyses    
@@ -587,8 +598,8 @@ def mission_setup(analyses):
     
     # base segment
     base_segment = Segments.Segment()
-    base_segment.analyses.planet     = planet
-    base_segment.analyses.atmosphere = atmosphere
+    #base_segment.analyses.planet     = planet
+    #base_segment.analyses.atmosphere = atmosphere
     
     
     # ------------------------------------------------------------------
