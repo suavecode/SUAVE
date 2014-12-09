@@ -21,10 +21,12 @@ class Propulsion(Analysis):
         self.settings = Data()
         
         # UPDATE THIS
-        self.network = SUAVE.Components.Energy.Networks.Turbofan_Network()
+        #self.network = SUAVE.Components.Energy.Networks.Turbofan_Network()
         
         
     def evaluate(self,conditions,numerics):
+        
+        network  = self.vehicle.propulsors()
         
         F,mdot,P = network.evaluate(conditions,numerics)
         
