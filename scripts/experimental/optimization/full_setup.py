@@ -559,6 +559,18 @@ def base_analysis(vehicle):
     propulsion.features = vehicle    
     analyses.append(propulsion)
     
+    # ------------------------------------------------------------------
+    #  Atmospheres - MacDonald
+    atmosphere = SUAVE.Analyses.Atmospheres.Atmosphere()
+    atmosphere.features = vehicle
+    analyses.append(atmosphere)
+    
+    # ------------------------------------------------------------------
+    #  Planets - MacDonald    
+    planet = SUAVE.Analyses.Planets.Planet()
+    planet.features = vehicle
+    analyses.append(planet)
+    
     # done!
     return analyses    
 
