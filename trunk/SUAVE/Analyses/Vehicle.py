@@ -23,6 +23,8 @@ class Vehicle(Analysis.Container):
         self.stability    = None
         self.energy       = None
         self.propulsion   = None
+        self.atmosphere   = None
+        self.planet       = None
 
 
     def append(self,analysis):
@@ -52,6 +54,8 @@ class Vehicle(Analysis.Container):
             Analyses_.Stability.Stability       : 'stability'    ,
             Analyses_.Energy.Propulsion         : 'propulsion'   ,
             Analyses_.Energy.Energy             : 'energy'       ,
+            Analyses_.Atmospheres.Atmosphere    : 'atmosphere'   ,
+            Analyses_.Planets.Planet            : 'planet'       ,
         }
 
     def get_root(self,analysis):
