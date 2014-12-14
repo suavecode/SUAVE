@@ -32,36 +32,51 @@ def taw_cnbeta(geometry,conditions,configuration):
         standard Tube-and-Wing aircraft configuration.        
         
         CAUTION: The correlations used in this method do not account for the
-        destabilizing moments due to propellers. This can lead to higher than
+        destabilizing moments due to propellers. This can lead to higher-than-
         expected values of CnBeta, particularly for smaller prop-driven aircraft
         
         Inputs:
-            configuration - a data dictionary with the fields:
-                Mass_Props - a data dictionary with the field:
-                    pos_cg - A vector in 3-space indicating CG position
-                wing - a data dictionary with the fields:
-                    area - wing reference area [meters**2]
-                    span - span of the wing [meters]
-                    sweep_le - sweep of the wing leading edge [radians]
-                    z_position - distance of wing root quarter chord point
-                    below fuselage centerline [meters]
-                    taper - wing taper ratio [dimensionless]
+            geometry - aircraft geometrical features: a data dictionary with the fields:
+                wings['Main Wing'] - the aircraft's main wing
+                    areas.reference - wing reference area [meters**2]
+                    spans.projected - span of the wing [meters]
+                    sweep - sweep of the wing leading edge [radians]
                     aspect_ratio - wing aspect ratio [dimensionless]
-                fuselage - a data dictionary with the fields:
-                    side_area - fuselage body side area [meters**2]
-                    length - length of the fuselage [meters]
-                    h_max - maximum height of the fuselage [meters]
-                    w_max - maximum width of the fuselage [meters]
-                    height_at_quarter_length - fuselage height at 1/4 of the 
-                    fuselage length [meters]
-                    height_at_three_quarters_length - fuselage height at 3/4 of
-                    the fuselage length [meters]
-                    height_at_vroot_quarter_chord - fuselage height at the 
-                    quarter chord of the vertical tail root [meters]
+                    origin - the position of the wing root in the aircraft body frame [meters]
+                wings['Vertical Stabilizer']
+                    spans.projected - projected span (height for a vertical tail) of
+                     the exposed surface [meters]
+                    areas.reference - area of the reference vertical tail [meters**2]
+                    sweep - leading edge sweep of the aerodynamic surface [radians]
+                    chords.root - chord length at the junction between the tail and 
+                     the fuselage [meters]
+                    chords.tip - chord length at the tip of the aerodynamic surface
+                    [meters]
+                    symmetric - Is the wing symmetric across the fuselage centerline?
+                    origin - the position of the vertical tail root in the aircraft body frame [meters]
+                    exposed_root_chord_offset - the displacement from the fuselage
+                     centerline to the exposed area's physical root chordline [meters]
+                     
+                     
+
+    x_v    = vert.origin[0]
+    b_v    = vert.spans.projected
+    ac_vLE = vert.aerodynamic_center[0]
+    
+                fuselages.Fuselage - a data dictionary with the fields:
+                    areas.side_projected - fuselage body side area [meters**2]
+                    lengths.total - length of the fuselage [meters]
+                    heights.maximum - maximum height of the fuselage [meters]
+                    width - maximum width of the fuselage [meters]
+                    heights.at_quarter_length - fuselage height at 1/4 of the fuselage length [meters]
+                    heights.at_three_quarters_length - fuselage height at 3/4 of fuselage 
+                     length [meters]
+                    heights.at_vertical_root_quarter_chord - fuselage height at the quarter 
+                     chord of the vertical tail root [meters]
                 vertical - a data dictionary with the fields below:
-                NOTE: Reference vertical tail extends to the fuselage centerline
-                    area - area of the reference vertical tail [meters**2]
-                    x_root_LE - x-position of the vertical reference root chord 
+                NOTE: This vertical tail geometry will be used to define a reference
+                 vertical tail that extends to the fuselage centerline.
+                    
                     x_ac_LE - the x-coordinate of the vertical tail aerodynamic 
                     center measured relative to the tail root leading edge (root
                     of reference tail area - at fuselage centerline)
@@ -87,6 +102,12 @@ def taw_cnbeta(geometry,conditions,configuration):
                 M - flight Mach number
                 rho - air density [kg/meters**3]
                 mew - air dynamic viscosity [kg/meter/second]
+                
+            configuration - a data dictionary with the fields:
+                mass_properties - a data dictionary with the field:
+                    center_of_gravity - A vector in 3-space indicating CG position [meters]
+                other - a dictionary of aerodynamic bodies, other than the fuselage,
+                whose effect on directional stability is to be included in the analysis
     
         Outputs:
             CnBeta - a single float value: The static directional stability 
@@ -130,7 +151,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     S_v    = vert.areas.reference
     x_v    = vert.origin[0]
     b_v    = vert.spans.projected
-    ac_vLE = vert.aerodynamic_center[0]##############S
+    ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
     mu     = conditions.freestream.viscosity
