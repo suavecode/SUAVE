@@ -142,7 +142,7 @@ def vehicle_setup():
     wing.origin             = [20,0,0]
     wing.aerodynamic_center = [5,0,0]
     wing.vertical = False
-    wing.eta = 1.0
+    wing.dynamic_pressure_ratio = 1.0
 
     wing.high_lift    = False                 #
     wing.high_mach    = True
@@ -169,10 +169,10 @@ def vehicle_setup():
     wing.symmetric       = True
     wing.thickness_to_chord = 0.03
     wing.taper           = 0.5
-    wing.origin          = [46,0,0]
+    wing.origin           = [46,0,0]
     wing.aerodynamic_center = [2,0,0]
-    wing.vertical   = False
-    wing.eta         = 0.9
+    wing.vertical             = False
+    wing.dynamic_pressure_ratio = 0.9
 
     # size the wing planform
     SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
@@ -225,9 +225,9 @@ def vehicle_setup():
 
     wing.vertical   = True
     wing.t_tail     = False
-    wing.eta         = 1.0
+    wing.dynamic_pressure_ratio = 1.0
 
-    wing.high_lift    = False                 #
+    wing.high_lift    = False       #
     wing.high_mach    = True
     wing.vortex_lift  = False
     wing.vertical = True
