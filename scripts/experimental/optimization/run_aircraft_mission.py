@@ -34,9 +34,14 @@ def main():
     
     weights = SUAVE.Analyses.Weights.Weights()
     breakdown = weights.evaluate(configs.base)
-    mission.evaluate(None)
+    results = mission.evaluate(None)
     
-    #plot_mission(mission)
+    plot_mission(results)
+    
+    old_results = SUAVE.Plugins.VyPy.data.load('results_mission_B737.pkl');
+    plot_mission(results,'k-')
+    
+    plt.show()
     
     return
 
@@ -79,9 +84,7 @@ def simple_sizing(configs):
 
 
 
-def plot_mission(mission,line_style='bo-'):
-
-    results = mission
+def plot_mission(results,line_style='bo-'):
 
     # ------------------------------------------------------------------
     #   Throttle
@@ -164,7 +167,10 @@ def plot_mission(mission,line_style='bo-'):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
+        try:
+            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
+        except:
+            Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
         axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , line_style )

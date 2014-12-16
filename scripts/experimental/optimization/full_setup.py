@@ -485,6 +485,7 @@ def configs_setup(vehicle):
     config.Vref_VS_ratio = 1.23
     config.maximum_lift_coefficient = 2.
     
+    # no equations!
     ## config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
     
     configs.append(config)
@@ -514,9 +515,7 @@ def analyses_setup(configs):
     
     # landing analysis
     aerodynamics = analyses.landing.aerodynamics
-    aerodynamics = SUAVE.Analyses.Analysis(aerodynamics) #Aerodynamics.High_Lift_Zero(aero)
-    aerodynamics.tag = 'aerodynamics'
-    analyses.landing.aerodynamics = aerodynamics
+    # do something here eventually
     
     return analyses
     
@@ -561,17 +560,17 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Planet Analysis
-    planet = SUAVE.Analyses.Planet.Planet()
+    planet = SUAVE.Analyses.Planets.Planet()
     analyses.append(planet)
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmosphere.Atmosphere()
-    atmosphere.features.planet = planet
+    atmosphere = SUAVE.Analyses.Atmospheres.Atmosphere()
+    atmosphere.features.planet = planet.features
     analyses.append(atmosphere)    
     
     # done!
-    return analyses    
+    return analyses
 
 #: def analyses_setup()
 
@@ -589,17 +588,11 @@ def mission_setup(analyses):
     mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'the_mission'
     
-    # atmospheric model
-    planet     = SUAVE.Attributes.Planets.Earth()
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    
     # unpack Segments module
     Segments = SUAVE.Analyses.Missions.Segments
     
     # base segment
     base_segment = Segments.Segment()
-    #base_segment.analyses.planet     = planet
-    #base_segment.analyses.atmosphere = atmosphere
     
     
     # ------------------------------------------------------------------
