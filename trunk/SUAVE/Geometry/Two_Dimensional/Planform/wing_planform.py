@@ -1,7 +1,7 @@
 # Geoemtry.py
 #
 
-""" SUAVE Methods for Geoemtry Generation
+""" SUAVE Methods for Geometry Generation
 """
 
 # TODO:
@@ -48,7 +48,7 @@ def wing_planform(wing):
     """
     
     # unpack
-    span  = wing.spans.projected
+    # span  = wing.spans.projected
     sref  = wing.areas.reference
     taper = wing.taper
     sweep = wing.sweep
@@ -62,8 +62,7 @@ def wing_planform(wing):
     
     swet = 2*span/2*(chord_root+chord_tip)
 
-    mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
-    
+    mac = 2./3.*(chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip))
     # update
     wing.chords.root     = chord_root
     wing.chords.tip      = chord_tip
@@ -71,5 +70,5 @@ def wing_planform(wing):
     wing.areas.wetted    = swet
     wing.aspect_ratio    = ar
     wing.spans.projected = span
-    
+
     return wing
