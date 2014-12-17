@@ -51,6 +51,7 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.frames       = Data()
         conditions.freestream   = Data()
         conditions.aerodynamics = Data()
+        conditions.stability    = Data()
         conditions.propulsion   = Data()
         conditions.weights      = Data()
         conditions.energies     = Data()
@@ -106,6 +107,10 @@ class Aerodynamic_Segment(Base_Segment):
         conditions.aerodynamics.drag_coefficient = ones_1col * 0
         conditions.aerodynamics.lift_breakdown   = Data()
         conditions.aerodynamics.drag_breakdown   = Data()
+
+        # stability conditions
+        conditions.stability.static  = Data()
+        conditions.stability.dynamic = Data()
 
         # propulsion conditions
         conditions.propulsion.throttle           = ones_1col * 0
@@ -240,7 +245,7 @@ class Aerodynamic_Segment(Base_Segment):
     def compute_gravity(self,conditions,planet):
 
         # unpack
-        g0 = planet.sea_level_gravity       # m/s^2
+        g0 = planet.features.sea_level_gravity       # m/s^2
 
         # calculate
         g = g0        # m/s^2 (placeholder for better g models)

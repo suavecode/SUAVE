@@ -20,15 +20,19 @@ class Interface(Data):
     def __defaults__(self):
         self.tag    = 'interface'
         
+        self.inputs   = Data()
         self.configs  = SUAVE.Components.Configs.Config.Container()
         self.analyses = SUAVE.Analyses.Analysis.Container()
-        self.process  = SUAVE.Analyses.Process()
+        self.process  = SUAVE.Analyses.Process.Container()
         self.results  = SUAVE.Analyses.Results()
         
         
     def evaluate(self,inputs):
-        for analysis in process:
-            results = analysis.evaluate(inputs)
+        self.inputs = inputs
+        interface = self
+        for key,analysis in process.items():
+            this_results = analysis.evaluate(interface)
+            self.results
         
         
         

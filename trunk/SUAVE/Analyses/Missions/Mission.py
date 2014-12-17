@@ -27,13 +27,13 @@ class Mission(Data):
         self.segments.append(segment)
         return
     
-    def evaluate(self,interface):
+    def evaluate(self,conditions=None):
         
         from SUAVE.Methods.Performance import evaluate_mission
         
         mission_profile = evaluate_mission(self)
         
-        return mission
+        return mission_profile
     
     
     def merge_conditions(self):
@@ -62,11 +62,11 @@ class Mission(Data):
 
 class Container(ContainerBase):
     
-    def evaluate(self,interface):
+    def evaluate(self,conditions=None):
         results = SUAVE.Analyses.Results()
         
         for mission in self:
-            result = mission.evaluate(interface)
+            result = mission.evaluate(conditions)
             results[mission.tag] = result
             
         return results

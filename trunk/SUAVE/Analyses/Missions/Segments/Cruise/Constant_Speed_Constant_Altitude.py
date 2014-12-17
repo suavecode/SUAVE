@@ -84,8 +84,8 @@ class Constant_Speed_Constant_Altitude(Aerodynamic_Segment):
         alt       = self.altitude
         xf        = self.distance
         air_speed = self.air_speed
-        atmo      = self.atmosphere
-        planet    = self.planet
+        atmo      = self.analyses.atmosphere
+        planet    = self.analyses.planet
         t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]
         

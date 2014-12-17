@@ -195,7 +195,7 @@ class Fidelity_Zero(Data):
         
         # pack results
         results = Data()
-        results.static_stability  = static_stability
-        results.dynamic_stability = dynamic_stability
+        results.static  = static_stability
+        results.dynamic = dynamic_stability
         
         return results

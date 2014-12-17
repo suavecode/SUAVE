@@ -32,9 +32,12 @@ def full_setup():
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
     analyses = analyses_setup(configs)
-    mission  = mission_setup(analyses)
     
-    return vehicle, configs, analyses, mission
+    mission  = mission_setup(analyses)
+    missions = missions_setup(mission)
+    analyses.missions = missions
+    
+    return configs, analyses
 
 
 # ----------------------------------------------------------------------
@@ -701,6 +704,55 @@ def mission_setup(analyses):
     
     return mission
 
+
+# ----------------------------------------------------------------------
+#   Various Missions
+# ----------------------------------------------------------------------
+    
+def missions_setup(base_mission):
+
+    # the mission container
+    missions = SUAVE.Analyses.Missions.Mission.Container()
+    
+    # ------------------------------------------------------------------
+    #   Base Mission
+    # ------------------------------------------------------------------
+    
+    missions.base = base_mission
+    
+    
+    # ------------------------------------------------------------------
+    #   Mission for Constrained Fuel
+    # ------------------------------------------------------------------    
+    
+    fuel_mission = SUAVE.Analyses.Missions.Mission() #Fuel_Constrained()
+    fuel_mission.tag = 'fuel'
+    fuel_mission.mission = base_mission
+    missions.append(fuel_mission)
+    
+    
+    # ------------------------------------------------------------------
+    #   Mission for Constrained Short Field
+    # ------------------------------------------------------------------
+    
+    short_field = SUAVE.Analyses.Missions.Mission() #Short_Field_Constrained()
+    short_field.tag = 'short_field'
+    short_field.mission = base_mission
+    missions.append(short_field)
+
+    
+    # ------------------------------------------------------------------
+    #   Mission for Fixed Payload
+    # ------------------------------------------------------------------    
+
+    payload = SUAVE.Analyses.Missions.Mission() #Payload_Constrained()
+    payload.tag = 'payload'
+    payload.mission = base_mission
+    missions.append(payload)
+    
+    
+    # done!
+    return missions    
 
 if __name__ == '__main__':
     full_setup()

@@ -22,7 +22,7 @@ class Analysis(Data):
         self.settings = Data()
         
         
-    def evaluate(self,condtitions):
+    def evaluate(self,conditions):
         return Results()
     
     def finalize(self):
@@ -39,21 +39,18 @@ class Container(ContainerBase):
     """ SUAVE.Analyses.Analysis.Container()
     """
     
-    def evaluate(self,condtitions):
+    def evaluate(self,conditions):
         results = Results()
-        
         for tag,analysis in self.items(): 
             #if not callable(analysis): continue
-            
             result = analysis(conditions)
             results[tag] = result
-                
         return results
     
     def finalize(self):
         for analysis in self:
-            try: analysis.finalize()
-            except AttributeError: pass    
+            if hasattr(analysis,'finalize'):
+                analysis.finalize()
     
     __call__ = evaluate
 

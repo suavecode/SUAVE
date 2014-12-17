@@ -16,35 +16,50 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
+
 def main():
     
-    from full_setup import full_setup
-    vehicle,configs,analyses,mission = full_setup()
+    # setup the interface
+    interface = setup_interface()
     
-    missions = missions_setup(mission)
+    inputs = Data()
+    inputs.projected_span  = 20.
+    inputs.fuselage_length = 40.
+    inputs.cruise_distance = 1000.
     
-    interface = setup_interface(configs,analyses,missions)
+    # evalute!
+    interface.evaluate(inputs)
 
 
 # ----------------------------------------------------------------------
 #   Optimization Interface Setup
 # ----------------------------------------------------------------------
 
-def setup_interface(configs,analyses,missions):
+def setup_interface():
     
-    # instantiate interface
+    # ------------------------------------------------------------------
+    #   Instantiate Interface
+    # ------------------------------------------------------------------
+    
     interface = SUAVE.Optimization.Interface()
     
     # ------------------------------------------------------------------
     #   Vehicle and Analyses Information
     # ------------------------------------------------------------------
     
+    from full_setup import full_setup
+    
+    configs,analyses = full_setup()
+    
     interface.configs  = configs
     interface.analyses = analyses
     
     
     # ------------------------------------------------------------------
-    #   Analysis Strategy
+    #   Analysis Process
     # ------------------------------------------------------------------
     
     process = interface.process
@@ -63,72 +78,23 @@ def setup_interface(configs,analyses,missions):
     
     # varius performance studies
     process.field_length = field_length
-    process.noise        = noise
+    process.noise = noise
     process.performance  = SUAVE.Methods.Performance.evaluate_mission
     
     # summarize the results
     process.summary = summarize
-    
     
     # done!
     return interface
     
     
 # ----------------------------------------------------------------------
-#   Various Missions
-# ----------------------------------------------------------------------
-    
-def missions_setup(base_mission):
-
-    # the mission container
-    missions = SUAVE.Analyses.Missions.Mission.Container()
-    
-    # ------------------------------------------------------------------
-    #   Base Mission
-    # ------------------------------------------------------------------
-    
-    missions.base = base_mission
-    
-    
-    # ------------------------------------------------------------------
-    #   Mission for Constrained Fuel
-    # ------------------------------------------------------------------    
-    
-    fuel_mission = SUAVE.Analyses.Missions.Mission() #Fuel_Constrained()
-    fuel_mission.tag = 'fuel'
-    fuel_mission.mission = base_mission
-    missions.append(fuel_mission)
-    
-    
-    # ------------------------------------------------------------------
-    #   Mission for Constrained Short Field
-    # ------------------------------------------------------------------
-    
-    short_field = SUAVE.Analyses.Missions.Mission() #Short_Field_Constrained()
-    short_field.tag = 'short_field'
-    short_field.mission = base_mission
-    missions.append(short_field)
-
-    
-    # ------------------------------------------------------------------
-    #   Mission for Fixed Payload
-    # ------------------------------------------------------------------    
-
-    payload = SUAVE.Analyses.Missions.Mission() #Payload_Constrained()
-    payload.tag = 'payload'
-    payload.mission = base_mission
-    missions.append(payload)
-    
-    
-    # done!
-    return missions    
-    
-    
-# ----------------------------------------------------------------------
 #   Unpack Inputs Step
 # ----------------------------------------------------------------------
     
-def unpack_inputs(interface,inputs):
+def unpack_inputs(interface):
+    
+    inputs = interface.inputs
     
     # apply the inputs
     vehicle = interface.configs.base
@@ -175,17 +141,28 @@ def simple_sizing(interface):
 
 
 # ----------------------------------------------------------------------
-#   Finalizing Function (make part of optimization interface)
+#   Finalizing Function (make part of optimization interface)[needs to come after simple sizing doh]
 # ----------------------------------------------------------------------    
 
 def finalize(interface):
     
-    configs = interface.configs
-    configs.finalize()
-    
-    analyses = interface.analyses
-    analyses.finalize()
+    interface.configs.finalize()
+    interface.analyses.finalize()
+    interface.process.finalize()
 
+
+# ----------------------------------------------------------------------
+#   Process Missions
+# ----------------------------------------------------------------------    
+
+def missions(interface):
+    
+    missions = interface.process.missions
+    
+    results = missions.evaluate()
+    
+    return results
+            
     
 # ----------------------------------------------------------------------
 #   Field Length Evaluation
@@ -193,13 +170,15 @@ def finalize(interface):
     
 def field_length(interface):
     
+    # unpack tofl analysis
     estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
     
+    # unpack data
     configs  = interface.configs
     missions = interface.strategy.missions
-    
     takeoff_airport = missions.base.segments.takeoff.airport
     
+    # evaluate
     results = estimate_tofl( configs.landing , takeoff_airport )
     
     return results
@@ -211,8 +190,12 @@ def field_length(interface):
 
 def noise(interface):
     
+    # TODO - use the analysis
+    
+    # unpack noise analysis
     evaluate_noise = SUAVE.Methods.Noise.Correlations.shevell
     
+    # unpack data
     vehicle = interface.configs.base
     results = interface.results
     mission_profile = results.missions.base.profile
@@ -224,9 +207,9 @@ def noise(interface):
     
     # evaluate
     results = evaluate_noise( weight_landing    , 
-                            number_of_engines , 
-                            thrust_sea_level  , 
-                            thrust_landing     )
+                              number_of_engines , 
+                              thrust_sea_level  , 
+                              thrust_landing     )
     
     return results
     
