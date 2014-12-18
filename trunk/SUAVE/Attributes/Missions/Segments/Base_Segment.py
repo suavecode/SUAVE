@@ -192,7 +192,7 @@ class Base_Segment(Data):
         else:
             t_initial = 0.0
             r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-            m_initial = self.analyses.weights.features.mass_properties.takeoff  # sure why not
+            m_initial = self.analyses.weights.features.vehicle.mass_properties.takeoff  # sure why not
             
             
         # apply initials

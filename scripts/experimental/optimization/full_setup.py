@@ -29,13 +29,20 @@ Data, Container, Data_Exception, Data_Warning,
 
 def full_setup():
 
+    # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
-    analyses = analyses_setup(configs)
     
-    mission  = mission_setup(analyses)
-    missions = missions_setup(mission)
-    analyses.missions = missions
+    # vehicle analyses
+    configs_analyses = analyses_setup(configs)
+    
+    # mission analyses
+    mission  = mission_setup(configs_analyses)
+    missions_analyses = missions_setup(mission)
+
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.configs  = configs_analyses
+    analyses.missions = missions_analyses
     
     return configs, analyses
 
@@ -499,6 +506,42 @@ def configs_setup(vehicle):
 
 
 # ----------------------------------------------------------------------
+#   Sizing for the Vehicle Configs
+# ----------------------------------------------------------------------
+
+def simple_sizing(configs):
+    
+    base = configs.base
+    
+    # zero fuel weight
+    base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
+    
+    # wing areas
+    for wing in base.wings:
+        wing.areas.wetted   = 2.0 * wing.areas.reference
+        wing.areas.exposed  = 0.8 * wing.areas.wetted
+        wing.areas.affected = 0.6 * wing.areas.wetted
+    
+    # fuselage seats
+    base.fuselages.Fuselage.number_coach_seats = base.passengers
+    
+    base.store_diff()
+    
+    # ------------------------------------------------------------------
+    #   Landing Configuration
+    # ------------------------------------------------------------------
+    landing = configs.landing
+    
+    # landing weight
+    landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
+    
+    # FIX ME, sees a diff with base that we don't want
+    # landing.store_diff
+    
+    # done!
+    return
+
+# ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
@@ -533,32 +576,32 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Basic Geometry Relations
     sizing = SUAVE.Analyses.Sizing.Sizing()
-    sizing.features = vehicle
+    sizing.features.vehicle = vehicle
     analyses.append(sizing)
     
     # ------------------------------------------------------------------
     #  Weights - Andrew
     weights = SUAVE.Analyses.Weights.Weights()
-    weights.features = vehicle
+    weights.features.vehicle = vehicle
     analyses.append(weights)
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis - Anil, MacDonald
     aerodynamics = SUAVE.Analyses.Aerodynamics.Aerodynamics()
-    aerodynamics.features = vehicle
+    aerodynamics.features.vehicle = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
     #  Stability Analysis - Momose
     stability = SUAVE.Analyses.Stability.Stability()
-    stability.features = vehicle
+    stability.features.vehicle = vehicle
     analyses.append(stability)
     
     # ------------------------------------------------------------------
     #  Propulsion Analysis - Emilio
     propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.features = vehicle
+    propulsion.features.vehicle = vehicle
     analyses.append(propulsion)
     
     # ------------------------------------------------------------------
@@ -590,6 +633,14 @@ def mission_setup(analyses):
     
     mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'the_mission'
+    
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    
+    mission.airport = airport    
     
     # unpack Segments module
     Segments = SUAVE.Analyses.Missions.Segments

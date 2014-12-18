@@ -4,7 +4,7 @@ import Results
 import Input_Output
 import Coordinates
 import Solvers
-#import Noise
+import Noise
 import Gas_Dynamics
 import Weights
 import Aerodynamics

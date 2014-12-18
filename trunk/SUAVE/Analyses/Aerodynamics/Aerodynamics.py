@@ -32,7 +32,7 @@ class Aerodynamics(Analysis):
     
     def finalize(self):
         
-        self.old_aero.initialize(self.features)        
+        self.old_aero.initialize(self.features.vehicle)        
         return     
     
     __call__ = evaluate

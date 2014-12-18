@@ -33,7 +33,7 @@ class Stability(Analysis):
     
     def finalize(self):
         
-        self.stability.initialize(self.features)  
+        self.stability.initialize(self.features.vehicle)  
         
         return
     

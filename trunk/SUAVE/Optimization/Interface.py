@@ -30,9 +30,16 @@ class Interface(Data):
     def evaluate(self,inputs):
         self.inputs = inputs
         interface = self
-        for key,analysis in process.items():
-            this_results = analysis.evaluate(interface)
-            self.results
+        
+        for key,step in self.process.items():
+            if hasattr(step,'evaluate'):
+                result = step.evaluate(interface)
+            else:
+                result = step(interface)
+            self.results[key] = result
+            
+            
+        return self.results
         
         
         

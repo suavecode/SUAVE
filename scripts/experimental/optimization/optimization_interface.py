@@ -31,7 +31,12 @@ def main():
     inputs.cruise_distance = 1000.
     
     # evalute!
-    interface.evaluate(inputs)
+    results = interface.evaluate(inputs)
+    
+    # doesnt work...
+    # print results
+    
+    return
 
 
 # ----------------------------------------------------------------------
@@ -71,15 +76,14 @@ def setup_interface():
     process.simple_sizing = simple_sizing
     
     # finalizes the data dependencies
-    process.finalize = finalize
+    process.finalize_ = finalize # doh!
     
     # the missions
     process.missions = missions
     
-    # varius performance studies
+    # various performance studies
     process.field_length = field_length
     process.noise = noise
-    process.performance  = SUAVE.Methods.Performance.evaluate_mission
     
     # summarize the results
     process.summary = summarize
@@ -101,8 +105,10 @@ def unpack_inputs(interface):
     vehicle.wings['Main Wing'].spans.project = inputs.projected_span
     vehicle.fuselages.Fuselage.length        = inputs.fuselage_length
     
-    mission = interface.strategy.missions.base
+    mission = interface.analyses.missions.base
     mission.segments.cruise.distance = inputs.cruise_distance
+     
+    return None
 
 
 # ----------------------------------------------------------------------
@@ -111,33 +117,11 @@ def unpack_inputs(interface):
 
 def simple_sizing(interface):
     
-    # ------------------------------------------------------------------
-    #   Base Vehicle Configuration
-    # ------------------------------------------------------------------
-    vehicle = interface.configs.base
+    from full_setup import simple_sizing
     
-    # zero fuel weight
-    vehicle.mass_properties.max_zero_fuel = 0.9 * vehicle.mass_properties.max_takeoff 
+    simple_sizing(interface.configs)
     
-    # wing areas
-    for wing in vehicle.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
-    
-    # fuselage seats
-    vehicle.fuselages.fuselage.number_coach_seats = vehicle.passengers
-    
-    # ------------------------------------------------------------------
-    #   Landing Configuration
-    # ------------------------------------------------------------------
-    landing = interface.configs.landing
-    
-    # landing weight
-    landing.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
-    
-    # done!
-    return interface
+    return None
 
 
 # ----------------------------------------------------------------------
@@ -149,6 +133,8 @@ def finalize(interface):
     interface.configs.finalize()
     interface.analyses.finalize()
     interface.process.finalize()
+    
+    return None
 
 
 # ----------------------------------------------------------------------
@@ -157,7 +143,7 @@ def finalize(interface):
 
 def missions(interface):
     
-    missions = interface.process.missions
+    missions = interface.analyses.missions
     
     results = missions.evaluate()
     
@@ -175,12 +161,18 @@ def field_length(interface):
     
     # unpack data
     configs  = interface.configs
-    missions = interface.strategy.missions
-    takeoff_airport = missions.base.segments.takeoff.airport
+    analyses = interface.analyses
+    missions = interface.analyses.missions
+    takeoff_airport = missions.base.airport
     
     # evaluate
-    results = estimate_tofl( configs.landing , takeoff_airport )
+    tofl = estimate_tofl( configs.takeoff,  analyses.configs.takeoff, takeoff_airport )
+    tofl = tofl[0,0]
     
+    # pack
+    results = Data()
+    results.takeoff_field_length = tofl
+        
     return results
 
 
@@ -198,7 +190,7 @@ def noise(interface):
     # unpack data
     vehicle = interface.configs.base
     results = interface.results
-    mission_profile = results.missions.base.profile
+    mission_profile = results.missions.base
     
     weight_landing    = mission_profile.segments[-1].conditions.weights.total_mass[-1,0]
     number_of_engines = vehicle.propulsors['Turbo Fan'].number_of_engines
@@ -220,11 +212,52 @@ def noise(interface):
 
 def summarize(interface):
     
+    vehicle = interface.configs.base
+    
     results = interface.results
+    mission_profile = results.missions.base
     
-    summary = SUAVE.Attributes.Results()
     
-    summary.this_value = results.hello_world
+    # merge all segment conditions
+    def stack_condition(a,b):
+        if isinstance(a,np.ndarray):
+            return np.vstack([a,b])
+        else:
+            return None
+    
+    conditions = None
+    for segment in mission_profile.segments:
+        if conditions is None:
+            conditions = segment.conditions
+            continue
+        conditions = conditions.do_recursive(stack_condition,segment.conditions)
+      
+    # pack
+    summary = SUAVE.Attributes.Results.Result()
+    
+    summary.weight_empty = vehicle.mass_properties.operating_empty
+    
+    summary.fuel_burn = max(conditions.weights.total_mass[:,0]) - min(conditions.weights.total_mass[:,0])
+    
+    #results.output.max_usable_fuel = vehicle.mass_properties.max_usable_fuel
+    
+    summary.noise = results.noise    
+    
+    summary.mission_time_min = max(conditions.frames.inertial.time[:,0] / Units.min)
+    summary.max_altitude_km = max(conditions.freestream.altitude[:,0] / Units.km)
+    
+    summary.range_nmi = mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0] / Units.nmi
+    
+    summary.field_length = results.field_length
+    
+    summary.stability = Data()
+    summary.stability.cm_alpha = max(conditions.stability.static.cm_alpha[:,0])
+    summary.stability.cn_beta  = max(conditions.stability.static.cn_beta[:,0])
+    
+    #summary.conditions = conditions
+    
+    #TODO: revisit how this is calculated
+    summary.second_segment_climb_rate = mission_profile.segments[1].climb_rate
     
     return summary
 

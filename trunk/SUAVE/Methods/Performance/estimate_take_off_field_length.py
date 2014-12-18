@@ -18,14 +18,14 @@ import numpy as np
 #  Compute field length required for takeoff
 # ----------------------------------------------------------------------
 
-def estimate_take_off_field_length(vehicle,config,airport):
-    """ SUAVE.Methods.Performance.estimate_take_off_field_length(vehicle,config,airport):
+def estimate_take_off_field_length(vehicle,analyses,airport):
+    """ SUAVE.Methods.Performance.estimate_take_off_field_length(vehicle,airport):
         Computes the takeoff field length for a given vehicle condition in a given airport
 
         Inputs:
             vehicle	 - SUAVE type vehicle
 
-            config   - data dictionary with fields:
+            includes these fields:
                 Mass_Properties.takeoff       - Takeoff weight to be evaluated
                 S                          - Wing Area
                 V2_VS_ratio                - Ratio between V2 and Stall speed
@@ -56,10 +56,10 @@ def estimate_take_off_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.mass_properties.takeoff
-    reference_area  = config.reference_area
+    weight          = vehicle.mass_properties.takeoff
+    reference_area  = vehicle.reference_area
     try:
-        V2_VS_ratio = config.V2_VS_ratio
+        V2_VS_ratio = vehicle.V2_VS_ratio
     except:
         V2_VS_ratio = 1.20
 
@@ -79,7 +79,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     # Determining vehicle maximum lift coefficient
     # ==============================================
     try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = config.maximum_lift_coefficient
+        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
@@ -92,8 +92,8 @@ def estimate_take_off_field_length(vehicle,config,airport):
         conditions.freestream.viscosity = mu_stall
         conditions.freestream.velocity  = 90. * Units.knots
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
-            config.maximum_lift_coefficient = maximum_lift_coefficient
+            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
@@ -129,7 +129,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
     conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
     conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
 
-    thrust, mdot, P = vehicle.propulsion_model(conditions,numerics) # total thrust
+    thrust, mdot, P = analyses.propulsion(conditions,numerics) # total thrust
 
     # ==============================================
     # Calculate takeoff distance
@@ -137,7 +137,7 @@ def estimate_take_off_field_length(vehicle,config,airport):
 
     # Defining takeoff distance equations coefficients
     try:
-        takeoff_constants = config.takeoff_constants # user defined
+        takeoff_constants = vehicle.takeoff_constants # user defined
     except:  # default values
         takeoff_constants = np.zeros(3)
         if engine_number == 2:

@@ -23,21 +23,25 @@ import copy, time
 
 def main():
     
-    from full_setup import full_setup
+    from full_setup import full_setup, simple_sizing
     
-    vehicle, configs, analyses, mission = full_setup()
+    configs, analyses = full_setup()
     
     simple_sizing(configs)
     
     configs.finalize()
     analyses.finalize()
     
-    weights = SUAVE.Analyses.Weights.Weights()
-    breakdown = weights.evaluate(configs.base)
-    results = mission.evaluate(None)
+    # weight analysis
+    weights = analyses.configs.base.weights
+    breakdown = weights.evaluate()
     
+    # mission analysis
+    mission = analyses.missions.base
+    results = mission.evaluate()
     plot_mission(results)
     
+    # old results
     old_results = SUAVE.Plugins.VyPy.data.load('results_mission_B737.pkl');
     plot_mission(results,'k-')
     
@@ -46,43 +50,9 @@ def main():
     return
 
 
-def simple_sizing(configs):
-    
-    base = configs.base
-    
-    # zero fuel weight
-    base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
-    
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
-    
-    # fuselage seats
-    base.fuselages.Fuselage.number_coach_seats = base.passengers
-    
-    base.store_diff()
-    
-    # ------------------------------------------------------------------
-    #   Landing Configuration
-    # ------------------------------------------------------------------
-    landing = configs.landing
-    
-    # landing weight
-    landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
-    
-    # FIX ME, sees a diff with base that we don't want
-    # landing.store_diff
-    
-    # done!
-    return
-
-
-
-
-
-
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
 

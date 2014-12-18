@@ -21,9 +21,11 @@ class Weights(Analysis):
         self.settings = Data()
         
         
-    def evaluate(self,conditions):
+    def evaluate(self,conditions=None):
         
-        results = empty(conditions)
+        vehicle = self.features.vehicle
+        
+        results = empty(vehicle)
         
         return results
     

@@ -65,9 +65,9 @@ class Container(ContainerBase):
     def evaluate(self,conditions=None):
         results = SUAVE.Analyses.Results()
         
-        for mission in self:
+        for key,mission in self.items():
             result = mission.evaluate(conditions)
-            results[mission.tag] = result
+            results[key] = result
             
         return results
 
