@@ -29,21 +29,31 @@ class Wing(Lofted_Body):
         self.thickness_to_chord = 0.0
         self.span_efficiency = 0.9
         self.aerodynamic_center = [0.0,0.0,0.0]
-        
+
+        self.lex = 0
+        self.tex = 0
+
         self.spans = Data()
         self.spans.projected = 0.0
-        
+
+        self.span_ratios = Data()
+        self.span_ratios.break_point = 0.3
+        self.span_ratios.fuselage = 0.1
+
         self.areas = Data()
         self.areas.reference = 0.0
         self.areas.exposed = 0.0
+        self.areas.gross = 0.0
         self.areas.affected = 0.0
         self.areas.wetted = 0.0
-        
+        self.areas.flapped = 0.0
+
         self.chords = Data()
         self.chords.mean_aerodynamic = 0.0
         self.chords.mean_geometric = 0.0
         self.chords.root = 0.0
         self.chords.tip = 0.0
+        self.chords.break_point = 0.0
         
         self.twists = Data()
         self.twists.root = 0.0
@@ -55,7 +65,7 @@ class Wing(Lofted_Body):
         self.flaps.span_start = 0.0
         self.flaps.span_end = 0.0
         self.flaps.type = None
-        
+
         self.slats = Data()
         self.slats.chord = 0.0
         self.slats.angle = 0.0
