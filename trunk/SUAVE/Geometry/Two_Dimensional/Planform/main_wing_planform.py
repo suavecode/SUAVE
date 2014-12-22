@@ -74,13 +74,14 @@ def main_wing_planform(wing):
 
     # compute flapped area if wing is flapped
     if wing.flaps.type is not None:
-        wing.areas.flapped = wpc.calc_flapped_area(wing.flaps.span_start, wing.flaps.span_end)
+        wing.areas.flapped = wpc.get_flapped_area(wing.flaps.span_start, wing.flaps.span_end)
 
     # update
     wing.chords.root = wpc.chord_root
     wing.chords.tip = wpc.chord_tip
     wing.chords.break_point = wpc.chord_break
     wing.chords.mean_aerodynamic = wpc.mean_aerodynamic_chord
+    wing.chords.mean_aerodynamic_exposed = wpc.mean_aerodynamic_chord_exposed
     wing.chords.mean_geometric = wpc.mean_geometric_chord
 
     wing.aerodynamic_center = wpc.aerodynamic_center
@@ -94,6 +95,5 @@ def main_wing_planform(wing):
     # for backward compatibility
     wing.areas.affected = wing.areas.flapped
     wing.chords.mid = wing.chords.break_point
-
 
     return wing

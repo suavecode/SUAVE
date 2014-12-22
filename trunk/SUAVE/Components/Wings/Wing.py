@@ -49,6 +49,7 @@ class Wing(Lofted_Body):
         self.areas.flapped = 0.0
 
         self.chords = Data()
+        self.chords.mean_aerodynamic_exposed = 0.0
         self.chords.mean_aerodynamic = 0.0
         self.chords.mean_geometric = 0.0
         self.chords.root = 0.0
