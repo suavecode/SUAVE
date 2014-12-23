@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
+from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties, Component_Exception
 from Airfoils import Airfoil
 
 # ------------------------------------------------------------
@@ -32,7 +32,7 @@ class Wing(Lofted_Body):
 
         self.lex = 0
         self.tex = 0
-
+        self.exposed_root_chord_offset = 0.0
         self.spans = Data()
         self.spans.projected = 0.0
 
