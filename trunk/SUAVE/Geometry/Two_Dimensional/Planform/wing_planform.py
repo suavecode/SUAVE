@@ -71,6 +71,7 @@ def wing_planform(wing):
     wing.chords.root = wpc.chord_root
     wing.chords.tip = wpc.chord_tip
     wing.chords.mean_aerodynamic = wpc.mean_aerodynamic_chord
+    wing.chords.mean_aerodynamic_exposed = wpc.mean_aerodynamic_chord_exposed
     wing.chords.mean_geometric = wpc.mean_geometric_chord
 
     wing.aerodynamic_center = wpc.aerodynamic_center

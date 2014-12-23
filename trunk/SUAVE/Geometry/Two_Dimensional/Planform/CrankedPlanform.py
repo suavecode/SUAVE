@@ -98,10 +98,10 @@ class CrankedPlanform:
         exposed_semi_planform.update()
 
         # compute the trapzoidal x quater chord location of all definition sections
-        x_le_node = y_node*np.tan(np.radians(self.sweep_qc)) - c_node_trap/4.
+        x_le_node = y_node*np.tan(self.sweep_qc) - c_node_trap/4.
 
         # include the effect of the lex
-        x_le_node[0] -= self.lex_ratio*c_node_trap[0]
+        x_le_node += (self.lex_ratio+0.25)*c_node_trap[0]
 
         # compute the aerodynamic center in the local coordinate system
         x_ac_local = cranked_semi_planform.get_aerodynamic_center(x_le_node)
