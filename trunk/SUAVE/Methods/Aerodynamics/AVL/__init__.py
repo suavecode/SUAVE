@@ -5,8 +5,8 @@
 """
 
 from create_avl_datastructure import create_avl_datastructure
-from initialize_inputs import initialize_imports
-from purge_file        import purge_files
+from initialize_inputs import initialize_inputs
+from purge_files        import purge_files
 from read_results      import read_results
 #from run_analysis     import run_analysis
 from write_geometry    import write_geometry
