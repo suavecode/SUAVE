@@ -1,28 +1,40 @@
 import numpy as np
 from scipy import interpolate
 
+"""
+Geometry calculations for a general semi-planform defined by arrays of chords and y-stations
+    - Computes the semi-area
+    - Computes the mean aerodynamic chord
+    - Has the option to estimate the aerodynamic center
+    - Aerodynamic center expressed in the local coordinate system relative to the leading edge of the wing root
+    - Can represent unsymmetric surfaces like the vertical tail
+"""
 
-class AeroSurfacePlanform:
-    """
-    This representation is only for a semispan, and is therefore also
-    suitable for unsymmetric surfaces
-    """
+
+class SemiPlanform:
+
     def __init__(self, c, y):
         """
         Constructor
-        :param c: numpy array of definition chords
-        :param y: numpy array of y position of definition chords
+        :param c: numpy array of definitional chords
+        :param y: numpy array of y-station of chords
         :return:
         """
+
+        # in parameters
         self.c = c
         self.y = y
+
+        # computed parameters
         self.length = None
-        self.c_bar_panel = None
-        self.dy = None
-        self.panel_area = None
         self.area = None
         self.mean_aerodynamic_chord = None
         self.mean_geometric_chord = None
+
+        # instance parameters
+        self.__panel_area = None
+        self.__c_bar_panel = None
+        self.__dy = None
 
     def update(self):
         """
@@ -34,38 +46,38 @@ class AeroSurfacePlanform:
         self.length = self.y[-1]-self.y[0]
 
         # panel lengths of the semi span
-        self.dy = np.diff(self.y)
+        self.__dy = np.diff(self.y)
 
         # average chords for panels of the semi span
-        self.c_bar_panel = (self.c[:-1]+self.c[1:])/2.
+        self.__c_bar_panel = (self.c[:-1]+self.c[1:])/2.
 
         # panel areas of the semi wing
-        self.panel_area = self.c_bar_panel*self.dy
+        self.__panel_area = self.__c_bar_panel*self.__dy
 
         # area of the semi wing
-        self.area = sum(self.panel_area)
+        self.area = sum(self.__panel_area)
 
         # mean geometric chord
-        self.mean_geometric_chord = np.dot(self.c_bar_panel, self.panel_area)/self.area
+        self.mean_geometric_chord = np.dot(self.__c_bar_panel, self.__panel_area)/self.area
 
         # mean aerodynamic chord
         self.mean_aerodynamic_chord = self.__calc_mac()
 
     def sort_chord_by_y(self):
         """
-        Sort the section chords by y
+        Sort the section chords by y-stations
         :return:
         """
         sort_index = self.y.argsort()
         self.y = self.y[sort_index]
         self.c = self.c[sort_index]
 
-    def get_chord_interpolator(self):
+    def get_chord_interpolator(self, interp_type='linear'):
         """
         Create a chord interpolator
-        :return:
+        :return: scipy interpolator
         """
-        return interpolate.interp1d(self.y, self.c, kind='linear')
+        return interpolate.interp1d(self.y, self.c, kind=interp_type)
 
     def __calc_mac(self):
         """
@@ -74,18 +86,18 @@ class AeroSurfacePlanform:
         """
         c_inner = self.c[:-1]
         c_outer = self.c[1:]
-        return 2/3.*np.dot((c_inner+c_outer-c_inner*c_outer/(c_inner+c_outer)), self.panel_area)/self.area
+        return 2/3.*np.dot((c_inner+c_outer-c_inner*c_outer/(c_inner+c_outer)), self.__panel_area)/self.area
 
     def get_aerodynamic_center(self, x_le):
         """
         Estimate the aerodynamic center
         :param x_le:
-        :return:
+        :return: local aerodynamic center
         """
         x_qc = self.get_x_local(0.25, x_le)  # compute the quarter chord of the definition sections
         xac = 0
-        for i, area in enumerate(self.panel_area):
-            xac += self.__estimate_ac_panel(x_qc[i], x_qc[i+1], self.c[i], self.c[i+1], self.dy[i])
+        for i, area in enumerate(self.__panel_area):
+            xac += self.__estimate_ac_panel(x_qc[i], x_qc[i+1], self.c[i], self.c[i+1], self.__dy[i])
 
         # local aerodynamic center
         return xac*self.length/6/self.area

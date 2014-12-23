@@ -17,7 +17,7 @@ import numpy
 from math import pi, sqrt
 from SUAVE.Structure  import Data
 #from SUAVE.Attributes import Constants
-from SUAVE.Geometry.Two_Dimensional.Planform.WingPlanformCranked import WingPlanformCranked
+from SUAVE.Geometry.Two_Dimensional.Planform.CrankedPlanform import CrankedPlanform
 
 
 # ----------------------------------------------------------------------
@@ -58,7 +58,7 @@ def wing_planform(wing):
     span_ratio_fuselage = wing.span_ratios.fuselage
 
     # compute wing planform geometry
-    wpc = WingPlanformCranked(sref, ar, sweep, taper,
+    wpc = CrankedPlanform(sref, ar, sweep, taper,
                               thickness_to_chord, span_ratio_fuselage)
 
     # set the wing origin

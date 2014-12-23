@@ -13,7 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Geometry.Two_Dimensional.Planform.WingPlanformCranked import WingPlanformCranked
+from SUAVE.Geometry.Two_Dimensional.Planform.CrankedPlanform import CrankedPlanform
 
 
 # ----------------------------------------------------------------------
@@ -62,7 +62,7 @@ def main_wing_planform(wing):
     tex_ratio = wing.tex
 
     # compute wing planform geometry
-    wpc = WingPlanformCranked(sref, ar, sweep, taper,
+    wpc = CrankedPlanform(sref, ar, sweep, taper,
                               thickness_to_chord, span_ratio_fuselage,
                               span_ratio_break, lex_ratio, tex_ratio)
 
