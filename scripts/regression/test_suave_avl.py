@@ -3,18 +3,17 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np
 import pylab as plt
 # SUAVE Imports
 from SUAVE.Structure  import Data#, Data_Exception, Data_Warning
 from SUAVE.Attributes import Units
+from full_setup_737800 import full_setup_737800
 #from SUAVE.Methods.Performance.evaluate_segment import evaluate_segment
 # SUAVE-AVL Imports
-from initialize_inputs import initialize_inputs
-from run_analysis      import run_analysis
-from full_setup_737800 import full_setup_737800
-from read_results      import read_results
-from purge_files       import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.initialize_inputs import initialize_inputs
+from SUAVE.Methods.Aerodynamics.AVL.run_analysis      import run_analysis
+from SUAVE.Methods.Aerodynamics.AVL.read_results      import read_results
+from SUAVE.Methods.Aerodynamics.AVL.purge_files       import purge_files
 
 # -------------------------------------------------------------
 #  Test Script
