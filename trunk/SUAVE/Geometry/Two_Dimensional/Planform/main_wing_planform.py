@@ -14,6 +14,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Geometry.Two_Dimensional.Planform.CrankedPlanform import CrankedPlanform
+# import matplotlib.pyplot as plt
 
 
 # ----------------------------------------------------------------------
@@ -84,12 +85,18 @@ def main_wing_planform(wing):
     wing.chords.mean_aerodynamic_exposed = wpc.mean_aerodynamic_chord_exposed
     wing.chords.mean_geometric = wpc.mean_geometric_chord
 
-    wing.aerodynamic_center = wpc.aerodynamic_center
+    # plot the wing to check things
+    # x_wing, y_wing = wpc.get_wing_coordinates()
+    # plt.plot(x_wing, y_wing, "k-")
+    # plt.xlabel('x')
+    # plt.ylabel('y')
+    # plt.axis('equal')
+    # plt.show()
 
+    wing.aerodynamic_center = wpc.aerodynamic_center
     wing.areas.wetted = wpc.area_wetted
     wing.areas.gross = wpc.area_gross
     wing.areas.exposed = wpc.area_exposed
-
     wing.spans.projected = wpc.span
 
     # for backward compatibility
