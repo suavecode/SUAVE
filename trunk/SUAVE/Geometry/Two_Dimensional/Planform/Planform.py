@@ -10,7 +10,7 @@ Geometry calculations for a trapzoidal wing
 """
 
 
-class Planform:
+class Planform(object):
 
     def __init__(self, sref, ar, sweep_qc, taper,
                  thickness_to_chord=0.12,
@@ -39,11 +39,12 @@ class Planform:
         self.aerodynamic_center = None
         self.chord_root = None
         self.chord_tip = None
+        self.chord_root_trap = None
 
         # instance parameters
-        self.__semi_span = None
-        self.__wing_origin = np.array([0, 0, 0])
-        self.__x_le_node = None
+        self.semi_span = None
+        self.wing_origin = np.array([0, 0, 0])
+        self.x_le_node = None
         self.c_node = None
         self.y_node = None
 
@@ -51,13 +52,13 @@ class Planform:
         self.span = np.sqrt(self.ar * self.sref)
 
         # semi-span
-        self.__semi_span = self.span / 2.
+        self.semi_span = self.span / 2.
 
-        # trapzoidal wing root chord
-        chord_root_trap = 2 * self.sref / self.span / (1 + self.taper)
+        # trapezoidal wing root chord
+        self.chord_root_trap = 2 * self.sref / self.span / (1 + self.taper)
 
-        # tip chord
-        self.chord_tip = self.taper * chord_root_trap
+        # tip chord, defined in terms of the trapezoidal wing
+        self.chord_tip = self.taper * self.chord_root_trap
 
     def get_wing_coordinates(self):
         """
@@ -65,38 +66,14 @@ class Planform:
         :return:
         """
 
-        x_te_node = self.__x_le_node+self.c_node
-        x = np.append(self.__x_le_node, x_te_node[::-1], self.__x_le_node[0])
+        x_te_node = self.x_le_node+self.c_node
+        x = np.append(self.x_le_node, x_te_node[::-1], self.x_le_node[0])
         y = np.append(self.y_node, self.y_node[::-1], self.y_node[0])
         return x, y
 
-    def wing_origin(self, value):
+    def set_wing_origin(self, value):
         """
         Set the wing origin coordinates
         """
-        self.__wing_origin = value
+        self.wing_origin = value
 
-    def get_flapped_area(self, span_ratio_inner, span_ratio_outer):
-        """
-        Compute the wing flapped (flap affected) area given the span ratios of the flaps
-        :param span_ratio_inner:
-        :param span_ratio_outer:
-        :return:
-        """
-
-        # get the corresponding chords of the span ratios
-        chord_flap_inner, chord_flap_outer = \
-            self.chord_from_y(np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span)
-
-        c_node_flapped = np.array([chord_flap_inner, chord_flap_outer])
-        y_node_flapped = np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span
-
-        # add in the break section if we need to
-        if span_ratio_outer > self.span_ratio_break > span_ratio_inner:
-            y_node_flapped = np.insert(y_node_flapped, 1, self.span_ratio_break*self.__semi_span)
-            c_node_flapped = np.insert(c_node_flapped, 1, self.chord_break)
-
-        flapped_semi_planform = SemiPlanform(c_node_flapped, y_node_flapped)
-        flapped_semi_planform.update()
-
-        return 2.0*flapped_semi_planform.area

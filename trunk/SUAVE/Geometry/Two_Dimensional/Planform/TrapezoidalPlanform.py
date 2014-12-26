@@ -1,5 +1,3 @@
-import math as math
-
 import numpy as np
 
 from SemiPlanform import SemiPlanform
@@ -19,9 +17,8 @@ class TrapezoidalPlanform(Planform):
     def __init__(self, sref, ar, sweep_qc, taper,
                  thickness_to_chord=0.12, span_ratio_fuselage=0.1):
         # call superclass constructor with 0 lex and tex
-        super(TrapezoidalPlanform, self).__init__(self, sref, ar, sweep_qc, taper,
-                                                  thickness_to_chord, span_ratio_fuselage,
-                                                  lex_ratio=0, tex_ratio=0)
+        super(TrapezoidalPlanform, self).__init__(sref, ar, sweep_qc, taper,
+                                                  thickness_to_chord, span_ratio_fuselage, 0, 0)
 
     def update(self):
         """
@@ -30,13 +27,13 @@ class TrapezoidalPlanform(Planform):
         """
 
         # span of control points: [root, break, tip]
-        self.y_node = np.array([0, 1]) * self.__semi_span
+        self.y_node = np.array([0, 1]) * self._semi_span
 
         # trapezoidal wing definition chords
-        c_node_trap = np.array([chord_root_trap, self.chord_tip])
+        c_node_trap = np.array([self.chord_root_trap, self.chord_tip])
 
         # root chord
-        self.chord_root = chord_root_trap * (1 + self.lex_ratio + self.tex_ratio)
+        self.chord_root = self.chord_root_trap * (1 + self.lex_ratio + self.tex_ratio)
 
         # extended wing definition chords
         self.c_node = np.array([self.chord_root, self.chord_tip])
@@ -81,3 +78,23 @@ class TrapezoidalPlanform(Planform):
         self.mean_aerodynamic_chord_exposed = exposed_semi_planform.mean_aerodynamic_chord
         self.mean_geometric_chord = semi_planform.mean_geometric_chord
         self.aerodynamic_center = self.__wing_origin + np.array([x_ac_local, 0, 0])
+
+    def get_flapped_area(self, span_ratio_inner, span_ratio_outer):
+        """
+        Compute the wing flapped (flap affected) area given the span ratios of the flaps
+        :param span_ratio_inner:
+        :param span_ratio_outer:
+        :return:
+        """
+
+        # get the corresponding chords of the span ratios
+        chord_flap_inner, chord_flap_outer = \
+            self.chord_from_y(np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span)
+
+        c_node_flapped = np.array([chord_flap_inner, chord_flap_outer])
+        y_node_flapped = np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span
+
+        flapped_semi_planform = SemiPlanform(c_node_flapped, y_node_flapped)
+        flapped_semi_planform.update()
+
+        return 2.0*flapped_semi_planform.area

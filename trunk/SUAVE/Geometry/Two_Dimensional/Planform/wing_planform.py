@@ -62,7 +62,7 @@ def wing_planform(wing):
                               thickness_to_chord, span_ratio_fuselage)
 
     # set the wing origin
-    wpc.wing_origin(wing.origin)
+    wpc.set_wing_origin(wing.origin)
 
     # compute
     wpc.update()

@@ -68,7 +68,7 @@ def main_wing_planform(wing):
                               span_ratio_break, lex_ratio, tex_ratio)
 
     # set the wing origin
-    wpc.wing_origin(wing.origin)
+    wpc.set_wing_origin(wing.origin)
 
     # compute
     wpc.update()

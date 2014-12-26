@@ -1,6 +1,10 @@
-import numpy as np
 import math as math
+
+import numpy as np
+
 from SemiPlanform import SemiPlanform
+from Planform import Planform
+
 
 """
 Geometry calculations for a singlely crank wing (with lex and/or tex)
@@ -11,43 +15,21 @@ Geometry calculations for a singlely crank wing (with lex and/or tex)
 """
 
 
-class CrankedPlanform:
-
+class CrankedPlanform(Planform):
     def __init__(self, sref, ar, sweep_qc, taper,
                  thickness_to_chord=0.12, span_ratio_fuselage=0.1,
                  span_ratio_break=0.3, lex_ratio=0, tex_ratio=0):
 
+        # call superclass constructor with lex and tex
+        super(CrankedPlanform, self).__init__(sref, ar, sweep_qc, taper,
+                                              thickness_to_chord, span_ratio_fuselage,
+                                              lex_ratio, tex_ratio)
+
         # input parameters
-        self.sref = sref
-        self.ar = ar
-        self.taper = taper
-        self.thickness_to_chord = thickness_to_chord
-        self.lex_ratio = lex_ratio
-        self.tex_ratio = tex_ratio
-        self.sweep_qc = sweep_qc
         self.span_ratio_break = span_ratio_break
-        self.span_ratio_fuselage = span_ratio_fuselage
 
         # computed parameters
-        self.span = None
-        self.chord_from_y = None
-        self.mean_aerodynamic_chord = None
-        self.mean_geometric_chord = None
-        self.mean_aerodynamic_chord_exposed = None
-        self.area_gross = None
-        self.area_exposed = None
-        self.area_wetted = None
-        self.aerodynamic_center = None
-        self.chord_root = None
         self.chord_break = None
-        self.chord_tip = None
-
-        # instance parameters
-        self.__semi_span = None
-        self.__wing_origin = np.array([0, 0, 0])
-        self.__x_le_node = None
-        self.c_node = None
-        self.y_node = None
 
     def update(self):
         """
@@ -55,89 +37,61 @@ class CrankedPlanform:
         :return:
         """
 
-        # span
-        self.span = math.sqrt(self.ar*self.sref)
-        self.__semi_span = self.span/2.
-
-        # trapzoidal wing root chord
-        chord_root_trap = 2*self.sref/self.span/(1+self.taper)
-
-        # tip chord
-        self.chord_tip = self.taper * chord_root_trap
-
         # span of control points: [root, break, tip]
-        self.y_node = np.array([0, self.span_ratio_break, 1])*self.__semi_span
+        self.y_node = np.array([0, self.span_ratio_break, 1]) * self.semi_span
 
         # break chord
-        self.chord_break = chord_root_trap + self.span_ratio_break*(self.chord_tip-chord_root_trap)
+        self.chord_break = self.chord_root_trap + self.span_ratio_break * (self.chord_tip - self.chord_root_trap)
 
         # trapezoidal wing definition chords
-        c_node_trap = np.array([chord_root_trap, self.chord_break, self.chord_tip])
+        c_node_trap = np.array([self.chord_root_trap, self.chord_break, self.chord_tip])
 
         # root chord
-        self.chord_root = chord_root_trap*(1+self.lex_ratio+self.tex_ratio)
+        self.chord_root = self.chord_root_trap * (1 + self.lex_ratio + self.tex_ratio)
 
         # extended wing definition chords
         self.c_node = np.array([self.chord_root, self.chord_break, self.chord_tip])
 
         # compute the extended wing semi-planform geometry
-        cranked_semi_planform = SemiPlanform(self.c_node, self.y_node)
-        cranked_semi_planform.update()
+        semi_planform = SemiPlanform(self.c_node, self.y_node)
+        semi_planform.update()
 
         # sort the chords with y; guard against case where fuselage is wider than break point
-        cranked_semi_planform.sort_chord_by_y()
+        semi_planform.sort_chord_by_y()
 
         # build a wing chord interpolant that can be reused
-        self.chord_from_y = cranked_semi_planform.get_chord_interpolator()
+        self.chord_from_y = semi_planform.get_chord_interpolator()
 
         # get the fuselage-wing intersection chord
-        chord_fuse_intersection = self.chord_from_y(self.span_ratio_fuselage*self.__semi_span)
+        chord_fuse_intersection = self.chord_from_y(self.span_ratio_fuselage * self.semi_span)
 
         # compute the exposed semi-planform properties
         c_node_exposed = np.array([chord_fuse_intersection, self.chord_break, self.chord_tip])
-        y_node_exposed = np.array([self.span_ratio_fuselage, self.span_ratio_break, 1])*self.__semi_span
+        y_node_exposed = np.array([self.span_ratio_fuselage, self.span_ratio_break, 1]) * self.semi_span
         exposed_semi_planform = SemiPlanform(c_node_exposed, y_node_exposed)
         exposed_semi_planform.sort_chord_by_y()
         exposed_semi_planform.update()
 
         # compute the trapzoidal x quarter chord location of all definition sections
-        self.__x_le_node = self.y_node*np.tan(self.sweep_qc) - c_node_trap/4.
+        self.__x_le_node = self.y_node * np.tan(self.sweep_qc) - c_node_trap / 4.
 
         # move root section to account for lex
-        self.__x_le_node[0] -= self.lex_ratio*c_node_trap[0]
+        self.__x_le_node[0] -= self.lex_ratio * c_node_trap[0]
 
         # transform coordinate to LE
-        self.__x_le_node += (self.lex_ratio+0.25)*c_node_trap[0]
-
+        self.__x_le_node += (self.lex_ratio + 0.25) * c_node_trap[0]
 
         # compute the aerodynamic center in the local coordinate system
-        x_ac_local = cranked_semi_planform.get_aerodynamic_center(self.__x_le_node)
+        x_ac_local = semi_planform.get_aerodynamic_center(self.__x_le_node)
 
         # update
-        self.area_gross = 2.0*cranked_semi_planform.area
-        self.area_exposed = 2.0*exposed_semi_planform.area
-        self.area_wetted = 2.0*(1+0.2*self.thickness_to_chord)*self.area_exposed
-        self.mean_aerodynamic_chord = cranked_semi_planform.mean_aerodynamic_chord
+        self.area_gross = 2.0 * semi_planform.area
+        self.area_exposed = 2.0 * exposed_semi_planform.area
+        self.area_wetted = 2.0 * (1 + 0.2 * self.thickness_to_chord) * self.area_exposed
+        self.mean_aerodynamic_chord = semi_planform.mean_aerodynamic_chord
         self.mean_aerodynamic_chord_exposed = exposed_semi_planform.mean_aerodynamic_chord
-        self.mean_geometric_chord = cranked_semi_planform.mean_geometric_chord
-        self.aerodynamic_center = self.__wing_origin + np.array([x_ac_local, 0, 0])
-
-    def get_wing_coordinates(self):
-        """
-        # write out the planform for plotting
-        :return:
-        """
-
-        x_te_node = self.__x_le_node+self.c_node
-        x = np.append(self.__x_le_node, x_te_node[::-1], self.__x_le_node[0])
-        y = np.append(self.y_node, self.y_node[::-1], self.y_node[0])
-        return x, y
-
-    def wing_origin(self, value):
-        """
-        Set the wing origin coordinates
-        """
-        self.__wing_origin = value
+        self.mean_geometric_chord = semi_planform.mean_geometric_chord
+        self.aerodynamic_center = self.wing_origin + np.array([x_ac_local, 0, 0])
 
     def get_flapped_area(self, span_ratio_inner, span_ratio_outer):
         """
@@ -149,14 +103,14 @@ class CrankedPlanform:
 
         # get the corresponding chords of the span ratios
         chord_flap_inner, chord_flap_outer = \
-            self.chord_from_y(np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span)
+            self.chord_from_y(np.array([span_ratio_inner, span_ratio_outer])*self.semi_span)
 
         c_node_flapped = np.array([chord_flap_inner, chord_flap_outer])
-        y_node_flapped = np.array([span_ratio_inner, span_ratio_outer])*self.__semi_span
+        y_node_flapped = np.array([span_ratio_inner, span_ratio_outer])*self.semi_span
 
         # add in the break section if we need to
         if span_ratio_outer > self.span_ratio_break > span_ratio_inner:
-            y_node_flapped = np.insert(y_node_flapped, 1, self.span_ratio_break*self.__semi_span)
+            y_node_flapped = np.insert(y_node_flapped, 1, self.span_ratio_break*self.semi_span)
             c_node_flapped = np.insert(c_node_flapped, 1, self.chord_break)
 
         flapped_semi_planform = SemiPlanform(c_node_flapped, y_node_flapped)
