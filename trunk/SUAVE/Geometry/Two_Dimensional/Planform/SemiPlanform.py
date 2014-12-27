@@ -71,7 +71,7 @@ class SemiPlanform:
         self.y = self.y[sort_index]
         self.c = self.c[sort_index]
 
-    def get_chord_interpolator(self, interp_type='linear'):
+    def get_chord_interpolant(self, interp_type='linear'):
         """
         Create a chord interpolator
         :return: scipy interpolator

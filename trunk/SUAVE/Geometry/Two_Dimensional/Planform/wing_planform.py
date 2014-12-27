@@ -13,11 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
-from SUAVE.Structure  import Data
-#from SUAVE.Attributes import Constants
-from SUAVE.Geometry.Two_Dimensional.Planform.CrankedPlanform import CrankedPlanform
+from SUAVE.Geometry.Two_Dimensional.Planform.TrapezoidalPlanform import TrapezoidalPlanform
 
 
 # ----------------------------------------------------------------------
@@ -58,28 +54,28 @@ def wing_planform(wing):
     span_ratio_fuselage = wing.span_ratios.fuselage
 
     # compute wing planform geometry
-    wpc = CrankedPlanform(sref, ar, sweep, taper,
+    wpt = TrapezoidalPlanform(sref, ar, sweep, taper,
                               thickness_to_chord, span_ratio_fuselage)
 
     # set the wing origin
-    wpc.set_wing_origin(wing.origin)
+    wpt.set_wing_origin(wing.origin)
 
     # compute
-    wpc.update()
+    wpt.update()
 
     # update
-    wing.chords.root = wpc.chord_root
-    wing.chords.tip = wpc.chord_tip
-    wing.chords.mean_aerodynamic = wpc.mean_aerodynamic_chord
-    wing.chords.mean_aerodynamic_exposed = wpc.mean_aerodynamic_chord_exposed
-    wing.chords.mean_geometric = wpc.mean_geometric_chord
+    wing.chords.root = wpt.chord_root
+    wing.chords.tip = wpt.chord_tip
+    wing.chords.mean_aerodynamic = wpt.mean_aerodynamic_chord
+    wing.chords.mean_aerodynamic_exposed = wpt.mean_aerodynamic_chord_exposed
+    wing.chords.mean_geometric = wpt.mean_geometric_chord
 
-    wing.aerodynamic_center = wpc.aerodynamic_center
+    wing.aerodynamic_center = wpt.aerodynamic_center
 
-    wing.areas.wetted = wpc.area_wetted
-    wing.areas.gross = wpc.area_gross
-    wing.areas.exposed = wpc.area_exposed
+    wing.areas.wetted = wpt.area_wetted
+    wing.areas.gross = wpt.area_gross
+    wing.areas.exposed = wpt.area_exposed
 
-    wing.spans.projected = wpc.span
+    wing.spans.projected = wpt.span
 
     return wing
