@@ -26,7 +26,7 @@ class AVL_Inputs(Data):
 		filenames.results = []
 		filenames.cases = 'aircraft.cases'
 		filenames.deck = 'commands.run'
-		filenames.reference_path = SUAVE.__path__[0] + '/Methods/Aerodynamics/AVL/temporary_files/'
+		filenames.reference_path = SUAVE.__path__[0] + '/temporary_files/'
 		# Currently dumping input files in the SUAVE main
 		# directory. This should be fixed once AVL has a place in
 		# the SUAVE file structure
