@@ -63,9 +63,8 @@ def main_wing_planform(wing):
     tex_ratio = wing.tex
 
     # compute wing planform geometry
-    wpc = CrankedPlanform(sref, ar, sweep, taper,
-                              thickness_to_chord, span_ratio_fuselage,
-                              span_ratio_break, lex_ratio, tex_ratio)
+    wpc = CrankedPlanform(sref, ar, sweep, taper, span_ratio_fuselage,
+                          span_ratio_break, lex_ratio, tex_ratio)
 
     # set the wing origin
     wpc.set_wing_origin(wing.origin)
@@ -75,7 +74,7 @@ def main_wing_planform(wing):
 
     # compute flapped area if wing is flapped
     if wing.flaps.type is not None:
-       wpc.add_flap(wing.flaps.span_start, wing.flaps.span_end)
+        wpc.add_flap(wing.flaps.span_start, wing.flaps.span_end)
 
     # update
     wing.chords.root = wpc.chord_root
@@ -93,8 +92,8 @@ def main_wing_planform(wing):
     # plt.axis('equal')
     # plt.show()
 
-    wing.aerodynamic_center = wpc.aerodynamic_center
-    wing.areas.wetted = wpc.area_wetted
+    wing.aerodynamic_center = [wpc.x_aerodynamic_center, 0, 0]
+    wing.areas.wetted = wpc.calc_area_wetted(thickness_to_chord)
     wing.areas.gross = wpc.area_gross
     wing.areas.exposed = wpc.area_exposed
     wing.spans.projected = wpc.span

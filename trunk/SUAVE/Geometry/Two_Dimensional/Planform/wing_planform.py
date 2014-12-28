@@ -55,7 +55,7 @@ def wing_planform(wing):
 
     # compute wing planform geometry
     wpt = TrapezoidalPlanform(sref, ar, sweep, taper,
-                              thickness_to_chord, span_ratio_fuselage)
+                              span_ratio_fuselage)
 
     # set the wing origin
     wpt.set_wing_origin(wing.origin)
@@ -70,9 +70,9 @@ def wing_planform(wing):
     wing.chords.mean_aerodynamic_exposed = wpt.mean_aerodynamic_chord_exposed
     wing.chords.mean_geometric = wpt.mean_geometric_chord
 
-    wing.aerodynamic_center = wpt.aerodynamic_center
+    wing.aerodynamic_center = [wpt.x_aerodynamic_center, 0, 0]
 
-    wing.areas.wetted = wpt.area_wetted
+    wing.areas.wetted = wpt.calc_area_wetted(thickness_to_chord)
     wing.areas.gross = wpt.area_gross
     wing.areas.exposed = wpt.area_exposed
 

@@ -17,12 +17,11 @@ Geometry calculations for a singlely crank wing (with lex and/or tex)
 
 class CrankedPlanform(Planform):
     def __init__(self, sref, ar, sweep_qc, taper,
-                 thickness_to_chord=0.12, span_ratio_fuselage=0.1,
-                 span_ratio_break=0.3, lex_ratio=0, tex_ratio=0):
+                 span_ratio_fuselage=0.1, span_ratio_break=0.3, lex_ratio=0, tex_ratio=0):
 
         # call superclass constructor with lex and tex
         super(CrankedPlanform, self).__init__(sref, ar, sweep_qc, taper,
-                                              thickness_to_chord, span_ratio_fuselage,
+                                              span_ratio_fuselage,
                                               lex_ratio, tex_ratio)
 
         # input parameters
@@ -53,13 +52,13 @@ class CrankedPlanform(Planform):
         c_node = np.array([self.chord_root, self.chord_break, self.chord_tip])
 
         # compute the extended wing semi-planform geometry
-        semi_planform = SemiPlanform(c_node, y_node)
+        self.semi_planform = SemiPlanform(c_node, y_node)
         # sort the chords with y; guard against case where fuselage is wider than break point
-        semi_planform.sort_chord_by_y()
-        semi_planform.update()
+        self.semi_planform.sort_chord_by_y()
+        self.semi_planform.update()
 
         # build a wing chord interpolant that can be reused
-        self.chord_from_y = semi_planform.get_chord_interpolant()
+        self.chord_from_y = self.semi_planform.get_chord_interpolant()
 
         # get the fuselage-wing intersection chord
         chord_fuse_intersection = self.chord_from_y(self.span_ratio_fuselage * self.semi_span)
@@ -67,13 +66,13 @@ class CrankedPlanform(Planform):
         # compute the exposed semi-planform properties
         c_node_exposed = np.array([chord_fuse_intersection, self.chord_break, self.chord_tip])
         y_node_exposed = np.array([self.span_ratio_fuselage, self.span_ratio_break, 1]) * self.semi_span
-        exposed_semi_planform = SemiPlanform(c_node_exposed, y_node_exposed)
-        exposed_semi_planform.sort_chord_by_y()
-        exposed_semi_planform.update()
+        self.semi_planform_exposed = SemiPlanform(c_node_exposed, y_node_exposed)
+        self.semi_planform_exposed.sort_chord_by_y()
+        self.semi_planform_exposed.update()
 
-        # update
-        self._semi_planform = semi_planform
-        self._exposed_semi_planform = exposed_semi_planform
+        self.x_aerodynamic_center = self.wing_origin[0] + self.calc_x_ac(self.semi_planform, self.c_trap,
+                                                                         self.sweep_qc, self.lex_ratio)
+
 
     def add_flap(self, span_ratio_inner, span_ratio_outer):
         """
@@ -95,9 +94,5 @@ class CrankedPlanform(Planform):
             y_node_flapped = np.insert(y_node_flapped, 1, self.span_ratio_break*self.semi_span)
             c_node_flapped = np.insert(c_node_flapped, 1, self.chord_break)
 
-        flapped_semi_planform = SemiPlanform(c_node_flapped, y_node_flapped)
-        flapped_semi_planform.update()
-
-        # update
-        self._flapped_semi_planform = flapped_semi_planform
-
+        self.semi_planform_flapped = SemiPlanform(c_node_flapped, y_node_flapped)
+        self.semi_planform_flapped.update()
