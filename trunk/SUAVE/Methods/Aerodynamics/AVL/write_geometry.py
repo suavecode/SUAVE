@@ -97,9 +97,24 @@ SURFACE
 	else:
 		ydup     = ' '
 	surface_text = surface_base.format(name,ydup)
-
+	
+	ordered_tags = []
 	for s in avl_wing.sections:
-		section_text = make_section_text(s)
+		if len(ordered_tags)==0:
+			ordered_tags.append(s.tag)
+		else:
+			for i in range(len(ordered_tags)+1):
+				if i == len(ordered_tags):
+					ordered_tags.append(s.tag)
+				elif s.origin[1] < avl_wing.sections[ordered_tags[i]].origin[1]:
+					ordered_tags.insert(i,s.tag)
+					break
+	
+	print(ordered_tags)
+	print(avl_wing.sections)
+	
+	for t in ordered_tags:
+		section_text = make_section_text(avl_wing.sections[t])
 		surface_text = surface_text + section_text
 
 	return surface_text
@@ -184,8 +199,7 @@ AFILE
 def make_controls_text(avl_control_surface):
 	# Template for a control surface
 	control_base = \
-'''
-CONTROL
+'''CONTROL
 #Name gain Xhinge hinge_vector SgnDup
 {0}   {1}  {2}    {3} {4} {5}  {6}
 
