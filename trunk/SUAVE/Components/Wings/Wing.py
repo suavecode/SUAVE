@@ -220,9 +220,9 @@ class Control_Surface(Lofted_Body):
 		outboard.origins.span_fraction  = span_fractions[-1]
 		outboard.origins.chord_fraction = 1. - chord_fractions[-1]
 		local_chord = c_r * (1 + 2. * span_fractions[-1] * (tpr - 1))
-		inboard.origins.dimensional[0] = orig[0] + span*span_fractions[-1]*np.tan(sw) + local_chord*inboard.origins.chord_fraction
-		inboard.origins.dimensional[1] = orig[1] + span*span_fractions[-1]
-		inboard.origins.dimensional[2] = orig[2] + span*span_fractions[-1]*np.tan(di)
+		outboard.origins.dimensional[0] = orig[0] + span*span_fractions[-1]*np.tan(sw) + local_chord*outboard.origins.chord_fraction
+		outboard.origins.dimensional[1] = orig[1] + span*span_fractions[-1]
+		outboard.origins.dimensional[2] = orig[2] + span*span_fractions[-1]*np.tan(di)
 		outboard.chord_fraction = chord_fractions[-1]
 		outboard.twist = relative_twists[-1]
 		self.append_section(outboard)
@@ -237,9 +237,9 @@ class Control_Surface(Lofted_Body):
 				section.origins.span_fraction  = span_fractions[i]
 				section.origins.chord_fraction = 1. - chord_fractions[i]
 				local_chord = c_r * (1 + 2. * span_fractions[i] * (tpr - 1))
-				inboard.origins.dimensional[0] = orig[0] + span*span_fractions[i]*np.tan(sw) + local_chord*inboard.origins.chord_fraction
-				inboard.origins.dimensional[1] = orig[1] + span*span_fractions[i]
-				inboard.origins.dimensional[2] = orig[2] + span*span_fractions[i]*np.tan(di)
+				section.origins.dimensional[0] = orig[0] + span*span_fractions[i]*np.tan(sw) + local_chord*section.origins.chord_fraction
+				section.origins.dimensional[1] = orig[1] + span*span_fractions[i]
+				section.origins.dimensional[2] = orig[2] + span*span_fractions[i]*np.tan(di)
 				section.chord_fraction = chord_fractions[i]
 				section.twist = relative_twists[i]
 				self.append_section(section)
