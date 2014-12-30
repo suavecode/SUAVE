@@ -23,7 +23,8 @@ class AVL_Wing(Data):
 
 		self.sections = Data()
 		self.configuration = Data()
-        
+		self.control_surfaces = Data()
+
 		self.configuration.nspanwise = 10
 		self.configuration.nchordwise = 5
 		self.configuration.sspace = 1.0
@@ -54,6 +55,18 @@ class AVL_Section(Data):
 		self.twist  = 0.0
 		self.airfoil_coord_file = None
 		self.control_surfaces = Data()
+		
+				
+	def append_control_surface(self,control):
+		""" adds a control_surface to the wing section """
+
+		# assert database type
+		if not isinstance(control,Data):
+			raise Component_Exception, 'input component must be of type Data()'
+
+		# store data
+		self.control_surfaces.append(control)
+		return
 
 
 # ------------------------------------------------------------
@@ -66,8 +79,8 @@ class AVL_Control_Surface(Data):
 		self.gain           = 1.0
 		self.x_hinge        = 0.0
 		self.hinge_vector   = [0.,0.,0.]
-		self.sign_duplicate = 1.0	# sign_duplicate: 1.0 or -1.0 - the sign of 
-									# the duplicate control on the mirror wing. 
-									# Use 1.0 for a mirrored control surface, 
+		self.sign_duplicate = 1.0	# sign_duplicate: 1.0 or -1.0 - the sign of
+									# the duplicate control on the mirror wing.
+									# Use 1.0 for a mirrored control surface,
 									# like an elevator. Use -1.0 for an aileron.
 
