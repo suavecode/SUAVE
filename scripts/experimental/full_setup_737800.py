@@ -500,5 +500,5 @@ def mission_setup(vehicle):
 if __name__ == '__main__':
 
 
-    full_setup()
+    full_setup_737800()
 
