@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+import scipy
 import numpy as np
 from copy import deepcopy
 # SUAVE Imports
@@ -10,7 +11,7 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 #from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.parasite_drag_aircraft import parasite_drag_aircraft
 # SUAVE-AVL Imports
 from AVL_Data.AVL_Inputs   import AVL_Inputs
-from AVL_Data.AVL_Wing     import AVL_Wing, AVL_Section
+from AVL_Data.AVL_Wing     import AVL_Wing, AVL_Section, AVL_Control_Surface
 from AVL_Data.AVL_Body     import AVL_Body
 from AVL_Data.AVL_Aircraft import AVL_Aircraft
 from AVL_Data.AVL_Cases    import AVL_Cases,AVL_Run_Case
@@ -37,6 +38,7 @@ def translate_avl_geometry(geometry):
 	aircraft = AVL_Aircraft()
 	aircraft.tag = geometry.tag
 	
+	# FOR NOW, ASSUMING THAT CONTROL SURFACES ARE NOT ALIGNED WITH WING SECTIONS (IN THIS CASE, ROOT AND TIP SECTIONS)
 	for wing in geometry.wings:
 		w = AVL_Wing()
 		w.tag       = wing.tag
@@ -66,6 +68,7 @@ def populate_wing_sections(avl_wing,suave_wing):
 	symm     = avl_wing.symmetric
 	sweep    = avl_wing.sweep
 	dihedral = avl_wing.dihedral
+	span     = suave_wing.spans.projected
 	semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
 	origin   = suave_wing.origin
 	root_section = AVL_Section()
@@ -87,6 +90,26 @@ def populate_wing_sections(avl_wing,suave_wing):
 	
 	avl_wing.append_section(root_section)
 	avl_wing.append_section(tip_section)
+	
+	if suave_wing.control_surfaces:
+		for ctrl in suave_wing.control_surfaces:
+			num = 1
+			for section in ctrl.sections:
+				semispan_fraction = (span/semispan) * section.origins.span_fraction
+				s = AVL_Section()
+				s.chord  = scipy.interp(semispan_fraction,[0.,1.],[root_section.chord,tip_section.chord])
+				s.tag    = '{0}_Section{1}'.format(ctrl.tag,num)
+				s.origin = section.origins.dimensional
+				s.origin[0] = s.origin[0] - s.chord*section.origins.chord_fraction
+				s.twist  = scipy.interp(semispan_fraction,[0.,1.],[root_section.twist,tip_section.twist])
+				c = AVL_Control_Surface()
+				c.tag     = ctrl.tag
+				c.x_hinge = 1. - section.chord_fraction
+				c.sign_duplicate = ctrl.deflection_symmetry
+				
+				s.append_control_surface(c)
+				avl_wing.append_section(s)
+				num += 1
 	
 	return avl_wing
 
@@ -124,8 +147,7 @@ def populate_body_sections(avl_body,suave_body):
 	avl_body.append_section(tip_sectionv2,'Vertical')
 	
 	return avl_body
-
-
+	
 
 def translate_avl_configuration(geometry,configuration,conditions):
 	
@@ -153,7 +175,7 @@ def translate_avl_configuration(geometry,configuration,conditions):
 
 
 def translate_avl_cases():
-	pass
+	raise NotImplementedError
 
 
 
