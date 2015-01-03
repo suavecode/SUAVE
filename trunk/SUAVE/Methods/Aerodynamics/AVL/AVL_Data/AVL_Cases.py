@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Structure import Data
 
 
 # ------------------------------------------------------------
@@ -40,20 +40,37 @@ class AVL_Cases(Data):
 
 class AVL_Run_Case(Data):
 	def __defaults__(self):
-		self.index  = 0		# Will be overwritten when appended to an AVL_Cases structure
-		self.tag    = 'Case'
+		"""
+		OUTPUTS:
+			- 'aerodynamic' (CL, CD, CM)
+			- 'body derivatives' (CMa,CNb,Clb,
+			- 'stability derivatives (
+			
+		"""
+		
+		self.index = 0		# Will be overwritten when appended to an AVL_Cases structure
+		self.tag   = 'Case'
+		self.mass  = None
 		
 		self.conditions = Data()
-		self.conditions.mach  = 0.0
-		self.conditions.v_inf = 0.0
-		self.conditions.rho   = 1.225
-		self.conditions.gravitational_acc = 9.81
+		self.stability_and_control = Data()
+		free = Data()
+		aero = Data()
 		
-		self.angles = Data()
-		self.angles.alpha = 0.0
-		self.angles.beta  = 0.0
+		free.mach     = None
+		free.velocity = None
+		free.density  = None
+		free.gravitational_acceleration = None
 		
-		self.control_deflections = Data()
+		aero.parasite_drag    = None
+		aero.angle_of_attack  = None
+		aero.side_slip_angle  = None
+		
+		self.stability_and_control.control_deflections = None
+		self.conditions.freestream = free
+		self.conditions.aerodynamics = aero
+		
+		self.result_filename = None
 
 
 	def append_control_deflection(self,control_tag,deflection):
@@ -61,7 +78,8 @@ class AVL_Run_Case(Data):
 		control_deflection = Data()
 		control_deflection.tag        = control_tag
 		control_deflection.deflection = deflection
-		self.control_deflection.append(control_deflection)
+		if self.stability_and_control.control_deflections is None:
+			self.stability_and_control.control_deflections = Data()
+		self.stability_and_control.control_deflections.append(control_deflection)
 		
 		return
-

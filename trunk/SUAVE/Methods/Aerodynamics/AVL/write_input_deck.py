@@ -4,7 +4,7 @@
 from purge_files import purge_files
 
 
-def write_input_deck(avl_inputs):
+def write_input_deck(avl_object):
 
 	base_input = \
 '''LOAD {0}
@@ -12,11 +12,11 @@ CASE {1}
 OPER
 '''
 	# unpack
-	files_path        = avl_inputs.input_files.reference_path
-	geometry_filename = avl_inputs.input_files.geometry
-	cases_filename    = avl_inputs.input_files.cases
-	deck_filename     = avl_inputs.input_files.deck
-	kases             = avl_inputs.cases
+	files_path        = avl_object.settings.filenames.run_folder
+	geometry_filename = avl_object.settings.filenames.geometry
+	cases_filename    = avl_object.settings.filenames.cases
+	deck_filename     = avl_object.settings.filenames.input_deck
+	kases             = avl_object.settings.run_cases
 	
 	deck_path     = files_path + deck_filename
 	cases_path    = files_path + cases_filename
@@ -31,13 +31,12 @@ OPER
 			case_command,res_file = make_case_command(files_path,case)
 			results_files.append(res_file)
 			input_deck.write(case_command)
-		avl_inputs.input_files.results = results_files
+		avl_object.settings.filenames.results = results_files
 		input_deck.write('\n\nQUIT\n')
 	finally:
 		input_deck.close()
 	
-	return avl_inputs
-
+	return avl_object
 
 
 def make_case_command(directory,case):
@@ -46,17 +45,14 @@ def make_case_command(directory,case):
 '''{0}
 x
 {1}
-{2}results{0}.txt
+{2}{3}
 '''
 	
 	index = case.index
+	case_tag = case.tag
 	res_type = 'st' # Eventually make this variable, or multiple, depending on user's desired outputs
-	results_file = 'results{}.txt'.format(index)
+	results_file = 'results_{}.txt'.format(case_tag)
 	purge_files([directory+results_file])
-	#if index == 1:
-	#	results_command = 'st\nresults.txt\n'
-	#else:
-	#	results_command = 'st\nresults.txt\na\n'
-	case_command = base_case_command.format(index,res_type,directory)
+	case_command = base_case_command.format(index,res_type,directory,results_file)
 	
 	return case_command,results_file

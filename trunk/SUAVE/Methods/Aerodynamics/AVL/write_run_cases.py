@@ -7,13 +7,13 @@
 #from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from purge_files import purge_files
 
-def write_run_cases(avl_inputs):
+def write_run_cases(avl_object):
 	
 	# unpack avl_inputs
-	files_path     = avl_inputs.input_files.reference_path
-	cases_path     = files_path + avl_inputs.input_files.cases
-	configuration  = avl_inputs.configuration
-	kases          = avl_inputs.cases
+	files_path = avl_object.settings.filenames.run_folder
+	cases_path = files_path + avl_object.settings.filenames.cases
+	aircraft   = avl_object.features
+	kases      = avl_object.settings.run_cases
 	
 	base_case_text = \
 '''
@@ -67,28 +67,29 @@ def write_run_cases(avl_inputs):
 	runcases = open(cases_path,'w')
 	
 	try:
-		CD0         = configuration.parasite_drag
-		x_cg        = configuration.reference_values.cg_coords[0]
-		y_cg        = configuration.reference_values.cg_coords[1]
-		z_cg        = configuration.reference_values.cg_coords[2]
-		mass        = configuration.mass_properties.mass
-		Ixx         = configuration.mass_properties.inertial.Ixx
-		Iyy         = configuration.mass_properties.inertial.Iyy
-		Izz         = configuration.mass_properties.inertial.Izz
-		Ixy         = configuration.mass_properties.inertial.Ixy
-		Iyz         = configuration.mass_properties.inertial.Iyz
-		Izx         = configuration.mass_properties.inertial.Izx
+		x_cg = avl_object.features.mass_properties.center_of_gravity[0]
+		y_cg = avl_object.features.mass_properties.center_of_gravity[1]
+		z_cg = avl_object.features.mass_properties.center_of_gravity[2]
+		mass = avl_object.default_case.mass
+		moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
+		Ixx  = moments_of_inertia[0][0]
+		Iyy  = moments_of_inertia[1][1]
+		Izz  = moments_of_inertia[2][2]
+		Ixy  = moments_of_inertia[0][1]
+		Iyz  = moments_of_inertia[1][2]
+		Izx  = moments_of_inertia[2][0]
 		
 		for case in kases.cases:
-			# Unpack inputs
 			index = case.index
 			name  = case.tag
-			alpha = case.angles.alpha
-			beta  = case.angles.beta
-			mach  = case.conditions.mach
-			v     = case.conditions.v_inf
-			rho   = case.conditions.rho
-			g     = case.conditions.gravitational_acc
+			alpha = case.conditions.aerodynamics.angle_of_attack
+			beta  = case.conditions.aerodynamics.side_slip_angle
+			CD0   = case.conditions.aerodynamics.parasite_drag
+			mach  = case.conditions.freestream.mach
+			v     = case.conditions.freestream.velocity
+			rho   = case.conditions.freestream.density
+			g     = case.conditions.freestream.gravitational_acceleration
+        	
 			# form controls text
 			controls = []
 			for cs in case.control_deflections:
@@ -103,17 +104,17 @@ def write_run_cases(avl_inputs):
 	finally:	# don't leave the file open if something goes wrong
 		runcases.close()
 	
-	return avl_inputs
+	return avl_object
 
 
 
-def make_controls_case_text(control_from_cases):
+def make_controls_case_text(control_deflection):
 	
 	base_control_cond_text = '{0}      ->  {0}     =   {1}    \n'
 	
 	# Unpack inputs
-	name = control_from_cases.tag
-	d    = control_from_cases.deflection
+	name = control_deflection.tag
+	d    = control_deflection.deflection
 
 	# Form text
 	controls_case_text = base_control_cond_text.format(name,d)

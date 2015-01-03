@@ -18,12 +18,12 @@ from AVL_Data.AVL_Cases    import AVL_Cases,AVL_Run_Case
 from AVL_Data.AVL_Configuration import AVL_Configuration
 
 
-def create_avl_datastructure(geometry,configuration,conditions):
+def create_avl_datastructure(geometry,conditions):
 	
 	avl_aircraft      = translate_avl_geometry(geometry)
-	avl_configuration = translate_avl_configuration(geometry,configuration,conditions)
-	#avl_cases         = translate_avl_cases(geometry,configuration,conditions)
-	avl_cases         = setup_test_cases(conditions)
+	avl_configuration = translate_avl_configuration(geometry,conditions)
+	avl_cases         = translate_avl_cases(conditions,settings.run_cases)
+	#avl_cases         = setup_test_cases(conditions)
 
 	# pack results in a new AVL inputs structure
 	avl_inputs = AVL_Inputs()
@@ -40,28 +40,42 @@ def translate_avl_geometry(geometry):
 	
 	# FOR NOW, ASSUMING THAT CONTROL SURFACES ARE NOT ALIGNED WITH WING SECTIONS (IN THIS CASE, ROOT AND TIP SECTIONS)
 	for wing in geometry.wings:
-		w = AVL_Wing()
-		w.tag       = wing.tag
-		w.symmetric = wing.symmetric
-		w.vertical  = wing.vertical
-		w.sweep     = wing.sweep
-		w.dihedral  = wing.dihedral
-		w = populate_wing_sections(w,wing)
+		w = translate_avl_wing(wing)
 		aircraft.append_wing(w)
 	
 	for body in geometry.fuselages:
-		b = AVL_Body()
-		b.tag       = body.tag
-		b.symmetric = True#body.symmetric
-		b.lengths.total = body.lengths.total
-		b.lengths.nose  = body.lengths.nose
-		b.lengths.tail  = body.lengths.tail
-		b.widths.maximum = body.width
-		b.heights.maximum = body.heights.maximum
-		b = populate_body_sections(b,body)
+		b = translate_avl_body(body)
 		aircraft.append_body(b)
 	
 	return aircraft
+
+
+def translate_avl_wing(suave_wing):
+	
+	w = AVL_Wing()
+	w.tag       = suave_wing.tag
+	w.symmetric = suave_wing.symmetric
+	w.vertical  = suave_wing.vertical
+	w.sweep     = suave_wing.sweep
+	w.dihedral  = suave_wing.dihedral
+	w = populate_wing_sections(w,suave_wing)
+	
+	return w
+
+
+def translate_avl_body(suave_body):
+	
+	b = AVL_Body()
+	b.tag       = suave_body.tag
+	b.symmetric = True #body.symmetric
+	b.lengths.total = suave_body.lengths.total
+	b.lengths.nose  = suave_body.lengths.nose
+	b.lengths.tail  = suave_body.lengths.tail
+	b.widths.maximum = suave_body.width
+	b.heights.maximum = suave_body.heights.maximum
+	b = populate_body_sections(b,suave_body)
+	
+	return b
 
 
 def populate_wing_sections(avl_wing,suave_wing):
@@ -149,7 +163,7 @@ def populate_body_sections(avl_body,suave_body):
 	return avl_body
 	
 
-def translate_avl_configuration(geometry,configuration,conditions):
+def translate_avl_configuration(geometry,conditions):
 	
 	config = AVL_Configuration()
 	config.reference_values.sref = geometry.reference_area
@@ -157,7 +171,7 @@ def translate_avl_configuration(geometry,configuration,conditions):
 	config.reference_values.cref = geometry.wings['Main Wing'].chords.mean_aerodynamic
 	config.reference_values.cg_coords = geometry.mass_properties.center_of_gravity
 	
-	config.parasite_drag = 0.0177#parasite_drag_aircraft(conditions,configuration,geometry)
+	#config.parasite_drag = 0.0177#parasite_drag_aircraft(conditions,configuration,geometry)
 	
 	config.mass_properties.mass = geometry.mass_properties.max_takeoff ###
 	moment_tensor = geometry.mass_properties.moments_of_inertia.tensor
@@ -173,10 +187,27 @@ def translate_avl_configuration(geometry,configuration,conditions):
 	return config
 
 
-
-def translate_avl_cases():
-	raise NotImplementedError
-
+def translate_avl_cases(conditions,suave_cases):
+	
+	runcases = AVL_Cases()
+	
+	for case in suave_cases:
+		kase = AVL_Run_Case()
+		kase.tag = case.tag
+		kase.conditions.mach  = case.conditions.freestream.mach
+		kase.conditions.v_inf = case.conditions.freestream.velocity
+		kase.conditions.rho   = case.conditions.freestream.density
+		kase.conditions.g     = case.conditions.freestream.gravitational_acceleration
+		kase.angles.alpha     = case.conditions.aerodynamics.angle_of_attack
+		kase.angles.beta      = case.conditions.aerodynamics.side_slip_angle
+		kase.parasite_drag    = case.conditions.aerodynamics.parasite_drag
+		
+		for deflect in case.conditions.stability_and_control.control_surface_deflections:
+			kase.append_control_deflection(deflect.tag,deflect.magnitude)
+		
+		runcases.append_case(case)
+	
+	return runcases
 
 
 def setup_test_cases(conditions):

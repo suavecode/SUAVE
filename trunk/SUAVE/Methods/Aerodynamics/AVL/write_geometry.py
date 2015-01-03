@@ -4,18 +4,16 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
 from purge_files import purge_files
+from create_avl_datastructure import translate_avl_wing, translate_avl_body
 
 
-def write_geometry(avl_inputs):
+def write_geometry(avl_object):
 	
 	# unpack inputs
-	aircraft      = avl_inputs.aircraft
-	configuration = avl_inputs.configuration
-	files_path    = avl_inputs.input_files.reference_path
-	geometry_file = avl_inputs.input_files.geometry
+	aircraft      = avl_object.features
+	files_path    = avl_object.settings.filenames.run_folder
+	geometry_file = avl_object.settings.filenames.features
 	
 	# Open the geometry file after purging if it already exists
 	geometry_path= files_path + geometry_file
@@ -24,22 +22,24 @@ def write_geometry(avl_inputs):
 	geometry = open(geometry_path,'w')
 
 	try:
-		header_text = make_header_text(aircraft,configuration)
+		header_text = make_header_text(avl_object)
 		geometry.write(header_text)
 		for w in aircraft.wings:
-			wing_text = make_surface_text(w)
+			avl_wing = translate_avl_wing(w)
+			wing_text = make_surface_text(avl_wing)
 			geometry.write(wing_text)
 		for b in aircraft.bodies:
-			body_text = make_body_text(b)
+			avl_body = translate_avl_body(b)
+			body_text = make_body_text(avl_body)
 			geometry.write(body_text)
 	finally:	# don't leave the file open if something goes wrong
 		geometry.close()
 	
-	return avl_inputs
+	return avl_object
 
 
 
-def make_header_text(avl_aircraft,avl_configuration):
+def make_header_text(avl_object):
 	# Template for header
 	header_base = \
 '''{0}
@@ -56,17 +56,17 @@ def make_header_text(avl_aircraft,avl_configuration):
 '''
 	
 	# Unpack inputs
-	Iysym = avl_configuration.symmetry_settings.Iysym
-	Izsym = avl_configuration.symmetry_settings.Izsym
-	Zsym  = avl_configuration.symmetry_settings.Zsym
-	Sref  = avl_configuration.reference_values.sref
-	Cref  = avl_configuration.reference_values.cref
-	Bref  = avl_configuration.reference_values.bref
-	Xref  = avl_configuration.reference_values.cg_coords[0]
-	Yref  = avl_configuration.reference_values.cg_coords[1]
-	Zref  = avl_configuration.reference_values.cg_coords[2]
-	CDp   = avl_configuration.parasite_drag
-	name  = avl_aircraft.tag
+	Iysym = avl_object.settings.flow_symmetry.xz_plane
+	Izsym = avl_object.settings.flow_symmetry.xy_parallel
+	Zsym  = avl_object.settings.flow_symmetry.z_symmetry_plane
+	Sref  = avl_object.features.wings['Main Wing'].areas.reference
+	Cref  = avl_object.features.wings['Main Wing'].chords.mean_aerodynamic
+	Bref  = avl_object.features.wings['Main Wing'].spans.projected
+	Xref  = avl_object.features.mass_properties.center_of_gravity[0]
+	Yref  = avl_object.features.mass_properties.center_of_gravity[1]
+	Zref  = avl_object.features.mass_properties.center_of_gravity[2]
+	CDp   = avl_object.default_case.conditions.aerodynamics.parasite_drag
+	name  = avl_object.features.tag
 	
 	mach = 0.0
 	
@@ -109,9 +109,6 @@ SURFACE
 				elif s.origin[1] < avl_wing.sections[ordered_tags[i]].origin[1]:
 					ordered_tags.insert(i,s.tag)
 					break
-	
-	print(ordered_tags)
-	print(avl_wing.sections)
 	
 	for t in ordered_tags:
 		section_text = make_section_text(avl_wing.sections[t])
