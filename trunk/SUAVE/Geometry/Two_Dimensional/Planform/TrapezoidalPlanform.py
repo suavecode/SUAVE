@@ -45,7 +45,7 @@ class TrapezoidalPlanform(Planform):
         self.semi_planform.update()
 
         # build a wing chord interpolant that can be reused
-        self.chord_from_y = self.semi_planform.get_chord_interpolant()
+        self.chord_from_y = self.semi_planform.chord_from_y
 
         # get the fuselage-wing intersection chord
         chord_fuse_intersection = self.chord_from_y(self.span_ratio_fuselage * self.semi_span)

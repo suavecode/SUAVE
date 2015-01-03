@@ -58,7 +58,7 @@ class CrankedPlanform(Planform):
         self.semi_planform.update()
 
         # build a wing chord interpolant that can be reused
-        self.chord_from_y = self.semi_planform.get_chord_interpolant()
+        self.chord_from_y = self.semi_planform.chord_from_y
 
         # get the fuselage-wing intersection chord
         chord_fuse_intersection = self.chord_from_y(self.span_ratio_fuselage * self.semi_span)
@@ -72,7 +72,6 @@ class CrankedPlanform(Planform):
 
         self.x_aerodynamic_center = self.wing_origin[0] + self.calc_x_ac(self.semi_planform, self.c_trap,
                                                                          self.sweep_qc, self.lex_ratio)
-
 
     def add_flap(self, span_ratio_inner, span_ratio_outer):
         """

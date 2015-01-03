@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import integrate
 from scipy import interpolate
 
 """
@@ -11,7 +12,7 @@ Geometry calculations for a general semi-planform defined by arrays of chords an
 """
 
 
-class SemiPlanform:
+class SemiPlanform(object):
     def __init__(self, c, y):
         """
         Constructor
@@ -25,39 +26,29 @@ class SemiPlanform:
         self.y = y
 
         # computed parameters
-        self.length = None
+        self.semi_span = None
         self.area = None
         self.mean_aerodynamic_chord = None
         self.mean_geometric_chord = None
-
-        # instance parameters
-        self.__area_panel = None
-        self.__c_bar_panel = None
-        self.__dy = None
+        self.chord_from_y = None
 
     def update(self):
         """
-        Update all geometric parameters
+        Update geometric parameters
         :return:
         """
 
         # length (semi-span)
-        self.length = self.y[-1] - self.y[0]
+        self.semi_span = self.y[-1] - self.y[0]
 
-        # panel lengths of the semi span
-        self.__dy = np.diff(self.y)
+        # area of the semi planform
+        self.area = np.trapz(self.c, self.y)
 
-        # average chords for panels of the semi span
-        self.__c_bar_panel = (self.c[:-1] + self.c[1:]) / 2.
-
-        # panel areas of the semi wing
-        self.__area_panel = self.__c_bar_panel * self.__dy
-
-        # area of the semi wing
-        self.area = sum(self.__area_panel)
+        # compute interpolant
+        self.chord_from_y = interpolate.interp1d(self.y, self.c, kind='linear')
 
         # mean geometric chord
-        self.mean_geometric_chord = np.dot(self.__c_bar_panel, self.__area_panel) / self.area
+        self.mean_geometric_chord = self.area/self.semi_span
 
         # mean aerodynamic chord
         self.mean_aerodynamic_chord = self.__calc_mac()
@@ -71,36 +62,22 @@ class SemiPlanform:
         self.y = self.y[sort_index]
         self.c = self.c[sort_index]
 
-    def get_chord_interpolant(self, interp_type='linear'):
-        """
-        Create a chord interpolator
-        :return: scipy interpolator
-        """
-        return interpolate.interp1d(self.y, self.c, kind=interp_type)
-
-    def __calc_mac(self):
-        """
-        Panel-area weight mean aerodynamic chord of general planform
-        :return:
-        """
-        c_inner = self.c[:-1]
-        c_outer = self.c[1:]
-        return 2 / 3. * np.dot((c_inner + c_outer - c_inner * c_outer / (c_inner + c_outer)),
-                               self.__area_panel) / self.area
-
     def get_aerodynamic_center(self, x_le, ac_chord_ratio=0.25):
         """
-        Estimate the aerodynamic center (area weighted location of quarter chord)
+        Estimate the local ac
         :param x_le:
-        :return: local aerodynamic center
+        :param ac_chord_ratio:
+        :return:
         """
 
-        # TODO: this is a rather crude estimate. Alternatively one could use the 1/4 chord of the mean aerodynamic chord
+        # TODO: this is an estimate
         # TODO: May have to relocate this to the analysis since ac position is Mach-dependent
-        x_qc = self.get_x_local(ac_chord_ratio, x_le)  # compute the quarter chord of the definition sections
-        return np.trapz(x_qc, self.y) / self.area
+        x_qc_local = self.__get_x_local(ac_chord_ratio, x_le)  # compute the quarter chord of the definition sections
+        x_ac = integrate.simps(x_qc_local*self.c, self.y) / self.area  # this is approximate
+        # x_ac = self.__integrate_ac(x_qc_local)
+        return x_ac
 
-    def get_x_local(self, x_ratio, x_le):
+    def __get_x_local(self, x_ratio, x_le):
         """
         get one local x coordinate based on LE location
         :param x_ratio: desired ratio, 0.25 for quarter chord
@@ -119,3 +96,52 @@ class SemiPlanform:
         x = np.append(x_le_node, x_te_node[::-1], x_le_node[0])
         y = np.append(self.y, self.y[::-1], self.y[0])
         return x, y
+
+    def __calc_mac(self):
+        """
+        Panel-area weight mean aerodynamic chord of general planform
+        :return:
+        """
+
+        # panel areas
+        area_panel = (self.c[:-1] + self.c[1:]) / 2. * np.diff(self.y)
+
+        c_inner = self.c[:-1]
+        c_outer = self.c[1:]
+
+        # linear estimate
+        mac = 2 / 3. * np.dot((c_inner + c_outer - c_inner * c_outer / (c_inner + c_outer)),
+                              area_panel) / self.area
+
+        # mac = self.__integrate_mac()
+
+        return mac
+
+    def __integrate_mac(self):
+        """
+        Use the formal integral definition to compute the mac
+        :return:
+        """
+
+        # function: c^2(y)
+        g = lambda y: self.chord_from_y(y)**2
+
+        # integrate for mac
+        mac, _ = integrate.quadrature(g, self.y[0], self.y[-1])
+
+        # normalized by area
+        return mac/self.area
+
+    def __integrate_ac(self, x_ac_local):
+
+        # greate a linear local ac interpolant
+        x_ac_local_interpolant = interpolate.interp1d(self.y, x_ac_local)
+
+        # function for x_ac_local(y)*c(y)
+        g = lambda y: x_ac_local_interpolant(y)*self.chord_from_y(y)
+
+        # integrate over the semispan using quadrature
+        x_ac, _ = integrate.quadrature(g, self.y[0], self.y[-1])
+
+        # return area-weight x_ac
+        return x_ac/self.area

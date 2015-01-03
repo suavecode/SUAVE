@@ -1,5 +1,5 @@
 import numpy as np
-
+from SUAVE.Structure import Data
 """
 Geometry calculations for a trapzoidal wing
     - Computes the gross, exposed and wetted areas
@@ -49,7 +49,7 @@ class Planform(object):
         # tip chord, defined in terms of the trapezoidal wing
         self.chord_tip = self.taper * self.chord_root_trap
 
-    def set_wing_origin(self, value):
+    def set_origin(self, value):
         """
         Set the wing origin coordinates
         """
@@ -66,13 +66,16 @@ class Planform(object):
         :return:
         """
 
+        # delta x at qc
+        qc_delta_x = semi_planform.y * np.tan(sweep_qc)
+
         # trapezoidal wing definition chords
-        x_le_node = semi_planform.y * np.tan(sweep_qc) - c_trap / 4.
+        x_le_node = qc_delta_x - c_trap / 4.
 
         # move root section to account for lex
         x_le_node[0] -= lex_ratio * c_trap[0]
 
-        # transform coordinate to be referenced from root leading edge
+        # move reference 0 to leading edge of extended wing root
         x_le_node += (lex_ratio + 0.25) * c_trap[0]
 
         # compute local aerodynamic center

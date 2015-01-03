@@ -58,7 +58,7 @@ def wing_planform(wing):
                               span_ratio_fuselage)
 
     # set the wing origin
-    wpt.set_wing_origin(wing.origin)
+    wpt.set_origin(wing.origin)
 
     # compute
     wpt.update()
