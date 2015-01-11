@@ -4,22 +4,25 @@ import scipy as sp
 
 from VyPy.tools import vector_distance, atleast_2d
 
-def lhc_uniform(XB,NI,XI=None,maxits=100):
-    ''' Latin Hypercube Sampling with uniform density
+def sub_sample(XS,NI,II=None,maxits=100):
+    ''' sub sample an existing dataset
         iterates to maximize minimum L2 distance
     '''
     
-    print "Latin Hypercube Sampling ... "
+    print "Monte Carlo SubSampling ... "
     
     # dimension
-    ND = XB.shape[0]
+    NX,ND = XS.shape
     
     # initial points to respect
-    if XI is None:
-        XI = np.empty([0,ND])
+    if II is None:
+        II = np.empty([0])    
+    else:
+        II = np.array(II)
        
     # output points
     XO = []
+    IO = []
     
     # initialize
     mindiff = 0;
@@ -27,20 +30,17 @@ def lhc_uniform(XB,NI,XI=None,maxits=100):
     # maximize minimum distance
     for it in range(maxits):
         
+        i_d = np.random.permutation(NX)
+        
+        for i in II:
+            i_d = i_d[i_d!=i]
+            
+        i_d = i_d[1:NI+1]
+        
+        i_d = np.hstack([II,i_d])
+        
         # samples
-        S = np.zeros([NI,ND])
-        
-        # populate samples
-        for i_d in range(ND):
-            
-            # uniform distribution [0,1], latin hypercube binning
-            S[:,i_d] = ( np.random.random([1,NI]) + np.random.permutation(NI) ) / NI
-            
-        # scale to hypercube bounds
-        XS = S*(XB[:,1]-XB[:,0]) + XB[:,0]        
-        
-        # add initial points
-        XX = np.vstack([ XI , XS ])
+        XX = XS[i_d,:]
         
         # calc distances
         vecdiff = vector_distance(XX)[0]
@@ -49,9 +49,10 @@ def lhc_uniform(XB,NI,XI=None,maxits=100):
         if vecdiff > mindiff:
             mindiff = vecdiff
             XO = XX
+            IO = i_d
         
     #: for iterate
     
     print '  Minimum Distance = %.4g' % mindiff
     
-    return XO
+    return XO, IO

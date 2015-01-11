@@ -72,13 +72,16 @@ class Bunch(Dict):
     
     def viewvalues(self):
         return self.__dict__.viewvalues()
-
+    
     @classmethod
     def fromkeys(cls, iterable, value=None):
         d = cls()
         for key in iterable:
             d[key] = value
         return d
+    
+    def to_dict(self):
+        return {k:v for k,v in self.items()}
     
     def __cmp__(self,other):
         return self.__dict__.__cmp__(other)

@@ -3,15 +3,15 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from IndexableBunch import IndexableBunch ## Too Slow on __getitem__
-from OrderedBunch import OrderedBunch 
+from IndexableBunch import IndexableBunch 
+#from OrderedBunch import OrderedBunch 
 
 import types
 from copy            import deepcopy
 from warnings        import warn
 
 import numpy as np
-from ..tools.arrays import atleast_2d_col, array_type, matrix_type
+from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
 
 
 # ----------------------------------------------------------------------
@@ -90,7 +90,7 @@ class DataBunch(IndexableBunch):
         return args
         
     def __repr__(self):
-        return self.dataname() #self.__str__()
+        return self.dataname()
     
     def append(self,value,key=None):
         if key is None: key = value.tag

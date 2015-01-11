@@ -106,7 +106,7 @@ class Dict(dict):
         for key,value in self.iteritems():
             
             # skip 'hidden' items
-            if key.startswith('_'):
+            if isinstance(key,str) and key.startswith('_'):
                 continue
             
             # recurse into other dict types

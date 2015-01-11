@@ -28,4 +28,4 @@ hdict  = HashedDict
 bunch  = Bunch
 obunch = OrderedBunch
 ibunch = IndexableBunch
-ddict  = DataBunch
+dbunch  = DataBunch
