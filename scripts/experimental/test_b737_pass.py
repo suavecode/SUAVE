@@ -14,7 +14,7 @@ def create_aerovehicle():
     #=============================================================================
     
     mainWing = SUAVE.Components.Wings.Wing(
-        tag = 'Main Wing',
+        tag = 'main_wing',
         symmetric          = True,         #new SUAVE variable (vertical tail is false)
         type_wt            = 'pass_wing',  #new SUAVE variable (identify component weight equation)
         ref_area           = 1344.0,       #sq-ft      #PASS name:"sref"     #IS SREF REALLY A WING PARAMETER, EXAMPLE BIPLANE?
@@ -60,7 +60,7 @@ def create_aerovehicle():
     )
     
     fuselage = SUAVE.Components.Fuselages.Fuselage( 
-        tag = 'Fuselage',
+        tag = 'fuselage',
         num_coach_seats   = 160,   #PASS name:"#coachseats"
         seat_layout_lower = 33,    #PASS name:"seatlayout1"
         seat_width        = 18.5,  # in      #PASS name:"seatwidth"
@@ -163,7 +163,7 @@ def create_aerovehicle():
     # ------------------------------------------------------------------
     The_AeroVehicle.new_configuration('TakeOff')
     the_config = The_AeroVehicle.Configs[0]  # this is a linked copy to The_AeroVehicle
-    the_config.Wings['Main Wing'].flaps = True
+    the_config.Wings['main_wing'].flaps = True
     the_config.Functions['Total_Lift'] = dummy_function
     the_config.Functions['Total_Drag'] = dummy_function
 
@@ -171,7 +171,7 @@ def create_aerovehicle():
     # Configuration - Cruise
     # ------------------------------------------------------------------    
     the_config = The_AeroVehicle.new_configuration('Cruise')
-    the_config.Wings['Main Wing'].flaps = False
+    the_config.Wings['main_wing'].flaps = False
         
     return The_AeroVehicle
     

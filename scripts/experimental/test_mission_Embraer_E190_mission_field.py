@@ -99,7 +99,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.sref      = vehicle.S     #
     wing.ar        = 8.3           #
@@ -133,7 +133,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.sref      = 26.         #
     wing.ar        = 5.5         #
@@ -183,7 +183,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.num_coach_seats = 114  #
     fuselage.seat_pitch      = 0.7455    # m
@@ -207,7 +207,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
 
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     vehicle.fuel_density = turbofan.propellant.density
@@ -465,8 +465,8 @@ def define_field_configs(vehicle):
     # --- Takeoff Configuration ---
     takeoff_config = vehicle.new_configuration("takeoff")
 ##    takeoff_config = copy.deepcopy(vehicle.Configs.cruise)
-    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    takeoff_config.Wings['main_wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     takeoff_config.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
@@ -476,8 +476,8 @@ def define_field_configs(vehicle):
     # --- Landing Configuration ---
     landing_config = vehicle.new_configuration("landing")
 ##    landing_config = copy.deepcopy(vehicle.Configs.takeoff)
-    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    landing_config.Wings['main_wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['main_wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user

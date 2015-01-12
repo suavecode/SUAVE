@@ -78,7 +78,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.sref      = 358.25         #
     wing.ar        = 1.83           #
@@ -114,7 +114,7 @@ def define_vehicle():
     # Concorde does not have a horizontal stabilizer
     
     #wing = SUAVE.Components.Wings.Wing()
-    #wing.tag = 'Horizontal Stabilizer'
+    #wing.tag = 'horizontal_stabilizer'
     
     #wing.sref      = 32.488         #
     #wing.ar        = 6.16           #
@@ -175,7 +175,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 0    # Actually ~120, using 0 for length simplicity
     fuselage.seats_abreast   = 4    #

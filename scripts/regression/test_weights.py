@@ -20,7 +20,7 @@ def main():
     vehicle.envelope.limit_load                         = 1.5                             # Limit Load
     
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'    
+    turbofan.tag = 'turbo_fan'    
     turbofan.number_of_engines   = 2.                              # Number of engines on the aircraft
     turbofan.thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons    
     vehicle.append_component(turbofan) 
@@ -32,7 +32,7 @@ def main():
     
     vehicle.reference_area                              = 124.862  * Units.meter**2  # Wing gross area in square meters
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     wing.spans.projected          = 50.      * Units.meter     # Span in meters
     wing.taper                    = 0.2                        # Taper ratio
     wing.thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
@@ -44,7 +44,7 @@ def main():
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'    
+    fuselage.tag = 'fuselage'    
     fuselage.areas.wetted             = 688.64    * Units.meter**2  # Fuselage wetted area 
     fuselage.differential_pressure    = 55960.5   * Units.pascal    # Maximum differential pressure
     fuselage.width                    = 4.        * Units.meter     # Width of the fuselage
@@ -54,7 +54,7 @@ def main():
     vehicle.append_component(fuselage)
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'    
+    wing.tag = 'horizontal_stabilizer'    
     wing.areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
     wing.spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
     wing.sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
@@ -67,7 +67,7 @@ def main():
     vehicle.append_component(wing)    
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     wing.areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
     wing.spans.projected     = 15.     * Units.meters    # Span of the vertical tail
     wing.thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail

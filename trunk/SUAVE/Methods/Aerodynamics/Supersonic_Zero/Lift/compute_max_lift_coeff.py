@@ -139,7 +139,7 @@ if __name__ == '__main__':
     #   Main Wing
     # ------------------------------------------------------------------
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
     wing.sweep                   = 22. * Units.deg
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference         = 26.
     wing.sweep                   = 34.5 * Units.deg
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
     wing.areas.reference         = 16.0
     wing.sweep                   = 35. * Units.deg
     wing.symmetric               = False
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats = 114  #
     fuselage.seat_pitch         = 0.7455    # m

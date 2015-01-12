@@ -91,7 +91,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.sref      = vehicle.S     #
     wing.ar        = 8.3           #
@@ -131,7 +131,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.sref      = 26.         #
     wing.ar        = 5.5         #
@@ -191,7 +191,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.num_coach_seats = 114  #
     fuselage.seat_pitch      = 0.7455    # m
@@ -215,7 +215,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
 
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     vehicle.fuel_density = turbofan.propellant.density

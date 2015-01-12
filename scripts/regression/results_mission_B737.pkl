@@ -213,7 +213,7 @@ g1
 Container
 p77
 (lp78
-(S'Fuselage'
+(S'fuselage'
 p79
 g1
 (cSUAVE.Components.Fuselages.Fuselage
@@ -547,7 +547,7 @@ g1
 Container
 p203
 (lp204
-(S'Main Wing'
+(S'main_wing'
 p205
 g1
 (cSUAVE.Components.Wings.Wing
@@ -935,7 +935,7 @@ F0.3490658503988659
 sg286
 g290
 sbtp336
-a(S'Horizontal Stabilizer'
+a(S'horizontal_stabilizer'
 p337
 g1
 (g206
@@ -1277,7 +1277,7 @@ g361
 sg286
 g402
 sbtp431
-a(S'Vertical Stabilizer'
+a(S'vertical_stabilizer'
 p432
 g1
 (g206
@@ -1635,7 +1635,7 @@ g1
 Container
 p531
 (lp532
-(S'Turbo Fan'
+(S'turbo_fan'
 p533
 g1
 (cSUAVE.Components.Propulsors.Turbofan

@@ -91,16 +91,16 @@ def empty_custom_eng(vehicle,propulsor):
     """     
 
     # Unpack inputs
-    #thrust_sls = vehicle.propulsors['Turbo Fan'].thrust.design
+    #thrust_sls = vehicle.propulsors['turbo_fan'].thrust.design
     
     S_gross_w  = vehicle.reference_area
-    #S_gross_w  = vehicle.wings['Main Wing'].Areas.reference
-    b          = vehicle.wings['Main Wing'].spans.projected
-    lambda_w   = vehicle.wings['Main Wing'].taper
-    t_c_w      = vehicle.wings['Main Wing'].thickness_to_chord
-    sweep_w    = vehicle.wings['Main Wing'].sweep
-    mac_w      = vehicle.wings['Main Wing'].chords.mean_aerodynamic
-    wing_c_r   = vehicle.wings['Main Wing'].chords.root
+    #S_gross_w  = vehicle.wings['main_wing'].Areas.reference
+    b          = vehicle.wings['main_wing'].spans.projected
+    lambda_w   = vehicle.wings['main_wing'].taper
+    t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
+    sweep_w    = vehicle.wings['main_wing'].sweep
+    mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
+    wing_c_r   = vehicle.wings['main_wing'].chords.root
     
     Nult       = vehicle.envelope.ultimate_load
     Nlim       = vehicle.envelope.limit_load
@@ -108,29 +108,29 @@ def empty_custom_eng(vehicle,propulsor):
     wt_zf      = vehicle.mass_properties.max_zero_fuel
     num_pax    = vehicle.passengers
     wt_cargo   = vehicle.mass_properties.cargo
-    num_seats  = vehicle.fuselages.Fuselage.number_coach_seats
+    num_seats  = vehicle.fuselages['fuselage'].number_coach_seats
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories  
-    #l_w2h      = vehicle.wings['Horizontal Stabilizer'].position[0] + vehicle.wings['Horizontal Stabilizer'].aerodynamic_center[0] - vehicle.wings['Main Wing'].position[0] - vehicle.wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
+    #l_w2h      = vehicle.wings['horizontal_stabilizer'].position[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].position[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
     l_w2h      = vehicle.w2h
-    S_fus      = vehicle.fuselages.Fuselage.areas.wetted
-    diff_p_fus = vehicle.fuselages.Fuselage.differential_pressure
-    w_fus      = vehicle.fuselages.Fuselage.width
-    h_fus      = vehicle.fuselages.Fuselage.heights.maximum
-    l_fus      = vehicle.fuselages.Fuselage.lengths.total
+    S_fus      = vehicle.fuselages['fuselage'].areas.wetted
+    diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
+    w_fus      = vehicle.fuselages['fuselage'].width
+    h_fus      = vehicle.fuselages['fuselage'].heights.maximum
+    l_fus      = vehicle.fuselages['fuselage'].lengths.total
     
-    S_h            = vehicle.wings['Horizontal Stabilizer'].areas.reference
-    b_h            = vehicle.wings['Horizontal Stabilizer'].spans.projected
-    sweep_h        = vehicle.wings['Horizontal Stabilizer'].sweep
-    mac_h          = vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic
-    t_c_h          = vehicle.wings['Horizontal Stabilizer'].thickness_to_chord
-    h_tail_exposed = vehicle.wings['Horizontal Stabilizer'].areas.exposed / vehicle.wings['Horizontal Stabilizer'].areas.wetted
+    S_h            = vehicle.wings['horizontal_stabilizer'].areas.reference
+    b_h            = vehicle.wings['horizontal_stabilizer'].spans.projected
+    sweep_h        = vehicle.wings['horizontal_stabilizer'].sweep
+    mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
+    t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
+    h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
     
-    S_v        = vehicle.wings['Vertical Stabilizer'].areas.reference
-    b_v        = vehicle.wings['Vertical Stabilizer'].spans.projected
-    t_c_v      = vehicle.wings['Vertical Stabilizer'].thickness_to_chord
-    sweep_v    = vehicle.wings['Vertical Stabilizer'].sweep
-    t_tail     = vehicle.wings['Vertical Stabilizer'].t_tail     
+    S_v        = vehicle.wings['vertical_stabilizer'].areas.reference
+    b_v        = vehicle.wings['vertical_stabilizer'].spans.projected
+    t_c_v      = vehicle.wings['vertical_stabilizer'].thickness_to_chord
+    sweep_v    = vehicle.wings['vertical_stabilizer'].sweep
+    t_tail     = vehicle.wings['vertical_stabilizer'].t_tail     
 
     # process
     # Calculating Empty Weight of Aircraft
@@ -149,11 +149,11 @@ def empty_custom_eng(vehicle,propulsor):
     wt_empty           = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
                           wt_tail_horizontal + output_3.wt_tail_vertical + output_3.wt_rudder) 
     
-    vehicle.wings['Main Wing'].mass_properties.mass = wt_wing
-    vehicle.wings['Horizontal Stabilizer'].mass_properties.mass = wt_tail_horizontal
-    vehicle.wings['Vertical Stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
-    vehicle.fuselages.Fuselage.mass_properties.mass = wt_fuselage
-    #vehicle.propulsors['Turbo Fan'].mass_properties.mass = wt_engine_jet
+    vehicle.wings['main_wing'].mass_properties.mass = wt_wing
+    vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal
+    vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
+    vehicle.fuselages['fuselage'].mass_properties.mass = wt_fuselage
+    #vehicle.propulsors['turbo_fan'].mass_properties.mass = wt_engine_jet
     
     # packup outputs
     output             = payload(TOW, wt_empty, num_pax,wt_cargo)

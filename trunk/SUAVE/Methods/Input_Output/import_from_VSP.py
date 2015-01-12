@@ -54,7 +54,7 @@ def import_from_VSP(vehicle,input_file,mass_props_file=""):
 
     # map VSP data to SUAVE setting function
     function_type_map = {
-        'Fuselage' : set_fuselage,
+        'fuselage' : set_fuselage,
         'Mswing'   : set_mswing,
         'Hwb'      : set_hwb,
         'Engine'   : set_engine,

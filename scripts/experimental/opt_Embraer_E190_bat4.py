@@ -471,7 +471,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     """
     wing.sref      = vehicle.S       #
     wing.ar        = 8             #
@@ -534,7 +534,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     horizontal.t_c     = 0.11                      # Thickness-to-chord ratio of the horizontal tail
     horizontal.exposed = 0.9                         # Fraction of horizontal tail area exposed
   
-    horizontal.tag = 'Horizontal Stabilizer'
+    horizontal.tag = 'horizontal_stabilizer'
    
     horizontal.ar        = 5.5         #
     horizontal.symmetric = True          
@@ -561,7 +561,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     vertical = SUAVE.Components.Wings.Wing()
-    vertical.tag = 'Vertical Stabilizer'    
+    vertical.tag = 'vertical_stabilizer'    
     
    
     vertical.ar        = 1.7          #
@@ -596,7 +596,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #  Fuselage
     # ------------------------------------------------------------------
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 114.  #
     fuselage.seat_pitch      = 0.7455    # m

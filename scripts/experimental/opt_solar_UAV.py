@@ -121,7 +121,7 @@ def wrap(inputs,vehicle,mission):
     
     # Resize
     vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
-    wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
+    wingmass  = vehicle.wings['main_wing'].mass_properties.mass
     motmass   = vehicle.propulsion_model.motor.mass_properties.mass
     paylmass  = vehicle.propulsion_model.payload.mass_properties.mass
     panelmass = vehicle.propulsion_model.solar_panel.mass_properties.mass
@@ -221,7 +221,7 @@ def define_vehicle(inputs):
     # ------------------------------------------------------------------   
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.aspect_ratio       = 25.
     wing.spans.projected    = 40. * Units.m
@@ -325,7 +325,7 @@ def define_vehicle(inputs):
     #   Add up all of the masses
     # ------------------------------------------------------------------
     vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
-    wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
+    wingmass  = vehicle.wings['main_wing'].mass_properties.mass
     motmass   = motor.mass_properties.mass
     paylmass  = payload.mass_properties.mass
     panelmass = panel.mass_properties.mass

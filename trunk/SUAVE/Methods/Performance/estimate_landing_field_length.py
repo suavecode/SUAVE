@@ -170,7 +170,7 @@ if __name__ == '__main__':
         # ------------------------------------------------------------------
     
         wing = SUAVE.Components.Wings.Main_Wing()
-        wing.tag = 'Main Wing'
+        wing.tag = 'main_wing'
     
         wing.areas.reference    = vehicle.reference_area
         wing.sweep              = 22. * Units.deg  # deg
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     
         # --- Takeoff Configuration ---
         config = vehicle.new_configuration("takeoff")
-        config.wings["Main Wing"].flaps_angle = 15.
+        config.wings['main_wing'].flaps_angle = 15.
         # this configuration is derived from the vehicle.configs.cruise
     
         # ------------------------------------------------------------------
@@ -259,8 +259,8 @@ if __name__ == '__main__':
 
     # --- Landing Configuration ---
     landing_config = vehicle.configs.takeoff
-    landing_config.wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    landing_config.wings['main_wing'].flaps_angle =  30. * Units.deg
+    landing_config.wings['main_wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user

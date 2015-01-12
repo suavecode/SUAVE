@@ -2,7 +2,29 @@
 """ SUAVE Data Base Classes
 """
 
-from SUAVE.Plugins.VyPy.data import DataBunch as Data
+from SUAVE.Plugins.VyPy.data import DataBunch
+
+# for enforcing attribute style access names
+import string
+chars = string.punctuation + string.whitespace
+t_table = string.maketrans( chars          + string.uppercase , 
+                            '_'*len(chars) + string.lowercase )
+
+from warnings import warn
+
+# ----------------------------------------------------------------------
+#   Data
+# ----------------------------------------------------------------------        
+
+class Data(DataBunch):
+    
+    def append(self,value,key=None):
+        if key is None: key = value.tag
+        key_in = key
+        key = key.translate(t_table)
+        if key != key_in: warn("changing key '%s' to '%s'\n" % (key_in,key))
+        DataBunch.append(self,value,key)
+
 
 
 # ----------------------------------------------------------------------

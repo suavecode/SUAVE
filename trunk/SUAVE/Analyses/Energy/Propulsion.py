@@ -23,7 +23,7 @@ class Propulsion(Analysis):
         
     def evaluate(self,conditions,numerics):
         
-        network  = self.features.vehicle.propulsors['Turbo Fan']
+        network  = self.features.vehicle.propulsors['turbo_fan']
         
         F,mdot,P = network.evaluate(conditions,numerics)
         

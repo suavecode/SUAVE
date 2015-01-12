@@ -522,7 +522,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
    
     wing.areas.reference           = vehicle.reference_area    * Units.meter**2  # Wing gross area in square meters
     wing.aspect_ratio              = 8.3  
@@ -564,7 +564,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     # ------------------------------------------------------------------        
     
     horizontal = SUAVE.Components.Wings.Wing()
-    horizontal.tag = 'Horizontal Stabilizer'
+    horizontal.tag = 'horizontal_stabilizer'
     
     horizontal.spans.projected          = 12.08     * Units.meters    # Span of the horizontal tail
     horizontal.sweep                    = wing.sweep      # Sweep of the horizontal tail
@@ -602,7 +602,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     vertical = SUAVE.Components.Wings.Wing()
-    vertical.tag = 'Vertical Stabilizer'    
+    vertical.tag = 'vertical_stabilizer'    
     
    
     vertical.aspect_ratio       = 1.7          #
@@ -637,7 +637,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #  Fuselage
     # ------------------------------------------------------------------
     fuselage                           = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag                       = 'Fuselage'
+    fuselage.tag                       = 'fuselage'
     
     fuselage.number_coach_seats        = 114.  #
     fuselage.seat_pitch                = 0.7455    # m
@@ -825,8 +825,8 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
 
     # --- Takeoff Configuration ---
     takeoff_config = vehicle.configs.takeoff
-    takeoff_config.wings['Main Wing'].flaps_angle =  15. * Units.deg
-    takeoff_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    takeoff_config.wings['main_wing'].flaps_angle =  15. * Units.deg
+    takeoff_config.wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     #takeoff_config.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
@@ -835,8 +835,8 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
 
     # --- Landing Configuration ---
     landing_config = vehicle.new_configuration("landing")
-    landing_config.wings['Main Wing'].flaps_angle =  20. * Units.deg
-    landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    landing_config.wings['main_wing'].flaps_angle =  20. * Units.deg
+    landing_config.wings['main_wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     #landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user

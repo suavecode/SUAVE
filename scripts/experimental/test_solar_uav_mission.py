@@ -77,7 +77,7 @@ def define_vehicle():
     # ------------------------------------------------------------------   
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.areas.reference    = vehicle.reference_area     #
     wing.spans.projected    = 40.          #m
@@ -112,7 +112,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.areas.reference    = vehicle.reference_area*.15  #m^2
     wing.aspect_ratio       = 20.            #
@@ -142,7 +142,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.areas.reference    = vehicle.reference_area*.1 #m^2
     wing.aspect_ratio       = 20.             #

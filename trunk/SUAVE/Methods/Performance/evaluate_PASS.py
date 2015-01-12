@@ -23,7 +23,7 @@ def evaluate_PASS(vehicle,mission):
     # unpack
     maxto = vehicle.Mass.mtow
     mzfw_ratio = vehicle.Mass.fmzfw
-    sref = vehicle.Wing['Main Wing'].sref
+    sref = vehicle.Wing['main_wing'].sref
     sfc_sfcref = vehicle.Turbo_Fan['TheTurboFan'].sfc_TF
     sls_thrust = vehicle.Turbo_Fan['TheTurboFan'].thrust_sls
     eng_type = vehicle.Turbo_Fan['TheTurboFan'].type_engine

@@ -329,7 +329,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     """
     wing.sref      = vehicle.S       #
     wing.ar        = 8             #
@@ -395,7 +395,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     horizontal.t_c     = 0.11                      # Thickness-to-chord ratio of the horizontal tail
     horizontal.exposed = 0.9                         # Fraction of horizontal tail area exposed
   
-    horizontal.tag = 'Horizontal Stabilizer'
+    horizontal.tag = 'horizontal_stabilizer'
     horizontal.sref      = horizontal.area         #
     horizontal.ar        = 5.5         #
     horizontal.symmetric = True          
@@ -450,7 +450,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     vertical = SUAVE.Components.Wings.Wing()
-    vertical.tag = 'Vertical Stabilizer'    
+    vertical.tag = 'vertical_stabilizer'    
     
     vertical.sref      = 16.0        #
     vertical.ar        = 1.7          #
@@ -481,7 +481,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     
     """
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.sref      = 32.488        #
     wing.ar        = 1.91          #
@@ -515,7 +515,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     #  Fuselage
     # ------------------------------------------------------------------
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 114.  #
     fuselage.seat_pitch      = 0.7455    # m
@@ -535,7 +535,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     vehicle.append_component(fuselage)
     """
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 110  #
     fuselage.seats_abreast=6.

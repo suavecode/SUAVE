@@ -107,7 +107,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 8.4
     wing.sweep                   = 22.0 * Units.deg
@@ -145,7 +145,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 5.5
     wing.sweep                   = 34.5 * Units.deg
@@ -183,7 +183,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.7      #
     wing.sweep                   = 25 * Units.deg
@@ -221,7 +221,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
@@ -260,7 +260,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
 
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
 
@@ -326,8 +326,8 @@ def vehicle_setup():
     # --- Takeoff Configuration ---
     takeoff_config = vehicle.configs.takeoff
 
-    takeoff_config.wings['Main Wing'].flaps_angle = 20. * Units.deg
-    takeoff_config.wings['Main Wing'].slats_angle = 25. * Units.deg
+    takeoff_config.wings['main_wing'].flaps_angle = 20. * Units.deg
+    takeoff_config.wings['main_wing'].slats_angle = 25. * Units.deg
 
     takeoff_config.V2_VS_ratio = 1.21
     takeoff_config.maximum_lift_coefficient = 2.
@@ -336,8 +336,8 @@ def vehicle_setup():
     # --- Landing Configuration ---
     landing_config = vehicle.new_configuration("landing")
 
-    landing_config.wings['Main Wing'].flaps_angle = 30. * Units.deg
-    landing_config.wings['Main Wing'].slats_angle = 25. * Units.deg
+    landing_config.wings['main_wing'].flaps_angle = 30. * Units.deg
+    landing_config.wings['main_wing'].slats_angle = 25. * Units.deg
 
     landing_config.Vref_VS_ratio = 1.23
     landing_config.maximum_lift_coefficient = 2.

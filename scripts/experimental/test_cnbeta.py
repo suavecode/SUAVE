@@ -19,7 +19,7 @@ def main():
         #Using values for a Boeing 747-200
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     wing.areas.reference           = 5500.0 * Units.feet**2
     wing.spans.projected           = 196.0  * Units.feet
     wing.sweep       = 42.0   * Units.deg # Leading edge
@@ -36,7 +36,7 @@ def main():
     lifting_surfaces.append(wing)
     
     wing          = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
     vertical = Data()
     vertical.span         = 32.4   * Units.feet
     vertical.root_chord   = 38.7   * Units.feet
@@ -61,7 +61,7 @@ def main():
     lifting_surfaces.append(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     fuselage.areas.side_projected = 4696.16 * Units.feet**2
     fuselage.lengths.total = 229.7 * Units.feet
     fuselage.heights.maximum = 26.9 * Units.feet

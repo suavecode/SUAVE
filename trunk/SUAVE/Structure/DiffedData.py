@@ -5,6 +5,7 @@
 
 from SUAVE.Plugins.VyPy.data import DiffedDataBunch
 from Container import Container as ContainerBase
+from Data import Data
 
 from copy import deepcopy
 
@@ -12,7 +13,7 @@ from copy import deepcopy
 #  Config
 # ----------------------------------------------------------------------
 
-class DiffedData(DiffedDataBunch):
+class DiffedData(DiffedDataBunch,Data):
     """ SUAVE.Core.DiffedData()
     """
     

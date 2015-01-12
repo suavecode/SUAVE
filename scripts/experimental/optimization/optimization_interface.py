@@ -102,8 +102,8 @@ def unpack_inputs(interface):
     
     # apply the inputs
     vehicle = interface.configs.base
-    vehicle.wings['Main Wing'].spans.project = inputs.projected_span
-    vehicle.fuselages.Fuselage.length        = inputs.fuselage_length
+    vehicle.wings['main_wing'].spans.project = inputs.projected_span
+    vehicle.fuselages['fuselage'].length        = inputs.fuselage_length
     
     mission = interface.analyses.missions.base
     mission.segments.cruise.distance = inputs.cruise_distance
@@ -193,8 +193,8 @@ def noise(interface):
     mission_profile = results.missions.base
     
     weight_landing    = mission_profile.segments[-1].conditions.weights.total_mass[-1,0]
-    number_of_engines = vehicle.propulsors['Turbo Fan'].number_of_engines
-    thrust_sea_level  = vehicle.propulsors['Turbo Fan'].design_thrust
+    number_of_engines = vehicle.propulsors['turbo_fan'].number_of_engines
+    thrust_sea_level  = vehicle.propulsors['turbo_fan'].design_thrust
     thrust_landing    = mission_profile.segments[-1].conditions.frames.body.thrust_force_vector[-1,0]
     
     # evaluate

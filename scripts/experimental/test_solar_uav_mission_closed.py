@@ -90,7 +90,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------   
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.areas.reference    = vehicle.reference_area     #
     wing.spans.projected    = 40.          #m
@@ -125,7 +125,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.areas.reference    = vehicle.reference_area*.15  #m^2
     wing.aspect_ratio       = 20.            #
@@ -155,7 +155,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.areas.reference    = vehicle.reference_area*.1 #m^2
     wing.aspect_ratio       = 20.             #
@@ -280,9 +280,9 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------
     #   Add up all of the masses
     # ------------------------------------------------------------------
-    wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
-    HTmass    = vehicle.wings['Horizontal Stabilizer'].mass_properties.mass
-    VTmass    = vehicle.wings['Vertical Stabilizer'].mass_properties.mass
+    wingmass  = vehicle.wings['main_wing'].mass_properties.mass
+    HTmass    = vehicle.wings['horizontal_stabilizer'].mass_properties.mass
+    VTmass    = vehicle.wings['vertical_stabilizer'].mass_properties.mass
     batmass   = bat.mass_properties.mass
     motmass   = motor.mass_properties.mass
     paylmass  = payload.mass_properties.mass

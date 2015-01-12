@@ -47,7 +47,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.areas.reference    = vehicle.reference_area
     wing.sweep              = 22. * Units.deg  # deg
@@ -116,7 +116,7 @@ def define_vehicle():
 
     # --- Takeoff Configuration ---
     config = vehicle.new_configuration("takeoff")
-    config.wings["Main Wing"].flaps_angle = 15.
+    config.wings['main_wing'].flaps_angle = 15.
     # this configuration is derived from the vehicle.configs.cruise
 
     # ------------------------------------------------------------------
@@ -136,8 +136,8 @@ def main():
 
     # --- Takeoff Configuration ---
     configuration = vehicle.configs.takeoff
-    configuration.wings['Main Wing'].flaps_angle =  20. * Units.deg
-    configuration.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    configuration.wings['main_wing'].flaps_angle =  20. * Units.deg
+    configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user

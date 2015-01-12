@@ -91,7 +91,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 10.18
     wing.sweep                   = 25 * Units.deg
@@ -130,7 +130,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16      #
     wing.sweep                   = 30 * Units.deg
@@ -169,7 +169,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.aspect_ratio            = 1.91      #
     wing.sweep                   = 25 * Units.deg
@@ -209,7 +209,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     #fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 6
@@ -250,7 +250,7 @@ def vehicle_setup():
     
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan_Network()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
     
     # setup
     turbofan.number_of_engines = 2.0
@@ -473,8 +473,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     
-    config.wings['Main Wing'].flaps.angle = 20. * Units.deg
-    config.wings['Main Wing'].slats.angle = 25. * Units.deg
+    config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 25. * Units.deg
     
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
@@ -489,8 +489,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
     
-    config.wings['Main Wing'].flaps_angle = 30. * Units.deg
-    config.wings['Main Wing'].slats_angle = 25. * Units.deg
+    config.wings['main_wing'].flaps_angle = 30. * Units.deg
+    config.wings['main_wing'].slats_angle = 25. * Units.deg
 
     config.Vref_VS_ratio = 1.23
     config.maximum_lift_coefficient = 2.
@@ -524,7 +524,7 @@ def simple_sizing(configs):
         wing.areas.affected = 0.6 * wing.areas.wetted
     
     # fuselage seats
-    base.fuselages.Fuselage.number_coach_seats = base.passengers
+    base.fuselages['fuselage'].number_coach_seats = base.passengers
     
     base.store_diff()
     
@@ -820,10 +820,10 @@ if __name__ == '__main__':
     
     #local_wings = configs.takeoff.wings
     
-    #print local_wings['Main Wing'].sweep
+    #print local_wings['main_wing'].sweep
     
-    #configs.base.wings['Main Wing'].sweep = 9000
+    #configs.base.wings['main_wing'].sweep = 9000
     
     #configs.takeoff.pull_base()
     
-    #print local_wings['Main Wing'].sweep    
+    #print local_wings['main_wing'].sweep    

@@ -110,8 +110,8 @@ class Fidelity_Zero(Data):
         mach          = conditions.freestream.mach_number
         velocity      = conditions.freestream.velocity
         density       = conditions.freestream.density
-        Span          = geometry.wings['Main Wing'].spans.projected
-        mac           = geometry.wings['Main Wing'].chords.mean_aerodynamic
+        Span          = geometry.wings['main_wing'].spans.projected
+        mac           = geometry.wings['main_wing'].chords.mean_aerodynamic
         aero          = conditions.aerodynamics
         
         # set up data structures
@@ -120,7 +120,7 @@ class Fidelity_Zero(Data):
         
         # Calculate CL_alpha 
         if not conditions.has_key('lift_curve_slope'):
-            conditions.lift_curve_slope = datcom(geometry.wings['Main Wing'],mach)
+            conditions.lift_curve_slope = datcom(geometry.wings['main_wing'],mach)
         
         # Calculate change in downwash with respect to change in angle of attack
         for surf in geometry.wings:
@@ -139,9 +139,9 @@ class Fidelity_Zero(Data):
             # Dynamic Stability Approximation Methods - valid for non-zero I tensor
             
             # Derivative of yawing moment with respect to the rate of yaw
-            cDw = aero.drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient # Might not be the correct value
-            l_v = geometry.wings['Vertical Stabilizer'].origin[0] + geometry.wings['Vertical Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0]
-            dynamic_stability.cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['Vertical Stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['Vertical Stabilizer'].dynamic_pressure_ratio, geometry.wings['Vertical Stabilizer'].CL_alpha)
+            cDw = aero.drag_breakdown.parasite['main_wing'].parasite_drag_coefficient # Might not be the correct value
+            l_v = geometry.wings['vertical_stabilizer'].origin[0] + geometry.wings['vertical_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0] - geometry.wings['main_wing'].aerodynamic_center[0]
+            dynamic_stability.cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['vertical_stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['vertical_stabilizer'].dynamic_pressure_ratio, geometry.wings['vertical_stabilizer'].CL_alpha)
             
             # Derivative of rolling moment with respect to roll rate
             dynamic_stability.cl_p = 0 # Need to see if there is a low fidelity way to calculate cl_p
@@ -150,11 +150,11 @@ class Fidelity_Zero(Data):
             dynamic_stability.cl_beta = 0 # Need to see if there is a low fidelity way to calculate cl_beta
             
             # Derivative of pitching moment with respect to pitch rate
-            l_t = geometry.wings['Horizontal Stabilizer'].origin[0] + geometry.wings['Horizontal Stabilizer'].aerodynamic_center[0] - geometry.wings['Main Wing'].origin[0] - geometry.wings['Main Wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
+            l_t = geometry.wings['horizontal_stabilizer'].origin[0] + geometry.wings['horizontal_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0] - geometry.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
             dynamic_stability.cm_q = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
             
             # Derivative of pitching rate with respect to d(alpha)/d(t)
-            dynamic_stability.cm_alpha_dot = Supporting_Functions.cm_alphadot(static_stability.cm_alpha, geometry.wings['Horizontal Stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha
+            dynamic_stability.cm_alpha_dot = Supporting_Functions.cm_alphadot(static_stability.cm_alpha, geometry.wings['horizontal_stabilizer'].ep_alpha, l_t, mac) # Need to check Cm_i versus Cm_alpha
               
             # Derivative of Z-axis force with respect to angle of attack  
             dynamic_stability.cz_alpha = Supporting_Functions.cz_alpha(aero.drag_coefficient,conditions.lift_curve_slope)                   
@@ -177,7 +177,7 @@ class Fidelity_Zero(Data):
                 dynamic_stability.cl_psi = Supporting_Functions.cy_psi(aero.lift_coefficient, theta)                     
                 dynamic_stability.cL_u = 0
                 dynamic_stability.cz_u = Supporting_Functions.cz_u(aero.lift_coefficient,velocity,dynamic_stability.cL_u)
-                dynamic_stability.cz_alpha_dot = Supporting_Functions.cz_alphadot(static_stability.cm_alpha, geometry.wings['Horizontal Stabilizer'].ep_alpha)
+                dynamic_stability.cz_alpha_dot = Supporting_Functions.cz_alphadot(static_stability.cm_alpha, geometry.wings['horizontal_stabilizer'].ep_alpha)
                 dynamic_stability.cz_q = Supporting_Functions.cz_q(static_stability.cm_alpha)
                 dynamic_stability.cx_u = Supporting_Functions.cx_u(aero.drag_coefficient)
                 dynamic_stability.cx_alpha = Supporting_Functions.cx_alpha(aero.lift_coefficient, conditions.lift_curve_slope)

@@ -47,7 +47,7 @@ def compressibility_drag_total(conditions,configuration,geometry):
 
         Assumptions:
             drag is only calculated for the wings, main fuselage, and propulsors
-    main fuselage must have tag 'Fuselage'
+    main fuselage must have tag 'fuselage'
     no lift on wings other than main wing
 
     """
@@ -77,7 +77,7 @@ def compressibility_drag_total(conditions,configuration,geometry):
 
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general # ----------------------------------------------------------------
-        main_fuselage = fuselages.Fuselage
+        main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
         num_engines = propulsor.number_of_engines
