@@ -20,7 +20,7 @@ from IndexableBunch import IndexableBunch
 from Property       import Property
 
 from DataBunch       import DataBunch
-
+from DiffedDataBunch import DiffedDataBunch
 
 odict  = OrderedDict
 idict  = IndexableDict
