@@ -512,6 +512,7 @@ def configs_setup(vehicle):
 def simple_sizing(configs):
     
     base = configs.base
+    base.pull_base()
     
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
@@ -531,12 +532,12 @@ def simple_sizing(configs):
     #   Landing Configuration
     # ------------------------------------------------------------------
     landing = configs.landing
+    landing.pull_base()
     
     # landing weight
     landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
     
-    # FIX ME, sees a diff with base that we don't want
-    # landing.store_diff
+    landing.store_diff()
     
     # done!
     return
