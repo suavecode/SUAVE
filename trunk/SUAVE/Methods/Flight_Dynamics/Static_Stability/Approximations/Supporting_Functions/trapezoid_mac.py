@@ -1,7 +1,6 @@
 # trapezoid_mac.py
 
 # Created: Tim Momose, Feb 2014
-# IN PROGRESS
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,9 +20,12 @@ def trapezoid_mac(wing):
         
         Inputs:
             wing - a data dictionary with the fields:
-                area - planform area of the trapezoidal wing [meters**s]
-                span - wing span [meters]
-                taper - wing taper ratio [dimensionless]
+                areas.reference - the planform area of the trapezoidal wing [meters**2]
+                spans.projected - wing span [meters]
+                chords.root - the wing root chord [meters]
+                {One of the following}
+                chords.tip - the wing tip chord [meters]
+                taper - taper ratio of the wing [dimensionless]
                
         Outputs:
             mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)
