@@ -484,7 +484,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     wing.taper     = 0.16          #
     wing.root_chord= 7.88         #meters
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     Nult_wing      = 3.75
     """
     wing.gross_area    = vehicle.S    * Units.meter**2  # Wing gross area in square meters
@@ -497,7 +497,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     wing.c_r           = 5.4     * Units.meter     # Wing exposed root chord length
     wing.mac           = 12.     * Units.ft    # Length of the mean aerodynamic chord of the wing
     wing.chord_mac     =wing.mac
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.chord_mac   = 12.                 #
     wing.S_exposed   = 0.8*wing.sref  #
     wing.S_affected  = 0.6*wing.sref  #
@@ -542,7 +542,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     horizontal.taper     = 0.11           #
     c_ht                 =1.   #horizontal tail sizing coefficient
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(horizontal,wing,vehicle.w2h,c_ht )
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(horizontal,wing,vehicle.w2h,c_ht )
     
     horizontal.area    = horizontal.sref # Area of the horizontal tail
     horizontal.chord_mac  = 8.0                   #
@@ -573,7 +573,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     vertical.taper     = 0.10          #
     c_vt               =.09
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(vertical, wing, vehicle.w2v, c_vt)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(vertical, wing, vehicle.w2v, c_vt)
     
     vertical.chord_mac  = 11.0                  #
     vertical.S_exposed  = 0.8*vertical.area_wetted  #
@@ -610,7 +610,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     fuselage.area            = 320.      * Units.meter**2  
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)

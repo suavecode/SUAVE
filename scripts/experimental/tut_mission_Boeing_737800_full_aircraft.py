@@ -103,7 +103,7 @@ def define_vehicle():
     wing.taper           = 0.16
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 12.5
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -137,7 +137,7 @@ def define_vehicle():
     wing.taper           = 0.4
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 8.0
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -171,7 +171,7 @@ def define_vehicle():
     wing.taper           = 0.4
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 8.0
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -212,7 +212,7 @@ def define_vehicle():
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -266,7 +266,7 @@ def define_vehicle():
     vehicle.Mass_Props.fuel_density = turbofan.propellant.density
 
     wing = vehicle.Wings['main_wing']
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
     vehicle.Mass_Props.max_usable_fuel = wing.fuel_volume * vehicle.Mass_Props.fuel_density # [kg]
     
     

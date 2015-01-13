@@ -1,7 +1,7 @@
 
 import os, glob
 from Airfoil import Airfoil
-from SUAVE.Geometry.Two_Dimensional.Cross_Section.Airfoil import import_airfoil_dat
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import import_airfoil_dat
 
 def load_airfoils(directory,extension='.dat'):
     

@@ -534,7 +534,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     wing.chords.mean_aerodynamic   = 12.     * Units.ft    # Length of the mean aerodynamic chord of the wing
     wing.areas_wetted              =wing.areas.reference*2.
     wing.aerodynamic_center        =[wing.chords.mean_aerodynamic/4.,0,0]
-    #SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    #SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.flaps_chord               = 0.28
     wing.areas_exposed             = 0.8*wing.areas.wetted  #
     wing.areas_affected            = 0.6*wing.areas.wetted  #
@@ -580,7 +580,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     horizontal.taper                = 0.11           #
     c_ht                            = 1.   #horizontal tail sizing coefficient
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(horizontal,wing,vehicle.w2h,c_ht )
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(horizontal,wing,vehicle.w2h,c_ht )
     
     horizontal.chords.mean_aerodynamic = 8.0
     horizontal. areas.wetted          = horizontal.areas.reference*2.0
@@ -614,7 +614,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     vertical.taper              = 0.10          #
     c_vt                        =.09
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(vertical, wing, vehicle.w2v, c_vt)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(vertical, wing, vehicle.w2v, c_vt)
     
     vertical.chords.mean_aerodynamic  = 11.0                  
     vertical.areas.wetted   = 2.*vertical.areas.reference
@@ -656,7 +656,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #fuselage.area            = 320.      * Units.meter**2  
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)

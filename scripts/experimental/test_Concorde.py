@@ -88,7 +88,7 @@ def define_vehicle():
     wing.taper     = 0              # Estimated based on drawing
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 14.02                 #
     wing.S_exposed   = 0.8*wing.area_wetted  #
@@ -126,7 +126,7 @@ def define_vehicle():
     wing.highmach  = True
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   # Estimate
     wing.S_exposed  = 1.0*wing.area_wetted  #
@@ -160,7 +160,7 @@ def define_vehicle():
     fuselage.height          = 3.30 #
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)

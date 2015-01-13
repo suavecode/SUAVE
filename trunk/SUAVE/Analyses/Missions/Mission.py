@@ -9,7 +9,7 @@ from SUAVE.Core import Data, Data_Exception
 from SUAVE.Core import Container as ContainerBase
 from Segments import Segment
 
-from SUAVE.Methods.Performance import evaluate_mission
+from SUAVE.Methods.Missions import evaluate_mission
 
 
 # ----------------------------------------------------------------------

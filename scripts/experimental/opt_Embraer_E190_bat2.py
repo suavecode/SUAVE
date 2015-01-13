@@ -342,7 +342,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     wing.taper     = 0.16          #
     wing.root_chord= 7.88         #meters
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     Nult_wing      = 3.75
     """
     wing.gross_area    = vehicle.S    * Units.meter**2  # Wing gross area in square meters
@@ -355,7 +355,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     wing.c_r           = 5.4     * Units.meter     # Wing exposed root chord length
     wing.mac           = 12.     * Units.ft    # Length of the mean aerodynamic chord of the wing
     wing.chord_mac     =wing.mac
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.chord_mac   = 12.                 #
     wing.S_exposed   = 0.8*wing.sref  #
     wing.S_affected  = 0.6*wing.sref  #
@@ -403,7 +403,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     horizontal.taper     = 0.11           #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(horizontal)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(horizontal)
     
     horizontal.chord_mac  = 8.0                   #
     horizontal.S_exposed  = 0.8*horizontal.area_wetted  #
@@ -427,7 +427,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     l_w2h          =16.764         #meters; estimated of length from MAC of wing to h_stabilizer
     Nult_h_stab    =3.75
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -461,7 +461,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     vertical.taper     = 0.10          #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(vertical)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(vertical)
     
     vertical.chord_mac  = 11.0                  #
     vertical.S_exposed  = 0.8*vertical.area_wetted  #
@@ -493,7 +493,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     wing.taper     = 0.25          #
     Nult_v_stab    = 3.75
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 12.5                  #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -529,7 +529,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     fuselage.area            = 320.      * Units.meter**2  
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -549,7 +549,7 @@ def define_vehicle(Mguess,Ereq, Ereq_lis, Preq_lis, max_alt,wing_sweep,alpha_rc,
     fuselage.length          =39.4716 #meters
     Nult_fus=2.5                    #ultimate load factor
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     """
     ################
     

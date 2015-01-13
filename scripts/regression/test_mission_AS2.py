@@ -122,7 +122,7 @@ def vehicle_setup():
     wing.taper           = 0.7
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     # size the wing planform ----------------------------------
     # These can be determined by the wing sizing function
@@ -175,7 +175,7 @@ def vehicle_setup():
     wing.eta         = 0.9
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = 3.0
     wing.areas.exposed = 0.8*wing.areas.wetted
@@ -212,7 +212,7 @@ def vehicle_setup():
     wing.taper           = 0.5
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = 4.2
     wing.areas.exposed = 1.0*wing.areas.wetted

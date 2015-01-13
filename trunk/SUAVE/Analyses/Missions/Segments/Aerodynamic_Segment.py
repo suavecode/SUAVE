@@ -10,7 +10,7 @@ from SUAVE.Attributes.Planets           import Planet
 from SUAVE.Attributes.Atmospheres       import Atmosphere
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 from SUAVE.Methods.Utilities            import atleast_2d_col
-from SUAVE.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product, orientation_transpose
+from SUAVE.Methods.Geometry.Three_Dimensional   import angles_to_dcms, orientation_product, orientation_transpose
 from SUAVE.Attributes.Units             import Units
 from Base_Segment import Base_Segment
 

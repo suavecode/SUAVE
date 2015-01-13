@@ -11,8 +11,8 @@ from SUAVE import Vehicle
 from SUAVE.Components.Wings import Wing
 from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Propulsors import Turbofan
-from SUAVE.Geometry.Two_Dimensional.Planform import wing_planform
-from SUAVE.Geometry.Two_Dimensional.Planform import fuselage_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import fuselage_planform
 from SUAVE.Core import Data
 
 from SUAVE.Attributes.Aerodynamics import PASS_Aero

@@ -116,14 +116,14 @@ def define_vehicle():
     wing.flaps_chord  = 0.28
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
 
     # add to vehicle
     vehicle.append_component(wing)
 
     # compute wing fuel capacity
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
     vehicle.fuel_tank_volume = wing.fuel_volume
 
     vehicle.Mass_Props.MaxUsableFuel = 12970.
@@ -147,7 +147,7 @@ def define_vehicle():
     wing.twist_tc   = 2.0*Units.degrees     #
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.S_exposed  = 0.8*wing.area_wetted  #
 
     # add to vehicle
@@ -172,7 +172,7 @@ def define_vehicle():
     wing.twist_tc   = 0.0*Units.degrees     #
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     wing.S_exposed  = 0.8*wing.area_wetted  #
 
     # add to vehicle
@@ -196,7 +196,7 @@ def define_vehicle():
     fuselage.height          = 3.4  #
 
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
 
     # add to vehicle
     vehicle.append_component(fuselage)

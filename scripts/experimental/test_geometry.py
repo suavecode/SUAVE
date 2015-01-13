@@ -6,7 +6,7 @@ import numpy as np
 import copy, time
 from collections import OrderedDict as odict
 
-from SUAVE.Geometry.Three_Dimensional import angle_to_dcm
+from SUAVE.Methods.Geometry.Three_Dimensional import angle_to_dcm
 
 # MAIN
 def main():

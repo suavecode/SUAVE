@@ -88,7 +88,7 @@ def define_vehicle():
     wing.taper              = 1.             #    
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
@@ -124,7 +124,7 @@ def define_vehicle():
     wing.twists.root        = 0.0*Units.degrees     #
     wing.twists.tip         = 0.0*Units.degrees     #
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
@@ -155,7 +155,7 @@ def define_vehicle():
     wing.twists.tip         = 0.0*Units.degrees     #       
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input

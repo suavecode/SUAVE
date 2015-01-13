@@ -260,7 +260,7 @@ def read_airfoil_points(points):
 def set_naca_4series(airfoil,input_vsp):
     
     # shorten name...
-    from SUAVE.Geometry.Two_Dimensional.Cross_Section.Airfoil import compute_naca_4series
+    from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import compute_naca_4series
     
     # airfoil params
     camber        = float(input_vsp["Camber"])

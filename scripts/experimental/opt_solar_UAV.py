@@ -234,7 +234,7 @@ def define_vehicle(inputs):
     vehicle.reference_area  = wing.areas.reference
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input

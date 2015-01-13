@@ -97,7 +97,7 @@ def define_vehicle():
     wing.aero_center =[3,0,0]      # Not correct location (Position from the wing origin)
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 12.5                  #
     wing.S_exposed   = 0.8*wing.area_wetted  #
@@ -132,7 +132,7 @@ def define_vehicle():
     wing.taper     = 0.4            #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -167,7 +167,7 @@ def define_vehicle():
     wing.T_tail    = "no"           # Maybe change the naming convention
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -205,7 +205,7 @@ def define_vehicle():
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)

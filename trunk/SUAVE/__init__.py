@@ -14,7 +14,6 @@ import Core
 import Methods
 import Attributes
 import Components
-import Geometry
 import Analyses
 import Optimization
 
