@@ -9,7 +9,7 @@ import numpy as np
 from SUAVE.Analyses.Missions.Segments import Aerodynamic_Segment, Base_Segment
 from SUAVE.Core import Data
 from SUAVE.Methods.Geometry.Three_Dimensional   import orientation_product
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Class

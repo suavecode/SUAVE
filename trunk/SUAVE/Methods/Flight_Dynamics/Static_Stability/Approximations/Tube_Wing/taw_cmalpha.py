@@ -11,7 +11,7 @@ import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

@@ -16,7 +16,7 @@ from tail_horizontal import tail_horizontal
 from tail_vertical import tail_vertical
 from wing_main import wing_main
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

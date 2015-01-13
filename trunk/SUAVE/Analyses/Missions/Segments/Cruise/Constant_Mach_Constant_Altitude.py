@@ -10,7 +10,7 @@ import numpy as np
 from Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
 # import units
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 km = Units.km
 hr = Units.hr
 

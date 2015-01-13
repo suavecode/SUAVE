@@ -14,7 +14,7 @@ import SUAVE
 import numpy as np
 import scipy as sp
 
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,

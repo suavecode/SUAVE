@@ -9,7 +9,7 @@
 
 #SUave Imports
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Components import Wings
 from SUAVE.Core  import Data
 

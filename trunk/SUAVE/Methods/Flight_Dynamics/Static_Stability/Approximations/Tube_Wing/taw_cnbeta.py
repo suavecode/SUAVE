@@ -16,7 +16,7 @@ import numpy as np
 import copy
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

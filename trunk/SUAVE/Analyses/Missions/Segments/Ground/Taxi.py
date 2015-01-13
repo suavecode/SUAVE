@@ -13,7 +13,7 @@ import numpy as np
 from Ground_Segment import Ground_Segment
 
 # import units
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 km = Units.km
 hr = Units.hr
 deg = Units.deg
@@ -27,12 +27,12 @@ class Taxi(Ground_Segment):
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
-    
+
     def __defaults__(self):
 
-	self.tag = "Taxi Segment"
-	
+        self.tag = "Taxi Segment"
+
 
     def initialize_conditions(self,conditions,numerics,initials=None):
-	
-	raise NotImplementedError
+
+        raise NotImplementedError

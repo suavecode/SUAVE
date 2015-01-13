@@ -2,8 +2,6 @@
 # classes
 from Analysis import Analysis
 
-from Units import Units
-
 # packages
 import Constants
 import Gases

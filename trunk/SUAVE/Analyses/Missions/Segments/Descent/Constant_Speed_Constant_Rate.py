@@ -11,7 +11,7 @@ import time
 from SUAVE.Analyses.Missions.Segments import Climb
 
 # import units
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 km = Units.km
 hr = Units.hr
 deg = Units.deg

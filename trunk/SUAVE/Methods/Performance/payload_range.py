@@ -9,7 +9,7 @@
 
 # SUAVE imports
 import SUAVE
-from SUAVE.Attributes.Units import Units
+from SUAVE.Core import Units
 
 # other imports
 import time

@@ -11,7 +11,7 @@ import SUAVE
 # suave imports
 
 from SUAVE.Core import Data
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 from SUAVE.Core import Results
 

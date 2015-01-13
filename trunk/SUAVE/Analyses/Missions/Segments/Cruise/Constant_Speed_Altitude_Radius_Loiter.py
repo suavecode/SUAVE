@@ -10,7 +10,7 @@ import numpy as np
 from SUAVE.Analyses.Missions.Segments import Aerodynamic_Segment
 
 # import units
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 km = Units.km
 hr = Units.hr
 

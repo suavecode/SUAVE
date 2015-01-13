@@ -8,7 +8,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac import trapezoid_mac
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

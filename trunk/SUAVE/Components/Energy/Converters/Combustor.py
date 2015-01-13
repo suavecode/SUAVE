@@ -12,7 +12,7 @@
 
 import SUAVE
 
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 # python imports
 import os, sys, shutil

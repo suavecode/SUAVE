@@ -11,7 +11,7 @@ from Ground_Segment import Ground_Segment
 from SUAVE.Core import Data
 
 # import units
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 km = Units.km
 hr = Units.hr
 deg = Units.deg

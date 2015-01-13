@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     #imports
     import SUAVE
-    from SUAVE.Attributes import Units
+    from SUAVE.Core import Units
 
     # Test case
     t_c             = 0.11

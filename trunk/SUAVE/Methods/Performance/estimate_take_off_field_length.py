@@ -9,7 +9,7 @@
 
 # SUave Imports
 from SUAVE.Core            import Data
-from SUAVE.Attributes           import Units
+from SUAVE.Core import Units
 
 # package imports
 import numpy as np
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     #   Imports
     # ----------------------------------------------------------------------
     import SUAVE
-    from SUAVE.Attributes   import Units
+    from SUAVE.Core import Units
 
     # ----------------------------------------------------------------------
     #   Build the Vehicle

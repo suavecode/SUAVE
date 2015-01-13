@@ -13,7 +13,7 @@
 import SUAVE
 
 from SUAVE.Core import Data
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift

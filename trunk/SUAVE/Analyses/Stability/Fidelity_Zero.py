@@ -13,7 +13,7 @@
 import SUAVE
 
 from SUAVE.Core import Data
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 # local imports
 from Stability import Stability

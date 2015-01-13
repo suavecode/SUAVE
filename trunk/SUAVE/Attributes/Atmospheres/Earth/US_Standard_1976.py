@@ -9,7 +9,7 @@ from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Attributes.Planets import Earth
 from SUAVE.Core import Data
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Classes
