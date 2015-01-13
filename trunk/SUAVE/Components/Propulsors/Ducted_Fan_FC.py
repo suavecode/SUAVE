@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import numpy #as np
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from Propulsor import Propulsor
 # from SUAVE.Methods.Power import RunFuelCell
 # from SUAVE.Components.Energy.Converters import Fuel_Cell

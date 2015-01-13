@@ -1244,7 +1244,7 @@ def evaluate_field_length(vehicle,mission,results):
     LFL = estimate_landing_field_length(vehicle,landing_config,airport)
     
     # pack
-    field_length = SUAVE.Structure.Data()
+    field_length = SUAVE.Core.Data()
     field_length.takeoff = TOFL[0]
     field_length.landing = LFL[0]
     

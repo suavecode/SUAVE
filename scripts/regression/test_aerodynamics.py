@@ -5,7 +5,7 @@
 
 import SUAVE
 from SUAVE.Attributes import Units
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 #from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
 #from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
 

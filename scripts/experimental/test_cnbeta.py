@@ -10,7 +10,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac import trapezoid_mac
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -28,7 +28,7 @@ def main():
     wing.symmetric      = True
     wing.origin           = np.array([0.0,0,3.6]) * Units.feet  
     
-    reference               = SUAVE.Structure.Container()
+    reference               = SUAVE.Core.Container()
     vehicle.reference_area   = wing.areas.reference
     vehicle.append_component(wing)
     

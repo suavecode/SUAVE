@@ -2,7 +2,7 @@
 #  Imports
 # ------------------------------------------------------------
 
-from SUAVE.Structure import Container
+from SUAVE.Core import Container
 
 # ------------------------------------------------------------
 #  Energy Connections Container

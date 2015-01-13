@@ -7,7 +7,7 @@
 import numpy as np
 #import ad
 ##from scipy.optimize import root   #, fsolve, newton_krylov
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes.Results import Segment
 
 # ----------------------------------------------------------------------

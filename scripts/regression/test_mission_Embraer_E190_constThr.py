@@ -19,7 +19,7 @@ import pylab as plt
 
 import copy, time
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 

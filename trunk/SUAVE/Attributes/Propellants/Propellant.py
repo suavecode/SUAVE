@@ -6,7 +6,7 @@
 
 # classes
 # from SUAVE.Attributes.Gases import Gas
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 # from SUAVE.Attributes.Constants import Composition
 
 # ----------------------------------------------------------------------

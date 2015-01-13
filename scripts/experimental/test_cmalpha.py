@@ -14,7 +14,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 #from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approsimations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
 from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 def main():
@@ -37,7 +37,7 @@ def main():
     wing.ep_alpha       = 1. - wing.downwash_adj
     
     Mach                    = np.array([0.198])
-    reference               = SUAVE.Structure.Container()
+    reference               = SUAVE.Core.Container()
     conditions = Data()
     conditions.lift_curve_slope = datcom(wing,Mach)
     wing.CL_alpha = conditions.lift_curve_slope
@@ -103,7 +103,7 @@ def main():
     wing.ep_alpha       = 1. - wing.downwash_adj
     
     Mach                    = np.array([0.152])
-    reference               = SUAVE.Structure.Container()
+    reference               = SUAVE.Core.Container()
     conditions = Data()
     conditions.lift_curve_slope = datcom(wing,Mach)
     wing.CL_alpha = conditions.lift_curve_slope
@@ -168,7 +168,7 @@ def main():
     wing.ep_alpha       = 1. - wing.downwash_adj
     
     Mach                    = np.array([0.111])
-    reference               = SUAVE.Structure.Container()
+    reference               = SUAVE.Core.Container()
     conditions = Data()
     conditions.lift_curve_slope = datcom(wing,Mach)
     wing.CL_alpha = conditions.lift_curve_slope

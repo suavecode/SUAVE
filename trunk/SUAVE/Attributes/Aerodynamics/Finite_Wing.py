@@ -6,7 +6,7 @@
 
 import numpy as np
 from SUAVE.Attributes.Aerodynamics import Aerodynamics
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------

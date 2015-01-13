@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 from Propellant import Propellant
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Class

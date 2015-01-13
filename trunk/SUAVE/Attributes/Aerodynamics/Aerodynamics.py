@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from Configuration   import Configuration
 from Conditions      import Conditions
 from Geometry        import Geometry

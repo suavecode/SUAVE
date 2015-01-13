@@ -7,7 +7,7 @@ import numpy as np
 
 def main():
     N=4
-    thermo=SUAVE.Structure.Data()
+    thermo=SUAVE.Core.Data()
     air=SUAVE.Attributes.Gases.Air()
 
     thermo.Tt=np.ones(N)*300.

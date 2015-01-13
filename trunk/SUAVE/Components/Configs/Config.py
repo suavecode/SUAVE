@@ -4,8 +4,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
-from SUAVE.Structure import DiffedData
+from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import DiffedData
 
 from copy import deepcopy
 

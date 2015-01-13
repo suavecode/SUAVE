@@ -3,7 +3,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Analyses import Analysis, Results
 
 

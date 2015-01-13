@@ -8,7 +8,7 @@
 import numpy as np
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Constants import Constant, Composition
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 
 # other
 from numpy import sqrt, exp, abs

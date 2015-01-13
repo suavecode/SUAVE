@@ -9,7 +9,7 @@
 
 # suave imports
 from SUAVE.Attributes.Results.Result import Result
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \

@@ -10,7 +10,7 @@
 
 # packages
 import Plugins
-import Structure
+import Core
 import Attributes
 import Components
 import Methods

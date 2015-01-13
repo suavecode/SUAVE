@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Component import Component
 from Mass_Properties import Mass_Properties
 

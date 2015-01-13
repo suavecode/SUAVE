@@ -23,7 +23,7 @@ import copy, time
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 

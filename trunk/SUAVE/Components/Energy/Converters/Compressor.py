@@ -24,7 +24,7 @@ import numpy as np
 import scipy as sp
 
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Components import Component_Exception

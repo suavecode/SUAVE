@@ -18,7 +18,7 @@ import fuselage as fuselage
 import warnings
 
 from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
     )
 

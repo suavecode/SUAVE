@@ -7,7 +7,7 @@
 
 import numpy as np
 #import ad
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes.Results import Segment
 
 # ----------------------------------------------------------------------

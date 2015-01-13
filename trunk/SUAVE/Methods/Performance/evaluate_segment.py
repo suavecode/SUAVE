@@ -9,7 +9,7 @@ from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 from copy import deepcopy
 
 # SUAVE imports
-from SUAVE.Structure           import Data
+from SUAVE.Core           import Data
 from SUAVE.Methods.Solvers     import jacobian_complex
 
 

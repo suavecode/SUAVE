@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from Propellant import Propellant
 from SUAVE.Attributes.Constants import Composition
 # ----------------------------------------------------------------------

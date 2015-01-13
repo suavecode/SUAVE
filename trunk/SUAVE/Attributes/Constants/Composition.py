@@ -14,7 +14,7 @@
 from Constant import Constant
 
 # exceptions/warnings
-from SUAVE.Structure import Data_Warning
+from SUAVE.Core import Data_Warning
 from warnings import warn
 
 # ----------------------------------------------------------------------

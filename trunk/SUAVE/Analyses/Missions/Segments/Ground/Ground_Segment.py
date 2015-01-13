@@ -7,7 +7,7 @@ import numpy as np
 
 # SUAVE imports
 from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment, Base_Segment
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Geometry.Three_Dimensional   import orientation_product
 from SUAVE.Attributes import Units
 

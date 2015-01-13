@@ -12,7 +12,7 @@ sys.path.append('../trunk')
 import SUAVE
 from SUAVE.Attributes import Units
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 

@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use('Agg') 
         
 import SUAVE
-from SUAVE.Structure import Ordered_Bunch
+from SUAVE.Core import Ordered_Bunch
 import sys, os, traceback, time
 import matplotlib.pyplot as plt
 

@@ -5,8 +5,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Structure import Data, Container, Data_Exception, Data_Warning
-from SUAVE.Structure import Container as ContainerBase
+from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Container as ContainerBase
 from Segment import Segment
 
 # ----------------------------------------------------------------------

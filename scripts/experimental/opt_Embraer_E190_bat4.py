@@ -724,7 +724,7 @@ def define_vehicle(Mguess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     #now add component weights to the gross takeoff weight of the vehicle
     m_fuel=0.
     #m_air=0.              #mass gain from the lithium air battery 
-    engine1 = SUAVE.Structure.Data()
+    engine1 = SUAVE.Core.Data()
     engine1.thrust_sls  =0.001;  #dummy variable to make sizing easier
     '''
     battery.Mass_Props.mass=0

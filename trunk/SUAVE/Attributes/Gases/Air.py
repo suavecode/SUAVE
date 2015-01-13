@@ -7,7 +7,7 @@
 # classes
 from Gas import Gas
 from SUAVE.Attributes.Constants import Universe, Composition
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 
 # modules
 #import numpy as np

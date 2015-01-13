@@ -6,7 +6,7 @@
 
 # from .Components import Data_Exception
 import numpy as np
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Geometry.Three_Dimensional.NURBS.Attributes.Curve import Curve
 from SUAVE.Geometry.Three_Dimensional.NURBS.Attributes.Surface import Surface
 

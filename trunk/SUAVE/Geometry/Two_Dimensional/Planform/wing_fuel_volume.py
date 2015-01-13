@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 
 # package imports
 import numpy

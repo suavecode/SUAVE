@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
 from SUAVE import Components
 from SUAVE.Components import Component_Exception
 from SUAVE.Methods.Utilities import switch

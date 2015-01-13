@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Attributes import Units
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 
 import numpy as np
 

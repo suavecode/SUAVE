@@ -1,6 +1,6 @@
 
-from SUAVE.Structure import Data, Data_Exception
-from SUAVE.Structure import Container as ContainerBase
+from SUAVE.Core import Data, Data_Exception
+from SUAVE.Core import Container as ContainerBase
 
 # ----------------------------------------------------------------------
 #   Segments

@@ -18,7 +18,7 @@ import time
 from SUAVE.Attributes import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 

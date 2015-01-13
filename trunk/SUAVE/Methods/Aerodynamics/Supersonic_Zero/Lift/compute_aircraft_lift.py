@@ -10,7 +10,7 @@
 import SUAVE
 # suave imports
 
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Attributes.Results import Result

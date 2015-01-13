@@ -12,7 +12,7 @@
 
 import SUAVE
 
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import weissinger_vortex_lattice

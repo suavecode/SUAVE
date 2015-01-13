@@ -9,7 +9,7 @@
 
 # SUave Imports
 import SUAVE
-from SUAVE.Structure            import Data
+from SUAVE.Core            import Data
 from SUAVE.Attributes           import Units
 from SUAVE.Attributes   import Units
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length

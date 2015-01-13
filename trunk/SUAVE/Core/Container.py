@@ -16,7 +16,7 @@ from warnings        import warn
 # ----------------------------------------------------------------------        
 
 class Container(Data):
-    """ SUAVE.Structure.Container()
+    """ SUAVE.Core.Container()
         
         a dict-type container with attribute, item and index style access
         intended to hold a attribute-accessible list of Data()

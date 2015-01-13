@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import numpy #as np
-from SUAVE.Structure import Data, Container
+from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
 import Segments
 

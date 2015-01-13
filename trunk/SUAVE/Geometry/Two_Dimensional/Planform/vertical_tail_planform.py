@@ -11,7 +11,7 @@
 
 import numpy
 from math import pi, sqrt
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 #from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------

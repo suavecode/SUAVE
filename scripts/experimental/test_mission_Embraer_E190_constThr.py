@@ -18,7 +18,7 @@ import pylab as plt
 
 import copy, time
 
-from SUAVE.Structure import (Data, Container, Data_Exception, Data_Warning)
+from SUAVE.Core import (Data, Container, Data_Exception, Data_Warning)
 
 # the analysis functions
 from plot_mission import plot_mission

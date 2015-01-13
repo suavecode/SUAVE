@@ -8,7 +8,7 @@ import numpy as np
 
 # SUAVE imports
 from Ground_Segment import Ground_Segment
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 
 # import units
 from SUAVE.Attributes import Units

@@ -11,7 +11,7 @@
 
 # SUAVE Imports
 import SUAVE
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 from SUAVE.Attributes import Units
 
 #  package imports

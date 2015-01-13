@@ -4,8 +4,8 @@
 
 import numpy as np
 import time
-from SUAVE.Structure                    import Data, Data_Exception
-from SUAVE.Structure                    import Container as ContainerBase
+from SUAVE.Core                    import Data, Data_Exception
+from SUAVE.Core                    import Container as ContainerBase
 from SUAVE.Attributes.Planets           import Planet
 from SUAVE.Attributes.Atmospheres       import Atmosphere
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data

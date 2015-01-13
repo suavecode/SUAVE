@@ -13,7 +13,7 @@
 
 # suave imports
 # these should start with SUAVE, unless importing locally
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Function, Data, Container, Data_Exception, Data_Warning,
 )
 
