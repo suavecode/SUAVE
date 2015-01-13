@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Core import Data
 
 import numpy as np
@@ -42,7 +42,7 @@ def main():
     plot_mission(results)
     
     # old results
-    old_results = SUAVE.Plugins.VyPy.data.load('results_mission_B737.pkl');
+    old_results = SUAVE.Input_Output.load('results_mission_B737.pkl')
     old_results = old_results.mission_profile
     plot_mission(old_results,'k-')
     

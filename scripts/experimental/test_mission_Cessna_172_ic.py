@@ -18,7 +18,7 @@ import SUAVE
 import numpy as np
 import pylab as plt
 
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #   Main

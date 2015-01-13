@@ -9,7 +9,7 @@
 
 # SUAVE Imports
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Methods.Performance import payload_range
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length

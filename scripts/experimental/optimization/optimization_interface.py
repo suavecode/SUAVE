@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 import numpy as np
 import pylab as plt
@@ -76,7 +76,7 @@ def setup_interface():
     process.simple_sizing = simple_sizing
     
     # finalizes the data dependencies
-    process.finalize = finalize # doh!
+    process.finalize = finalize
     
     # the missions
     process.missions = missions
@@ -132,7 +132,6 @@ def finalize(interface):
     
     interface.configs.finalize()
     interface.analyses.finalize()
-    interface.process.finalize()
     
     return None
 

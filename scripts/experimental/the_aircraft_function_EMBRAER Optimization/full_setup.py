@@ -12,7 +12,7 @@
 # SUAVE Imports
 import SUAVE
 from SUAVE.Core  import Data
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 #  package imports
 import numpy as np

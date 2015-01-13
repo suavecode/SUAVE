@@ -5,7 +5,7 @@ import pylab as plt
 import copy
 import time
 from pint import UnitRegistry
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #   Inputs
 # ----------------------------------------------------------------------

@@ -13,7 +13,7 @@ matplotlib.interactive(True)
 
 
 from pint import UnitRegistry
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #   Inputs
 # ----------------------------------------------------------------------

@@ -18,7 +18,7 @@ import numpy as np
 import pylab as plt
 
 import copy
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------

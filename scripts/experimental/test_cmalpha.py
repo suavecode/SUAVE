@@ -13,7 +13,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 #from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approsimations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

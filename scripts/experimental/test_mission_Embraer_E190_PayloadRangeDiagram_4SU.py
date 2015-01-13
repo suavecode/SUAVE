@@ -15,7 +15,7 @@ import sys
 sys.path.append('../trunk')
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Methods.Performance import payload_range
 
 import numpy as np

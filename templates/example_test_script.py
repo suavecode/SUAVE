@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------    
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 import numpy as np
 import matplotlib.pyplot as plt
