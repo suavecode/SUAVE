@@ -15,7 +15,11 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
-# import methods
+# local imports
+from Stability import Stability
+
+
+# import SUAVE methods
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta import taw_cnbeta
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
@@ -33,17 +37,13 @@ from warnings import warn
 import numpy as np
 import scipy as sp
 
+
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 
-class Fidelity_Zero(Data):
-    """ SUAVE.Attributes.Aerodynamics.Fidelity_Zero
-        aerodynamic model that builds a surrogate model for clean wing 
-        lift, using vortex lattic, and various handbook methods
-        for everything else
-        
-        this class is callable, see self.__call__
+class Fidelity_Zero(Stability):
+    """ SUAVE.Analyses.Stability.Fidelity_Zero
         
     """
     
@@ -52,7 +52,9 @@ class Fidelity_Zero(Data):
         # Initialize quantities
         
         self.configuration = Data()
+        
         self.geometry      = Data()
+        
         self.stability_model = Data()
         self.stability_model.short_period = Data()
         self.stability_model.short_period.natural_frequency = 0.0
@@ -66,24 +68,16 @@ class Fidelity_Zero(Data):
         self.stability_model.dutch_roll.damping_ratio = 0.0
         self.stability_model.dutch_roll.natural_frequency = 0.0
         
-        
-        
         return
     
-    def initialize(self,vehicle):
+    def finalize(self):
                         
         # unpack
         geometry         = self.geometry
         configuration    = self.configuration
         stability_model  = self.stability_model
         
-        # copy geometry
-        for k in ['fuselages','wings','propulsors']:
-            geometry[k] = deepcopy(vehicle[k])
-        
-        # reference area
-        geometry.reference_area = vehicle.reference_area
-        configuration.mass_properties = vehicle.mass_properties
+        configuration.mass_properties = geometry.mass_properties
         
     
     def __call__(self,conditions):
@@ -102,9 +96,10 @@ class Fidelity_Zero(Data):
         """
         
         # unpack
-        configuration = self.configuration
-        geometry      = self.geometry
+        configuration   = self.configuration
+        geometry        = self.geometry
         stability_model = self.stability_model
+        
         q             = conditions.freestream.dynamic_pressure
         Sref          = geometry.reference_area    
         mach          = conditions.freestream.mach_number

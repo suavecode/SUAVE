@@ -599,8 +599,8 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Stability()
-    stability.features.vehicle = vehicle
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
+    stability.geometry = vehicle
     analyses.append(stability)
     
     # ------------------------------------------------------------------
