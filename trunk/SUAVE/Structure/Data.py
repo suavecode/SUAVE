@@ -22,9 +22,8 @@ class Data(DataBunch):
         if key is None: key = value.tag
         key_in = key
         key = key.translate(t_table)
-        if key != key_in: warn("changing key '%s' to '%s'\n" % (key_in,key))
+        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
         DataBunch.append(self,value,key)
-
 
 
 # ----------------------------------------------------------------------

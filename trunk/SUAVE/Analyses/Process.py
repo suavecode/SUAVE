@@ -21,8 +21,8 @@ class Process(Data):
     def evaluate(self,interface):
         return Results()
     
-    def finalize(self):
-        return
+    #def finalize(self):
+        #return
     
     
 # ----------------------------------------------------------------------
@@ -41,10 +41,10 @@ class Container(ContainerBase):
             results[tag] = result
         return results
     
-    def finalize(self):
-        for analysis in self:
-            if hasattr(analysis,'finalize'):
-                analysis.finalize()  
+    #def finalize(self):
+        #for analysis in self:
+            #if hasattr(analysis,'finalize'):
+                #analysis.finalize()  
     
     __call__ = evaluate
 

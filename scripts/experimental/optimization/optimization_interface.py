@@ -33,7 +33,7 @@ def main():
     # evalute!
     results = interface.evaluate(inputs)
     
-    # doesnt work...
+    # a lot of data...
     # print results
     
     return
@@ -76,12 +76,12 @@ def setup_interface():
     process.simple_sizing = simple_sizing
     
     # finalizes the data dependencies
-    process.finalize_ = finalize # doh!
+    process.finalize = finalize # doh!
     
     # the missions
     process.missions = missions
     
-    # various performance studies
+    # performance studies
     process.field_length = field_length
     process.noise = noise
     

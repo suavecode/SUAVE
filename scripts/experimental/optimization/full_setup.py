@@ -526,17 +526,21 @@ def simple_sizing(configs):
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
     
+    # diff the new data
     base.store_diff()
     
     # ------------------------------------------------------------------
     #   Landing Configuration
     # ------------------------------------------------------------------
     landing = configs.landing
+    
+    # make sure base data is current
     landing.pull_base()
     
     # landing weight
     landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
     
+    # diff the new data
     landing.store_diff()
     
     # done!
@@ -581,26 +585,26 @@ def base_analysis(vehicle):
     analyses.append(sizing)
     
     # ------------------------------------------------------------------
-    #  Weights - Andrew
+    #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
     weights.features.vehicle = vehicle
     analyses.append(weights)
     
     # ------------------------------------------------------------------
-    #  Aerodynamics Analysis - Anil, MacDonald
+    #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Aerodynamics()
     aerodynamics.features.vehicle = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
-    #  Stability Analysis - Momose
+    #  Stability Analysis
     stability = SUAVE.Analyses.Stability.Stability()
     stability.features.vehicle = vehicle
     analyses.append(stability)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis - Emilio
+    #  Propulsion Analysis
     propulsion = SUAVE.Analyses.Energy.Propulsion()
     propulsion.features.vehicle = vehicle
     analyses.append(propulsion)
