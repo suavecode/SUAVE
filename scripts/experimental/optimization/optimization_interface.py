@@ -15,6 +15,8 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
+import SUAVE.Plugins.VyPy.optimize as vypy_opt
+
 
 # ----------------------------------------------------------------------
 #   Main
@@ -25,18 +27,95 @@ def main():
     # setup the interface
     interface = setup_interface()
     
+    
+    # quick test
     inputs = Data()
-    inputs.projected_span  = 20.
-    inputs.fuselage_length = 40.
-    inputs.cruise_distance = 1000.
+    inputs.projected_span  = 36.
+    inputs.fuselage_length = 58.
     
     # evalute!
     results = interface.evaluate(inputs)
     
-    # a lot of data...
     # print results
+    print 'Initial Fuel Burn:    ' , results.summary.fuel_burn
+    print 'Initial Weight Empty: ' , results.summary.weight_empty
+    
+    # setup problem
+    problem = setup_problem(interface)
+    
+    # optimize!
+    results = optimize_problem(problem)
+    
+    #print 'Initial Fuel Burn:    ' , results.summary.fuel_burn
+    #print 'Initial Weight Empty: ' , results.summary.weight_empty    
+    
     
     return
+
+# ----------------------------------------------------------------------
+#   Setup an Optimization Problem
+# ----------------------------------------------------------------------
+
+def setup_problem(interface):
+    
+    # initialize the problem
+    problem = vypy_opt.Problem()
+    
+    # setup variables, list style
+    problem.variables = [
+    #   [ 'tag'             ,  x0, (lb , ub) , scl      ],
+        [ 'projected_span'  , 35., (30.,45.) , 'bounds' ],
+        [ 'fuselage_length' , 58., (40.,65.) , 'bounds' ], 
+    ]
+    
+    # remember avoids calling the function twice for same inputs
+    evaluator = vypy_opt.Remember(interface)
+    
+    # setup objective
+    problem.objectives = [
+    #   [ func     , 'tag'      , scl ],
+        [ evaluator, 'fuel_burn', 100. ],
+    ]
+    
+    # setup constraint, list style
+    problem.constraints = [
+    #   [ func     , ('tag'         ,'><=', val   ), scl ] ,
+        [ evaluator, ('weight_empty','<'  , 63000.), 100. ],
+    ]
+    
+    # print
+    print problem  
+      
+    # done!
+    return problem
+    
+
+# ----------------------------------------------------------------------        
+#   Optimize the Problem
+# ----------------------------------------------------------------------    
+
+def optimize_problem(problem):
+    
+    # ------------------------------------------------------------------
+    #   Setup Driver
+    # ------------------------------------------------------------------    
+    
+    driver = vypy_opt.drivers.SLSQP()
+    driver.verbose = False
+    
+    # ------------------------------------------------------------------
+    #   Run the Problem
+    # ------------------------------------------------------------------        
+
+    results = driver.run(problem)
+    
+    print 'Results:'
+    print results
+
+    
+    # done!
+    return results
+
 
 
 # ----------------------------------------------------------------------
@@ -100,13 +179,17 @@ def unpack_inputs(interface):
     
     inputs = interface.inputs
     
-    # apply the inputs
-    vehicle = interface.configs.base
-    vehicle.wings['main_wing'].spans.project = inputs.projected_span
-    vehicle.fuselages['fuselage'].length        = inputs.fuselage_length
+    print inputs
     
-    mission = interface.analyses.missions.base
-    mission.segments.cruise.distance = inputs.cruise_distance
+    # unpack interface
+    vehicle = interface.configs.base
+    vehicle.pull_base()
+    
+    # apply the inputs
+    vehicle.wings['main_wing'].spans.projected   = inputs.projected_span
+    vehicle.fuselages['fuselage'].lengths.total  = inputs.fuselage_length
+
+    vehicle.store_diff()
      
     return None
 
@@ -257,6 +340,12 @@ def summarize(interface):
     
     #TODO: revisit how this is calculated
     summary.second_segment_climb_rate = mission_profile.segments[1].climb_rate
+    
+    
+    printme = Data()
+    printme.fuel_burn = summary.fuel_burn
+    printme.weight_empty = summary.weight_empty
+    print printme
     
     return summary
 
