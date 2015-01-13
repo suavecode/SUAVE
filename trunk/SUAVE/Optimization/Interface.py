@@ -40,6 +40,12 @@ class Interface(Data):
             
             
         return self.results
+    
+    def __call__(self,inputs):
+        
+        results = self.evaluate(inputs)
+        
+        return results[-1]
         
         
         
