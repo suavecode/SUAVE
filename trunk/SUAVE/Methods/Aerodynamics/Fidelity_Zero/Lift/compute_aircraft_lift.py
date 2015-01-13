@@ -14,30 +14,9 @@ from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Attributes.Results import Result
-#from SUAVE import Vehicle
-from SUAVE.Components.Wings import Wing
-from SUAVE.Components.Fuselages import Fuselage
-from SUAVE.Components.Propulsors import Turbofan
-from SUAVE.Geometry.Two_Dimensional.Planform import wing_planform
-from SUAVE.Geometry.Two_Dimensional.Planform import fuselage_planform
-
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Aerodynamics_Surrogate
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Interpolation
-from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
-
-
-
-from SUAVE.Attributes.Aerodynamics.Configuration   import Configuration
-from SUAVE.Attributes.Aerodynamics.Conditions      import Conditions
-from SUAVE.Attributes.Aerodynamics.Geometry        import Geometry
-
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import vortex_lift
-#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
-
 
 # python imports
 import os, sys, shutil
@@ -88,16 +67,7 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     Mc             = conditions.freestream.mach_number
     AoA            = conditions.aerodynamics.angle_of_attack
     
-    # the lift surrogate model for wings only
-    wings_lift_model = configuration.surrogate_models.lift_coefficient
-    
-    # pack for interpolate
-    X_interp = AoA
-    
-    vortex_cl = np.array([[0.0]] * len(Mc))    
-    
-    # interpolate
-    wings_lift = wings_lift_model(X_interp)  
+    wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
     
     wing = geometry.wings[0]
     if wing.vortex_lift is True:

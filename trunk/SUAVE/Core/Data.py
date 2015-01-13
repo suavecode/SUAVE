@@ -18,6 +18,9 @@ from warnings import warn
 
 class Data(DataBunch):
     
+    def __defaults__(self):
+        return 
+    
     def append(self,value,key=None):
         if key is None: key = value.tag
         key_in = key

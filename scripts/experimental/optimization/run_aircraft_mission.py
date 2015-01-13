@@ -43,9 +43,10 @@ def main():
     
     # old results
     old_results = SUAVE.Plugins.VyPy.data.load('results_mission_B737.pkl');
-    plot_mission(results,'k-')
+    old_results = old_results.mission_profile
+    plot_mission(old_results,'k-')
     
-    plt.show()
+    plt.show(block=True)
     
     return
 

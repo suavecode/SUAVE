@@ -14,29 +14,11 @@ from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
 from SUAVE.Attributes.Results import Result
-#from SUAVE import Vehicle
-from SUAVE.Components.Wings import Wing
-from SUAVE.Components.Fuselages import Fuselage
-from SUAVE.Components.Propulsors import Turbofan
-from SUAVE.Geometry.Two_Dimensional.Planform import wing_planform
-from SUAVE.Geometry.Two_Dimensional.Planform import fuselage_planform
 
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Aerodynamics_Surrogate
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_Surrogate import Interpolation
-from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
-
-
-
-from SUAVE.Attributes.Aerodynamics.Configuration   import Configuration
-from SUAVE.Attributes.Aerodynamics.Conditions      import Conditions
-from SUAVE.Attributes.Aerodynamics.Geometry        import Geometry
-
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift.vortex_lift import vortex_lift
-#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
 
 
 # python imports

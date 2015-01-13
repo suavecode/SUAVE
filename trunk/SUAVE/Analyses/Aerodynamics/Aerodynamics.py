@@ -4,8 +4,10 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Analyses import Analysis, Results
-from SUAVE.Attributes.Aerodynamics import Fidelity_Zero
+from SUAVE.Analyses import Analysis
+
+# default Aero Results
+from Results import Results
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -16,23 +18,19 @@ class Aerodynamics(Analysis):
     """
     def __defaults__(self):
         self.tag    = 'aerodynamics'
-        self.features = Data()
-        self.settings = Data()
         
-        self.old_aero = Fidelity_Zero()
+        self.geometry = Data()
+        self.settings = Data()
         
         
     def evaluate(self,conditions):
         
-        
-        results = self.old_aero(conditions)
+        results = Results()
         
         return results
-        #return Results()
     
     def finalize(self):
         
-        self.old_aero.initialize(self.features.vehicle)        
         return     
     
     __call__ = evaluate
