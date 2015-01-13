@@ -388,7 +388,7 @@ class Aerodynamic_Segment(Base_Segment):
 
         # unpack
         m0        = conditions.weights.total_mass[0,0]
-        m_empty   = self.analyses.weights.features.vehicle.mass_properties.operating_empty
+        m_empty   = self.analyses.weights.mass_properties.operating_empty
         mdot_fuel = conditions.propulsion.fuel_mass_rate
         I         = numerics.integrate_time
         g         = conditions.freestream.gravity

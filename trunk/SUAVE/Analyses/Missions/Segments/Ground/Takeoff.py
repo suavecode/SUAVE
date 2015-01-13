@@ -48,7 +48,7 @@ class Takeoff(Ground_Segment):
         # default initial time, position, and mass
         t_initial = 0.0
         r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-        m_initial = self.analyses.weights.features.mass_properties.takeoff
+        m_initial = self.analyses.weights.mass_properties.takeoff
 
         # apply initials
         conditions.weights.total_mass[:,0]   = m_initial

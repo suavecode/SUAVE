@@ -174,7 +174,7 @@ class Base_Segment(Data):
                 time_initial comes from either initials.frames.inertial.time[0,0] 
                                             or is set to 0.0
                 weight_initial comes from either initialse.weights.total_mass[0,0]
-                               or self.analyses.weights.features.mass_properties.takeoff
+                               or self.analyses.weights.mass_properties.takeoff
                 
         """
         
@@ -192,7 +192,7 @@ class Base_Segment(Data):
         else:
             t_initial = 0.0
             r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
-            m_initial = self.analyses.weights.features.vehicle.mass_properties.takeoff  # sure why not
+            m_initial = self.analyses.weights.mass_properties.takeoff  # sure why not
             
             
         # apply initials

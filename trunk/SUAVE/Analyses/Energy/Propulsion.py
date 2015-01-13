@@ -17,13 +17,13 @@ class Propulsion(Analysis):
     """
     def __defaults__(self):
         self.tag    = 'propulsion'
-        self.features = Data()
+        self.vehicle  = Data()
         self.settings = Data()
         
         
     def evaluate(self,conditions,numerics):
         
-        network  = self.features.vehicle.propulsors['turbo_fan']
+        network  = self.vehicle.propulsors['turbo_fan']
         
         F,mdot,P = network.evaluate(conditions,numerics)
         

@@ -16,18 +16,25 @@ class Weights(Analysis):
     """ SUAVE.Analyses.Weights.Weights()
     """
     def __defaults__(self):
-        self.tag    = 'weights'
-        self.features = Data()
+        self.tag = 'weights'
+        self.vehicle  = Data()
         self.settings = Data()
         
         
     def evaluate(self,conditions=None):
         
-        vehicle = self.features.vehicle
+        vehicle = self.vehicle
         
         results = empty(vehicle)
         
         return results
     
     __call__ = evaluate
+    
+    
+    def finalize(self):
+        
+        self.mass_properties = self.vehicle.mass_properties
+        
+        return
         

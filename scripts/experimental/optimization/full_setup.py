@@ -587,7 +587,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
-    weights.features.vehicle = vehicle
+    weights.vehicle = vehicle
     analyses.append(weights)
     
     # ------------------------------------------------------------------
@@ -606,7 +606,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.features.vehicle = vehicle
+    propulsion.vehicle = vehicle
     analyses.append(propulsion)
     
     # ------------------------------------------------------------------
