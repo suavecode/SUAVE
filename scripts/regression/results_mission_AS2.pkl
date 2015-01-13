@@ -173,7 +173,7 @@ sbtp59
 a(S'mission_profile'
 p60
 g1
-(cSUAVE.Attributes.Missions.Mission
+(cSUAVE.Analyses.Missions.Mission
 Mission
 p61
 (lp62
@@ -185,14 +185,14 @@ tp65
 a(S'segments'
 p66
 g1
-(cSUAVE.Attributes.Missions.Segments.Base_Segment
+(cSUAVE.Analyses.Missions.Segments.Base_Segment
 Container
 p67
 (lp68
 (S'Climb - 6'
 p69
 g1
-(cSUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate
+(cSUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate
 Constant_Speed_Constant_Rate
 p70
 (lp71
@@ -13704,7 +13704,7 @@ sbtp3407
 a(S'Climb - 8'
 p3408
 g1
-(cSUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate
+(cSUAVE.Analyses.Missions.Segments.Climb.Linear_Mach_Constant_Rate
 Linear_Mach_Constant_Rate
 p3409
 (lp3410
@@ -21426,7 +21426,7 @@ sbtp4818
 a(S'Cruise'
 p4819
 g1
-(cSUAVE.Attributes.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude
+(cSUAVE.Analyses.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude
 Constant_Mach_Constant_Altitude
 p4820
 (lp4821
@@ -25290,7 +25290,7 @@ sbtp5524
 a(S'Descent - 1'
 p5525
 g1
-(cSUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate
+(cSUAVE.Analyses.Missions.Segments.Descent.Linear_Mach_Constant_Rate
 Linear_Mach_Constant_Rate
 p5526
 (lp5527
@@ -33021,7 +33021,7 @@ sbtp6936
 a(S'Descent - 5'
 p6937
 g1
-(cSUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate
+(cSUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate
 Constant_Speed_Constant_Rate
 p6938
 (lp6939

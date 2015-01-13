@@ -76,7 +76,7 @@ def main():
     configuration.mass_properties.center_of_gravity = Data()
     configuration.mass_properties.center_of_gravity = np.array([112.0,0,0]) * Units.feet    
     
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.freestream = Data()
     segment.freestream.mach_number          = 0.198
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -148,7 +148,7 @@ def main():
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 17.2 * Units.feet
     
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.M          = 0.152
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet
@@ -213,7 +213,7 @@ def main():
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 16.6 * Units.feet
     
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.M          = 0.111
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet

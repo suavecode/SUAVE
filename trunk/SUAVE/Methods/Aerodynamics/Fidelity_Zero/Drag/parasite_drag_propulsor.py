@@ -15,7 +15,7 @@ from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -95,7 +95,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     # --------------------------------------------------------
     
     # dump data to conditions
-    propulsor_result = Result(
+    propulsor_result = Results(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
         parasite_drag_coefficient = propulsor_parasite_drag ,

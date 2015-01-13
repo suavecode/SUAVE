@@ -17,7 +17,7 @@ from SUAVE.Attributes.Atmospheres.Earth import USStandard1976
 from SUAVE.Attributes.Gases import Air
 atm = USStandard1976()
 air=Air()
-# from SUAVE.Attributes.Missions import Mission
+# from SUAVE.Analyses.Missions import Mission
 
 # ----------------------------------------------------------------------
 #  Methods

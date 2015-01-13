@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 # SUAVE imports
-from SUAVE.Attributes.Missions.Segments import Climb
+from SUAVE.Analyses.Missions.Segments import Climb
 
 # import units
 from SUAVE.Attributes import Units

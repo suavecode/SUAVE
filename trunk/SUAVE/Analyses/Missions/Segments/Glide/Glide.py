@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Attributes.Missions.Segments import Segment
+from SUAVE.Analyses.Missions.Segments import Segment
 from SUAVE.Methods.Flight_Dynamics import equations_of_motion
 
 # ----------------------------------------------------------------------

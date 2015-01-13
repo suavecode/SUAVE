@@ -27,7 +27,7 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
     # ------------------------------------------------------------------  
     
     def __defaults__(self):
-        self.tag = 'Constant Mach, Constant Altitude Cruise'
+        self.tag = 'Constant Air Speed, Constant Climb Rate'
         
         # --- User Inputs
         

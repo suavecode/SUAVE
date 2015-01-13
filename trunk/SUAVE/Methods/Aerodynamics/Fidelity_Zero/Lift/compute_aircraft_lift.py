@@ -13,7 +13,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Attributes import Units
 
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import vortex_lift
@@ -84,7 +84,7 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     aircraft_lift_total = wings_lift_comp * fus_correction 
     
     # store results
-    lift_results = Result(
+    lift_results = Results(
         total                = aircraft_lift_total ,
         incompressible_wings = wings_lift          ,
         compressible_wings   = wings_lift_comp     ,

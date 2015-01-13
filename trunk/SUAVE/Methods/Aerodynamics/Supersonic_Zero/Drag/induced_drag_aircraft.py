@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 # python imports
 import os, sys, shutil
@@ -62,7 +62,7 @@ def induced_drag_aircraft(conditions,configuration,geometry):
         
     # store data
     try:
-        conditions.aerodynamics.drag_breakdown.induced = Result(
+        conditions.aerodynamics.drag_breakdown.induced = Results(
             total             = total_induced_drag ,
             efficiency_factor = e                  ,
             aspect_ratio      = ar                 ,

@@ -11,9 +11,9 @@
 # packages
 import Plugins
 import Core
+import Methods
 import Attributes
 import Components
-import Methods
 import Geometry
 import Analyses
 import Optimization

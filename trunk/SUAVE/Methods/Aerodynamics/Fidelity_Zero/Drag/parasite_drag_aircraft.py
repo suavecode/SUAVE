@@ -15,7 +15,7 @@ from parasite_drag_wing import parasite_drag_wing
 from parasite_drag_fuselage import parasite_drag_fuselage
 from parasite_drag_propulsor import parasite_drag_propulsor
 
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 # python imports
 import os, sys, shutil
@@ -56,7 +56,7 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     total_parasite_drag = 0.0
     
     # start conditions node
-    drag_breakdown.parasite = Result()
+    drag_breakdown.parasite = Results()
     
     # from wings
     for wing in wings.values():

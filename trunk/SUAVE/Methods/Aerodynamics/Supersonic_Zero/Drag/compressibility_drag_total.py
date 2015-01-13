@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
@@ -61,7 +61,7 @@ def compressibility_drag_total(conditions,configuration,geometry):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Initialize result
-    drag_breakdown.compressible = Result()
+    drag_breakdown.compressible = Results()
 
     # Iterate through wings
     for i_wing, wing, in enumerate(wings.values()):
@@ -114,7 +114,7 @@ def compressibility_drag_total(conditions,configuration,geometry):
         (cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
 
         # Dump data to conditions
-        wing_results = Result(
+        wing_results = Results(
             compressibility_drag      = cd_c    ,
             crest_critical            = mcc     ,
             divergence_mach           = MDiv    ,

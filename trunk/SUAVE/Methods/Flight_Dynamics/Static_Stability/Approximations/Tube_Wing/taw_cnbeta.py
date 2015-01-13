@@ -256,7 +256,7 @@ if __name__ == '__main__':
     aircraft.vertical   = vertical
     aircraft.mass_properties.center_of_gravity[0] = 112.2 * Units.feet
     
-    segment            = SUAVE.Attributes.Missions.Segments.Segment()
+    segment            = SUAVE.Analyses.Missions.Segments.Segment()
     segment.M          = 0.198
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet

@@ -8,10 +8,8 @@ import numpy as np
 from copy import deepcopy
 
 # SUAVE imports
-from Base_Segment                       import Base_Segment
 from SUAVE.Core                    import Data, Data_Exception
 from SUAVE.Core                    import Container as ContainerBase
-from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 from SUAVE.Methods.Utilities            import atleast_2d_col
 from SUAVE.Analyses                     import Analysis
 

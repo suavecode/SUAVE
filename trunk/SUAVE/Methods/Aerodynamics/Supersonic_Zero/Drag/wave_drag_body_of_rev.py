@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     #t_c_w = 0.03
     #Mc = 2.4
     #ARL = 4
-    # Result = 0.00158 According to http://adg.stanford.edu/aa241/drag/ssdragcalc.html
+    # Results = 0.00158 According to http://adg.stanford.edu/aa241/drag/ssdragcalc.html
     
     ## Computations
     #x = np.pi*ARL/4

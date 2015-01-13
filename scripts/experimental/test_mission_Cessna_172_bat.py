@@ -143,7 +143,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'Cessna 172 Test Mission'
     
     # initial mass
@@ -157,7 +157,7 @@ def define_mission(vehicle):
     #   Climb Segment: constant Mach, constant climb angle 
     # ------------------------------------------------------------------
     
-    climb = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach()
+    climb = SUAVE.Analyses.Missions.Segments.Climb.Constant_Mach()
     climb.tag = "Climb"
     
     # connect vehicle configuration
@@ -179,7 +179,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------
     
-    cruise = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    cruise = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
     cruise.tag = "Cruise"
     
     # connect vehicle configuration
@@ -201,7 +201,7 @@ def define_mission(vehicle):
     #   Descent Segment: consant speed, constant descent rate
     # ------------------------------------------------------------------
     
-    descent = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    descent = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed()
     descent.tag = "Descent"
     
     # connect vehicle configuration

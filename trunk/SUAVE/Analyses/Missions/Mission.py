@@ -9,6 +9,9 @@ from SUAVE.Core import Data, Data_Exception
 from SUAVE.Core import Container as ContainerBase
 from Segments import Segment
 
+from SUAVE.Methods.Performance import evaluate_mission
+
+
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
@@ -28,8 +31,6 @@ class Mission(Data):
         return
     
     def evaluate(self,conditions=None):
-        
-        from SUAVE.Methods.Performance import evaluate_mission
         
         mission_profile = evaluate_mission(self)
         

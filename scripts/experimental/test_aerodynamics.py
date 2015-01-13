@@ -6,7 +6,7 @@
 
 import SUAVE
 import numpy
-from SUAVE.Attributes.Missions.Segments import Base_Segment
+from SUAVE.Analyses.Missions.Segments import Base_Segment
 from SUAVE import Vehicle
 from SUAVE.Components.Wings import Wing
 from SUAVE.Components.Fuselages import Fuselage

@@ -233,7 +233,7 @@ def summarize(interface):
         conditions = conditions.do_recursive(stack_condition,segment.conditions)
       
     # pack
-    summary = SUAVE.Attributes.Results.Result()
+    summary = SUAVE.Core.Results()
     
     summary.weight_empty = vehicle.mass_properties.operating_empty
     

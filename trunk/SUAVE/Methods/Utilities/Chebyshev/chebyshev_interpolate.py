@@ -8,7 +8,7 @@
 import numpy as np
 #import ad
 from SUAVE.Core import Data
-from SUAVE.Attributes.Results import Segment
+
 
 # ----------------------------------------------------------------------
 #  Methods

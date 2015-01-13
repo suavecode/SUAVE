@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 # SUAVE imports
-from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
+from SUAVE.Analyses.Missions.Segments import Aerodynamic_Segment
 
 # import units
 from SUAVE.Attributes import Units
@@ -84,8 +84,8 @@ class Solar_Segment(Aerodynamic_Segment):
         alt       = self.altitudes
         seg_time  = self.time
         air_speed = self.air_speeds
-        atmo      = self.atmosphere
-        planet    = self.planet
+        atmo      = self.analyses.atmosphere
+        planet    = self.analyses.planet
         t_nondim  = numerics.dimensionless_time
         t_initial = conditions.frames.inertial.time[0,0]
         

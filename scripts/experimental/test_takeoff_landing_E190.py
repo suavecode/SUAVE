@@ -21,7 +21,7 @@ matplotlib.interactive(True)
 
 import copy
 
-from SUAVE.Attributes.Missions.Segments.Ground import Ground_Segment, Taxi, Takeoff, Landing
+from SUAVE.Analyses.Missions.Segments.Ground import Ground_Segment, Taxi, Takeoff, Landing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -274,7 +274,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'EMBRAER_E190AR test mission'
 
     # atmospheric model
@@ -324,7 +324,7 @@ def define_mission(vehicle):
     #   First Climb Segment: Constant Speed, Constant Climb Rate
     # ------------------------------------------------------------------
     
-    segment =  SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment =  SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb to 35'"
     
     # connect vehicle configuration

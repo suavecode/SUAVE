@@ -18,8 +18,6 @@ from warnings import warn
 # from SUAVE.Methods import Airfoils
 from SUAVE.Core  import Data, Container, Data_Exception
 from SUAVE.Attributes import Constants
-from SUAVE import Components
-import SUAVE.Components.Wings.Airfoils
 
 # ----------------------------------------------------------------------
 #  Methods

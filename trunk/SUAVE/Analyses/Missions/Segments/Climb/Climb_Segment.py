@@ -8,7 +8,7 @@ import numpy as np
 import time
 
 # SUAVE imports
-from SUAVE.Attributes.Missions.Segments import Aerodynamic_Segment
+from SUAVE.Analyses.Missions.Segments import Aerodynamic_Segment
 
 # import units
 from SUAVE.Attributes import Units

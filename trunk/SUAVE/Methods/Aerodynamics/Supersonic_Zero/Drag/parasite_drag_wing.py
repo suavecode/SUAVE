@@ -16,7 +16,7 @@ from SUAVE.Attributes.Gases import Air # you should let the user pass this as in
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 # python imports
 import os, sys, shutil
@@ -124,7 +124,7 @@ def parasite_drag_wing(conditions,configuration,wing):
     # --------------------------------------------------------
     
     # dump data to conditions
-    wing_result = Result(
+    wing_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
         parasite_drag_coefficient = wing_parasite_drag ,

@@ -6,7 +6,7 @@
 
 import numpy as np
 from SUAVE.Core import Data
-from SUAVE.Attributes.Results import Segment
+
 
 # ----------------------------------------------------------------------
 #  Methods

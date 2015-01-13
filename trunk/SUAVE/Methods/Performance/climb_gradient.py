@@ -9,7 +9,6 @@ import math
 import copy
 
 from SUAVE.Core            import Data
-from SUAVE.Attributes.Results   import Result, Segment
 
 # ----------------------------------------------------------------------
 #  Methods

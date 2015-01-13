@@ -392,7 +392,7 @@ def mission_setup(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'The Test Mission'
 
     # atmospheric model
@@ -413,7 +413,7 @@ def mission_setup(vehicle):
     #   Sixth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 6"
     
     # connect vehicle configuration
@@ -435,7 +435,7 @@ def mission_setup(vehicle):
     #   Seventh Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 7"
     
     # connect vehicle configuration
@@ -456,7 +456,7 @@ def mission_setup(vehicle):
     #   Eighth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
     segment.tag = "Climb - 8"
     
     # connect vehicle configuration
@@ -478,7 +478,7 @@ def mission_setup(vehicle):
     #   Eighth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
     segment.tag = "Climb - 9"
     
     # connect vehicle configuration
@@ -501,7 +501,7 @@ def mission_setup(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude()
+    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -521,7 +521,7 @@ def mission_setup(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -544,7 +544,7 @@ def mission_setup(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
     segment.tag = "Descent - 2"
     
     # connect vehicle configuration
@@ -567,7 +567,7 @@ def mission_setup(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 5"
 
     # connect vehicle configuration

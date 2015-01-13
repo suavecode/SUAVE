@@ -9,7 +9,7 @@ import math
 import copy
 
 from SUAVE.Core            import Data
-from SUAVE.Attributes.Results   import Result, Segment
+from SUAVE.Core import Results
 # from SUAVE.Methods.Utilities    import chebyshev_data, pseudospectral
 
 # ----------------------------------------------------------------------
