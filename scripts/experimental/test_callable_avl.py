@@ -59,13 +59,23 @@ plt.figure('Drag Polar')
 axes = plt.gca()
 CL = []
 CD = []
+CM = []
 for res in results:
 	CL.append(res.aerodynamics.total_lift_coefficient)
 	CD.append(res.aerodynamics.total_drag_coefficient)
+	CM.append(res.aerodynamics.pitch_moment_coefficient)
 axes.plot(CD,CL,'bo-')
 axes.set_xlabel('Total Drag Coefficient')
 axes.set_ylabel('Total Lift Coefficient')
 axes.grid(True)
+
+plt.figure('Pitching Momoent')
+axes = plt.gca()
+axes.plot(alphas,CM,'bo-')
+axes.set_xlabel('Angle of Attack')
+axes.set_ylabel('Pitching Moment')
+axes.grid(True)
+
 plt.show()
 
 

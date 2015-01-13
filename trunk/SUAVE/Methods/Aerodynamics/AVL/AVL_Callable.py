@@ -376,9 +376,9 @@ def read_results(self):
 			case_res = AVL_Results()
 			case_res.tag = case.result_filename
 			lines   = res_file.readlines()
-			case_res.aerodynamics.roll_moment_coefficeint  = float(lines[19][32:42].strip())
-			case_res.aerodynamics.pitch_moment_coefficeint = float(lines[19][32:42].strip())
-			case_res.aerodynamics.yaw_moment_coefficeint   = float(lines[19][32:42].strip())
+			case_res.aerodynamics.roll_moment_coefficient  = float(lines[19][32:42].strip())
+			case_res.aerodynamics.pitch_moment_coefficient = float(lines[20][32:42].strip())
+			case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
 			case_res.aerodynamics.total_lift_coefficient   = float(lines[23][10:20].strip())
 			case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
 			case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
