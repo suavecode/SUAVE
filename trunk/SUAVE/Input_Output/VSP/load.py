@@ -16,7 +16,7 @@ from warnings import warn
 
 # suave imports
 import SUAVE.Components
-from import_from_xml import import_from_xml
+from SUAVE.Input_Output.XML import load as import_from_xml
 from SUAVE.Core  import Data, Container, Data_Exception
 
 
@@ -25,7 +25,7 @@ from SUAVE.Core  import Data, Container, Data_Exception
 # ----------------------------------------------------------------------
 
 
-def import_from_VSP(vehicle,input_file,mass_props_file=""):
+def load(vehicle,input_file,mass_props_file=""):
 
     """ SUAVE.Methods.Input_Output.import_from_VSP(vehicle,input_file,mass_props_file)
         Import OpenVSP model and mass properties

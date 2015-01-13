@@ -23,7 +23,7 @@ from SUAVE.Attributes import Constants
 #  Methods
 # ----------------------------------------------------------------------
 
-def import_from_PASS(vehicle,input_file,mass_props_file=""):
+def load(vehicle,input_file,mass_props_file=""):
 
     """ ImportFromPASS: Import PASS model
 

@@ -17,7 +17,7 @@ import xml.sax.handler
 #  Methods
 # ----------------------------------------------------------------------
 
-def import_from_xml(file_in):
+def load(file_in):
     """ A simple function to converts XML data into native Python object. """
     
     # open file, read conents
