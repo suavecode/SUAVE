@@ -26,10 +26,14 @@ class Interface(Data):
         self.process  = SUAVE.Analyses.Process.Container()
         self.results  = SUAVE.Analyses.Results()
         
+        self.evaluation_count = 0
+        
         
     def evaluate(self,inputs):
         self.inputs = inputs
         interface = self
+        
+        self.evaluation_count += 1
         
         for key,step in self.process.items():
             if hasattr(step,'evaluate'):
