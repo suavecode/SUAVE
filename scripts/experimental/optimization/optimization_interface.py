@@ -27,7 +27,6 @@ def main():
     # setup the interface
     interface = setup_interface()
     
-    
     # quick test
     inputs = Data()
     inputs.projected_span  = 36.
@@ -36,86 +35,9 @@ def main():
     # evalute!
     results = interface.evaluate(inputs)
     
-    # print results
-    print 'Initial Fuel Burn:    ' , results.summary.fuel_burn
-    print 'Initial Weight Empty: ' , results.summary.weight_empty
-    
-    # setup problem
-    problem = setup_problem(interface)
-    
-    # optimize!
-    results = optimize_problem(problem)
-    
-    #print 'Initial Fuel Burn:    ' , results.summary.fuel_burn
-    #print 'Initial Weight Empty: ' , results.summary.weight_empty    
     
     
     return
-
-# ----------------------------------------------------------------------
-#   Setup an Optimization Problem
-# ----------------------------------------------------------------------
-
-def setup_problem(interface):
-    
-    # initialize the problem
-    problem = vypy_opt.Problem()
-    
-    # setup variables, list style
-    problem.variables = [
-    #   [ 'tag'             ,  x0, (lb , ub) , scl      ],
-        [ 'projected_span'  , 35., (30.,45.) , 'bounds' ],
-        [ 'fuselage_length' , 58., (40.,65.) , 'bounds' ], 
-    ]
-    
-    # remember avoids calling the function twice for same inputs
-    evaluator = vypy_opt.Remember(interface)
-    
-    # setup objective
-    problem.objectives = [
-    #   [ func     , 'tag'      , scl ],
-        [ evaluator, 'fuel_burn', 100. ],
-    ]
-    
-    # setup constraint, list style
-    problem.constraints = [
-    #   [ func     , ('tag'         ,'><=', val   ), scl ] ,
-        [ evaluator, ('weight_empty','<'  , 63000.), 100. ],
-    ]
-    
-    # print
-    print problem  
-      
-    # done!
-    return problem
-    
-
-# ----------------------------------------------------------------------        
-#   Optimize the Problem
-# ----------------------------------------------------------------------    
-
-def optimize_problem(problem):
-    
-    # ------------------------------------------------------------------
-    #   Setup Driver
-    # ------------------------------------------------------------------    
-    
-    driver = vypy_opt.drivers.SLSQP()
-    driver.verbose = False
-    
-    # ------------------------------------------------------------------
-    #   Run the Problem
-    # ------------------------------------------------------------------        
-
-    results = driver.run(problem)
-    
-    print 'Results:'
-    print results
-
-    
-    # done!
-    return results
-
 
 
 # ----------------------------------------------------------------------
@@ -179,6 +101,10 @@ def unpack_inputs(interface):
     
     inputs = interface.inputs
     
+    print "VEHICLE EVALUATION %i" % interface.evaluation_count
+    print ""
+    
+    print "INPUTS"
     print inputs
     
     # unpack interface
@@ -345,6 +271,7 @@ def summarize(interface):
     printme = Data()
     printme.fuel_burn = summary.fuel_burn
     printme.weight_empty = summary.weight_empty
+    print "RESULTS"
     print printme
     
     return summary
@@ -355,21 +282,4 @@ def summarize(interface):
 if __name__ == '__main__':
     main()
     
-    
-    
-    
-    ## ------------------------------------------------------------------
-    ##   Tests
-    ## ------------------------------------------------------------------    
-    
-    #inputs = Data()
-    #inputs.projected_span  = 1.0
-    #inputs.fuselage_length = 1.0
-    #inputs.cruise_distance = 1.0
-    
-    #strategy.unpack_inputs(interface,inputs)
-    
-    #import cPickle as pickle
-    #i = pickle.dumps(strategy)
-    #p = pickle.loads(i)
     
