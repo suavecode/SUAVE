@@ -146,6 +146,7 @@ class Aerodynamic_Segment(Base_Segment):
     #   Base_Segment.post_process()
 
     def initialize_conditions(self, conditions, numerics, initials=None):
+        
         Base_Segment.initialize_conditions(self,conditions, numerics, initials)
 
         # process initials

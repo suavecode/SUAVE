@@ -4,6 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Analysis import Analysis
 from Results import Results
@@ -31,12 +32,7 @@ class Vehicle(Analysis.Container):
         
         key = self.get_root(analysis)
         
-        if self[key] is None:
-            self[key] = analysis
-            
-        else:
-            raise Exception, 'Analysis already has key %s' % key
-        
+        self[key] = analysis
         
 
     _analyses_map = None
@@ -45,17 +41,15 @@ class Vehicle(Analysis.Container):
         
         Analysis.Container.__init__(self,*args,**kwarg)
         
-        from SUAVE import Analyses as Analyses_
-        
         self._analyses_map = {
-            Analyses_.Sizing.Sizing             : 'sizing'       ,
-            Analyses_.Weights.Weights           : 'weights'      ,
-            Analyses_.Aerodynamics.Aerodynamics : 'aerodynamics' ,
-            Analyses_.Stability.Stability       : 'stability'    ,
-            Analyses_.Energy.Propulsion         : 'propulsion'   ,
-            Analyses_.Energy.Energy             : 'energy'       ,
-            Analyses_.Atmospheres.Atmosphere    : 'atmosphere'   ,
-            Analyses_.Planets.Planet            : 'planet'       ,
+            SUAVE.Analyses.Sizing.Sizing             : 'sizing'       ,
+            SUAVE.Analyses.Weights.Weights           : 'weights'      ,
+            SUAVE.Analyses.Aerodynamics.Aerodynamics : 'aerodynamics' ,
+            SUAVE.Analyses.Stability.Stability       : 'stability'    ,
+            SUAVE.Analyses.Energy.Propulsion         : 'propulsion'   ,
+            SUAVE.Analyses.Energy.Energy             : 'energy'       ,
+            SUAVE.Analyses.Atmospheres.Atmosphere    : 'atmosphere'   ,
+            SUAVE.Analyses.Planets.Planet            : 'planet'       ,
         }
 
     def get_root(self,analysis):

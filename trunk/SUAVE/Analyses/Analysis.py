@@ -20,16 +20,32 @@ class Analysis(Data):
         self.tag    = 'analysis'
         self.features = Data()
         self.settings = Data()
+    
+    def compile(self,*args,**kwarg):
+        """ compile the data, settings, etc.
+            avoid analysis specific algorithms
+        """
+        return
         
-        
-    def evaluate(self,conditions):
+    def initialize(self,*args,**kwarg):
+        """ analysis specific initialization algorithms
+        """
+        return
+    
+    def evaluate(self,*args,**kwarg):
+        """ analysis specific evaluation algorithms
+        """        
+        raise NotImplementedError
         return Results()
     
-    def finalize(self):
+    def finalize(self,*args,**kwarg):
+        """ analysis specific finalization algorithms
+        """        
         return 
     
-    __call__ = evaluate
-        
+    def __call__(self,*args,**kwarg):
+        return self.evaluate(*args,**kwarg)
+    
 
 # ----------------------------------------------------------------------
 #  Config Container
@@ -39,20 +55,33 @@ class Container(ContainerBase):
     """ SUAVE.Analyses.Analysis.Container()
     """
     
-    def evaluate(self,conditions):
+    def compile(self,*args,**kwarg):
+        for tag,analysis in self.items():
+            if hasattr(analysis,'compile'):
+                analysis.compile(*args,**kwarg)
+        
+    def initialize(self,*args,**kwarg):
+        for tag,analysis in self.items:
+            if hasattr(analysis,'initialize'):
+                analysis.initialize(*args,**kwarg)
+    
+    def evaluate(self,*args,**kwarg):
         results = Results()
         for tag,analysis in self.items(): 
-            #if not callable(analysis): continue
-            result = analysis(conditions)
+            if hasattr(analysis,'evaluate'):
+                result = analysis.evaluate(*args,**kwarg)
+            else:
+                result = analysis(*args,**kwarg)
             results[tag] = result
         return results
     
-    def finalize(self):
-        for analysis in self:
+    def finalize(self,*args,**kwarg):
+        for tag,analysis in self.items():
             if hasattr(analysis,'finalize'):
-                analysis.finalize()
+                analysis.finalize(*args,**kwarg)
     
-    __call__ = evaluate
+    def __call__(self,*args,**kwarg):
+        return self.evaluate(*args,**kwarg)
 
 
 # ------------------------------------------------------------

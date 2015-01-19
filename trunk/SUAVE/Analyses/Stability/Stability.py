@@ -32,5 +32,4 @@ class Stability(Analysis):
         return
     
     
-    __call__ = evaluate
         

@@ -36,6 +36,24 @@ def main():
         
     return
 
+"""
+Results:
+variables : 
+  projected_span : 30.0
+  fuselage_length : 65.0
+objectives : 
+  fuel_burn : 15693.7348731
+equalities : 
+inequalities : 
+  weight_empty : 62746.4
+success : True
+messages : 
+  exit_flag : 0
+  exit_message : Optimization terminated successfully.
+  iterations : 7
+  run_time : 12.5720000267
+"""
+
 # ----------------------------------------------------------------------
 #   Setup an Optimization Problem
 # ----------------------------------------------------------------------

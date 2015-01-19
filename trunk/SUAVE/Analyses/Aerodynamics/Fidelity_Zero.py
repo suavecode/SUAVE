@@ -135,11 +135,6 @@ class Fidelity_Zero(Aerodynamics):
 
         return results
 
-    #: def evaluate 
-    
-    __call__ = evaluate
-
-
 
     def finalize(self):
         

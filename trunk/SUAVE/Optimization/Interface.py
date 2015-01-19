@@ -23,7 +23,7 @@ class Interface(Data):
         self.inputs   = Data()
         self.configs  = SUAVE.Components.Configs.Config.Container()
         self.analyses = SUAVE.Analyses.Analysis.Container()
-        self.process  = SUAVE.Analyses.Process.Container()
+        self.process  = SUAVE.Analyses.Process()
         self.results  = SUAVE.Analyses.Results()
         
         self.evaluation_count = 0

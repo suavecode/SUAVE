@@ -3,9 +3,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Analyses import Analysis, Results
-from SUAVE.Methods.Weights.Correlations.Tube_Wing import empty
 
 
 # ----------------------------------------------------------------------
@@ -18,18 +18,23 @@ class Weights(Analysis):
     def __defaults__(self):
         self.tag = 'weights'
         self.vehicle  = Data()
+        
         self.settings = Data()
+        self.settings.empty_weight_method = \
+            SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
         
         
     def evaluate(self,conditions=None):
         
+        # unpack
         vehicle = self.vehicle
+        empty   = self.settings.empty_weight_method
         
+        # evaluate
         results = empty(vehicle)
         
+        # done!
         return results
-    
-    __call__ = evaluate
     
     
     def finalize(self):

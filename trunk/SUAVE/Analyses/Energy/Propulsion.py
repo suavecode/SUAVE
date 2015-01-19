@@ -28,6 +28,4 @@ class Propulsion(Analysis):
         F,mdot,P = network.evaluate(conditions,numerics)
         
         return F,mdot,P
-    
-    __call__ = evaluate
         

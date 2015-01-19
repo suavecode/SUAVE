@@ -35,7 +35,19 @@ def main():
     # evalute!
     results = interface.evaluate(inputs)
     
+    """
+    VEHICLE EVALUATION 1
     
+    INPUTS
+    <data object 'SUAVE.Core.Data'>
+    projected_span : 36.0
+    fuselage_length : 58.0
+    
+    RESULTS
+    <data object 'SUAVE.Core.Data'>
+    fuel_burn : 15700.3830236
+    weight_empty : 62746.4
+    """
     
     return
 

@@ -23,5 +23,4 @@ class Geometry(Analysis):
     def evaluate(self,condtitions):
         return Results()
     
-    __call__ = evaluate
         

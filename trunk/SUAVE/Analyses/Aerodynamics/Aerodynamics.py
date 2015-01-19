@@ -33,5 +33,4 @@ class Aerodynamics(Analysis):
         
         return     
     
-    __call__ = evaluate
         
