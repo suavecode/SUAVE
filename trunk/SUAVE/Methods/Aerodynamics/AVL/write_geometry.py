@@ -51,7 +51,6 @@ def make_header_text(avl_object):
 {5}      {6}     {7}
 #Xref    Yref    Zref   <meters>
 {8}      {9}     {10}
-{11}	CDp
 
 '''
 	
@@ -65,13 +64,12 @@ def make_header_text(avl_object):
 	Xref  = avl_object.features.mass_properties.center_of_gravity[0]
 	Yref  = avl_object.features.mass_properties.center_of_gravity[1]
 	Zref  = avl_object.features.mass_properties.center_of_gravity[2]
-	CDp   = avl_object.default_case.conditions.aerodynamics.parasite_drag
 	name  = avl_object.features.tag
 	
 	mach = 0.0
 	
 	# Insert inputs into the template
-	header_text = header_base.format(name,mach,Iysym,Izsym,Zsym,Sref,Cref,Bref,Xref,Yref,Zref,CDp)
+	header_text = header_base.format(name,mach,Iysym,Izsym,Zsym,Sref,Cref,Bref,Xref,Yref,Zref)
 	
 	return header_text
 
