@@ -50,21 +50,21 @@ class AVL_Run_Case(Data):
 		
 		self.index = 0		# Will be overwritten when appended to an AVL_Cases structure
 		self.tag   = 'Case'
-		self.mass  = None
+		self.mass  = 0.0
 		
 		self.conditions = Data()
 		self.stability_and_control = Data()
 		free = Data()
 		aero = Data()
 		
-		free.mach     = None
-		free.velocity = None
-		free.density  = None
-		free.gravitational_acceleration = None
+		free.mach     = 0.0
+		free.velocity = 0.0
+		free.density  = 1.225
+		free.gravitational_acceleration = 9.81
 		
-		aero.parasite_drag    = None
-		aero.angle_of_attack  = None
-		aero.side_slip_angle  = None
+		aero.parasite_drag    = 0.0
+		aero.angle_of_attack  = 0.0
+		aero.side_slip_angle  = 0.0
 		
 		self.stability_and_control.control_deflections = None
 		self.conditions.freestream = free
