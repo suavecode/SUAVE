@@ -64,7 +64,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     max_lift_coefficient_factor = vehicle.max_lift_coefficient_factor
     for wing in vehicle.wings:
     
-        if not isinstance(wing,Wings.Main_Wing): continue
+        if not wing.high_lift: continue
         #geometrical data
         Sref       = vehicle.reference_area
         Swing      = wing.areas.reference
@@ -72,11 +72,11 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         chord_mac  = wing.chords.mean_aerodynamic
         sweep      = wing.sweep  # convert into degrees
         taper      = wing.taper
-        flap_chord = wing.flaps_chord
-        flap_angle = wing.flaps_angle
-        slat_angle = wing.slats_angle
+        flap_chord = wing.flaps.chord
+        flap_angle = wing.flaps.angle
+        slat_angle = wing.slats.angle
         Swf        = wing.areas.affected  #portion of wing area with flaps
-        flap_type  = wing.flap_type
+        flap_type  = wing.flaps.type
 
         # conditions data
         V    = conditions.freestream.velocity 
@@ -148,11 +148,13 @@ if __name__ == '__main__':
     wing.taper                   = 0.28
     wing.chords.mean_aerodynamic = 3.66
 
-    wing.flaps_chord = 0.28
-    wing.flaps_angle = 30.  * Units.deg
-    wing.slats_angle = 15.  * Units.deg
+    wing.flaps.chord = 0.28
+    wing.flaps.angle = 30.  * Units.deg
+    wing.slats.angle = 15.  * Units.deg
     wing.areas.affected  = 0.60 * wing.areas.reference 
-    wing.flap_type   = 'double_slat'
+    wing.flaps.type   = 'double_slat'
+    
+    wing.high_lift  = True
 
     # add to vehicle
     vehicle.append_component(wing)

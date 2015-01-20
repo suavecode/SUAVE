@@ -45,11 +45,11 @@ def compute_flap_lift(t_c,flap_type,flap_chord,flap_angle,sweep,wing_Sref,wing_a
     dmax_ref= -4E-05*tc_r**4 + 0.0014*tc_r**3 - 0.0093*tc_r**2 + 0.0436*tc_r + 0.9734
 
     # Corrections for flap type
-    if flap_type == 'none':
+    if flap_type == None:
         dmax_ref = 0.
-    if flap_type == 'single_slotted':
+    elif flap_type.upper() == 'single_slotted'.upper():
         dmax_ref = dmax_ref * 0.93
-    if flap_type == 'triple_slotted':
+    elif flap_type.upper() == 'triple_slotted'.upper():
         dmax_ref = dmax_ref * 1.08
 
     # Chord correction
