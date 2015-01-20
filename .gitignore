@@ -42,7 +42,6 @@ nosetests.xml
 
 # local directories
 /workspace
-/trunk/SUAVE/temporary_files/*
 
 # latex
 *.aux
