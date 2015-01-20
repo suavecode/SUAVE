@@ -28,6 +28,8 @@ class AVL_Settings(Data):
 		self.discretization.defaults.fuselage = AVL_Discretization_Settings()
 		self.discretization.defaults.fuselage.spanwise_spacing = 3
 		self.discretization.defaults.fuselage.spanwise_spacing_scheme = 'equal'
+		self.discretization.defaults.fuselage.nose_interpolation = 'parabolic'
+		self.discretization.defaults.fuselage.tail_interpolation = 'linear'
 		
 		self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
 		self.filenames.run_folder      = SUAVE.__path__[0] + '/temporary_files/'
@@ -58,7 +60,7 @@ class AVL_Discretization_Settings(Data):
 		"""
 		SPACING SCHEMES:
 			- 'cosine' : ||  |    |      |      |    |  || (bunched at both ends)
-			- 'sine'   : || |  |   |    |    |     |     | (bunched at start)
+			- '+sine'  : || |  |   |    |    |     |     | (bunched at start)
 			- 'equal'  : |   |   |   |   |   |   |   |   | (equally spaced)
 			- '-sine'  : |     |     |    |    |   |  | || (bunched at end)
 		"""
