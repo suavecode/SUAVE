@@ -101,14 +101,15 @@ def vehicle_setup():
     wing.eta         = 1.0
 
     # Set up the control surfaces
-    from SUAVE.Components.Wings.Wing import Control_Surface
+    from SUAVE.Components.Wings.Control_Surface import Control_Surface
+    from SUAVE.Geometry.Two_Dimensional.Planform.populate_control_sections import populate_control_sections as populate
     aileron = Control_Surface()
     aileron.tag = 'aileron'
     aileron.deflection_symmetry = -1
     ws = wing.spans.projected
     span_fractions  = [417. * Units.inches / ws , 555.8 * Units.inches / ws]
     chord_fractions = [0.138 , 0.154]
-    aileron.populate(span_fractions,chord_fractions,[0,0],wing)
+    aileron = populate(aileron,span_fractions,chord_fractions,[0,0],wing)
     wing.append_control_surface(aileron)
 
     # add to vehicle
