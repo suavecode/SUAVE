@@ -1,6 +1,8 @@
 
 import Conditions
-from State import State
-from Segment import Segment
+
+from Segment     import Segment
+from Simple      import Simple
+from Aerodynamic import Aerodynamic
 
 import Cruise

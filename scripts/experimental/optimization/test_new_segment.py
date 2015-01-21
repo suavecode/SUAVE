@@ -11,6 +11,8 @@ from SUAVE.Core import Units
 
 from copy import deepcopy
 
+from time import time
+
 
 # ----------------------------------------------------------------------
 #  Main
@@ -38,9 +40,38 @@ def main():
     segment.air_speed = 230.412 * Units['m/s']
     segment.distance  = 3933.65 * Units.km
     
-    state = deepcopy( segment.state )
+    state1 = deepcopy( segment.state )    
+    state2 = deepcopy( segment.state )    
     
-    segment.evaluate( state )
+    tic = time()
+    # once!
+    segment.evaluate( state1 )
+    print state1.conditions.weights.total_mass[-1,0]
+    
+    # again!
+    segment.evaluate( state2 )
+    print state2.conditions.weights.total_mass[-1,0]
+    
+    print 't' , time()-tic
+    
+    
+    # segment container!
+    
+    segment_1 = deepcopy(segment)
+    segment_2 = deepcopy(segment)
+    
+    mission = SUAVE.Analyses.New_Segment.Cruise.Cruise.Container()
+    
+    mission.sub_segments.segment_1 = segment_1
+    mission.sub_segments.segment_2 = segment_2
+    
+    state = deepcopy( mission.state )
+    
+    tic = time()
+    
+    mission.evaluate( state )    
+    
+    print 't', time()-tic
     
     return
 

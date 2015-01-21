@@ -14,7 +14,7 @@ def initialize_conditions(segment,state):
     
     conditions = state.conditions    
     t_initial = conditions.frames.inertial.time[0,0]
-    
+    t_final   = xf / air_speed + t_initial
     t_nondim  = state.numerics.dimensionless.control_points
     
     # pack
@@ -23,7 +23,6 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = air_speed
     
     # dimensionalize time
-    t_final = xf / air_speed + t_initial
     time =  t_nondim * (t_final-t_initial) + t_initial
     conditions.frames.inertial.time[:,0] = time[:,0]
     

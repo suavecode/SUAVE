@@ -1,6 +1,6 @@
 
 from math import sqrt, sin, cos, atan
-
+import numpy as np
 
 
 def compute_naca_4series(camber,camber_loc,thickness,npoints=200):
@@ -43,6 +43,9 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=200):
     
     upper = [[0.0,0.0]] + upper + [[1.0,0.0]]
     lower = [[0.0,0.0]] + lower + [[1.0,0.0]]
+    
+    upper = np.array(upper)
+    lower = np.array(lower)
     
     return upper, lower
 

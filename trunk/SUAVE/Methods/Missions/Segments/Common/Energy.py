@@ -12,7 +12,7 @@
 def initialize_battery(segment,state):
     
     if state.initials:
-        energy_initial = state.initials.propulsion.battery_energy[-1,0]
+        energy_initial = state.initials.conditions.propulsion.battery_energy[-1,0]
     else:
         #energy_initial = segment.analyses.energy.max_battery_energy
         energy_initial = 0.0

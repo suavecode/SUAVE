@@ -16,11 +16,12 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 def initialize_inertial_position(segment,state):
     
     if state.initials:
-        r_initial = state.initials.frames.inertial.position_vector[-1,:][None,:]
-    else:
-        r_initial = state.conditions.frames.inertial.position_vector[0,:][None,:]
+        r_initial = state.initials.conditions.frames.inertial.position_vector[-1,:][None,:]
         
-    state.conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]    
+        state.conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]    
+        
+    #else:
+        #r_initial = state.conditions.frames.inertial.position_vector[0,:][None,:]
     
     return
     
@@ -32,14 +33,15 @@ def initialize_inertial_position(segment,state):
 def initialize_time(segment,state):
     
     if state.initials:
-        t_initial = state.initials.frames.inertial.time[-1,0]
-    else:
-        t_initial = state.conditions.frames.inertial.time[0,0]
-    
-    time = state.conditions.frames.inertial.time
-    time[:,0] = time[:,0] - time[0,0] + t_initial
-    
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
+        t_initial = state.initials.conditions.frames.inertial.time[-1,0]
+        
+        time = state.conditions.frames.inertial.time
+        time[:,0] = time[:,0] - time[0,0] + t_initial
+        
+        state.conditions.frames.inertial.time[:,0] = time[:,0]        
+        
+    #else:
+        #t_initial = state.conditions.frames.inertial.time[0,0]
     
     return
     
@@ -51,8 +53,8 @@ def initialize_time(segment,state):
 def initialize_planet_position(segment,state):
     
     if state.initials:
-        longitude_initial = state.initials.frames.planet.longitude[-1,0]
-        latitude_initial  = state.initials.frames.planet.latitude[-1,0] 
+        longitude_initial = state.initials.conditions.frames.planet.longitude[-1,0]
+        latitude_initial  = state.initials.conditions.frames.planet.latitude[-1,0] 
     else:
         longitude_initial = 0.0
         latitude_initial  = 0.0

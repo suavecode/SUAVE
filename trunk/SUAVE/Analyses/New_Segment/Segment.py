@@ -12,7 +12,7 @@ from SUAVE.Core import Data, Data_Exception
 
 from SUAVE.Analyses import Analysis, Settings, Process
 
-from State import State
+from Conditions import State, Conditions
 
 from SUAVE.Plugins.VyPy.tools import array_type
 
@@ -71,5 +71,8 @@ class Container(Segment):
     
     def __defaults__(self):
                 
-        self.segments = Process()
+        self.sub_segments = Process()
         
+        self.state.sub_segments = Conditions()
+        
+Segment.Container = Container

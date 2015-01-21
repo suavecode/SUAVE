@@ -11,7 +11,10 @@ from copy import deepcopy
 from SUAVE.Core                    import Data, Data_Exception
 from SUAVE.Methods.Utilities            import atleast_2d_col
 
-from Conditions import Conditions, Unknowns, Residuals, Numerics
+from Conditions import Conditions
+from Unknowns   import Unknowns
+from Residuals  import Residuals
+from Numerics   import Numerics
 
 
 # ----------------------------------------------------------------------

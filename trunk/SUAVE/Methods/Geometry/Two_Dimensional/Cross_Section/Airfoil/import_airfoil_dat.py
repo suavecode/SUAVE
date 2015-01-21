@@ -1,11 +1,12 @@
 
 from math import sqrt, sin, cos, atan
+import numpy as np
 
 def import_airfoil_dat(filename):
     
     filein = open(filename,'r')
     data = {}   
-    data['header'] = filein.readline().strip()
+    data['header'] = filein.readline().strip() + filein.readline().strip()
 
     filein.readline()
     
@@ -33,5 +34,8 @@ def import_airfoil_dat(filename):
         
         point = map(float,line.split())
         data[section].append(point)
+        
+    for k,v in data.items():
+        data[k] = np.array(v)
         
     return data
