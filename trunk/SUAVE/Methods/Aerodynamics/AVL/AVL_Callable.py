@@ -7,6 +7,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import os
+
 # SUAVE imports
 from SUAVE.Structure import Data
 
@@ -31,36 +33,20 @@ class AVL_Callable(Data):
     """
 
     def __defaults__(self):
-        self.tag = 'AVL'
-
-        #self.default_case = AVL_Run_Case()
-        #self.default_case.tag = 'Default Run Case'
-        #self.default_case.conditions.freestream.mach     = 0.0
-        #self.default_case.conditions.freestream.velocity = 0.0
-        #self.default_case.conditions.freestream.density  = 1.225
-        #self.default_case.conditions.freestream.gravitational_acceleration = 9.81
-        #self.default_case.conditions.aerodynamics.parasite_drag   = 0.0
-        #self.default_case.conditions.aerodynamics.angle_of_attack = 0.0
-        #self.default_case.conditions.aerodynamics.side_slip_angle = 0.0
+        self.tag        = 'AVL'
+        self.keep_files = True
 
         self.settings = AVL_Settings()
 
 
     def initialize(self,vehicle):
-
+        
         self.features = vehicle
         self.tag      = 'AVL Analysis of {}'.format(vehicle.tag)
-
-        #for tag in default_kase.conditions.freestream.keys():
-                #if default_kase.conditions.freestream[tag] is not None:
-                        #self.default_case.conditions.freestream[tag] = default_kase.conditions.freestream[tag]
-        #for tag in default_kase.conditions.aerodynamics.keys():
-                #if default_kase.conditions.aerodynamics[tag] is not None:
-                        #self.default_case.conditions.aerodynamics[tag] = default_kase.conditions.aerodynamics[tag]
-        #if default_kase.mass is not None:
-                #self.default_case.mass = default_kase.mass
-        #else:
-                #self.default_case.mass = vehicle.mass_properties.max_takeoff
+        self.settings.filenames.run_folder = \
+            os.path.abspath(self.settings.filenames.run_folder)
+        if not os.path.exists(self.settings.filenames.run_folder):
+            os.mkdir(self.settings.filenames.run_folder)
 
         return
 
@@ -105,13 +91,6 @@ class AVL_Callable(Data):
         return
 
 
-    #def append_default_control(self,control_tag,deflection):
-
-        #self.default_case.append_control_deflection(control_tag,deflection)
-
-        #return
-
-
     def __call__(self,cases):
         """ process vehicle to setup geometry, condititon and configuration
 
@@ -144,10 +123,10 @@ class AVL_Callable(Data):
         geometry_filename = self.settings.filenames.features
         cases_filename    = self.settings.filenames.cases
         deck_filename     = self.settings.filenames.input_deck
-
-        #Purge old results and input files
-        results_files.extend([geometry_filename,cases_filename,deck_filename])
-        purge_files(results_files,files_path)
+        
+        if not self.keep_files:
+            from purge_directory import purge_directory
+            purge_directory(self.settings.filenames.run_folder,purge_subdirectories=False)
 
         return results
 
@@ -167,9 +146,9 @@ def write_geometry(self):
     aircraft      = self.features
     files_path    = self.settings.filenames.run_folder
     geometry_file = self.settings.filenames.features
+    geometry_path = os.path.abspath(os.path.join(files_path,geometry_file))
 
     # Open the geometry file after purging if it already exists
-    geometry_path= files_path + geometry_file
     purge_files([geometry_path])
 
     geometry = open(geometry_path,'w')
@@ -197,7 +176,7 @@ def write_run_cases(self):
 
     # unpack avl_inputs
     files_path = self.settings.filenames.run_folder
-    cases_path = files_path + self.settings.filenames.cases
+    cases_path = os.path.abspath(os.path.join(files_path,self.settings.filenames.cases))
     aircraft   = self.features
     kases      = self.settings.run_cases
 
@@ -303,17 +282,17 @@ OPER
     files_path        = self.settings.filenames.run_folder
     cases_filename    = self.settings.filenames.cases
     deck_filename     = self.settings.filenames.input_deck
+    deck_path         = os.path.abspath(os.path.join(files_path,deck_filename))
     kases             = self.settings.run_cases
 
-    deck_path     = files_path + deck_filename
-    cases_path    = files_path + cases_filename
+    #cases_path    = os.path.abspath(os.path.join(files_path,cases_filename))
 
     # purge old versions and write the new input deck
     purge_files([deck_path])
     input_deck = open(deck_path,'w')
 
     try:
-        input_deck.write(base_input.format(cases_path))
+        input_deck.write(base_input.format(cases_filename))
         for case in kases.cases:
             case_command,res_file = make_case_command(self,case)
             case.result_filename = res_file
@@ -331,15 +310,15 @@ def make_case_command(self,case):
 '''{0}
 x
 {1}
-{2}{3}
+{2}
 '''
     directory = self.settings.filenames.run_folder
     index = case.index
     case_tag = case.tag
     res_type = 'st' # Eventually make this variable, or multiple, depending on user's desired outputs (or just do every type that AVL is capable of)
     results_file = 'results_{}.txt'.format(case_tag)
-    purge_files([directory+results_file])
-    case_command = base_case_command.format(index,res_type,directory,results_file)
+    purge_files([results_file],directory)
+    case_command = base_case_command.format(index,res_type,results_file)
 
     return case_command,results_file
 
@@ -353,11 +332,11 @@ def run_analysis(self):
     geometry_filename = self.settings.filenames.features
     deck_filename     = self.settings.filenames.input_deck
 
-    geometry_path = files_path + geometry_filename
-    deck_path     = files_path + deck_filename
+    #geometry_path = os.path.abspath(os.path.join(files_path,geometry_filename))
+    #deck_path     = os.path.abspath(os.path.join(files_path,deck_filename))
 
-    command = build_avl_command(geometry_path,deck_path,avl_bin_path)
-    run_command(command)
+    command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
+    run_command(command,files_path)
 
     results = read_results(self)
 
@@ -370,7 +349,7 @@ def read_results(self):
     results = Data()
 
     for case in self.settings.run_cases.cases:
-        results_path = results_directory + case.result_filename
+        results_path = os.path.abspath(os.path.join(results_directory,case.result_filename))
         res_file = open(results_path)
         num_ctrl = len(case.stability_and_control.control_deflections)
 

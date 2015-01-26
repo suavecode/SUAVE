@@ -32,7 +32,7 @@ class AVL_Settings(Data):
 		self.discretization.defaults.fuselage.tail_interpolation = 'linear'
 		
 		self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
-		self.filenames.run_folder      = SUAVE.__path__[0] + '/temporary_files/'
+		self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
 		self.filenames.features        = 'aircraft.avl'
 		self.filenames.cases           = 'avl_cases.case'
 		self.filenames.input_deck      = 'avl_commands.run'
