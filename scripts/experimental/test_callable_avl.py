@@ -76,5 +76,3 @@ axes.set_ylabel('Pitching Moment')
 axes.grid(True)
 
 plt.show()
-
-
