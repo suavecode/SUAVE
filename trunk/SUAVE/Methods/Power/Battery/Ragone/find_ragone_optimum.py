@@ -45,9 +45,20 @@ def find_ragone_optimum(battery, energy, power): #adds a battery that is optimiz
         rho=2000.                          # [kg/m^3]
 
     '''
-    
+    specific_energy_guess=battery.specific_energy
     lb=battery.ragone.lower_bound
     ub=battery.ragone.upper_bound
-    mybounds=[lb,ub]
-    sp.optimize.minimize(find_ragone_properties, battery.specific_energy, method='SLSQP', bounds=mybounds, constraints=None)
+    mybounds=[(lb,ub)]
+    #optimize!
+    specific_energy_opt=sp.optimize.fminbound(find_ragone_properties, lb, ub, args=( battery, energy, power))
+    
+    '''
+    opt_result=sp.optimize.minimize(find_ragone_properties, specific_energy_guess, args=( battery, energy, power),
+    method='SLSQP', bounds=mybounds)
+    '''
+    
+    #specific_energy_opt=opt_result.x
+    
+    #now initialize the battery with the new optimum properties
+    find_ragone_properties(specific_energy_opt, battery, energy, power)
     return
