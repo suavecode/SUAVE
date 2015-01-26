@@ -19,11 +19,12 @@ from SUAVE.Components.Energy.Storages.Battery  import Battery
 #  Battery Class
 # ----------------------------------------------------------------------    
 
-class Battery_Li_Ion(Battery):
+class Battery_Lithium_Ion(Battery):
     
     def __defaults__(self):
         self.specific_energy=90*Units.Wh/Units.kg
         self.specific_power=1*Units.kW/Units.kg
         self.ragone.const_1=88.818*Units.kW/Units.kg
         self.ragone.const_2=-.01533/(Units.Wh/Units.kg)
-       
+        self.ragone.lower_bound=50*Units.Wh/Units.kg
+        self.ragone.upper_bound=225*Units.Wh/Units.kg

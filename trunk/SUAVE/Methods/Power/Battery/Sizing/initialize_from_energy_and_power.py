@@ -13,10 +13,11 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def initialize_from_energy_and_power(battery, energy, power): #adds a battery that is optimized based on power and energy requirements and technology
-    battery.max_energy=energy
-    battery.max_power =power
     
-    battery.mass=np.max(energy/battery.specific_energy, power/power.specific_power)
     
+    mass=np.maximum(energy/battery.specific_energy, power/battery.specific_power)
+    battery.mass_properties.mass=mass
+    battery.max_energy=battery.specific_energy*mass
+    battery.max_power =battery.specific_power*mass
     
     return

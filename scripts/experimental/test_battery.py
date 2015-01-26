@@ -3,54 +3,46 @@ import sys
 sys.path.append('../trunk')
 import SUAVE
 from SUAVE.Components.Energy.Storages.Battery import Battery
+from SUAVE.Attributes import Units
+from SUAVE.Methods.Power.Battery.Discharge import datta_discharge
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
+
+from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
+from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
 import numpy as np
 def main():
     #size the battery
     Mission_total=SUAVE.Attributes.Missions.Mission()
     Ereq=1600000. #required energy for the mission in Joules
     Preq=1000. #maximum power requirements for mission in W
-   
+    specific_energy_guess=700*Units.Wh/Units.kg
     aircraft    = SUAVE.Vehicle()
-    battery_li_air     = SUAVE.Components.Energy.Storages.Battery_Li_Air()
-    battery_li_ion     = SUAVE.Components.Energy.Storages.Battery_Li_Ion()
-    battery_li_s     = SUAVE.Components.Energy.Storages.Battery_Li_S()
-    battery_li_s.find_opt_mass(Ereq,Preq)
-    battery_li_ion.find_opt_mass(Ereq,Preq)
-
-    #print battery_li_s
-    battery_li_air.Mass_Props.mass=max(Ereq*(1./3600.)/battery_li_air.SpecificEnergy, 
-    (Preq/1000.)/battery_li_air.SpecificPower)
-    battery_li_air.TotalEnergy=battery_li_air.Mass_Props.mass * \
-    battery_li_air.SpecificEnergy*3600.
-    #print battery_li_air.MassDensity
-    battery_li_air.Volume=battery_li_air.Mass_Props.mass/battery_li_air.MassDensity
-    battery_li_air.CurrentEnergy= battery_li_air.TotalEnergy
-    battery_li_air.MaxPower= (battery_li_air.SpecificPower*1000.)* \
-battery_li_air.Mass_Props.mass
-    time=60; #time in seconds
-    #run the battery
-    Ecurrent_li_s=battery_li_s.TotalEnergy
+    battery_li_air                = SUAVE.Components.Energy.Storages.Variable_Mass.Battery_Lithium_Air()
+    battery_al_air                = SUAVE.Components.Energy.Storages.Variable_Mass.Battery_Aluminum_Air()
+    battery_li_air.discharge_model=datta_discharge           #default discharge model, but assign anyway
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Ion()
+    battery_li_s                  = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Sulfur()
     
-    Ploss_li_s=battery_li_s(Preq,time)
-    print battery_li_s
-    [Ploss_li_air, mdot]=battery_li_air(Preq,time)
-    print battery_li_air
-    print 'mass flow rate=', mdot
+    test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
+    test_mass_gain(battery_al_air)
+    test_find_ragone_properties(battery_li_s, specific_energy_guess, Ereq,Preq)
  
-    Ploss_li_ion=battery_li_ion(Preq,time)
-    print battery_li_ion
+def test_find_ragone_optimum(battery_li_s, Ereq,Preq)
     
+def test_mass_gain(battery):
+    print battery
+    mass_gain       =find_total_mass_gain(battery)
+    print 'mass_gain=', mass_gain
     
-    '''
-    vehicle=SUAVE.Vehicle()
-    fan=SUAVE.Components.Propulsors.Ducted_Fan_Bat()
-    vehicle.battery=battery_li_s
-    fan.battery=battery_li_s
+def test_initialize_from_energy_and_power(battery,energy,power):
+    initialize_from_energy_and_power(battery, energy, power)
+    print battery
     
-    #vehicle.battery(1000, 5)
-    print battery_li_s
-    fan.battery(3000,2)
-    print battery_li_s
-    '''
+def test_find_ragone_properties(battery,specific_energy,energy,power):
+    find_ragone_properties(battery, specific_energy,energy,power)
+    print battery
+    print 'specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg)
+    
+
 if __name__ == '__main__':
     main()

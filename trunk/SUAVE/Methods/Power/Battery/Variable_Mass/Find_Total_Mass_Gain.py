@@ -13,6 +13,6 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 
-def find_mass_gain(battery): #adds a battery that is optimized based on power and energy requirements and technology
+def find_total_mass_gain(battery): #adds a battery that is optimized based on power and energy requirements and technology
     mgain=battery.max_energy*battery.mass_gain_factor
-    return
+    return mgain

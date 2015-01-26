@@ -14,8 +14,8 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def find_specific_power(battery, specific_energy): #adds a battery that is optimized based on power and energy requirements and technology
-    const_1=battery.ragone_const_1
-    const_2=battery.ragone_const_2
+    const_1=battery.ragone.const_1
+    const_2=battery.ragone.const_2
     specific_power=const_1*10**(const_2*specific_energy)
     battery.specific_power =specific_power
     battery.specific_energy=specific_energy
