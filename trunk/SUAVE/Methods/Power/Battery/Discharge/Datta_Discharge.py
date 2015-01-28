@@ -25,10 +25,12 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     max_energy = battery.max_energy
     
     #state of charge of the battery
-    x = np.divide(battery.current_energy,battery.max_energy())[:,0,None]
+    print 'current energy=', battery.current_energy
+    print 'max energy=', battery.max_energy
+    x = np.divide(battery.current_energy,battery.max_energy)[:,0,None]
 
     # C rate from 
-    C = 3600.*pbat/battery.max_energy()
+    C = 3600.*pbat/battery.max_energy
     
     # Empirical value for discharge
     x[x<-35.] = -35. # Fix x so it doesn't warn
@@ -42,6 +44,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     
     # Calculate resistive losses
     Ploss = (Ibat**2)*R
+
     
     # Energy loss from power draw
     eloss = np.dot(I,Ploss)

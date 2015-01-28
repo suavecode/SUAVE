@@ -18,6 +18,7 @@ def main():
    
     Preq=3000. #maximum power requirements for mission in W
     numerics=Data()
+    battery_inputs=Data()
     specific_energy_guess=500*Units.Wh/Units.kg
     aircraft    = SUAVE.Vehicle()
     battery_li_air                = SUAVE.Components.Energy.Storages.Variable_Mass.Battery_Lithium_Air()
@@ -25,12 +26,25 @@ def main():
     battery_li_air.discharge_model=datta_discharge           #default discharge model, but assign anyway
     battery_li_ion                = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Ion()
     battery_li_s                  = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Sulfur()
+    li_ion_mass                   = 10*Units.kg
+    #build numerics
+    numerics.integrate_time       = np.array([[0, 0],[0, 1]])
     
+    #build battery_inputs
+    battery_inputs.current        =90*Units.amps
+    battery_inputs.power_in       =np.array([[Preq/2.] , [Preq]])
+    battery_inputs.energy_transfer=-np.array([[1000],[2000]])*Units.Wh
+    
+    battery_li_ion.inputs=battery_inputs
     #test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
     #test_mass_gain(battery_al_air)
     #test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
     test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
-
+    battery_li_ion.current_energy=[[battery_li_ion.max_energy]]
+    battery_li_ion.energy_calc( numerics)
+    print battery_li_ion
+    #test_initialize_from_mass(battery_li_ion,li_ion_mass)
+    
 def test_mass_gain(battery):
     print battery
     mass_gain       =find_total_mass_gain(battery)
@@ -51,6 +65,10 @@ def test_find_ragone_optimum(battery, energy, power):
     
     print 'specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg)
     print 'max_energy [W-h]=', battery.max_energy/Units.Wh
+    return
+def test_initialize_from_mass(battery,mass):
+    initialize_from_mass(battery,mass)
+    print battery
     return
 if __name__ == '__main__':
     main()

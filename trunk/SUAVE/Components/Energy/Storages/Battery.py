@@ -28,7 +28,7 @@ class Battery(Energy_Component):
         self.mass_properties.mass = 0.0
         self.energy_density       = 0.0
         self.current_energy       = 0.0
-        self.resistance           = 0.0
+        self.resistance           = 0.07446 #base internal resistance of battery in ohms
         self.max_energy           = 0.0
         self.max_power            = 0.0
         self.discharge_model      = datta_discharge
@@ -39,5 +39,5 @@ class Battery(Energy_Component):
         self.ragone.upper_bound   = 0.0
         
     def energy_calc(self,numerics):
-        self.discharge_model(self.numerics)
+        self.discharge_model(self, numerics)
         return  
