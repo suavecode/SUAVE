@@ -1,6 +1,7 @@
 """models discharge losses based on an empirical correlation"""
 #by M. Vegh
-
+#Based on method taken from Datta and Johnson: 
+#"Requirements for a Hydrogen Powered All-ElectricManned Helicopter"
 """ SUAVE Methods for Energy Systems """
 
 # ----------------------------------------------------------------------
@@ -14,9 +15,9 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def datta_discharge(battery,numerics): #adds a battery that is optimized based on power and energy requirements and technology
-    Ibat  = battery.inputs.batlogic.Ibat
-    pbat  = battery.inputs.batlogic.pbat
-    edraw = battery.inputs.batlogic.e
+    Ibat  = battery.inputs.current
+    pbat  = battery.inputs.power_in
+    edraw = battery.inputs.energy_transfer
     Rbat  = battery.resistance
     I     = numerics.integrate_time
     
@@ -24,7 +25,6 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     max_energy = battery.max_energy
     
     #state of charge of the battery
-
     x = np.divide(battery.current_energy,battery.max_energy())[:,0,None]
 
     # C rate from 
