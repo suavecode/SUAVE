@@ -31,6 +31,7 @@ def parasite_drag_pylon(conditions,configuration,geometry):
 
     # unpack
     pylon_factor        =  0.20 # 20% of propulsor drag
+    n_propulsors        =  len(geometry.propulsors)  # number of propulsive system in vehicle (NOT # of ENGINES)
     
     pylon_parasite_drag = 0.00
     pylon_wetted_area   = 0.00
@@ -38,11 +39,9 @@ def parasite_drag_pylon(conditions,configuration,geometry):
     pylon_compr_fact    = 0.00
     pylon_rey_fact      = 0.00
     pylon_FF            = 0.00
-    n                   = 0
 
     # Estimating pylon drag
     for propulsor in geometry.propulsors:
-        n = n + 1
         pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient
         pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].wetted_area * propulsor.number_of_engines
         pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].skin_friction_coefficient
@@ -50,10 +49,10 @@ def parasite_drag_pylon(conditions,configuration,geometry):
         pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].reynolds_factor
         pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].form_factor
         
-    pylon_cf            /= n           
-    pylon_compr_fact    /= n   
-    pylon_rey_fact      /= n     
-    pylon_FF            /= n      
+    pylon_cf            /= n_propulsors           
+    pylon_compr_fact    /= n_propulsors   
+    pylon_rey_fact      /= n_propulsors     
+    pylon_FF            /= n_propulsors      
     
     # dump data to conditions
     pylon_result = Result(
