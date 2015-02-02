@@ -29,6 +29,7 @@ def main():
     li_ion_mass                   = 10*Units.kg
     #build numerics
     numerics.integrate_time       = np.array([[0, 0],[0, 1]])
+    numerics.differentiate_time   = np.array([[0, 0],[0, 1]])
     
     #build battery_inputs
     battery_inputs.current        =90*Units.amps

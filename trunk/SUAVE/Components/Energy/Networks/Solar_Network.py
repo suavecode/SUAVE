@@ -124,13 +124,13 @@ class Solar_Network(Propulsor):
         #
         solar_logic.logic(conditions,numerics)
         # link
-        battery.inputs.batlogic = solar_logic.outputs.batlogic
+        battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)
         current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.batlogic.pbat
+        battery_draw                         = battery.inputs.power_in 
         battery_energy                       = battery.current_energy
         
         conditions.propulsion.solar_flux     = solar_flux.outputs.flux  

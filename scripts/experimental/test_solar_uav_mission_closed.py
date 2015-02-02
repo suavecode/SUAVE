@@ -344,7 +344,7 @@ def define_mission(vehicle):
     segment.altitude_end   = 18.0   * Units.km
     segment.air_speed      = 30.0  * Units['m/s']
     segment.throttle       = 0.6
-    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
+    segment.battery_energy = vehicle.propulsion_model.battery.max_energy #Charge the battery to start
     segment.latitude       = 37.4300
     segment.longitude      = -122.1700
     

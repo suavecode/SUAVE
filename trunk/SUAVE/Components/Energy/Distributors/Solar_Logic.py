@@ -85,12 +85,9 @@ class Solar_Logic(Energy_Component):
         e = np.dot(I,plevel)
         
         # Send or take power out of the battery, Pack up
-        batlogic      = Data()
-        batlogic.pbat = plevel
-        batlogic.Ibat = (plevel/volts)
-        batlogic.e    = e
+        self.outputs.current         = (plevel/volts)
+        self.outputs.power_in        = plevel
+        self.outputs.energy_transfer = e
         
-        # Output
-        self.outputs.batlogic = batlogic
         
         return 

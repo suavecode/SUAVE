@@ -20,13 +20,14 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     edraw = battery.inputs.energy_transfer
     Rbat  = battery.resistance
     I     = numerics.integrate_time
+    D     = numerics.differentiate_time
     
     # Maximum energy
     max_energy = battery.max_energy
     
     #state of charge of the battery
-    print 'current energy=', battery.current_energy
-    print 'max energy=', battery.max_energy
+    #print 'current energy=', battery.current_energy
+    #print 'max energy=', battery.max_energy
     x = np.divide(battery.current_energy,battery.max_energy)[:,0,None]
 
     # C rate from 
@@ -44,26 +45,40 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     
     # Calculate resistive losses
     Ploss = (Ibat**2)*R
-
     
     # Energy loss from power draw
     eloss = np.dot(I,Ploss)
-    
 
     # Pack up
     battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
    
-
-    delta = 0.0
-    flag  = 0
-    battery.current_energy = battery.current_energy[0] * np.ones_like(eloss) 
-    for ii in range(1,len(edraw)):
-        if (edraw[ii,0] > (max_energy- battery.current_energy[ii-1])):
-            flag = 1 
-            delta = delta + ((max_energy- battery.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
-            edraw[ii,0] = edraw[ii,0] + delta
-        elif flag ==1:
-            edraw[ii,0] = edraw[ii,0] + delta
-        battery.current_energy[ii] = battery.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
+    #delta = 0.0
+    #flag  = 0
+    #battery.current_energy = battery.current_energy[0] * np.ones_like(eloss) 
+    #for ii in range(1,len(edraw)):
+        #if (edraw[ii,0] > (max_energy- battery.current_energy[ii-1])):
+            #flag = 1 
+            #delta = delta + ((max_energy- battery.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
+            #edraw[ii,0] = edraw[ii,0] + delta
+        #elif flag ==1:
+            #edraw[ii,0] = edraw[ii,0] + delta
+        #battery.current_energy[ii] = battery.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
+        
+    # New battery strategy:
+    # Possible Energy going into the battery:
+    energy_unmodified = np.dot(I,pbat)
+    
+    # How much energy the battery could be overcharged by
+    delta = energy_unmodified - max_energy + battery.current_energy[0]
+    delta[delta<0.] = 0.
+    ddelta = np.dot(D,delta) # Power that shouldn't go in
+    
+    # Power actually going into the battery
+    P = pbat - ddelta
+    ebat = np.dot(I,P)
+    
+    # Add this to the current state
+    #battery.current_energy = battery.current_energy[0] * np.ones_like(eloss) 
+    battery.current_energy = ebat - eloss + battery.current_energy[0]
                 
     return
