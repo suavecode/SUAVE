@@ -16,7 +16,6 @@ import scipy as sp
 import datetime
 import time
 from SUAVE.Attributes import Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
@@ -25,8 +24,8 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Network(Propulsor):
-    def __defaults__(self): 
+class Solar_Network_Lo_Fid(Data):
+    def __defaults__(self):
         self.solar_flux        = None
         self.solar_panel       = None
         self.motor             = None
@@ -36,10 +35,10 @@ class Solar_Network(Propulsor):
         self.payload           = None
         self.solar_logic       = None
         self.battery           = None
-        self.nacelle_diameter  = 0.0
-        self.engine_length     = 1.0
-        self.number_of_engines = 1.0
-        self.tag               = 'Network'
+        self.nacelle_dia       = 0.0
+        self.engine_length     = 0.0
+        self.number_of_engines = 0.0
+        self.tag         = 'Network'
     
     # manage process with a driver function
     def evaluate(self,conditions,numerics):
@@ -77,24 +76,10 @@ class Solar_Network(Propulsor):
         # step 5
         motor.omega(conditions)
         # link
-        propeller.inputs.omega =  motor.outputs.omega
+        propeller.inputs.omega  = motor.outputs.omega
+        propeller.inputs.torque = motor.outputs.torque
         # step 6
         F, Q, P, Cplast = propeller.spin(conditions)
-       
-        # iterate the Cp here
-        diff = abs(Cplast-motor.propeller_Cp)
-        tol = 1e-6
-        ii = 0 
-        while (np.any(diff>tol)):
-            motor.propeller_Cp  = Cplast #Change the Cp
-            motor.omega(conditions) #Rerun the motor
-            propeller.inputs.omega =  motor.outputs.omega #Relink the motor
-            F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
-            diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
-            ii += 1
-            #if ii>100:
-                #break            
-        
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]

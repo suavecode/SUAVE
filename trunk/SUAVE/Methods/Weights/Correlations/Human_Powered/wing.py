@@ -46,7 +46,10 @@ def wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,GW):
     deltaw = (bw**2)/(Sw*Nwr)
     
     #Wing One Wire Main Spar:
-    Wws    = (bw * (3.10e-2) + (7.56e-3) * (bw**2)) * (1.0 + (nult * GW /100.0 - 2.0) / 4.0)
+    #Wws    = (bw * (3.10e-2) + (7.56e-3) * (bw**2)) * (1.0 + (nult * GW /100.0 - 2.0) / 4.0)
+    
+    #Wing Cantilever Main Spar:
+    Wws    = (bw * (1.17e-1) + (1.1e-2) * (bw**2)) * (1.0 + (nult * GW /100.0 - 2.0) / 4.0)    
     
     #Wing Secondary Structure:
     Wwr    = Nwr * ((cw**2) * t_cw * 5.50e-2 + cw * 1.91e-3)

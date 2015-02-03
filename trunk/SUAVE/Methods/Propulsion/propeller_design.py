@@ -73,7 +73,7 @@ def propeller_design(prop_attributes):
     Pc = 2.*Power/(rho*(V**3.)*np.pi*(R**2.))    
     
     tol   = 1e-10 # Convergence tolerance
-    N     = 8.   # Number of Stations
+    N     = 20.   # Number of Stations
 
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially

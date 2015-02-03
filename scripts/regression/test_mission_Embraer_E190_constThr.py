@@ -38,20 +38,20 @@ def main():
 
     # define the problem
     vehicle, mission = full_setup()
-    
+
     # run the problem
     results = the_aircraft_function(vehicle,mission)
-    
+
     # plot the new results
-    plot_mission(vehicle,mission,results,'bo-')    
-    
+    plot_mission(vehicle,mission,results,'bo-')
+
     # load older results
     #save_results(results)
     old_results = load_results()
-    
+
     # plt the old results
     plot_mission(vehicle,mission,old_results,'k-')
-    
+
     # check the results
     #check_results(results,old_results)
 
@@ -249,7 +249,7 @@ def vehicle_setup():
     fuselage.heights.maximum       = 3.4    #
     fuselage.heights.at_quarter_length          = 3.4 # Not correct
     fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.at_vertical_root_quarter_chord = 3.4 # Not correct
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
@@ -673,7 +673,7 @@ def mission_setup(vehicle):
 
 
 def check_results(new_results,old_results):
-    
+
     # check segment values
     check_list = [
         'mission_profile.segments.Cruise.conditions.aerodynamics.angle_of_attack',
