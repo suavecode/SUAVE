@@ -120,10 +120,10 @@ def main():
     cd_c           = drag_breakdown.compressible['Main Wing'].compressibility_drag
     cd_i           = drag_breakdown.induced.total
     cd_m           = drag_breakdown.miscellaneous.total
-    #cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
-    #cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep
-    #cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['Turbo Fan']
-    #cd_m_ctrl      = drag_breakdown.miscellaneous.control_gaps
+    cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
+    cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep
+    cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['Turbo Fan']
+    cd_m_ctrl      = drag_breakdown.miscellaneous.control_gaps
     cd_p_fuse      = drag_breakdown.parasite.Fuselage.parasite_drag_coefficient
     cd_p_wing      = drag_breakdown.parasite['Main Wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
@@ -135,9 +135,9 @@ def main():
     drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
     drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
     # Line below is not normalized since regression values are 0, insert commented line if this changes
-    #drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
-    #drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
-    #drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
+    drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
+    drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
+    drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
     drag_tests.cd_p_fuse      = np.abs((cd_p_fuse - cd_p_fuse_r)/cd_p_fuse)
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
