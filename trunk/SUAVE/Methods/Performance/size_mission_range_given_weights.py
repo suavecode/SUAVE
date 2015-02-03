@@ -91,16 +91,21 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             segmentNum = i
             break
 
+    TOW_ref = mission.segments[0].analyses.weights.mass_properties.takeoff 
+    
     # Loop for range calculation of each input case
     for id,TOW in enumerate(takeoff_weight):
         PLD     =  mission_payload[id]
         FUEL    =  TOW - OEW - PLD - reserve_fuel[id]
 
         # Update mission takeoff weight
-        mission.segments[0].config.mass_properties.takeoff = TOW
+##        mission.segments[0].config.mass_properties.takeoff = TOW
+        vehicle.mass_properties.takeoff = TOW
+##        analyses.weights.mass_properties.takeoff
+        mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
-        results = SUAVE.Methods.Performance.evaluate_mission(mission)
+        results = SUAVE.Methods.Missions.evaluate_mission(mission)
         segment = results.segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
@@ -133,7 +138,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
-            results = SUAVE.Methods.Performance.evaluate_mission(mission)
+            results = SUAVE.Methods.Missions.evaluate_mission(mission)
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel
@@ -143,6 +148,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         distance[id] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) #Distance [m]
         fuel[id] = FUEL
 
+    mission.segments[0].analyses.weights.mass_properties.takeoff = TOW_ref
     # packing results
     return distance,fuel
 
