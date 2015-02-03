@@ -17,7 +17,6 @@ Data, Container, Data_Exception, Data_Warning,
 
 import SUAVE.Plugins.VyPy.optimize as vypy_opt
 
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -66,8 +65,15 @@ def setup_problem(interface):
     # setup variables, list style
     problem.variables = [
     #   [ 'tag'             ,  x0, (lb , ub) , scl      ],
-        [ 'projected_span'  , 40., (30.,45.) , 'bounds' ],
-        [ 'fuselage_length' , 65., (40.,70.) , 'bounds' ], 
+        [ 'aspect_ratio'    ,    10.   , (     5.    ,    20.   ) , 'bounds' ],
+        [ 'reference_area'  ,   125.   , (    70.    ,   200.   ) , 'bounds' ],
+        [ 'sweep'           ,    25.   , (     0.    ,    60.   ) , 'bounds' ],
+        [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 'bounds' ] ,
+        [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) , 'bounds' ] ,
+        [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 'bounds' ] ,
+        [ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ] ,
+                        
+##        [ 'fuselage_length' ,  65., (40., 70.) , 'bounds' ], 
     ]
     
     # remember avoids calling the function twice for same inputs
@@ -81,8 +87,13 @@ def setup_problem(interface):
     
     # setup constraint, list style
     problem.constraints = [
-    #   [ func     , ('tag'         , '><=', val   ), scl ] ,
-        [ evaluator, ('weight_empty', '<'  , 62000.), 100. ],
+    #   [ func     , ('tag'                     , '><=', val   ), scl ] ,
+        [ evaluator, ('takeoff_field_length'    , '<'  ,  2250.), 100. ],
+        [ evaluator, ('range_short_field_nmi'   , '>'  ,   700.), 100. ],            
+        [ evaluator, ('range_max_nmi'           , '>'  ,  2700.), 100. ],       
+        [ evaluator, ('max_zero_fuel_margin'    , '>'  ,     0.), 100. ],       
+        [ evaluator, ('available_fuel_margin'   , '>'  ,     0.), 100. ],                       
+                   
     ]
     
     # done!
