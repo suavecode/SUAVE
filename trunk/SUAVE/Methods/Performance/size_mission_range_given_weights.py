@@ -46,21 +46,21 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         print "Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined"
         return True
 
-    MZFW = vehicle.mass_properties.max_zero_fuel
-    if not MZFW:
-        print "Error calculating Range for a Given TOW and Payload: Vehicle MZFW not defined"
-        return True
+##    MZFW = vehicle.mass_properties.max_zero_fuel
+##    if not MZFW:
+##        print "Error calculating Range for a Given TOW and Payload: Vehicle MZFW not defined"
+##        return True
 
-    MaxPLD = vehicle.mass_properties.max_payload
-    if not MaxPLD:
-        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
+##    MaxPLD = vehicle.mass_properties.max_payload
+##    if not MaxPLD:
+##        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
 
-    MaxFuel = vehicle.mass_properties.max_fuel
-    if not MaxFuel:
-        MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
-        if MaxFuel < 0. :
-            print "Error calculating Range for a Given TOW and Payload: Vehicle MTOW not defined"
-            return True
+##    MaxFuel = vehicle.mass_properties.max_fuel
+##    if not MaxFuel:
+##        MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
+##        if MaxFuel < 0. :
+##            print "Error calculating Range for a Given TOW and Payload: Vehicle MTOW not defined"
+##            return True
 
     # Defining arrays for input and output
     mission_payload = np.atleast_1d(mission_payload)
