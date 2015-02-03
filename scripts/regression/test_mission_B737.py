@@ -47,8 +47,6 @@ def main():
     #save_results(results)
     old_results = load_results()
 
-    print results
-
     # plt the old results
     plot_mission(vehicle,mission,old_results,'k-')
 
