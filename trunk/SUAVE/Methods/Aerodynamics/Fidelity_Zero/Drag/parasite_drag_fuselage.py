@@ -56,7 +56,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     Swet        = fuselage.areas.wetted
     
     l_fus  = fuselage.lengths.cabin
-    d_fus  = fuselage.width
+    d_fus  = fuselage.effective_diameter
     l_nose = fuselage.lengths.nose
     l_tail = fuselage.lengths.tail
     
@@ -69,7 +69,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
 
     # reynolds number
     V = Mc * compute_speed_of_sound(Tc, pc) 
-    Re_fus = roc * V * l_fus/muc
+    Re_fus = roc * V * (l_fus + l_nose + l_tail)/muc
     
     # skin friction coefficient
     cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)

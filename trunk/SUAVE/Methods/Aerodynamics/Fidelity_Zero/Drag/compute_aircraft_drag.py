@@ -17,7 +17,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
 from parasite_drag_aircraft import parasite_drag_aircraft
 from induced_drag_aircraft import induced_drag_aircraft
 from compressibility_drag_wing import compressibility_drag_wing
-from miscellaneous_drag_aircraft import miscellaneous_drag_aircraft
+from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU
 
 # python imports
 import os, sys, shutil
@@ -67,10 +67,10 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     drag_breakdown             = conditions.aerodynamics.drag_breakdown
 
     # various drag components
-    parasite_total        = parasite_drag_aircraft     (conditions,configuration,geometry)
-    induced_total         = induced_drag_aircraft      (conditions,configuration,geometry)
-    compressibility_total = compressibility_drag_wing  (conditions,configuration,geometry)
-    miscellaneous_drag    = miscellaneous_drag_aircraft(conditions,configuration,geometry)
+    parasite_total        = parasite_drag_aircraft           (conditions,configuration,geometry)
+    induced_total         = induced_drag_aircraft            (conditions,configuration,geometry)
+    compressibility_total = compressibility_drag_wing        (conditions,configuration,geometry)
+    miscellaneous_drag    = miscellaneous_drag_aircraft_ESDU (conditions,configuration,geometry)
 
     # untrimmed drag
     aircraft_untrimmed = parasite_total        \
