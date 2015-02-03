@@ -75,12 +75,14 @@ def main():
     sys.stdout.write(' \n')
         
     # run tests
+    all_pass = True
     for module in modules:
         passed = test_module(module)
         if passed:
             results[module] = '  Passed'
         else:
             results[module] = '* FAILED'
+            all_pass = False
     
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
@@ -88,7 +90,7 @@ def main():
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
            
-    if passed:
+    if all_pass:
         sys.exit(0)
     else:
         sys.exit(1)
