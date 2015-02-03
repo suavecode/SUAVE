@@ -63,6 +63,22 @@ def setup_problem(interface):
     problem = vypy_opt.Problem()
     
     # setup variables, list style
+
+# =============================================================================        
+# If I use this set of variables, I get an error in the EVALUATION 17, related
+# to inputs out of the boundaries :
+
+##VEHICLE EVALUATION 17
+##
+##INPUTS
+##aspect_ratio : 4513.52708946
+##reference_area : -24637.339581
+##sweep : 15794.5435627
+##design_thrust : -6116722.45507
+##wing_thickness : 29.8038795806
+##MTOW : -8478661.8911
+##MZFW_ratio : -69.9607210688
+
     problem.variables = [
     #   [ 'tag'             ,  x0, (lb , ub) , scl      ],
         [ 'aspect_ratio'    ,    10.   , (     5.    ,    20.   ) , 'bounds' ],
@@ -71,10 +87,10 @@ def setup_problem(interface):
         [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 'bounds' ] ,
         [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) , 'bounds' ] ,
         [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 'bounds' ] ,
-        [ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ] ,
-                        
+        [ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ] ,                        
 ##        [ 'fuselage_length' ,  65., (40., 70.) , 'bounds' ], 
     ]
+# ==============================================================================                
     
     # remember avoids calling the function twice for same inputs
     evaluator = vypy_opt.Remember(interface)

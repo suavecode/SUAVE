@@ -95,9 +95,9 @@ def setup_interface():
     process.missions = missions
     
     # performance studies
-    process.takeoff_field_length    = takeoff_field_length
-    process.fuel_for_missions       = fuel_for_missions
-    process.short_field             = short_field
+    process.takeoff_field_length    = takeoff_field_length  # generates surrogate
+    process.fuel_for_missions       = fuel_for_missions     # generates surrogate
+    process.short_field             = short_field         
     process.mission_fuel            = mission_fuel
     process.max_range               = max_range
     process.noise                   = noise
@@ -164,12 +164,12 @@ def simple_sizing(interface):
     # wing simple sizing function
     # size main wing
     base.wings['main_wing'] = wing_planform(base.wings['main_wing'])
-    # reference values for empennage scaling
+    # reference values for empennage scaling, keeping tail coeff. volumes constants
     Sref = base.wings['main_wing'].areas.reference
     span = base.wings['main_wing'].spans.projected
     CMA  = base.wings['main_wing'].chords.mean_aerodynamic    
-    Sh = 32.48 * (Sref * CMA)  / (124.86 * 4.1535)
-    Sv = 26.40 * (Sref * span) / (124.86 * 35.35)
+    Sh = 32.48 * (Sref * CMA)  / (124.86 * 4.1535)  # hardcoded values represent the reference airplane data
+    Sv = 26.40 * (Sref * span) / (124.86 * 35.35)   # hardcoded values represent the reference airplane data
         
     # empennage scaling
     base.wings['horizontal_stabilizer'].areas.reference = Sh
@@ -187,7 +187,6 @@ def simple_sizing(interface):
     # pack
     base.mass_properties.breakdown = breakdown
     base.mass_properties.operating_empty = breakdown.empty
-##    base.mass_properties.takeoff         = base.mass_properties.max_takeoff
        
     # diff the new data
     base.store_diff()
@@ -427,121 +426,56 @@ def noise(interface):
 # ----------------------------------------------------------------------    
 
 def summarize(interface):
-   
-    vehicle = interface.configs.base    
-    results = interface.results
-    mission_profile = results.missions.base    
-    short_field_results = results.short_field
     
-    
-    # merge all segment conditions
-    def stack_condition(a,b):
-        if isinstance(a,np.ndarray):
-            return np.vstack([a,b])
-        else:
-            return None
-    
-    conditions = None
-    for segment in mission_profile.segments:
-        if conditions is None:
-            conditions = segment.conditions
-            continue
-        conditions = conditions.do_recursive(stack_condition,segment.conditions)
-      
+    # Unpack
+    vehicle               = interface.configs.base    
+    results               = interface.results
+    mission_profile       = results.missions.base    
+    short_field_results   = results.short_field
+    takeoff_field_results = results.takeoff_field_length
+    range_results         = results.max_range
+    # Weights
+    max_zero_fuel     = vehicle.mass_properties.max_zero_fuel
+    operating_empty   = vehicle.mass_properties.operating_empty
+    payload           = vehicle.mass_properties.payload    
+          
     # pack
     summary = SUAVE.Core.Results()
     
-    # Geometry and weights
-    summary.weight_empty    = vehicle.mass_properties.operating_empty
-    summary.weight_MZFW     = vehicle.mass_properties.max_zero_fuel
-    
-    summary.ref_area        = vehicle.wings['main_wing'].areas.reference
-    summary.aspect_ratio    = vehicle.wings['main_wing'].aspect_ratio
-    summary.sweep           = vehicle.wings['main_wing'].sweep / float(1*Units.deg) 
-    
-    # Fuel burn      
-    summary.fuel_burn  = results.mission_fuel.fuel
-    summary.fuel_range = float(results.mission_fuel.range/ Units.nmi)
-
+    # TOFL for MTOW @ SL, ISA
+    summary.takeoff_field_length  = float(takeoff_field_results.takeoff_field_length[-1]) 
+    # Range from a short field
     summary.range_short_field_nmi = float(short_field_results.range / Units.nmi)
-    summary.tow_short_field      = short_field_results.takeoff_weight
-    summary.takeoff_field_length  = float(results.takeoff_field_length.takeoff_field_length[-1]) 
-    
-    summary.range_max_nmi         = float(results.max_range.range / Units.nmi)   
-    summary.fuel_max              =  results.max_range.fuel 
-    
-    summary.max_zero_fuel_margin  = summary.weight_MZFW - (summary.weight_empty + vehicle.mass_properties.payload)
-    
+    # Maximum range
+    summary.range_max_nmi         = float(range_results.range / Units.nmi)   
+    # MZFW margin calculation
+    summary.max_zero_fuel_margin  = max_zero_fuel - (operating_empty + payload)
+    # fuel margin calculation
     from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
     wing_fuel_volume(vehicle.wings['main_wing'])
     fuel_density = vehicle.propulsors['turbo_fan'].combustor.fuel_data.density
     fuel_available = 0.97 * vehicle.wings['main_wing'].fuel_volume * fuel_density    
+    summary.available_fuel_margin = fuel_available - range_results.fuel
     
-    summary.available_fuel_margin = fuel_available - summary.fuel_max
-    
-        
-##    summary.fuel_burn = max(conditions.weights.total_mass[:,0]) - min(conditions.weights.total_mass[:,0])    
-##    summary.noise = results.noise        
-##    summary.mission_time_min = max(conditions.frames.inertial.time[:,0] / Units.min)
-##    summary.max_altitude_km = max(conditions.freestream.altitude[:,0] / Units.km)
-    
-##    summary.range_nmi = mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0] / Units.nmi
-        
-##    summary.stability = Data()
-##    summary.stability.cm_alpha = max(conditions.stability.static.cm_alpha[:,0])
-##    summary.stability.cn_beta  = max(conditions.stability.static.cn_beta[:,0])
-    
-##    #summary.conditions = conditions
-    
-##    #TODO: revisit how this is calculated
-##    summary.second_segment_climb_rate = mission_profile.segments[1].climb_rate
-    
-   
+    # Fuel burn
+    summary.fuel_burn  = results.mission_fuel.fuel
+    if summary.fuel_burn < 0:  # work around for negative fuel results.
+        summary.fuel_burn = summary.fuel_burn ** 2.
+
+    # Print outs   
     printme = Data()
-##    printme.range        = summary.fuel_range
-    printme.fuel_burn_design_mission    = summary.fuel_burn
-##    printme.ref_area     = summary.ref_area
-##    printme.aspect_ratio = summary.aspect_ratio
-##    printme.sweep        = summary.sweep
-    printme.weight_empty = summary.weight_empty
+    printme.fuel_burn    = summary.fuel_burn
+    printme.weight_empty = operating_empty
     printme.tofl_MTOW    = summary.takeoff_field_length
-##    printme.SF_tofl      = summary.tow_short_field
     printme.SF_range     = summary.range_short_field_nmi
-    printme.range_max    = summary.range_max_nmi
-    
+    printme.range_max    = summary.range_max_nmi    
     printme.max_zero_fuel_margin      = summary.max_zero_fuel_margin
     printme.available_fuel_margin     = summary.available_fuel_margin
     
     print "RESULTS"
-    print printme
-    
-##    from SUAVE._Apagar import print_compress_drag,print_engine_data,print_mission_breakdown,print_parasite_drag   
-##    # functions to printout some results
-##    # parasite drag    
-##    ref_conditions = Data()
-##    ref_conditions.mach_number = 0.40
-##    ref_conditions.reynolds_number = 12*10**6
-##    
-##    vehicle.aerodynamics_model = Data()
-##    vehicle.aerodynamics_model.configuratio = Data()
-##    vehicle.aerodynamics_model.configuration = interface.analyses.configs.base.aerodynamics.settings
-##    vehicle.propulsion_model = interface.analyses.configs.base.aerodynamics.settings
-##    
-##    vehicle.configs = Data()
-##    vehicle.configs.cruise = vehicle  
-##    
-##    print_parasite_drag(ref_conditions,vehicle)
-##    # compressibility drag
-##    print_compress_drag(vehicle)
-##    # mission breakdown    
-####    print_mission_breakdown(mission_profile)   
-##    # engine data    
-##    print_engine_data(vehicle,mission_profile)
+    print printme  
     
     return summary
-
-
-
 
 if __name__ == '__main__':
     main()
