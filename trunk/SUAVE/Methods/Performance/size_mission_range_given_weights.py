@@ -46,21 +46,21 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         print "Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined"
         return True
 
-    MZFW = vehicle.mass_properties.max_zero_fuel
-    if not MZFW:
-        print "Error calculating Range for a Given TOW and Payload: Vehicle MZFW not defined"
-        return True
+##    MZFW = vehicle.mass_properties.max_zero_fuel
+##    if not MZFW:
+##        print "Error calculating Range for a Given TOW and Payload: Vehicle MZFW not defined"
+##        return True
 
-    MaxPLD = vehicle.mass_properties.max_payload
-    if not MaxPLD:
-        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
+##    MaxPLD = vehicle.mass_properties.max_payload
+##    if not MaxPLD:
+##        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
 
-    MaxFuel = vehicle.mass_properties.max_fuel
-    if not MaxFuel:
-        MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
-        if MaxFuel < 0. :
-            print "Error calculating Range for a Given TOW and Payload: Vehicle MTOW not defined"
-            return True
+##    MaxFuel = vehicle.mass_properties.max_fuel
+##    if not MaxFuel:
+##        MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
+##        if MaxFuel < 0. :
+##            print "Error calculating Range for a Given TOW and Payload: Vehicle MTOW not defined"
+##            return True
 
     # Defining arrays for input and output
     mission_payload = np.atleast_1d(mission_payload)
@@ -91,16 +91,21 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             segmentNum = i
             break
 
+    TOW_ref = mission.segments[0].analyses.weights.mass_properties.takeoff 
+    
     # Loop for range calculation of each input case
     for id,TOW in enumerate(takeoff_weight):
         PLD     =  mission_payload[id]
         FUEL    =  TOW - OEW - PLD - reserve_fuel[id]
 
         # Update mission takeoff weight
-        mission.segments[0].config.mass_properties.takeoff = TOW
+##        mission.segments[0].config.mass_properties.takeoff = TOW
+        vehicle.mass_properties.takeoff = TOW
+##        analyses.weights.mass_properties.takeoff
+        mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
-        results = SUAVE.Methods.Performance.evaluate_mission(mission)
+        results = SUAVE.Methods.Missions.evaluate_mission(mission)
         segment = results.segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
@@ -133,7 +138,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
-            results = SUAVE.Methods.Performance.evaluate_mission(mission)
+            results = SUAVE.Methods.Missions.evaluate_mission(mission)
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel
@@ -143,6 +148,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         distance[id] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) #Distance [m]
         fuel[id] = FUEL
 
+    mission.segments[0].analyses.weights.mass_properties.takeoff = TOW_ref
     # packing results
     return distance,fuel
 
