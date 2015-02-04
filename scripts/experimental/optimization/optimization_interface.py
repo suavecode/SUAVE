@@ -91,11 +91,11 @@ def setup_interface():
     # finalizes the data dependencies
     process.finalize = finalize
     
-    # the missions
-    process.missions = missions
+    # the mission schedule
+    process.schedule = schedule
     
     # performance studies
-    process.field_length = field_length
+    #process.field_length = field_length
     process.noise = noise
     
     # summarize the results
@@ -161,14 +161,14 @@ def finalize(interface):
 #   Process Missions
 # ----------------------------------------------------------------------    
 
-def missions(interface):
+def schedule(interface):
     
-    missions = interface.analyses.missions
+    schedule = interface.analyses.schedule
     
-    results = missions.evaluate()
+    results = schedule.evaluate()
     
     return results
-            
+    
     
 # ----------------------------------------------------------------------
 #   Field Length Evaluation
@@ -182,8 +182,8 @@ def field_length(interface):
     # unpack data
     configs  = interface.configs
     analyses = interface.analyses
-    missions = interface.analyses.missions
-    takeoff_airport = missions.base.airport
+    schedule = interface.analyses.schedule
+    takeoff_airport = schedule.base.airport
     
     # evaluate
     tofl = estimate_tofl( configs.takeoff,  analyses.configs.takeoff, takeoff_airport )
@@ -210,7 +210,7 @@ def noise(interface):
     # unpack data
     vehicle = interface.configs.base
     results = interface.results
-    mission_profile = results.missions.base
+    mission_profile = results.schedule.base
     
     weight_landing    = mission_profile.segments[-1].conditions.weights.total_mass[-1,0]
     number_of_engines = vehicle.propulsors['turbo_fan'].number_of_engines
@@ -235,7 +235,7 @@ def summarize(interface):
     vehicle = interface.configs.base
     
     results = interface.results
-    mission_profile = results.missions.base
+    mission_profile = results.schedule.base
     
     
     # merge all segment conditions
@@ -268,7 +268,7 @@ def summarize(interface):
     
     summary.range_nmi = mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0] / Units.nmi
     
-    summary.field_length = results.field_length
+    #summary.field_length = results.field_length
     
     summary.stability = Data()
     summary.stability.cm_alpha = max(conditions.stability.static.cm_alpha[:,0])
@@ -292,6 +292,16 @@ def summarize(interface):
 
 
 if __name__ == '__main__':
+    
+    #interface = setup_interface()
+    #interface.configs = '...'
+    #interface.analyses = '...'
+    #output = Data()
+    #output.interface = interface
+    #SUAVE.Input_Output.FreeMind.save(output,'interface.mm')
+    
     main()
+    
+    
     
     

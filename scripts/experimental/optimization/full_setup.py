@@ -34,15 +34,18 @@ def full_setup():
     configs  = configs_setup(vehicle)
     
     # vehicle analyses
-    configs_analyses = analyses_setup(configs)
+    configs_analyses = configs_analyses_setup(configs)
     
     # mission analyses
     mission  = mission_setup(configs_analyses)
-    missions_analyses = missions_setup(mission)
+    schedule = schedule_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
+    analyses.schedule = schedule
+    
+    
+    SUAVE.Input_Output.FreeMind.save(analyses,'analyses.mm')
     
     return configs, analyses
 
@@ -550,13 +553,13 @@ def simple_sizing(configs):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs):
+def configs_analyses_setup(configs):
     
     analyses = SUAVE.Analyses.Analysis.Container()
     
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config)
+        analysis = vehicle_analysis_setup(config)
         analyses[tag] = analysis
         
     # adjust analyses for configs
@@ -571,7 +574,7 @@ def analyses_setup(configs):
     return analyses
     
     
-def base_analysis(vehicle):
+def vehicle_analysis_setup(vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -623,13 +626,12 @@ def base_analysis(vehicle):
     # done!
     return analyses
 
-#: def analyses_setup()
 
 
 # ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
-    
+
 def mission_setup(analyses):
     
     # ------------------------------------------------------------------
@@ -638,15 +640,7 @@ def mission_setup(analyses):
     
     mission = SUAVE.Analyses.Missions.Mission()
     mission.tag = 'the_mission'
-    
-    #airport
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    
-    mission.airport = airport    
-    
+        
     # unpack Segments module
     Segments = SUAVE.Analyses.Missions.Segments
     
@@ -764,17 +758,17 @@ def mission_setup(analyses):
 # ----------------------------------------------------------------------
 #   Various Missions
 # ----------------------------------------------------------------------
-    
-def missions_setup(base_mission):
 
-    # the mission container
-    missions = SUAVE.Analyses.Missions.Mission.Container()
+def schedule_setup(base_mission):
+
+    # the mission schedule
+    schedule = SUAVE.Analyses.Missions.Mission.Container()
     
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
     
-    missions.base = base_mission
+    schedule.base = base_mission
     
     
     # ------------------------------------------------------------------
@@ -784,7 +778,7 @@ def missions_setup(base_mission):
     fuel_mission = SUAVE.Analyses.Missions.Mission() #Fuel_Constrained()
     fuel_mission.tag = 'fuel'
     fuel_mission.mission = base_mission
-    missions.append(fuel_mission)
+    schedule.append(fuel_mission)
     
     
     # ------------------------------------------------------------------
@@ -794,7 +788,7 @@ def missions_setup(base_mission):
     short_field = SUAVE.Analyses.Missions.Mission() #Short_Field_Constrained()
     short_field.tag = 'short_field'
     short_field.mission = base_mission
-    missions.append(short_field)
+    schedule.append(short_field)
 
     
     # ------------------------------------------------------------------
@@ -804,14 +798,16 @@ def missions_setup(base_mission):
     payload = SUAVE.Analyses.Missions.Mission() #Payload_Constrained()
     payload.tag = 'payload'
     payload.mission = base_mission
-    missions.append(payload)
+    schedule.append(payload)
     
     
     # done!
-    return missions    
+    return schedule    
 
 if __name__ == '__main__':
-    full_setup()
+    
+    
+    configs, analyses = full_setup()
     
     
     

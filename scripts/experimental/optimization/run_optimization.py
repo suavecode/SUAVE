@@ -27,13 +27,13 @@ def main():
     # setup the interface
     from optimization_interface import setup_interface
     interface = setup_interface()
-        
+    
     # setup problem
     problem = setup_problem(interface)
     
     # optimize!
     results = optimize_problem(problem)
-        
+    
     return
 
 """
