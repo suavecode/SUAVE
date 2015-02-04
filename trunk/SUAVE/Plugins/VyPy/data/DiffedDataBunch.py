@@ -7,6 +7,10 @@ from DataBunch import DataBunch
 
 from copy import deepcopy
 
+from VyPy.tools.arrays import matrix_type, array_type
+
+import numpy as np
+
 # ----------------------------------------------------------------------
 #  DiffedDataBunch
 # ----------------------------------------------------------------------
@@ -70,7 +74,11 @@ def diff(A,B):
             sub_diff = diff(va,vb)
             if sub_diff:
                 result[key] = sub_diff
-        elif (isinstance(va,DataBunch) or isinstance(vb,DataBunch)) or not va==vb:
+        
+        elif isinstance(va,DataBunch) or isinstance(vb,DataBunch):
+            result[key] = va
+            
+        elif not np.all(va == vb):
             result[key] = va
         
     return result    

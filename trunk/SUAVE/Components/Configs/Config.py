@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Core import DiffedData
+from SUAVE.Core import Diffed_Data
 
 from copy import deepcopy
 
@@ -13,7 +13,7 @@ from copy import deepcopy
 #  Config
 # ----------------------------------------------------------------------
 
-class Config(DiffedData):
+class Config(Diffed_Data):
     """ SUAVE.Components.Config()
     """
     
@@ -25,7 +25,7 @@ class Config(DiffedData):
 #  Config Container
 # ----------------------------------------------------------------------
 
-class Container(DiffedData.Container):
+class Container(Diffed_Data.Container):
     """ SUAVE.Components.Config.Container()
     """
     pass

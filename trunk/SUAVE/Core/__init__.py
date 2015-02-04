@@ -5,7 +5,7 @@ from Ordered_Bunch import Ordered_Bunch
 from Indexable_Bunch import Indexable_Bunch
 
 from Data import Data
-from DiffedData import DiffedData
+from Diffed_Data import Diffed_Data
 # from Function import Function
 from Container import Container
 

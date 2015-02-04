@@ -13,7 +13,7 @@ from copy import deepcopy
 #  Config
 # ----------------------------------------------------------------------
 
-class DiffedData(DiffedDataBunch,Data):
+class Diffed_Data(DiffedDataBunch,Data):
     """ SUAVE.Core.DiffedData()
     """
     
@@ -28,7 +28,7 @@ class DiffedData(DiffedDataBunch,Data):
 # ----------------------------------------------------------------------
 
 class Container(ContainerBase):
-    """ SUAVE.Core.DiffedData.Container()
+    """ SUAVE.Core.Diffed_Data.Container()
     """
     def append(self,value):
         try: value.store_diff()
@@ -55,4 +55,4 @@ class Container(ContainerBase):
 #  Handle Linking
 # ------------------------------------------------------------
 
-DiffedData.Container = Container
+Diffed_Data.Container = Container
