@@ -82,8 +82,12 @@ def parasite_drag_wing(conditions,configuration,wing):
     xtu          = wing.transition_x_upper
     xtl          = wing.transition_x_lower
     
-    # compute wetted area # TODO: calcualte as preprocessing
-    Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w  
+    # compute wetted area 
+    try:
+        Swet = wing.areas.wetted
+    except:
+        Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
+        wing.areas.wetted = Swet
     
     # conditions
     Mc  = freestream.mach_number

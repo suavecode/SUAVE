@@ -72,19 +72,25 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         chord_mac  = wing.chords.mean_aerodynamic
         sweep      = wing.sweep  # convert into degrees
         taper      = wing.taper
-        flap_chord = wing.flaps_chord
-        flap_angle = wing.flaps_angle
-        slat_angle = wing.slats_angle
+        flap_chord = wing.flaps.chord
+        flap_angle = wing.flaps.angle
+        slat_angle = wing.slats.angle
         Swf        = wing.areas.affected  #portion of wing area with flaps
-        flap_type  = wing.flap_type
+        flap_type  = wing.flaps.type
 
         # conditions data
-        V    = conditions.freestream.velocity 
-        roc  = conditions.freestream.density 
-        nu   = conditions.freestream.viscosity
-        
-        ##Mcr  =  segment.M
-
+        try:
+            V    = conditions.freestream.velocity 
+            roc  = conditions.freestream.density 
+            nu   = conditions.freestream.viscosity
+        except:
+            # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
+            from SUAVE.Attributes.Atmospheres.Earth import US_Standard_1976 as atmo
+            p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
+            roc = rho_stall
+            nu  = mu_stall
+            V   = 90. * Units.knots
+           
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
 
@@ -148,11 +154,11 @@ if __name__ == '__main__':
     wing.taper                   = 0.28
     wing.chords.mean_aerodynamic = 3.66
 
-    wing.flaps_chord = 0.28
-    wing.flaps_angle = 30.  * Units.deg
-    wing.slats_angle = 15.  * Units.deg
+    wing.flaps.chord = 0.28
+    wing.flaps.angle = 30.  * Units.deg
+    wing.slats.angle = 15.  * Units.deg
     wing.areas.affected  = 0.60 * wing.areas.reference 
-    wing.flap_type   = 'double_slat'
+    wing.flaps.type   = 'double_slat'
 
     # add to vehicle
     vehicle.append_component(wing)

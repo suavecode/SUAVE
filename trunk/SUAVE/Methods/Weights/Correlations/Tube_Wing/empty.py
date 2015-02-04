@@ -109,7 +109,10 @@ def empty(vehicle):
         warnings.warn("There is no Turbo Fan Engine Weight being added to the Configuration", stacklevel=1)    
     else:    
         num_eng            = vehicle.propulsors['turbo_fan'].number_of_engines
-        thrust_sls         = vehicle.propulsors['turbo_fan'].design_thrust
+		# thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
+		# weight estimation. Engine sizing should return this value.
+		# for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
+        thrust_sls         = vehicle.propulsors['turbo_fan'].design_thrust / 0.20 # to account for difference in thrust as SL and design thrust
         wt_engine_jet      = Propulsion.engine_jet(thrust_sls)
         wt_propulsion      = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
     

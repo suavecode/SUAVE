@@ -38,7 +38,7 @@ def wing_fuel_volume(wing):
     """
 
     # unpack
-    sref  = wing.Areas.reference
+    sref  = wing.areas.reference
     ar    = wing.aspect_ratio
     tc    = wing.thickness_to_chord
 
