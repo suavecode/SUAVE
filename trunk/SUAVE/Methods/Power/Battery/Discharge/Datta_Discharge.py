@@ -1,7 +1,7 @@
 """models discharge losses based on an empirical correlation"""
 #by M. Vegh
 #Based on method taken from Datta and Johnson: 
-#"Requirements for a Hydrogen Powered All-ElectricManned Helicopter"
+#"Requirements for a Hydrogen Powered All-Electric Manned Helicopter"
 """ SUAVE Methods for Energy Systems """
 
 # ----------------------------------------------------------------------
@@ -25,9 +25,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Maximum energy
     max_energy = battery.max_energy
     
-    #state of charge of the battery
-    #print 'current energy=', battery.current_energy
-    #print 'max energy=', battery.max_energy
+    #state of charge of the batter
     x = np.divide(battery.current_energy,battery.max_energy)[:,0,None]
 
     # C rate from 
@@ -51,20 +49,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
 
     # Pack up
     battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
-   
-    #delta = 0.0
-    #flag  = 0
-    #battery.current_energy = battery.current_energy[0] * np.ones_like(eloss) 
-    #for ii in range(1,len(edraw)):
-        #if (edraw[ii,0] > (max_energy- battery.current_energy[ii-1])):
-            #flag = 1 
-            #delta = delta + ((max_energy- battery.current_energy[ii-1]) - edraw[ii,0] + np.abs(eloss[ii]))
-            #edraw[ii,0] = edraw[ii,0] + delta
-        #elif flag ==1:
-            #edraw[ii,0] = edraw[ii,0] + delta
-        #battery.current_energy[ii] = battery.current_energy[ii] + edraw[ii] - np.abs(eloss[ii])
-        
-    # New battery strategy:
+
     # Possible Energy going into the battery:
     energy_unmodified = np.dot(I,pbat)
     
@@ -78,7 +63,6 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     ebat = np.dot(I,P)
     
     # Add this to the current state
-    #battery.current_energy = battery.current_energy[0] * np.ones_like(eloss) 
     battery.current_energy = ebat - eloss + battery.current_energy[0]
                 
     return
