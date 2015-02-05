@@ -25,7 +25,7 @@ class Vehicle(Data):
     '''
 
     def __defaults__(self):
-        self.tag = 'Vehicle'
+        self.tag = 'vehicle'
         self.fuselages       = Components.Fuselages.Fuselage.Container()
         self.wings           = Components.Wings.Wing.Container()
         self.propulsors      = Components.Propulsors.Propulsor.Container()
