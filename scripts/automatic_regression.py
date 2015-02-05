@@ -47,6 +47,7 @@ modules = [
     #'regression/test_propeller.py',
     #'regression/test_aerodynamics.py',
     'regression/test_aerodynamics_super.py',
+    'regression/test_battery.py',
     'regression/test_cmalpha.py',
     'regression/test_cnbeta.py',
     #'regression/test_gasturbine_network.py',

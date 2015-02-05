@@ -17,7 +17,6 @@ import numpy as np
 def datta_discharge(battery,numerics): #adds a battery that is optimized based on power and energy requirements and technology
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
-    edraw = battery.inputs.energy_transfer
     Rbat  = battery.resistance
     I     = numerics.integrate_time
     D     = numerics.differentiate_time
