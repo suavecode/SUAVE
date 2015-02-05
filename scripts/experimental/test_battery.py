@@ -3,7 +3,7 @@
 import sys
 sys.path.append('../trunk')
 import SUAVE
-from SUAVE.Components.Energy.Storages.Battery import Battery
+from SUAVE.Components.Energy.Storages.Batteries import Battery
 from SUAVE.Attributes import Units
 from SUAVE.Methods.Power.Battery.Discharge import datta_discharge
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
@@ -21,11 +21,11 @@ def main():
     battery_inputs=Data()
     specific_energy_guess=500*Units.Wh/Units.kg
     aircraft    = SUAVE.Vehicle()
-    battery_li_air                = SUAVE.Components.Energy.Storages.Variable_Mass.Battery_Lithium_Air()
-    battery_al_air                = SUAVE.Components.Energy.Storages.Variable_Mass.Battery_Aluminum_Air()
+    battery_li_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    battery_al_air                = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Aluminum_Air()
     battery_li_air.discharge_model=datta_discharge           #default discharge model, but assign anyway
-    battery_li_ion                = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Ion()
-    battery_li_s                  = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Sulfur()
+    battery_li_ion                = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    battery_li_s                  = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Sulfur()
     li_ion_mass                   = 10*Units.kg
     #build numerics
     numerics.integrate_time       = np.array([[0, 0],[0, 1]])
