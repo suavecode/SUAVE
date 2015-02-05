@@ -1,0 +1,4302 @@
+{
+  "name": "Boeing 737-800", 
+  "children": [
+    {
+      "name": "tag", 
+      "children": [
+        {
+          "name": "Boeing 737-800"
+        }
+      ]
+    }, 
+    {
+      "name": "fuselages", 
+      "children": [
+        {
+          "name": "fuselage", 
+          "children": [
+            {
+              "name": "tag", 
+              "children": [
+                {
+                  "name": "fuselage"
+                }
+              ]
+            }, 
+            {
+              "name": "origin", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "mass_properties", 
+              "children": [
+                {
+                  "name": "mass", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "volume", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "center_of_gravity", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "moments_of_inertia", 
+                  "children": [
+                    {
+                      "name": "center", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "tensor", 
+                      "children": [
+                        {
+                          "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "position", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "symmetric", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "Segments", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "Sections", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "aerodynamic_center", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "number_coach_seats", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "seats_abreast", 
+              "children": [
+                {
+                  "name": "6"
+                }
+              ]
+            }, 
+            {
+              "name": "seat_pitch", 
+              "children": [
+                {
+                  "name": "1"
+                }
+              ]
+            }, 
+            {
+              "name": "areas", 
+              "children": [
+                {
+                  "name": "front_projected", 
+                  "children": [
+                    {
+                      "name": "12.57"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "side_projected", 
+                  "children": [
+                    {
+                      "name": "142.1948"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "wetted", 
+                  "children": [
+                    {
+                      "name": "400.547017794"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "effective_diameter", 
+              "children": [
+                {
+                  "name": "3.74"
+                }
+              ]
+            }, 
+            {
+              "name": "width", 
+              "children": [
+                {
+                  "name": "3.74"
+                }
+              ]
+            }, 
+            {
+              "name": "heights", 
+              "children": [
+                {
+                  "name": "maximum", 
+                  "children": [
+                    {
+                      "name": "3.74"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "at_quarter_length", 
+                  "children": [
+                    {
+                      "name": "3.74"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "at_three_quarters_length", 
+                  "children": [
+                    {
+                      "name": "3.74"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "at_wing_root_quarter_chord", 
+                  "children": [
+                    {
+                      "name": "3.74"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "lengths", 
+              "children": [
+                {
+                  "name": "nose", 
+                  "children": [
+                    {
+                      "name": "8.593"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tail", 
+                  "children": [
+                    {
+                      "name": "11.08"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "total", 
+                  "children": [
+                    {
+                      "name": "38.02"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "cabin", 
+                  "children": [
+                    {
+                      "name": "18.353"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "fore_space", 
+                  "children": [
+                    {
+                      "name": "6.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "aft_space", 
+                  "children": [
+                    {
+                      "name": "5.0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "fineness", 
+              "children": [
+                {
+                  "name": "nose", 
+                  "children": [
+                    {
+                      "name": "1.6"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tail", 
+                  "children": [
+                    {
+                      "name": "2.0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "differential_pressure", 
+              "children": [
+                {
+                  "name": "58605.4369919"
+                }
+              ]
+            }, 
+            {
+              "name": "Fineness", 
+              "children": [
+                {
+                  "name": "nose", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tail", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "wings", 
+      "children": [
+        {
+          "name": "main_wing", 
+          "children": [
+            {
+              "name": "tag", 
+              "children": [
+                {
+                  "name": "main_wing"
+                }
+              ]
+            }, 
+            {
+              "name": "origin", 
+              "children": [
+                {
+                  "name": "[20, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "mass_properties", 
+              "children": [
+                {
+                  "name": "mass", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "volume", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "center_of_gravity", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "moments_of_inertia", 
+                  "children": [
+                    {
+                      "name": "center", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "tensor", 
+                      "children": [
+                        {
+                          "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "position", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "symmetric", 
+              "children": [
+                {
+                  "name": "True"
+                }
+              ]
+            }, 
+            {
+              "name": "Segments", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "Sections", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "vertical", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "t_tail", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "sweep", 
+              "children": [
+                {
+                  "name": "0.436332312999"
+                }
+              ]
+            }, 
+            {
+              "name": "taper", 
+              "children": [
+                {
+                  "name": "0.16"
+                }
+              ]
+            }, 
+            {
+              "name": "dihedral", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "aspect_ratio", 
+              "children": [
+                {
+                  "name": "10.18"
+                }
+              ]
+            }, 
+            {
+              "name": "thickness_to_chord", 
+              "children": [
+                {
+                  "name": "0.11"
+                }
+              ]
+            }, 
+            {
+              "name": "span_efficiency", 
+              "children": [
+                {
+                  "name": "0.9"
+                }
+              ]
+            }, 
+            {
+              "name": "aerodynamic_center", 
+              "children": [
+                {
+                  "name": "[3, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "spans", 
+              "children": [
+                {
+                  "name": "projected", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "areas", 
+              "children": [
+                {
+                  "name": "reference", 
+                  "children": [
+                    {
+                      "name": "124.862"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "exposed", 
+                  "children": [
+                    {
+                      "name": "174.8068"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "affected", 
+                  "children": [
+                    {
+                      "name": "74.9172"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "wetted", 
+                  "children": [
+                    {
+                      "name": "218.5085"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "chords", 
+              "children": [
+                {
+                  "name": "mean_aerodynamic", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mean_geometric", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "twists", 
+              "children": [
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "0.0523598775598"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "0.0523598775598"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "flaps", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.28"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "double_slotted"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "slats", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "None"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "high_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "high_mach", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "vortex_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_upper", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_lower", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "dynamic_pressure_ratio", 
+              "children": [
+                {
+                  "name": "1.0"
+                }
+              ]
+            }
+          ]
+        }, 
+        {
+          "name": "horizontal_stabilizer", 
+          "children": [
+            {
+              "name": "tag", 
+              "children": [
+                {
+                  "name": "horizontal_stabilizer"
+                }
+              ]
+            }, 
+            {
+              "name": "origin", 
+              "children": [
+                {
+                  "name": "[34, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "mass_properties", 
+              "children": [
+                {
+                  "name": "mass", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "volume", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "center_of_gravity", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "moments_of_inertia", 
+                  "children": [
+                    {
+                      "name": "center", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "tensor", 
+                      "children": [
+                        {
+                          "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "position", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "symmetric", 
+              "children": [
+                {
+                  "name": "True"
+                }
+              ]
+            }, 
+            {
+              "name": "Segments", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "Sections", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "vertical", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "t_tail", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "sweep", 
+              "children": [
+                {
+                  "name": "0.523598775598"
+                }
+              ]
+            }, 
+            {
+              "name": "taper", 
+              "children": [
+                {
+                  "name": "0.4"
+                }
+              ]
+            }, 
+            {
+              "name": "dihedral", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "aspect_ratio", 
+              "children": [
+                {
+                  "name": "6.16"
+                }
+              ]
+            }, 
+            {
+              "name": "thickness_to_chord", 
+              "children": [
+                {
+                  "name": "0.11"
+                }
+              ]
+            }, 
+            {
+              "name": "span_efficiency", 
+              "children": [
+                {
+                  "name": "0.9"
+                }
+              ]
+            }, 
+            {
+              "name": "aerodynamic_center", 
+              "children": [
+                {
+                  "name": "[2, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "spans", 
+              "children": [
+                {
+                  "name": "projected", 
+                  "children": [
+                    {
+                      "name": "14.146"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "areas", 
+              "children": [
+                {
+                  "name": "reference", 
+                  "children": [
+                    {
+                      "name": "32.488"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "exposed", 
+                  "children": [
+                    {
+                      "name": "44.18368"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "affected", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "wetted", 
+                  "children": [
+                    {
+                      "name": "55.2296"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "chords", 
+              "children": [
+                {
+                  "name": "mean_aerodynamic", 
+                  "children": [
+                    {
+                      "name": "1.696"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mean_geometric", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "3.28"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "0.763"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "twists", 
+              "children": [
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "0.0523598775598"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "0.0523598775598"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "flaps", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "None"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "slats", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "None"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "high_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "high_mach", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "vortex_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_upper", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_lower", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "dynamic_pressure_ratio", 
+              "children": [
+                {
+                  "name": "0.9"
+                }
+              ]
+            }
+          ]
+        }, 
+        {
+          "name": "vertical_stabilizer", 
+          "children": [
+            {
+              "name": "tag", 
+              "children": [
+                {
+                  "name": "vertical_stabilizer"
+                }
+              ]
+            }, 
+            {
+              "name": "origin", 
+              "children": [
+                {
+                  "name": "[31, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "mass_properties", 
+              "children": [
+                {
+                  "name": "mass", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "volume", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "center_of_gravity", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "moments_of_inertia", 
+                  "children": [
+                    {
+                      "name": "center", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "tensor", 
+                      "children": [
+                        {
+                          "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "position", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "symmetric", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "Segments", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "Sections", 
+              "children": [
+                {
+                  "name": "{}"
+                }
+              ]
+            }, 
+            {
+              "name": "vertical", 
+              "children": [
+                {
+                  "name": "True"
+                }
+              ]
+            }, 
+            {
+              "name": "t_tail", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "sweep", 
+              "children": [
+                {
+                  "name": "0.436332312999"
+                }
+              ]
+            }, 
+            {
+              "name": "taper", 
+              "children": [
+                {
+                  "name": "0.25"
+                }
+              ]
+            }, 
+            {
+              "name": "dihedral", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "aspect_ratio", 
+              "children": [
+                {
+                  "name": "1.91"
+                }
+              ]
+            }, 
+            {
+              "name": "thickness_to_chord", 
+              "children": [
+                {
+                  "name": "0.11"
+                }
+              ]
+            }, 
+            {
+              "name": "span_efficiency", 
+              "children": [
+                {
+                  "name": "0.9"
+                }
+              ]
+            }, 
+            {
+              "name": "aerodynamic_center", 
+              "children": [
+                {
+                  "name": "[2, 0, 0]"
+                }
+              ]
+            }, 
+            {
+              "name": "spans", 
+              "children": [
+                {
+                  "name": "projected", 
+                  "children": [
+                    {
+                      "name": "7.877"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "areas", 
+              "children": [
+                {
+                  "name": "reference", 
+                  "children": [
+                    {
+                      "name": "26.4"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "exposed", 
+                  "children": [
+                    {
+                      "name": "50.16"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "affected", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "wetted", 
+                  "children": [
+                    {
+                      "name": "52.8"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "chords", 
+              "children": [
+                {
+                  "name": "mean_aerodynamic", 
+                  "children": [
+                    {
+                      "name": "3.624"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mean_geometric", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "5.79"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "1.57"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "twists", 
+              "children": [
+                {
+                  "name": "root", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tip", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "flaps", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "None"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "slats", 
+              "children": [
+                {
+                  "name": "chord", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "angle", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_start", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "span_end", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "type", 
+                  "children": [
+                    {
+                      "name": "None"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "high_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "high_mach", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "vortex_lift", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_upper", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "transition_x_lower", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "dynamic_pressure_ratio", 
+              "children": [
+                {
+                  "name": "1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "propulsors", 
+      "children": [
+        {
+          "name": "turbo_fan", 
+          "children": [
+            {
+              "name": "tag", 
+              "children": [
+                {
+                  "name": "turbo_fan"
+                }
+              ]
+            }, 
+            {
+              "name": "origin", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "mass_properties", 
+              "children": [
+                {
+                  "name": "mass", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "volume", 
+                  "children": [
+                    {
+                      "name": "0.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "center_of_gravity", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "moments_of_inertia", 
+                  "children": [
+                    {
+                      "name": "center", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "tensor", 
+                      "children": [
+                        {
+                          "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "position", 
+              "children": [
+                {
+                  "name": "[0.0, 0.0, 0.0]"
+                }
+              ]
+            }, 
+            {
+              "name": "symmetric", 
+              "children": [
+                {
+                  "name": "False"
+                }
+              ]
+            }, 
+            {
+              "name": "breathing", 
+              "children": [
+                {
+                  "name": "True"
+                }
+              ]
+            }, 
+            {
+              "name": "gas", 
+              "children": [
+                {
+                  "name": "molecular_mass", 
+                  "children": [
+                    {
+                      "name": "28.96442"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "gas_specific_constant", 
+                  "children": [
+                    {
+                      "name": "287.0528742"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "composition", 
+                  "children": [
+                    {
+                      "name": "O2", 
+                      "children": [
+                        {
+                          "name": "0.20946"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "Ar", 
+                      "children": [
+                        {
+                          "name": "0.00934"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "CO2", 
+                      "children": [
+                        {
+                          "name": "0.00036"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "N2", 
+                      "children": [
+                        {
+                          "name": "0.78084"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "other", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "number_of_engines", 
+              "children": [
+                {
+                  "name": "2.0"
+                }
+              ]
+            }, 
+            {
+              "name": "nacelle_diameter", 
+              "children": [
+                {
+                  "name": "2.054"
+                }
+              ]
+            }, 
+            {
+              "name": "engine_length", 
+              "children": [
+                {
+                  "name": "4.1"
+                }
+              ]
+            }, 
+            {
+              "name": "design_thrust", 
+              "children": [
+                {
+                  "name": "24000.0"
+                }
+              ]
+            }, 
+            {
+              "name": "working_fluid", 
+              "children": [
+                {
+                  "name": "molecular_mass", 
+                  "children": [
+                    {
+                      "name": "28.96442"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "gas_specific_constant", 
+                  "children": [
+                    {
+                      "name": "287.0528742"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "composition", 
+                  "children": [
+                    {
+                      "name": "O2", 
+                      "children": [
+                        {
+                          "name": "0.20946"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "Ar", 
+                      "children": [
+                        {
+                          "name": "0.00934"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "CO2", 
+                      "children": [
+                        {
+                          "name": "0.00036"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "N2", 
+                      "children": [
+                        {
+                          "name": "0.78084"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "other", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "ram", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "ram"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "working_fluid", 
+                      "children": [
+                        {
+                          "name": "{}"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "inlet_nozzle", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "inlet_nozzle"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.98"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "0.98"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "low_pressure_compressor", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "low_pressure_compressor"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.91"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "1.14"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "high_pressure_compressor", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "high_pressure_compressor"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.91"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "13.415"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "low_pressure_turbine", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "low_pressure_turbine"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "fuel_to_air_ratio", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mechanical_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.99"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.93"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "high_pressure_turbine", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "high_pressure_turbine"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "fuel_to_air_ratio", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mechanical_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.99"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.93"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "combustor", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "combustor"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "fuel_to_air_ratio", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "fuel_data", 
+                  "children": [
+                    {
+                      "name": "tag", 
+                      "children": [
+                        {
+                          "name": "Jet_A"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "reactant", 
+                      "children": [
+                        {
+                          "name": "O2"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "density", 
+                      "children": [
+                        {
+                          "name": "820.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "specific_energy", 
+                      "children": [
+                        {
+                          "name": "43020000.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "energy_density", 
+                      "children": [
+                        {
+                          "name": "35276400000.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "max_mass_fraction", 
+                      "children": [
+                        {
+                          "name": "O2", 
+                          "children": [
+                            {
+                              "name": "0.3022"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "Air", 
+                          "children": [
+                            {
+                              "name": "0.0633"
+                            }
+                          ]
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "temperatures", 
+                      "children": [
+                        {
+                          "name": "flash", 
+                          "children": [
+                            {
+                              "name": "311.15"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "autoignition", 
+                          "children": [
+                            {
+                              "name": "483.15"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "freeze", 
+                          "children": [
+                            {
+                              "name": "233.15"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "boiling", 
+                          "children": [
+                            {
+                              "name": "0.0"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "alphac", 
+                  "children": [
+                    {
+                      "name": "1.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "turbine_inlet_temperature", 
+                  "children": [
+                    {
+                      "name": "1450"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "efficiency", 
+                  "children": [
+                    {
+                      "name": "0.99"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "0.95"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "core_nozzle", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "core_nozzle"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.95"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "0.99"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "fan_nozzle", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "fan_nozzle"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.95"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "0.99"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "fan", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "fan"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "stagnation_temperature", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_pressure", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "stagnation_enthalpy", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "polytropic_efficiency", 
+                  "children": [
+                    {
+                      "name": "0.93"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "pressure_ratio", 
+                  "children": [
+                    {
+                      "name": "1.7"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "thrust", 
+              "children": [
+                {
+                  "name": "tag", 
+                  "children": [
+                    {
+                      "name": "thrust"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "origin", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "mass_properties", 
+                  "children": [
+                    {
+                      "name": "mass", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "volume", 
+                      "children": [
+                        {
+                          "name": "0.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "center_of_gravity", 
+                      "children": [
+                        {
+                          "name": "[ 0.  0.  0.]"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "moments_of_inertia", 
+                      "children": [
+                        {
+                          "name": "center", 
+                          "children": [
+                            {
+                              "name": "[ 0.  0.  0.]"
+                            }
+                          ]
+                        }, 
+                        {
+                          "name": "tensor", 
+                          "children": [
+                            {
+                              "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "position", 
+                  "children": [
+                    {
+                      "name": "[0.0, 0.0, 0.0]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "symmetric", 
+                  "children": [
+                    {
+                      "name": "False"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "inputs", 
+                  "children": [
+                    {
+                      "name": "fuel_to_air_ratio", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "outputs", 
+                  "children": [
+                    {
+                      "name": "thrust", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "thrust_specific_fuel_consumption", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "specific_impulse", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "non_dimensional_thrust", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "core_mass_flow_rate", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "fuel_flow_rate", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "fuel_mass", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }, 
+                    {
+                      "name": "power", 
+                      "children": [
+                        {
+                          "name": "1.0"
+                        }
+                      ]
+                    }
+                  ]
+                }, 
+                {
+                  "name": "bypass_ratio", 
+                  "children": [
+                    {
+                      "name": "5.4"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "compressor_nondimensional_massflow", 
+                  "children": [
+                    {
+                      "name": "49.7272495725"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "reference_temperature", 
+                  "children": [
+                    {
+                      "name": "288.15"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "reference_pressure", 
+                  "children": [
+                    {
+                      "name": "101325.0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "number_of_engines", 
+                  "children": [
+                    {
+                      "name": "2.0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "energy", 
+      "children": [
+        {
+          "name": "tag", 
+          "children": [
+            {
+              "name": "Component"
+            }
+          ]
+        }, 
+        {
+          "name": "origin", 
+          "children": [
+            {
+              "name": "[0.0, 0.0, 0.0]"
+            }
+          ]
+        }, 
+        {
+          "name": "mass_properties", 
+          "children": [
+            {
+              "name": "mass", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "volume", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "center_of_gravity", 
+              "children": [
+                {
+                  "name": "[ 0.  0.  0.]"
+                }
+              ]
+            }, 
+            {
+              "name": "moments_of_inertia", 
+              "children": [
+                {
+                  "name": "center", 
+                  "children": [
+                    {
+                      "name": "[ 0.  0.  0.]"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "tensor", 
+                  "children": [
+                    {
+                      "name": "[[ 0.  0.  0.]\n [ 0.  0.  0.]\n [ 0.  0.  0.]]"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }, 
+        {
+          "name": "position", 
+          "children": [
+            {
+              "name": "[0.0, 0.0, 0.0]"
+            }
+          ]
+        }, 
+        {
+          "name": "symmetric", 
+          "children": [
+            {
+              "name": "False"
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "systems", 
+      "children": [
+        {
+          "name": "control", 
+          "children": [
+            {
+              "name": "fully powered"
+            }
+          ]
+        }, 
+        {
+          "name": "accessories", 
+          "children": [
+            {
+              "name": "medium range"
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "mass_properties", 
+      "children": [
+        {
+          "name": "center_of_gravity", 
+          "children": [
+            {
+              "name": "[18.288, 0, 0]"
+            }
+          ]
+        }, 
+        {
+          "name": "moments_of_inertia", 
+          "children": [
+            {
+              "name": "center", 
+              "children": [
+                {
+                  "name": "[ 0.  0.  0.]"
+                }
+              ]
+            }, 
+            {
+              "name": "tensor", 
+              "children": [
+                {
+                  "name": "[[100000, 0, 0], [0, 1000000, 0], [0, 0, 10000000]]"
+                }
+              ]
+            }
+          ]
+        }, 
+        {
+          "name": "operating_empty", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_takeoff", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "takeoff", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_landing", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "landing", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_cargo", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "cargo", 
+          "children": [
+            {
+              "name": "1650.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_payload", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "payload", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "passenger", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "crew", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_fuel", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "fuel", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_zero_fuel", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "cost", 
+      "children": [
+        {
+          "name": "tag", 
+          "children": [
+            {
+              "name": "Cost"
+            }
+          ]
+        }, 
+        {
+          "name": "origin", 
+          "children": [
+            {
+              "name": "[0.0, 0.0, 0.0]"
+            }
+          ]
+        }, 
+        {
+          "name": "depreciate_years", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "fuel_price", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "oil_price", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "insure_rate", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "maintenance_rate", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "pilot_rate", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "crew_rate", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "inflator", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "reference_dollars", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "envelope", 
+      "children": [
+        {
+          "name": "tag", 
+          "children": [
+            {
+              "name": "Envelope"
+            }
+          ]
+        }, 
+        {
+          "name": "origin", 
+          "children": [
+            {
+              "name": "[0.0, 0.0, 0.0]"
+            }
+          ]
+        }, 
+        {
+          "name": "ultimate_load", 
+          "children": [
+            {
+              "name": "3.75"
+            }
+          ]
+        }, 
+        {
+          "name": "limit_load", 
+          "children": [
+            {
+              "name": "2.5"
+            }
+          ]
+        }, 
+        {
+          "name": "alpha_maximum", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "alt_vc", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "alt_gust", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "max_ceiling", 
+          "children": [
+            {
+              "name": "0.0"
+            }
+          ]
+        }, 
+        {
+          "name": "maneuver", 
+          "children": [
+            {
+              "name": "load_alleviation_factor", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "equivalent_speed", 
+              "children": [
+                {
+                  "name": "velocity_max_gust", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_cruise", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_dive", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "load_factor", 
+              "children": [
+                {
+                  "name": "velocity_max_gust", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_cruise", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_dive", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }, 
+        {
+          "name": "gust", 
+          "children": [
+            {
+              "name": "load_alleviation_factor", 
+              "children": [
+                {
+                  "name": "0.0"
+                }
+              ]
+            }, 
+            {
+              "name": "equivalent_speed", 
+              "children": [
+                {
+                  "name": "velocity_max_gust", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_cruise", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_dive", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }
+              ]
+            }, 
+            {
+              "name": "load_factor", 
+              "children": [
+                {
+                  "name": "velocity_max_gust", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_cruise", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }, 
+                {
+                  "name": "velocity_max_dive", 
+                  "children": [
+                    {
+                      "name": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }, 
+    {
+      "name": "reference_area", 
+      "children": [
+        {
+          "name": "124.862"
+        }
+      ]
+    }, 
+    {
+      "name": "passengers", 
+      "children": [
+        {
+          "name": "170"
+        }
+      ]
+    }, 
+    {
+      "name": "max_lift_coefficient_factor", 
+      "children": [
+        {
+          "name": "1.0"
+        }
+      ]
+    }
+  ]
+}
