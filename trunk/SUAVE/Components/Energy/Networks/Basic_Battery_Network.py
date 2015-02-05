@@ -18,7 +18,7 @@ import scipy as sp
 import datetime
 #import time
 from SUAVE.Attributes import Units
-
+from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Structure import (
 Data, Container, Data_Exception, Data_Warning,
 )
@@ -47,34 +47,34 @@ class Basic_Battery_Network(Data):
 
         propulsor   = self.propulsor
         battery     = self.battery
-        I=numerics.integrate_time
+    
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
         
         
         F, mdot, Pe =propulsor(conditions)
        
-        #pbat=-F*conditions.freestream.velocity[0,0]/self.motor_efficiency #power required from the battery
         pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
        
-        
-        e = np.dot(I,pbat)  #integrate energy required from ducted fan/motor
-        batlogic      = Data()
-        batlogic.pbat = pbat
-        batlogic.Ibat = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-        batlogic.e    = e
-        battery.inputs.batlogic=batlogic
+        battery_logic     = Data()
+        batlogic.power_in = pbat
+        batlogic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
+      
+        battery.inputs    =batlogic
         
         tol = 1e-6
         
+        #allow for mass gaining batteries
+        try:
+            mdot=find_mass_gain_rate(battery,pbat+battery.resisitive_losses)
+        except AttributeError:
+            mdot=0
         
-        if battery.type=='Li-Air':
-            mdot=battery.energy_calc(numerics)
-        else:
-            battery.energy_calc(numerics)
+      
+        battery.energy_calc(numerics)
         #Pack the conditions for outputs
         
-        battery_draw                         = battery.inputs.batlogic.pbat
+        battery_draw                         = battery.inputs.pbat
         battery_energy                       = battery.current_energy
         
         #conditions.propulsion.solar_flux     = solar_flux.outputs.flux  

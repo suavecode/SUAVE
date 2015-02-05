@@ -60,8 +60,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Power actually going into the battery
     P = pbat - ddelta
     ebat = np.dot(I,P)
-    
     # Add this to the current state
     battery.current_energy = ebat - eloss + battery.current_energy[0]
-                
+    battery.resistive_losses=Ploss
     return

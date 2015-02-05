@@ -46,7 +46,7 @@ def main():
     
     #run tests on functionality
     test_initialize_from_energy_and_power(battery_al_air, Ereq, Preq)
-    test_mass_gain(battery_al_air)
+    test_mass_gain(battery_al_air, Preq)
     test_find_ragone_properties(specific_energy_guess,battery_li_s, Ereq,Preq)
     test_find_ragone_optimum(battery_li_ion,Ereq,Preq)
    
@@ -58,10 +58,12 @@ def main():
     print battery_li_ion
    
     
-def test_mass_gain(battery):
+def test_mass_gain(battery,power):
     print battery
     mass_gain       =find_total_mass_gain(battery)
     print 'mass_gain=', mass_gain
+    mdot            =find_mass_gain_rate(battery,power)
+    print 'mass_gain_rate=', mdot
     return
 def test_initialize_from_energy_and_power(battery,energy,power):
     initialize_from_energy_and_power(battery, energy, power)
