@@ -39,6 +39,8 @@ def populate_control_sections(control_surface,span_fractions,chord_fractions,rel
 
     if len(span_fractions) < 2:
         raise ValueError('Two or more sections required for control surface definition')
+    
+    assert len(span_fractions) == len(chord_fractions) == len(relative_twists) , 'dimension array length mismatch'
 
     sw   = wing.sweep
     di   = wing.dihedral
