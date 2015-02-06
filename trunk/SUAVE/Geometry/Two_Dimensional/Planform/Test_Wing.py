@@ -1,17 +1,77 @@
 import unittest
-from SUAVE.Geometry.Two_Dimensional.Planform.CrankedPlanform import CrankedPlanform
+from SUAVE.Geometry.Two_Dimensional.Planform.Cranked_Planform import Cranked_Planform
 import numpy as np
 from SUAVE.Attributes import Units
 
 
-class TestWing(unittest.TestCase):
+class Test_Wing(unittest.TestCase):
 
     def setUp(self):
         pass
 
-    def test_cranked_wing(self):
+    def test_forward_sweep_wing(self):
+        """
+        Forward cranked wing
+        :return:
+        """
 
-        # default wing from pass
+        taper = 0.2
+        sref = 1500
+        sweep = -45*Units.degree
+        ar = 10
+        span_ratio_break = 0.3
+        lex_ratio = 0.3
+        tex_ratio = 0.3
+        fuse_width = 11.448
+        thickness_to_chord = 0.1123  # undefined
+
+        span = np.sqrt(sref*ar)
+        span_ratio_fuselage = fuse_width/span
+
+        # compute wing planform geometry
+        wpt = Cranked_Planform(sref, ar, sweep, taper, span_ratio_fuselage,
+                               span_ratio_break, lex_ratio, tex_ratio)
+
+        # pass-computed quantities
+        span_pass = 122.47449
+        wing_x_position = 0.417
+        fuse_length = 107.82533
+        mac_pass = 18.191702
+        sref_pass = 1500
+        chord_wing_fuse_intersection_pass = 27.31746
+        x_ac_pass = 32.925785
+
+        # set the wing origin
+        origin = np.array((fuse_length*wing_x_position, 0, 0))
+        wpt.set_origin(origin)
+
+        wpt.update()
+
+        # span
+        self.assertAlmostEqual(wpt.span, span_pass, 2)
+
+        # chords
+        mac_delta = (mac_pass - wpt.mean_aerodynamic_chord)/mac_pass
+        self.assertLess(abs(mac_delta), 0.05)
+        # self.assertAlmostEqual(wpt.mean_geometric_chord, sref_pass/span_pass, 2)
+        self.assertAlmostEqual(wpt.chord_from_y(fuse_width/2.), chord_wing_fuse_intersection_pass, 1)
+
+        # areas
+        # self.assertAlmostEqual(wpt.area_gross, sgross_pass, 2)
+
+        # TODO: test wetted and exposed areas
+        self.assertLessEqual(wpt.area_exposed, wpt.area_gross)
+        self.assertLessEqual(wpt.area_exposed, wpt.calc_area_wetted(thickness_to_chord)/2.)
+
+        ac_delta = (x_ac_pass - wpt.x_aerodynamic_center)/x_ac_pass
+        self.assertLessEqual(abs(ac_delta), 0.03)
+
+    def test_cranked_wing(self):
+        """
+        Cranked wing
+        :return:
+        """
+
         taper = 0.3
         sref = 1500
         sweep = 45*Units.degree
@@ -26,7 +86,7 @@ class TestWing(unittest.TestCase):
         span_ratio_fuselage = fuse_width/span
 
         # compute wing planform geometry
-        wpt = CrankedPlanform(sref, ar, sweep, taper, span_ratio_fuselage,
+        wpt = Cranked_Planform(sref, ar, sweep, taper, span_ratio_fuselage,
                               span_ratio_break, lex_ratio, tex_ratio)
 
         # pass-computed quantities
@@ -48,7 +108,9 @@ class TestWing(unittest.TestCase):
         self.assertAlmostEqual(wpt.span, span_pass, 2)
 
         # chords
-        self.assertAlmostEqual(wpt.mean_aerodynamic_chord, mac_pass, 2)
+        mac_delta = (mac_pass - wpt.mean_aerodynamic_chord)/mac_pass
+        self.assertLess(abs(mac_delta), 0.01)
+
         # self.assertAlmostEqual(wpt.mean_geometric_chord, sref_pass/span_pass, 2)
         self.assertAlmostEqual(wpt.chord_from_y(fuse_width/2.), chord_wing_fuse_intersection_pass, 3)
 
@@ -64,9 +126,13 @@ class TestWing(unittest.TestCase):
         # aerodynamic center - this is not very close
 
         ac_delta = (x_ac_pass - wpt.x_aerodynamic_center)/x_ac_pass
-        self.assertLessEqual(abs(ac_delta), 0.01)
+        self.assertLessEqual(abs(ac_delta), 0.02)
 
     def test_tapered_wing(self):
+        """
+        Tapered trap wing
+        :return:
+        """
 
         # default wing from pass
         taper = 0.2036
@@ -83,7 +149,7 @@ class TestWing(unittest.TestCase):
         span_ratio_fuselage = fuse_width/span
 
         # compute wing planform geometry
-        wpt = CrankedPlanform(sref, ar, sweep, taper, span_ratio_fuselage,
+        wpt = Cranked_Planform(sref, ar, sweep, taper, span_ratio_fuselage,
                               span_ratio_break, lex_ratio, tex_ratio)
 
         # pass-computed quantities
@@ -105,7 +171,9 @@ class TestWing(unittest.TestCase):
         self.assertAlmostEqual(wpt.span, span_pass, 2)
 
         # chords
-        self.assertAlmostEqual(wpt.mean_aerodynamic_chord, mac_pass, 2)
+        mac_delta = (mac_pass - wpt.mean_aerodynamic_chord)/mac_pass
+        self.assertLess(abs(mac_delta), 0.01)
+
         self.assertAlmostEqual(wpt.mean_geometric_chord, sref_pass/span_pass, 2)
         self.assertAlmostEqual(wpt.chord_from_y(fuse_width/2.), chord_wing_fuse_intersection_pass, 3)
 

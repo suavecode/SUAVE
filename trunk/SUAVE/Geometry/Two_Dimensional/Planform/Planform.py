@@ -32,7 +32,6 @@ class Planform(object):
         self.semi_span = None
         self.c_trap = None
         self.x_aerodynamic_center = None
-
         self.semi_planform = None
         self.semi_planform_exposed = None
         self.semi_planform_flapped = None

@@ -13,7 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Geometry.Two_Dimensional.Planform.TrapezoidalPlanform import TrapezoidalPlanform
+from SUAVE.Geometry.Two_Dimensional.Planform.Trapezoidal_Planform import Trapezoidal_Planform
 
 
 # ----------------------------------------------------------------------
@@ -54,8 +54,7 @@ def wing_planform(wing):
     span_ratio_fuselage = wing.span_ratios.fuselage
 
     # compute wing planform geometry
-    wpt = TrapezoidalPlanform(sref, ar, sweep, taper,
-                              span_ratio_fuselage)
+    wpt = Trapezoidal_Planform(sref, ar, sweep, taper, span_ratio_fuselage)
 
     # set the wing origin
     wpt.set_origin(wing.origin)
@@ -69,13 +68,10 @@ def wing_planform(wing):
     wing.chords.mean_aerodynamic = wpt.mean_aerodynamic_chord
     wing.chords.mean_aerodynamic_exposed = wpt.mean_aerodynamic_chord_exposed
     wing.chords.mean_geometric = wpt.mean_geometric_chord
-
     wing.aerodynamic_center = [wpt.x_aerodynamic_center, 0, 0]
-
     wing.areas.wetted = wpt.calc_area_wetted(thickness_to_chord)
     wing.areas.gross = wpt.area_gross
     wing.areas.exposed = wpt.area_exposed
-
     wing.spans.projected = wpt.span
 
     return wing

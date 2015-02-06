@@ -2,7 +2,7 @@ import math as math
 
 import numpy as np
 
-from SemiPlanform import SemiPlanform
+from Semi_Planform import Semi_Planform
 from Planform import Planform
 
 
@@ -15,12 +15,12 @@ Geometry calculations for a singlely crank wing (with lex and/or tex)
 """
 
 
-class CrankedPlanform(Planform):
+class Cranked_Planform(Planform):
     def __init__(self, sref, ar, sweep_qc, taper,
                  span_ratio_fuselage=0.1, span_ratio_break=0.3, lex_ratio=0, tex_ratio=0):
 
         # call superclass constructor with lex and tex
-        super(CrankedPlanform, self).__init__(sref, ar, sweep_qc, taper,
+        super(Cranked_Planform, self).__init__(sref, ar, sweep_qc, taper,
                                               span_ratio_fuselage,
                                               lex_ratio, tex_ratio)
 
@@ -52,7 +52,7 @@ class CrankedPlanform(Planform):
         c_node = np.array([self.chord_root, self.chord_break, self.chord_tip])
 
         # compute the extended wing semi-planform geometry
-        self.semi_planform = SemiPlanform(c_node, y_node)
+        self.semi_planform = Semi_Planform(c_node, y_node)
         # sort the chords with y; guard against case where fuselage is wider than break point
         self.semi_planform.sort_chord_by_y()
         self.semi_planform.update()
@@ -66,7 +66,7 @@ class CrankedPlanform(Planform):
         # compute the exposed semi-planform properties
         c_node_exposed = np.array([chord_fuse_intersection, self.chord_break, self.chord_tip])
         y_node_exposed = np.array([self.span_ratio_fuselage, self.span_ratio_break, 1]) * self.semi_span
-        self.semi_planform_exposed = SemiPlanform(c_node_exposed, y_node_exposed)
+        self.semi_planform_exposed = Semi_Planform(c_node_exposed, y_node_exposed)
         self.semi_planform_exposed.sort_chord_by_y()
         self.semi_planform_exposed.update()
 
@@ -93,5 +93,5 @@ class CrankedPlanform(Planform):
             y_node_flapped = np.insert(y_node_flapped, 1, self.span_ratio_break*self.semi_span)
             c_node_flapped = np.insert(c_node_flapped, 1, self.chord_break)
 
-        self.semi_planform_flapped = SemiPlanform(c_node_flapped, y_node_flapped)
+        self.semi_planform_flapped = Semi_Planform(c_node_flapped, y_node_flapped)
         self.semi_planform_flapped.update()

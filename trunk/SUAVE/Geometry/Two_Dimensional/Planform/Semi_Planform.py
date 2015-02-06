@@ -12,7 +12,7 @@ Geometry calculations for a general semi-planform defined by arrays of chords an
 """
 
 
-class SemiPlanform(object):
+class Semi_Planform(object):
     def __init__(self, c, y):
         """
         Constructor
@@ -74,7 +74,7 @@ class SemiPlanform(object):
         # TODO: May have to relocate this to the analysis since ac position is Mach-dependent
         x_qc_local = self.__get_x_local(ac_chord_ratio, x_le)  # compute the quarter chord of the definition sections
         x_ac = integrate.simps(x_qc_local*self.c, self.y) / self.area  # this is approximate
-        # x_ac = self.__integrate_ac(x_qc_local)
+        # x_ac = self.__integrate_ac(x_qc_local) / self.area
         return x_ac
 
     def __get_x_local(self, x_ratio, x_le):
@@ -113,24 +113,7 @@ class SemiPlanform(object):
         mac = 2 / 3. * np.dot((c_inner + c_outer - c_inner * c_outer / (c_inner + c_outer)),
                               area_panel) / self.area
 
-        # mac = self.__integrate_mac()
-
         return mac
-
-    def __integrate_mac(self):
-        """
-        Use the formal integral definition to compute the mac
-        :return:
-        """
-
-        # function: c^2(y)
-        g = lambda y: self.chord_from_y(y)**2
-
-        # integrate for mac
-        mac, _ = integrate.quadrature(g, self.y[0], self.y[-1])
-
-        # normalized by area
-        return mac/self.area
 
     def __integrate_ac(self, x_ac_local):
 

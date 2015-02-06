@@ -1,16 +1,16 @@
 import unittest
-from SUAVE.Geometry.Two_Dimensional.Planform.SemiPlanform import SemiPlanform
+from SUAVE.Geometry.Two_Dimensional.Planform.Semi_Planform import Semi_Planform
 import numpy as np
 
 
-class TestSemiPanform(unittest.TestCase):
+class Test_Semi_Panform(unittest.TestCase):
 
     def setUp(self):
 
         # set up the straight semi-planform
         c = np.array((1, 1, 1))
         y = np.array((0, 10, 20))
-        self.semi_planform_straight = SemiPlanform(c, y)
+        self.semi_planform_straight = Semi_Planform(c, y)
         self.semi_planform_straight.sort_chord_by_y()
         self.semi_planform_straight.update()
 
@@ -20,7 +20,7 @@ class TestSemiPanform(unittest.TestCase):
         span = 93.31179
         c = np.array((c_root, c_root*taper))
         y = np.array((0, span/2))
-        self.semi_planform_tapered = SemiPlanform(c, y)
+        self.semi_planform_tapered = Semi_Planform(c, y)
         self.semi_planform_tapered.sort_chord_by_y()
         self.semi_planform_tapered.update()
 
