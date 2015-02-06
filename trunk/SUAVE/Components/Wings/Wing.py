@@ -17,7 +17,7 @@ from Airfoils import Airfoil
 class Wing(Lofted_Body):
     def __defaults__(self):
 
-        self.tag = 'Wing'
+        self.tag = 'wing'
         self.mass_properties = Mass_Properties()
         self.position  = [0.0,0.0,0.0]
 
@@ -112,7 +112,7 @@ class Container(Component.Container):
 
 class Section(Lofted_Body.Section):
     def __defaults__(self):
-        self.tag    = 'Section'
+        self.tag    = 'section'
         self.twist  = 0.0
         self.chord  = 0.0
         self.origin = [0.0,0.0,0.0]
@@ -130,7 +130,7 @@ class SectionContainer(Lofted_Body.Section.Container):
 
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
-        self.tag = 'Segment'
+        self.tag = 'segment'
         self.aspect_ratio = 0.0
         self.taper_ratio  = 0.0
         self.area         = 0.0

@@ -6,26 +6,26 @@
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 
-from AVL_Wing import AVL_Wing
-from AVL_Body import AVL_Body
+from Wing import Wing
+from Body import Body
 
 
 # ------------------------------------------------------------
 #   Aircraft
 # ------------------------------------------------------------
 
-class AVL_Aircraft(Data):
+class Aircraft(Data):
 	
 	def __defaults__(self):
 		
-		self.tag = 'Aircraft'
+		self.tag = 'aircraft'
 		self.wings = Data()
 		self.bodies = Data()
 	
 	def append_wing(self,wing):
 		# assert database type
-		if not isinstance(wing,AVL_Wing):
-			raise Component_Exception, 'input component must be of type AVL_Wing()'
+		if not isinstance(wing,Wing):
+			raise Component_Exception, 'input component must be of type AVL.Data.Wing()'
 
 		# store data
 		self.wings.append(wing)
@@ -34,8 +34,8 @@ class AVL_Aircraft(Data):
 
 	def append_body(self,body):
 		# assert database type
-		if not isinstance(body,AVL_Body):
-			raise Component_Exception, 'input component must be of type AVL_Body()'
+		if not isinstance(body,Body):
+			raise Component_Exception, 'input component must be of type AVL.Data.Body()'
 
 		# store data
 		self.bodies.append(body)

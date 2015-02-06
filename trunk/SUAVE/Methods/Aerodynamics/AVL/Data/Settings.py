@@ -5,17 +5,17 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Structure import Data
-from AVL_Cases import AVL_Cases
+from Cases import Cases
 
 # ------------------------------------------------------------
 #   Configuration
 # ------------------------------------------------------------
 
-class AVL_Settings(Data):
+class Settings(Data):
 
 	def __defaults__(self):
 		
-		self.run_cases = AVL_Cases()
+		self.run_cases = Cases()
 		self.filenames = Data()
 		self.flow_symmetry = Data()
 		self.discretization = Data()

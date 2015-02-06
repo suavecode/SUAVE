@@ -13,7 +13,7 @@ from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Pr
 
 class Control_Surface(Lofted_Body):
     def __defaults__(self):
-        self.tag    = 'Control Surface'
+        self.tag    = 'control_surface'
         self.span   = 0.0
         self.span_fraction = 0.0
         self.deflection_symmetry = 1.0
@@ -39,7 +39,7 @@ class Control_Surface(Lofted_Body):
 
 class Control_Surface_Section(Lofted_Body.Section):
     def __defaults__(self):
-        self.tag    = 'Control Section'
+        self.tag    = 'control_section'
         self.chord  = 0.0
         self.chord_fraction = 0.0
         self.twist  = 0.0 # Offset / deflection in neutral position

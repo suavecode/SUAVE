@@ -11,11 +11,11 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 #   Configuration
 # ------------------------------------------------------------
 
-class AVL_Configuration(Data):
+class Configuration(Data):
 	
 	def __defaults__(self):
 		
-		self.tag = 'Configuration'
+		self.tag = 'configuration'
 		self.parasite_drag = 0.0
 		
 		self.reference_values = Data()

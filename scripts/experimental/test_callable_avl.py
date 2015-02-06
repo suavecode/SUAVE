@@ -1,4 +1,5 @@
 # Tim Momose, January 2015
+# Modified February 6, 2015
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,8 +10,56 @@ from copy import deepcopy
 from SUAVE.Attributes import Units
 from full_setup_737800 import full_setup_737800
 # SUAVE-AVL Imports
-from SUAVE.Methods.Aerodynamics.AVL.AVL_Data.AVL_Cases    import AVL_Run_Case, AVL_Cases
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases    import Run_Case, Cases
 from SUAVE.Methods.Aerodynamics.AVL.AVL_Callable          import AVL_Callable
+
+
+def main():
+    
+    # -------------------------------------------------------------
+    #  Test Script
+    # -------------------------------------------------------------
+    
+    # Set up test defaults
+    vehicle,mission = full_setup_737800()
+    avl,base_case = setup_avl_test(vehicle)
+    
+    # Set up run cases
+    alphas    = [-10,-5,-2,0,2,5,10,20]
+    avl_cases = Cases()
+    for alpha in alphas:
+        case = deepcopy(base_case)
+        case.tag = 'alpha={}'.format(alpha)
+        case.conditions.aerodynamics.angle_of_attack = alpha
+        avl_cases.append_case(case)
+    
+    results = avl(avl_cases)
+    
+    # Results
+    plt.figure('Drag Polar')
+    axes = plt.gca()
+    CL = []
+    CD = []
+    CM = []
+    for res in results:
+        CL.append(res.aerodynamics.total_lift_coefficient)
+        CD.append(res.aerodynamics.total_drag_coefficient)
+        CM.append(res.aerodynamics.pitch_moment_coefficient)
+    axes.plot(CD,CL,'bo-')
+    axes.set_xlabel('Total Drag Coefficient')
+    axes.set_ylabel('Total Lift Coefficient')
+    axes.grid(True)
+    
+    plt.figure('Pitching Momoent')
+    axes = plt.gca()
+    axes.plot(alphas,CM,'bo-')
+    axes.set_xlabel('Angle of Attack')
+    axes.set_ylabel('Pitching Moment')
+    axes.grid(True)
+    
+    plt.show()
+    
+    return
 
 
 # -------------------------------------------------------------
@@ -19,7 +68,7 @@ from SUAVE.Methods.Aerodynamics.AVL.AVL_Callable          import AVL_Callable
 
 def setup_avl_test(vehicle):
 
-    default_case = AVL_Run_Case()
+    default_case = Run_Case()
     default_case.conditions.freestream.mach     = 0.2
     default_case.conditions.freestream.velocity = 150 * Units.knots
     default_case.conditions.aerodynamics.parasite_drag = 0.0177
@@ -34,45 +83,9 @@ def setup_avl_test(vehicle):
     return avl_instance, default_case
 
 
-# -------------------------------------------------------------
-#  Test Script
-# -------------------------------------------------------------
+# ----------------------------------------------------------------------        
+#   Call Main
+# ----------------------------------------------------------------------    
 
-# Set up test defaults
-vehicle,mission = full_setup_737800()
-avl,base_case = setup_avl_test(vehicle)
-
-# Set up run cases
-alphas    = [-10,-5,-2,0,2,5,10,20]
-avl_cases = AVL_Cases()
-for alpha in alphas:
-    case = deepcopy(base_case)
-    case.tag = 'alpha={}'.format(alpha)
-    case.conditions.aerodynamics.angle_of_attack = alpha
-    avl_cases.append_case(case)
-
-results = avl(avl_cases)
-
-# Results
-plt.figure('Drag Polar')
-axes = plt.gca()
-CL = []
-CD = []
-CM = []
-for res in results:
-    CL.append(res.aerodynamics.total_lift_coefficient)
-    CD.append(res.aerodynamics.total_drag_coefficient)
-    CM.append(res.aerodynamics.pitch_moment_coefficient)
-axes.plot(CD,CL,'bo-')
-axes.set_xlabel('Total Drag Coefficient')
-axes.set_ylabel('Total Lift Coefficient')
-axes.grid(True)
-
-plt.figure('Pitching Momoent')
-axes = plt.gca()
-axes.plot(alphas,CM,'bo-')
-axes.set_xlabel('Angle of Attack')
-axes.set_ylabel('Pitching Moment')
-axes.grid(True)
-
-plt.show()
+if __name__ == '__main__':
+    main()

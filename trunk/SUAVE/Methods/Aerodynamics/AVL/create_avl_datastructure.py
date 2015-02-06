@@ -10,12 +10,12 @@ from copy import deepcopy
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
 #from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.parasite_drag_aircraft import parasite_drag_aircraft
 # SUAVE-AVL Imports
-from AVL_Data.AVL_Inputs   import AVL_Inputs
-from AVL_Data.AVL_Wing     import AVL_Wing, AVL_Section, AVL_Control_Surface
-from AVL_Data.AVL_Body     import AVL_Body
-from AVL_Data.AVL_Aircraft import AVL_Aircraft
-from AVL_Data.AVL_Cases    import AVL_Cases,AVL_Run_Case
-from AVL_Data.AVL_Configuration import AVL_Configuration
+from .Data.Inputs   import Inputs
+from .Data.Wing     import Wing, Section, Control_Surface
+from .Data.Body     import Body
+from .Data.Aircraft import Aircraft
+from .Data.Cases    import Cases,Run_Case
+from .Data.Configuration import Configuration
 
 
 def create_avl_datastructure(geometry,conditions):
@@ -26,7 +26,7 @@ def create_avl_datastructure(geometry,conditions):
 	#avl_cases         = setup_test_cases(conditions)
 
 	# pack results in a new AVL inputs structure
-	avl_inputs = AVL_Inputs()
+	avl_inputs = Inputs()
 	avl_inputs.aircraft      = avl_aircraft
 	avl_inputs.configuration = avl_configuration
 	avl_inputs.cases         = avl_cases
@@ -35,7 +35,7 @@ def create_avl_datastructure(geometry,conditions):
 
 def translate_avl_geometry(geometry):
 
-	aircraft = AVL_Aircraft()
+	aircraft = Aircraft()
 	aircraft.tag = geometry.tag
 	
 	# FOR NOW, ASSUMING THAT CONTROL SURFACES ARE NOT ALIGNED WITH WING SECTIONS (IN THIS CASE, ROOT AND TIP SECTIONS)
@@ -52,7 +52,7 @@ def translate_avl_geometry(geometry):
 
 def translate_avl_wing(suave_wing):
 	
-	w = AVL_Wing()
+	w = Wing()
 	w.tag       = suave_wing.tag
 	w.symmetric = suave_wing.symmetric
 	w.vertical  = suave_wing.vertical
@@ -65,7 +65,7 @@ def translate_avl_wing(suave_wing):
 
 def translate_avl_body(suave_body):
 	
-	b = AVL_Body()
+	b = Body()
 	b.tag       = suave_body.tag
 	b.symmetric = True #body.symmetric
 	b.lengths.total = suave_body.lengths.total
@@ -85,14 +85,14 @@ def populate_wing_sections(avl_wing,suave_wing):
 	span     = suave_wing.spans.projected
 	semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
 	origin   = suave_wing.origin
-	root_section = AVL_Section()
-	root_section.tag    = 'Root_Section'
+	root_section = Section()
+	root_section.tag    = 'root_section'
 	root_section.origin = origin
 	root_section.chord  = suave_wing.chords.root
 	root_section.twist  = suave_wing.twists.root
 	
-	tip_section = AVL_Section()
-	tip_section.tag  = 'Tip_Section'
+	tip_section = Section()
+	tip_section.tag  = 'tip_section'
 	tip_section.chord = suave_wing.chords.tip
 	tip_section.twist = suave_wing.twists.tip
 	tip_section.origin = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
@@ -110,13 +110,13 @@ def populate_wing_sections(avl_wing,suave_wing):
 			num = 1
 			for section in ctrl.sections:
 				semispan_fraction = (span/semispan) * section.origins.span_fraction
-				s = AVL_Section()
+				s = Section()
 				s.chord  = scipy.interp(semispan_fraction,[0.,1.],[root_section.chord,tip_section.chord])
-				s.tag    = '{0}_Section{1}'.format(ctrl.tag,num)
+				s.tag    = '{0}_section{1}'.format(ctrl.tag,num)
 				s.origin = section.origins.dimensional
 				s.origin[0] = s.origin[0] - s.chord*section.origins.chord_fraction
 				s.twist  = scipy.interp(semispan_fraction,[0.,1.],[root_section.twist,tip_section.twist])
-				c = AVL_Control_Surface()
+				c = Control_Surface()
 				c.tag     = ctrl.tag
 				c.x_hinge = 1. - section.chord_fraction
 				c.sign_duplicate = ctrl.deflection_symmetry
@@ -134,38 +134,38 @@ def populate_body_sections(avl_body,suave_body):
 	semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
 	semispan_v = avl_body.heights.maximum * 0.5
 	origin = suave_body.origin
-	root_section = AVL_Section()
-	root_section.tag    = 'Center_Horizontal_Section'
+	root_section = Section()
+	root_section.tag    = 'center_horizontal_section'
 	root_section.origin = origin
 	root_section.chord  = avl_body.lengths.total
 	
-	tip_section = AVL_Section()
-	tip_section.tag  = 'Outer_Horizontal_Section'
+	tip_section = Section()
+	tip_section.tag  = 'outer_horizontal_section'
 	nl = avl_body.lengths.nose
 	tl = avl_body.lengths.tail
 	tip_section.origin = [origin[0]+nl,origin[1]+semispan_h,origin[2]]
 	tip_section.chord = root_section.chord - nl - tl
 	
-	avl_body.append_section(root_section,'Horizontal')
-	avl_body.append_section(tip_section,'Horizontal')
+	avl_body.append_section(root_section,'horizontal')
+	avl_body.append_section(tip_section,'horizontal')
 	tip_sectionv1 = deepcopy(tip_section)
 	tip_sectionv1.origin[1] = origin[1]
 	tip_sectionv1.origin[2] = origin[2] - semispan_v
-	tip_sectionv1.tag       = 'Lower_Vertical_Section'
-	avl_body.append_section(tip_sectionv1,'Vertical')
-	avl_body.append_section(root_section,'Vertical')
+	tip_sectionv1.tag       = 'lower_vertical_section'
+	avl_body.append_section(tip_sectionv1,'vertical')
+	avl_body.append_section(root_section,'vertical')
 	tip_sectionv2 = deepcopy(tip_section)
 	tip_sectionv2.origin[1] = origin[1]
 	tip_sectionv2.origin[2] = origin[2] + semispan_v
-	tip_sectionv2.tag       = 'Upper_Vertical_Section'
-	avl_body.append_section(tip_sectionv2,'Vertical')
+	tip_sectionv2.tag       = 'upper_vertical_section'
+	avl_body.append_section(tip_sectionv2,'vertical')
 	
 	return avl_body
 	
 
 def translate_avl_configuration(geometry,conditions):
 	
-	config = AVL_Configuration()
+	config = Configuration()
 	config.reference_values.sref = geometry.reference_area
 	config.reference_values.bref = geometry.wings['Main Wing'].spans.projected
 	config.reference_values.cref = geometry.wings['Main Wing'].chords.mean_aerodynamic
@@ -189,10 +189,10 @@ def translate_avl_configuration(geometry,conditions):
 
 def translate_avl_cases(conditions,suave_cases):
 	
-	runcases = AVL_Cases()
+	runcases = Cases()
 	
 	for case in suave_cases:
-		kase = AVL_Run_Case()
+		kase = Run_Case()
 		kase.tag = case.tag
 		kase.conditions.mach  = case.conditions.freestream.mach
 		kase.conditions.v_inf = case.conditions.freestream.velocity
@@ -212,7 +212,7 @@ def translate_avl_cases(conditions,suave_cases):
 
 def setup_test_cases(conditions):
 	
-	runcases = AVL_Cases()
+	runcases = Cases()
 	
 	alphas = [-10,-5,-2,0,2,5,10,20]
 	mach   = conditions.freestream.mach
@@ -220,7 +220,7 @@ def setup_test_cases(conditions):
 	rho    = conditions.density
 	g      = conditions.g
 	for alpha in alphas:
-		case = AVL_Run_Case()
+		case = Run_Case()
 		case.tag = 'Alpha={}'.format(alpha)
 		case.conditions.mach  = mach
 		case.conditions.v_inf = v_inf

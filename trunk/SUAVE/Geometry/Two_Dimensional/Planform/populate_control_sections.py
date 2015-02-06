@@ -50,7 +50,7 @@ def populate_control_sections(control_surface,span_fractions,chord_fractions,rel
     orig = wing.origin
 
     inboard = Control_Surface_Section()
-    inboard.tag = 'Inboard_Section'
+    inboard.tag = 'inboard_section'
     inboard.origins.span_fraction  = span_fractions[0]
     inboard.origins.chord_fraction = 1. - chord_fractions[0]
     local_chord = c_r * (1 + 2. * span_fractions[0] * (tpr - 1))
@@ -62,7 +62,7 @@ def populate_control_sections(control_surface,span_fractions,chord_fractions,rel
     control_surface.append_section(inboard)
 
     outboard = Control_Surface_Section()
-    outboard.tag = 'Outboard_Section'
+    outboard.tag = 'outboard_section'
     outboard.origins.span_fraction  = span_fractions[-1]
     outboard.origins.chord_fraction = 1. - chord_fractions[-1]
     local_chord = c_r * (1 + 2. * span_fractions[-1] * (tpr - 1))
@@ -79,7 +79,7 @@ def populate_control_sections(control_surface,span_fractions,chord_fractions,rel
         i = 1
         while i+1 < len(span_fractions):
             section = Control_Surface_Section()
-            section.tag = ('Control_Section{}'.format(i))
+            section.tag = ('inner_section{}'.format(i))
             section.origins.span_fraction  = span_fractions[i]
             section.origins.chord_fraction = 1. - chord_fractions[i]
             local_chord = c_r * (1 + 2. * span_fractions[i] * (tpr - 1))

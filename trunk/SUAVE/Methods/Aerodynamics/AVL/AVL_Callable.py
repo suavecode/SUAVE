@@ -14,9 +14,9 @@ from SUAVE.Structure import Data
 
 # local imports
 from .purge_files      import purge_files
-from .AVL_Data.AVL_Cases    import AVL_Run_Case
-from .AVL_Data.AVL_Results  import AVL_Results
-from .AVL_Data.AVL_Settings import AVL_Settings
+from .Data.Cases    import Run_Case
+from .Data.Results  import Results
+from .Data.Settings import Settings
 
 
 # ----------------------------------------------------------------------
@@ -33,16 +33,16 @@ class AVL_Callable(Data):
     """
 
     def __defaults__(self):
-        self.tag        = 'AVL'
+        self.tag        = 'avl'
         self.keep_files = True
 
-        self.settings = AVL_Settings()
+        self.settings = Settings()
 
 
     def initialize(self,vehicle):
         
         self.features = vehicle
-        self.tag      = 'AVL Analysis of {}'.format(vehicle.tag)
+        self.tag      = 'avl_analysis_of_{}'.format(vehicle.tag)
         self.settings.filenames.run_folder = \
             os.path.abspath(self.settings.filenames.run_folder)
         if not os.path.exists(self.settings.filenames.run_folder):
@@ -354,7 +354,7 @@ def read_results(self):
         num_ctrl = len(case.stability_and_control.control_deflections)
 
         try:
-            case_res = AVL_Results()
+            case_res = Results()
             case_res.tag = case.result_filename
             lines   = res_file.readlines()
             case_res.aerodynamics.roll_moment_coefficient  = float(lines[19][32:42].strip())

@@ -5,13 +5,13 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Structure import Data, Data_Exception, Data_Warning
-from AVL_Wing        import AVL_Section
+from Wing        import Section
 
 # ------------------------------------------------------------
 #   Body
 # ------------------------------------------------------------
 
-class AVL_Body(Data):
+class Body(Data):
 	"""	A data class defining the parameters of a fuselage or other body modeled
 		by side and planform projections arranged in a plus (+) shape (when
 		viewed from the front).
@@ -19,7 +19,7 @@ class AVL_Body(Data):
 
 	def __defaults__(self):
 		
-		self.tag = 'Body'
+		self.tag = 'body'
 		self.symmetric = True
 		self.origin    = [0.,0.,0.]
 

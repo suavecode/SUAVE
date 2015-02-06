@@ -12,7 +12,7 @@ from SUAVE.Structure import Data
 #   Configuration
 # ------------------------------------------------------------
 
-class AVL_Inputs(Data):
+class Inputs(Data):
 
 	def __defaults__(self):
 		

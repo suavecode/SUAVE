@@ -10,10 +10,10 @@ from SUAVE.Structure import Data, Data_Exception, Data_Warning
 #   Wing
 # ------------------------------------------------------------
 
-class AVL_Wing(Data):
+class Wing(Data):
 	def __defaults__(self):
 
-		self.tag = 'Wing'
+		self.tag = 'wing'
 		self.symmetric = True
 		self.vertical  = False
 		self.origin    = [0.,0.,0.]
@@ -47,9 +47,9 @@ class AVL_Wing(Data):
 #  AVL Wing Sections
 # ------------------------------------------------------------
 
-class AVL_Section(Data):
+class Section(Data):
 	def __defaults__(self):
-		self.tag    = 'Section'
+		self.tag    = 'section'
 		self.origin = [0.0,0.0,0.0]
 		self.chord  = 0.0
 		self.twist  = 0.0
@@ -73,9 +73,9 @@ class AVL_Section(Data):
 #  AVL Control Surface
 # ------------------------------------------------------------
 
-class AVL_Control_Surface(Data):
+class Control_Surface(Data):
 	def __defaults__(self):
-		self.tag            = 'Control_Surface'
+		self.tag            = 'control_surface'
 		self.gain           = 1.0
 		self.x_hinge        = 0.0
 		self.hinge_vector   = [0.,0.,0.]

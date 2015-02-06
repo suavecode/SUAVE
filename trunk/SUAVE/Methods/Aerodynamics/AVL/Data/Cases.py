@@ -11,7 +11,7 @@ from SUAVE.Structure import Data
 #   Configuration
 # ------------------------------------------------------------
 
-class AVL_Cases(Data):
+class Cases(Data):
 
 	def __defaults__(self):
 		
@@ -38,7 +38,7 @@ class AVL_Cases(Data):
 #  AVL Case
 # ------------------------------------------------------------
 
-class AVL_Run_Case(Data):
+class Run_Case(Data):
 	def __defaults__(self):
 		"""
 		OUTPUTS:
@@ -48,8 +48,8 @@ class AVL_Run_Case(Data):
 			
 		"""
 		
-		self.index = 0		# Will be overwritten when appended to an AVL_Cases structure
-		self.tag   = 'Case'
+		self.index = 0		# Will be overwritten when appended to an AVL Cases structure
+		self.tag   = 'case'
 		self.mass  = 0.0
 		
 		self.conditions = Data()
