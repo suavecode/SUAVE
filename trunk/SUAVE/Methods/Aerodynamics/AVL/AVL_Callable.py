@@ -122,7 +122,8 @@ class AVL_Callable(Data):
             self.analysis_indices.last_case_index += 1
             case.index = self.analysis_indices.last_case_index
             case.result_filename = 'results_case_{0:03d}-{1:03d}.txt'.format(self.analysis_indices.last_batch_index,case.index)
-
+        
+        
         write_geometry(self)
         write_run_cases(self,cases)
         write_input_deck(self,cases)
@@ -137,8 +138,10 @@ class AVL_Callable(Data):
         #deck_filename     = self.settings.filenames.input_deck
         
         if not self.keep_files:
-            from purge_directory import purge_directory
-            purge_directory(self.settings.filenames.run_folder,purge_subdirectories=False)
+            #from purge_directory import purge_directory
+            #purge_directory(self.settings.filenames.run_folder,purge_subdirectories=False)
+            from shutil import rmtree
+            rmtree(os.path.abspath(self.settings.filenames.run_folder))
 
         return results
 
