@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Structure import Data
-from Cases import Cases
+from Cases import Run_Case
 
 # ------------------------------------------------------------
 #   Configuration
@@ -15,7 +15,7 @@ class Settings(Data):
 
 	def __defaults__(self):
 		
-		self.run_cases = Cases()
+		self.run_cases = Run_Case.Container()
 		self.filenames = Data()
 		self.flow_symmetry = Data()
 		self.discretization = Data()
@@ -34,7 +34,7 @@ class Settings(Data):
 		self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
 		self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
 		self.filenames.features        = 'aircraft.avl'
-		self.filenames.cases           = 'avl_cases.case'
+		self.filenames.batches         = []#'batch%03i.cases'
 		self.filenames.input_deck      = 'avl_commands.run'
 		self.filenames.output_template = 'avl_results{}.txt'
 		self.filenames.log_filename    = 'avl_log.txt'

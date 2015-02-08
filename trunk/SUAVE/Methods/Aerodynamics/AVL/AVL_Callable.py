@@ -14,7 +14,7 @@ from SUAVE.Structure import Data
 
 # local imports
 from .purge_files      import purge_files
-from .Data.Cases    import Run_Case
+#from .Data.Cases    import Run_Case
 from .Data.Results  import Results
 from .Data.Settings import Settings
 
@@ -37,6 +37,10 @@ class AVL_Callable(Data):
         self.keep_files = True
 
         self.settings = Settings()
+        
+        self.analysis_indices = Data()
+        self.analysis_indices.last_case_index = 0
+        self.analysis_indices.last_batch_index = 0
 
 
     def initialize(self,vehicle):
@@ -51,44 +55,44 @@ class AVL_Callable(Data):
         return
 
 
-    def append_case(self,case):
-        # assert database type
-        if not isinstance(case,Data):
-            raise Component_Exception, 'input case must be of type Data()'
+    #def append_case(self,case):
+        ## assert database type
+        #if not isinstance(case,Data):
+            #raise Component_Exception, 'input case must be of type Data()'
 
-        #if not case.tag in self.settings.run_cases.cases.keys():
-                #for tag in case.conditions.freestream.keys():
-                        #if case.conditions.freestream[tag] is None:
-                                #case.conditions.freestream[tag] = self.default_case.conditions.freestream[tag]
-                #for tag in case.conditions.aerodynamics.keys():
-                        #if case.conditions.aerodynamics[tag] is None:
-                                #case.conditions.aerodynamics[tag] = self.default_case.conditions.aerodynamics[tag]
-                #if case.mass is None:
-                        #case.mass = self.default_case.mass
-                #if case.stability_and_control.control_deflections is None:
-                        #case.stability_and_control.control_deflections = self.default_case.stability_and_control.control_deflections
-                #elif self.default_case.stability_and_control.control_deflections is not None:
-                        #for d in self.default_case.stability_and_control.control_deflections:
-                                #if d.tag not in case.stability_and_control.control_deflections.keys():
-                                        #case.append_control_deflection(d.tag,d.deflection)
+        ##if not case.tag in self.settings.run_cases.cases.keys():
+                ##for tag in case.conditions.freestream.keys():
+                        ##if case.conditions.freestream[tag] is None:
+                                ##case.conditions.freestream[tag] = self.default_case.conditions.freestream[tag]
+                ##for tag in case.conditions.aerodynamics.keys():
+                        ##if case.conditions.aerodynamics[tag] is None:
+                                ##case.conditions.aerodynamics[tag] = self.default_case.conditions.aerodynamics[tag]
+                ##if case.mass is None:
+                        ##case.mass = self.default_case.mass
+                ##if case.stability_and_control.control_deflections is None:
+                        ##case.stability_and_control.control_deflections = self.default_case.stability_and_control.control_deflections
+                ##elif self.default_case.stability_and_control.control_deflections is not None:
+                        ##for d in self.default_case.stability_and_control.control_deflections:
+                                ##if d.tag not in case.stability_and_control.control_deflections.keys():
+                                        ##case.append_control_deflection(d.tag,d.deflection)
 
-        self.settings.run_cases.num_cases += 1
-        case.index = self.settings.run_cases.num_cases # index starting at 1, consistent with AVL convention
+        #self.settings.run_cases.num_cases += 1
+        #case.index = self.settings.run_cases.num_cases # index starting at 1, consistent with AVL convention
 
-        self.settings.run_cases.cases.append(case)
+        #self.settings.run_cases.cases.append(case)
 
-        return
+        #return
 
 
-    def append_cases(self,cases):
-        # assert database type
-        if not isinstance(cases,Data):
-            raise Component_Exception, 'input cases must be of type Data()'
+    #def append_cases(self,cases):
+        ## assert database type
+        #if not isinstance(cases,Data):
+            #raise Component_Exception, 'input cases must be of type Data()'
 
-        for case in cases.cases:
-            self.append_case(case)
+        #for case in cases:
+            #self.append_case(case)
 
-        return
+        #return
 
 
     def __call__(self,cases):
@@ -108,21 +112,29 @@ class AVL_Callable(Data):
                 no changes to initial geometry or configuration
 
         """
-        if cases is not None and len(cases) > 0:
-            self.append_cases(cases)
+        assert cases is not None and len(cases) , 'run_case container is empty or None'
+        
+        self.analysis_indices.last_case_index = 0
+        self.analysis_indices.last_batch_index += 1
+        self.settings.filenames.batches.append('batch%03i.cases' % self.analysis_indices.last_batch_index)
+        
+        for case in cases:
+            self.analysis_indices.last_case_index += 1
+            case.index = self.analysis_indices.last_case_index
+            case.result_filename = 'results_case_{0:03d}-{1:03d}.txt'.format(self.analysis_indices.last_batch_index,case.index)
 
         write_geometry(self)
-        write_run_cases(self)
-        write_input_deck(self)
+        write_run_cases(self,cases)
+        write_input_deck(self,cases)
 
-        results = run_analysis(self)
+        results = run_analysis(self,cases)
 
-        # unpack filenames
-        files_path        = self.settings.filenames.run_folder
-        results_files     = [case.result_filename for case in self.settings.run_cases.cases]
-        geometry_filename = self.settings.filenames.features
-        cases_filename    = self.settings.filenames.cases
-        deck_filename     = self.settings.filenames.input_deck
+        ## unpack filenames
+        #files_path        = self.settings.filenames.run_folder
+        #results_files     = [case.result_filename for case in cases]
+        #geometry_filename = self.settings.filenames.features
+        #cases_filename    = self.settings.filenames.cases
+        #deck_filename     = self.settings.filenames.input_deck
         
         if not self.keep_files:
             from purge_directory import purge_directory
@@ -170,15 +182,14 @@ def write_geometry(self):
     return
 
 
-def write_run_cases(self):
+def write_run_cases(self,cases):
     # imports
     from .write_run_cases import make_controls_case_text
 
     # unpack avl_inputs
     files_path = self.settings.filenames.run_folder
-    cases_path = os.path.abspath(os.path.join(files_path,self.settings.filenames.cases))
+    batch_path = os.path.abspath(os.path.join(files_path,self.settings.filenames.batches[-1]))
     aircraft   = self.features
-    kases      = self.settings.run_cases
 
     base_case_text = \
 '''
@@ -228,8 +239,8 @@ def write_run_cases(self):
 
 
     # Open the geometry file after purging if it already exists
-    purge_files([cases_path])
-    runcases = open(cases_path,'w')
+    purge_files([batch_path])
+    runcases = open(batch_path,'w')
 
     try:
         x_cg = self.features.mass_properties.center_of_gravity[0]
@@ -244,7 +255,7 @@ def write_run_cases(self):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case in kases.cases:
+        for case in cases:
             index = case.index
             name  = case.tag
             alpha = case.conditions.aerodynamics.angle_of_attack
@@ -272,7 +283,7 @@ def write_run_cases(self):
     return
 
 
-def write_input_deck(self):
+def write_input_deck(self,cases):
 
     base_input = \
 '''CASE {}
@@ -280,10 +291,9 @@ OPER
 '''
     # unpack
     files_path        = self.settings.filenames.run_folder
-    cases_filename    = self.settings.filenames.cases
+    batch_filename    = self.settings.filenames.batches[-1]
     deck_filename     = self.settings.filenames.input_deck
     deck_path         = os.path.abspath(os.path.join(files_path,deck_filename))
-    kases             = self.settings.run_cases
 
     #cases_path    = os.path.abspath(os.path.join(files_path,cases_filename))
 
@@ -292,10 +302,9 @@ OPER
     input_deck = open(deck_path,'w')
 
     try:
-        input_deck.write(base_input.format(cases_filename))
-        for case in kases.cases:
-            case_command,res_file = make_case_command(self,case)
-            case.result_filename = res_file
+        input_deck.write(base_input.format(batch_filename))
+        for case in cases:
+            case_command = make_case_command(self,case)
             input_deck.write(case_command)
         input_deck.write('\n\nQUIT\n')
     finally:
@@ -316,14 +325,14 @@ x
     index = case.index
     case_tag = case.tag
     res_type = 'st' # Eventually make this variable, or multiple, depending on user's desired outputs (or just do every type that AVL is capable of)
-    results_file = 'results_{}.txt'.format(case_tag)
+    results_file = case.result_filename #'results_{}.txt'.format(case_tag)
     purge_files([results_file],directory)
     case_command = base_case_command.format(index,res_type,results_file)
 
-    return case_command,results_file
+    return case_command
 
 
-def run_analysis(self):
+def run_analysis(self,cases):
     # imports
     from .run_analysis import build_avl_command,run_command
 
@@ -338,17 +347,17 @@ def run_analysis(self):
     command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
     run_command(command,files_path)
 
-    results = read_results(self)
+    results = read_results(self,cases)
 
     return results
 
 
-def read_results(self):
+def read_results(self,cases):
 
     results_directory = self.settings.filenames.run_folder
     results = Data()
 
-    for case in self.settings.run_cases.cases:
+    for case in cases:
         results_path = os.path.abspath(os.path.join(results_directory,case.result_filename))
         res_file = open(results_path)
         num_ctrl = len(case.stability_and_control.control_deflections)

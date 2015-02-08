@@ -14,7 +14,7 @@ from .Data.Inputs   import Inputs
 from .Data.Wing     import Wing, Section, Control_Surface
 from .Data.Body     import Body
 from .Data.Aircraft import Aircraft
-from .Data.Cases    import Cases,Run_Case
+from .Data.Cases    import Run_Case
 from .Data.Configuration import Configuration
 
 
@@ -189,7 +189,7 @@ def translate_avl_configuration(geometry,conditions):
 
 def translate_avl_cases(conditions,suave_cases):
 	
-	runcases = Cases()
+	runcases = Run_Case.Container()
 	
 	for case in suave_cases:
 		kase = Run_Case()
@@ -212,7 +212,7 @@ def translate_avl_cases(conditions,suave_cases):
 
 def setup_test_cases(conditions):
 	
-	runcases = Cases()
+	runcases = Run_Case.Container()
 	
 	alphas = [-10,-5,-2,0,2,5,10,20]
 	mach   = conditions.freestream.mach

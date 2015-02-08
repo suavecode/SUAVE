@@ -10,8 +10,8 @@ from copy import deepcopy
 from SUAVE.Attributes import Units
 from full_setup_737800 import full_setup_737800
 # SUAVE-AVL Imports
-from SUAVE.Methods.Aerodynamics.AVL.Data.Cases    import Run_Case, Cases
-from SUAVE.Methods.Aerodynamics.AVL.AVL_Callable          import AVL_Callable
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases    import Run_Case
+from SUAVE.Methods.Aerodynamics.AVL.AVL_Callable  import AVL_Callable
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
     
     # Set up run cases
     alphas    = [-10,-5,-2,0,2,5,10,20]
-    avl_cases = Cases()
+    avl_cases = Run_Case.Container()
     for alpha in alphas:
         case = deepcopy(base_case)
         case.tag = 'alpha={}'.format(alpha)
