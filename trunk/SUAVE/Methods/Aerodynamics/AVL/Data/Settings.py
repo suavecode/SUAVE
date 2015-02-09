@@ -34,8 +34,8 @@ class Settings(Data):
 		self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
 		self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
 		self.filenames.features        = 'aircraft.avl'
-		self.filenames.batch_template  = 'batch_{0:03d}.cases'
-		self.filenames.input_deck      = 'avl_commands.run'
+		self.filenames.batch_template  = 'batch_{0:03d}.run'
+		self.filenames.input_deck      = 'avl_commands.deck'
 		self.filenames.output_template = 'results_case_{0:03d}-{1:03d}.txt'
 		self.filenames.log_filename    = 'avl_log.txt'
 		self.filenames.err_filename    = 'avl_err.txt'
