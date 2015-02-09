@@ -11,6 +11,7 @@ import os
 
 # SUAVE imports
 from SUAVE.Structure import Data
+import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
 # local imports
 from .purge_files      import purge_files
@@ -38,9 +39,10 @@ class AVL_Callable(Data):
 
         self.settings = Settings()
         
-        self.analysis_indices = Data()
-        self.analysis_indices.last_case_index = 0
-        self.analysis_indices.last_batch_index = 0
+        self.analysis_temps = Data()
+        self.analysis_temps.current_batch_index = 0
+        self.analysis_temps.current_batch_file  = None
+        self.analysis_temps.current_cases       = None
 
 
     def initialize(self,vehicle):
@@ -114,21 +116,22 @@ class AVL_Callable(Data):
         """
         assert cases is not None and len(cases) , 'run_case container is empty or None'
         
-        self.analysis_indices.last_case_index = 0
-        self.analysis_indices.last_batch_index += 1
-        self.settings.filenames.batches.append('batch%03i.cases' % self.analysis_indices.last_batch_index)
+        #self.analysis_indices.last_case_index = 0
+        self.analysis_temps.current_cases = cases
+        self.analysis_temps.current_batch_index  += 1
+        self.analysis_temps.current_batch_file = self.settings.filenames.batch_template.format(self.analysis_temps.current_batch_index)
         
         for case in cases:
-            self.analysis_indices.last_case_index += 1
-            case.index = self.analysis_indices.last_case_index
-            case.result_filename = 'results_case_{0:03d}-{1:03d}.txt'.format(self.analysis_indices.last_batch_index,case.index)
+            #self.analysis_indices.last_case_index += 1
+            #case.index = self.analysis_indices.last_case_index 
+            case.result_filename = self.settings.filenames.output_template.format(self.analysis_temps.current_batch_index,case.index)
         
-        
-        write_geometry(self)
-        write_run_cases(self,cases)
-        write_input_deck(self,cases)
-
-        results = run_analysis(self,cases)
+        with redirect.folder(self.settings.filenames.run_folder,[],[],False):
+            write_geometry(self)
+            write_run_cases(self)
+            write_input_deck(self)
+    
+            results = run_analysis(self)
 
         ## unpack filenames
         #files_path        = self.settings.filenames.run_folder
@@ -159,16 +162,13 @@ def write_geometry(self):
 
     # unpack inputs
     aircraft      = self.features
-    files_path    = self.settings.filenames.run_folder
     geometry_file = self.settings.filenames.features
-    geometry_path = os.path.abspath(os.path.join(files_path,geometry_file))
 
     # Open the geometry file after purging if it already exists
-    purge_files([geometry_path])
+    purge_files([geometry_file])
 
-    geometry = open(geometry_path,'w')
+    with open(geometry_file,'w') as geometry:
 
-    try:
         header_text = make_header_text(self)
         geometry.write(header_text)
         for w in aircraft.wings:
@@ -179,20 +179,18 @@ def write_geometry(self):
             avl_body = translate_avl_body(b)
             body_text = make_body_text(avl_body)
             geometry.write(body_text)
-    finally:	# don't leave the file open if something goes wrong
-        geometry.close()
 
     return
 
 
-def write_run_cases(self,cases):
+def write_run_cases(self):
+    """NB: Assumes you are already working in your desired run folder."""
     # imports
     from .write_run_cases import make_controls_case_text
 
     # unpack avl_inputs
-    files_path = self.settings.filenames.run_folder
-    batch_path = os.path.abspath(os.path.join(files_path,self.settings.filenames.batches[-1]))
-    aircraft   = self.features
+    batch_filename = self.analysis_temps.current_batch_file
+    aircraft       = self.features
 
     base_case_text = \
 '''
@@ -242,10 +240,9 @@ def write_run_cases(self,cases):
 
 
     # Open the geometry file after purging if it already exists
-    purge_files([batch_path])
-    runcases = open(batch_path,'w')
+    purge_files([batch_filename])
+    with open(batch_filename,'w') as runcases:
 
-    try:
         x_cg = self.features.mass_properties.center_of_gravity[0]
         y_cg = self.features.mass_properties.center_of_gravity[1]
         z_cg = self.features.mass_properties.center_of_gravity[2]
@@ -258,7 +255,7 @@ def write_run_cases(self,cases):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case in cases:
+        for case in self.analysis_temps.current_cases:
             index = case.index
             name  = case.tag
             alpha = case.conditions.aerodynamics.angle_of_attack
@@ -280,13 +277,10 @@ def write_run_cases(self,cases):
                                               Ixx,Iyy,Izz,Ixy,Iyz,Izx)
             runcases.write(case_text)
 
-    finally:	# don't leave the file open if something goes wrong
-        runcases.close()
-
     return
 
 
-def write_input_deck(self,cases):
+def write_input_deck(self):
 
     base_input = \
 '''CASE {}
@@ -294,25 +288,19 @@ OPER
 '''
     # unpack
     files_path        = self.settings.filenames.run_folder
-    batch_filename    = self.settings.filenames.batches[-1]
+    batch_filename    = self.analysis_temps.current_batch_file
     deck_filename     = self.settings.filenames.input_deck
-    deck_path         = os.path.abspath(os.path.join(files_path,deck_filename))
-
-    #cases_path    = os.path.abspath(os.path.join(files_path,cases_filename))
 
     # purge old versions and write the new input deck
-    purge_files([deck_path])
-    input_deck = open(deck_path,'w')
+    purge_files([deck_filename])
+    with open(deck_filename,'w') as input_deck:
 
-    try:
         input_deck.write(base_input.format(batch_filename))
-        for case in cases:
+        for case in self.analysis_temps.current_cases:
             case_command = make_case_command(self,case)
             input_deck.write(case_command)
         input_deck.write('\n\nQUIT\n')
-    finally:
-        input_deck.close()
-
+        
     return
 
 
@@ -327,15 +315,15 @@ x
     directory = self.settings.filenames.run_folder
     index = case.index
     case_tag = case.tag
-    res_type = 'st' # Eventually make this variable, or multiple, depending on user's desired outputs (or just do every type that AVL is capable of)
-    results_file = case.result_filename #'results_{}.txt'.format(case_tag)
+    res_type = 'st' # This needs to change to multiple ouputs if you want to add the ability to read other types of results
+    results_file = case.result_filename
     purge_files([results_file],directory)
     case_command = base_case_command.format(index,res_type,results_file)
 
     return case_command
 
 
-def run_analysis(self,cases):
+def run_analysis(self):
     # imports
     from .run_analysis import build_avl_command,run_command
 
@@ -344,25 +332,20 @@ def run_analysis(self,cases):
     geometry_filename = self.settings.filenames.features
     deck_filename     = self.settings.filenames.input_deck
 
-    #geometry_path = os.path.abspath(os.path.join(files_path,geometry_filename))
-    #deck_path     = os.path.abspath(os.path.join(files_path,deck_filename))
-
     command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
-    run_command(command,files_path)
+    run_command(command)
 
-    results = read_results(self,cases)
+    results = read_results(self)
 
     return results
 
 
-def read_results(self,cases):
+def read_results(self):
 
-    results_directory = self.settings.filenames.run_folder
     results = Data()
 
-    for case in cases:
-        results_path = os.path.abspath(os.path.join(results_directory,case.result_filename))
-        res_file = open(results_path)
+    for case in self.analysis_temps.current_cases:
+        res_file = open(case.result_filename)
         num_ctrl = len(case.stability_and_control.control_deflections)
 
         try:

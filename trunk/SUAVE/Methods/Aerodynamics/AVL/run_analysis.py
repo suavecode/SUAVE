@@ -29,12 +29,12 @@ def build_avl_command(geometry_path,deck_path,avl_bin_path):
 	return command
 
 
-def run_command(command,run_folder):
+def run_command(command):
 	
-	original_cwd = os.getcwd()
-	os.chdir(run_folder)
+	#original_cwd = os.getcwd()
+	#os.chdir(run_folder)
 	exit_status = os.system(command)
-	os.chdir(original_cwd)
+	#os.chdir(original_cwd)
 	
 	return exit_status
 

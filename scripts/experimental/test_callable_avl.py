@@ -74,6 +74,7 @@ def setup_avl_test(vehicle):
     default_case.conditions.aerodynamics.parasite_drag = 0.0177
 
     avl_instance = AVL_Callable()
+    avl_instance.keep_files = False
     avl_instance.initialize(vehicle)
 
     for wing in vehicle.wings:
