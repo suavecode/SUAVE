@@ -31,10 +31,15 @@ def build_avl_command(geometry_path,deck_path,avl_bin_path):
 
 def run_command(command):
 	
-	#original_cwd = os.getcwd()
-	#os.chdir(run_folder)
-	exit_status = os.system(command)
-	#os.chdir(original_cwd)
+	import sys
+	import time
+	import SUAVE.Plugins.VyPy.tools.redirect as redirect
+
+	with redirect.output('avl_log.txt','stderr.txt'):
+		ctime = time.ctime() # Current date and time stamp
+		sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
+		sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
+		exit_status = os.system(command)
 	
 	return exit_status
 
