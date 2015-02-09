@@ -88,7 +88,7 @@ class Container(Container_Base):
 
     def append_case(self,case):
         """ adds a case to the set of run cases """
-        #case.index = num_cases
+        case.index = len(self)+1
         self.append(case)
         #case = self.check_new_val(case)
         
