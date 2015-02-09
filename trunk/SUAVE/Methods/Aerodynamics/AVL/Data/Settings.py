@@ -38,6 +38,7 @@ class Settings(Data):
 		self.filenames.input_deck      = 'avl_commands.run'
 		self.filenames.output_template = 'results_case_{0:03d}-{1:03d}.txt'
 		self.filenames.log_filename    = 'avl_log.txt'
+		self.filenames.err_filename    = 'avl_err.txt'
 		#self.filenames.results         = []
 		
 		#------------------------------------------

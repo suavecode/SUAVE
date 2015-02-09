@@ -33,6 +33,15 @@ def run_command(command):
 	
 	import sys
 	import time
+	
+	#import subprocess
+	#p = subprocess.Popen([command],stdout=subprocess.PIPE,stdout=subprocess.PIPE)
+	#out = p.stdout.read()
+	#err = p.stderr.read()
+	
+	
+	
+	
 	import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
 	with redirect.output('avl_log.txt','stderr.txt'):
@@ -40,6 +49,9 @@ def run_command(command):
 		sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
 		sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
 		exit_status = os.system(command)
+		ctime = time.ctime()
+		sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
+		sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))		
 	
 	return exit_status
 

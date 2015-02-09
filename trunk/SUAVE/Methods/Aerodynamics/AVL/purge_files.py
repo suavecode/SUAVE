@@ -8,4 +8,5 @@ def purge_files(filenames_array,directory=''):
 		try:
 			os.remove(os.path.abspath(os.path.join(directory,f)))
 		except OSError:
-			print 'File {} was not found. Skipping purge.'.format(f)
+			pass
+			#print 'File {} was not found. Skipping purge.'.format(f)

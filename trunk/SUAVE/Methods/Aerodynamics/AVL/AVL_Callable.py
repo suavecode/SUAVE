@@ -38,7 +38,7 @@ class AVL_Callable(Data):
         self.keep_files = True
 
         self.settings = Settings()
-        
+
         self.analysis_temps = Data()
         self.analysis_temps.current_batch_index = 0
         self.analysis_temps.current_batch_file  = None
@@ -46,7 +46,7 @@ class AVL_Callable(Data):
 
 
     def initialize(self,vehicle):
-        
+
         self.features = vehicle
         self.tag      = 'avl_analysis_of_{}'.format(vehicle.tag)
         self.settings.filenames.run_folder = \
@@ -115,22 +115,22 @@ class AVL_Callable(Data):
 
         """
         assert cases is not None and len(cases) , 'run_case container is empty or None'
-        
+
         #self.analysis_indices.last_case_index = 0
         self.analysis_temps.current_cases = cases
         self.analysis_temps.current_batch_index  += 1
         self.analysis_temps.current_batch_file = self.settings.filenames.batch_template.format(self.analysis_temps.current_batch_index)
-        
+
         for case in cases:
             #self.analysis_indices.last_case_index += 1
             #case.index = self.analysis_indices.last_case_index 
             case.result_filename = self.settings.filenames.output_template.format(self.analysis_temps.current_batch_index,case.index)
-        
+
         with redirect.folder(self.settings.filenames.run_folder,[],[],False):
             write_geometry(self)
             write_run_cases(self)
             write_input_deck(self)
-    
+
             results = run_analysis(self)
 
         ## unpack filenames
@@ -139,7 +139,7 @@ class AVL_Callable(Data):
         #geometry_filename = self.settings.filenames.features
         #cases_filename    = self.settings.filenames.cases
         #deck_filename     = self.settings.filenames.input_deck
-        
+
         if not self.keep_files:
             #from purge_directory import purge_directory
             #purge_directory(self.settings.filenames.run_folder,purge_subdirectories=False)
@@ -300,7 +300,7 @@ OPER
             case_command = make_case_command(self,case)
             input_deck.write(case_command)
         input_deck.write('\n\nQUIT\n')
-        
+
     return
 
 
@@ -325,19 +325,53 @@ x
 
 def run_analysis(self):
     # imports
-    from .run_analysis import build_avl_command,run_command
+    #from .run_analysis import build_avl_command
 
     avl_bin_path      = self.settings.filenames.avl_bin_name
     files_path        = self.settings.filenames.run_folder
     geometry_filename = self.settings.filenames.features
     deck_filename     = self.settings.filenames.input_deck
 
-    command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
-    run_command(command)
+    #command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
+    run_command(self)
 
     results = read_results(self)
 
     return results
+
+
+def run_command(self):
+    
+    import sys
+    import time
+    import subprocess
+    
+    log_file = self.settings.filenames.log_filename
+    err_file = self.settings.filenames.err_filename
+    purge_files([log_file,err_file])
+    avl_call = self.settings.filenames.avl_bin_name
+    geometry = self.settings.filenames.features
+    in_deck  = self.settings.filenames.input_deck
+    
+    with open(log_file,'a') as log, open(err_file,'a') as err:
+        
+        ctime = time.ctime() # Current date and time stamp
+        log.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
+        err.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
+        log.flush()
+        err.flush()
+        
+        with open(in_deck,'r') as commands:
+            p = subprocess.Popen([avl_call,geometry],stdout=log,stderr=err,stdin=subprocess.PIPE)
+            for line in commands:
+                p.stdin.write(line)
+        p.wait()
+        exit_status = p.returncode
+        ctime = time.ctime()
+        log.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
+        err.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))        
+
+    return exit_status
 
 
 def read_results(self):
