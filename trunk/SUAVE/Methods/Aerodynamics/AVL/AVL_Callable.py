@@ -322,23 +322,20 @@ x
 
 
 def run_analysis(self):
-    # imports
-    #from .run_analysis import build_avl_command
 
     avl_bin_path      = self.settings.filenames.avl_bin_name
     files_path        = self.settings.filenames.run_folder
     geometry_filename = self.settings.filenames.features
     deck_filename     = self.settings.filenames.input_deck
 
-    #command = build_avl_command(geometry_filename,deck_filename,avl_bin_path)
-    run_command(self)
+    call_avl(self)
 
     results = read_results(self)
 
     return results
 
 
-def run_command(self):
+def call_avl(self):
     
     import sys
     import time
@@ -368,26 +365,7 @@ def run_command(self):
         exit_status = avl_run.returncode
         ctime = time.ctime()
         sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
-        sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status)) 
-        
-    #with open(log_file,'a') as log, open(err_file,'a') as err:
-            
-            #ctime = time.ctime() # Current date and time stamp
-            #log.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
-            #err.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
-            #log.flush()
-            #err.flush()
-            
-            #with open(in_deck,'r') as commands:
-                #avl_run = subprocess.Popen([avl_call,geometry,batch],stdout=log,stderr=err,stdin=subprocess.PIPE)
-                #for line in commands:
-                    #avl_run.stdin.write(line)
-            #avl_run.wait()
-            
-            #exit_status = avl_run.returncode
-            #ctime = time.ctime()
-            #log.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
-            #err.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))         
+        sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))        
 
     return exit_status
 
