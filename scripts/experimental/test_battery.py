@@ -16,7 +16,7 @@ from SUAVE.Structure import Data
 from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -56,7 +56,8 @@ def main():
     #run discharge model
     battery_li_ion.energy_calc( numerics)
     print battery_li_ion
-   
+    plot_ragone(battery_li_ion, 'lithium ion')
+    plot_ragone(battery_li_s,   'lithium sulfur')
     
 def test_mass_gain(battery,power):
     print battery
@@ -85,5 +86,18 @@ def test_initialize_from_mass(battery,mass):
     initialize_from_mass(battery,mass)
     print battery
     return
+    
+def plot_ragone(battery, name):
+    title='Ragone Plot'
+    axes=plt.gca()
+    esp_plot=np.linspace(battery.ragone.lower_bound, battery.ragone.upper_bound,50)
+    psp_plot=battery.ragone.const_1*10**(esp_plot*battery.ragone.const_2)
+    plt.plot(esp_plot/(Units.Wh/Units.kg),psp_plot/(Units.kW/Units.kg), label=name)
+    plt.xlabel('specific energy (W-h/kg)')
+    plt.ylabel('specific power (kW/kg)')
+    axes.legend(loc='upper right')   
+    plt.title(title)
+    return
 if __name__ == '__main__':
     main()
+    plt.show()
