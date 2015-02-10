@@ -15,7 +15,11 @@ from find_ragone_properties import find_ragone_properties
 # ----------------------------------------------------------------------
 
 def find_ragone_optimum(battery, energy, power): #adds a battery that is optimized based on power and energy requirements and technology
-    """Inputs:
+    """
+    Uses Brent's Bracketing Method to find an optimum-mass battery based on the specific energy and specific power of the battery determined
+    from the battery's ragone plot.
+    
+    Inputs:
             battery
             energy= energy battery is required to hold [J]
             power= power battery is required to provide [W]

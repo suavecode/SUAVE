@@ -24,7 +24,7 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Network_Lo_Fid(Data):
+class Solar_Lo_Fid(Data):
     def __defaults__(self):
         self.solar_flux        = None
         self.solar_panel       = None

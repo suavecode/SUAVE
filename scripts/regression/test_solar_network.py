@@ -16,7 +16,7 @@ Data, Container, Data_Exception, Data_Warning,
 import numpy as np
 import copy, time
 
-from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
+from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 
 def main():
@@ -26,7 +26,7 @@ def main():
     # ------------------------------------------------------------------
     
     # build network
-    net = Solar_Network()
+    net = Solar()
     net.number_motors = 1.
     net.nacelle_dia   = 0.2
     
@@ -102,7 +102,7 @@ def main():
     net.avionics        = avionics      
     
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Battery()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Battery()
     bat.mass_properties.mass = 50.  #kg
     bat.type = 'Li-Ion'
     bat.resistance = 0.0

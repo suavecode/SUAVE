@@ -25,7 +25,7 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Network(Propulsor):
+class Solar(Propulsor):
     def __defaults__(self): 
         self.solar_flux        = None
         self.solar_panel       = None

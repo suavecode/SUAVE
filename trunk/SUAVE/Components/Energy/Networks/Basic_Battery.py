@@ -26,7 +26,7 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Basic_Battery_Network(Data):
+class Basic_Battery(Data):
     def __defaults__(self):
 
         #self.motor       = None
