@@ -20,6 +20,11 @@ def main():
     #  Test Script
     # -------------------------------------------------------------
     
+    # Time the process
+    import time
+    t0 = time.time()
+    print "Start: " + time.ctime()
+    
     # Set up test defaults
     vehicle,mission = full_setup_737800()
     avl,base_case = setup_avl_test(vehicle)
@@ -56,6 +61,10 @@ def main():
     axes.set_xlabel('Angle of Attack')
     axes.set_ylabel('Pitching Moment')
     axes.grid(True)
+    
+    tf = time.time()
+    print "End:   " + time.ctime()
+    print "({0:.2f} seconds)".format(tf-t0)
     
     plt.show()
     
