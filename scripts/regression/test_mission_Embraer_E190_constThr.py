@@ -53,7 +53,7 @@ def main():
     plot_mission(vehicle,mission,old_results,'k-')
 
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
 
     return
 
@@ -142,7 +142,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio                     = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -180,7 +180,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 0.9
+    wing.dynamic_pressure_ratio                     = 0.9
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -218,7 +218,7 @@ def vehicle_setup():
     wing.vertical                = True
     wing.symmetric               = False
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio                     = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -263,41 +263,160 @@ def vehicle_setup():
     vehicle.append_component(fuselage)
 
     # ------------------------------------------------------------------
-    #  Turbofan
-    # ------------------------------------------------------------------
+    #  Turbofan Network
+    # ------------------------------------------------------------------    
+    
 
-    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    #initialize the gas turbine network
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    gt_engine.tag               = 'Turbo Fan'
+    
+    gt_engine.number_of_engines = 2.0
+    gt_engine.thrust_design     = 20300.0
+    gt_engine.engine_length     = 3.0
+    gt_engine.nacelle_diameter  = 1.0
 
-    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
+    #set the working fluid for the network
+    working_fluid               = SUAVE.Attributes.Gases.Air
+    
+    #add working fluid to the network
+    gt_engine.working_fluid = working_fluid
+    
+    
+    #Component 1 : ram,  to convert freestream static to stagnation quantities
+    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram.tag = 'ram'
+    
+    #add ram to the network
+    gt_engine.ram = ram
+    
+    
+    #Component 2 : inlet nozzle
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle.tag = 'inlet nozzle'
 
-    turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.99     #
-    turbofan.fan_pressure_ratio            = 1.7      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.98     #
-    turbofan.lpc_pressure_ratio            = 1.9      #
-    turbofan.hpc_pressure_ratio            = 10.0     #
-    turbofan.burner_pressure_ratio         = 0.95     #
-    turbofan.turbine_nozzle_pressure_ratio = 0.99     #
-    turbofan.Tt4                           = 1500.0   #
-    turbofan.bypass_ratio                  = 5.4      #
-    turbofan.thrust.design                 = 20300.0  #
-    turbofan.number_of_engines                 = 2.0      #
-    turbofan.engine_length                     = 3.0
+    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.pressure_ratio        = 0.99
+    
+    #add inlet nozzle to the network
+    gt_engine.inlet_nozzle = inlet_nozzle
+    
+    
+    #Component 3 :low pressure compressor    
+    low_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    low_pressure_compressor.tag = 'lpc'
+    
+    low_pressure_compressor.polytropic_efficiency = 0.91
+    low_pressure_compressor.pressure_ratio        = 1.9    
+    
+    #add low pressure compressor to the network    
+    gt_engine.low_pressure_compressor = low_pressure_compressor
 
-    # turbofan sizing conditions
-    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+    
 
-    sizing_segment.M   = 0.78          #
-    sizing_segment.alt = 10.668         #
-    sizing_segment.T   = 223.0        #
-    sizing_segment.p   = 0.265*10**5  #
+    #Component 4 :high pressure compressor  
+    high_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    high_pressure_compressor.tag = 'hpc'
+    
+    high_pressure_compressor.polytropic_efficiency = 0.91
+    high_pressure_compressor.pressure_ratio        = 10.0   
+    
+    #add the high pressure compressor to the network    
+    gt_engine.high_pressure_compressor = high_pressure_compressor
 
-    # size the turbofan
-    turbofan.engine_sizing_1d(sizing_segment)
 
-    # add to vehicle
-    vehicle.append_component(turbofan)
+    #Component 5 :low pressure turbine  
+    low_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    low_pressure_turbine.tag='lpt'
+    
+    low_pressure_turbine.mechanical_efficiency = 0.99
+    low_pressure_turbine.polytropic_efficiency = 0.99
+    
+    #add low pressure turbine to the network    
+    gt_engine.low_pressure_turbine = low_pressure_turbine
+      
+    
+    
+    #Component 5 :high pressure turbine  
+    high_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    high_pressure_turbine.tag='hpt'
+
+    high_pressure_turbine.mechanical_efficiency = 0.99
+    high_pressure_turbine.polytropic_efficiency = 0.99
+    
+    #add the high pressure turbine to the network    
+    gt_engine.high_pressure_turbine = high_pressure_turbine 
+      
+    
+    
+    #Component 6 :combustor  
+    combustor = SUAVE.Components.Energy.Converters.Combustor()   
+    combustor.tag = 'Comb'
+    
+    combustor.efficiency                = 0.99 
+    combustor.alphac                    = 1.0     
+    combustor.turbine_inlet_temperature = 1500
+    combustor.pressure_ratio            = 0.95
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
+    
+    #add the combustor to the network    
+    gt_engine.combustor = combustor
+
+    
+    
+    #Component 7 :core nozzle
+    core_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    core_nozzle.tag = 'core nozzle'
+    
+    core_nozzle.polytropic_efficiency = 0.95
+    core_nozzle.pressure_ratio        = 0.99    
+    
+    #add the core nozzle to the network    
+    gt_engine.core_nozzle = core_nozzle
+
+
+    #Component 8 :fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle.tag = 'fan nozzle'
+
+    fan_nozzle.polytropic_efficiency = 0.95
+    fan_nozzle.pressure_ratio        = 0.98    
+    
+    #add the fan nozzle to the network
+    gt_engine.fan_nozzle = fan_nozzle
+
+
+    
+    #Component 9 : fan   
+    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan.tag = 'fan'
+
+    fan.polytropic_efficiency = 0.93
+    fan.pressure_ratio        = 1.7    
+    
+    #add the fan to the network
+    gt_engine.fan = fan
+
+    
+    
+    #Component 10 : thrust (to compute the thrust)
+    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust.tag ='compute_thrust'
+    
+    thrust.bypass_ratio                       = 5.4
+    thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
+    thrust.reference_temperature              = 288.15
+    thrust.reference_pressure                 = 1.01325*10**5
+    thrust.design = 24000.0
+    thrust.number_of_engines                  =gt_engine.number_of_engines   
+
+    
+    # add thrust to the network
+    gt_engine.thrust = thrust
+
+    # add  gas turbine network gt_engine to the vehicle
+    vehicle.append_component(gt_engine)      
+    
 
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
@@ -316,8 +435,9 @@ def vehicle_setup():
     #   Simple Propulsion Model
     # ------------------------------------------------------------------
 
-    vehicle.propulsion_model = vehicle.propulsors
-
+    vehicle.propulsion_model = gt_engine
+    
+    
     # ------------------------------------------------------------------
     #   Define Configurations
     # ------------------------------------------------------------------

@@ -38,14 +38,14 @@ modules = [
     'regression/test_weights.py',
     'regression/DC_10_noise.py',
     'regression/test_mission_B737.py',
-    #'regression/test_mission_Embraer_E190_constThr.py',
+    'regression/test_mission_Embraer_E190_constThr.py',
     #'regression/test_mission_AS2.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
     #'regression/test_solar_network.py',
     #'regression/test_solar_radiation.py',
     #'regression/test_propeller.py',
-    #'regression/test_aerodynamics.py',
+    'regression/test_aerodynamics.py',
     'regression/test_aerodynamics_super.py',
     'regression/test_battery.py',
     'regression/test_cmalpha.py',
@@ -76,12 +76,14 @@ def main():
     sys.stdout.write(' \n')
         
     # run tests
+    all_pass = True
     for module in modules:
         passed = test_module(module)
         if passed:
             results[module] = '  Passed'
         else:
             results[module] = '* FAILED'
+            all_pass = False
     
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
@@ -89,7 +91,7 @@ def main():
     for module,result in results.items():
         sys.stdout.write('%s - %s\n' % (result,module))
            
-    if passed:
+    if all_pass:
         sys.exit(0)
     else:
         sys.exit(1)
