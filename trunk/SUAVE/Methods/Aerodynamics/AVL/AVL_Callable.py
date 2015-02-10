@@ -283,19 +283,17 @@ def write_run_cases(self):
 def write_input_deck(self):
 
     base_input = \
-'''CASE {}
-OPER
+'''OPER
 '''
     # unpack
     files_path        = self.settings.filenames.run_folder
-    batch_filename    = self.analysis_temps.current_batch_file
     deck_filename     = self.settings.filenames.input_deck
 
     # purge old versions and write the new input deck
     purge_files([deck_filename])
     with open(deck_filename,'w') as input_deck:
 
-        input_deck.write(base_input.format(batch_filename))
+        input_deck.write(base_input)
         for case in self.analysis_temps.current_cases:
             case_command = make_case_command(self,case)
             input_deck.write(case_command)
@@ -345,6 +343,7 @@ def run_command(self):
     import sys
     import time
     import subprocess
+    import SUAVE.Plugins.VyPy.tools.redirect as redirect
     
     log_file = self.settings.filenames.log_filename
     err_file = self.settings.filenames.err_filename
@@ -352,24 +351,43 @@ def run_command(self):
     avl_call = self.settings.filenames.avl_bin_name
     geometry = self.settings.filenames.features
     in_deck  = self.settings.filenames.input_deck
+    batch    = self.analysis_temps.current_batch_file
     
-    with open(log_file,'a') as log, open(err_file,'a') as err:
+    with redirect.output(log_file,err_file):
         
         ctime = time.ctime() # Current date and time stamp
-        log.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
-        err.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
-        log.flush()
-        err.flush()
+        sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
+        sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
         
         with open(in_deck,'r') as commands:
-            p = subprocess.Popen([avl_call,geometry],stdout=log,stderr=err,stdin=subprocess.PIPE)
+            avl_run = subprocess.Popen([avl_call,geometry,batch],stdout=sys.stdout,stderr=sys.stderr,stdin=subprocess.PIPE)
             for line in commands:
-                p.stdin.write(line)
-        p.wait()
-        exit_status = p.returncode
+                avl_run.stdin.write(line)
+        avl_run.wait()
+        
+        exit_status = avl_run.returncode
         ctime = time.ctime()
-        log.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
-        err.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))        
+        sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
+        sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status)) 
+        
+    #with open(log_file,'a') as log, open(err_file,'a') as err:
+            
+            #ctime = time.ctime() # Current date and time stamp
+            #log.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
+            #err.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
+            #log.flush()
+            #err.flush()
+            
+            #with open(in_deck,'r') as commands:
+                #avl_run = subprocess.Popen([avl_call,geometry,batch],stdout=log,stderr=err,stdin=subprocess.PIPE)
+                #for line in commands:
+                    #avl_run.stdin.write(line)
+            #avl_run.wait()
+            
+            #exit_status = avl_run.returncode
+            #ctime = time.ctime()
+            #log.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
+            #err.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))         
 
     return exit_status
 
