@@ -21,7 +21,7 @@ import pylab as plt
 import matplotlib
 import copy, time
 
-from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
+from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
 
@@ -174,7 +174,7 @@ def define_vehicle():
     #------------------------------------------------------------------
     
     # build network
-    net = Solar_Network()
+    net = Solar()
     net.number_motors    = 1.
     net.nacelle_diameter = 0.2
     
@@ -238,7 +238,7 @@ def define_vehicle():
     net.avionics        = avionics      
 
     # Component 8 the Battery # I already assume 250 Wh/kg for batteries
-    bat = SUAVE.Components.Energy.Storages.Constant_Mass.Battery_Lithium_Ion()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 50 * Units.kg
     bat.type                 = 'Li-Ion'
     bat.resistance           = 0.0 #This needs updating

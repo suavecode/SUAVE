@@ -13,7 +13,7 @@ import SUAVE
 # package imports
 
 from SUAVE.Attributes import Units
-from SUAVE.Components.Energy.Storages.Battery  import Battery
+from SUAVE.Components.Energy.Storages.Batteries  import Battery
 
 # ----------------------------------------------------------------------
 #  Battery Class
