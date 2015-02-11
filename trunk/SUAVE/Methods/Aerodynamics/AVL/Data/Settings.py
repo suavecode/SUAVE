@@ -39,12 +39,11 @@ class Settings(Data):
 		self.filenames.output_template = 'results_case_{0:03d}-{1:03d}.txt'
 		self.filenames.log_filename    = 'avl_log.txt'
 		self.filenames.err_filename    = 'avl_err.txt'
-		#self.filenames.results         = []
 		
 		#------------------------------------------
-		# 1: Symmetry about the plane
-		# -1: Antizymmetry (Cp constant on plane)
-		# 0: Symmetry not guaranteed
+		# 1:  Symmetry about the plane
+		# -1: Antisymmetry (Cp constant on plane)
+		# 0:  Symmetry not guaranteed
 		#------------------------------------------
 		self.flow_symmetry.xz_plane = 0	# Symmetry across the xz-plane, y=0
 		self.flow_symmetry.xy_parallel = 0 # Symmetry across the z=z_symmetry_plane plane

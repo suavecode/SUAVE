@@ -15,7 +15,6 @@ import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
 # local imports
 from .purge_files      import purge_files
-#from .Data.Cases    import Run_Case
 from .Data.Results  import Results
 from .Data.Settings import Settings
 
@@ -57,46 +56,6 @@ class AVL_Callable(Data):
         return
 
 
-    #def append_case(self,case):
-        ## assert database type
-        #if not isinstance(case,Data):
-            #raise Component_Exception, 'input case must be of type Data()'
-
-        ##if not case.tag in self.settings.run_cases.cases.keys():
-                ##for tag in case.conditions.freestream.keys():
-                        ##if case.conditions.freestream[tag] is None:
-                                ##case.conditions.freestream[tag] = self.default_case.conditions.freestream[tag]
-                ##for tag in case.conditions.aerodynamics.keys():
-                        ##if case.conditions.aerodynamics[tag] is None:
-                                ##case.conditions.aerodynamics[tag] = self.default_case.conditions.aerodynamics[tag]
-                ##if case.mass is None:
-                        ##case.mass = self.default_case.mass
-                ##if case.stability_and_control.control_deflections is None:
-                        ##case.stability_and_control.control_deflections = self.default_case.stability_and_control.control_deflections
-                ##elif self.default_case.stability_and_control.control_deflections is not None:
-                        ##for d in self.default_case.stability_and_control.control_deflections:
-                                ##if d.tag not in case.stability_and_control.control_deflections.keys():
-                                        ##case.append_control_deflection(d.tag,d.deflection)
-
-        #self.settings.run_cases.num_cases += 1
-        #case.index = self.settings.run_cases.num_cases # index starting at 1, consistent with AVL convention
-
-        #self.settings.run_cases.cases.append(case)
-
-        #return
-
-
-    #def append_cases(self,cases):
-        ## assert database type
-        #if not isinstance(cases,Data):
-            #raise Component_Exception, 'input cases must be of type Data()'
-
-        #for case in cases:
-            #self.append_case(case)
-
-        #return
-
-
     def __call__(self,cases):
         """ process vehicle to setup geometry, condititon and configuration
 
@@ -116,14 +75,11 @@ class AVL_Callable(Data):
         """
         assert cases is not None and len(cases) , 'run_case container is empty or None'
 
-        #self.analysis_indices.last_case_index = 0
         self.analysis_temps.current_cases = cases
         self.analysis_temps.current_batch_index  += 1
         self.analysis_temps.current_batch_file = self.settings.filenames.batch_template.format(self.analysis_temps.current_batch_index)
 
         for case in cases:
-            #self.analysis_indices.last_case_index += 1
-            #case.index = self.analysis_indices.last_case_index 
             case.result_filename = self.settings.filenames.output_template.format(self.analysis_temps.current_batch_index,case.index)
 
         with redirect.folder(self.settings.filenames.run_folder,[],[],False):
@@ -133,16 +89,7 @@ class AVL_Callable(Data):
 
             results = run_analysis(self)
 
-        ## unpack filenames
-        #files_path        = self.settings.filenames.run_folder
-        #results_files     = [case.result_filename for case in cases]
-        #geometry_filename = self.settings.filenames.features
-        #cases_filename    = self.settings.filenames.cases
-        #deck_filename     = self.settings.filenames.input_deck
-
         if not self.keep_files:
-            #from purge_directory import purge_directory
-            #purge_directory(self.settings.filenames.run_folder,purge_subdirectories=False)
             from shutil import rmtree
             rmtree(os.path.abspath(self.settings.filenames.run_folder))
 
@@ -184,7 +131,7 @@ def write_geometry(self):
 
 
 def write_run_cases(self):
-    """NB: Assumes you are already working in your desired run folder."""
+
     # imports
     from .write_run_cases import make_controls_case_text
 
@@ -210,8 +157,8 @@ def write_run_cases(self):
  pb/2V     =   0.00000
  qc/2V     =   0.00000
  rb/2V     =   0.00000
- CL        =  0.000000
- CDo       =  {5}
+ CL        =   0.00000
+ CDo       =   {5}
  bank      =   0.00000     deg
  elevation =   0.00000     deg
  heading   =   0.00000     deg
