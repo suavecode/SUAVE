@@ -71,8 +71,8 @@ class Container(Segment):
     
     def __defaults__(self):
                 
-        self.sub_segments = Process()
+        self.segments = Process()
         
-        self.state.sub_segments = Conditions()
+        self.state.segments = Conditions()
         
 Segment.Container = Container

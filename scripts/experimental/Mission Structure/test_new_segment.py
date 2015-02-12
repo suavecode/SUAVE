@@ -67,23 +67,23 @@ def main():
     print state3.conditions.weights.total_mass
     print state3.conditions.freestream.altitude
     
-    ## segment container!
+    # segment container!
     
-    #segment_1 = deepcopy(segment)
-    #segment_2 = deepcopy(segment)
+    segment_1 = deepcopy(segment)
+    segment_2 = deepcopy(segment)
     
-    #mission = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude.Container()
+    mission = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude.Container()
     
-    #mission.sub_segments.segment_1 = segment_1
-    #mission.sub_segments.segment_2 = segment_2
+    mission.segments.segment_1 = segment_1
+    mission.segments.segment_2 = segment_2
     
-    #state = deepcopy( mission.state )
+    state = deepcopy( mission.state )
     
-    #tic = time()
+    tic = time()
     
-    #mission.evaluate( state )    
+    mission.evaluate( state )    
     
-    #print 't', time()-tic
+    print 't', time()-tic
     
     return
 
