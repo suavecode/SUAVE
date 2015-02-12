@@ -50,3 +50,12 @@ def finalize_sub_segments(segment,state):
         sub_segment.finalize(state.segments[tag])
         state.segments[tag].initials = Conditions()
     
+    
+# ----------------------------------------------------------------------
+#  Sequential Sub Segments
+# ----------------------------------------------------------------------
+
+def sequential_sub_segments(segment,state):
+    
+    for tag,sub_segment in segment.segments.items():
+        sub_segment.evaluate(state.segments[tag])

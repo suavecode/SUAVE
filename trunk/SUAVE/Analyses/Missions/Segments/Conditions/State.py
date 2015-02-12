@@ -16,6 +16,8 @@ from Unknowns   import Unknowns
 from Residuals  import Residuals
 from Numerics   import Numerics
 
+import SUAVE
+array_type = SUAVE.Plugins.VyPy.tools.arrays.array_type
 
 # ----------------------------------------------------------------------
 #  State
@@ -56,3 +58,30 @@ class State(Conditions):
             #: if type
         #: for each key,value        
         
+        
+        
+class Container(State):
+    def __defaults__(self):
+        self.segments = Conditions()
+        
+    def merged(self):
+        
+        state_out = State()
+        
+        for i,(tag,sub_state) in enumerate(self.segments.items()):
+            for key in ['unknowns','conditions','residuals']:
+                if i == 0:
+                    state_out[key].update(sub_state[key])
+                else:
+                    state_out[key] = state_out[key].do_recursive(append_array,sub_state[key])
+            
+        return state_out
+        
+State.Container = Container
+
+
+def append_array(A,B=None):
+    if isinstance(A,array_type) and isinstance(B,array_type):
+        return np.vstack([A,B])
+    else:
+        return None

@@ -73,6 +73,11 @@ class Container(Segment):
                 
         self.segments = Process()
         
-        self.state.segments = Conditions()
+        self.state = State.Container()
+        
+    def append_segment(self,segment):
+        """ Add a SubSegment  """
+        self.segments.append(segment)
+        return    
         
 Segment.Container = Container
