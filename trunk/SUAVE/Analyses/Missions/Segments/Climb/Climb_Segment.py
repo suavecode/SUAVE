@@ -140,7 +140,7 @@ class Climb_Segment(Aerodynamic_Segment):
                 
         """
         
-        # update the clib rate
+        # update the climb rate
         conditions = self.update_velocity_vector(unknowns,conditions)
         
         # unpack

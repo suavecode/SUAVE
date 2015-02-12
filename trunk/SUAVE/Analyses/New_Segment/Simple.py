@@ -61,13 +61,13 @@ class Simple(Segment):
         #   Iterate
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        
-        # Unpack Unknowns
-        iterate.unpack_unknowns            = None
-        
+                
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
+        
+        # Unpack Unknowns
+        iterate.unpack_unknowns            = None        
         
         # Update Conditions
         iterate.conditions = Process()

@@ -6,3 +6,4 @@ from Simple      import Simple
 from Aerodynamic import Aerodynamic
 
 import Cruise
+import Climb

@@ -505,7 +505,7 @@ def mission_setup(vehicle):
     
     
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     
     segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
@@ -528,7 +528,7 @@ def mission_setup(vehicle):
     
     
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Second Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
@@ -554,7 +554,7 @@ def mission_setup(vehicle):
 
     
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------    
     
     segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
@@ -596,7 +596,7 @@ def mission_setup(vehicle):
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------    
-    #   First Descent Segment: consant speed, constant segment rate
+    #   First Descent Segment: Constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
@@ -617,7 +617,7 @@ def mission_setup(vehicle):
     mission.append_segment(segment)
     
     # ------------------------------------------------------------------    
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
     segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()

@@ -17,7 +17,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Cruise(Aerodynamic):
+class Constant_Mach_Constant_Altitude(Aerodynamic):
     
     def __defaults__(self):
         
@@ -25,7 +25,7 @@ class Cruise(Aerodynamic):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude  = 10. * Units.km
-        self.air_speed = 10. * Units['km/hr']
+        self.mach      = 0.5 
         self.distance  = 10. * Units.km
         
         
@@ -51,7 +51,7 @@ class Cruise(Aerodynamic):
         #   Initialize
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.conditions              = Methods.Cruise.Common.initialize_conditions
+        initialize.conditions              = Methods.Cruise.Constant_Mach_Constant_Altitude.initialize_conditions
 
 
         # --------------------------------------------------------------

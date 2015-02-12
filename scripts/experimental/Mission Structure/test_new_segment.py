@@ -32,7 +32,7 @@ def main():
     analyses = analyses.base
     analyses.finalize()
     
-    segment = SUAVE.Analyses.New_Segment.Cruise.Cruise()
+    segment = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude()
     segment.analyses.extend(analyses)
     
     
@@ -54,24 +54,36 @@ def main():
     
     print 't' , time()-tic
     
+    # Ok now do a climb segment
+    csegment = SUAVE.Analyses.New_Segment.Climb.Constant_Speed_Constant_Rate()
+    csegment.altitude_start = 0.0
+    csegment.altitude_end   = 10* Units.km
+    csegment.climb_rate     = 3.  * Units.m / Units.s
+    csegment.air_speed      = 230.412 * Units['m/s']
+    csegment.analyses.extend(analyses)
     
-    # segment container!
+    state3 = deepcopy(csegment.state)
+    csegment.evaluate(state3)
+    print state3.conditions.weights.total_mass
+    print state3.conditions.freestream.altitude
     
-    segment_1 = deepcopy(segment)
-    segment_2 = deepcopy(segment)
+    ## segment container!
     
-    mission = SUAVE.Analyses.New_Segment.Cruise.Cruise.Container()
+    #segment_1 = deepcopy(segment)
+    #segment_2 = deepcopy(segment)
     
-    mission.sub_segments.segment_1 = segment_1
-    mission.sub_segments.segment_2 = segment_2
+    #mission = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude.Container()
     
-    state = deepcopy( mission.state )
+    #mission.sub_segments.segment_1 = segment_1
+    #mission.sub_segments.segment_2 = segment_2
     
-    tic = time()
+    #state = deepcopy( mission.state )
     
-    mission.evaluate( state )    
+    #tic = time()
     
-    print 't', time()-tic
+    #mission.evaluate( state )    
+    
+    #print 't', time()-tic
     
     return
 

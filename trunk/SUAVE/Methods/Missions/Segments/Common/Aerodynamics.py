@@ -34,14 +34,14 @@ def update_atmosphere(segment,state):
     atmosphere = segment.analyses.atmosphere
     
     # compute
-    p, T, rho, a, mew = atmosphere.compute_values(h)
+    p, T, rho, a, mu = atmosphere.compute_values(h)
     
     # pack
     conditions.freestream.pressure[:,0]       = p
     conditions.freestream.temperature[:,0]    = T
     conditions.freestream.density[:,0]        = rho
     conditions.freestream.speed_of_sound[:,0] = a
-    conditions.freestream.viscosity[:,0]      = mew
+    conditions.freestream.viscosity[:,0]      = mu
     
     return
     
