@@ -18,5 +18,3 @@ import Structures
 import Atmospheres
 import Planets
 
-import New_Segment
-

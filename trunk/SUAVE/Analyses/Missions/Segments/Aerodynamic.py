@@ -4,8 +4,8 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Analyses.New_Segment import Simple
-from SUAVE.Analyses.New_Segment import Conditions
+from SUAVE.Analyses.Missions.Segments import Simple
+from SUAVE.Analyses.Missions.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 

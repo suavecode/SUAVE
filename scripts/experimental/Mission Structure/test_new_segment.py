@@ -32,7 +32,7 @@ def main():
     analyses = analyses.base
     analyses.finalize()
     
-    segment = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.analyses.extend(analyses)
     
     
@@ -55,7 +55,7 @@ def main():
     print 't' , time()-tic
     
     # Ok now do a climb segment
-    csegment = SUAVE.Analyses.New_Segment.Climb.Constant_Speed_Constant_Rate()
+    csegment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     csegment.altitude_start = 0.0
     csegment.altitude_end   = 10* Units.km
     csegment.climb_rate     = 3.  * Units.m / Units.s
@@ -72,7 +72,7 @@ def main():
     segment_1 = deepcopy(segment)
     segment_2 = deepcopy(segment)
     
-    mission = SUAVE.Analyses.New_Segment.Cruise.Constant_Speed_Constant_Altitude.Container()
+    mission = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude.Container()
     
     mission.segments.segment_1 = segment_1
     mission.segments.segment_2 = segment_2
