@@ -16,9 +16,10 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 def initialize_inertial_position(segment,state):
     
     if state.initials:
-        r_initial = state.initials.conditions.frames.inertial.position_vector[-1,:][None,:]
+        r_initial = state.initials.conditions.frames.inertial.position_vector
+        r_current = state.conditions.frames.inertial.position_vector
         
-        state.conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]    
+        state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
         
     #else:
         #r_initial = state.conditions.frames.inertial.position_vector[0,:][None,:]
@@ -33,12 +34,10 @@ def initialize_inertial_position(segment,state):
 def initialize_time(segment,state):
     
     if state.initials:
-        t_initial = state.initials.conditions.frames.inertial.time[-1,0]
+        t_initial = state.initials.conditions.frames.inertial.time
+        t_current = state.conditions.frames.inertial.time
         
-        time = state.conditions.frames.inertial.time
-        time[:,0] = time[:,0] - time[0,0] + t_initial
-        
-        state.conditions.frames.inertial.time[:,0] = time[:,0]        
+        state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0])
         
     #else:
         #t_initial = state.conditions.frames.inertial.time[0,0]
@@ -220,18 +219,31 @@ def update_forces(segment,state):
 #  Integrate Position
 # ----------------------------------------------------------------------
 
-def integrate_inertial_position(segment,state):
+def integrate_inertial_horizontal_position(segment,state):
 
     # unpack
     conditions = state.conditions
-    x0 = conditions.frames.inertial.position_vector[0,0]
-    vx = conditions.frames.inertial.velocity_vector[:,0,None]
+    x0 = conditions.frames.inertial.position_vector[0,None,0:1+1]
+    vx = conditions.frames.inertial.velocity_vector[:,0:1+1]
     I  = state.numerics.time.integrate
     
     # integrate
     x = np.dot(I,vx) + x0
     
     # pack
-    conditions.frames.inertial.position_vector[:,0] = x[:,0]
+    conditions.frames.inertial.position_vector[:,0:1+1] = x[:,:]
     
     return
+
+
+def update_acceleration(segment,state):
+    
+    # unpack conditions
+    v = state.conditions.frames.inertial.velocity_vector
+    D = state.numerics.time.differentiate
+    
+    # accelerations
+    acc = np.dot(D,v)
+    
+    # pack conditions
+    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   

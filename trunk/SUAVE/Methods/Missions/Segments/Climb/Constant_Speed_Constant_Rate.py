@@ -13,6 +13,7 @@ def initialize_conditions(segment,state):
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
+    conditions = state.conditions  
 
     # check for initial altitude
     if alt0 is None:
@@ -24,7 +25,6 @@ def initialize_conditions(segment,state):
     alt = t_nondim * (altf-alt0) + alt0
     
     # process velocity vector
-    conditions = state.conditions  
     v_mag = air_speed
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )

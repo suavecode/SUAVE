@@ -9,6 +9,8 @@ from SUAVE.Analyses.Missions.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 
+from SUAVE.Analyses import Process
+
 # Units
 from SUAVE.Core import Units
 
@@ -46,16 +48,43 @@ class Aerodynamic(Simple):
         # --------------------------------------------------------------
         
         # --------------------------------------------------------------
-        #   Iterate
+        #   Initialize - before iteration
+        # --------------------------------------------------------------
+        initialize = self.process.initialize
+        initialize.clear()
+        
+        initialize.expand_state            = Methods.expand_state
+        initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
+        initialize.conditions              = None        
+        
+        # --------------------------------------------------------------
+        #   Converge - starts iteration
+        # --------------------------------------------------------------
+        converge = self.process.converge
+        converge.clear()
+        
+        converge.converge_root             = Methods.converge_root        
+        
+        # --------------------------------------------------------------
+        #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
+        iterate.clear()
                 
         # Update Initials
+        iterate.initials = Process()
+        iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
+        # Unpack Unknowns
+        iterate.unpack_unknowns            = None  
+        
         # Update Conditions
+        iterate.conditions = Process()
+        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time        
+        iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
@@ -66,14 +95,19 @@ class Aerodynamic(Simple):
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
 
+        # Solve Residuals
+        iterate.residuals = Process()
 
         # --------------------------------------------------------------
-        #   Finalize
+        #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_position
-        finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.clear()
         
+        # Post Processing
+        finalize.post_process = Process()        
+        finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
+        finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         
         return
 

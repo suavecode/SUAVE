@@ -37,7 +37,7 @@ def update_propulsion(segment,state):
     # evaluate
     F, mdot, P = propulsion_model(conditions,state.numerics)
 
-    F_vec = state.ones_row(3)
+    F_vec = state.ones_row(3) * 0.0
     F_vec[:,0] = F[:,0]
 
     ## unpack results

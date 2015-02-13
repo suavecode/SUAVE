@@ -44,30 +44,35 @@ class Simple(Segment):
         # --------------------------------------------------------------
         
         # --------------------------------------------------------------
-        #   Initialize
+        #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
+        initialize.clear()
+        
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = None
         
         # --------------------------------------------------------------
-        #   Converge
+        #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
+        converge.clear()
+        
         converge.converge_root             = Methods.converge_root
 
         # --------------------------------------------------------------
-        #   Iterate
+        #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
+        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None        
+        iterate.unpack_unknowns            = None
         
         # Update Conditions
         iterate.conditions = Process()
@@ -77,9 +82,11 @@ class Simple(Segment):
         iterate.residuals = Process()
 
         # --------------------------------------------------------------
-        #   Finalize
+        #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
+        finalize.clear()
+        
         finalize.post_process = Process()
         
         

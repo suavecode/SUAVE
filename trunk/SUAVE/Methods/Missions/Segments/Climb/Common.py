@@ -13,16 +13,6 @@ def unpack_unknowns(segment,state):
     state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
     state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]   
     
-    # unpack conditions
-    v = state.conditions.frames.inertial.velocity_vector
-    D = state.numerics.time.differentiate
-
-    # accelerations
-    acc = np.dot(D,v)
-
-    # pack conditions
-    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]    
-    
 
 # ----------------------------------------------------------------------
 #  Residual Total Forces
@@ -75,17 +65,12 @@ def update_differentials_altitude(segment,state):
     dt = np.dot( I[-1,:] * dz , 1/ vz[:,0] )
 
     # rescale operators
-    D = D / dt
-    I = I * dt
     t = t * dt
 
     # pack
-    state.numerics.time.control_points = t
-    state.numerics.time.differentiate = D
-    state.numerics.time.integrate = I
-
-    # time
     t_initial = state.conditions.frames.inertial.time[0,0]
     state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
 
     return
+
+

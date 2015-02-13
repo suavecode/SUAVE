@@ -17,7 +17,9 @@ def initialize_weights(segment,state):
     else:
         m_initial = segment.analyses.weights.vehicle.mass_properties.takeoff
 
-    state.conditions.weights.total_mass[:,0]   = m_initial
+    m_current = state.conditions.weights.total_mass
+    
+    state.conditions.weights.total_mass[:,:] = m_current + (m_initial - m_current[0,0])
         
     return
     

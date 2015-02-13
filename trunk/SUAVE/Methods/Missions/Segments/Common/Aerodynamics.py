@@ -6,6 +6,27 @@
 import numpy as np
 
 
+
+# ----------------------------------------------------------------------
+#  Update Altitude
+# ----------------------------------------------------------------------
+
+def update_altitude(segment,state):
+    """ Aerodynamics.update_altitude(segment,state)
+        updates freestream altitude from inertial position
+        
+        Inputs:
+            state.conditions:
+                frames.inertial.position_vector
+        Outputs:
+            state.conditions:
+                freestream.altitude[
+                    
+    """    
+    altitude = -state.conditions.frames.inertial.position_vector[:,2]
+    state.conditions.freestream.altitude[:,0] = altitude
+    
+
 # ----------------------------------------------------------------------
 #  Update Atmosphere
 # ----------------------------------------------------------------------

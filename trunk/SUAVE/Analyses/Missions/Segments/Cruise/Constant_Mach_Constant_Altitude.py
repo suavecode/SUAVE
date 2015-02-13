@@ -9,6 +9,10 @@ from SUAVE.Analyses.Missions.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 
+from SUAVE.Analyses import Process
+
+from Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
+
 # Units
 from SUAVE.Core import Units
 
@@ -17,7 +21,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Mach_Constant_Altitude(Aerodynamic):
+class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
     
     def __defaults__(self):
         
@@ -30,41 +34,13 @@ class Constant_Mach_Constant_Altitude(Aerodynamic):
         
         
         # --------------------------------------------------------------
-        #   State
-        # --------------------------------------------------------------
-        
-        # conditions
-        self.state.conditions.update( Conditions.Aerodynamics() )
-        
-        # initials and unknowns
-        ones_row = self.state.ones_row
-        self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
-        self.state.residuals.forces    = ones_row(2) * 0.0
-        
-        
-        # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
         
-        # --------------------------------------------------------------
-        #   Initialize
-        # --------------------------------------------------------------
+        # only need to change one setup step from constant_speed_constant_altitude
         initialize = self.process.initialize
         initialize.conditions              = Methods.Cruise.Constant_Mach_Constant_Altitude.initialize_conditions
 
 
-        # --------------------------------------------------------------
-        #   Iterate
-        # --------------------------------------------------------------
-        iterate = self.process.iterate
-        
-        # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
-                        
-        # Solve Residuals
-        iterate.residuals.total_forces     = Methods.Cruise.Common.residual_total_forces
-
-        
         return
 

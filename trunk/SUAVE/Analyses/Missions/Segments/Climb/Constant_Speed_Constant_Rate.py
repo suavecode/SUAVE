@@ -9,6 +9,8 @@ from SUAVE.Analyses.Missions.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 
+from SUAVE.Analyses import Process
+
 # Units
 from SUAVE.Core import Units
 
@@ -28,9 +30,6 @@ class Constant_Speed_Constant_Rate(Aerodynamic):
         self.altitude_end   = 10. * Units.km
         self.climb_rate     = 3.  * Units.m / Units.s
         self.air_speed      = 100 * Units.m / Units.s
-        self.battery_energy = 0.0
-        self.latitude       = 0.0
-        self.longitude      = 0.0
         
         # --------------------------------------------------------------
         #   State
@@ -51,24 +50,69 @@ class Constant_Speed_Constant_Rate(Aerodynamic):
         # --------------------------------------------------------------
         
         # --------------------------------------------------------------
-        #   Initialize
+        #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Speed_Constant_Rate.initialize_conditions
-        initialize.differentials_altitude = Methods.Climb.Common.update_differentials_altitude
-
+        initialize.clear()
+        
+        initialize.expand_state            = Methods.expand_state
+        initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
+        initialize.conditions              = Methods.Climb.Constant_Speed_Constant_Rate.initialize_conditions
+        initialize.differentials_altitude  = Methods.Climb.Common.update_differentials_altitude
+        
         # --------------------------------------------------------------
-        #   Iterate
+        #   Converge - starts iteration
+        # --------------------------------------------------------------
+        converge = self.process.converge
+        converge.clear()
+        
+        converge.converge_root             = Methods.converge_root        
+        
+        # --------------------------------------------------------------
+        #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        del self.process.iterate.conditions.differentials
+        iterate.clear()
+                
+        # Update Initials
+        iterate.initials = Process()
+        iterate.initials.time              = Methods.Common.Frames.initialize_time
+        iterate.initials.weights           = Methods.Common.Weights.initialize_weights
+        iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
+        iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Climb.Common.unpack_unknowns
-                        
-        # Solve Residuals
-        iterate.residuals.total_forces     = Methods.Climb.Common.residual_total_forces
-
+        iterate.unpack_unknowns            = Methods.Climb.Common.unpack_unknowns  
         
+        # Update Conditions
+        iterate.conditions = Process()
+        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time 
+        iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
+        iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
+        iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
+        iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
+        iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
+        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        iterate.conditions.propulsion      = Methods.Common.Propulsion.update_propulsion
+        iterate.conditions.weights         = Methods.Common.Weights.update_weights
+        iterate.conditions.forces          = Methods.Common.Frames.update_forces
+        iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
+        
+        # Solve Residuals
+        iterate.residuals = Process()
+        iterate.residuals.total_forces     = Methods.Climb.Common.residual_total_forces
+        
+        # --------------------------------------------------------------
+        #   Finalize - after iteration
+        # --------------------------------------------------------------
+        finalize = self.process.finalize
+        finalize.clear()
+        
+        # Post Processing
+        finalize.post_process = Process()        
+        finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
+        finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+       
         return
 
