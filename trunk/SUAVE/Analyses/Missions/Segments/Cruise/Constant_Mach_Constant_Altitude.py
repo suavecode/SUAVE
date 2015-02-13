@@ -24,7 +24,7 @@ class Constant_Mach_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = 10. * Units.km
+        self.altitude  = None
         self.mach      = 0.5 
         self.distance  = 10. * Units.km
         

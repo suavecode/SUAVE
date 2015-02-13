@@ -17,6 +17,11 @@ def expand_sub_segments(segment,state):
     for tag,sub_segment in segment.segments.items():
         
         sub_state = deepcopy( sub_segment.state )
+        
+        if last_tag:
+            sub_state.initials = state.segments[last_tag]
+        last_tag = tag        
+        
         sub_segment.initialize(sub_state)
         
         state.segments[tag]     = sub_state
@@ -24,9 +29,7 @@ def expand_sub_segments(segment,state):
         state.conditions[tag]   = sub_state.conditions
         state.residuals[tag]    = sub_state.residuals
         
-        if last_tag:
-            state.segments[tag].initials = state.segments[last_tag]
-        last_tag = tag
+
         
 
 # ----------------------------------------------------------------------

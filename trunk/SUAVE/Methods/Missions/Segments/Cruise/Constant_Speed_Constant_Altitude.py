@@ -12,6 +12,12 @@ def initialize_conditions(segment,state):
     xf        = segment.distance
     air_speed = segment.air_speed   
     
+    # check for initial altitude
+    if alt is None:
+        if not state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        segment.altitude = alt    
+    
     conditions = state.conditions    
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = xf / air_speed + t_initial

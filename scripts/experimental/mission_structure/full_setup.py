@@ -718,7 +718,7 @@ def mission_setup(analyses):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "descent_1"
     
     segment.analyses.extend( analyses.cruise )

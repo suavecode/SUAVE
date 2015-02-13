@@ -24,7 +24,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = 10. * Units.km
+        self.altitude  = None
         self.air_speed = 10. * Units['km/hr']
         self.distance  = 10. * Units.km
         
@@ -61,7 +61,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         
         # Unpack Unknowns
         iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
-                        
+        
         # Solve Residuals
         iterate.residuals.total_forces     = Methods.Cruise.Common.residual_total_forces
 

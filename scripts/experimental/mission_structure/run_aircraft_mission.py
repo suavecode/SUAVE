@@ -138,10 +138,6 @@ def plot_mission(results,line_style='bo-'):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        try:
-            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
-        except:
-            Pitching_moment = segment.conditions.aerodynamics.cm_alpha[:,0]
 
         axes = fig.add_subplot(4,1,1)
         axes.plot( time , Lift , line_style )
@@ -161,12 +157,15 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)
 
-        axes = fig.add_subplot(4,1,4)
-        axes.plot( time , Pitching_moment , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Pitching_moment (~)')
-        axes.grid(True)
-
+        try:
+            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
+            axes = fig.add_subplot(4,1,4)
+            axes.plot( time , Pitching_moment , line_style )
+            axes.set_xlabel('Time (min)')
+            axes.set_ylabel('Pitching_moment (~)')
+            axes.grid(True)            
+        except:
+            pass 
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2

@@ -47,7 +47,6 @@ class Mission(Segments.Simple.Container):
         #   Finalize
         # --------------------------------------------------------------        
         self.process.finalize.sub_segments = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
-    
         
         return        
     
@@ -58,11 +57,11 @@ class Mission(Segments.Simple.Container):
 
 class Container(ContainerBase):
     
-    def evaluate(self,conditions=None):
+    def evaluate(self,state=None):
         results = SUAVE.Analyses.Results()
         
         for key,mission in self.items():
-            result = mission.evaluate(conditions)
+            result = mission.evaluate(state)
             results[key] = result
             
         return results

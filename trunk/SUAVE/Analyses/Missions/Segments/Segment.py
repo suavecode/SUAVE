@@ -58,7 +58,9 @@ class Segment(Analysis):
         return
     
                         
-    def evaluate(self,state):
+    def evaluate(self,state=None):
+        if state is None:
+            state = deepcopy(self.state)
         self.process(self,state)
         return state
     

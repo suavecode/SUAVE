@@ -13,6 +13,12 @@ def initialize_conditions(segment,state):
     mach      = segment.mach
     atmo      = self.analyses.atmosphere
     
+    # check for initial altitude
+    if alt is None:
+        if not state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        segment.altitude = alt        
+    
     # compute speed, constant with constant altitude
     a = atmo.compute_values(alt,'speed_of_sound')
     self.air_speed = mach * a    

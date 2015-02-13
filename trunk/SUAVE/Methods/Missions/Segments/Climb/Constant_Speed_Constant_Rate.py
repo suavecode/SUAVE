@@ -16,9 +16,9 @@ def initialize_conditions(segment,state):
 
     # check for initial altitude
     if alt0 is None:
-        if not initials: raise AttributeError('initial altitude not set')
-        alt0 = -1.0 * initials.frames.inertial.position_vector[0,2]
-        self.altitude_start = alt0
+        if not state.initials: raise AttributeError('initial altitude not set')
+        alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        segment.altitude_start = alt0
 
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
