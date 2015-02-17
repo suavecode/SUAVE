@@ -30,7 +30,11 @@ def main():
     z = np.linspace(-3,90,100) * Units.km
 
     # compute values from each model
-    p, T, rho, a, mew = atm.compute_values(z)
+    conditions = atm.compute_values(z)
+    p = conditions.freestream.pressure
+    T = conditions.freestream.temperature
+    rho = conditions.freestream.density
+    a = conditions.freestream.speed_of_sound
     
     # get the comparison values
     p_truth, T_truth, rho_truth, a_truth = get_truth()
