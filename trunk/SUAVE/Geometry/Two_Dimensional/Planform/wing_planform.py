@@ -1,7 +1,7 @@
 # Geoemtry.py
 #
 
-""" SUAVE Methods for Geoemtry Generation
+""" SUAVE Methods for Geometry Generation
 """
 
 # TODO:
@@ -13,10 +13,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
-from SUAVE.Structure  import Data
-#from SUAVE.Attributes import Constants
+from SUAVE.Geometry.Two_Dimensional.Planform.Trapezoidal_Planform import Trapezoidal_Planform
+
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -48,28 +46,32 @@ def wing_planform(wing):
     """
     
     # unpack
-    span  = wing.spans.projected
-    sref  = wing.areas.reference
+    sref = wing.areas.reference
     taper = wing.taper
     sweep = wing.sweep
-    ar    = wing.aspect_ratio
-    
-    # calculate
-    #ar = span**2. / sref
-    span = sqrt(ar*sref)
-    chord_root = 2*sref/span/(1+taper)
-    chord_tip  = taper * chord_root
-    
-    swet = 2*span/2*(chord_root+chord_tip)
+    ar = wing.aspect_ratio
+    thickness_to_chord = wing.thickness_to_chord
+    span_ratio_fuselage = wing.span_ratios.fuselage
 
-    mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
-    
+    # compute wing planform geometry
+    wpt = Trapezoidal_Planform(sref, ar, sweep, taper, span_ratio_fuselage)
+
+    # set the wing origin
+    wpt.set_origin(wing.origin)
+
+    # compute
+    wpt.update()
+
     # update
-    wing.chords.root     = chord_root
-    wing.chords.tip      = chord_tip
-    wing.chords.mean_aerodynamic = mac
-    wing.areas.wetted    = swet
-    wing.aspect_ratio    = ar
-    wing.spans.projected = span
-    
+    wing.chords.root = wpt.chord_root
+    wing.chords.tip = wpt.chord_tip
+    wing.chords.mean_aerodynamic = wpt.mean_aerodynamic_chord
+    wing.chords.mean_aerodynamic_exposed = wpt.mean_aerodynamic_chord_exposed
+    wing.chords.mean_geometric = wpt.mean_geometric_chord
+    wing.aerodynamic_center = [wpt.x_aerodynamic_center, 0, 0]
+    wing.areas.wetted = wpt.calc_area_wetted(thickness_to_chord)
+    wing.areas.gross = wpt.area_gross
+    wing.areas.exposed = wpt.area_exposed
+    wing.spans.projected = wpt.span
+
     return wing

@@ -1,7 +1,7 @@
-# Geoemtry.py
+# main_wing_planform.py
 #
 
-""" SUAVE Methods for Geoemtry Generation
+""" SUAVE Methods for Geometry Generation
 """
 
 # TODO:
@@ -13,67 +13,94 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
-from SUAVE.Structure  import Data
-from SUAVE.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
-#from SUAVE.Attributes import Constants
+from SUAVE.Geometry.Two_Dimensional.Planform.Cranked_Planform import Cranked_Planform
+# import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
 
 
-def main_wing_planform(Wing):
+def main_wing_planform(wing):
     """ err = SUAVE.Geometry.main_wing_planform(Wing)
-        
+
         main wing planform
-        
+
         Assumptions:
             cranked wing with leading and trailing edge extensions
-        
+
         Inputs:
-            Wing.sref
-            Wing.ar
-            Wing.taper
-            Wing.sweep
-            Wing.span
-            Wing.lex
-            Wing.tex
-            Wing.span_chordext
-    
+            wing.sref
+            wing.ar
+            wing.taper
+            wing.sweep
+            wing.span
+            wing.lex
+            wing.tex
+            wing.span_ratios.fuselage
+            wing.span_ratios.break_point
+
         Outputs:
-            Wing.chord_root
-            Wing.chord_tip
-            Wing.chord_mid
-            Wing.chord_mac
-            Wing.area_wetted
-            Wing.span
-    
+            wing.chord_root
+            wing.chord_tip
+            wing.chord_mid
+            wing.chord_mac
+            wing.area_wetted
+            wing.span
+
     """
     
     # unpack
-    span          = Wing.span
-    lex           = Wing.lex
-    tex           = Wing.tex
-    span_chordext = Wing.span_chordext    
-    
-    # run basic wing planform
-    # mac assumed on trapezoidal reference wing
-    err = wing_planform(Wing)
-    
-    # unpack more
-    chord_root    = Wing.chord_root
-    chord_tip     = Wing.chord_tip
-    
-    # calculate
-    chord_mid = chord_root + span_chordext*(chord_tip-chord_root)
-    
-    swet = 2*span/2*(span_chordext*(chord_root+lex+tex + chord_mid) +
-                     (1-span_chordext)*(chord_mid+chord_tip))    
-    
-    # update
-    Wing.chord_mid = chord_mid
-    Wing.swet      = swet
+    sref = wing.areas.reference
+    taper = wing.taper
+    sweep = wing.sweep
+    ar = wing.aspect_ratio
+    thickness_to_chord = wing.thickness_to_chord
+    span_ratio_fuselage = wing.span_ratios.fuselage
+    span_ratio_break = wing.span_ratios.break_point
+    lex_ratio = wing.lex
+    tex_ratio = wing.tex
 
-    return 0
+    # compute wing planform geometry
+    wpc = Cranked_Planform(sref, ar, sweep, taper, span_ratio_fuselage,
+                          span_ratio_break, lex_ratio, tex_ratio)
+
+    # set the wing origin
+    wpc.set_origin(wing.origin)
+
+    # compute
+    wpc.update()
+
+    # compute flapped area if wing is flapped
+    if wing.flaps.type is not None:
+        wpc.add_flap(wing.flaps.span_start, wing.flaps.span_end)
+
+    # update
+    wing.chords.root = wpc.chord_root
+    wing.chords.tip = wpc.chord_tip
+    wing.chords.break_point = wpc.chord_break
+    wing.chords.mean_aerodynamic = wpc.mean_aerodynamic_chord
+    wing.chords.mean_aerodynamic_exposed = wpc.mean_aerodynamic_chord_exposed
+    wing.chords.mean_geometric = wpc.mean_geometric_chord
+
+    # plot the wing to check things
+    # x_wing, y_wing = wpc.get_wing_coordinates()
+    # plt.plot(x_wing, y_wing, "k-")
+    # plt.xlabel('x')
+    # plt.ylabel('y')
+    # plt.axis('equal')
+    # plt.show()
+
+    wing.aerodynamic_center = [wpc.x_aerodynamic_center, 0, 0]
+    wing.areas.wetted = wpc.calc_area_wetted(thickness_to_chord)
+    wing.areas.gross = wpc.area_gross
+    wing.areas.exposed = wpc.area_exposed
+    wing.spans.projected = wpc.span
+    wing.areas.flapped = wpc.area_flapped
+
+    # for backward compatibility
+    wing.areas.affected = wing.areas.flapped
+    wing.chords.mid = wing.chords.break_point
+
+    return wing
