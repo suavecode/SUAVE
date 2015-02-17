@@ -155,11 +155,11 @@ def simple_sizing(interface):
     base = configs.base
     base.pull_base()
     
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.00 * wing.areas.reference
-        wing.areas.affected = 0.60 * wing.areas.reference
-        wing.areas.exposed  = 0.75 * wing.areas.wetted
+##    # wing areas
+##    for wing in base.wings:
+##        wing.areas.wetted   = 2.00 * wing.areas.reference
+##        wing.areas.affected = 0.60 * wing.areas.reference
+##        wing.areas.exposed  = 0.75 * wing.areas.wetted
 
     # wing simple sizing function
     # size main wing
@@ -177,6 +177,12 @@ def simple_sizing(interface):
     # sizing of new empennages
     base.wings['horizontal_stabilizer'] = wing_planform(base.wings['horizontal_stabilizer']) 
     base.wings['vertical_stabilizer']   = wing_planform(base.wings['vertical_stabilizer'])   
+    
+    # wing areas
+    for wing in base.wings:
+        wing.areas.wetted   = 2.00 * wing.areas.reference
+        wing.areas.affected = 0.60 * wing.areas.reference
+        wing.areas.exposed  = 0.75 * wing.areas.wetted
          
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers        
@@ -273,7 +279,7 @@ def takeoff_field_length(interface):
     # pack results
     results = Data()
     results.takeoff_field_length = takeoff_field_length
-    results.takeoff_weights      = weight_vec      
+    results.takeoff_weights      = weight_vec        
         
     return results
 
@@ -311,6 +317,8 @@ def fuel_for_missions(interface):
     results.weights        = takeoff_weight_vec
     results.distances      = distance_vec
     results.fuels          = fuel_vec
+    
+##    print results
     
     return results
 
@@ -459,8 +467,8 @@ def summarize(interface):
     
     # Fuel burn
     summary.fuel_burn  = results.mission_fuel.fuel
-    if summary.fuel_burn < 0:  # work around for negative fuel results.
-        summary.fuel_burn = summary.fuel_burn ** 2.
+##    if summary.fuel_burn < 0:  # work around for negative fuel results.
+##        summary.fuel_burn = summary.fuel_burn ** 2.
 
     # Print outs   
     printme = Data()
@@ -474,6 +482,19 @@ def summarize(interface):
     
     print "RESULTS"
     print printme  
+    
+    inputs = interface.inputs
+    import datetime
+    fid = open('Results.dat','a')
+
+    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
+        inputs.aspect_ratio,inputs.reference_area,inputs.sweep,inputs.design_thrust,inputs.wing_thickness,inputs.MTOW,inputs.MZFW_ratio,
+        summary.fuel_burn , operating_empty , summary.takeoff_field_length , summary.range_short_field_nmi , summary.range_max_nmi , summary.max_zero_fuel_margin , summary.available_fuel_margin
+    ))
+    fid.write(datetime.datetime.now().strftime("%I:%M:%S"))
+    fid.write('\n')
+
+##    print interface.configs.takeoff.maximum_lift_coefficient
     
     return summary
 
