@@ -715,34 +715,34 @@ def mission_setup(analyses):
     
     
     # ------------------------------------------------------------------    
-    #   First Descent Segment: consant speed, constant segment rate
+    #   First Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "descent_1"
     
     segment.analyses.extend( analyses.cruise )
     
     segment.altitude_end = 5.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
-    segment.climb_rate   = -5.0  * Units['m/s']
+    segment.descent_rate   = 5.0  * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
     
     
     # ------------------------------------------------------------------    
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "descent_2"
 
     segment.analyses.extend( analyses.landing )
     
     segment.altitude_end = 0.0   * Units.km
     segment.air_speed    = 145.0 * Units['m/s']
-    segment.climb_rate   = -5.0  * Units['m/s']
+    segment.descent_rate   = 5.0  * Units['m/s']
 
     # append to mission
     mission.append_segment(segment)
