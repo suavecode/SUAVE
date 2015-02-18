@@ -249,7 +249,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     #instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbo_fan'
     
     # setup

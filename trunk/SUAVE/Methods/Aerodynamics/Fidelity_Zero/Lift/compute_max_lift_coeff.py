@@ -9,9 +9,9 @@
 
 #SUave Imports
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Components import Wings
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 
 # python imports
 import os, sys, shutil
