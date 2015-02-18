@@ -24,7 +24,7 @@ def main():
     # ------------------------------------------------------------------    
 
     # initialize atmospheric models
-    atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
+    atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     
     # test elevations -3 km <= z <= 90 km
     z = np.linspace(-3,90,100) * Units.km

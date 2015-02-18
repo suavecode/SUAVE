@@ -1,2 +1,0 @@
-
-from Atmosphere import Atmosphere
