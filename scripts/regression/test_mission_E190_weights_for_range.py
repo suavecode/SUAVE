@@ -135,7 +135,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -173,7 +173,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 0.9
+    wing.dynamic_pressure_ratio  = 0.9
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -211,7 +211,7 @@ def vehicle_setup():
     wing.vertical                = True
     wing.symmetric               = False
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
