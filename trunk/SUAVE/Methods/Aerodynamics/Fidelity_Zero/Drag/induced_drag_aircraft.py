@@ -57,7 +57,7 @@ def induced_drag_aircraft(conditions,configuration,geometry):
         efficiency_factor = e                  ,
         aspect_ratio      = ar                 ,
     )
-    
+
     # done!
 
     return total_induced_drag
