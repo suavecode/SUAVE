@@ -16,7 +16,7 @@ Data, Container, Data_Exception, Data_Warning,
 import numpy as np
 import copy, time
 
-from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
+from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 
 def main():
@@ -26,7 +26,7 @@ def main():
     # ------------------------------------------------------------------
     
     # build network
-    net = Solar_Network()
+    net = Solar()
     net.number_motors = 1.
     net.nacelle_dia   = 0.2
     
@@ -102,7 +102,7 @@ def main():
     net.avionics        = avionics      
     
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Battery()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Battery()
     bat.mass_properties.mass = 50.  #kg
     bat.type = 'Li-Ion'
     bat.resistance = 0.0
@@ -134,10 +134,11 @@ def main():
     conditions.freestream.viscosity           = np.array([mu, mu])
     conditions.freestream.speed_of_sound      = np.array([a, a])
     conditions.freestream.altitude            = np.array([[design_altitude], [design_altitude]])
-    conditions.propulsion.battery_energy      = bat.max_energy()*np.ones_like(conditions.freestream.altitude)
+    conditions.propulsion.battery_energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
     conditions.frames.body.inertial_rotations = np.zeros([2,3])
     conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
     numerics.integrate_time                   = np.array([[0, 0],[0, 1]])
+    numerics.differentiate_time               = np.array([[0, 0],[0, 1]])
     conditions.frames.planet.start_time       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
     conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
     conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
@@ -147,18 +148,18 @@ def main():
     F, mdot, P = net(conditions,numerics)
     
     # Truth results
-    truth_F   = [[538.00449442], [538.00449442]]
-    truth_P   = [[14272.1902522],[14272.1902522]]
-    truth_i   = [[ 249.31622624],[ 249.31622624]]
-    truth_rpm = [[ 6668.4094191],[ 6668.4094191]]
-    truth_bat = [[45000000.] , [44987534.18868808]]
+    truth_F   = [[ 522.40448791],[ 522.40448791]]
+    truth_P   = [[ 13687.25140962],[ 13687.25140962]]
+    truth_i   = [[ 314.90485916],[ 314.90485916]]
+    truth_rpm = [[ 6581.17653732],[ 6581.17653732]]
+    truth_bat = [[ 45000000.],[ 44984254.75704217]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
     error.Propeller_Power   = np.max(np.abs(P-truth_P))
     error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
     error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
-    error.Battery = np.max(np.abs(bat.CurrentEnergy-truth_bat))
+    error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print  error
     

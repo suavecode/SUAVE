@@ -187,8 +187,8 @@ def define_vehicle(weight):
     
     # build network
     net = Solar_Network()
-    net.number_motors = 1.
-    net.nacelle_dia   = 0.2
+    net.number_motors    = 1.
+    net.nacelle_diameter = 0.2
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -275,6 +275,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------
     #   Not so Simple Propulsion Model
     # ------------------------------------------------------------------ 
+    vehicle.append_component(net)
     vehicle.propulsion_model = net
 
     # ------------------------------------------------------------------
@@ -343,7 +344,7 @@ def define_mission(vehicle):
     segment.altitude_end   = 18.0   * Units.km
     segment.air_speed      = 30.0  * Units['m/s']
     segment.throttle       = 0.6
-    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
+    segment.battery_energy = vehicle.propulsion_model.battery.max_energy #Charge the battery to start
     segment.latitude       = 37.4300
     segment.longitude      = -122.1700
     

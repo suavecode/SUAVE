@@ -36,7 +36,7 @@ def main():
     cruise_segment_tag = 'Cruise'
     mission_payload =             [11792. , 9868. ,    10. ]
     target_range =  np.multiply ( [ 3470. , 3158. ,  3804. ] , 1. * Units.nautical_mile )
-    
+
     # call module
     distance,fuel,tow = size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_payload,target_range)
 
@@ -242,7 +242,7 @@ def vehicle_setup():
     fuselage.heights.maximum       = 3.4    #
     fuselage.heights.at_quarter_length          = 3.4 # Not correct
     fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.at_vertical_root_quarter_chord = 3.4 # Not correct
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01

@@ -29,6 +29,7 @@ class Wing(Lofted_Body):
         self.thickness_to_chord = 0.0
         self.span_efficiency = 0.9
         self.aerodynamic_center = [0.0,0.0,0.0]
+        self.exposed_root_chord_offset = 0.0
         
         self.spans = Data()
         self.spans.projected = 0.0

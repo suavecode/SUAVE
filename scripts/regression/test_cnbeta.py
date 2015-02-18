@@ -34,18 +34,18 @@ def main():
     reference = SUAVE.Core.Container()
     vehicle.reference_area = wing.areas.reference
     vehicle.append_component(wing)
-    
+
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'
     vertical = SUAVE.Components.Wings.Wing()
     vertical.spans.exposed = 32.4   * Units.feet
-    vertical.chords.fuselage_intersect = 38.7 * Units.feet
+    vertical.chords.root   = 38.7 * Units.feet      # vertical.chords.fuselage_intersect
     vertical.chords.tip    = 13.4   * Units.feet
     vertical.sweep         = 50.0   * Units.deg # Leading Edge
     vertical.x_root_LE1    = 180.0  * Units.feet
     vertical.symmetric     = False
-    dz_centerline          = 13.3   * Units.feet
-    ref_vertical           = extend_to_ref_area(vertical,dz_centerline)
+    vertical.exposed_root_chord_offset = 13.3   * Units.feet
+    ref_vertical           = extend_to_ref_area(vertical)
     wing.areas.reference   = ref_vertical.areas.reference
     wing.spans.projected   = ref_vertical.spans.projected
     wing.chords.root       = ref_vertical.chords.root
@@ -59,9 +59,9 @@ def main():
     wing.symmetric              = False
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])
     Mach                        = np.array([0.198])
-    wing.CL_alpha = datcom(wing,Mach)   
+    wing.CL_alpha = datcom(wing,Mach)
     vehicle.append_component(wing)
-    
+
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     fuselage.areas.side_projected               = 4696.16 * Units.feet**2
@@ -70,14 +70,14 @@ def main():
     fuselage.width                              = 20.9    * Units.feet
     fuselage.heights.at_quarter_length          = 26.0    * Units.feet
     fuselage.heights.at_three_quarters_length   = 19.7    * Units.feet
-    fuselage.heights.at_wing_root_quarter_chord = 23.8    * Units.feet
+    fuselage.heights.at_vertical_root_quarter_chord = 23.8    * Units.feet
     vehicle.append_component(fuselage)
-    
+
     configuration = Data()
     configuration.mass_properties = Data()
     configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([112.2,0,6.8]) * Units.feet    
-    
+    configuration.mass_properties.center_of_gravity = np.array([112.2,0,6.8]) * Units.feet
+
     segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.freestream = Data()
     segment.freestream.mach_number = Mach[0]
@@ -86,14 +86,14 @@ def main():
     segment.a          = segment.atmosphere.compute_values(altitude / Units.km, type="a")
     segment.freestream.density   = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
     segment.freestream.viscosity = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
-    segment.freestream.velocity  = segment.freestream.mach_number * segment.a    
-    
-    #Method Test   
+    segment.freestream.velocity  = segment.freestream.mach_number * segment.a
+
+    #Method Test
     cn_b = taw_cnbeta(vehicle,segment,configuration)
     expected = 0.10045 # Should be 0.184
     error = Data()
-    error.cn_b_747 = (cn_b-expected)/expected  
-    
+    error.cn_b_747 = (cn_b-expected)/expected
+
     #Parameters Required
     #Using values for a Beechcraft Model 99
     #MODEL DOES NOT ACCOUNT FOR DESTABILIZING EFFECTS OF PROPELLERS!
@@ -105,7 +105,7 @@ def main():
     wing.taper         = 0.46
     wing.aspect_ratio  = wing.span**2/wing.area
     wing.symmetric     = True
-    
+
     fuselage           = SUAVE.Components.Fuselages.Fuselage()
     fuselage.side_area = 185.36 * Units.feet**2
     fuselage.length    = 44.0   * Units.feet
@@ -114,7 +114,7 @@ def main():
     fuselage.height_at_vroot_quarter_chord   = 2.9 * Units.feet
     fuselage.height_at_quarter_length        = 4.8 * Units.feet
     fuselage.height_at_three_quarters_length = 4.3 * Units.feet
-    
+
     nacelle           = SUAVE.Components.Fuselages.Fuselage()
     nacelle.side_area = 34.45 * Units.feet**2
     nacelle.x_front   = 7.33  * Units.feet
@@ -123,9 +123,9 @@ def main():
     nacelle.w_max     = 2.39  * Units.feet
     nacelle.height_at_quarter_length        = 3.08 * Units.feet
     nacelle.height_at_three_quarters_length = 2.12 * Units.feet
-    
+
     other_bodies      = [nacelle,nacelle]
-    
+
     vertical              = SUAVE.Components.Wings.Wing()
     vertical.span         = 6.6  * Units.feet
     vertical.root_chord   = 8.2  * Units.feet
@@ -142,14 +142,14 @@ def main():
     vertical.taper        = vertical.tip_chord/ref_vertical.ref_root_chord
     vertical.effective_aspect_ratio = 1.57
     vertical.x_ac_LE      = trapezoid_ac_x(vertical)
-    
+
     aircraft              = SUAVE.Vehicle()
     aircraft.wing         = wing
     aircraft.fuselage     = fuselage
     aircraft.other_bodies = other_bodies
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 17.2 * Units.feet
-    
+
     segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.M          = 0.152
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -158,18 +158,18 @@ def main():
     segment.rho        = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
     segment.mew        = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
     segment.v_inf      = segment.M * segment.a
-    
+
     #Method Test
     expected = 0.12
     print 'Beech 99 at M = {0} and h = {1} meters'.format(segment.M, altitude)
     cn_b = taw_cnbeta(aircraft,segment)
-    
+
     print 'Cn_beta        = {0:.4f}'.format(cn_b)
     print 'Expected value = {}'.format(expected)
     print 'Percent Error  = {0:.2f}%'.format(100.0*(cn_b-expected)/expected)
-    print ' '  
-    
-    
+    print ' '
+
+
     #Parameters Required
     #Using values for an SIAI Marchetti S-211
     wing               = SUAVE.Components.Wings.Wing()
@@ -179,7 +179,7 @@ def main():
     wing.z_position    = -1.1  * Units.feet
     wing.taper         = 3.1/7.03
     wing.aspect_ratio  = wing.span**2/wing.area
-    
+
     fuselage           = SUAVE.Components.Fuselages.Fuselage()
     fuselage.side_area = 116.009 * Units.feet**2
     fuselage.length    = 30.9    * Units.feet
@@ -188,9 +188,9 @@ def main():
     fuselage.height_at_vroot_quarter_chord   = 4.1 * Units.feet
     fuselage.height_at_quarter_length        = 4.5 * Units.feet
     fuselage.height_at_three_quarters_length = 4.3 * Units.feet
-    
+
     other_bodies       = []
-    
+
     vertical              = SUAVE.Components.Wings.Wing()
     vertical.span         = 5.8   * Units.feet
     vertical.root_chord   = 5.7   * Units.feet
@@ -207,14 +207,14 @@ def main():
     vertical.taper        = vertical.tip_chord/ref_vertical.ref_root_chord
     vertical.effective_aspect_ratio = 2.65
     vertical.x_ac_LE      = trapezoid_ac_x(vertical)
-    
+
     aircraft              = SUAVE.Vehicle()
     aircraft.wing         = wing
     aircraft.fuselage     = fuselage
     aircraft.other_bodies = other_bodies
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 16.6 * Units.feet
-    
+
     segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
     segment.M          = 0.111
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
@@ -223,26 +223,26 @@ def main():
     segment.rho        = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
     segment.mew        = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
     segment.v_inf      = segment.M * segment.a
-    
+
     #Method Test
     print 'SIAI Marchetti S-211 at M = {0} and h = {1} meters'.format(segment.M, altitude)
-    
+
     cn_b = taw_cnbeta(aircraft,segment)
-    
+
     expected = 0.160
     print 'Cn_beta        = {0:.4f}'.format(cn_b)
     print 'Expected value = {}'.format(expected)
     print 'Percent Error  = {0:.2f}%'.format(100.0*(cn_b-expected)/expected)
     print ' '"""
-    
+
     for k,v in error.items():
         assert(np.abs(v)<0.1)
-        
+
     return
 
-# ----------------------------------------------------------------------        
+# ----------------------------------------------------------------------
 #   Call Main
-# ----------------------------------------------------------------------    
+# ----------------------------------------------------------------------
 
 if __name__ == '__main__':
     main()

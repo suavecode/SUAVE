@@ -44,11 +44,18 @@ class Landing(Ground_Segment):
     def initialize_conditions(self,conditions,numerics,initials=None):
 
         conditions = Ground_Segment.initialize_conditions(self,conditions,numerics,initials)
-
-        m_initial = self.analyses.weights.mass_properties.landing
+        
+        # process initials
+        if initials:
+            m_initial = initials.weights.total_mass[0,0]
+        else:
+            m_initial = self.config.mass_properties.landing
+              
+        # apply initials
         conditions.weights.total_mass[:,0] = m_initial
 
         throttle = self.throttle	
-        conditions.propulsion.throttle[:,0] = throttle
+        conditions.propulsion.throttle[:,0] = throttle        
+
 
         return conditions

@@ -21,8 +21,9 @@ import pylab as plt
 import matplotlib
 import copy, time
 
-from SUAVE.Components.Energy.Networks.Solar_Network import Solar_Network
+from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
 
 # ----------------------------------------------------------------------
 #   Main
@@ -56,7 +57,7 @@ def define_vehicle():
     
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Solar'
-    vehicle.propulsors.propulsor = SUAVE.Components.Energy.Networks.Solar_Network()
+    #vehicle.propulsors.propulsor = SUAVE.Components.Energy.Networks.Solar_Network()
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
@@ -168,14 +169,14 @@ def define_vehicle():
     # add to vehicle
     vehicle.append_component(wing)  
     
-     #------------------------------------------------------------------
-     # Propulsor
-     #------------------------------------------------------------------
+    #------------------------------------------------------------------
+    # Propulsor
+    #------------------------------------------------------------------
     
     # build network
-    net = Solar_Network()
-    net.number_motors = 1.
-    net.nacelle_dia   = 0.2
+    net = Solar()
+    net.number_motors    = 1.
+    net.nacelle_diameter = 0.2
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -237,10 +238,11 @@ def define_vehicle():
     net.avionics        = avionics      
 
     # Component 8 the Battery # I already assume 250 Wh/kg for batteries
-    bat = SUAVE.Components.Energy.Storages.Battery()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 50 * Units.kg
     bat.type                 = 'Li-Ion'
     bat.resistance           = 0.0 #This needs updating
+    initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT
@@ -248,6 +250,8 @@ def define_vehicle():
     logic.system_voltage  = 100.0
     logic.MPPT_efficiency = 0.95
     net.solar_logic       = logic
+    
+    vehicle.propulsors.propulsor = net
     
     # Calculate the vehicle mass
     vehicle.mass_properties.breakdown = SUAVE.Methods.Weights.Correlations.Human_Powered.empty(vehicle)
@@ -314,7 +318,7 @@ def define_mission(vehicle):
     segment.altitude_end   = 18.0   * Units.km
     segment.air_speed      = 30.0  * Units['m/s']
     segment.throttle       = 0.6
-    segment.battery_energy = vehicle.propulsion_model.battery.max_energy() #Charge the battery to start
+    segment.battery_energy = vehicle.propulsion_model.battery.max_energy #Charge the battery to start
     segment.latitude       = 37.4300
     segment.longitude      = -122.1700
     
@@ -368,6 +372,10 @@ def define_mission(vehicle):
     segment.config = vehicle.configs.cruise
     
     # segment attributes
+    #segment.altitude_start = 28.0  * Units.km 
+    #segment.battery_energy = vehicle.propulsion_model.battery.max_energy #Charge the battery to start
+    #segment.latitude       = 37.4300
+    #segment.longitude      = -122.1700    
     segment.altitude_end = 18.   * Units.km
     segment.air_speed    = 40.0 * Units['m/s']
     segment.descent_rate = 0.8  * Units['m/s']

@@ -35,7 +35,7 @@ class Fuselage(Lofted_Body):
         self.heights.maximum = 0.0
         self.heights.at_quarter_length = 0.0
         self.heights.at_three_quarters_length = 0.0
-        self.heights.at_wing_root_quarter_chord = 0.0
+        self.heights.at_vertical_root_quarter_chord = 0.0
         
         self.lengths = Data()
         self.lengths.nose = 0.0

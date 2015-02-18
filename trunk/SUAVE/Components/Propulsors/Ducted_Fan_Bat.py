@@ -59,7 +59,7 @@ class Ducted_Fan_Bat(Propulsor):
         self.diverter = Data()
         self.nozzle   = Data()
         self.analysis_type= 'pass'
-        self.battery=Battery()
+        #self.battery=Battery()
         
         #--geometry pass like
         
@@ -524,12 +524,13 @@ class Ducted_Fan_Bat(Propulsor):
       #pressure ratio prescribed
       #MAIN CODE
     
-    def __call__(self,eta,State):
+    #def __call__(self,eta,State):
+    def __call__(self,conditions):
     #def engine_analysis_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,mdhc): 
        
-        Minf=State.M
-        Tinf=State.T
-        pinf=State.p
+        Minf=conditions.freestream.mach_number
+        Tinf=conditions.freestream.temperature
+        pinf=conditions.freestream.pressure
         
         pid=self.diffuser_pressure_ratio
         pif=self.fan_pressure_ratio
@@ -538,7 +539,7 @@ class Ducted_Fan_Bat(Propulsor):
         Ao=self.Ao
         no_eng=self.number_of_engines 
         
-        throttle=eta
+        throttle=conditions.propulsion.throttle
        
        
         Tref=288.15
@@ -860,18 +861,15 @@ class Ducted_Fan_Bat(Propulsor):
         eta_motor=1
         Pfc=uo*FD*eta_motor
     
-        #fuelcell = self.fuelcell
-        
-        #print 'FD',Fsp
-        #print 'Fmdot_df',mdot_df
-        CF = FD/(State.q*self.A2)
+ 
+        CF = FD/(conditions.freestream.dynamic_pressure*self.A2)
         thermo=Data()
         thermo.cp=Cpp;
         thermo.ht=h7
         
         mdot = 0.
-        eta_pe=.95              #motor efficiency
-      
+        #eta_pe=.95              #motor efficiency
+        eta_pe=.95
       
       
         #-------if areas specified-----------------------------
@@ -883,4 +881,4 @@ class Ducted_Fan_Bat(Propulsor):
         #Ductedfan.thrust = FD
         #Turbofan.mdot_core = mdot_core
       
-        return CF,0.0,eta_pe    
+        return FD,0.0,eta_pe    

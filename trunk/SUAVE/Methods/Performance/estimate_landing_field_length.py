@@ -101,6 +101,7 @@ def estimate_landing_field_length(vehicle,config,airport):
     # ==============================================
     stall_speed  = (2 * weight * sea_level_gravity / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
     Vref         = stall_speed * Vref_VS_ratio
+    print 'weight_landing=', weight
 
     # ========================================================================================
     # Computing landing distance, according to Torenbeek equation

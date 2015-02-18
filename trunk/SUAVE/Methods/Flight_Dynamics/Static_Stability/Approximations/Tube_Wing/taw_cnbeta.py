@@ -16,6 +16,7 @@ import numpy as np
 import copy
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
@@ -31,36 +32,51 @@ def taw_cnbeta(geometry,conditions,configuration):
         standard Tube-and-Wing aircraft configuration.        
         
         CAUTION: The correlations used in this method do not account for the
-        destabilizing moments due to propellers. This can lead to higher than
+        destabilizing moments due to propellers. This can lead to higher-than-
         expected values of CnBeta, particularly for smaller prop-driven aircraft
         
         Inputs:
-            configuration - a data dictionary with the fields:
-                Mass_Props - a data dictionary with the field:
-                    pos_cg - A vector in 3-space indicating CG position
-                wing - a data dictionary with the fields:
-                    area - wing reference area [meters**2]
-                    span - span of the wing [meters]
-                    sweep_le - sweep of the wing leading edge [radians]
-                    z_position - distance of wing root quarter chord point
-                    below fuselage centerline [meters]
-                    taper - wing taper ratio [dimensionless]
+            geometry - aircraft geometrical features: a data dictionary with the fields:
+                wings['Main Wing'] - the aircraft's main wing
+                    areas.reference - wing reference area [meters**2]
+                    spans.projected - span of the wing [meters]
+                    sweep - sweep of the wing leading edge [radians]
                     aspect_ratio - wing aspect ratio [dimensionless]
-                fuselage - a data dictionary with the fields:
-                    side_area - fuselage body side area [meters**2]
-                    length - length of the fuselage [meters]
-                    h_max - maximum height of the fuselage [meters]
-                    w_max - maximum width of the fuselage [meters]
-                    height_at_quarter_length - fuselage height at 1/4 of the 
-                    fuselage length [meters]
-                    height_at_three_quarters_length - fuselage height at 3/4 of
-                    the fuselage length [meters]
-                    height_at_vroot_quarter_chord - fuselage height at the 
-                    aerodynamic center of the vertical tail [meters]
+                    origin - the position of the wing root in the aircraft body frame [meters]
+                wings['Vertical Stabilizer']
+                    spans.projected - projected span (height for a vertical tail) of
+                     the exposed surface [meters]
+                    areas.reference - area of the reference vertical tail [meters**2]
+                    sweep - leading edge sweep of the aerodynamic surface [radians]
+                    chords.root - chord length at the junction between the tail and 
+                     the fuselage [meters]
+                    chords.tip - chord length at the tip of the aerodynamic surface
+                    [meters]
+                    symmetric - Is the wing symmetric across the fuselage centerline?
+                    origin - the position of the vertical tail root in the aircraft body frame [meters]
+                    exposed_root_chord_offset - the displacement from the fuselage
+                     centerline to the exposed area's physical root chordline [meters]
+                     
+                     
+
+    x_v    = vert.origin[0]
+    b_v    = vert.spans.projected
+    ac_vLE = vert.aerodynamic_center[0]
+    
+                fuselages.Fuselage - a data dictionary with the fields:
+                    areas.side_projected - fuselage body side area [meters**2]
+                    lengths.total - length of the fuselage [meters]
+                    heights.maximum - maximum height of the fuselage [meters]
+                    width - maximum width of the fuselage [meters]
+                    heights.at_quarter_length - fuselage height at 1/4 of the fuselage length [meters]
+                    heights.at_three_quarters_length - fuselage height at 3/4 of fuselage 
+                     length [meters]
+                    heights.at_vertical_root_quarter_chord - fuselage height at the quarter 
+                     chord of the vertical tail root [meters]
                 vertical - a data dictionary with the fields below:
-                NOTE: Reference vertical tail extends to the fuselage centerline
-                    area - area of the reference vertical tail [meters**2]
-                    x_root_LE - x-position of the vertical reference root chord 
+                NOTE: This vertical tail geometry will be used to define a reference
+                 vertical tail that extends to the fuselage centerline.
+                    
                     x_ac_LE - the x-coordinate of the vertical tail aerodynamic 
                     center measured relative to the tail root leading edge (root
                     of reference tail area - at fuselage centerline)
@@ -86,6 +102,12 @@ def taw_cnbeta(geometry,conditions,configuration):
                 M - flight Mach number
                 rho - air density [kg/meters**3]
                 mew - air dynamic viscosity [kg/meter/second]
+                
+            configuration - a data dictionary with the fields:
+                mass_properties - a data dictionary with the field:
+                    center_of_gravity - A vector in 3-space indicating CG position [meters]
+                other - a dictionary of aerodynamic bodies, other than the fuselage,
+                whose effect on directional stability is to be included in the analysis
     
         Outputs:
             CnBeta - a single float value: The static directional stability 
@@ -182,7 +204,15 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     #Compute vertical tail contribution
     l_v    = x_v + ac_vLE - x_cg
-    CLa_v  = geometry.wings['vertical_stabilizer'].CL_alpha
+    #try:
+    #    CLa_v  = geometry.wings['Vertical Stabilizer'].CL_alpha
+    #except AttributeError:
+    #    CLa_v  = datcom(geometry.wings['Vertical Stabilizer'], [M])
+    try:
+        iter(M)
+    except TypeError:
+        M = [M]
+    CLa_v = datcom(vert,M)
     #k_v correlated from Roskam Fig. 10.12. NOT SMOOTH.
     bf     = b_v/d_i
     if bf < 2.0:
@@ -212,62 +242,344 @@ def taw_cnbeta(geometry,conditions,configuration):
 if __name__ == '__main__':
     from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
     from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
-    #Parameters Required
-    #Using values for a Boeing 747-200
-    wing                = SUAVE.Components.Wings.Wing()
-    wing.area           = 5500.0 * Units.feet**2
-    wing.span           = 196.0  * Units.feet
-    wing.sweep_le          = 42.0   * Units.deg
-    wing.z_position     = 3.6    * Units.feet
-    wing.taper          = 14.7/54.5
-    wing.aspect_ratio   = wing.span**2/wing.area
+    ##Parameters Required
+    ##Using values for a Boeing 747-200
+    #wing                = SUAVE.Components.Wings.Wing()
+    #wing.area           = 5500.0 * Units.feet**2
+    #wing.span           = 196.0  * Units.feet
+    #wing.sweep_le          = 42.0   * Units.deg
+    #wing.z_position     = 3.6    * Units.feet
+    #wing.taper          = 14.7/54.5
+    #wing.aspect_ratio   = wing.span**2/wing.area
     
-    fuselage            = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.side_area  = 4696.16 * Units.feet**2
-    fuselage.length     = 229.7   * Units.feet
-    fuselage.h_max      = 26.9    * Units.feet
-    fuselage.w_max      = 20.9    * Units.feet
-    fuselage.height_at_vroot_quarter_chord   = 15.8 * Units.feet
-    fuselage.height_at_quarter_length        = 26   * Units.feet
-    fuselage.height_at_three_quarters_length = 19.7 * Units.feet
+    #fuselage            = SUAVE.Components.Fuselages.Fuselage()
+    #fuselage.side_area  = 4696.16 * Units.feet**2
+    #fuselage.length     = 229.7   * Units.feet
+    #fuselage.h_max      = 26.9    * Units.feet
+    #fuselage.w_max      = 20.9    * Units.feet
+    #fuselage.height_at_vroot_quarter_chord   = 15.8 * Units.feet
+    #fuselage.height_at_quarter_length        = 26   * Units.feet
+    #fuselage.height_at_three_quarters_length = 19.7 * Units.feet
     
-    vertical              = SUAVE.Components.Wings.Wing()
-    vertical.span         = 32.4   * Units.feet
-    vertical.root_chord   = 38.7   * Units.feet
-    vertical.tip_chord    = 13.4   * Units.feet
-    vertical.sweep_le     = 50.0   * Units.deg
-    vertical.x_root_LE1   = 181.0  * Units.feet
-    dz_centerline         = 13.5   * Units.feet
-    ref_vertical          = extend_to_ref_area(vertical,dz_centerline)
-    vertical.span         = ref_vertical.ref_span
-    vertical.area         = ref_vertical.ref_area
-    vertical.aspect_ratio = ref_vertical.ref_aspect_ratio
-    vertical.x_root_LE    = vertical.x_root_LE1 + ref_vertical.root_LE_change
-    vertical.taper        = vertical.tip_chord/ref_vertical.ref_root_chord
-    vertical.effective_aspect_ratio = 2.25
-    vertical_symm         = copy.deepcopy(vertical)
-    vertical_symm.span    = 2.0*vertical.span
-    vertical_symm.area    = 2.0*vertical.area
-    vertical.x_ac_LE      = trapezoid_ac_x(vertical_symm)
+    #vertical              = SUAVE.Components.Wings.Wing()
+    #vertical.span         = 32.4   * Units.feet
+    #vertical.root_chord   = 38.7   * Units.feet
+    #vertical.tip_chord    = 13.4   * Units.feet
+    #vertical.sweep_le     = 50.0   * Units.deg
+    #vertical.x_root_LE1   = 181.0  * Units.feet
+    #dz_centerline         = 13.5   * Units.feet
+    #ref_vertical          = extend_to_ref_area(vertical,dz_centerline)
+    #vertical.span         = ref_vertical.ref_span
+    #vertical.area         = ref_vertical.ref_area
+    #vertical.aspect_ratio = ref_vertical.ref_aspect_ratio
+    #vertical.x_root_LE    = vertical.x_root_LE1 + ref_vertical.root_LE_change
+    #vertical.taper        = vertical.tip_chord/ref_vertical.ref_root_chord
+    #vertical.effective_aspect_ratio = 2.25
+    #vertical_symm         = copy.deepcopy(vertical)
+    #vertical_symm.span    = 2.0*vertical.span
+    #vertical_symm.area    = 2.0*vertical.area
+    #vertical.x_ac_LE      = trapezoid_ac_x(vertical_symm)
     
-    aircraft            = SUAVE.Vehicle()
-    aircraft.wing       = wing
-    aircraft.fuselage   = fuselage
-    aircraft.vertical   = vertical
-    aircraft.mass_properties.center_of_gravity[0] = 112.2 * Units.feet
+    #aircraft            = SUAVE.Vehicle()
+    #aircraft.wing       = wing
+    #aircraft.fuselage   = fuselage
+    #aircraft.vertical   = vertical
+    #aircraft.mass_properties.center_of_gravity[0] = 112.2 * Units.feet
+    # ------------------------------------------------------------------
+    #   Initialize the Vehicle
+    # ------------------------------------------------------------------
+
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'Embraer_E190'
+
+    # ------------------------------------------------------------------
+    #   Vehicle-level Properties
+    # ------------------------------------------------------------------
+
+    # mass properties
+    vehicle.mass_properties.max_takeoff               = 51800.0   # kg
+    vehicle.mass_properties.operating_empty           = 29100.0   # kg
+    vehicle.mass_properties.takeoff                   = 51800.0   # kg
+    vehicle.mass_properties.max_zero_fuel             = 45600.0   # kg
+    vehicle.mass_properties.cargo                     = 0.0 * Units.kilogram
+    vehicle.mass_properties.max_payload               = 11786. * Units.kilogram
+    vehicle.mass_properties.max_fuel                  = 12970.
+
+    vehicle.mass_properties.center_of_gravity         = [112.2 * Units.feet, 0, 0]
+    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+
+    # envelope properties
+    vehicle.envelope.ultimate_load = 3.5
+    vehicle.envelope.limit_load    = 1.5
+
+    # basic parameters
+    vehicle.reference_area         = 5500.0 * Units.feet**2
+    vehicle.passengers             = 0
+    vehicle.systems.control        = "fully powered"
+    vehicle.systems.accessories    = "medium range"
+
+    # ------------------------------------------------------------------
+    #   Main Wing
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Main Wing'
+
+    wing.aspect_ratio            = (196.0**2.)  * (Units.feet**2.) / vehicle.reference_area
+    wing.sweep                   = 42.0 * Units.deg
+    wing.thickness_to_chord      = 0.11
+    wing.taper                   = 14.7/54.5
+    wing.span_efficiency         = 1.0
+
+    wing.spans.projected         = 196.0  * Units.feet
+
+    wing.chords.root             = 54.5 * Units.feet
+    wing.chords.tip              = 14.7 * Units.feet
+
+    wing.areas.reference         = 5500.0 * Units.feet**2
+    wing.areas.wetted            = 2.0 * wing.areas.reference
+    wing.areas.exposed           = 0.8 * wing.areas.wetted
+    wing.areas.affected          = 0.6 * wing.areas.wetted
+
+    wing.twists.root             = 2.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+
+    wing.origin                  = [65.*Units.feet,0.,-3.6*Units.feet]
+    wing.aerodynamic_center      = [trapezoid_ac_x(wing),0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+
+    wing.dynamic_pressure_ratio = 1.0
+
+    # add to vehicle
+    vehicle.append_component(wing)
+
+    # ------------------------------------------------------------------
+    #  Horizontal Stabilizer
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Horizontal Stabilizer'
+
+    wing.aspect_ratio            = 5.5
+    wing.sweep                   = 34.5 * Units.deg
+    wing.thickness_to_chord      = 0.11
+    wing.taper                   = 0.11
+    wing.span_efficiency         = 0.9
+
+    wing.spans.projected         = 11.958
+
+    wing.chords.root             = 3.9175
+    wing.chords.tip              = 0.4309
+    wing.chords.mean_aerodynamic = 2.6401
+
+    wing.areas.reference         = 26.0
+    wing.areas.wetted            = 2.0 * wing.areas.reference
+    wing.areas.exposed           = 0.8 * wing.areas.wetted
+    wing.areas.affected          = 0.6 * wing.areas.wetted
+
+    wing.twists.root             = 2.0 * Units.degrees
+    wing.twists.tip              = 2.0 * Units.degrees
+
+    wing.origin                  = [50,0,0]
+    wing.aerodynamic_center      = [2,0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+
+    wing.dynamic_pressure_ratio = 0.9
+
+    # add to vehicle
+    vehicle.append_component(wing)
+
+    # ------------------------------------------------------------------
+    #   Vertical Stabilizer
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'Vertical Stabilizer'
+    wing.effective_aspect_ratio  = 2.25
+    wing.sweep                   = 50. * Units.deg
+    wing.thickness_to_chord      = 0.12
+    wing.taper                   = 13.4 / 38.7
+    wing.span_efficiency         = 0.9
+
+    wing.spans.projected         = 32.4 * Units.feet
+    wing.spans.exposed           = 32.4 * Units.feet
+
+    wing.chords.root             = 38.7 * Units.feet
+    wing.chords.tip              = 13.4 * Units.feet
+    wing.chords.mean_aerodynamic = 8.
+    wing.chords.fuselage_intersect = wing.chords.root
+
+    wing.areas.reference         = 16.0    #
+    wing.areas.wetted            = 2.0 * wing.areas.reference
+    wing.areas.exposed           = 0.8 * wing.areas.wetted
+    wing.areas.affected          = 0.6 * wing.areas.wetted
     
-    segment            = SUAVE.Analyses.Missions.Segments.Segment()
-    segment.M          = 0.198
+    wing.exposed_root_chord_offset = 13.5 * Units.feet
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+
+    wing.origin                  = [181.*Units.feet,0,0]
+    wing.aerodynamic_center      = [trapezoid_ac_x(wing),0,.4*wing.spans.exposed]
+    print wing.aerodynamic_center
+
+    wing.vertical                = True
+    wing.symmetric               = False
+
+    wing.dynamic_pressure_ratio = 1.0  
+
+    # add to vehicle
+    vehicle.append_component(wing)
+
+    # ------------------------------------------------------------------
+    #  Fuselage
+    # ------------------------------------------------------------------
+
+    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage.tag = 'Fuselage'
+
+    fuselage.number_coach_seats    = vehicle.passengers
+    fuselage.seats_abreast         = 4
+    fuselage.seat_pitch            = 0.7455
+
+    fuselage.fineness.nose         = 2.0
+    fuselage.fineness.tail         = 3.0
+
+    fuselage.lengths.nose          = 6.0
+    fuselage.lengths.tail          = 9.0
+    fuselage.lengths.cabin         = 21.24
+    fuselage.lengths.total         = 229.7 * Units.feet
+    fuselage.lengths.fore_space    = 0.
+    fuselage.lengths.aft_space     = 0.
+
+    fuselage.width                 = 20.9 * Units.feet
+
+    fuselage.heights.maximum       = 26.9 * Units.feet
+    fuselage.heights.at_quarter_length          = 26   * Units.feet
+    fuselage.heights.at_three_quarters_length   = 19.7 * Units.feet
+    fuselage.heights.at_vertical_root_quarter_chord = 15.8 * Units.feet
+
+    fuselage.areas.side_projected  = 4696.16 * Units.feet**2
+
+    fuselage.effective_diameter    = 23.7 * Units.feet
+
+    fuselage.differential_pressure = 10**5 * Units.pascal    # Maximum differential pressure
+
+    # add to vehicle
+    vehicle.append_component(fuselage)
+
+    # ------------------------------------------------------------------
+    #  Turbofan
+    # ------------------------------------------------------------------
+
+    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
+    turbofan.tag = 'Turbo Fan'
+
+    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
+
+    turbofan.analysis_type                 = '1D'     #
+    turbofan.diffuser_pressure_ratio       = 0.99     #
+    turbofan.fan_pressure_ratio            = 1.7      #
+    turbofan.fan_nozzle_pressure_ratio     = 0.98     #
+    turbofan.lpc_pressure_ratio            = 1.9      #
+    turbofan.hpc_pressure_ratio            = 10.0     #
+    turbofan.burner_pressure_ratio         = 0.95     #
+    turbofan.turbine_nozzle_pressure_ratio = 0.99     #
+    turbofan.Tt4                           = 1500.0   #
+    turbofan.bypass_ratio                  = 5.4      #
+    turbofan.thrust.design                 = 20300.0  #
+    turbofan.number_of_engines                 = 2.0      #
+    turbofan.engine_length                     = 3.0
+
+    # turbofan sizing conditions
+    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+
+    sizing_segment.M   = 0.78          #
+    sizing_segment.alt = 10.668         #
+    sizing_segment.T   = 223.0        #
+    sizing_segment.p   = 0.265*10**5  #
+
+    # size the turbofan
+    turbofan.engine_sizing_1d(sizing_segment)
+
+    # add to vehicle
+    vehicle.append_component(turbofan)
+
+    # ------------------------------------------------------------------
+    #   Simple Aerodynamics Model
+    # ------------------------------------------------------------------
+
+    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics.initialize(vehicle)
+
+    # build stability model
+    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
+    stability.initialize(vehicle)
+    aerodynamics.stability = stability
+    vehicle.aerodynamics_model = aerodynamics
+
+    # ------------------------------------------------------------------
+    #   Simple Propulsion Model
+    # ------------------------------------------------------------------
+
+    vehicle.propulsion_model = vehicle.propulsors
+
+    # ------------------------------------------------------------------
+    #   Define Configurations
+    # ------------------------------------------------------------------
+
+    # --- Takeoff Configuration ---
+    config = vehicle.new_configuration("takeoff")
+    # this configuration is derived from the baseline vehicle
+
+    # --- Cruise Configuration ---
+    config = vehicle.new_configuration("cruise")
+    # this configuration is derived from vehicle.configs.takeoff
+
+    # --- Takeoff Configuration ---
+    takeoff_config = vehicle.configs.takeoff
+
+    takeoff_config.wings['Main Wing'].flaps_angle = 20. * Units.deg
+    takeoff_config.wings['Main Wing'].slats_angle = 25. * Units.deg
+
+    takeoff_config.V2_VS_ratio = 1.21
+    takeoff_config.maximum_lift_coefficient = 2.
+    #takeoff_config.max_lift_coefficient_factor = 1.0
+
+    # --- Landing Configuration ---
+    landing_config = vehicle.new_configuration("landing")
+
+    landing_config.wings['Main Wing'].flaps_angle = 30. * Units.deg
+    landing_config.wings['Main Wing'].slats_angle = 25. * Units.deg
+
+    landing_config.Vref_VS_ratio = 1.23
+    landing_config.maximum_lift_coefficient = 2.
+    #landing_config.max_lift_coefficient_factor = 1.0
+
+    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
+
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------    
+    segment            = SUAVE.Attributes.Missions.Segments.Aerodynamic_Segment()
+    M                  = 0.198
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet
-    segment.compute_atmosphere(altitude / Units.km)
-    segment.v_inf      = segment.M * segment.a
+    p, T, rho, a, mew = segment.atmosphere.compute_values(altitude)
+    segment.conditions.freestream.velocity = M * a
+    segment.conditions.freestream.viscosity = mew
+    segment.conditions.freestream.density = rho
+    segment.conditions.freestream.mach_number = M
     
     #Method Test
     print '<<Test run of the taw_cnbeta() method>>'
-    print 'Boeing 747 at M = {0} and h = {1} meters'.format(segment.M, altitude)
+    print 'Boeing 747 at M = {0} and h = {1} meters'.format(M, altitude)
     
-    cn_b = taw_cnbeta(aircraft,segment)
+    cn_b = taw_cnbeta(vehicle,segment.conditions,vehicle.configs.cruise)[0]
     
     expected = 0.184
     print 'Cn_beta =        {0:.4f}'.format(cn_b)

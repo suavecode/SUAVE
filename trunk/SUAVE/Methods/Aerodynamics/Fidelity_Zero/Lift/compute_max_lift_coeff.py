@@ -9,9 +9,9 @@
 
 #SUave Imports
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Attributes import Units
 from SUAVE.Components import Wings
-from SUAVE.Core  import Data
+from SUAVE.Structure  import Data
 
 # python imports
 import os, sys, shutil
@@ -64,7 +64,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     max_lift_coefficient_factor = vehicle.max_lift_coefficient_factor
     for wing in vehicle.wings:
     
-        if not isinstance(wing,Wings.Main_Wing): continue
+        if not wing.high_lift: continue
         #geometrical data
         Sref       = vehicle.reference_area
         Swing      = wing.areas.reference
@@ -79,18 +79,12 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         flap_type  = wing.flaps.type
 
         # conditions data
-        try:
-            V    = conditions.freestream.velocity 
-            roc  = conditions.freestream.density 
-            nu   = conditions.freestream.viscosity
-        except:
-            # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-            from SUAVE.Attributes.Atmospheres.Earth import US_Standard_1976 as atmo
-            p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
-            roc = rho_stall
-            nu  = mu_stall
-            V   = 90. * Units.knots
-           
+        V    = conditions.freestream.velocity 
+        roc  = conditions.freestream.density 
+        nu   = conditions.freestream.viscosity
+        
+        ##Mcr  =  segment.M
+
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
 
@@ -145,7 +139,7 @@ if __name__ == '__main__':
     #   Main Wing
     # ------------------------------------------------------------------
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'main_wing'
+    wing.tag = 'Main Wing'
 
     wing.areas.reference         = vehicle.reference_area
     wing.sweep                   = 22. * Units.deg
@@ -159,6 +153,8 @@ if __name__ == '__main__':
     wing.slats.angle = 15.  * Units.deg
     wing.areas.affected  = 0.60 * wing.areas.reference 
     wing.flaps.type   = 'double_slat'
+    
+    wing.high_lift  = True
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -168,7 +164,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'horizontal_stabilizer'
+    wing.tag = 'Horizontal Stabilizer'
 
     wing.areas.reference         = 26.
     wing.sweep                   = 34.5 * Units.deg
@@ -184,7 +180,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'
+    wing.tag = 'Vertical Stabilizer'
     wing.areas.reference         = 16.0
     wing.sweep                   = 35. * Units.deg
     wing.symmetric               = False
@@ -201,7 +197,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
+    fuselage.tag = 'Fuselage'
 
     fuselage.number_coach_seats = 114  #
     fuselage.seat_pitch         = 0.7455    # m
