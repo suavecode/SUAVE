@@ -15,6 +15,6 @@ import Loads
 import Missions
 import Sizing
 import Structures
-import Atmospheres
+import Atmospheric
 import Planets
 
