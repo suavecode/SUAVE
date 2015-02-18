@@ -135,7 +135,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -173,7 +173,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.eta                     = 0.9
+    wing.dynamic_pressure_ratio  = 0.9
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -211,7 +211,7 @@ def vehicle_setup():
     wing.vertical                = True
     wing.symmetric               = False
 
-    wing.eta                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -242,7 +242,7 @@ def vehicle_setup():
     fuselage.heights.maximum       = 3.4    #
     fuselage.heights.at_quarter_length          = 3.4 # Not correct
     fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.at_vertical_root_quarter_chord = 3.4 # Not correct
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
