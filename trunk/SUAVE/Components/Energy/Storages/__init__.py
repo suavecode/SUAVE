@@ -1,3 +1,3 @@
+import Batteries
 
-from Battery import Battery
 

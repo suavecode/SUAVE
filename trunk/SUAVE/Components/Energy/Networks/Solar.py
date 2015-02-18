@@ -16,6 +16,7 @@ import scipy as sp
 import datetime
 import time
 from SUAVE.Core import Units
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
@@ -24,19 +25,21 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Network(Data):
-    def __defaults__(self):
-        self.solar_flux  = None
-        self.solar_panel = None
-        self.motor       = None
-        self.propeller   = None
-        self.esc         = None
-        self.avionics    = None
-        self.payload     = None
-        self.solar_logic = None
-        self.battery     = None
-        self.nacelle_dia = 0.0
-        self.tag         = 'Network'
+class Solar(Propulsor):
+    def __defaults__(self): 
+        self.solar_flux        = None
+        self.solar_panel       = None
+        self.motor             = None
+        self.propeller         = None
+        self.esc               = None
+        self.avionics          = None
+        self.payload           = None
+        self.solar_logic       = None
+        self.battery           = None
+        self.nacelle_diameter  = 0.0
+        self.engine_length     = 1.0
+        self.number_of_engines = 1.0
+        self.tag               = 'Network'
     
     # manage process with a driver function
     def evaluate(self,conditions,numerics):
@@ -53,7 +56,7 @@ class Solar_Network(Data):
         battery     = self.battery
        
         # Set battery energy
-        battery.CurrentEnergy = conditions.propulsion.battery_energy
+        battery.current_energy = conditions.propulsion.battery_energy
         
         # step 1
         solar_flux.solar_radiation(conditions)
@@ -121,14 +124,14 @@ class Solar_Network(Data):
         #
         solar_logic.logic(conditions,numerics)
         # link
-        battery.inputs.batlogic = solar_logic.outputs.batlogic
+        battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)
         current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.batlogic.pbat
-        battery_energy                       = battery.CurrentEnergy
+        battery_draw                         = battery.inputs.power_in 
+        battery_energy                       = battery.current_energy
         
         conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
         conditions.propulsion.rpm            = rpm

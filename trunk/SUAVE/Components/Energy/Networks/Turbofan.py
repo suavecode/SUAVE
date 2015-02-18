@@ -33,7 +33,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
-class Turbofan_Network(Propulsor):
+class Turbofan(Propulsor):
     
     def __defaults__(self):
         

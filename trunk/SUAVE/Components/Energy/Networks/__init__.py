@@ -1,3 +1,6 @@
 # classes
-from Solar_Network import Solar_Network
-from Turbofan_Network import Turbofan_Network
+
+from Solar import Solar
+from Basic_Battery import Basic_Battery
+from Turbofan import Turbofan
+from Solar_Low_Fidelity import Solar_Low_Fidelity
