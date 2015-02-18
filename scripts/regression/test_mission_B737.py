@@ -246,7 +246,7 @@ def vehicle_setup():
     fuselage.heights.maximum       = 4.    #
     fuselage.heights.at_quarter_length          = 4. # Not correct
     fuselage.heights.at_three_quarters_length   = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.at_vertical_root_quarter_chord = 4. # Not correct
 
     fuselage.areas.side_projected  = 4.* 59.8 #  Not correct
     fuselage.areas.wetted          = 688.64
