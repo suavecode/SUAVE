@@ -1,6 +1,5 @@
 
 from Aerodynamics import Aerodynamics
-from AVL_Surrogate import AVL_Surrogate
 from Constant import Constant
 from Finite_Wing import Finite_Wing
 from External_Data import External_Data

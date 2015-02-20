@@ -1,2 +1,0 @@
-from compute_aircraft_drag import compute_aircraft_drag
-from induced_drag_aircraft import induced_drag_aircraft

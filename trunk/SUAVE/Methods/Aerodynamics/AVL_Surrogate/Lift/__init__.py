@@ -1,1 +1,0 @@
-from compute_aircraft_lift import compute_aircraft_lift
