@@ -64,12 +64,13 @@ class US_Standard_1976(Atmospheric):
         Rad  = self.planet.mean_radius
         if (gas_base != self.fluid_properties) or (grav_base != self.planet.sea_level_gravity) or (Rad_base != Rad):
             print 'Warning: US Standard Atmosphere being used outside expected conditions'
+            
+        # get model altitude bounds
+        zmin = self.breaks.altitude[0]
+        zmax = self.breaks.altitude[-1]        
 
         # convert input if necessary
-        if isinstance(zs, int): 
-            zs = np.array([float(zs)])
-        elif isinstance(zs, float):
-            zs = np.array([zs])
+        zs = SUAVE.Methods.Utilities.atleast_2d_col(zs)
 
         # convert geometric to geopotential altitude
         zs = zs/(1 + zs/Rad)
@@ -78,20 +79,17 @@ class US_Standard_1976(Atmospheric):
         if len(zs.shape) == 2:
             zs = zs[:,0]
 
+        size_zs = np.size(zs)
         # initialize return data
-        p = np.zeros(np.size(zs))
-        T = np.zeros(np.size(zs))
-        rho = np.zeros(np.size(zs))
-        a = np.zeros(np.size(zs))
-        mew = np.zeros(np.size(zs))
-        z0 = np.zeros(np.size(zs))
-        T0 = np.zeros(np.size(zs))
-        p0 = np.zeros(np.size(zs))
-        alpha = np.zeros(np.size(zs))
-        
-        # evaluate at each altitude
-        zmin = self.breaks.altitude[0]
-        zmax = self.breaks.altitude[-1]
+        p = np.zeros(size_zs)
+        T = np.zeros(size_zs)
+        rho = np.zeros(size_zs)
+        a = np.zeros(size_zs)
+        mew = np.zeros(size_zs)
+        z0 = np.zeros(size_zs)
+        T0 = np.zeros(size_zs)
+        p0 = np.zeros(size_zs)
+        alpha = np.zeros(size_zs)
         
         if np.amin(zs) < zmin:
             print "Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km"
@@ -115,15 +113,14 @@ class US_Standard_1976(Atmospheric):
         
         #p, T, rho, a, mew
         
-        conditions = Data()
-        conditions.freestream = Data()
-        conditions.freestream.pressure = p
-        conditions.freestream.temperature = T
-        conditions.freestream.density = rho
-        conditions.freestream.speed_of_sound = a
-        conditions.freestream.dynamic_viscosity = mew
+        atmo_data = Data()
+        atmo_data.pressure = p
+        atmo_data.temperature = T
+        atmo_data.density = rho
+        atmo_data.speed_of_sound = a
+        atmo_data.dynamic_viscosity = mew
         
-        return conditions
+        return atmo_data
 
 
 # ----------------------------------------------------------------------

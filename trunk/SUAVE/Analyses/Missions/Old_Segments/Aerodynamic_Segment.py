@@ -235,11 +235,11 @@ class Aerodynamic_Segment(Base_Segment):
         atmo_data = atmosphere.compute_values(h)
         
         # pack
-        conditions.freestream.pressure[:,0]       = atmo_data.freestream.pressure
-        conditions.freestream.temperature[:,0]    = atmo_data.freestream.temperature
-        conditions.freestream.density[:,0]        = atmo_data.freestream.density
-        conditions.freestream.speed_of_sound[:,0] = atmo_data.freestream.speed_of_sound
-        conditions.freestream.viscosity[:,0]      = atmo_data.freestream.dynamic_viscosity
+        conditions.freestream.pressure[:,0]       = atmo_data.pressure
+        conditions.freestream.temperature[:,0]    = atmo_data.temperature
+        conditions.freestream.density[:,0]        = atmo_data.density
+        conditions.freestream.speed_of_sound[:,0] = atmo_data.speed_of_sound
+        conditions.freestream.viscosity[:,0]      = atmo_data.dynamic_viscosity
 
         # pack
         conditions.freestream.pressure[:,0]       = p
