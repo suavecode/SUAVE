@@ -55,6 +55,78 @@ class AVL_Callable(Data):
 
         return
 
+    def translate_results_to_conditions(self,cases,results):
+        """ Takes avl results structure containing the results of each run case stored
+        	each in its own Data() object. Translates into the Conditions() data structure.
+        """
+        # set up Conditions structure
+        res = Data()
+        res.freestream   = Data()
+        res.weights      = Data()
+        res.aerodynamics = Data()
+
+        res.freestream.velocity    = []
+        res.freestream.mach_number = []
+        res.freestream.gravity     = []
+        res.freestream.density     = []
+
+        res.weights.total_mass     = []
+        
+        res.aerodynamics.angle_of_attack          = []
+        res.aerodynamics.side_slip_angle          = []
+        res.aerodynamics.roll_moment_coefficient  = []
+        res.aerodynamics.pitch_moment_coefficient = []
+        res.aerodynamics.yaw_moment_coefficient   = []
+        res.aerodynamics.lift_coefficient         = []
+        res.aerodynamics.drag_coefficient         = []
+        res.aerodynamics.drag_breakdown           = Data()
+        res.aerodynamics.drag_breakdown.induced   = Data()
+        res.aerodynamics.drag_breakdown.induced.total = []
+        res.aerodynamics.drag_breakdown.induced.efficiency_factor = []
+        res.aerodynamics.cz_alpha                 = []
+        res.aerodynamics.cy_alpha                 = []
+        res.aerodynamics.cl_alpha                 = []
+        res.aerodynamics.cm_alpha                 = []
+        res.aerodynamics.cn_alpha                 = []
+        res.aerodynamics.cz_beta                  = []
+        res.aerodynamics.cy_beta                  = []
+        res.aerodynamics.cl_beta                  = []
+        res.aerodynamics.cm_beta                  = []
+        res.aerodynamics.cn_beta                  = []
+        res.aerodynamics.neutral_point            = []
+
+        # Move results data to the Conditions data structure
+        for i,case_res in enumerate(results):
+            res.freestream.velocity.append(cases[i].conditions.freestream.velocity)
+            res.freestream.mach_number.append(cases[i].conditions.freestream.mach)
+            res.freestream.gravity.append(cases[i].conditions.freestream.gravitational_acceleration)
+            res.freestream.density.append(cases[i].conditions.freestream.density)
+            res.aerodynamics.angle_of_attack.append(cases[i].conditions.aerodynamics.angle_of_attack)
+            res.aerodynamics.side_slip_angle.append(cases[i].conditions.aerodynamics.side_slip_angle)
+
+            res.weights.total_mass.append(cases[i].mass)
+
+            res.aerodynamics.roll_moment_coefficient.append(case_res.aerodynamics.roll_moment_coefficient)
+            res.aerodynamics.pitch_moment_coefficient.append(case_res.aerodynamics.pitch_moment_coefficient)
+            res.aerodynamics.yaw_moment_coefficient.append(case_res.aerodynamics.yaw_moment_coefficient)
+            res.aerodynamics.lift_coefficient.append(case_res.aerodynamics.total_lift_coefficient)
+            res.aerodynamics.drag_coefficient.append(case_res.aerodynamics.total_drag_coefficient)
+            res.aerodynamics.drag_breakdown.induced.total.append(case_res.aerodynamics.induced_drag_coefficient)
+            res.aerodynamics.drag_breakdown.induced.efficiency_factor.append(case_res.aerodynamics.span_efficiency_factor)
+            res.aerodynamics.cz_alpha.append(-case_res.stability.alpha_derivatives.lift_curve_slope)
+            res.aerodynamics.cy_alpha.append(case_res.stability.alpha_derivatives.side_force_derivative)
+            res.aerodynamics.cl_alpha.append(case_res.stability.alpha_derivatives.roll_moment_derivative)
+            res.aerodynamics.cm_alpha.append(case_res.stability.alpha_derivatives.pitch_moment_derivative)
+            res.aerodynamics.cn_alpha.append(case_res.stability.alpha_derivatives.yaw_moment_derivative)
+            res.aerodynamics.cz_beta.append(-case_res.stability.beta_derivatives.lift_coefficient_derivative)
+            res.aerodynamics.cy_beta.append(case_res.stability.beta_derivatives.side_force_derivative)
+            res.aerodynamics.cl_beta.append(case_res.stability.beta_derivatives.roll_moment_derivative)
+            res.aerodynamics.cm_beta.append(case_res.stability.beta_derivatives.pitch_moment_derivative)
+            res.aerodynamics.cn_beta.append(case_res.stability.beta_derivatives.yaw_moment_derivative)
+            res.aerodynamics.neutral_point.append(case_res.stability.neutral_point)
+
+        return res
+
 
     def __call__(self,cases):
         """ process vehicle to setup geometry, condititon and configuration
@@ -87,7 +159,9 @@ class AVL_Callable(Data):
             write_run_cases(self)
             write_input_deck(self)
 
-            results = run_analysis(self)
+            results_avl = run_analysis(self)
+
+        results = self.translate_results_to_conditions(cases,results_avl)
 
         if not self.keep_files:
             from shutil import rmtree
@@ -283,12 +357,12 @@ def run_analysis(self):
 
 
 def call_avl(self):
-    
+
     import sys
     import time
     import subprocess
     import SUAVE.Plugins.VyPy.tools.redirect as redirect
-    
+
     log_file = self.settings.filenames.log_filename
     err_file = self.settings.filenames.err_filename
     purge_files([log_file,err_file])
@@ -296,19 +370,19 @@ def call_avl(self):
     geometry = self.settings.filenames.features
     in_deck  = self.settings.filenames.input_deck
     batch    = self.analysis_temps.current_batch_file
-    
+
     with redirect.output(log_file,err_file):
-        
+
         ctime = time.ctime() # Current date and time stamp
         sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
         sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
-        
+
         with open(in_deck,'r') as commands:
             avl_run = subprocess.Popen([avl_call,geometry,batch],stdout=sys.stdout,stderr=sys.stderr,stdin=subprocess.PIPE)
             for line in commands:
                 avl_run.stdin.write(line)
         avl_run.wait()
-        
+
         exit_status = avl_run.returncode
         ctime = time.ctime()
         sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
@@ -334,6 +408,7 @@ def read_results(self):
             case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
             case_res.aerodynamics.total_lift_coefficient   = float(lines[23][10:20].strip())
             case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
+            case_res.aerodynamics.induced_drag_coefficient = float(lines[25][32:42].strip())
             case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
 
             case_res.stability.alpha_derivatives.lift_curve_slope           = float(lines[36+num_ctrl][25:35].strip())
