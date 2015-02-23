@@ -43,13 +43,9 @@ def main():
     # Results
     plt.figure('Drag Polar')
     axes = plt.gca()
-    CL = []
-    CD = []
-    CM = []
-    for res in results:
-        CL.append(res.aerodynamics.total_lift_coefficient)
-        CD.append(res.aerodynamics.total_drag_coefficient)
-        CM.append(res.aerodynamics.pitch_moment_coefficient)
+    CL = results.aerodynamics.lift_coefficient
+    CD = results.aerodynamics.drag_coefficient
+    CM = results.aerodynamics.pitch_moment_coefficient
     axes.plot(CD,CL,'bo-')
     axes.set_xlabel('Total Drag Coefficient')
     axes.set_ylabel('Total Lift Coefficient')
