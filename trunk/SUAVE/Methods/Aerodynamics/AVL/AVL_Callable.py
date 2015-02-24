@@ -10,7 +10,7 @@
 import os
 
 # SUAVE imports
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
 # local imports

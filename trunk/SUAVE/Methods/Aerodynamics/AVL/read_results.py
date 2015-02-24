@@ -1,7 +1,7 @@
 # Tim Momose, October 2014
 
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 
 def read_results(results_directory,results_filename):
 	

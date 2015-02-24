@@ -3,7 +3,7 @@
 
 # imports
 import numpy as np
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Components.Wings.Control_Surface import Control_Surface, Control_Surface_Section
 
 

@@ -1,6 +1,6 @@
 # Tim Momose, October 2014
 
-#from SUAVE.Structure import Data, Data_Exception, Data_Warning
+#from SUAVE.Core import Data, Data_Exception, Data_Warning
 from purge_files import purge_files
 
 

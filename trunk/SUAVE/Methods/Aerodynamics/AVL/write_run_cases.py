@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-#from SUAVE.Structure import Data, Data_Exception, Data_Warning
+#from SUAVE.Core import Data, Data_Exception, Data_Warning
 from purge_files import purge_files
 
 def write_run_cases(avl_object):
