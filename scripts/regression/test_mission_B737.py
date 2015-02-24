@@ -267,7 +267,7 @@ def vehicle_setup():
     
 
     #initialize the gas turbine network
-    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
@@ -422,11 +422,11 @@ def vehicle_setup():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
-    aerodynamics.initialize(vehicle)
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    #aerodynamics.initialize(vehicle)
     
     # build stability model
-    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
     stability.initialize(vehicle)
     aerodynamics.stability = stability
     vehicle.aerodynamics_model = aerodynamics
@@ -441,35 +441,35 @@ def vehicle_setup():
     #   Define Configurations
     # ------------------------------------------------------------------
 
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    # this configuration is derived from the baseline vehicle
+    ## --- Takeoff Configuration ---
+    #config = vehicle.new_configuration("takeoff")
+    ## this configuration is derived from the baseline vehicle
 
-    # --- Cruise Configuration ---
-    config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.configs.takeoff
+    ## --- Cruise Configuration ---
+    #config = vehicle.new_configuration("cruise")
+    ## this configuration is derived from vehicle.configs.takeoff
 
-    # --- Takeoff Configuration ---
-    takeoff_config = vehicle.configs.takeoff
+    ## --- Takeoff Configuration ---
+    #takeoff_config = vehicle.configs.takeoff
     
-    takeoff_config.wings['main_wing'].flaps_angle = 20. * Units.deg
-    takeoff_config.wings['main_wing'].slats_angle = 25. * Units.deg
+    #takeoff_config.wings['main_wing'].flaps_angle = 20. * Units.deg
+    #takeoff_config.wings['main_wing'].slats_angle = 25. * Units.deg
     
-    takeoff_config.V2_VS_ratio = 1.21
-    takeoff_config.maximum_lift_coefficient = 2.
-    #takeoff_config.max_lift_coefficient_factor = 1.0
+    #takeoff_config.V2_VS_ratio = 1.21
+    #takeoff_config.maximum_lift_coefficient = 2.
+    ##takeoff_config.max_lift_coefficient_factor = 1.0
 
-    # --- Landing Configuration ---
-    landing_config = vehicle.new_configuration("landing")
+    ## --- Landing Configuration ---
+    #landing_config = vehicle.new_configuration("landing")
     
-    landing_config.wings['main_wing'].flaps_angle = 30. * Units.deg
-    landing_config.wings['main_wing'].slats_angle = 25. * Units.deg
+    #landing_config.wings['main_wing'].flaps_angle = 30. * Units.deg
+    #landing_config.wings['main_wing'].slats_angle = 25. * Units.deg
 
-    landing_config.Vref_VS_ratio = 1.23
-    landing_config.maximum_lift_coefficient = 2.
-    #landing_config.max_lift_coefficient_factor = 1.0
+    #landing_config.Vref_VS_ratio = 1.23
+    #landing_config.maximum_lift_coefficient = 2.
+    ##landing_config.max_lift_coefficient_factor = 1.0
     
-    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
+    #landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
