@@ -58,11 +58,11 @@ def update_atmosphere(segment,state):
     atmo_data = atmosphere.compute_values(h)
     
     # pack
-    conditions.freestream.pressure[:,0]       = atmo_data.pressure
-    conditions.freestream.temperature[:,0]    = atmo_data.temperature
-    conditions.freestream.density[:,0]        = atmo_data.density
-    conditions.freestream.speed_of_sound[:,0] = atmo_data.speed_of_sound
-    conditions.freestream.viscosity[:,0]      = atmo_data.dynamic_viscosity
+    conditions.freestream.pressure       = atmo_data.pressure
+    conditions.freestream.temperature    = atmo_data.temperature
+    conditions.freestream.density        = atmo_data.density
+    conditions.freestream.speed_of_sound = atmo_data.speed_of_sound
+    conditions.freestream.viscosity      = atmo_data.dynamic_viscosity
     
     return
     
