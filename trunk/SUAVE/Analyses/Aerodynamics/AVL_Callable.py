@@ -8,15 +8,17 @@
 # ----------------------------------------------------------------------
 
 import os
+import numpy as np
 
 # SUAVE imports
 from SUAVE.Core import Data
 import SUAVE.Plugins.VyPy.tools.redirect as redirect
-
-# local imports
-from .purge_files      import purge_files
-from .Data.Results  import Results
-from .Data.Settings import Settings
+from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics import Aerodynamics
+from SUAVE.Analyses.Missions.Segments.Conditions.Conditions   import Conditions
+from SUAVE.Methods.Aerodynamics.AVL.purge_files   import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Results  import Results
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings import Settings
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases import Run_Case
 
 
 # ----------------------------------------------------------------------
@@ -54,105 +56,113 @@ class AVL_Callable(Data):
             os.mkdir(self.settings.filenames.run_folder)
 
         return
+    
+    def translate_conditions_to_cases(self,conditions):
+        """ Takes SUAVE Conditions() data structure and translates to a Container of
+            avl Run_Case()s.
+        """
+        # set up aerodynamic Conditions object
+        cases = Run_Case.Container()
+        
+        for i in range(conditions._size):
+            case = Run_Case()
+            case.tag  = self.settings.filenames.case_template.format(self.analysis_temps.current_batch_index,i+1)
+            case.mass = conditions.weights.total_mass[i][0]
+            case.conditions.freestream.mach     = conditions.freestream.mach_number[i][0]
+            case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
+            case.conditions.freestream.density  = conditions.freestream.density[i][0]
+            case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
+            case.conditions.aerodynamics.parasite_drag   = 0.0177
+            print "WARNING: still using default CDp=0.0177 in AVL_Callable"
+            case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]
+            case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
+            case.stability_and_control.control_deflections = np.array([[]]) # TODO How is this done?
+            cases.append_case(case)
+
+        return cases
 
     def translate_results_to_conditions(self,cases,results):
         """ Takes avl results structure containing the results of each run case stored
-        	each in its own Data() object. Translates into the Conditions() data structure.
+            each in its own Data() object. Translates into the Conditions() data structure.
         """
-        # set up Conditions structure
-        res = Data()
-        res.freestream   = Data()
-        res.weights      = Data()
-        res.aerodynamics = Data()
+        # set up aerodynamic Conditions object
+        res = Aerodynamics()
+        ones_1col = res.ones_row(1)
+        res.aerodynamics.roll_moment_coefficient  = ones_1col * 0
+        res.aerodynamics.pitch_moment_coefficient = ones_1col * 0
+        res.aerodynamics.yaw_moment_coefficient   = ones_1col * 0
+        res.aerodynamics.drag_breakdown.induced   = Conditions()
+        res.aerodynamics.drag_breakdown.induced.total = ones_1col * 0
+        res.aerodynamics.drag_breakdown.induced.efficiency_factor = ones_1col * 0
+        res.aerodynamics.cz_alpha                 = ones_1col * 0
+        res.aerodynamics.cy_alpha                 = ones_1col * 0
+        res.aerodynamics.cl_alpha                 = ones_1col * 0
+        res.aerodynamics.cm_alpha                 = ones_1col * 0
+        res.aerodynamics.cn_alpha                 = ones_1col * 0
+        res.aerodynamics.cz_beta                  = ones_1col * 0
+        res.aerodynamics.cy_beta                  = ones_1col * 0
+        res.aerodynamics.cl_beta                  = ones_1col * 0
+        res.aerodynamics.cm_beta                  = ones_1col * 0
+        res.aerodynamics.cn_beta                  = ones_1col * 0
+        res.aerodynamics.neutral_point            = ones_1col * 0
 
-        res.freestream.velocity    = []
-        res.freestream.mach_number = []
-        res.freestream.gravity     = []
-        res.freestream.density     = []
+        res.expand_rows(len(cases))
 
-        res.weights.total_mass     = []
-        
-        res.aerodynamics.angle_of_attack          = []
-        res.aerodynamics.side_slip_angle          = []
-        res.aerodynamics.roll_moment_coefficient  = []
-        res.aerodynamics.pitch_moment_coefficient = []
-        res.aerodynamics.yaw_moment_coefficient   = []
-        res.aerodynamics.lift_coefficient         = []
-        res.aerodynamics.drag_coefficient         = []
-        res.aerodynamics.drag_breakdown           = Data()
-        res.aerodynamics.drag_breakdown.induced   = Data()
-        res.aerodynamics.drag_breakdown.induced.total = []
-        res.aerodynamics.drag_breakdown.induced.efficiency_factor = []
-        res.aerodynamics.cz_alpha                 = []
-        res.aerodynamics.cy_alpha                 = []
-        res.aerodynamics.cl_alpha                 = []
-        res.aerodynamics.cm_alpha                 = []
-        res.aerodynamics.cn_alpha                 = []
-        res.aerodynamics.cz_beta                  = []
-        res.aerodynamics.cy_beta                  = []
-        res.aerodynamics.cl_beta                  = []
-        res.aerodynamics.cm_beta                  = []
-        res.aerodynamics.cn_beta                  = []
-        res.aerodynamics.neutral_point            = []
-
-        # Move results data to the Conditions data structure
+        # Move results data to the Conditions data structure       
         for i,case_res in enumerate(results):
-            res.freestream.velocity.append(cases[i].conditions.freestream.velocity)
-            res.freestream.mach_number.append(cases[i].conditions.freestream.mach)
-            res.freestream.gravity.append(cases[i].conditions.freestream.gravitational_acceleration)
-            res.freestream.density.append(cases[i].conditions.freestream.density)
-            res.aerodynamics.angle_of_attack.append(cases[i].conditions.aerodynamics.angle_of_attack)
-            res.aerodynamics.side_slip_angle.append(cases[i].conditions.aerodynamics.side_slip_angle)
+            res.freestream.velocity[i][0] = cases[i].conditions.freestream.velocity
+            res.freestream.mach_number[i][0] = cases[i].conditions.freestream.mach
+            res.freestream.gravity[i][0] = cases[i].conditions.freestream.gravitational_acceleration
+            res.freestream.density[i][0] = cases[i].conditions.freestream.density
 
-            res.weights.total_mass.append(cases[i].mass)
+            res.weights.total_mass[i][0] = cases[i].mass
 
-            res.aerodynamics.roll_moment_coefficient.append(case_res.aerodynamics.roll_moment_coefficient)
-            res.aerodynamics.pitch_moment_coefficient.append(case_res.aerodynamics.pitch_moment_coefficient)
-            res.aerodynamics.yaw_moment_coefficient.append(case_res.aerodynamics.yaw_moment_coefficient)
-            res.aerodynamics.lift_coefficient.append(case_res.aerodynamics.total_lift_coefficient)
-            res.aerodynamics.drag_coefficient.append(case_res.aerodynamics.total_drag_coefficient)
-            res.aerodynamics.drag_breakdown.induced.total.append(case_res.aerodynamics.induced_drag_coefficient)
-            res.aerodynamics.drag_breakdown.induced.efficiency_factor.append(case_res.aerodynamics.span_efficiency_factor)
-            res.aerodynamics.cz_alpha.append(-case_res.stability.alpha_derivatives.lift_curve_slope)
-            res.aerodynamics.cy_alpha.append(case_res.stability.alpha_derivatives.side_force_derivative)
-            res.aerodynamics.cl_alpha.append(case_res.stability.alpha_derivatives.roll_moment_derivative)
-            res.aerodynamics.cm_alpha.append(case_res.stability.alpha_derivatives.pitch_moment_derivative)
-            res.aerodynamics.cn_alpha.append(case_res.stability.alpha_derivatives.yaw_moment_derivative)
-            res.aerodynamics.cz_beta.append(-case_res.stability.beta_derivatives.lift_coefficient_derivative)
-            res.aerodynamics.cy_beta.append(case_res.stability.beta_derivatives.side_force_derivative)
-            res.aerodynamics.cl_beta.append(case_res.stability.beta_derivatives.roll_moment_derivative)
-            res.aerodynamics.cm_beta.append(case_res.stability.beta_derivatives.pitch_moment_derivative)
-            res.aerodynamics.cn_beta.append(case_res.stability.beta_derivatives.yaw_moment_derivative)
-            res.aerodynamics.neutral_point.append(case_res.stability.neutral_point)
+            res.aerodynamics.roll_moment_coefficient[i][0] = case_res.aerodynamics.roll_moment_coefficient
+            res.aerodynamics.pitch_moment_coefficient[i][0] = case_res.aerodynamics.pitch_moment_coefficient
+            res.aerodynamics.yaw_moment_coefficient[i][0] = case_res.aerodynamics.yaw_moment_coefficient
+            res.aerodynamics.lift_coefficient[i][0] = case_res.aerodynamics.total_lift_coefficient
+            res.aerodynamics.drag_coefficient[i][0] = case_res.aerodynamics.total_drag_coefficient
+            res.aerodynamics.drag_breakdown.induced.total[i][0] = case_res.aerodynamics.induced_drag_coefficient
+            res.aerodynamics.drag_breakdown.induced.efficiency_factor[i][0] = case_res.aerodynamics.span_efficiency_factor
+            res.aerodynamics.cz_alpha[i][0] = -case_res.stability.alpha_derivatives.lift_curve_slope
+            res.aerodynamics.cy_alpha[i][0] = case_res.stability.alpha_derivatives.side_force_derivative
+            res.aerodynamics.cl_alpha[i][0] = case_res.stability.alpha_derivatives.roll_moment_derivative
+            res.aerodynamics.cm_alpha[i][0] = case_res.stability.alpha_derivatives.pitch_moment_derivative
+            res.aerodynamics.cn_alpha[i][0] = case_res.stability.alpha_derivatives.yaw_moment_derivative
+            res.aerodynamics.cz_beta[i][0] = -case_res.stability.beta_derivatives.lift_coefficient_derivative
+            res.aerodynamics.cy_beta[i][0] = case_res.stability.beta_derivatives.side_force_derivative
+            res.aerodynamics.cl_beta[i][0] = case_res.stability.beta_derivatives.roll_moment_derivative
+            res.aerodynamics.cm_beta[i][0] = case_res.stability.beta_derivatives.pitch_moment_derivative
+            res.aerodynamics.cn_beta[i][0] = case_res.stability.beta_derivatives.yaw_moment_derivative
+            res.aerodynamics.neutral_point[i][0] = case_res.stability.neutral_point
 
         return res
 
 
-    def __call__(self,cases):
+    def __call__(self,run_conditions):
         """ process vehicle to setup geometry, condititon and configuration
 
             Inputs:
-                conditions - DataDict() of aerodynamic conditions
+                run_conditions - DataDict() of aerodynamic conditions; until input
+                method is finalized, will just assume mass_properties are always as 
+                defined in self.features
 
             Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
+                results - a DataDict() of type 
+                SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics(), augmented with
+                case data on moment coefficients and control derivatives
 
             Assumptions:
-                linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or configuration
 
         """
-        assert cases is not None and len(cases) , 'run_case container is empty or None'
-
-        self.analysis_temps.current_cases = cases
+        #assert cases is not None and len(cases) , 'run_case container is empty or None'
         self.analysis_temps.current_batch_index  += 1
         self.analysis_temps.current_batch_file = self.settings.filenames.batch_template.format(self.analysis_temps.current_batch_index)
+        cases = self.translate_conditions_to_cases(run_conditions)
+        self.analysis_temps.current_cases = cases        
 
         for case in cases:
-            case.result_filename = self.settings.filenames.output_template.format(self.analysis_temps.current_batch_index,case.index)
+            case.result_filename = self.settings.filenames.output_template.format(case.tag)
 
         with redirect.folder(self.settings.filenames.run_folder,[],[],False):
             write_geometry(self)
@@ -179,7 +189,7 @@ class AVL_Callable(Data):
 
 def write_geometry(self):
     # imports
-    from .write_geometry import make_header_text,translate_avl_wing,make_surface_text,translate_avl_body,make_body_text
+    from SUAVE.Methods.Aerodynamics.AVL.write_geometry import make_header_text,translate_avl_wing,make_surface_text,translate_avl_body,make_body_text
 
     # unpack inputs
     aircraft      = self.features
@@ -207,7 +217,7 @@ def write_geometry(self):
 def write_run_cases(self):
 
     # imports
-    from .write_run_cases import make_controls_case_text
+    from SUAVE.Methods.Aerodynamics.AVL.write_run_cases import make_controls_case_text
 
     # unpack avl_inputs
     batch_filename = self.analysis_temps.current_batch_file
@@ -289,9 +299,10 @@ def write_run_cases(self):
 
             # form controls text
             controls = []
-            for cs in case.stability_and_control.control_deflections:
-                cs_text = make_controls_case_text(cs)
-                controls.append(cs_text)
+            if case.stability_and_control.control_deflections:
+                for cs in case.stability_and_control.control_deflections:
+                    cs_text = make_controls_case_text(cs)
+                    controls.append(cs_text)
             controls_text = ''.join(controls)
             case_text = base_case_text.format(index,name,alpha,beta,controls_text,
                                               CD0,mach,v,rho,g,x_cg,y_cg,z_cg,mass,

@@ -5,13 +5,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 import pylab as plt
+import numpy as np
 from copy import deepcopy
 # SUAVE Imports
-from SUAVE.Attributes import Units
-from full_setup_737800 import full_setup_737800
+from SUAVE.Core        import Units
+from full_setup_737800 import vehicle_setup
+from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics import Aerodynamics
 # SUAVE-AVL Imports
-from SUAVE.Methods.Aerodynamics.AVL.Data.Cases    import Run_Case
-from SUAVE.Methods.Aerodynamics.AVL.AVL_Callable  import AVL_Callable
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases import Run_Case
+from SUAVE.Analyses.Aerodynamics.AVL_Callable  import AVL_Callable
 
 
 def main():
@@ -26,19 +28,33 @@ def main():
     print "Start: " + time.ctime()
     
     # Set up test defaults
-    vehicle,mission = full_setup_737800()
-    avl,base_case = setup_avl_test(vehicle)
-    
+    vehicle        = vehicle_setup()
+    #avl,base_case = setup_avl_test(vehicle)
+    avl            = AVL_Callable()
+    avl.keep_files = True
+    avl.initialize(vehicle)    
+    run_conditions = Aerodynamics()
+    ones_1col       = run_conditions.ones_row(1)
+    run_conditions.weights.total_mass = ones_1col*vehicle.mass_properties.max_takeoff
+    run_conditions.freestream.mach_number = ones_1col * 0.2
+    run_conditions.freestream.velocity    = ones_1col * 150 * Units.knots
+    run_conditions.freestream.density     = ones_1col * 1.225
+    run_conditions.freestream.gravity     = ones_1col * 9.81
+    run_conditions.aerodynamics.angle_of_attack = ones_1col * 0.0
+    run_conditions.aerodynamics.side_slip_angle = ones_1col * 0.0
+	    
     # Set up run cases
-    alphas    = [-10,-5,-2,0,2,5,10,20]
-    avl_cases = Run_Case.Container()
-    for alpha in alphas:
-        case = deepcopy(base_case)
-        case.tag = 'alpha={}'.format(alpha)
-        case.conditions.aerodynamics.angle_of_attack = alpha
-        avl_cases.append_case(case)
+    alphas    = np.array([[-10],[-5],[-2],[0],[2],[5],[10],[20]])
+    run_conditions.expand_rows(alphas.shape[0])
+    run_conditions.aerodynamics.angle_of_attack = alphas
+    #avl_cases = Run_Case.Container()
+    #for alpha in alphas:
+        #case = deepcopy(base_case)
+        #case.tag = ('alpha_{}'.format(alpha)).replace('-','neg')
+        #case.conditions.aerodynamics.angle_of_attack = alpha
+        #avl_cases.append_case(case)
     
-    results = avl(avl_cases)
+    results = avl(run_conditions)
     
     # Results
     plt.figure('Drag Polar')

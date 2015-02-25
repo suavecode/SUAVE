@@ -13,6 +13,5 @@ from run_analysis      import run_analysis
 from write_geometry    import write_geometry
 from write_input_deck  import write_input_deck
 from write_run_cases   import write_run_cases
-from AVL_Callable      import AVL_Callable
 
 import Data

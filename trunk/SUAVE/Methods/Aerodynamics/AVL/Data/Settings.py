@@ -36,7 +36,8 @@ class Settings(Data):
 		self.filenames.features        = 'aircraft.avl'
 		self.filenames.batch_template  = 'batch_{0:03d}.run'
 		self.filenames.input_deck      = 'avl_commands.deck'
-		self.filenames.output_template = 'results_case_{0:03d}-{1:03d}.txt'
+		self.filenames.output_template = 'results_{}.txt'
+		self.filenames.case_template   = 'case_{0:03d}_{1:02d}'
 		self.filenames.log_filename    = 'avl_log.txt'
 		self.filenames.err_filename    = 'avl_err.txt'
 		

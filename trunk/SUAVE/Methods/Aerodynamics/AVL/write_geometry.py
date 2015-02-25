@@ -58,9 +58,9 @@ def make_header_text(avl_object):
 	Iysym = avl_object.settings.flow_symmetry.xz_plane
 	Izsym = avl_object.settings.flow_symmetry.xy_parallel
 	Zsym  = avl_object.settings.flow_symmetry.z_symmetry_plane
-	Sref  = avl_object.features.wings['Main Wing'].areas.reference
-	Cref  = avl_object.features.wings['Main Wing'].chords.mean_aerodynamic
-	Bref  = avl_object.features.wings['Main Wing'].spans.projected
+	Sref  = avl_object.features.wings['main_wing'].areas.reference
+	Cref  = avl_object.features.wings['main_wing'].chords.mean_aerodynamic
+	Bref  = avl_object.features.wings['main_wing'].spans.projected
 	Xref  = avl_object.features.mass_properties.center_of_gravity[0]
 	Yref  = avl_object.features.mass_properties.center_of_gravity[1]
 	Zref  = avl_object.features.mass_properties.center_of_gravity[2]
