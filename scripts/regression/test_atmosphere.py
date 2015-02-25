@@ -31,13 +31,18 @@ def main():
 
     # compute values from each model
     conditions = atm.compute_values(z)
-    p = conditions.freestream.pressure
-    T = conditions.freestream.temperature
-    rho = conditions.freestream.density
-    a = conditions.freestream.speed_of_sound
+    p = conditions.pressure
+    T = conditions.temperature
+    rho = conditions.density
+    a = conditions.speed_of_sound
     
     # get the comparison values
     p_truth, T_truth, rho_truth, a_truth = get_truth()
+    
+    p_truth = SUAVE.Methods.Utilities.atleast_2d_col(p_truth)
+    T_truth = SUAVE.Methods.Utilities.atleast_2d_col(T_truth)
+    rho_truth = SUAVE.Methods.Utilities.atleast_2d_col(rho_truth)
+    a_truth = SUAVE.Methods.Utilities.atleast_2d_col(a_truth)  
     
     # difference
     p_err   = np.max( p_truth  -p   )

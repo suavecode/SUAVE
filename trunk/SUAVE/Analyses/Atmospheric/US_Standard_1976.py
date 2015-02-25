@@ -112,6 +112,11 @@ class US_Standard_1976(Atmospheric):
         mew = self.fluid_properties.compute_absolute_viscosity(T)
         
         #p, T, rho, a, mew
+        p = SUAVE.Methods.Utilities.atleast_2d_col(p)
+        T = SUAVE.Methods.Utilities.atleast_2d_col(T)
+        rho = SUAVE.Methods.Utilities.atleast_2d_col(rho)
+        a = SUAVE.Methods.Utilities.atleast_2d_col(a)
+        mew = SUAVE.Methods.Utilities.atleast_2d_col(mew)
         
         atmo_data = Data()
         atmo_data.pressure = p
