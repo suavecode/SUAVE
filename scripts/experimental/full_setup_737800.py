@@ -69,7 +69,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.areas.reference = 125.0      #
     wing.aspect_ratio    = 9.45       #
@@ -121,7 +121,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference = 32.78     #
     wing.aspect_ratio    = 6.16      #
@@ -159,7 +159,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
 
     wing.areas.reference = 26.44     #
     wing.aspect_ratio    = 1.91      #
@@ -197,7 +197,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats = 160
     fuselage.seats_abreast = 6
@@ -232,7 +232,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
 
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
 
