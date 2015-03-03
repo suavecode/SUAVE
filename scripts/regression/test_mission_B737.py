@@ -267,7 +267,7 @@ def vehicle_setup():
     
 
     #initialize the gas turbine network
-    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
@@ -422,11 +422,11 @@ def vehicle_setup():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     
     # build stability model
-    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
     stability.initialize(vehicle)
     aerodynamics.stability = stability
     vehicle.aerodynamics_model = aerodynamics
