@@ -34,14 +34,14 @@ def main():
     avl.keep_files = True
     avl.initialize(vehicle)    
     run_conditions = Aerodynamics()
-    ones_1col       = run_conditions.ones_row(1)
+    ones_1col      = run_conditions.ones_row(1)
     run_conditions.weights.total_mass = ones_1col*vehicle.mass_properties.max_takeoff
     run_conditions.freestream.mach_number = ones_1col * 0.2
     run_conditions.freestream.velocity    = ones_1col * 150 * Units.knots
     run_conditions.freestream.density     = ones_1col * 1.225
     run_conditions.freestream.gravity     = ones_1col * 9.81
-    run_conditions.aerodynamics.angle_of_attack = ones_1col * 0.0
-    run_conditions.aerodynamics.side_slip_angle = ones_1col * 0.0
+    #run_conditions.aerodynamics.angle_of_attack = ones_1col * 0.0
+    #run_conditions.aerodynamics.side_slip_angle = ones_1col * 0.0
 	    
     # Set up run cases
     alphas    = np.array([[-10],[-5],[-2],[0],[2],[5],[10],[20]])
@@ -57,12 +57,12 @@ def main():
     results = avl(run_conditions)
     
     # Results
-    plt.figure('Drag Polar')
+    plt.figure('Induced Drag Polar')
     axes = plt.gca()
-    CL = results.aerodynamics.lift_coefficient
-    CD = results.aerodynamics.drag_coefficient
-    CM = results.aerodynamics.pitch_moment_coefficient
-    axes.plot(CD,CL,'bo-')
+    CL  = results.aerodynamics.lift_coefficient
+    CDi = results.aerodynamics.drag_breakdown.induced.total
+    CM  = results.aerodynamics.pitch_moment_coefficient
+    axes.plot(CDi,CL,'bo-')
     axes.set_xlabel('Total Drag Coefficient')
     axes.set_ylabel('Total Lift Coefficient')
     axes.grid(True)

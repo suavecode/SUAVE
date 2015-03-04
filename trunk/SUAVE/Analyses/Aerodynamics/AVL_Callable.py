@@ -72,11 +72,9 @@ class AVL_Callable(Data):
             case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
             case.conditions.freestream.density  = conditions.freestream.density[i][0]
             case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
-            case.conditions.aerodynamics.parasite_drag   = 0.0177
-            print "WARNING: still using default CDp=0.0177 in AVL_Callable"
             case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]
             case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
-            case.stability_and_control.control_deflections = np.array([[]]) # TODO How is this done?
+            case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
             cases.append_case(case)
 
         return cases
@@ -88,6 +86,7 @@ class AVL_Callable(Data):
         # set up aerodynamic Conditions object
         res = Aerodynamics()
         ones_1col = res.ones_row(1)
+	# add missing entries
         res.aerodynamics.roll_moment_coefficient  = ones_1col * 0
         res.aerodynamics.pitch_moment_coefficient = ones_1col * 0
         res.aerodynamics.yaw_moment_coefficient   = ones_1col * 0
@@ -121,7 +120,6 @@ class AVL_Callable(Data):
             res.aerodynamics.pitch_moment_coefficient[i][0] = case_res.aerodynamics.pitch_moment_coefficient
             res.aerodynamics.yaw_moment_coefficient[i][0] = case_res.aerodynamics.yaw_moment_coefficient
             res.aerodynamics.lift_coefficient[i][0] = case_res.aerodynamics.total_lift_coefficient
-            res.aerodynamics.drag_coefficient[i][0] = case_res.aerodynamics.total_drag_coefficient
             res.aerodynamics.drag_breakdown.induced.total[i][0] = case_res.aerodynamics.induced_drag_coefficient
             res.aerodynamics.drag_breakdown.induced.efficiency_factor[i][0] = case_res.aerodynamics.span_efficiency_factor
             res.aerodynamics.cz_alpha[i][0] = -case_res.stability.alpha_derivatives.lift_curve_slope
@@ -242,26 +240,26 @@ def write_run_cases(self):
  qc/2V     =   0.00000
  rb/2V     =   0.00000
  CL        =   0.00000
- CDo       =   {5}
+ CDo       =   0.00000
  bank      =   0.00000     deg
  elevation =   0.00000     deg
  heading   =   0.00000     deg
- Mach      =   {6}
- velocity  =   {7}     m/s
- density   =   {8}     kg/m^3
- grav.acc. =   {9}     m/s^2
+ Mach      =   {5}
+ velocity  =   {6}     m/s
+ density   =   {7}     kg/m^3
+ grav.acc. =   {8}     m/s^2
  turn_rad. =   0.00000     m
  load_fac. =   0.00000
- X_cg      =   {10}     m
- Y_cg      =   {11}     m
- Z_cg      =   {12}     m
- mass      =   {13}     kg
- Ixx       =   {14}     kg-m^2
- Iyy       =   {15}     kg-m^2
- Izz       =   {16}     kg-m^2
- Ixy       =   {17}     kg-m^2
- Iyz       =   {18}     kg-m^2
- Izx       =   {19}     kg-m^2
+ X_cg      =   {9}     m
+ Y_cg      =   {10}     m
+ Z_cg      =   {11}     m
+ mass      =   {12}     kg
+ Ixx       =   {13}     kg-m^2
+ Iyy       =   {14}     kg-m^2
+ Izz       =   {15}     kg-m^2
+ Ixy       =   {16}     kg-m^2
+ Iyz       =   {17}     kg-m^2
+ Izx       =   {18}     kg-m^2
  visc CL_a =   0.00000
  visc CL_u =   0.00000
  visc CM_a =   0.00000
@@ -291,7 +289,6 @@ def write_run_cases(self):
             name  = case.tag
             alpha = case.conditions.aerodynamics.angle_of_attack
             beta  = case.conditions.aerodynamics.side_slip_angle
-            CD0   = case.conditions.aerodynamics.parasite_drag
             mach  = case.conditions.freestream.mach
             v     = case.conditions.freestream.velocity
             rho   = case.conditions.freestream.density
@@ -305,7 +302,7 @@ def write_run_cases(self):
                     controls.append(cs_text)
             controls_text = ''.join(controls)
             case_text = base_case_text.format(index,name,alpha,beta,controls_text,
-                                              CD0,mach,v,rho,g,x_cg,y_cg,z_cg,mass,
+                                              mach,v,rho,g,x_cg,y_cg,z_cg,mass,
                                               Ixx,Iyy,Izz,Ixy,Iyz,Izx)
             runcases.write(case_text)
 
@@ -422,7 +419,7 @@ def read_results(self):
             case_res.aerodynamics.pitch_moment_coefficient = float(lines[20][32:42].strip())
             case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
             case_res.aerodynamics.total_lift_coefficient   = float(lines[23][10:20].strip())
-            case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
+            #case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
             case_res.aerodynamics.induced_drag_coefficient = float(lines[25][32:42].strip())
             case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
 
