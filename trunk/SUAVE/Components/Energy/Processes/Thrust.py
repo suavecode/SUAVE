@@ -61,6 +61,8 @@ class Thrust(Energy_Component):
         self.outputs.fuel_flow_rate                   = 1.0
         self.outputs.fuel_mass                        = 1.0
         self.outputs.power                            = 1.0
+        self.design_thrust                            = 1.0
+        self.mass_flow_rate_design                    = 1.0
     
  
     def compute(self,conditions):
@@ -168,6 +170,71 @@ class Thrust(Energy_Component):
         self.outputs.core_mass_flow_rate               = mdot_core
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
+    
+    
+    
+    def size(self,conditions):
+        
+        #unpack the values
+        
+        #unpacking from conditions
+        gamma                = conditions.freestream.isentropic_expansion_factor
+        Cp                   = conditions.freestream.specific_heat_at_constant_pressure
+        u0                   = conditions.freestream.velocity
+        a0                   = conditions.freestream.speed_of_sound
+        M0                   = conditions.freestream.mach_number
+        p0                   = conditions.freestream.pressure  
+        g                    = conditions.freestream.gravity
+        throttle             = conditions.propulsion.throttle        
+        
+        #unpacking from inputs
+        f                    = self.inputs.fuel_to_air_ratio
+        stag_temp_lpt_exit   = self.inputs.stag_temp_lpt_exit
+        stag_press_lpt_exit  = self.inputs.stag_press_lpt_exit
+        core_nozzle          = self.inputs.core_nozzle
+        fan_nozzle           = self.inputs.fan_nozzle
+        fan_exit_velocity    = self.inputs.fan_nozzle.velocity
+        core_exit_velocity   = self.inputs.core_nozzle.velocity
+        fan_area_ratio       = self.inputs.fan_nozzle.area_ratio
+        core_area_ratio      = self.inputs.core_nozzle.area_ratio
+        
+        #unpacking from self
+        bypass_ratio         =  self.bypass_ratio
+        Tref                 = self.reference_temperature
+        Pref                 = self.reference_pressure
+        no_eng               = self.number_of_engines
+        mdhc                 =  self.compressor_nondimensional_massflow
+        design_thrust        = self.design_thrust
+         
+        #computing the area ratios for the core and fan
+        Ae_b_Ao          = 1/(1+bypass_ratio)*core_area_ratio
+        A1e_b_A1o        = bypass_ratio/(1+bypass_ratio)*fan_area_ratio
+
+        #computing the non dimensional thrust
+        Thrust_nd        = gamma*M0**2*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
+        Fsp              = 1/(gamma*M0)*Thrust_nd
+        
+        #Computing the sepcific impulse
+        Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
+        
+        #Computing the TSFC
+        TSFC             = 3600/Isp  
+         
+        #compute the core mass flow rate
+        
+        mdot_core        = design_thrust/(Fsp*a0*(1+bypass_ratio)*throttle)
+        
+        mdhc             = mdot_core*np.sqrt(stag_temp_lpt_exit/Tref)*(Pref/stag_press_lpt_exit)
+        
+        #pack outputs
+        self.mass_flow_rate_design                      = mdot_core
+        self.compressor_nondimensional_massflow         = mdhc
+        
+         
+        
+        return
+    
+    
     
     
     __call__ = compute         

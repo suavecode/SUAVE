@@ -22,7 +22,7 @@ def main():
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
     turbofan.tag = 'turbo_fan'    
     turbofan.number_of_engines   = 2.                              # Number of engines on the aircraft
-    turbofan.thrust.design  = 1000.   * Units.newton    # Define Thrust in Newtons    
+    turbofan.design_thrust  = 200.   * Units.newton    # Define Thrust in Newtons    
     vehicle.append_component(turbofan) 
 
     vehicle.passengers                                  = 170.                            # Number of passengers
