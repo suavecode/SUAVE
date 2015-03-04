@@ -55,3 +55,5 @@ nosetests.xml
 # Mac
 .DS_Store
 
+
+*.dat

@@ -72,6 +72,7 @@ def vehicle_setup():
     
     wing.vertical                = False
     wing.symmetric               = True
+    wing.high_lift               = True
     
     wing.dynamic_pressure_ratio  = 1.0
     
