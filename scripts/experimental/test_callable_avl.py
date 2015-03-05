@@ -4,15 +4,17 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
 import pylab as plt
 import numpy as np
 from copy import deepcopy
+
 # SUAVE Imports
 from SUAVE.Core        import Units
 from full_setup_737800 import vehicle_setup
-from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics import Aerodynamics
+from SUAVE.Analyses.Missions.Segments.Conditions import Aerodynamics
+
 # SUAVE-AVL Imports
-from SUAVE.Methods.Aerodynamics.AVL.Data.Cases import Run_Case
 from SUAVE.Analyses.Aerodynamics.AVL_Callable  import AVL_Callable
 
 
@@ -29,30 +31,22 @@ def main():
     
     # Set up test defaults
     vehicle        = vehicle_setup()
-    #avl,base_case = setup_avl_test(vehicle)
     avl            = AVL_Callable()
     avl.keep_files = True
-    avl.initialize(vehicle)    
+    avl.initialize(vehicle)
+
+	# set up conditions    
     run_conditions = Aerodynamics()
-    ones_1col      = run_conditions.ones_row(1)
-    run_conditions.weights.total_mass = ones_1col*vehicle.mass_properties.max_takeoff
-    run_conditions.freestream.mach_number = ones_1col * 0.2
-    run_conditions.freestream.velocity    = ones_1col * 150 * Units.knots
-    run_conditions.freestream.density     = ones_1col * 1.225
-    run_conditions.freestream.gravity     = ones_1col * 9.81
-    #run_conditions.aerodynamics.angle_of_attack = ones_1col * 0.0
-    #run_conditions.aerodynamics.side_slip_angle = ones_1col * 0.0
+    run_conditions.weights.total_mass[0,0]     = vehicle.mass_properties.max_takeoff
+    run_conditions.freestream.mach_number[0,0] = 0.2
+    run_conditions.freestream.velocity[0,0]    = 150 * Units.knots
+    run_conditions.freestream.density[0,0]     = 1.225
+    run_conditions.freestream.gravity[0,0]     = 9.81
 	    
     # Set up run cases
-    alphas    = np.array([[-10],[-5],[-2],[0],[2],[5],[10],[20]])
+    alphas    = np.array([-10,-5,-2,0,2,5,10,20])
     run_conditions.expand_rows(alphas.shape[0])
-    run_conditions.aerodynamics.angle_of_attack = alphas
-    #avl_cases = Run_Case.Container()
-    #for alpha in alphas:
-        #case = deepcopy(base_case)
-        #case.tag = ('alpha_{}'.format(alpha)).replace('-','neg')
-        #case.conditions.aerodynamics.angle_of_attack = alpha
-        #avl_cases.append_case(case)
+    run_conditions.aerodynamics.angle_of_attack[:,0] = alphas
     
     results = avl(run_conditions)
     
@@ -83,26 +77,6 @@ def main():
     return
 
 
-# -------------------------------------------------------------
-#  Setup function
-# -------------------------------------------------------------
-
-def setup_avl_test(vehicle):
-
-    default_case = Run_Case()
-    default_case.conditions.freestream.mach     = 0.2
-    default_case.conditions.freestream.velocity = 150 * Units.knots
-    default_case.conditions.aerodynamics.parasite_drag = 0.0177
-
-    avl_instance = AVL_Callable()
-    avl_instance.keep_files = True
-    avl_instance.initialize(vehicle)
-
-    for wing in vehicle.wings:
-        for cs in wing.control_surfaces:
-            default_case.append_control_deflection(cs.tag,0.0) # default all control surfaces to zero deflection
-
-    return avl_instance, default_case
 
 
 # ----------------------------------------------------------------------        
