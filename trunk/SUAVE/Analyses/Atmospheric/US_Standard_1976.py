@@ -9,13 +9,22 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Attributes.Gases import Air
+from warnings import warn
+
+import SUAVE
+
 from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Analyses.Atmospheric import Atmospheric
+
+from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Planets import Earth
+
+from SUAVE.Analyses.Missions.Segments.Conditions import Conditions
+
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-import SUAVE
+from SUAVE.Methods.Utilities import atleast_2d_col
+
 
 # ----------------------------------------------------------------------
 #  Classes
@@ -27,10 +36,11 @@ class US_Standard_1976(Atmospheric):
     """
     
     def __defaults__(self):
+        
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
         self.update(atmo_data)        
     
-    def compute_values(self,altitude,type="all"):
+    def compute_values(self,altitude):
 
         """ Computes values from the International Standard Atmosphere
 
@@ -54,75 +64,76 @@ class US_Standard_1976(Atmospheric):
 
         # unpack
         zs   = altitude
-        gas_base  = self.fluid_properties
-        grav_base = self.planet.sea_level_gravity
-        Rad_base  = self.planet.mean_radius
-        self.fluid_properties = Air()
-        self.planet = Earth()     
-        gas  = self.fluid_properties
-        grav = self.planet.sea_level_gravity        
-        Rad  = self.planet.mean_radius
-        if (gas_base != self.fluid_properties) or (grav_base != self.planet.sea_level_gravity) or (Rad_base != Rad):
-            print 'Warning: US Standard Atmosphere being used outside expected conditions'
-            
+        gas    = self.fluid_properties
+        planet = self.planet
+        grav   = self.planet.sea_level_gravity        
+        Rad    = self.planet.mean_radius
+        gamma  = gas.gas_specific_constant
+        
+        # check properties
+        if not gas == Air():
+            warn('US Standard Atmosphere not using Air fluid properties')
+        if not planet == Earth():
+            warn('US Standard Atmosphere not using Earth planet properties')          
+        
+        # convert input if necessary
+        zs = atleast_2d_col(zs)
+
         # get model altitude bounds
         zmin = self.breaks.altitude[0]
-        zmax = self.breaks.altitude[-1]        
-
-        # convert input if necessary
-        zs = SUAVE.Methods.Utilities.atleast_2d_col(zs)
-
+        zmax = self.breaks.altitude[-1]   
+        
         # convert geometric to geopotential altitude
         zs = zs/(1 + zs/Rad)
         
-        # Remove redudant brackets
-        if len(zs.shape) == 2:
-            zs = zs[:,0]
-
-        size_zs = np.size(zs)
-        # initialize return data
-        p = np.zeros(size_zs)
-        T = np.zeros(size_zs)
-        rho = np.zeros(size_zs)
-        a = np.zeros(size_zs)
-        mew = np.zeros(size_zs)
-        z0 = np.zeros(size_zs)
-        T0 = np.zeros(size_zs)
-        p0 = np.zeros(size_zs)
-        alpha = np.zeros(size_zs)
-        
+        # check ranges
         if np.amin(zs) < zmin:
             print "Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km"
             zs[zs < zmin] = zmin
         if np.amax(zs) > zmax:
             print "Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km"   
-            zs[zs > zmax] = zmax
-        for i in range(len(self.breaks.altitude)-1): # this uses >= and <= to capture both edges and because values should be the same at the edges
-            z0[(zs>=self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])] = self.breaks.altitude[i]
-            T0[(zs>=self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])] = self.breaks.temperature[i]
-            p0[(zs>=self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])] = self.breaks.pressure[i]
-            alpha[(zs>=self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])] = -(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
-                                                                                        (self.breaks.altitude[i+1] - self.breaks.altitude[i])
+            zs[zs > zmax] = zmax        
+
+        # initialize return data
+        zeros = np.zeros_like(zs)
+        p     = zeros * 0.0
+        T     = zeros * 0.0
+        rho   = zeros * 0.0
+        a     = zeros * 0.0
+        mew   = zeros * 0.0
+        z0    = zeros * 0.0
+        T0    = zeros * 0.0
+        p0    = zeros * 0.0
+        alpha = zeros * 0.0
+        
+        # populate the altitude breaks
+        # this uses >= and <= to capture both edges and because values should be the same at the edges
+        for i in range( len(self.breaks.altitude)-1 ): 
+            i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
+            z0[ i_inside ]    = self.breaks.altitude[i]
+            T0[ i_inside ]    = self.breaks.temperature[i]
+            p0[ i_inside ]    = self.breaks.pressure[i]
+            alpha[ i_inside ] = -(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
+                                 (self.breaks.altitude[i+1]    - self.breaks.altitude[i])
+        
+        # interpolate the breaks
         dz = zs-z0
-        p[alpha == 0.0] = p0[alpha == 0.0]*np.exp(-1*dz[alpha == 0.0]*grav/(gas.gas_specific_constant*T0[alpha == 0.0]))
-        p[alpha != 0.0] = p0[alpha != 0.0]*((1 - alpha[alpha != 0.0]*dz[alpha != 0.0]/T0[alpha != 0.0])**(1*grav/(alpha[alpha != 0.0]*gas.gas_specific_constant)))
-        T = T0 - dz*alpha
-        rho = self.fluid_properties.compute_density(T,p)
-        a = self.fluid_properties.compute_speed_of_sound(T)
-        mew = self.fluid_properties.compute_absolute_viscosity(T)
+        i_isoth = (alpha == 0.)
+        i_adiab = (alpha != 0.)
+        p[i_isoth] = p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(gamma*T0[i_isoth]))
+        p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*gamma)) )
         
-        #p, T, rho, a, mew
-        p = SUAVE.Methods.Utilities.atleast_2d_col(p)
-        T = SUAVE.Methods.Utilities.atleast_2d_col(T)
-        rho = SUAVE.Methods.Utilities.atleast_2d_col(rho)
-        a = SUAVE.Methods.Utilities.atleast_2d_col(a)
-        mew = SUAVE.Methods.Utilities.atleast_2d_col(mew)
-        
-        atmo_data = Data()
-        atmo_data.pressure = p
-        atmo_data.temperature = T
-        atmo_data.density = rho
-        atmo_data.speed_of_sound = a
+        T   = T0 - dz*alpha
+        rho = gas.compute_density(T,p)
+        a   = gas.compute_speed_of_sound(T)
+        mew = gas.compute_absolute_viscosity(T)
+                
+        atmo_data = Conditions()
+        atmo_data.expand_rows(zs.shape[0])
+        atmo_data.pressure          = p
+        atmo_data.temperature       = T
+        atmo_data.density           = rho
+        atmo_data.speed_of_sound    = a
         atmo_data.dynamic_viscosity = mew
         
         return atmo_data
@@ -140,11 +151,11 @@ if __name__ == '__main__':
     atmosphere = US_Standard_1976()
     
     data = atmosphere.compute_values(h)
-    p = data.freestream.pressure
-    T = data.freestream.temperature
-    rho = data.freestream.density
-    a = data.freestream.speed_of_sound
-    mew = data.freestream.dynamic_viscosity
+    p   = data.pressure
+    T   = data.temperature
+    rho = data.density
+    a   = data.speed_of_sound
+    mew = data.dynamic_viscosity
     
     plt.figure(1)
     plt.plot(p,h)
@@ -171,4 +182,4 @@ if __name__ == '__main__':
     plt.xlabel('Viscosity (kg/m-s)')
     plt.ylabel('Altitude (km)')   
 
-    plt.show()
+    plt.show(block=True)
