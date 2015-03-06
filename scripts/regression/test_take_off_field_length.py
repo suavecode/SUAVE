@@ -460,8 +460,6 @@ def base_analysis(vehicle):
     propulsion.vehicle = vehicle
     analyses.append(propulsion)
     
-
-    
     # done!
     return analyses    
 
