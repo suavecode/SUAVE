@@ -70,7 +70,7 @@ def main():
     fuselage.width                              = 20.9    * Units.feet
     fuselage.heights.at_quarter_length          = 26.0    * Units.feet
     fuselage.heights.at_three_quarters_length   = 19.7    * Units.feet
-    fuselage.heights.at_vertical_root_quarter_chord = 23.8    * Units.feet
+    fuselage.heights.at_wing_root_quarter_chord = 23.8    * Units.feet
     vehicle.append_component(fuselage)
 
     configuration = Data()
@@ -78,7 +78,8 @@ def main():
     configuration.mass_properties.center_of_gravity = Data()
     configuration.mass_properties.center_of_gravity = np.array([112.2,0,6.8]) * Units.feet
 
-    segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
+    #segment            = SUAVE.Analyses.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Missions.Segments.Segment()
     segment.freestream = Data()
     segment.freestream.mach_number = Mach[0]
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
