@@ -92,7 +92,7 @@ def main():
     plt.xlabel('Weight (kg)')
     plt.ylabel('Takeoff field length (m)')    
     
-    #assert( TOFL_error   < 1e-5 )
+    assert( TOFL_error   < 1e-5 )
 
     return 
     
