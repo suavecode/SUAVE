@@ -102,7 +102,7 @@ def main():
     net.avionics        = avionics      
     
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Battery()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 50.  #kg
     bat.type = 'Li-Ion'
     bat.resistance = 0.0
