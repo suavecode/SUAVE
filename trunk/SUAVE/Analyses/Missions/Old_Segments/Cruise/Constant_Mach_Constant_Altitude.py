@@ -67,8 +67,8 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         atmo = self.analyses.atmosphere
         
         # compute speed, constant with constant altitude
-        a = atmo.compute_values(alt,'speed_of_sound')
-        self.air_speed = mach * a
+        atmo_cond = atmo.compute_values(alt)
+        self.air_speed = mach * atmo_cond.freestream.speed_of_sound
         
         # call super class's initialize
         conditions = Constant_Speed_Constant_Altitude.initialize_conditions(self,conditions,numerics,initials)
