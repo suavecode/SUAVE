@@ -56,14 +56,14 @@ class AVL_Callable(Data):
             os.mkdir(self.settings.filenames.run_folder)
 
         return
-    
+
     def translate_conditions_to_cases(self,conditions):
         """ Takes SUAVE Conditions() data structure and translates to a Container of
             avl Run_Case()s.
         """
         # set up aerodynamic Conditions object
         cases = Run_Case.Container()
-        
+
         for i in range(conditions._size):
             case = Run_Case()
             case.tag  = self.settings.filenames.case_template.format(self.analysis_temps.current_batch_index,i+1)
@@ -86,7 +86,7 @@ class AVL_Callable(Data):
         # set up aerodynamic Conditions object
         res = Aerodynamics()
         ones_1col = res.ones_row(1)
-	# add missing entries
+        # add missing entries
         res.aerodynamics.roll_moment_coefficient  = ones_1col * 0
         res.aerodynamics.pitch_moment_coefficient = ones_1col * 0
         res.aerodynamics.yaw_moment_coefficient   = ones_1col * 0
@@ -408,10 +408,8 @@ def read_results(self):
     results = Data()
 
     for case in self.analysis_temps.current_cases:
-        res_file = open(case.result_filename)
         num_ctrl = len(case.stability_and_control.control_deflections)
-
-        try:
+        with open(case.result_filename,'r') as res_file:
             case_res = Results()
             case_res.tag = case.tag
             lines   = res_file.readlines()
@@ -437,7 +435,5 @@ def read_results(self):
 
             results.append(case_res)
 
-        finally:
-            res_file.close()
 
     return results
