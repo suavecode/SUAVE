@@ -9,6 +9,8 @@ import pylab as plt
 import numpy as np
 from copy import deepcopy
 
+import sys
+
 # SUAVE Imports
 from SUAVE.Core        import Units
 from full_setup_737800 import vehicle_setup
@@ -34,6 +36,9 @@ def main():
     avl            = AVL_Callable()
     avl.keep_files = True
     avl.initialize(vehicle)
+    
+    avl.settings.filenames.log_filename = sys.stdout
+    avl.settings.filenames.err_filename = sys.stderr
 
         # set up conditions    
     run_conditions = Aerodynamics()

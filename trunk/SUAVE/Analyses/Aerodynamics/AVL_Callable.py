@@ -137,7 +137,7 @@ class AVL_Callable(Data):
         return res
 
 
-    def __call__(self,run_conditions):
+    def evaluate(self,run_conditions):
         """ process vehicle to setup geometry, condititon and configuration
 
             Inputs:
@@ -177,7 +177,8 @@ class AVL_Callable(Data):
 
         return results
 
-
+    def __call__(self,*args,**kwarg):
+        return self.evaluate(*args,**kwarg)
 
 
 
@@ -377,7 +378,10 @@ def call_avl(self):
 
     log_file = self.settings.filenames.log_filename
     err_file = self.settings.filenames.err_filename
-    purge_files([log_file,err_file])
+    if isinstance(log_file,str):
+        purge_files(log_file)
+    if isinstance(err_file,str):
+        purge_files(err_file)
     avl_call = self.settings.filenames.avl_bin_name
     geometry = self.settings.filenames.features
     in_deck  = self.settings.filenames.input_deck
