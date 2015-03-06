@@ -56,14 +56,14 @@ class AVL_Callable(Data):
             os.mkdir(self.settings.filenames.run_folder)
 
         return
-    
+
     def translate_conditions_to_cases(self,conditions):
         """ Takes SUAVE Conditions() data structure and translates to a Container of
             avl Run_Case()s.
         """
         # set up aerodynamic Conditions object
         cases = Run_Case.Container()
-        
+
         for i in range(conditions._size):
             case = Run_Case()
             case.tag  = self.settings.filenames.case_template.format(self.analysis_temps.current_batch_index,i+1)
@@ -86,7 +86,7 @@ class AVL_Callable(Data):
         # set up aerodynamic Conditions object
         res = Aerodynamics()
         ones_1col = res.ones_row(1)
-	# add missing entries
+        # add missing entries
         res.aerodynamics.roll_moment_coefficient  = ones_1col * 0
         res.aerodynamics.pitch_moment_coefficient = ones_1col * 0
         res.aerodynamics.yaw_moment_coefficient   = ones_1col * 0
@@ -137,7 +137,7 @@ class AVL_Callable(Data):
         return res
 
 
-    def __call__(self,run_conditions):
+    def evaluate(self,run_conditions):
         """ process vehicle to setup geometry, condititon and configuration
 
             Inputs:
@@ -177,7 +177,8 @@ class AVL_Callable(Data):
 
         return results
 
-
+    def __call__(self,*args,**kwarg):
+        return self.evaluate(*args,**kwarg)
 
 
 
@@ -377,7 +378,10 @@ def call_avl(self):
 
     log_file = self.settings.filenames.log_filename
     err_file = self.settings.filenames.err_filename
-    purge_files([log_file,err_file])
+    if isinstance(log_file,str):
+        purge_files(log_file)
+    if isinstance(err_file,str):
+        purge_files(err_file)
     avl_call = self.settings.filenames.avl_bin_name
     geometry = self.settings.filenames.features
     in_deck  = self.settings.filenames.input_deck
