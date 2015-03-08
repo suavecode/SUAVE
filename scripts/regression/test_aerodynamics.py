@@ -22,6 +22,7 @@ import random
 def main():
     
     vehicle = vehicle_setup() # Create the vehicle for testing
+    vehicle.aerodynamics_model.finalize()
     
     test_num = 11 # Length of arrays used in this test
     
@@ -31,7 +32,7 @@ def main():
     
     AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
     
-    lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models.lift_coefficient
+    lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient
     
     wing_lift = lift_model(AoA)
     
@@ -379,53 +380,18 @@ def vehicle_setup():
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
     
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.initialize(vehicle)
     
-    # build stability model
-    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
-    stability.initialize(vehicle)
-    aerodynamics.stability = stability
     vehicle.aerodynamics_model = aerodynamics
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.0000    
     
     # ------------------------------------------------------------------
     #   Simple Propulsion Model
     # ------------------------------------------------------------------     
     
     vehicle.propulsion_model = vehicle.propulsors
-
-    # ------------------------------------------------------------------
-    #   Define Configurations
-    # ------------------------------------------------------------------
-
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    # this configuration is derived from the baseline vehicle
-
-    # --- Cruise Configuration ---
-    config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.configs.takeoff
-
-    # --- Takeoff Configuration ---
-    takeoff_config = vehicle.configs.takeoff
-    takeoff_config.wings['main_wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.wings['main_wing'].slats_angle  = 25. * Units.deg
-    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
-    takeoff_config.V2_VS_ratio = 1.21
-    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
-    takeoff_config.maximum_lift_coefficient = 2.
-    #takeoff_config.max_lift_coefficient_factor = 1.0
-
-    # --- Landing Configuration ---
-    landing_config = vehicle.new_configuration("landing")
-    landing_config.wings['main_wing'].flaps_angle =  30. * Units.deg
-    landing_config.wings['main_wing'].slats_angle  = 25. * Units.deg
-    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
-    landing_config.Vref_VS_ratio = 1.23
-    # CLmax for a given configuration may be informed by user
-    landing_config.maximum_lift_coefficient = 2.
-    #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
     
 
     # ------------------------------------------------------------------
