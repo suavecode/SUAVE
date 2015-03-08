@@ -1,20 +1,60 @@
 # Tim Momose, October 2014
 
 import os
+from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results
 
-def run_analysis(avl_inputs):
 
-    avl_bin_path      = avl_inputs.avl_bin_path
-    files_path        = avl_inputs.input_files.reference_path
-    geometry_filename = avl_inputs.input_files.geometry
-    deck_filename     = avl_inputs.input_files.deck
+def run_analysis(avl_object):
 
-    geometry_path = os.path.abspath(os.path.join(files_path,geometry_filename))
-    deck_path     = os.path.abspath(os.path.join(files_path,deck_filename))
+    call_avl(avl_object)
+    results = read_results(avl_object)
 
-    command = build_avl_command(geometry_path,deck_path,avl_bin_path)
-    run_command(command)
+    return results
 
+
+def call_avl(avl_object):
+
+    import sys
+    import time
+    import subprocess
+    import SUAVE.Plugins.VyPy.tools.redirect as redirect
+
+    log_file = avl_object.settings.filenames.log_filename
+    err_file = avl_object.settings.filenames.err_filename
+    if isinstance(log_file,str):
+        purge_files(log_file)
+    if isinstance(err_file,str):
+        purge_files(err_file)
+    avl_call = avl_object.settings.filenames.avl_bin_name
+    geometry = avl_object.settings.filenames.features
+    in_deck  = avl_object.settings.filenames.input_deck
+
+    with redirect.output(log_file,err_file):
+
+        ctime = time.ctime() # Current date and time stamp
+        sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
+        sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
+
+        with open(in_deck,'r') as commands:
+            avl_run = subprocess.Popen([avl_call,geometry],stdout=sys.stdout,stderr=sys.stderr,stdin=subprocess.PIPE)
+            for line in commands:
+                avl_run.stdin.write(line)
+        avl_run.wait()
+
+        exit_status = avl_run.returncode
+        ctime = time.ctime()
+        sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
+        sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))        
+
+    return exit_status
+
+
+
+
+
+#=====================#
+#     OLD METHODS     #
+#=====================#
 
 
 def build_avl_command(geometry_path,deck_path,avl_bin_path):
@@ -45,22 +85,3 @@ def run_command(command):
         sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))		
 
     return exit_status
-
-    #with open(log_file,'a') as log, open(err_file,'a') as err:
-
-        #ctime = time.ctime() # Current date and time stamp
-        #log.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
-        #err.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
-        #log.flush()
-        #err.flush()
-
-        #with open(in_deck,'r') as commands:
-            #avl_run = subprocess.Popen([avl_call,geometry,batch],stdout=log,stderr=err,stdin=subprocess.PIPE)
-            #for line in commands:
-                #avl_run.stdin.write(line)
-        #avl_run.wait()
-
-        #exit_status = avl_run.returncode
-        #ctime = time.ctime()
-        #log.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
-        #err.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))  
