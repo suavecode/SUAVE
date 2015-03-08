@@ -45,7 +45,35 @@ def full_setup():
     analyses.missions = missions_analyses
     
     return configs, analyses
-
+    
+    '''
+    the end result:
+    
+    configs
+        .base
+            .wings
+            .fuselages
+            .propulsors
+            .energy
+        .takeoff
+        .cruise
+        .landing
+    analyses
+        .configs
+            .base
+                .aerodynamics
+                .propulsion
+                .weights
+                .sizing
+            .takeoff
+            .cruise
+            .landing
+        .missions
+            .base
+            .fuel
+            .shortfield
+            .payload
+    '''
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -616,7 +644,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheres.Atmosphere()
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)    
     

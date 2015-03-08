@@ -48,7 +48,7 @@ class Vehicle(Analysis.Container):
             SUAVE.Analyses.Stability.Stability       : 'stability'    ,
             SUAVE.Analyses.Energy.Propulsion         : 'propulsion'   ,
             SUAVE.Analyses.Energy.Energy             : 'energy'       ,
-            SUAVE.Analyses.Atmospheres.Atmosphere    : 'atmosphere'   ,
+            SUAVE.Analyses.Atmospheric.Atmospheric   : 'atmosphere'   ,
             SUAVE.Analyses.Planets.Planet            : 'planet'       ,
         }
 

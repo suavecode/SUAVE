@@ -35,11 +35,11 @@ class Air(Gas):
         self.composition.N2  = 0.78084
         self.composition.other = 0.00
 
-    def compute_density(self,T=300,p=101325):
+    def compute_density(self,T=300.,p=101325.):
 
             return p/(self.gas_specific_constant*T)
 
-    def compute_speed_of_sound(self,T=300,p=101325,variable_gamma=False):
+    def compute_speed_of_sound(self,T=300.,p=101325.,variable_gamma=False):
 
         if variable_gamma:
             g = self.compute_gamma(T,p)
@@ -48,13 +48,13 @@ class Air(Gas):
 
         return np.sqrt(g*self.gas_specific_constant*T)
 
-    def compute_cv(self,T=300,p=101325):
+    def compute_cv(self,T=300.,p=101325.):
 
         # placeholder 
 
         raise NotImplementedError
 
-    def compute_cp(self,T=300,p=101325):
+    def compute_cp(self,T=300.,p=101325.):
 
         """  3rd-order polynomial data fit:
             cp(T) = c1*T^3 + c2*T^2 + c3*T + c4
@@ -69,11 +69,11 @@ class Air(Gas):
             Valid for 123 K < T < 673 K """
 
         c = [-7.357e-007, 0.001307, -0.5558, 1074.0]
-        cp = c[0]*T**3 + c[1]*T**2 + c[2]*T + c[3]
+        cp = c[0]*T**3. + c[1]*T**2. + c[2]*T + c[3]
 
         return cp
 
-    def compute_gamma(self,T=300,p=101325):
+    def compute_gamma(self,T=300.,p=101325.):
 
         """  3rd-order polynomial data fit:
             gamma(T) = c1*T^3 + c2*T^2 + c3*T + c4
@@ -88,11 +88,11 @@ class Air(Gas):
             Valid for 233 K < T < 1273 K """
 
         c = [1.629e-010, -3.588e-007, 0.0001418, 1.386]
-        g = c[0]*T**3 + c[1]*T**2 + c[2]*T + c[3]
+        g = c[0]*T**3. + c[1]*T**2. + c[2]*T + c[3]
 
         return g
 
-    def compute_absolute_viscosity(self,T=300,p=101325):
+    def compute_absolute_viscosity(self,T=300.,p=101325.):
 
         S = 110.4                   # constant in deg K (Sutherland's Formula)
         C1 = 1.458e-6               # kg/m-s-sqrt(K), constant (Sutherland's Formula)
