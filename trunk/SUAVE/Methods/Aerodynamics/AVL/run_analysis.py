@@ -2,6 +2,7 @@
 
 import os
 from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results
+from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
 
 
 def run_analysis(avl_object):

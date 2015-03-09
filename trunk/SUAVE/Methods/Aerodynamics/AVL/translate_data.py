@@ -59,12 +59,13 @@ def translate_results_to_conditions(cases,results):
 
     # Move results data to the Conditions data structure       
     for i,case_res in enumerate(results):
-        res.freestream.velocity[i][0] = cases[i].conditions.freestream.velocity
-        res.freestream.mach_number[i][0] = cases[i].conditions.freestream.mach
-        res.freestream.gravity[i][0] = cases[i].conditions.freestream.gravitational_acceleration
-        res.freestream.density[i][0] = cases[i].conditions.freestream.density
-
-        res.weights.total_mass[i][0] = cases[i].mass
+        res.freestream.velocity[i][0]          = cases[i].conditions.freestream.velocity
+        res.freestream.mach_number[i][0]       = cases[i].conditions.freestream.mach
+        res.freestream.gravity[i][0]           = cases[i].conditions.freestream.gravitational_acceleration
+        res.freestream.density[i][0]           = cases[i].conditions.freestream.density
+        res.aerodynamics.angle_of_attack[i][0] = cases[i].conditions.aerodynamics.angle_of_attack
+        res.aerodynamics.side_slip_angle[i][0] = cases[i].conditions.aerodynamics.side_slip_angle        
+        res.weights.total_mass[i][0]           = cases[i].mass
 
         res.aerodynamics.roll_moment_coefficient[i][0] = case_res.aerodynamics.roll_moment_coefficient
         res.aerodynamics.pitch_moment_coefficient[i][0] = case_res.aerodynamics.pitch_moment_coefficient

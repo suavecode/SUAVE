@@ -30,7 +30,35 @@ def main():
     import time
     t0 = time.time()
     print "Start: " + time.ctime()
+    
+    results = run_avl_test()
 
+    # Plot results
+    plt.figure('Induced Drag Polar')
+    axes = plt.gca()
+    CL  = results.aerodynamics.lift_coefficient
+    CDi = results.aerodynamics.drag_breakdown.induced.total
+    CM  = results.aerodynamics.pitch_moment_coefficient
+    axes.plot(CDi,CL,'bo-')
+    axes.set_xlabel('Total Drag Coefficient')
+    axes.set_ylabel('Total Lift Coefficient')
+    axes.grid(True)
+
+    plt.figure('Pitching Momoent')
+    axes = plt.gca()
+    axes.plot(alphas,CM,'bo-')
+    axes.set_xlabel('Angle of Attack')
+    axes.set_ylabel('Pitching Moment')
+    axes.grid(True)
+
+    tf = time.time()
+    print "End:   " + time.ctime()
+    print "({0:.2f} seconds)".format(tf-t0)
+
+    return
+
+
+def run_avl_test():
     # Set up test defaults
     vehicle        = vehicle_setup()
     avl            = AVL_Callable()
@@ -54,34 +82,8 @@ def main():
     run_conditions.aerodynamics.angle_of_attack[:,0] = alphas
 
     results = avl(run_conditions)
-
-    # Results
-    plt.figure('Induced Drag Polar')
-    axes = plt.gca()
-    CL  = results.aerodynamics.lift_coefficient
-    CDi = results.aerodynamics.drag_breakdown.induced.total
-    CM  = results.aerodynamics.pitch_moment_coefficient
-    axes.plot(CDi,CL,'bo-')
-    axes.set_xlabel('Total Drag Coefficient')
-    axes.set_ylabel('Total Lift Coefficient')
-    axes.grid(True)
-
-    plt.figure('Pitching Momoent')
-    axes = plt.gca()
-    axes.plot(alphas,CM,'bo-')
-    axes.set_xlabel('Angle of Attack')
-    axes.set_ylabel('Pitching Moment')
-    axes.grid(True)
-
-    tf = time.time()
-    print "End:   " + time.ctime()
-    print "({0:.2f} seconds)".format(tf-t0)
-
-    plt.show()
-
-    return
-
-
+    
+    return results
 
 
 # ----------------------------------------------------------------------        
@@ -90,3 +92,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    plt.show()
