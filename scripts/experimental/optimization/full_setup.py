@@ -169,7 +169,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheres.Atmosphere()
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)    
     
@@ -212,7 +212,7 @@ def missions_setup(base_mission):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     airport.available_tofl = 1500.
     short_field.mission.airport = airport    
     missions.append(short_field)
