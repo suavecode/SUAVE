@@ -10,7 +10,7 @@ notifications:
   
 branches:
     only:
-        - master
+        - develop
 
 before_install:
     - sudo apt-get update
