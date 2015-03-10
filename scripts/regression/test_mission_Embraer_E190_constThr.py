@@ -25,7 +25,6 @@ Data, Container, Data_Exception, Data_Warning,
 
 # the analysis functions
 from the_aircraft_function import the_aircraft_function
-from plot_mission import plot_mission
 
 from SUAVE.Methods.Performance  import payload_range
 
@@ -49,18 +48,15 @@ def main():
     # mission analysis
     mission = analyses.missions
     results = mission.evaluate()    
-
-
-    # plot the new results
-    plot_mission(vehicle,mission,results,'bo-')
-
+    
     # load older results
     #save_results(results)
-    old_results = load_results()
-
+    old_results = load_results()   
+    
     # plt the old results
-    plot_mission(vehicle,mission,old_results,'k-')
-
+    plot_mission(results)
+    #plot_mission(old_results,'k-')
+    
     # check the results
     #check_results(results,old_results)
 
@@ -346,7 +342,7 @@ def vehicle_setup():
     fuselage.heights.maximum       = 3.4    #
     fuselage.heights.at_quarter_length          = 3.4 # Not correct
     fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_vertical_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
@@ -366,10 +362,10 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbofan'
+    gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
-    gt_engine.thrust_design     = 20300.0
+    gt_engine.design_thrust     = 20300.0
     gt_engine.engine_length     = 3.0
     gt_engine.nacelle_diameter  = 1.0
 
@@ -779,68 +775,247 @@ def mission_setup(analyses):
 #: def define_mission()
 
 
-def check_results(new_results,old_results):
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
 
-    # check segment values
-    check_list = [
-        'mission_profile.segments.Cruise.conditions.aerodynamics.angle_of_attack',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.drag_coefficient',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.lift_coefficient',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.cm_alpha',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.cn_beta',
-        'mission_profile.segments.Cruise.conditions.propulsion.throttle',
-        'mission_profile.segments.Cruise.conditions.propulsion.fuel_mass_rate',
-    ]
+def plot_mission(results,line_style='bo-'):
 
-    # gets a key recursively from a '.' string
-    def get_key(data,keys):
-        if isinstance(keys,str):
-            keys = keys.split('.')
-        k = keys.pop(0)
-        if keys:
-            return get_key(data[k],keys)
+    # ------------------------------------------------------------------
+    #   Throttle
+    # ------------------------------------------------------------------
+    plt.figure("Throttle History")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
+        axes.plot(time, eta, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Throttle')
+    axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Angle of Attack
+    # ------------------------------------------------------------------
+
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        axes.plot(time, aoa, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Fuel Burn Rate
+    # ------------------------------------------------------------------
+    plt.figure("Fuel Burn Rate")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        axes.plot(time, mdot, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Altitude
+    # ------------------------------------------------------------------
+    plt.figure("Altitude")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
+        axes.plot(time, altitude, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Altitude (km)')
+    axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Vehicle Mass
+    # ------------------------------------------------------------------
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Forces")
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(4,1,1)
+        axes.plot( time , Lift , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Lift (N)')
+        axes.grid(True)
+
+        axes = fig.add_subplot(4,1,2)
+        axes.plot( time , Drag , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag (N)')
+        axes.grid(True)
+
+        axes = fig.add_subplot(4,1,3)
+        axes.plot( time , Thrust , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Thrust (N)')
+        axes.grid(True)
+
+        try:
+            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
+            axes = fig.add_subplot(4,1,4)
+            axes.plot( time , Pitching_moment , line_style )
+            axes.set_xlabel('Time (min)')
+            axes.set_ylabel('Pitching_moment (~)')
+            axes.grid(True)            
+        except:
+            pass 
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients")
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , CLift , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CL')
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , CDrag , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CD')
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Drag   , line_style )
+        axes.plot( time , Thrust , 'ro-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag and Thrust (N)')
+        axes.grid(True)
+
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components")
+    axes = plt.gca()
+    for i, segment in enumerate(results.segments.values()):
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+
+        if line_style == 'bo-':
+            axes.plot( time , cdp , 'ko-', label='CD_P' )
+            axes.plot( time , cdi , 'bo-', label='CD_I' )
+            axes.plot( time , cdc , 'go-', label='CD_C' )
+            axes.plot( time , cdm , 'yo-', label='CD_M' )
+            axes.plot( time , cd  , 'ro-', label='CD'   )
+            if i == 0:
+                axes.legend(loc='upper center')            
         else:
-            return data[k]
+            axes.plot( time , cdp , line_style )
+            axes.plot( time , cdi , line_style )
+            axes.plot( time , cdc , line_style )
+            axes.plot( time , cdm , line_style )
+            axes.plot( time , cd  , line_style )            
 
-    # do the check
-    for k in check_list:
-        print k
-
-        old_val = np.max( get_key(old_results,k) )
-        new_val = np.max( get_key(new_results,k) )
-        err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
-        assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
-
-        old_val = np.min( get_key(old_results,k) )
-        new_val = np.min( get_key(new_results,k) )
-        err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
-        assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k
-
-    # check high level outputs
-    def check_vals(a,b):
-        if isinstance(a,Data):
-            for k in a.keys():
-                err = check_vals(a[k],b[k])
-                if err is None: continue
-                print 'outputs' , k
-                print 'Error:' , err
-                assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k
-        else:
-            return (a-b)/a
-
-    # do the check
-    check_vals(old_results.output,new_results.output)
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
 
     return
 
+def check_results(new_results,old_results):
+    
+    # check segment values
+    check_list = [
+        'segments.cruise.conditions.aerodynamics.angle_of_attack',
+        'segments.cruise.conditions.aerodynamics.drag_coefficient',
+        'segments.cruise.conditions.aerodynamics.lift_coefficient',
+        'segments.cruise.conditions.stability.static.cm_alpha',
+        'segments.cruise.conditions.stability.static.cn_beta',
+        'segments.cruise.conditions.propulsion.throttle',
+        'segments.cruise.conditions.propulsion.fuel_mass_rate',
+    ]
+    
+    # do the check
+    for k in check_list:
+        print k
+        
+        old_val = np.max( old_results.deep_get(k) )
+        new_val = np.max( new_results.deep_get(k) )
+        err = (new_val-old_val)/old_val
+        print 'Error at Max:' , err
+        assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
+        
+        old_val = np.min( old_results.deep_get(k) )
+        new_val = np.min( new_results.deep_get(k) )
+        err = (new_val-old_val)/old_val
+        print 'Error at Min:' , err
+        assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
+        
+        print ''
+    
+    ## check high level outputs
+    #def check_vals(a,b):
+        #if isinstance(a,Data):
+            #for k in a.keys():
+                #err = check_vals(a[k],b[k])
+                #if err is None: continue
+                #print 'outputs' , k
+                #print 'Error:' , err
+                #print ''
+                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
+        #else:
+            #return (a-b)/a
+
+    ## do the check
+    #check_vals(old_results.output,new_results.output)
+    
+    return
+
+    
 def load_results():
-    return SUAVE.Plugins.VyPy.data.load('results_mission_E190_constThr.pkl')
-
+    return SUAVE.Input_Output.SUAVE.load('results_mission_E190_constThr.res')
+    
 def save_results(results):
-    SUAVE.Plugins.VyPy.data.save(results,'results_mission_E190_constThr.pkl')
-
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_E190_constThr.res')
+    return
+    
 
 if __name__ == '__main__':
     main()
