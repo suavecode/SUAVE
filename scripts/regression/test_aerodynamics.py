@@ -1,13 +1,11 @@
 # test_aerodynamics
 #
 # Created:  Tim MacDonald - 09/09/14
-# Modified: Tim MacDonald - 09/10/14
+# Modified: Tim MacDonald - 03/10/15
 
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
@@ -65,15 +63,22 @@ def main():
     # --------------------------------------------------------------------
     
     random.seed(1)
-    Mc = np.linspace(0.05,0.9,test_num)[:,None]
+    Mc = np.linspace(0.05,0.9,test_num)
     random.shuffle(Mc)
-    rho = np.linspace(0.3,1.3,test_num)[:,None]
+    rho = np.linspace(0.3,1.3,test_num)
     random.shuffle(rho)
-    mu = np.linspace(5*10**-6,20*10**-6,test_num)[:,None]
+    mu = np.linspace(5*10**-6,20*10**-6,test_num)
     random.shuffle(mu)
-    T = np.linspace(200,300,test_num)[:,None]
+    T = np.linspace(200,300,test_num)
     random.shuffle(T)
-    pressure = np.linspace(10**5,10**6,test_num)[:,None]
+    pressure = np.linspace(10**5,10**6,test_num)
+    
+    # Changed after to preserve seed for initial testing
+    Mc = Mc[:,None]
+    rho = rho[:,None]
+    mu = mu[:,None]
+    T = T[:,None]
+    pressure = pressure[:,None]
 
     
     conditions = Data()

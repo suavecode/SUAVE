@@ -1,16 +1,11 @@
 # test_aerodynamics
 #
 # Created:  Tim MacDonald - 09/09/14
-# Modified: Tim MacDonald - 09/10/14
+# Modified: Tim MacDonald - 03/10/15
 
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
-
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
@@ -43,7 +38,7 @@ def main():
     # Test Lift Surrogate
     # --------------------------------------------------------------------    
     
-    AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
+    AoA = np.linspace(-.174,.174,test_num)[:,None] # +- 10 degrees
     
     lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient_sub
     
@@ -52,7 +47,7 @@ def main():
     # Truth value
     wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
                             0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
-                            1.47463553])
+                            1.47463553])[:,None]
     
     surg_test = np.abs((wing_lift-wing_lift_r)/wing_lift)
     
