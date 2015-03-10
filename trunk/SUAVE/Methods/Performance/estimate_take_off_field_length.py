@@ -66,8 +66,20 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    p0, T0, rho0, a0, mu0 = atmo.compute_values(0)
-    p , T , rho , a , mu  = atmo.compute_values(altitude)
+    conditions0 = atmo.compute_values(0.)
+    conditions = atmo.compute_values(altitude)
+    p = conditions.pressure
+    T = conditions.temperature
+    rho = conditions.density
+    a = conditions.speed_of_sound
+    mu = conditions.dynamic_viscosity
+
+    p0 = conditions0.pressure
+    T0 = conditions0.temperature
+    rho0 = conditions0.density
+    a0 = conditions0.speed_of_sound
+    mu0 = conditions0.dynamic_viscosity
+
     T_delta_ISA = T + delta_isa
     sigma_disa = (p/p0) / (T_delta_ISA/T0)
     rho = rho0 * sigma_disa
@@ -164,15 +176,14 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
             print 'Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number)
 
     # Define takeoff index   (V2^2 / (T/W)
-    takeoff_index = V2_speed**2 / (thrust / weight)
-
+    takeoff_index = V2_speed**2. / (thrust / weight)
     # Calculating takeoff field length
     takeoff_field_length = 0.
     for idx,constant in enumerate(takeoff_constants):
         takeoff_field_length += constant * takeoff_index**idx
-
+        p
     takeoff_field_length = takeoff_field_length * Units.ft
-
+    
     # return
     return takeoff_field_length
 
@@ -316,10 +327,10 @@ if __name__ == '__main__':
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
     airport.tag = 'airport'
-    airport.altitude   =  0.0  * Units.ft
+    airport.altitude   =  np.array([0.0]) * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
+    airport.atmosphere =  SUAVE.Analyses.Atmospheric.US_Standard_1976()
+                          
     w_vec = np.linspace(40000.,52000.,10)
     engines = (2,3,4)
     takeoff_field_length = np.zeros((len(w_vec),len(engines)))
