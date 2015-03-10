@@ -41,6 +41,7 @@ def main():
     # --------------------------------------------------------------------    
     
     AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
+    AoA = AoA[:,None]
     
     lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient
     
@@ -48,7 +49,7 @@ def main():
     
     wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
                             0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
-                            1.47463553])
+                            1.47463553])[:,None]
     
     surg_test = np.abs((wing_lift-wing_lift_r)/wing_lift)
     
@@ -64,15 +65,15 @@ def main():
     # --------------------------------------------------------------------
     
     random.seed(1)
-    Mc = np.linspace(0.05,0.9,test_num)
+    Mc = np.linspace(0.05,0.9,test_num)[:,None]
     random.shuffle(Mc)
-    rho = np.linspace(0.3,1.3,test_num)
+    rho = np.linspace(0.3,1.3,test_num)[:,None]
     random.shuffle(rho)
-    mu = np.linspace(5*10**-6,20*10**-6,test_num)
+    mu = np.linspace(5*10**-6,20*10**-6,test_num)[:,None]
     random.shuffle(mu)
-    T = np.linspace(200,300,test_num)
+    T = np.linspace(200,300,test_num)[:,None]
     random.shuffle(T)
-    pressure = np.linspace(10**5,10**6,test_num)
+    pressure = np.linspace(10**5,10**6,test_num)[:,None]
 
     
     conditions = Data()
@@ -109,7 +110,7 @@ def main():
     lift = conditions.aerodynamics.lift_breakdown.total
     lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
                        0.5075275 ,  0.67883681,  0.92787301,  1.40470556,  2.08126751,
-                       1.69661601])
+                       1.69661601])[:,None]
     
     lift_test = np.abs((lift-lift_r)/lift)
     
@@ -201,7 +202,8 @@ def reg_values():
                                  0.02565411,  0.0368808 ,  0.05753452,  0.09852189,  0.19461151,
                                  0.13593163])
     
-    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
+    return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
+           cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
 
 if __name__ == '__main__':
     (conditions, configuration, geometry, test_num) = main()

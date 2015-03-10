@@ -45,7 +45,7 @@ def main():
     
     AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
     
-    lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient 
+    lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient_sub
     
     wing_lift = lift_model(AoA)
     
@@ -231,7 +231,8 @@ def reg_values():
                                  0.02515752,  0.03622348,  0.05668057,  0.09789843,  0.19408153,
                                  0.13525973])
     
-    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
+    return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
+           cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
 
 if __name__ == '__main__':
     (conditions, configuration, geometry, test_num) = main()
