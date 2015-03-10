@@ -82,11 +82,13 @@ def main():
     segment            = SUAVE.Analyses.Missions.Segments.Segment()
     segment.freestream = Data()
     segment.freestream.mach_number = Mach[0]
-    segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    segment.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     altitude           = 0.0 * Units.feet
-    segment.a          = segment.atmosphere.compute_values(altitude / Units.km, type="a")
-    segment.freestream.density   = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
-    segment.freestream.viscosity = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
+    
+    conditions = segment.atmosphere.compute_values(altitude / Units.km)
+    segment.a          = conditions.speed_of_sound
+    segment.freestream.density   = conditions.density
+    segment.freestream.viscosity = conditions.dynamic_viscosity
     segment.freestream.velocity  = segment.freestream.mach_number * segment.a
 
     #Method Test

@@ -50,11 +50,11 @@ def main():
 
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
     #old_results = old_results.mission_profile
     
     # plt the old results
-    #plot_mission(results)
+    plot_mission(results)
     #plot_mission(old_results,'k-')
     
     # check the results
