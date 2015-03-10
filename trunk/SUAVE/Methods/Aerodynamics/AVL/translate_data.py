@@ -3,7 +3,7 @@
 import numpy as np
 
 import SUAVE
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from .Data.Cases import Run_Case
 
 
@@ -22,7 +22,7 @@ def translate_conditions_to_cases(avl,conditions):
         case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
         case.conditions.freestream.density  = conditions.freestream.density[i][0]
         case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
-        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]
+        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]/Units.deg
         case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
         case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
         cases.append_case(case)
@@ -63,8 +63,8 @@ def translate_results_to_conditions(cases,results):
         res.freestream.mach_number[i][0]       = cases[i].conditions.freestream.mach
         res.freestream.gravity[i][0]           = cases[i].conditions.freestream.gravitational_acceleration
         res.freestream.density[i][0]           = cases[i].conditions.freestream.density
-        res.aerodynamics.angle_of_attack[i][0] = cases[i].conditions.aerodynamics.angle_of_attack
-        res.aerodynamics.side_slip_angle[i][0] = cases[i].conditions.aerodynamics.side_slip_angle        
+        res.aerodynamics.angle_of_attack[i][0] = cases[i].conditions.aerodynamics.angle_of_attack * Units.deg
+        res.aerodynamics.side_slip_angle[i][0] = cases[i].conditions.aerodynamics.side_slip_angle * Units.deg      
         res.weights.total_mass[i][0]           = cases[i].mass
 
         res.aerodynamics.roll_moment_coefficient[i][0] = case_res.aerodynamics.roll_moment_coefficient

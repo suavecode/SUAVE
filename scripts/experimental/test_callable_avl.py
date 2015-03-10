@@ -1,5 +1,5 @@
 # Tim Momose, January 2015
-# Modified February 6, 2015
+# Modified March 2015
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -32,7 +32,7 @@ def main():
     print "Start: " + time.ctime()
     
     results = run_avl_test()
-    alphas  = results.aerodynamics.angle_of_attack
+    alphas  = results.aerodynamics.angle_of_attack / Units.deg
     CL      = results.aerodynamics.lift_coefficient
     CDi     = results.aerodynamics.drag_breakdown.induced.total
     CM      = results.aerodynamics.pitch_moment_coefficient
@@ -48,7 +48,7 @@ def main():
     plt.figure('Pitching Momoent')
     axes = plt.gca()
     axes.plot(alphas,CM,'bo-')
-    axes.set_xlabel('Angle of Attack')
+    axes.set_xlabel('Angle of Attack [deg]')
     axes.set_ylabel('Pitching Moment')
     axes.grid(True)
 
@@ -78,7 +78,7 @@ def run_avl_test():
     run_conditions.freestream.gravity[0,0]     = 9.81
 
     # Set up run cases
-    alphas    = np.array([-10,-5,-2,0,2,5,10,20])
+    alphas    = np.array([-10,-5,-2,0,2,5,10,20]) * Units.deg
     run_conditions.expand_rows(alphas.shape[0])
     run_conditions.aerodynamics.angle_of_attack[:,0] = alphas
 
