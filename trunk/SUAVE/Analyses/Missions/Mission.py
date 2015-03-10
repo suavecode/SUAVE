@@ -50,6 +50,10 @@ class Mission(Segments.Simple.Container):
         
         return        
     
+    def finalize(self):
+        pass
+    
+    
 
 # ----------------------------------------------------------------------
 #   Cotnainer Class
@@ -65,6 +69,9 @@ class Container(ContainerBase):
             results[key] = result
             
         return results
+    
+    def finalize(self):
+        pass
 
 # Link container
 Mission.Container = Container
