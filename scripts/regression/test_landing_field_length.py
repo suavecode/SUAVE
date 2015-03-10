@@ -56,8 +56,8 @@ def vehicle_setup():
 
     wing.chords.mean_aerodynamic = 3.66
     wing.areas.affected          = 0.6*wing.areas.reference # part of high lift system
-    wing.flap_type   = 'double_slotted'
-    wing.flaps_chord  = 0.28
+    wing.flaps.type   = 'double_slotted'
+    wing.flaps.chord  = 0.28
 
     # add to vehicle
     vehicle.append_component(wing)
