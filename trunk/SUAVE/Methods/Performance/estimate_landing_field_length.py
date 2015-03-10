@@ -65,34 +65,48 @@ def estimate_landing_field_length(vehicle,config,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    p0, T0, rho0, a0, mu0 = atmo.compute_values(0)
-    p , T , rho , a , mu  = atmo.compute_values(altitude)
+    conditions0 = atmo.compute_values(0.)
+    conditions = atmo.compute_values(altitude)
+    p = conditions.pressure
+    T = conditions.temperature
+    rho = conditions.density
+    a = conditions.speed_of_sound
+    mu = conditions.dynamic_viscosity
+
+    p0 = conditions0.pressure
+    T0 = conditions0.temperature
+    rho0 = conditions0.density
+    a0 = conditions0.speed_of_sound
+    mu0 = conditions0.dynamic_viscosity
     T_delta_ISA = T + delta_isa
     sigma_disa = (p/p0) / (T_delta_ISA/T0)
     rho = rho0 * sigma_disa
     a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
     mu = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
     sea_level_gravity = atmo.planet.sea_level_gravity
-
+   
     # ==============================================
     # Determining vehicle maximum lift coefficient
     # ==============================================
+    
     try:   # aircraft maximum lift informed by user
         maximum_lift_coefficient = config.maximum_lift_coefficient
+        
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
-        conditions                      = Data()
-        conditions.freestream           = Data()
-        conditions.freestream.density   = rho_stall
-        conditions.freestream.viscosity = mu_stall
+        conditions  = atmo.compute_values(10000. * Units.ft)
+        conditions.freestream=Data()
+        conditions.freestream.density   = conditions.density
+        conditions.freestream.viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
+        
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
             config.maximum_lift_coefficient = maximum_lift_coefficient
+            print config
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
@@ -101,8 +115,7 @@ def estimate_landing_field_length(vehicle,config,airport):
     # ==============================================
     stall_speed  = (2 * weight * sea_level_gravity / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
     Vref         = stall_speed * Vref_VS_ratio
-    print 'weight_landing=', weight
-
+    
     # ========================================================================================
     # Computing landing distance, according to Torenbeek equation
     #     Landing Field Length = k1 + k2 * Vref**2
@@ -255,11 +268,11 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
 
     # --- Vehicle definition ---
-    vehicle = define_vehicle()
-
+    vehicle = vehicle_setup()
+    configs=configs_setup(vehicle)
 
     # --- Landing Configuration ---
-    landing_config = vehicle.configs.takeoff
+    landing_config = configs.landing
     landing_config.wings['main_wing'].flaps_angle =  30. * Units.deg
     landing_config.wings['main_wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
