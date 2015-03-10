@@ -2,6 +2,8 @@
 #
 # Created:  Tim MacDonald - 09/09/14
 # Modified: Tim MacDonald - 03/10/15
+#
+# Updated for new structure. cd_tot change assumed due to propulsion updates
 
 import SUAVE
 from SUAVE.Core import Units
@@ -54,7 +56,7 @@ def main():
     print 'Surrogate Test Results \n'
     print surg_test
     
-    assert(np.max(surg_test)<1e-4), 'Aero regression failed at surrogate test'
+    assert(np.max(surg_test)<1e-4), 'Supersonic Aero regression failed at surrogate test'
 
     
     # --------------------------------------------------------------------
@@ -127,7 +129,7 @@ def main():
     print '\nCompute Lift Test Results\n'
     print lift_test
         
-    assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-4), 'Supersonic Aero regression failed at compute lift test'    
     
     
     # --------------------------------------------------------------------
@@ -181,7 +183,7 @@ def main():
     print drag_tests
     
     for i, tests in drag_tests.items():
-        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
+        assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
     
     return conditions, configuration, geometry, test_num  
 
@@ -222,9 +224,9 @@ def reg_values():
                                  0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
                                  0.00407611])
     
-    cd_tot_r        = np.array([ 0.19381306,  0.03913773,  0.03219808,  0.01745848,  0.02147222,
-                                 0.02515752,  0.03622348,  0.05668057,  0.09789843,  0.19408153,
-                                 0.13525973])
+    cd_tot_r        = np.array([ 0.19422051,  0.03978096,  0.0333111 ,  0.01809441,  0.02202983,
+                                 0.02565818,  0.03690062,  0.05755836,  0.09853024,  0.19460394,
+                                 0.13595443])
     
     return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
            cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
@@ -232,7 +234,7 @@ def reg_values():
 if __name__ == '__main__':
     (conditions, configuration, geometry, test_num) = main()
     
-    print 'Aero regression test passed!'
+    print 'Supersonic Aero regression test passed!'
     
     # --------------------------------------------------------------------
     # Drag Polar

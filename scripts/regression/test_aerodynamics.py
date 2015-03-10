@@ -2,6 +2,8 @@
 #
 # Created:  Tim MacDonald - 09/09/14
 # Modified: Tim MacDonald - 03/10/15
+#
+# Changed to use new structures and drag functions from Tarik
 
 import SUAVE
 from SUAVE.Core import Units
@@ -152,6 +154,7 @@ def main():
     drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
     drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
     drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
+    ## Commented lines represent values not set by current drag functions, but to be recreated in the future
     # Line below is not normalized since regression values are 0, insert commented line if this changes
     # drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
     # drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
@@ -177,9 +180,9 @@ def reg_values():
     cd_i_r = np.array([ 0.17295472,  0.02165349,  0.00605319,  0.00079229,  0.00199276,
                         0.01032588,  0.01847305,  0.03451317,  0.07910034,  0.17364551,
                         0.11539178])
-    cd_m_r = np.array([ 0.00047933,  0.00047933,  0.00047933,  0.00047933,  0.00047933,
-                        0.00047933,  0.00047933,  0.00047933,  0.00047933,  0.00047933,
-                        0.00047933])
+    cd_m_r = np.array([ 0.00335972,  0.00335972,  0.00335972,  0.00335972,  0.00335972,
+                        0.00335972,  0.00335972,  0.00335972,  0.00335972,  0.00335972,
+                        0.00335972])
     
     cd_m_fuse_base_r = np.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
     
@@ -195,17 +198,17 @@ def reg_values():
     cd_m_ctrl_r     = np.array([ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
                                  0.0001,  0.0001,  0.0001,  0.0001])
     
-    cd_p_fuse_r     = np.array([  0.00861449,  0.01003034,  0.01543476,  0.00983168,  0.01004746,
-                                  0.00840775,  0.01029339,  0.01273788,  0.01002575,  0.00900746,
-                                  0.01043446])
+    cd_p_fuse_r     = np.array([ 0.0083099 ,  0.00967087,  0.01479402,  0.00948378,  0.00967548,
+                                 0.00812209,  0.00992429,  0.01224443,  0.00966431,  0.00869054,
+                                 0.01006034])
     
-    cd_p_wing_r     = np.array([ 0.00398269,  0.00401536,  0.00619387,  0.00388993,  0.00442375,
-                                 0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
-                                 0.00407611])
+    cd_p_wing_r     = np.array([ 0.00488075,  0.00492079,  0.00759052,  0.00476707,  0.00542126,
+                                 0.00421107,  0.00496795,  0.00620658,  0.00498686,  0.00464893,
+                                 0.00499523])
     
-    cd_tot_r        = np.array([ 0.19427599,  0.03976739,  0.0332802 ,  0.01807724,  0.02206145,
-                                 0.02565411,  0.0368808 ,  0.05753452,  0.09852189,  0.19461151,
-                                 0.13593163])
+    cd_tot_r        = np.array([ 0.1984218 ,  0.04386556,  0.03793675,  0.02213741,  0.02631103,
+                                 0.02960579,  0.04098187,  0.0619007 ,  0.10264035,  0.19867105,
+                                 0.1400349 ])
     
     return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
            cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
