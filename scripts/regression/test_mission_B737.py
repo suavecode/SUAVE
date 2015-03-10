@@ -50,15 +50,14 @@ def main():
 
     # load older results
     #save_results(results)
-    #old_results = load_results()   
-    #old_results = old_results.mission_profile
+    old_results = load_results()   
     
     # plt the old results
     plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(old_results,'k-')
     
     # check the results
-    #check_results(results,old_results)
+    check_results(results,old_results)
     
     return
 
@@ -1025,69 +1024,57 @@ def check_results(new_results,old_results):
     
     # check segment values
     check_list = [
-        'mission_profile.segments.Cruise.conditions.aerodynamics.angle_of_attack',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.drag_coefficient',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.lift_coefficient',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.cm_alpha',
-        'mission_profile.segments.Cruise.conditions.aerodynamics.cn_beta',
-        'mission_profile.segments.Cruise.conditions.propulsion.throttle',
-        'mission_profile.segments.Cruise.conditions.propulsion.fuel_mass_rate',
+        'segments.cruise.conditions.aerodynamics.angle_of_attack',
+        'segments.cruise.conditions.aerodynamics.drag_coefficient',
+        'segments.cruise.conditions.aerodynamics.lift_coefficient',
+        'segments.cruise.conditions.stability.static.cm_alpha',
+        'segments.cruise.conditions.stability.static.cn_beta',
+        'segments.cruise.conditions.propulsion.throttle',
+        'segments.cruise.conditions.propulsion.fuel_mass_rate',
     ]
-    
-    # gets a key recursively from a '.' string
-    def get_key(data,keys):
-        if isinstance(keys,str):
-            keys = keys.split('.')
-        k = keys.pop(0)
-        if keys:
-            return get_key(data[k],keys)
-        else:
-            return data[k]    
     
     # do the check
     for k in check_list:
         print k
         
-        old_val = np.max( get_key(old_results,k) )
-        new_val = np.max( get_key(new_results,k) )
+        old_val = np.max( old_results.deep_get(k) )
+        new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Max:' , err
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
         
-        old_val = np.min( get_key(old_results,k) )
-        new_val = np.min( get_key(new_results,k) )
+        old_val = np.min( old_results.deep_get(k) )
+        new_val = np.min( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Min:' , err
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
         
         print ''
     
-    # check high level outputs
-    def check_vals(a,b):
-        if isinstance(a,Data):
-            for k in a.keys():
-                err = check_vals(a[k],b[k])
-                if err is None: continue
-                print 'outputs' , k
-                print 'Error:' , err
-                print ''
-                assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
-        else:
-            return (a-b)/a
+    ## check high level outputs
+    #def check_vals(a,b):
+        #if isinstance(a,Data):
+            #for k in a.keys():
+                #err = check_vals(a[k],b[k])
+                #if err is None: continue
+                #print 'outputs' , k
+                #print 'Error:' , err
+                #print ''
+                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
+        #else:
+            #return (a-b)/a
 
-    # do the check
-    check_vals(old_results.output,new_results.output)
+    ## do the check
+    #check_vals(old_results.output,new_results.output)
     
     return
 
     
 def load_results():
-    SUAVE.Input_Output.SUAVE.load('results_mission_B737.pkl')
-    return
+    return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
     
 def save_results(results):
-    
-    SUAVE.Input_Output.SUAVE.save(results,'results_mission_B737.pkl')
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
     return
     
 if __name__ == '__main__': 
