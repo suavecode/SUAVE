@@ -58,11 +58,11 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        vehicle.propulsors.turbo_fan.number_of_engines = engine_number
+        configuration.propulsors.turbo_fan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
-            vehicle.mass_properties.takeoff = weight
-            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(vehicle,analyses,airport)
+            configuration.mass_properties.takeoff = weight
+            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(configuration,analyses,airport)
   
     truth_TOFL = np.array([[  850.19992906,   567.03906016,   411.69975426],
                            [  893.11528215,   592.95224563,   430.3183183 ],
@@ -97,6 +97,7 @@ def main():
     plt.xlabel('Weight (kg)')
     plt.ylabel('Takeoff field length (m)')    
     
+    #currently running again,but need to review results
     #assert( TOFL_error   < 1e-5 )
 
     return 

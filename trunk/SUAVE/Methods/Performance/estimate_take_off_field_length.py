@@ -97,11 +97,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
-        conditions                      = Data()
-        conditions.freestream           = Data()
-        conditions.freestream.density   = rho_stall
-        conditions.freestream.viscosity = mu_stall
+        conditions  = atmo.compute_values(10000. * Units.ft)
+        conditions.freestream=Data()
+        conditions.freestream.density   = conditions.density
+        conditions.freestream.viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
@@ -204,6 +203,7 @@ if __name__ == '__main__':
     #   Build the Vehicle
     # ----------------------------------------------------------------------
     
+     
     def define_vehicle():
     
         # ------------------------------------------------------------------
@@ -317,8 +317,8 @@ if __name__ == '__main__':
 
     # --- Takeoff Configuration ---
     configuration = vehicle.configs.takeoff
-    configuration.wings['main_wing'].flaps_angle =  20. * Units.deg
-    configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
+    configuration.wings['main_wing'].flaps.angle =  20. * Units.deg
+    configuration.wings['main_wing'].slats.angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user
