@@ -32,13 +32,14 @@ def main():
     print "Start: " + time.ctime()
     
     results = run_avl_test()
+    alphas  = results.aerodynamics.angle_of_attack
+    CL      = results.aerodynamics.lift_coefficient
+    CDi     = results.aerodynamics.drag_breakdown.induced.total
+    CM      = results.aerodynamics.pitch_moment_coefficient
 
     # Plot results
     plt.figure('Induced Drag Polar')
     axes = plt.gca()
-    CL  = results.aerodynamics.lift_coefficient
-    CDi = results.aerodynamics.drag_breakdown.induced.total
-    CM  = results.aerodynamics.pitch_moment_coefficient
     axes.plot(CDi,CL,'bo-')
     axes.set_xlabel('Total Drag Coefficient')
     axes.set_ylabel('Total Lift Coefficient')
