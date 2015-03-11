@@ -63,8 +63,9 @@ def run_avl_test():
     # Set up test defaults
     vehicle        = vehicle_setup()
     avl            = AVL_Callable()
+    avl.features   = vehicle
     avl.keep_files = True
-    avl.initialize(vehicle)
+    avl.initialize()
     
     avl.settings.filenames.log_filename = sys.stdout
     avl.settings.filenames.err_filename = sys.stderr
@@ -93,4 +94,4 @@ def run_avl_test():
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    plt.show(block=True)

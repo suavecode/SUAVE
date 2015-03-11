@@ -13,7 +13,7 @@ def write_run_cases(avl_object):
     from SUAVE.Methods.Aerodynamics.AVL.write_run_cases import make_controls_case_text
 
     # unpack avl_inputs
-    batch_filename = avl_object.analysis_temps.current_batch_file
+    batch_filename = avl_object.current_status.batch_file
     aircraft       = avl_object.features
 
     base_case_text = \
@@ -78,7 +78,7 @@ def write_run_cases(avl_object):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case in avl_object.analysis_temps.current_cases:
+        for case in avl_object.current_status.cases:
             index = case.index
             name  = case.tag
             alpha = case.conditions.aerodynamics.angle_of_attack

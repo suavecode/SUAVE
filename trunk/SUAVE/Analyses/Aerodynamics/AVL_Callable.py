@@ -9,6 +9,8 @@
 
 import os
 import numpy as np
+from shutil import rmtree
+from warnings import warn
 
 # SUAVE imports
 from SUAVE.Core import Data
@@ -47,20 +49,26 @@ class AVL_Callable(Data):
 
         self.settings = Settings()
 
-        self.analysis_temps = Data()
-        self.analysis_temps.current_batch_index = 0
-        self.analysis_temps.current_batch_file  = None
-        self.analysis_temps.current_cases       = None
+        self.current_status = Data()
+        self.current_status.batch_index = 0
+        self.current_status.batch_file  = None
+        self.current_status.deck_file   = None
+        self.current_status.cases       = None
+        
+        self.features = None
 
 
-    def initialize(self,vehicle):
+    def initialize(self):
 
-        self.features = vehicle
-        self.tag      = 'avl_analysis_of_{}'.format(vehicle.tag)
-        self.settings.filenames.run_folder = \
-            os.path.abspath(self.settings.filenames.run_folder)
-        if not os.path.exists(self.settings.filenames.run_folder):
-            os.mkdir(self.settings.filenames.run_folder)
+        features = self.features
+        self.tag      = 'avl_analysis_of_{}'.format(features.tag)
+
+        run_folder = self.settings.filenames.run_folder
+        if os.path.exists(run_folder):
+            if self.keep_files:
+                warn('deleting old avl run files',Warning)
+            rmtree(run_folder)
+        os.mkdir(run_folder)
 
         return
 
@@ -81,27 +89,41 @@ class AVL_Callable(Data):
             Assumptions:
 
         """
-        #assert cases is not None and len(cases) , 'run_case container is empty or None'
-        self.analysis_temps.current_batch_index  += 1
-        self.analysis_temps.current_batch_file = self.settings.filenames.batch_template.format(self.analysis_temps.current_batch_index)
+        
+        # unpack
+        run_folder = os.path.abspath(self.settings.filenames.run_folder)
+        output_template = self.settings.filenames.output_template
+        batch_template  = self.settings.filenames.batch_template
+        deck_template   = self.settings.filenames.deck_template
+        
+        # update current status
+        self.current_status.batch_index += 1
+        batch_index = self.current_status.batch_index
+        self.current_status.batch_file = batch_template.format(batch_index)
+        self.current_status.deck_file = deck_template.format(batch_index)
+        
+        # translate conditions
         cases = translate_conditions_to_cases(self,run_conditions)
-        self.analysis_temps.current_cases = cases        
-
+        self.current_status.cases = cases        
+        
+        # case filenames
         for case in cases:
-            case.result_filename = self.settings.filenames.output_template.format(case.tag)
+            case.result_filename = output_template.format(case.tag)
 
-        with redirect.folder(self.settings.filenames.run_folder,[],[],False):
+        # write the input files
+        with redirect.folder(run_folder,force=False):
             write_geometry(self)
             write_run_cases(self)
             write_input_deck(self)
 
+            # RUN AVL!
             results_avl = run_analysis(self)
 
+        # translate results
         results = translate_results_to_conditions(cases,results_avl)
 
         if not self.keep_files:
-            from shutil import rmtree
-            rmtree(os.path.abspath(self.settings.filenames.run_folder))
+            rmtree( run_folder )
 
         return results
 

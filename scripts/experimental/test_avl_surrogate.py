@@ -31,12 +31,15 @@ def main():
     t0 = time.time()
     print "Instantiating:    " + time.ctime()
     
-    avl_surrogate = AVL()
     vehicle       = vehicle_setup()
     
+    avl_surrogate = AVL()
+    avl_surrogate.geometry = vehicle
+    avl_surrogate.avl_callable.keep_files = True
+        
     print "Initializing:     " + time.ctime()
     
-    avl_surrogate.initialize(vehicle)
+    avl_surrogate.initialize()
     
     print "Cross Validation: " + time.ctime()
     
@@ -106,4 +109,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    plt.show(block=True)

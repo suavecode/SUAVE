@@ -16,7 +16,7 @@ def translate_conditions_to_cases(avl,conditions):
 
     for i in range(conditions._size):
         case = Run_Case()
-        case.tag  = avl.settings.filenames.case_template.format(avl.analysis_temps.current_batch_index,i+1)
+        case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
         case.mass = conditions.weights.total_mass[i][0]
         case.conditions.freestream.mach     = conditions.freestream.mach_number[i][0]
         case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]

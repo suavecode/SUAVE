@@ -34,14 +34,17 @@ class AVL(Aerodynamics):
 
         self.avl_callable = AVL_Callable()
         self.avl_callable.keep_files = False
+        self.avl_callable.settings.filenames.run_folder = 'avl_surrogate_files'
+        
+        self.geometry = None
         
         return
 
 
-    def initialize(self,vehicle):
+    def initialize(self):
         
-        self.geometry = vehicle
-        self.avl_callable.initialize(self.geometry)
+        self.avl_callable.features = self.geometry
+        self.avl_callable.initialize()
         self.sample_training()
         self.build_surrogate()
         
@@ -53,7 +56,7 @@ class AVL(Aerodynamics):
         # define conditions for run cases
         run_conditions = Aero_Conditions()
         ones_1col      = run_conditions.ones_row(1)
-        run_conditions.weights.total_mass = ones_1col*self.geometry.mass_properties.max_takeoff
+        run_conditions.weights.total_mass     = ones_1col*self.geometry.mass_properties.max_takeoff
         run_conditions.freestream.mach_number = ones_1col * 0.0
         run_conditions.freestream.velocity    = ones_1col * 150 * Units.knots
         run_conditions.freestream.density     = ones_1col * 1.225

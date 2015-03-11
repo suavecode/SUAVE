@@ -7,7 +7,7 @@ def read_results(avl_object):
 
     results = Data()
 
-    for case in avl_object.analysis_temps.current_cases:
+    for case in avl_object.current_status.cases:
         num_ctrl = len(case.stability_and_control.control_deflections)
         with open(case.result_filename,'r') as res_file:
             case_res = Results()
