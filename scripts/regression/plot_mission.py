@@ -132,19 +132,25 @@ def plot_mission(vehicle,mission,results,line_style='bo-'):
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
 
-        axes = fig.add_subplot(3,1,1)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , CLift , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('CL')
         axes.grid(True)
 
-        axes = fig.add_subplot(3,1,2)
+        axes = fig.add_subplot(4,1,2)
         axes.plot( time , CDrag , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('CD')
         axes.grid(True)
 
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(4,1,3)
+        axes.plot( time , CLift / CDrag   , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('L/D')
+        axes.grid(True)
+
+        axes = fig.add_subplot(4,1,4)
         axes.plot( time , Drag   , line_style )
         axes.plot( time , Thrust , 'ro-' )
         axes.set_xlabel('Time (min)')
@@ -174,13 +180,13 @@ def plot_mission(vehicle,mission,results,line_style='bo-'):
             axes.plot( time , cdm , 'yo-', label='CD_M' )
             axes.plot( time , cd  , 'ro-', label='CD'   )
             if i == 0:
-                axes.legend(loc='upper center')            
+                axes.legend(loc='upper center')
         else:
             axes.plot( time , cdp , line_style )
             axes.plot( time , cdi , line_style )
             axes.plot( time , cdc , line_style )
             axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
+            axes.plot( time , cd  , line_style )
 
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
