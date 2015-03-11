@@ -1,145 +1,148 @@
-# SUAVE.Analyses.Aerodynamics.AVL
-# Tim Momose, March 2015
+# AVL_Callable.py
+#
+# Created:  Tim Momose, Dec 2014
 
 
-# imports
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+import os
 import numpy as np
+from shutil import rmtree
+from warnings import warn
 
-from SUAVE.Core import Data, Units
-from SUAVE.Analyses.Aerodynamics.Aerodynamics import Aerodynamics
-#from SUAVE.Analyses              import Surrogate
-from SUAVE.Analyses.Aerodynamics.AVL_Callable import AVL_Callable
-from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics\
-     import Aerodynamics as Aero_Conditions
+# SUAVE imports
+from SUAVE.Core import Data
+import SUAVE.Plugins.VyPy.tools.redirect as redirect
+
+from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics import Aerodynamics
+from SUAVE.Analyses.Missions.Segments.Conditions.Conditions   import Conditions
+
+from SUAVE.Methods.Aerodynamics.AVL.write_geometry   import write_geometry
+from SUAVE.Methods.Aerodynamics.AVL.write_run_cases  import write_run_cases
+from SUAVE.Methods.Aerodynamics.AVL.write_input_deck import write_input_deck
+from SUAVE.Methods.Aerodynamics.AVL.run_analysis     import run_analysis
+from SUAVE.Methods.Aerodynamics.AVL.translate_data   import translate_conditions_to_cases, translate_results_to_conditions
+from SUAVE.Methods.Aerodynamics.AVL.purge_files      import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Results     import Results
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
+
+from Aerodynamics import Aerodynamics as Aero_Analysis
 
 
-class AVL(Aerodynamics):
-    ''' This class only builds and evaluates an avl surrogate of aerodynamics
-        It must be patched into a markup analysis if more fidelity is needed.
-        The surrogate models lift coefficient, induced drag coefficient, and
-        pitching moment coefficient versus angle of attack.
-    '''
+# ----------------------------------------------------------------------
+#  Class
+# ----------------------------------------------------------------------
+
+class AVL(Aero_Analysis):
+    """ SUAVE.Analyses.Aerodynamics.AVL
+        aerodynamic model that performs a vortex lattice analysis using AVL
+        (Athena Vortex Lattice, by Mark Drela of MIT).
+
+        this class is callable, see self.__call__
+
+    """
+
     def __defaults__(self):
+        self.tag        = 'avl'
+        self.keep_files = True
+
+        self.settings = Settings()
+
+        self.current_status = Data()
+        self.current_status.batch_index = 0
+        self.current_status.batch_file  = None
+        self.current_status.deck_file   = None
+        self.current_status.cases       = None
         
-        self.training = Data()
-        self.training.angle_of_attack  = np.array([-10.,0.,10.]) * Units.deg
-        self.training.lift_coefficient = None
-        self.training.drag_coefficient = None
-        self.training.pitch_moment_coefficient = None
-
-        self.surrogates = Data()
-        self.surrogates.lift_coefficient = None
-        self.surrogates.induced_drag_coefficient = None
-        self.surrogates.pitch_moment_coefficient = None
-
-        self.avl_callable = AVL_Callable()
-        self.avl_callable.keep_files = False
-        self.avl_callable.settings.filenames.run_folder = 'avl_surrogate_files'
-        
-        self.geometry = None
-        
-        return
+        self.features = None
 
 
-    def initialize(self):
-        
-        self.avl_callable.features = self.geometry
-        self.avl_callable.initialize()
-        self.sample_training()
-        self.build_surrogate()
-        
-        return
+    def finalize(self):
 
+        features = self.features
+        self.tag      = 'avl_analysis_of_{}'.format(features.tag)
 
-    def sample_training(self):
-
-        # define conditions for run cases
-        run_conditions = Aero_Conditions()
-        ones_1col      = run_conditions.ones_row(1)
-        run_conditions.weights.total_mass     = ones_1col*self.geometry.mass_properties.max_takeoff
-        run_conditions.freestream.mach_number = ones_1col * 0.0
-        run_conditions.freestream.velocity    = ones_1col * 150 * Units.knots
-        run_conditions.freestream.density     = ones_1col * 1.225
-        run_conditions.freestream.gravity     = ones_1col * 9.81
-        
-        # set up run cases
-        alphas_1d = self.training.angle_of_attack
-        alphas    = alphas_1d.reshape([alphas_1d.shape[0],1])
-        run_conditions.expand_rows(alphas.shape[0])
-        run_conditions.aerodynamics.angle_of_attack = alphas
-
-        # run avl
-        results = self.avl_callable(run_conditions)
-        self.training.lift_coefficient = results.aerodynamics.lift_coefficient.reshape(alphas_1d.shape)
-        self.training.induced_drag_coefficient = \
-            results.aerodynamics.drag_breakdown.induced.total.reshape(alphas_1d.shape)
-        self.training.pitch_moment_coefficient = \
-            results.aerodynamics.pitch_moment_coefficient.reshape(alphas_1d.shape)
-
-        return
-
-
-    def build_surrogate(self):
-        # unpack
-        training_data = self.training
-        AoA_data = training_data.angle_of_attack
-        CL_data  = training_data.lift_coefficient
-        CDi_data = training_data.induced_drag_coefficient
-        Cm_data  = training_data.pitch_moment_coefficient
-
-        # pack for surrogate
-        X_data = np.reshape(AoA_data,-1)
-
-        # assign models
-        lift_model  = np.poly1d(np.polyfit(X_data,CL_data,1))
-        drag_model  = np.poly1d(np.polyfit(X_data,CDi_data,2))
-        pitch_model = np.poly1d(np.polyfit(X_data,Cm_data,1))
-
-        # populate surrogates
-        self.surrogates.lift_coefficient = lift_model
-        self.surrogates.induced_drag_coefficient = drag_model
-        self.surrogates.pitch_moment_coefficient = pitch_model
+        run_folder = self.settings.filenames.run_folder
+        if os.path.exists(run_folder):
+            if self.keep_files:
+                warn('deleting old avl run files',Warning)
+            rmtree(run_folder)
+        os.mkdir(run_folder)
 
         return
 
 
     def evaluate(self,state):
+        
         # unpack
-        aoa           = state.conditions.aerodynamics.freestream.angle_of_attack
-        Sref          = self.geometry.reference_area
-
-        # evaluate surrogates
-        CL  = self.surrogates.lift_coefficient(aoa)
-        CDi = self.surrogates.induced_drag_coefficient(aoa)
-        Cm  = self.surrogates.pitch_moment_coefficient(aoa)
-
+        conditions = state.conditions
+        results = self.evaluate_conditions(conditions)
+        
         # pack conditions
-        state.conditions.aerodynamics.lift_coefficient = CL
-        state.conditions.aerodynamics.drag_coefficient = CDi
-        state.conditions.aerodynamics.pitch_moment_coefficient = Cm
-
-        # pack results
-        results = Data()
-        results.lift_coefficient = CL
-        results.induced_drag_coefficient = CDi
-        results.pitch_moment_coefficient = Cm
+        state.conditions.aerodynamics.lift_coefficient         = results.conditions.aerodynamics.lift_coefficient
+        state.conditions.aerodynamics.drag_coefficient         = results.conditions.aerodynamics.drag_coefficient
+        state.conditions.aerodynamics.pitch_moment_coefficient = results.conditions.aerodynamics.pitch_moment_coefficient
 
         return results
 
 
-    def evaluate_lift(self,state):
+    def evaluate_conditions(self,run_conditions):
+        """ process vehicle to setup geometry, condititon and configuration
+
+            Inputs:
+                run_conditions - DataDict() of aerodynamic conditions; until input
+                method is finalized, will just assume mass_properties are always as 
+                defined in self.features
+
+            Outputs:
+                results - a DataDict() of type 
+                SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics(), augmented with
+                case data on moment coefficients and control derivatives
+
+            Assumptions:
+
+        """
+        
         # unpack
-        aoa   = state.conditions.aerodynamics.freestream.angle_of_attack
-        Sref  = self.geometry.reference_area
+        run_folder = os.path.abspath(self.settings.filenames.run_folder)
+        output_template = self.settings.filenames.output_template
+        batch_template  = self.settings.filenames.batch_template
+        deck_template   = self.settings.filenames.deck_template
+        
+        # update current status
+        self.current_status.batch_index += 1
+        batch_index = self.current_status.batch_index
+        self.current_status.batch_file = batch_template.format(batch_index)
+        self.current_status.deck_file = deck_template.format(batch_index)
+        
+        # translate conditions
+        cases = translate_conditions_to_cases(self,run_conditions)
+        self.current_status.cases = cases        
+        
+        # case filenames
+        for case in cases:
+            case.result_filename = output_template.format(case.tag)
 
-        # evaluate surrogates
-        CL  = self.surrogates.lift_coefficient(aoa)
+        # write the input files
+        with redirect.folder(run_folder,force=False):
+            write_geometry(self)
+            write_run_cases(self)
+            write_input_deck(self)
 
-        # pack conditions
-        state.conditions.aerodynamics.lift_coefficient = CL
+            # RUN AVL!
+            results_avl = run_analysis(self)
 
-        # pack results
-        results = Data()
-        results.lift_coefficient = CL
+        # translate results
+        results = translate_results_to_conditions(cases,results_avl)
+
+        if not self.keep_files:
+            rmtree( run_folder )
 
         return results
+
+
+    def __call__(self,*args,**kwarg):
+        return self.evaluate(*args,**kwarg)

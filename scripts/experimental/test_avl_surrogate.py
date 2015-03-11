@@ -13,7 +13,7 @@ import sys
 
 # SUAVE Imports
 from SUAVE.Core        import Units
-from SUAVE.Analyses.Aerodynamics import AVL
+from SUAVE.Analyses.Aerodynamics.Surrogates import AVL
 from SUAVE.Analyses.Missions.Segments.Conditions import Aerodynamics,State
 # SUAVE test script imports
 from full_setup_737800 import vehicle_setup
@@ -39,7 +39,7 @@ def main():
         
     print "Initializing:     " + time.ctime()
     
-    avl_surrogate.initialize()
+    avl_surrogate.finalize()
     
     print "Cross Validation: " + time.ctime()
     

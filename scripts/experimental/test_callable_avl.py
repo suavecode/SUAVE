@@ -17,7 +17,7 @@ from full_setup_737800 import vehicle_setup
 from SUAVE.Analyses.Missions.Segments.Conditions import Aerodynamics
 
 # SUAVE-AVL Imports
-from SUAVE.Analyses.Aerodynamics.AVL_Callable  import AVL_Callable
+from SUAVE.Analyses.Aerodynamics  import AVL as AVL_Callable
 
 
 def main():
@@ -83,7 +83,7 @@ def run_avl_test():
     run_conditions.expand_rows(alphas.shape[0])
     run_conditions.aerodynamics.angle_of_attack[:,0] = alphas
 
-    results = avl(run_conditions)
+    results = avl.evaluate_conditions(run_conditions)
     
     return results
 
