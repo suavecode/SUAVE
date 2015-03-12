@@ -28,7 +28,7 @@ from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components import Component_Exception
 #from SUAVE.Components.Energy.Gas_Turbine import Network
 from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
-
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 
 
@@ -339,7 +339,7 @@ def energy_network():
     eta=1.0
     
     #size the turbofan
-    turbofan.size(conditions_sizing,numerics)
+    turbofan_sizing(turbofan,conditions_sizing,numerics)
     
     
     [F,mdot,Isp] = turbofan(conditions,numerics)
