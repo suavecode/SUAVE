@@ -321,7 +321,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
@@ -332,7 +332,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Altitude_Radius_Loiter()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Altitude_Radius_Loiter()
     segment.tag = "Loiter"
     
     # connect vehicle configuration

@@ -54,6 +54,7 @@ modules = [
     'regression/test_payload_range.py',
     'regression/test_input_output/test_xml_read_write.py',
     'regression/test_input_output/test_freemind_write.py',
+    'regression/test_variable_cruise_distance.py',
     
     # tutorials
     

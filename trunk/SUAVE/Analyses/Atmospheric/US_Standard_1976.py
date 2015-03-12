@@ -19,7 +19,7 @@ from SUAVE.Analyses.Atmospheric import Atmospheric
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Planets import Earth
 
-from SUAVE.Analyses.Missions.Segments.Conditions import Conditions
+from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units

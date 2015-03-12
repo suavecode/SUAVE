@@ -841,7 +841,7 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
     
     #airport
@@ -853,7 +853,7 @@ def mission_setup(analyses):
     mission.airport = airport    
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Missions.Segments
+    Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
     base_segment = Segments.Segment()
@@ -968,7 +968,7 @@ def mission_setup(analyses):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Missions.Mission.Container()
+    missions = SUAVE.Analyses.Mission.Mission.Container()
     
     # ------------------------------------------------------------------
     #   Base Mission
@@ -980,7 +980,7 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Mission for Constrained Fuel
     # ------------------------------------------------------------------    
-    fuel_mission = SUAVE.Analyses.Missions.Mission() #Fuel_Constrained()
+    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
     fuel_mission.tag = 'fuel'
     fuel_mission.mission = base_mission
     fuel_mission.range   = 1277. * Units.nautical_mile
@@ -991,7 +991,7 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Mission for Constrained Short Field
     # ------------------------------------------------------------------    
-    short_field = SUAVE.Analyses.Missions.Mission() #Short_Field_Constrained()
+    short_field = SUAVE.Analyses.Mission.Mission() #Short_Field_Constrained()
     short_field.mission = base_mission
     short_field.tag = 'short_field'    
     
@@ -1009,7 +1009,7 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
-    payload = SUAVE.Analyses.Missions.Mission() #Payload_Constrained()
+    payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
     payload.mission = base_mission
     payload.tag = 'payload'
     payload.range   = 2316. * Units.nautical_mile

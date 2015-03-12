@@ -3,7 +3,7 @@
 import SUAVE
 #import test_b737_pass
 #import Vehicle
-#from SUAVE.Analyses.Missions import Segment
+#from SUAVE.Analyses.Mission import Segment
 #from SUAVE.Attributes.Results import State
 from SUAVE.Components.Propulsors.Turbofan import TurboFanPASS
 #from SUAVE.Components.Propulsors import Ductedfan

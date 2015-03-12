@@ -57,7 +57,7 @@ def update_sub_segments(segment,state):
 
 def finalize_sub_segments(segment,state):
     
-    from SUAVE.Analyses.Missions.Segments.Conditions import Conditions
+    from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
     
     for tag,sub_segment in segment.segments.items():
         sub_segment.finalize(state.segments[tag])

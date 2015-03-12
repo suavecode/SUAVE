@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 def main():
     #size the battery
-    Mission_total=SUAVE.Analyses.Missions.Mission()
+    Mission_total=SUAVE.Analyses.Mission.Sequential_Segments()
     Ereq=4000*Units.Wh #required energy for the mission in Joules
    
     Preq=3000. #maximum power requirements for mission in W

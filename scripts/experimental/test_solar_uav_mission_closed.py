@@ -321,7 +321,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
@@ -333,7 +333,7 @@ def define_mission(vehicle):
     #   Climb Segment: Constant Speed, constant throttle
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Throttle_Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Throttle_Constant_Speed()
     segment.tag = "Climb 1"
     
     # connect vehicle configuration
@@ -355,7 +355,7 @@ def define_mission(vehicle):
     #   Second Climb Segment: constant Speed, constant rate
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -374,7 +374,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -391,7 +391,7 @@ def define_mission(vehicle):
     #   First Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration

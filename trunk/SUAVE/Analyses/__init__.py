@@ -12,7 +12,7 @@ import Energy
 import Weights
 import Geometry
 import Loads
-import Missions
+import Mission
 import Sizing
 import Structures
 import Atmospheric
