@@ -106,7 +106,7 @@ class TurboFanPASS(Propulsor):
         Tt4=self.Tt4
         aalpha=self.bypass_ratio
         FD=self.thrust.design
-        htf=self.propellant.specific_energy
+        #htf=self.propellant.specific_energy
     
 
     
@@ -159,7 +159,7 @@ class TurboFanPASS(Propulsor):
         #-----------------------------------------
         
         #stagnation pressures
-        #htf=4.3*10**7#J/Kg
+        htf=4.3*10**7#J/Kg
         tau_f=htf/(Cpp*To)
     
         #other quantities
@@ -590,6 +590,7 @@ class TurboFanPASS(Propulsor):
         self.mdf=mdfD
         self.mdlc=mdlcD
         self.D=numpy.sqrt(A2/(numpy.pi/4))
+        self.mdhc = mdhcD
     
       
 
@@ -638,7 +639,7 @@ class TurboFanPASS(Propulsor):
         mdhc=self.mdhc  
         A22=self.A2 
         no_eng=self.number_of_engines 
-        htf=self.propellant.specific_energy
+        #htf=self.propellant.specific_energy
         throttle=eta
        
        
@@ -700,7 +701,7 @@ class TurboFanPASS(Propulsor):
         #-----------------------------------------
         
         #stagnation pressures
-        #htf=4.3*10**7#J/Kg
+        htf=4.3*10**7#J/Kg
         #Tt4=1380#K
         #Cppp=1005
         tau_f=htf/(Cpp*To)
@@ -981,7 +982,8 @@ class TurboFanPASS(Propulsor):
       
         #return FD_a,TSFC_a,mfuel_a
         eta_Pe = 0.0
-        return CF, Isp, eta_Pe    
+        #return CF, Isp, eta_Pe    
+        return FD2,mfuel,Isp
     
     
     def sea_level_static(self):

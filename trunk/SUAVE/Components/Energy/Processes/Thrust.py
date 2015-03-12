@@ -98,38 +98,7 @@ class Thrust(Energy_Component):
         mdhc                 =  self.compressor_nondimensional_massflow
         
         
-        
-        #Computing the engine output properties, the thrust, SFC, fuel flow rate--------------
-        
-        ##----drela method--------------
-        
-
-        ##--specific thrust
-        #specific_thrust=((1+f)*core_exit_velocity-u0+self.alpha*(fan_exit_velocity-u0))/((1+self.alpha)*a0)
-        
-        ##Specific impulse
-        #Isp=specific_thrust*a0*(1+self.alpha)/(f*g)
-        
-        ##thrust specific fuel consumption
-        #TSFC=3600/Isp
-        
-        ##mass flow sizing
-        #mdot_core=self.mdhc*np.sqrt(self.Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/self.Pref)
-        
-        ##fuel flow rate computation
-        #fuel_rate=mdot_core*f*self.no_eng
-        
-        ##dimensional thrust
-        #thrust=specific_thrust*a0*(1+self.alpha)*mdot_core*self.no_eng*throttle
-        
-        ##--fuel mass flow rate
-        #mfuel=0.1019715*thrust*TSFC/3600
-        
-        ##--Output power based on freestream velocity
-        #power = thrust*u0
-        
-        
-        
+    
         ##--------Cantwell method---------------------------------
         
         #computing the area ratios for the core and fan
@@ -144,7 +113,7 @@ class Thrust(Energy_Component):
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
-        TSFC             = 3600/Isp  
+        TSFC             = 3600.0/Isp  
         
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref)
@@ -171,7 +140,7 @@ class Thrust(Energy_Component):
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
     
-    
+        
     
     def size(self,conditions):
         
@@ -199,11 +168,11 @@ class Thrust(Energy_Component):
         core_area_ratio      = self.inputs.core_nozzle.area_ratio
         
         #unpacking from self
-        bypass_ratio         =  self.bypass_ratio
+        bypass_ratio         = self.bypass_ratio
         Tref                 = self.reference_temperature
         Pref                 = self.reference_pressure
         no_eng               = self.number_of_engines
-        mdhc                 =  self.compressor_nondimensional_massflow
+        mdhc                 = self.compressor_nondimensional_massflow
         design_thrust        = self.design_thrust
          
         #computing the area ratios for the core and fan
@@ -218,18 +187,19 @@ class Thrust(Energy_Component):
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
-        TSFC             = 3600/Isp  
+        TSFC             = 3600.0/Isp  
          
         #compute the core mass flow rate
+        mdot_core        = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)              
+        #mdot_core        = design_thrust/(Fsp*a0*(1+bypass_ratio)*throttle*no_eng)
         
-        mdot_core        = design_thrust/(Fsp*a0*(1+bypass_ratio)*throttle)
-        
-        mdhc             = mdot_core*np.sqrt(stag_temp_lpt_exit/Tref)*(Pref/stag_press_lpt_exit)
+        mdhc             = mdot_core/ (np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref))
         
         #pack outputs
         self.mass_flow_rate_design                      = mdot_core
         self.compressor_nondimensional_massflow         = mdhc
         
+
          
         
         return

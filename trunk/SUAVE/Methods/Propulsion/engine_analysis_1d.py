@@ -1,7 +1,7 @@
 
-def engine_analysis_1d(State):  
+#def engine_analysis_1d(State):  
 #def engine_analysis_1d(vehicle,throttles,State):  
-#def engine_analysis_1d(Turbofan,State):
+def engine_analysis_1d(Turbofan,State):
 #def engine_analysis_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,mdhc): 
    
    #(self,eta,segment)

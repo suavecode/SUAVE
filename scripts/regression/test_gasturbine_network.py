@@ -114,13 +114,14 @@ def energy_network():
     
 
     # freestream conditions
-    conditions_sizing.freestream.mach_number        = ones_1col*0.3
-    conditions_sizing.freestream.pressure           = ones_1col*10**5
-    conditions_sizing.freestream.temperature        = ones_1col*258
-    conditions_sizing.freestream.density            = ones_1col* 1.225
+    conditions_sizing.freestream.mach_number        = ones_1col*0.8 #*0.3
+    conditions_sizing.freestream.pressure           = ones_1col*20000. #*100000.
+    conditions_sizing.freestream.temperature        = ones_1col*215. #*258.0
+    conditions_sizing.freestream.density            = ones_1col*0.8 #*1.225
 
-    conditions_sizing.freestream.viscosity          = ones_1col* 1.789*10**(-5)
-    conditions_sizing.freestream.altitude           = ones_1col* 0.5
+    conditions_sizing.freestream.viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
+    conditions_sizing.freestream.altitude           = ones_1col* 10. #* 0.5
+
     conditions_sizing.freestream.gravity            = ones_1col*9.81
     conditions_sizing.freestream.gamma              = ones_1col*1.4
     conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
@@ -153,7 +154,7 @@ def energy_network():
     
     # setup
     turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 24000.0
+    turbofan.design_thrust     = 42383.01818423 #24000.0
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -337,6 +338,8 @@ def energy_network():
     
     eta=1.0
     
+    #size the turbofan
+    turbofan.size(conditions_sizing,numerics)
     
     
     [F,mdot,Isp] = turbofan(conditions,numerics)

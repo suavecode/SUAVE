@@ -189,6 +189,8 @@ class Turbofan(Propulsor):
         thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
         thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
 
+        
+
         #compute the trust
         thrust(conditions)
         
@@ -232,7 +234,7 @@ class Turbofan(Propulsor):
         
         #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
         ram(conditions)
-        
+
         
         
         #link inlet nozzle to ram 
@@ -241,7 +243,7 @@ class Turbofan(Propulsor):
         
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
-        
+          
                 
                         
         #--link low pressure compressor to the inlet nozzle
@@ -330,6 +332,8 @@ class Turbofan(Propulsor):
         fan_nozzle(conditions)
         
         # compute the thrust using the thrust component
+        
+        
         
         #link the thrust component to the fan nozzle
         thrust.inputs.fan_exit_velocity                        = fan_nozzle.outputs.velocity
