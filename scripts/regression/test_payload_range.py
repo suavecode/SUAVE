@@ -27,7 +27,7 @@ Data, Container, Data_Exception, Data_Warning,
 from the_aircraft_function import the_aircraft_function
 from plot_mission import plot_mission
 
-from test_mission_Embraer_E190_constThr import vehicle_setup, mission_setup
+from test_mission_Embraer_E190_constThr import full_setup
 
 from SUAVE.Methods.Performance  import payload_range
 
@@ -39,7 +39,13 @@ from SUAVE.Methods.Performance  import payload_range
 def main():
 
     # define the problem
-    vehicle, mission = full_setup()
+    configs, analyses = full_setup()
+    
+    configs.finalize()
+    analyses.finalize()
+    
+    vehicle = configs.base
+    mission = analyses.missions
     
     # run payload diagram
     cruise_segment_tag = "Cruise"
@@ -48,18 +54,6 @@ def main():
     check_results(payload_range_results)
     
     return
-
-
-# ----------------------------------------------------------------------
-#   Analysis Setup
-# ----------------------------------------------------------------------
-
-def full_setup():
-
-    vehicle = vehicle_setup() # imported from E190 test script
-    mission = mission_setup(vehicle)
-
-    return vehicle, mission
 
 
 def check_results(new_results):

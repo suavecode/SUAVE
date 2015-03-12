@@ -90,6 +90,7 @@ class Aerodynamic(Simple):
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Propulsion.update_propulsion
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
