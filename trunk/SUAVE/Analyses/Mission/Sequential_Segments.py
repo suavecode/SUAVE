@@ -17,7 +17,7 @@ from Mission import Mission
 # ----------------------------------------------------------------------
 
 class Sequential_Segments(Mission):
-    """ Mission.py: Top-level mission class """
+    """ Solves each segment one at time """
     
     def __defaults__(self):
         

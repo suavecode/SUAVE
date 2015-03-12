@@ -17,7 +17,7 @@ from Mission import Mission
 # ----------------------------------------------------------------------
 
 class All_At_Once(Mission):
-    """ Mission.py: Top-level mission class """
+    """ Solves all segments and sub segments at once """
     
     def __defaults__(self):
         
