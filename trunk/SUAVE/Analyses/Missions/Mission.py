@@ -20,36 +20,10 @@ class Mission(Segments.Simple.Container):
     """ Mission.py: Top-level mission class """
     
     def __defaults__(self):
-        
         self.tag = 'mission'
         
+        # see Segments.Simple.Container
         
-        # --------------------------------------------------------------
-        #   The Solving Process
-        # --------------------------------------------------------------
-        
-        # --------------------------------------------------------------
-        #   Initialize
-        # --------------------------------------------------------------
-        self.process.initialize = Methods.Segments.Common.Sub_Segments.expand_sub_segments
-
-        # --------------------------------------------------------------
-        #   Converge
-        # --------------------------------------------------------------
-        self.process.converge = Methods.Segments.Common.Sub_Segments.sequential_sub_segments
-        
-        # --------------------------------------------------------------
-        #   Iterate
-        # --------------------------------------------------------------        
-        del self.process.iterate
-
-        # --------------------------------------------------------------
-        #   Finalize
-        # --------------------------------------------------------------        
-        self.process.finalize.sub_segments = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
-        
-        return        
-    
     def finalize(self):
         pass
     

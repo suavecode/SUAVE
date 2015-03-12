@@ -14,11 +14,19 @@ from Results import Results
 
 class Process(Container):
     
+    verbose = False
+    
     def evaluate(self,*args,**kwarg):
         
         results = Results()
         
+        if self.verbose:
+            print 'process start'
+        
         for tag,step in self.items(): 
+            
+            if self.verbose:
+                print 'step :' , tag
             
             #if not callable(step): continue
             
@@ -30,6 +38,9 @@ class Process(Container):
             results[tag] = result
         
         #: for each step
+        
+        if self.verbose:
+            print 'process end'        
         
         return results
         

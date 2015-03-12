@@ -18,6 +18,8 @@ class Settings(Data):
     def __defaults__(self):
         self.tag    = 'settings'
         
+        self.verbose_process = False
+        
 
 # ----------------------------------------------------------------------
 #  Config Container

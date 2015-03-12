@@ -5,16 +5,20 @@
 
 from copy import deepcopy
 
-
 # ----------------------------------------------------------------------
 #  Expand Sub Segments
 # ----------------------------------------------------------------------
           
 def expand_sub_segments(segment,state):
     
+    from SUAVE.Analyses import Process
+    
     last_tag = None
     
     for tag,sub_segment in segment.segments.items():
+        
+        if Process.verbose:
+            print 'segment start :' , tag
         
         sub_state = deepcopy( sub_segment.state )
         
@@ -29,6 +33,9 @@ def expand_sub_segments(segment,state):
         state.conditions[tag]   = sub_state.conditions
         state.residuals[tag]    = sub_state.residuals
         
+        if Process.verbose:
+            print 'segment end :' , tag        
+        
 
         
 
@@ -38,7 +45,10 @@ def expand_sub_segments(segment,state):
 
 def update_sub_segments(segment,state):
     for tag,sub_segment in segment.segments.items():
+        sub_segment.initialize(state.segments[tag])
         sub_segment.iterate(state.segments[tag])
+        sub_segment.finalize(state.segments[tag])
+        
         
                     
 # ----------------------------------------------------------------------
