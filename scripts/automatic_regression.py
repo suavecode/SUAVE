@@ -57,8 +57,8 @@ modules = [
     'regression/test_variable_cruise_distance.py',
     
     # tutorials
-    'tutorials/test_mission_B737.py',
-    'tutorials/test_mission_Embraer_E190_constThr.py',
+    'tutorials/tut_mission_B737.py',
+    'tutorials/tut_mission_Embraer_E190_constThr.py',
     
 ]
 
