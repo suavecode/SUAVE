@@ -34,8 +34,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 
-
-def parasite_drag_fuselage(conditions,configuration,fuselage):
+def parasite_drag_fuselage(state,settings,geometry):
+#def parasite_drag_fuselage(conditions,configuration,fuselage):
     """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
         computes the parasite drag associated with a fuselage 
         
@@ -49,8 +49,19 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     """
 
     # unpack inputs
+    
+    conditions = state.conditions   
+    configuration =settings 
+    #fuselages = geometry.fuselages
+    fuselage = geometry
+    
+    
     form_factor = configuration.fuselage_parasite_drag_form_factor
     freestream = conditions.freestream
+    
+    fuselage_parasite_drag_total = 0.0
+    #for fuselage in fuselages.values():
+    
     
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
@@ -83,20 +94,28 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     
     # --------------------------------------------------------
     # find the final result    
-    fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
-    # --------------------------------------------------------
+    fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref 
     
+    
+    state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_parasite_drag   
+    
+    
+    #fuselage_parasite_drag_total += fuselage_parasite_drag
+        # --------------------------------------------------------
+    
+    #state.conditions.aerodynamics.drag_breakdown.fuselage_parasite_total = fuselage_parasite_drag_total   
+            
     # dump data to conditions
     fuselage_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
-        parasite_drag_coefficient = fuselage_parasite_drag ,
+        parasite_drag_coefficient = fuselage_parasite_drag_total ,
         skin_friction_coefficient = cf_fus ,
         compressibility_factor    = k_comp ,
         reynolds_factor           = k_reyn , 
         form_factor               = k_fus  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
+    #state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
     
     return fuselage_parasite_drag
 

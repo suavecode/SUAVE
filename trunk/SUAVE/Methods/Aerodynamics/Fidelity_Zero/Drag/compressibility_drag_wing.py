@@ -27,7 +27,8 @@ import scipy as sp
 #  The Function
 # ----------------------------------------------------------------------
 
-def compressibility_drag_wing(conditions,configuration,geometry):
+def compressibility_drag_wing(state,settings,geometry):
+#def compressibility_drag_wing(conditions,configuration,geometry):
     """ SUAVE.Methods.compressibility_drag_wing(conditions,configuration,geometry)
         computes the induced drag associated with a wing 
         
@@ -41,6 +42,10 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     """
 
     # unpack
+    conditions = state.conditions
+    configuration = settings
+    
+    
     wings      = geometry.wings
     wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     mach       = conditions.freestream.mach_number

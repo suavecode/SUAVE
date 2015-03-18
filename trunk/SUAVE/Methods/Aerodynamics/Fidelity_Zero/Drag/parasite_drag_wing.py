@@ -16,7 +16,7 @@ from SUAVE.Attributes.Gases import Air # you should let the user pass this as in
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
-from SUAVE.Core import Results
+from SUAVE.Core import Results,Data
 
 # python imports
 import os, sys, shutil
@@ -32,7 +32,8 @@ import scipy as sp
 #   The Function
 # ----------------------------------------------------------------------
 
-def parasite_drag_wing(conditions,configuration,wing):
+#def parasite_drag_wing(conditions,configuration,wing):
+def parasite_drag_wing(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_wing(conditions,configuration,wing)
         computes the parastite drag associated with a wing 
         
@@ -67,8 +68,20 @@ def parasite_drag_wing(conditions,configuration,wing):
     """
     
     # unpack inputs
-    C = configuration.wing_parasite_drag_form_factor
-    freestream = conditions.freestream
+    C = settings.wing_parasite_drag_form_factor
+    freestream = state.conditions.freestream
+    
+    wing_parasite_drag_total = 0.0
+    
+    #wings = geometry.wings
+    wing = geometry
+    
+    
+    #for wing in wings.values():
+    
+    
+    #wing  = geometry.wing[0]
+    
     Sref = wing.areas.reference
     
     # wing
@@ -114,22 +127,30 @@ def parasite_drag_wing(conditions,configuration,wing):
     # --------------------------------------------------------
     # find the final result
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
-    # --------------------------------------------------------
+    
+    
+    
+    #wing_parasite_drag_total = wing_parasite_drag_total +  wing_parasite_drag    
+        
+        # --------------------------------------------------------
+    
+    #state.conditions.aerodynamics.drag_breakdown.wing_parasite_total = wing_parasite_drag_total    
     
     # dump data to conditions
     wing_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
-        parasite_drag_coefficient = wing_parasite_drag ,
+        parasite_drag_coefficient = wing_parasite_drag , #wing_parasite_drag ,
         skin_friction_coefficient = (cf_w_u+cf_w_l)/2.   ,
         compressibility_factor    = k_comp_u ,
         reynolds_factor           = k_reyn_l , 
         form_factor               = k_w    ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
+    #state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = Data()
+    state.conditions.aerodynamics.drag_breakdown.parasite = wing_parasite_drag
     
     # done!
-    return wing_parasite_drag
+    return wing_parasite_drag_total
 
 
 # ----------------------------------------------------------------------

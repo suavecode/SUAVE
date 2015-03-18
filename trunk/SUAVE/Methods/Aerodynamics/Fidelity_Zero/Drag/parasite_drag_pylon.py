@@ -12,7 +12,8 @@ from SUAVE.Core import Results
 # ----------------------------------------------------------------------
 #  Computes the pyloan parasite drag
 # ----------------------------------------------------------------------
-def parasite_drag_pylon(conditions,configuration,geometry):
+#def parasite_drag_pylon(conditions,configuration,geometry):
+def parasite_drag_pylon(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
         Simplified estimation, considering pylon drag a fraction of the nacelle drag
 
@@ -30,6 +31,11 @@ def parasite_drag_pylon(conditions,configuration,geometry):
     """
 
     # unpack
+    
+    conditions = state.conditions
+    configuration = settings
+    
+    
     pylon_factor        =  0.20 # 20% of propulsor drag
     n_propulsors        =  len(geometry.propulsors)  # number of propulsive system in vehicle (NOT # of ENGINES)
     
@@ -64,7 +70,9 @@ def parasite_drag_pylon(conditions,configuration,geometry):
         reynolds_factor           = pylon_rey_fact   ,
         form_factor               = pylon_FF   ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_result
+    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_parasite_drag #pylon_result
+
+    conditions.aerodynamics.drag_breakdown.pylon_parasite_total = pylon_parasite_drag #pylon_result
 
     # done!
     return pylon_parasite_drag
