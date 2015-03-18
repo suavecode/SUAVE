@@ -14,7 +14,7 @@ from Results import Results
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
-from SUAVE.Analyses.Aerodynamics import Inviscid_Wings_Lift
+#from SUAVE.Analyses.Aerodynamics import Inviscid_Wings_Lift
 
 # ----------------------------------------------------------------------
 #  Analysis
