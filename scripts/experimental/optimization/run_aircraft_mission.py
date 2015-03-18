@@ -27,7 +27,7 @@ def main():
     
     configs, analyses = full_setup()
     
-    simple_sizing(configs)
+    simple_sizing(configs,analyses)
     
     configs.finalize()
     analyses.finalize()

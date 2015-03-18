@@ -22,10 +22,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-##    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-##    vehicle.mass_properties.operating_empty           = 62746.4   # kg
-##    vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    ## vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
+    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
     vehicle.mass_properties.cargo                     = 1650.  * Units.kilogram   
     
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
