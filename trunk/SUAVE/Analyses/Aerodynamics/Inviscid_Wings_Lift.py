@@ -95,7 +95,7 @@ class Inviscid_Wings_Lift(Aerodynamics):
 
         # unpack
         settings   = self.settings
-        geometry   = self.geometry
+        #geometry   = self.geometry
         surrogates = self.surrogates
         conditions = state.conditions
         

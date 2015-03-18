@@ -14,7 +14,7 @@ from Results import Results
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
-#from SUAVE.Analyses.Aerodynamics import Inviscid_Wings_Lift
+from Inviscid_Wings_Lift import Inviscid_Wings_Lift
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -60,7 +60,7 @@ class Fidelity_Zero(Markup):
         # then we'll figure out how to connect to a mission
         
         compute.lift = Process()
-        #compute.lift.inviscid_wings                = Inviscid_Wings_Lift
+        compute.lift.inviscid_wings                = Inviscid_Wings_Lift()
         compute.lift.vortex                        = SUAVE.Methods.skip
         #compute.lift.compressible_wings            = Methods.Lift.wing_compressibilty_correction
         compute.lift.fuselage                      = Methods.Lift.fuselage_correction
