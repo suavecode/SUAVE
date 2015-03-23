@@ -25,7 +25,7 @@ from SUAVE.Core import (
 #  Method
 # ----------------------------------------------------------------------
 
-def empty_custom_eng(vehicle,propulsor):
+def empty_custom_eng(vehicle):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
         This is for a standard Tube and Wing aircraft configuration.        
         
@@ -138,7 +138,7 @@ def empty_custom_eng(vehicle,propulsor):
     wt_wing            = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
     wt_landing_gear    = landing_gear(TOW)
    
-    wt_propulsion      =propulsor.mass_properties.mass
+    wt_propulsion      =vehicle.propulsor.mass_properties.mass
     wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r)
     output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
     wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)

@@ -18,12 +18,12 @@ import numpy as np
 #  Compute field length required for takeoff
 # ----------------------------------------------------------------------
 
-def estimate_take_off_field_length(vehicle,analyses,airport):
-    """ SUAVE.Methods.Performance.estimate_take_off_field_length(vehicle,airport):
-        Computes the takeoff field length for a given vehicle condition in a given airport
+def estimate_take_off_field_length(config,airport):
+    """ SUAVE.Methods.Performance.estimate_take_off_field_length(config,airport):
+        Computes the takeoff field length for a given config condition in a given airport
 
         Inputs:
-            vehicle	 - SUAVE type vehicle
+            config - SUAVE vehicle configuration
 
             includes these fields:
                 Mass_Properties.takeoff       - Takeoff weight to be evaluated
@@ -56,10 +56,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = vehicle.mass_properties.takeoff
-    reference_area  = vehicle.reference_area
+    weight          = config.mass_properties.takeoff
+    reference_area  = config.reference_area
     try:
-        V2_VS_ratio = vehicle.V2_VS_ratio
+        V2_VS_ratio = config.V2_VS_ratio
     except:
         V2_VS_ratio = 1.20
 
@@ -88,10 +88,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     sea_level_gravity = atmo.planet.sea_level_gravity
     
     # ==============================================
-    # Determining vehicle maximum lift coefficient
+    # Determining config maximum lift coefficient
     # ==============================================
     try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
+        maximum_lift_coefficient = config.maximum_lift_coefficient
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
@@ -103,8 +103,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
         conditions.freestream.viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
-            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
+            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
+            config.maximum_lift_coefficient = maximum_lift_coefficient
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
@@ -116,13 +116,13 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     speed_for_thrust  = 0.70 * V2_speed
 
     # ==============================================
-    # Determining vehicle number of engines
+    # Determining config number of engines
     # ==============================================
     engine_number = 0.
-    for propulsor in vehicle.propulsors : # may have than one propulsor
+    for propulsor in config.propulsors : # may have than one propulsor
         engine_number += propulsor.number_of_engines
     if engine_number == 0:
-        raise ValueError, "No engine found in the vehicle"
+        raise ValueError, "No engine found in the config"
 
     # ==============================================
     # Getting engine thrust
@@ -131,7 +131,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     conditions.freestream = Data()
     conditions.propulsion = Data()
     numerics = Data()
-
+    numerics.time                 =Data()
+    numerics.time.integrate       = np.array([0])
+    numerics.time.differentiate   = np.array([0])
+    
     conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity         = np.array([np.atleast_1d(speed_for_thrust)])
@@ -139,8 +142,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
     conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
     conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
-
-    thrust, mdot, P = analyses.propulsion(conditions,numerics) # total thrust
+    network=config.propulsors.network
+  
+    thrust, mdot, P = network.evaluate(conditions,numerics) # total thrust
 
     # ==============================================
     # Calculate takeoff distance
@@ -148,7 +152,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
 
     # Defining takeoff distance equations coefficients
     try:
-        takeoff_constants = vehicle.takeoff_constants # user defined
+        takeoff_constants = config.takeoff_constants # user defined
     except:  # default values
         takeoff_constants = np.zeros(3)
         if engine_number == 2:
@@ -167,7 +171,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
             takeoff_constants[0] = 486.7
             takeoff_constants[1] =   2.282
             takeoff_constants[2] =   0.0000705
-            print 'The vehicle has more than 4 engines. Using 4 engine correlation. Result may not be correct.'
+            print 'The config has more than 4 engines. Using 4 engine correlation. Result may not be correct.'
         else:
             takeoff_constants[0] = 857.4
             takeoff_constants[1] =   2.476
@@ -180,7 +184,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     takeoff_field_length = 0.
     for idx,constant in enumerate(takeoff_constants):
         takeoff_field_length += constant * takeoff_index**idx
-        p
+        
     takeoff_field_length = takeoff_field_length * Units.ft
     
     # return
@@ -204,14 +208,14 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     
      
-    def define_vehicle():
+    def define_config():
     
         # ------------------------------------------------------------------
         #   Initialize the Vehicle
         # ------------------------------------------------------------------
     
-        vehicle = SUAVE.Vehicle()
-        vehicle.tag = 'EMBRAER E190AR'
+        config = SUAVE.Vehicle()
+        config.tag = 'EMBRAER E190AR'
     
     
         # ------------------------------------------------------------------
@@ -219,10 +223,10 @@ if __name__ == '__main__':
         # ------------------------------------------------------------------
     
         # mass properties
-        vehicle.mass_properties.takeoff = 50000. #
+        config.mass_properties.takeoff = 50000. #
     
         # basic parameters
-        vehicle.reference_area  = 92.    # m^2
+        config.reference_area  = 92.    # m^2
     
         # ------------------------------------------------------------------
         #   Main Wing
@@ -231,7 +235,7 @@ if __name__ == '__main__':
         wing = SUAVE.Components.Wings.Main_Wing()
         wing.tag = 'main_wing'
     
-        wing.areas.reference    = vehicle.reference_area
+        wing.areas.reference    = config.reference_area
         wing.sweep              = 22. * Units.deg  # deg
         wing.thickness_to_chord = 0.11
         wing.taper              = 0.28          
@@ -241,8 +245,8 @@ if __name__ == '__main__':
         wing.flap_type   = 'double_slotted'
         wing.flaps_chord  = 0.28
     
-        # add to vehicle
-        vehicle.append_component(wing)
+        # add to config
+        config.append_component(wing)
     
         # ------------------------------------------------------------------
         #  Turbofan
@@ -252,7 +256,7 @@ if __name__ == '__main__':
         turbofan.tag = 'TurboFan'
     
         turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
-        vehicle.fuel_density = turbofan.propellant.density
+        config.fuel_density = turbofan.propellant.density
     
         turbofan.analysis_type                 = '1D'     #
         turbofan.diffuser_pressure_ratio       = 0.98     #
@@ -278,34 +282,34 @@ if __name__ == '__main__':
         # size the turbofan
         turbofan.engine_sizing_1d(sizing_segment)
     
-        # add to vehicle
-        vehicle.append_component(turbofan)
+        # add to config
+        config.propulsors.append(turbofan)
     
         # ------------------------------------------------------------------
         #   Simple Propulsion Model
         # ------------------------------------------------------------------
     
-        vehicle.propulsion_model = vehicle.propulsors
-    
+        #config.propulsion_model = config.propulsors
+        config.propulsors.network=turbofan
     
         # ------------------------------------------------------------------
         #   Define Configurations
         # ------------------------------------------------------------------
     
         # --- Cruise Configuration ---
-        config = vehicle.new_configuration("cruise")
-        # this configuration is derived from the baseline vehicle
+        config = config.new_configuration("cruise")
+        # this configuration is derived from the baseline config
     
         # --- Takeoff Configuration ---
-        config = vehicle.new_configuration("takeoff")
+        config = config.new_configuration("takeoff")
         config.wings['main_wing'].flaps_angle = 15.
-        # this configuration is derived from the vehicle.configs.cruise
+        # this configuration is derived from the config.configs.cruise
     
         # ------------------------------------------------------------------
         #   Vehicle Definition Complete
         # ------------------------------------------------------------------
     
-        return vehicle
+        return config
     
 
     # ----------------------------------------------------------------------
@@ -313,10 +317,10 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
 
     # --- Vehicle definition ---
-    vehicle = define_vehicle()
+    config = define_config()
 
     # --- Takeoff Configuration ---
-    configuration = vehicle.configs.takeoff
+    configuration = config.configs.takeoff
     configuration.wings['main_wing'].flaps.angle =  20. * Units.deg
     configuration.wings['main_wing'].slats.angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
@@ -335,10 +339,10 @@ if __name__ == '__main__':
     engines = (2,3,4)
     takeoff_field_length = np.zeros((len(w_vec),len(engines)))
     for id_eng,engine_number in enumerate(engines):
-        vehicle.propulsors.TurboFan.number_of_engines = engine_number
+        config.propulsors.TurboFan.number_of_engines = engine_number
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
-            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(vehicle,configuration,airport)
+            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(config,configuration,airport)
             print 'Weight (kg): ',str('%7.0f' % w_vec[id_w]),' ; TOFL (m): ' , str('%6.1f' % takeoff_field_length[id_w,id_eng])
 
     import pylab as plt

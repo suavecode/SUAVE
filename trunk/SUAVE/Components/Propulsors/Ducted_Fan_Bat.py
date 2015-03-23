@@ -63,11 +63,11 @@ class Ducted_Fan_Bat(Propulsor):
         
         #--geometry pass like
         
-        self.engine_dia= 0.0
+        self.engine_diameter= 0.0
         self.engine_length= 0.0
-        self.nacelle_dia= 0.0
+        self.nacelle_diameter= 0.0
         self.inlet_length= 0.0
-        self.eng_maxarea= 0.0
+        self.eng_max_area= 0.0
         self.inlet_area= 0.0   
         
         #newly added for 1d engine analysis
@@ -85,7 +85,7 @@ class Ducted_Fan_Bat(Propulsor):
         self.mdot_core = 0.0
         
         
-    def engine_sizing_ductedfan(self,State):    
+    def engine_sizing_ducted_fan(self,State):    
     #def engine_sizing_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,FD):
     
         Minf=State.M
@@ -219,83 +219,7 @@ class Ducted_Fan_Bat(Propulsor):
         Tt7=Tt2_1*pifn**((gamma-1)/(gamma)*etapolfn)
         ht7=Cpp*Tt7#h(Tt7)
         
-        
-        ##LPC exit conditions
-        
-        ##etapollc=Feta(pilc,pilc,1,1)
-        ##etapollc=1
-        
-        #pt2_5=pt1_9*pilc
-        #Tt2_5=Tt1_9*pilc**((gamma-1)/(gamma*etapollc))
-        #ht2_5=Cpp*Tt2_5  #h(Tt2_5)
-        
-        
-        ##HPC exit calculations
-        
-        ##etapolhc=Feta(pihc,pihc,1,1)
-        ##etapolhc=1
-        
-        #pt3=pt2_5*pihc
-        #Tt3=Tt2_5*pihc**((gamma-1)/(gamma*etapolhc))
-        #ht3=Cpp*Tt3#h(Tt3)
-        
-       
-        ##cooling mass flow
-        
-        ##to be included in the future
-        
-        ##combustor quantities
-        
-        ##[fb,lambda]=Fb(alpha,beta,gammaa,Tt3,htf,Tt4)
-        
-        #fb=(((Tt4/To)-tau_r*(Tt3/Tt1_9))/(eta_b*tau_f-(Tt4/To)))
-        
-        #f=fb*(1-alphac)  #alphac=0 if cooling mass flow not included
-        #lmbda=1
-        
-        ##combustor exit conditions
-        
-        #ht4=lmbda*Cpp*Tt4#h(Tt4)
-        ##sigmat4=lambda*sigma(Tt4)
-        #pt4=pt3*pib
-        
-        ##Station 4.1 without IGV cooling
-        
-        #Tt4_1=Tt4
-        #pt4_1=pt4
-        #lambdad=lmbda
-        
-        ##Station 4.1 with IGV cooling
-        
-        ##complete later
-        
-        
-        ##Turbine quantities
-        
-        ##high pressure turbine
-        
-        #deltah_ht=-1/(1+f)*1/0.99*(ht3-ht2_5)
-        
-        #Tt4_5=Tt4_1+deltah_ht/Cpp
-        
-        #pt4_5=pt4_1*(Tt4_5/Tt4_1)**(gamma/((gamma-1)*etapolt))
-        #ht4_5=Cpp*Tt4_5#h(Tt4_5)
-        
-        ##low pressure turbine
-        
-        #deltah_lt=-1/(1+f)*md_lc_by_md_hc*(1/0.99*(ht2_5-ht1_9)+aalpha*1/0.99*(ht2_1-ht2))
-        
-        #Tt4_9=Tt4_5+deltah_lt/Cpp
-        
-        #pt4_9=pt4_5*(Tt4_9/Tt4_5)**(gamma/((gamma-1)*etapolt))
-        #ht4_9=Cpp*Tt4_9#h(Tt4_9)
-        
-        ##turbine nozzle conditions (assumed that p8=po)
-        
-        #pt5=pt4_9*pitn
-        #Tt5=Tt4_9*pitn**((gamma-1)/(gamma)*etapoltn)
-        #ht5=Cpp*Tt5#h(Tt5)
-        
+  
         
         #Fan exhaust quantities
         
@@ -307,17 +231,6 @@ class Ducted_Fan_Bat(Propulsor):
         T8=Tt8/(1+(gamma-1)/2*M8**2)
         h8=Cpp*T8#h(T8)
         u8=numpy.sqrt(2*(ht8-h8))
-    
-        ##Core exhaust quantities (assumed that p6=po)
-        
-        #pt6=pt5
-        #Tt6=Tt5
-        #ht6=Cpp*Tt6#h(Tt6)
-        
-        #M6=numpy.sqrt((((pt6/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-        #T6=Tt6/(1+(gamma-1)/2*M6**2)
-        #h6=Cpp*T6#h(T6)
-        #u6=numpy.sqrt(2*(ht6-h6))
     
         
         if M8 < 1.0:
@@ -339,40 +252,11 @@ class Ducted_Fan_Bat(Propulsor):
     
         u7=numpy.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
-      # 
-      # 
-      # #core nozzle ppties
-      # 
-    
-    
-        #if M6 < 1.0:  #nozzle unchoked
-          
-            #p5=po
-            #M5=numpy.numpy.sqrt((((pt5/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #h5=Cpp*T5
-        
-       
-        #else:
-            #M5=1
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #p5=pt5/(1+(gamma-1)/2*M5**2)**(gamma/(gamma-1))
-            #h5=Cpp*T5
-        
-    
-      ## #core nozzle area
-      ## 
-        #u5=numpy.sqrt(2*(ht5-h5))
-        #rho5=p5/(R*T5)
-      # 
+  
       # #-------------------------
-      # #Thrust calculation based on that
-      # 
-      # 
-       #Fsp=1/(ao*(1+aalpha))*((u5-uo)+aalpha*(u7-uo)+(p5-po)/(rho5*u5)+aalpha*(p7-po)/(rho7*u7)+f)
-      
-       # Ae_b_Ao=1/(1+aalpha)*(fm_id(Mo)/fm_id(M5)*(1/(pt5/pto))*(numpy.sqrt(Tt5/Tto)))
-        
+      # #Thrust calculation
+ 
+     
         A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*numpy.sqrt(Tt7/Tto)
          
         Thrust_nd=gamma*Mo**2*((u7/uo-1))+A1e_b_A1o*(p7/po-1)
@@ -382,11 +266,7 @@ class Ducted_Fan_Bat(Propulsor):
         Fsp=1/(gamma*Mo)*Thrust_nd
     
       
-      #overall engine quantities
-        
-        #Isp=Fsp*ao*(1+aalpha)/(f*g)
-        #TSFC=3600/Isp  # for the test case 
-      
+
       #-----Design sizing-------------------------------------------------------
       #--------------calculation pass-------------------------------------------
       
@@ -417,20 +297,7 @@ class Ducted_Fan_Bat(Propulsor):
         u2=M2*numpy.sqrt(gamma*R*T2)
         A2=mdot_df/(rho2*u2)
         df=numpy.sqrt(4*A2/(numpy.pi*(1-HTRf**2))) #if HTRf- hub to tip ratio is specified
-        
-        ##hp compressor fan area
-         
-        #T2_5=Tt2_5/(1+(gamma-1)/2*M2_5**2)
-        #h2_5=Cpp*T2_5
-        #p2_5=pt2_5/(1+(gamma-1)/2*M2_5**2)**(gamma/(gamma-1))
-        
-        ##[p2_5,T2_5,h2_5]=FM(alpha,pt2_5,Tt2_5,0,M2_5,etapold)
-        #rho2_5=p2_5/(R*T2_5)
-        #u2_5=M2_5*numpy.sqrt(gamma*R*T2_5)
-        #A2_5=(1+alpha)*mdot_core/(rho2_5*u2_5)
-        #dhc=numpy.sqrt(4*A2_5/(numpy.pi*(1-HTRhc**2))) #if HTRf- hub to tip ratio is specified
-         
-        
+   
         
         #fan nozzle area
         
@@ -455,41 +322,13 @@ class Ducted_Fan_Bat(Propulsor):
         u7=numpy.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
         A7=mdot_df/(rho7*u7)
-      
-      ##core nozzle area
-        
-        #M6=u6/numpy.sqrt(Cp(T6)*R*T6/(Cp(T6)-R))
-        
-        #if M6<1:  #nozzle unchoked
-          
-            #p5=po
-            #M5=numpy.sqrt((((pt5/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #h5=Cpp*T5
-          
-        #else:
-            #M5=1
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #p5=pt5/(1+(gamma-1)/2*M5**2)**(gamma/(gamma-1))
-            #h5=Cpp*T5
-              
-      ##end
-      
-      #core nozzle area
-      
-        #u5=numpy.sqrt(2*(ht5-h5))
-        #rho5=p5/(R*T5)
-        #A5=mdot_core/(rho5*u5)
+
       
         Ao=mdot_df/(rhoo*uo)  
         
-       
-        #mhtD=(1+f)*mdot_core*numpy.sqrt(Tt4_1/Tref)/(pt4_1/Pref)
-        #mltD=(1+f)*mdot_core*numpy.sqrt(Tt4_5/Tref)/(pt4_5/Pref)
-        
+ 
         mdfD=mdot_df*numpy.sqrt(Tt2/Tref)/(pt2/Pref)
-        #mdlcD=mdot_core*numpy.sqrt(Tt1_9/Tref)/(pt1_9/Pref)
-        #mdhcD=mdot_core*numpy.sqrt(Tt2_5/Tref)/(pt2_5/Pref) 
+        
       
       
       
@@ -506,8 +345,8 @@ class Ducted_Fan_Bat(Propulsor):
         #Turbofan.mlt= mltD
         #Turbofan.mdf=mdfD
         #Turbofan.mdlc=mdlcD
-        self.D=numpy.sqrt(A2/(numpy.pi/4))
-    
+        self.nacelle_diameter=numpy.sqrt(A2/(numpy.pi/4))
+        self.engine_length=self.nacelle_diameter/1.5
       
       
         #Turbofan.sfc=sfc
@@ -659,83 +498,7 @@ class Ducted_Fan_Bat(Propulsor):
         Tt7=Tt2_1*pifn**((gamma-1)/(gamma)*etapolfn)
         ht7=Cpp*Tt7#h(Tt7)
         
-        #LPC exit conditions
-        
-        ##etapollc=Feta(pilc,pilc,1,1)
-        ##etapollc=1
-        
-        #pt2_5=pt1_9*pilc
-        #Tt2_5=Tt1_9*pilc**((gamma-1)/(gamma*etapollc))
-        #ht2_5=Cpp*Tt2_5  #h(Tt2_5)
-        
-        
-        
-        ##HPC exit calculations
-        
-        ##etapolhc=Feta(pihc,pihc,1,1)
-        ##etapolhc=1
-        
-        #pt3=pt2_5*pihc
-        #Tt3=Tt2_5*pihc**((gamma-1)/(gamma*etapolhc))
-        #ht3=Cpp*Tt3#h(Tt3)
-        
-        
-        
-        ##cooling mass flow
-        
-        ##to be included in the future
-        
-        ##combustor quantities
-        
-        #fb=(((Tt4/To)-tau_r*(Tt3/Tt1_9))/(eta_b*tau_f-(Tt4/To)))
-        
-        #f=fb*(1-alphac)  #alphac=0 if cooling mass flow not included
-        #lmbda=1
-        
-        ##combustor exit conditions
-        
-        #ht4=lmbda*Cpp*Tt4#h(Tt4)
-        ##sigmat4=lambda*sigma(Tt4)
-        #pt4=pt3*pib
-        
-        ##Station 4.1 without IGV cooling
-        
-        #Tt4_1=Tt4
-        #pt4_1=pt4
-        #lambdad=lmbda
-        
-        ##Station 4.1 with IGV cooling
-        
-        ##complete later
-        
-        
-        ##Turbine quantities
-        
-        ##high pressure turbine
-        
-        #deltah_ht=-1/(1+f)*1/0.99*(ht3-ht2_5)
-        
-        #Tt4_5=Tt4_1+deltah_ht/Cpp
-        
-        #pt4_5=pt4_1*(Tt4_5/Tt4_1)**(gamma/((gamma-1)*etapolt))
-        #ht4_5=Cpp*Tt4_5#h(Tt4_5)
-        
-        ##low pressure turbine
-        
-        #deltah_lt=-1/(1+f)*md_lc_by_md_hc*(1/0.99*(ht2_5-ht1_9)+aalpha*1/0.99*(ht2_1-ht2))
-        
-        #Tt4_9=Tt4_5+deltah_lt/Cpp
-        
-        #pt4_9=pt4_5*(Tt4_9/Tt4_5)**(gamma/((gamma-1)*etapolt))
-        #ht4_9=Cpp*Tt4_9#h(Tt4_9)
-        
-        ##turbine nozzle conditions (assumed that p8=po)
-        
-        #pt5=pt4_9*pitn
-        #Tt5=Tt4_9*pitn**((gamma-1)/(gamma)*etapoltn)
-        #ht5=Cpp*Tt5#h(Tt5)
-        
-        
+    
         #Fan exhaust quantities
         
         pt8=pt7
@@ -747,20 +510,9 @@ class Ducted_Fan_Bat(Propulsor):
         h8=Cpp*T8#h(T8)
         u8=numpy.sqrt(2*(ht8-h8))
     
-        
-        #Core exhaust quantities (assumed that p6=po)
-        
-        #pt6=pt5
-        #Tt6=Tt5
-        #ht6=Cpp*Tt6#h(Tt6)
-        
-        #M6=numpy.sqrt((((pt6/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-        #T6=Tt6/(1+(gamma-1)/2*M6**2)
-        #h6=Cpp*T6#h(T6)
-        #u6=numpy.sqrt(2*(ht6-h6))
     
         if numpy.linalg.norm(M8) < 1.0:
-        # nozzle unchoked
+       
         
             p7=po
             
@@ -780,22 +532,7 @@ class Ducted_Fan_Bat(Propulsor):
     
         # #core nozzle ppties
     
-        # 
-        #if M6 < 1.0:  #nozzle unchoked
-            
-            #p5=po
-            #M5=numpy.numpy.sqrt((((pt5/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #h5=Cpp*T5
-          
-      
-        #else:
-            #M5=1
-            #T5=Tt5/(1+(gamma-1)/2*M5**2)
-            #p5=pt5/(1+(gamma-1)/2*M5**2)**(gamma/(gamma-1))
-            #h5=Cpp*T5
-          
-    
+     
         # 
         # #core nozzle area
         # 
@@ -816,18 +553,7 @@ class Ducted_Fan_Bat(Propulsor):
         
         Fsp=1/(gamma*Mo)*Thrust_nd
     
-        #overall engine quantities
-        
-        #Isp=Fsp*ao*(1+aalpha)/(f*g)
-    
-        #TSFC=3600/Isp  # for the test case 
-        
-        #mass flow sizing
-        #mdot_core=mdhc*numpy.sqrt(Tref/Tt2_5)*(pt2_5/Pref)
-        
-        #mdot_core=FD/(Fsp*ao*(1+aalpha))
-        #print mdot_core
-      
+     
       
         #fan nozzle area
            
@@ -871,14 +597,6 @@ class Ducted_Fan_Bat(Propulsor):
         #eta_pe=.95              #motor efficiency
         eta_pe=.95
       
-      
-        #-------if areas specified-----------------------------
-        #fuel_rate=mdot_core*f
-        
-        #FD2=Fsp*ao*(1+aalpha)*mdot_core  
-        #-------------------------------------------------------
-        #Ductedfan.sfc = TSFC
-        #Ductedfan.thrust = FD
-        #Turbofan.mdot_core = mdot_core
+   
       
         return FD,0.0,eta_pe    

@@ -49,38 +49,42 @@ class Basic_Battery(Data):
         battery     = self.battery
     
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy
-        
-        
+  
         F, mdot, Pe =propulsor(conditions)
-       
-        pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
-       
-        battery_logic     = Data()
-        batlogic.power_in = pbat
-        batlogic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-      
-        battery.inputs    =batlogic
-        
-        tol = 1e-6
-        
-        #allow for mass gaining batteries
         try:
-            mdot=find_mass_gain_rate(battery,pbat+battery.resisitive_losses)
-        except AttributeError:
-            mdot=0
+            initial_energy=conditions.propulsion.battery_energy
+           
+            if initial_energy[0]==0: #beginning of segment; initialize battery
+               battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
+        except AttributeError: #battery energy not initialized, e.g. in takeoff
+            battery.current_energy=battery.max_energy*np.ones_like(F)
+        pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
         
+        battery_logic     = Data()
+        battery_logic.power_in = pbat
+        battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
       
+        battery.inputs    =battery_logic
+        battery.inputs.power_in=pbat
+        tol = 1e-6
         battery.energy_calc(numerics)
+        #allow for mass gaining batteries
+       
+        try:
+            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses))
+        except AttributeError:
+            mdot=np.zeros_like(F)
+           
+       
+        
+        
         #Pack the conditions for outputs
-        
-        battery_draw                         = battery.inputs.pbat
+        battery_draw                         = battery.inputs.power_in
         battery_energy                       = battery.current_energy
-        
-        #conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
-        
+      
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
+        
         #number_of_engines
         #Create the outputs
         

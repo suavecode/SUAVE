@@ -18,12 +18,11 @@ import numpy as np
 #  Compute field length required for landing
 # ----------------------------------------------------------------------
 
-def estimate_landing_field_length(vehicle,config,airport):
+def estimate_landing_field_length(config,airport):
     """ SUAVE.Methods.Performance.estimate_landing_field_length(vehicle,config,airport):
         Computes the landing field length for a given vehicle condition in a given airport
 
         Inputs:
-            vehicle	 - SUAVE type vehicle
 
             config   - data dictionary with fields:
                 Mass_Properties.landing    - Landing weight to be evaluated
@@ -106,7 +105,7 @@ def estimate_landing_field_length(vehicle,config,airport):
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
             config.maximum_lift_coefficient = maximum_lift_coefficient
-            print config
+         
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 

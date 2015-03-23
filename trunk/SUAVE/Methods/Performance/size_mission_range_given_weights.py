@@ -90,7 +90,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
             segmentNum = i
             break
-
+    print mission.segments
     TOW_ref = mission.segments[0].analyses.weights.mass_properties.takeoff 
     
     # Loop for range calculation of each input case

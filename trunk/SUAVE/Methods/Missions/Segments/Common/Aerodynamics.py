@@ -52,6 +52,7 @@ def update_atmosphere(segment,state):
     # unpack
     conditions = state.conditions
     h = conditions.freestream.altitude
+    
     atmosphere = segment.analyses.atmosphere
     
     # compute
