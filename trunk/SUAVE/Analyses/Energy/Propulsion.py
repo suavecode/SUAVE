@@ -19,12 +19,15 @@ class Propulsion(Analysis):
         self.tag    = 'propulsion'
         self.vehicle  = Data()
         self.settings = Data()
-        
+       #self.propulsor= Data() 
         
     def evaluate(self,conditions,numerics):
+        propulsor=self.propulsor
+        F, mdot,P= propulsor.evaluate(conditions, numerics)
+        #network  = self.vehicle.propulsors.network
        
-        network  = self.vehicle.propulsors.network
-        F,mdot,P = network.evaluate(conditions,numerics)
+        
+        #F,mdot,P = network.evaluate(conditions,numerics)
         
         return F,mdot,P
         

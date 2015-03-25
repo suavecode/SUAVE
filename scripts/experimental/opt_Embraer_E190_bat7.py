@@ -107,7 +107,8 @@ def main():
     
     #esp=2000 W-h/kg, range=2800 km
   
-    inputs=[ 1.12497160956 , 0.486224235659 , 1.10158366026 , 1.19088038342 , 1.61943185147, 9.31282153536 , -0.29675391325 , -0.878744551136 , 0.00893341044727 , 1.07315057888 , 1.21916402437 , 0.564652598098 , 1.6528733108 , 1.82679391929 , 1.58274869109 , 3.76112675893 , 1.23904704521 , 1.82215348155 ]
+    inputs=[ 1.1002930213 , 0.12714229163 , 1.19233385293 , 1.32797778959 , 1.6778039998 ,9.59897255167 , -0.293218719974 , -1.18759256603 , 0.00934404616381 , 0.99290647912 , 1.38679165481 , 0.592197896868 , 1.64675349776 , 1.77328152881 , 1.59240873243 , 4.67937473065 , 1.29663779453 , 1.79563659929 ]
+    
     
     #print mybounds
     #print inputs
@@ -533,9 +534,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     ducted_fan.eta_pe=.95         #electric efficiency of battery
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
     vehicle.propulsor=ducted_fan
-    #battery.initialize(Ereq, Preq)
-    #m_air=battery.find_mass_gain()    #find mass gain of battery throughout mission and size vehicle
-   
+
     # ------------------------------------------------------------------
     #   Simple Aerodynamics Model
     # ------------------------------------------------------------------ 
@@ -1071,7 +1070,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
+    propulsion.propulsor = vehicle.propulsors['network']
     analyses.append(propulsion)
     
     # ------------------------------------------------------------------
