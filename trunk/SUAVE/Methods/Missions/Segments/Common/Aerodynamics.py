@@ -145,8 +145,8 @@ def update_aerodynamics(segment,state):
     aerodynamics_model = segment.analyses.aerodynamics
 
     # call aerodynamics model
-    #results = aerodynamics_model( state )    
-    results = aerodynamics_model( state.conditions )    
+    results = aerodynamics_model( state )    
+    #results = aerodynamics_model( state.conditions )    
 
     # unpack results
     L = results.lift_force_vector
@@ -170,7 +170,8 @@ def update_stability(segment,state):
     stability_model = segment.analyses.stability
     
     # call aerodynamics model
-    stability_model( state.conditions )        
+    if stability_model:
+        stability_model( state.conditions )        
     
     return
 

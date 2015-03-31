@@ -46,15 +46,25 @@ class AVL(Aerodynamics,Surrogate):
         
         self.geometry = None
         
+        self.finalized = False
+        
         return
 
 
     def finalize(self):
         
-        self.avl_callable.features = self.geometry
-        self.avl_callable.finalize()
-        self.sample_training()
-        self.build_surrogate()
+        if not self.finalized:
+            
+            print 'Building AVL Surrogate'
+            
+            self.avl_callable.features = self.geometry
+            self.avl_callable.finalize()
+            self.sample_training()
+            self.build_surrogate()
+        
+            self.finalized = True
+            
+            print 'Done'
         
         return
 
@@ -115,7 +125,7 @@ class AVL(Aerodynamics,Surrogate):
     def evaluate(self,state):
         
         # unpack
-        aoa           = state.conditions.aerodynamics.freestream.angle_of_attack
+        aoa           = state.conditions.aerodynamics.angle_of_attack
         Sref          = self.geometry.reference_area
 
         # evaluate surrogates
@@ -131,8 +141,11 @@ class AVL(Aerodynamics,Surrogate):
         # pack results
         results = Data()
         results.lift_coefficient = CL
+        results.drag_coefficient = CDi
         results.induced_drag_coefficient = CDi
         results.pitch_moment_coefficient = Cm
+        
+        results.update( self.compute_forces(state.conditions) )
 
         return results
 

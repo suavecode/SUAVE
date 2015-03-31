@@ -47,7 +47,7 @@ def main():
     state    = State()
     # IS THE STATE STRUCTURE ACTUALLY LIKE THIS??? (IF NOT, FIX THE UNPACKING APPROACH IN AVL.EVALUATE() AND AVL.EVALUATE_LIFT() ALSO)
     state.conditions.aerodynamics = Aerodynamics()
-    state.conditions.aerodynamics.freestream.angle_of_attack = np.linspace(-20,20,50) * Units.deg
+    state.conditions.aerodynamics.angle_of_attack = np.linspace(-20,20,50) * Units.deg
     surrogate_results = avl_surrogate.evaluate(state)
     
     # Plot results
@@ -56,7 +56,7 @@ def main():
     CDi_te    = test_set.aerodynamics.drag_breakdown.induced.total
     CM_te     = test_set.aerodynamics.pitch_moment_coefficient
     
-    alphas_su = state.conditions.aerodynamics.freestream.angle_of_attack / Units.deg
+    alphas_su = state.conditions.freestream.angle_of_attack / Units.deg
     CL_su     = surrogate_results.lift_coefficient
     CDi_su    = surrogate_results.induced_drag_coefficient
     CM_su     = surrogate_results.pitch_moment_coefficient

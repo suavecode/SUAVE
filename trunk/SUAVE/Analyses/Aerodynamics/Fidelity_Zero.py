@@ -60,7 +60,11 @@ class Fidelity_Zero(Markup):
         # then we'll figure out how to connect to a mission
         
         compute.lift = Process()
+
         compute.lift.inviscid_wings                = Methods.Lift.linear_inviscid_wing #Inviscid_Wings_Lift()
+
+#        compute.lift.inviscid_wings                = Inviscid_Wings_Lift()
+
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
         compute.lift.fuselage                      = Methods.Lift.fuselage_correction
