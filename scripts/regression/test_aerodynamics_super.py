@@ -1,20 +1,18 @@
 # test_aerodynamics
 #
 # Created:  Tim MacDonald - 09/09/14
-# Modified: Tim MacDonald - 09/10/14
+# Modified: Tim MacDonald - 03/10/15
+#
+# Updated for new structure. cd_tot change assumed due to propulsion updates
 
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-#from SUAVE.Methods.Aerodynamics.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Drag import compute_aircraft_drag
-
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
 
+from test_mission_B737 import vehicle_setup
 
 import numpy as np
 import pylab as plt
@@ -26,6 +24,15 @@ import random
 def main():
     
     vehicle = vehicle_setup() # Create the vehicle for testing
+    for wing in vehicle.wings:
+        wing.areas.wetted   = 2.0 * wing.areas.reference
+        wing.areas.exposed  = 0.8 * wing.areas.wetted
+        wing.areas.affected = 0.6 * wing.areas.wetted    
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    vehicle.aerodynamics_model = aerodynamics   
+    vehicle.aerodynamics_model.finalize()       
     
     test_num = 11 # Length of arrays used in this test
     
@@ -33,24 +40,23 @@ def main():
     # Test Lift Surrogate
     # --------------------------------------------------------------------    
     
-    AoA = np.linspace(-.174,.174,test_num) # +- 10 degrees
+    AoA = np.linspace(-.174,.174,test_num)[:,None] # +- 10 degrees
     
-    #lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models.lift_coefficient
-    lift_model = vehicle.configs.cruise.aerodynamics_model.configuration.surrogate_models_sub.lift_coefficient
+    lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient_sub
     
     wing_lift = lift_model(AoA)
     
     # Truth value
     wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
                             0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
-                            1.47463553])
+                            1.47463553])[:,None]
     
     surg_test = np.abs((wing_lift-wing_lift_r)/wing_lift)
     
     print 'Surrogate Test Results \n'
     print surg_test
     
-    assert(np.max(surg_test)<1e-4), 'Aero regression failed at surrogate test'
+    assert(np.max(surg_test)<1e-4), 'Supersonic Aero regression failed at surrogate test'
 
     
     # --------------------------------------------------------------------
@@ -91,8 +97,9 @@ def main():
     conditions.aerodynamics = Data()
     conditions.aerodynamics.angle_of_attack = AoA
     conditions.aerodynamics.lift_breakdown = Data()
+    conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lift
     
-    configuration = vehicle.configs.cruise.aerodynamics_model.configuration
+    configuration = vehicle.aerodynamics_model.settings
     
     conditions.aerodynamics.drag_breakdown = Data()
 
@@ -122,7 +129,7 @@ def main():
     print '\nCompute Lift Test Results\n'
     print lift_test
         
-    assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-4), 'Supersonic Aero regression failed at compute lift test'    
     
     
     # --------------------------------------------------------------------
@@ -176,296 +183,9 @@ def main():
     print drag_tests
     
     for i, tests in drag_tests.items():
-        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
+        assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
     
-    return conditions, configuration, geometry, test_num
-    
-
-def vehicle_setup():
-    
-    # ------------------------------------------------------------------
-    #   Initialize the Vehicle
-    # ------------------------------------------------------------------    
-    
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing 737-800'    
-    
-    # ------------------------------------------------------------------
-    #   Vehicle-level Properties
-    # ------------------------------------------------------------------    
-
-    # mass properties
-    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.operating_empty           = 62746.4   # kg
-    vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
-    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
-    
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
-    
-    # envelope properties
-    vehicle.envelope.ultimate_load = 3.5
-    vehicle.envelope.limit_load    = 1.5
-
-    # basic parameters
-    vehicle.reference_area        = 124.862       
-    vehicle.passengers = 170
-    vehicle.systems.control  = "fully powered" 
-    vehicle.systems.accessories = "medium range"
-    
-    # ------------------------------------------------------------------        
-    #   Main Wing
-    # ------------------------------------------------------------------        
-    
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'main_wing'
-    
-    wing.areas.reference = 124.862    #
-    wing.aspect_ratio    = 10.18       #
-    wing.spans.projected = 35.66      #
-    wing.sweep           = 25 * Units.deg
-    wing.symmetric       = True
-    wing.thickness_to_chord = 0.1
-    wing.taper           = 0.16
-    
-    
-    # size the wing planform ----------------------------------
-    # These can be determined by the wing sizing function
-    # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 6.81
-    wing.chords.tip   = 1.09
-    wing.areas.wetted = wing.areas.reference*2.0 
-    # The span that would normally be overwritten here doesn't match
-    # ---------------------------------------------------------
-    
-    wing.chords.mean_aerodynamic = 12.5
-    wing.areas.exposed = 0.8*wing.areas.wetted
-    wing.areas.affected = 0.6*wing.areas.wetted
-    wing.span_efficiency = 0.9
-    wing.twists.root = 3.0*Units.degrees
-    wing.twists.tip  = 3.0*Units.degrees
-    wing.origin          = [20,0,0]
-    wing.aerodynamic_center = [3,0,0] 
-    wing.vertical   = False
-    wing.eta         = 1.0
-    
-    # add to vehicle
-    vehicle.append_component(wing)
-
-    # ------------------------------------------------------------------        
-    #  Horizontal Stabilizer
-    # ------------------------------------------------------------------        
-    
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'horizontal_stabilizer'
-    
-    wing.areas.reference = 32.488    #
-    wing.aspect_ratio    = 6.16      #
-    wing.spans.projected = 14.146      #
-    wing.sweep           = 30 * Units.deg
-    wing.symmetric       = True
-    wing.thickness_to_chord = 0.08
-    wing.taper           = 0.4
-    
-    # size the wing planform ----------------------------------
-    # These can be determined by the wing sizing function
-    # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 3.28
-    wing.chords.tip   = 1.31
-    wing.areas.wetted = wing.areas.reference*2.0 
-    # ---------------------------------------------------------
-    
-    wing.chords.mean_aerodynamic = 8.0
-    wing.areas.exposed = 0.8*wing.areas.wetted
-    wing.areas.affected = 0.6*wing.areas.wetted
-    wing.span_efficiency = 0.9
-    wing.twists.root = 3.0*Units.degrees
-    wing.twists.tip  = 3.0*Units.degrees  
-    wing.origin          = [50,0,0]
-    wing.aerodynamic_center = [2,0,0]
-    wing.vertical   = False 
-    wing.eta         = 0.9  
-    
-    # add to vehicle
-    vehicle.append_component(wing)
-    
-    # ------------------------------------------------------------------
-    #   Vertical Stabilizer
-    # ------------------------------------------------------------------
-    
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'    
-    
-    wing.areas.reference = 32.488    #
-    wing.aspect_ratio    = 1.91      #
-    wing.spans.projected = 7.877      #
-    wing.sweep           = 25 * Units.deg
-    wing.symmetric       = False
-    wing.thickness_to_chord = 0.08
-    wing.taper           = 0.25
-    
-    # size the wing planform ----------------------------------
-    # These can be determined by the wing sizing function
-    # Note that the wing sizing function will overwrite span
-    wing.chords.root  = 6.60
-    wing.chords.tip   = 1.65
-    wing.areas.wetted = wing.areas.reference*2.0 
-    # ---------------------------------------------------------
-    
-    wing.chords.mean_aerodynamic = 8.0
-    wing.areas.exposed = 0.8*wing.areas.wetted
-    wing.areas.affected = 0.6*wing.areas.wetted
-    wing.span_efficiency = 0.9
-    wing.twists.root = 0.0*Units.degrees
-    wing.twists.tip  = 0.0*Units.degrees  
-    wing.origin          = [50,0,0]
-    wing.aerodynamic_center = [2,0,0]    
-    wing.vertical   = True 
-    wing.t_tail     = False
-    wing.eta         = 1.0
-        
-    # add to vehicle
-    vehicle.append_component(wing)
-
-    # ------------------------------------------------------------------
-    #  Fuselage
-    # ------------------------------------------------------------------
-    
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
-    
-    fuselage.number_coach_seats = 200
-    fuselage.seats_abreast = 6
-    fuselage.seat_pitch = 1
-    fuselage.fineness.nose = 1.6
-    fuselage.fineness.tail = 2.
-    fuselage.lengths.fore_space = 6.
-    fuselage.lengths.aft_space  = 5.
-    fuselage.width = 4.
-    fuselage.heights.maximum          = 4.    #
-    fuselage.areas.side_projected       = 4.* 59.8 #  Not correct
-    fuselage.heights.at_quarter_length = 4. # Not correct
-    fuselage.heights.at_three_quarters_length = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
-    fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
-    
-    # size fuselage planform
-    # A function exists to do this
-    fuselage.lengths.nose  = 6.4
-    fuselage.lengths.tail  = 8.0
-    fuselage.lengths.cabin = 44.0
-    fuselage.lengths.total = 58.4
-    fuselage.areas.wetted  = 688.64
-    fuselage.areas.front_projected = 12.57
-    fuselage.effective_diameter        = 4.0
-    
-    # add to vehicle
-    vehicle.append_component(fuselage)
-    
-    # ------------------------------------------------------------------
-    #  Turbofan
-    # ------------------------------------------------------------------    
-    
-    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'turbo_fan'
-    
-    turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
-    
-    #turbofan.analysis_type                 = '1D'     #
-    turbofan.diffuser_pressure_ratio       = 0.98     #
-    turbofan.fan_pressure_ratio            = 1.7      #
-    turbofan.fan_nozzle_pressure_ratio     = 0.99     #
-    turbofan.lpc_pressure_ratio            = 1.14     #
-    turbofan.hpc_pressure_ratio            = 13.415   #
-    turbofan.burner_pressure_ratio         = 0.95     #
-    turbofan.turbine_nozzle_pressure_ratio = 0.99     #
-    turbofan.Tt4                           = 1450.0   #
-    turbofan.bypass_ratio                  = 5.4      #
-    turbofan.thrust.design                 = 25000.0  #
-    turbofan.number_of_engines             = 2.0      #
-    turbofan.lengths = Data()
-    turbofan.engine_length                 = 3.0
-    turbofan.lengths.engine_total          = turbofan.engine_length
-    
-    # size the turbofan
-    turbofan.A2          =   1.753
-    turbofan.df          =   1.580
-    turbofan.nacelle_dia =   1.580
-    turbofan.A2_5        =   0.553
-    turbofan.dhc         =   0.857
-    turbofan.A7          =   0.801
-    turbofan.A5          =   0.191
-    turbofan.Ao          =   1.506
-    turbofan.mdt         =   9.51
-    turbofan.mlt         =  22.29
-    turbofan.mdf         = 355.4
-    turbofan.mdlc        =  55.53
-    turbofan.D           =   1.494
-    turbofan.mdhc        =  49.73  
-    
-    # add to vehicle
-    vehicle.append_component(turbofan)    
-    
-    # ------------------------------------------------------------------
-    #   Simple Aerodynamics Model
-    # ------------------------------------------------------------------ 
-    
-    #aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Supersonic_Zero()
-    aerodynamics.initialize(vehicle)
-    
-    # build stability model
-    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
-    stability.initialize(vehicle)
-    aerodynamics.stability = stability
-    vehicle.aerodynamics_model = aerodynamics
-    
-    # ------------------------------------------------------------------
-    #   Simple Propulsion Model
-    # ------------------------------------------------------------------     
-    
-    vehicle.propulsion_model = vehicle.propulsors
-
-    # ------------------------------------------------------------------
-    #   Define Configurations
-    # ------------------------------------------------------------------
-
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    # this configuration is derived from the baseline vehicle
-
-    # --- Cruise Configuration ---
-    config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.configs.takeoff
-
-    # --- Takeoff Configuration ---
-    takeoff_config = vehicle.configs.takeoff
-    takeoff_config.wings['main_wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.wings['main_wing'].slats_angle  = 25. * Units.deg
-    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
-    takeoff_config.V2_VS_ratio = 1.21
-    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
-    takeoff_config.maximum_lift_coefficient = 2.
-    #takeoff_config.max_lift_coefficient_factor = 1.0
-
-    # --- Landing Configuration ---
-    landing_config = vehicle.new_configuration("landing")
-    landing_config.wings['main_wing'].flaps_angle =  30. * Units.deg
-    landing_config.wings['main_wing'].slats_angle  = 25. * Units.deg
-    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
-    landing_config.Vref_VS_ratio = 1.23
-    # CLmax for a given configuration may be informed by user
-    landing_config.maximum_lift_coefficient = 2.
-    #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
-    
-
-    # ------------------------------------------------------------------
-    #   Vehicle Definition Complete
-    # ------------------------------------------------------------------
-    
-    return vehicle    
+    return conditions, configuration, geometry, test_num  
 
 def reg_values():
     
@@ -504,16 +224,17 @@ def reg_values():
                                  0.00343623,  0.00405385,  0.00506457,  0.00406928,  0.00379353,
                                  0.00407611])
     
-    cd_tot_r        = np.array([ 0.19381306,  0.03913773,  0.03219808,  0.01745848,  0.02147222,
-                                 0.02515752,  0.03622348,  0.05668057,  0.09789843,  0.19408153,
-                                 0.13525973])
+    cd_tot_r        = np.array([ 0.19422051,  0.03978096,  0.0333111 ,  0.01809441,  0.02202983,
+                                 0.02565818,  0.03690062,  0.05755836,  0.09853024,  0.19460394,
+                                 0.13595443])
     
-    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
+    return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
+           cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
 
 if __name__ == '__main__':
     (conditions, configuration, geometry, test_num) = main()
     
-    print 'Aero regression test passed!'
+    print 'Supersonic Aero regression test passed!'
     
     # --------------------------------------------------------------------
     # Drag Polar

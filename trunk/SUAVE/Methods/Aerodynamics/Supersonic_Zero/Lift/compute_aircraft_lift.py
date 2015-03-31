@@ -86,18 +86,18 @@ def compute_aircraft_lift(conditions,configuration,geometry):
         
         
     # Subsonic setup
-    wings_lift_model = configuration.surrogate_models_sub.lift_coefficient
+    wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
     compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
     compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment
-    wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05])
+    # wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05])
     if wing.vortex_lift is True:
         vortex_cl[Mc < 1.0] = vortex_lift(X_interp[Mc < 1.0],configuration,wing) # This was initialized at 0.0
-    wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05]) + vortex_cl[Mc <= 1.05]
+    wings_lift[Mc <= 1.05] = wings_lift[Mc <= 1.05] + vortex_cl[Mc <= 1.05]
     
     # Supersonic setup
-    wings_lift_model = configuration.surrogate_models_sup.lift_coefficient
+    # wings_lift_model = configuration.surrogate_models_sup.lift_coefficient
     compress_corr[Mc > 1.05] = 1./(np.sqrt(Mc[Mc > 1.05]**2.-1.))
-    wings_lift[Mc > 1.05] = wings_lift_model(X_interp[Mc > 1.05])
+    # wings_lift[Mc > 1.05] = wings_lift_model(X_interp[Mc > 1.05])
     
     wings_lift_comp = wings_lift * compress_corr    
         

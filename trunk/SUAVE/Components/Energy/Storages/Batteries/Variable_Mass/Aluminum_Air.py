@@ -22,4 +22,4 @@ class Aluminum_Air(Battery):
     def __defaults__(self):
         self.specific_energy=1300.*Units.Wh/Units.kg    #convert to Joules/kg
         self.specific_power=0.2*Units.kW/Units.kg      #convert to W/kg
-        self.mass_gain_factor=(0.000220289)/Units.Wh
+        self.mass_gain_factor=(5.50723E-05)*Units.kg/Units.Wh

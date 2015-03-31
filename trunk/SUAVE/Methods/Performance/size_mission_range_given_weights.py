@@ -105,7 +105,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
-        results = SUAVE.Methods.Missions.evaluate_mission(mission)
+        results = mission.evaluate()
         segment = results.segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
@@ -128,7 +128,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             missingFuel = FUEL - TotalFuel
 
             # Current distance and fuel consuption in the cruise segment
-            CruiseDist = segment.distance                # Distance [m]
+            CruiseDist = segment.conditions.frames.inertial.position_vector[-1,0] - segment.conditions.frames.inertial.position_vector[0,0]                # Distance [m]
             CruiseFuel = segment.conditions.weights.total_mass[0] - segment.conditions.weights.total_mass[-1]    # [kg]
             # Current specific range (m/kg)
             CruiseSR    = CruiseDist / CruiseFuel        # [m/kg]
@@ -138,7 +138,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
             mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
-            results = SUAVE.Methods.Missions.evaluate_mission(mission)
+            results = mission.evaluate()
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel

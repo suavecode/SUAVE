@@ -8,10 +8,10 @@
 def initialize_conditions(segment,state):
     
     # unpack
-    alt       = segment.altitude
-    xf        = segment.distance
-    mach      = segment.mach
-    atmo      = self.analyses.atmosphere
+    alt        = segment.altitude
+    xf         = segment.distance
+    mach       = segment.mach
+    atmo       = segment.atmo
     conditions = state.conditions    
     
     # check for initial altitude
@@ -21,8 +21,8 @@ def initialize_conditions(segment,state):
         segment.altitude = alt        
     
     # compute speed, constant with constant altitude
-    a = atmo.compute_values(alt,'speed_of_sound')
-    self.air_speed = mach * a    
+    atmo_cond = atmo.compute_values(alt)
+    air_speed = mach * atmo_cond.speed_of_sound  
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]

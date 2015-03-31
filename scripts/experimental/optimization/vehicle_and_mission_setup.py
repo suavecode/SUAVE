@@ -22,10 +22,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-##    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-##    vehicle.mass_properties.operating_empty           = 62746.4   # kg
-##    vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    ## vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
+    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff 
     vehicle.mass_properties.cargo                     = 1650.  * Units.kilogram   
     
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
@@ -72,6 +72,7 @@ def vehicle_setup():
     
     wing.vertical                = False
     wing.symmetric               = True
+    wing.high_lift               = True
     
     wing.dynamic_pressure_ratio  = 1.0
     
@@ -203,7 +204,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     #instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan_Network()
+    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbo_fan'
     
     # setup
@@ -404,7 +405,7 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
     
     #airport
@@ -416,7 +417,7 @@ def mission_setup(analyses):
     mission.airport = airport    
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Missions.Segments
+    Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
     base_segment = Segments.Segment()

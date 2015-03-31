@@ -66,8 +66,20 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    p0, T0, rho0, a0, mu0 = atmo.compute_values(0)
-    p , T , rho , a , mu  = atmo.compute_values(altitude)
+    conditions0 = atmo.compute_values(0.)
+    conditions = atmo.compute_values(altitude)
+    p = conditions.pressure
+    T = conditions.temperature
+    rho = conditions.density
+    a = conditions.speed_of_sound
+    mu = conditions.dynamic_viscosity
+
+    p0 = conditions0.pressure
+    T0 = conditions0.temperature
+    rho0 = conditions0.density
+    a0 = conditions0.speed_of_sound
+    mu0 = conditions0.dynamic_viscosity
+
     T_delta_ISA = T + delta_isa
     sigma_disa = (p/p0) / (T_delta_ISA/T0)
     rho = rho0 * sigma_disa
@@ -85,11 +97,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        p_stall , T_stall , rho_stall , a_stall , mu_stall  = atmo.compute_values(10000. * Units.ft)
-        conditions                      = Data()
-        conditions.freestream           = Data()
-        conditions.freestream.density   = rho_stall
-        conditions.freestream.viscosity = mu_stall
+        conditions  = atmo.compute_values(10000. * Units.ft)
+        conditions.freestream=Data()
+        conditions.freestream.density   = conditions.density
+        conditions.freestream.viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
@@ -164,15 +175,14 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
             print 'Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number)
 
     # Define takeoff index   (V2^2 / (T/W)
-    takeoff_index = V2_speed**2 / (thrust / weight)
-
+    takeoff_index = V2_speed**2. / (thrust / weight)
     # Calculating takeoff field length
     takeoff_field_length = 0.
     for idx,constant in enumerate(takeoff_constants):
         takeoff_field_length += constant * takeoff_index**idx
-
+        p
     takeoff_field_length = takeoff_field_length * Units.ft
-
+    
     # return
     return takeoff_field_length
 
@@ -193,6 +203,7 @@ if __name__ == '__main__':
     #   Build the Vehicle
     # ----------------------------------------------------------------------
     
+     
     def define_vehicle():
     
         # ------------------------------------------------------------------
@@ -306,8 +317,8 @@ if __name__ == '__main__':
 
     # --- Takeoff Configuration ---
     configuration = vehicle.configs.takeoff
-    configuration.wings['main_wing'].flaps_angle =  20. * Units.deg
-    configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
+    configuration.wings['main_wing'].flaps.angle =  20. * Units.deg
+    configuration.wings['main_wing'].slats.angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user
@@ -316,10 +327,10 @@ if __name__ == '__main__':
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
     airport.tag = 'airport'
-    airport.altitude   =  0.0  * Units.ft
+    airport.altitude   =  np.array([0.0]) * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere =  SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
+    airport.atmosphere =  SUAVE.Analyses.Atmospheric.US_Standard_1976()
+                          
     w_vec = np.linspace(40000.,52000.,10)
     engines = (2,3,4)
     takeoff_field_length = np.zeros((len(w_vec),len(engines)))

@@ -10,7 +10,6 @@ from SUAVE.Core import Units
 
 def plot_mission(vehicle,mission,results,line_style='bo-'):
 
-    results = results.mission_profile
 
     # ------------------------------------------------------------------
     #   Throttle

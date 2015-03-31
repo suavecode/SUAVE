@@ -24,22 +24,26 @@ def main():
     # ------------------------------------------------------------------    
 
     # initialize atmospheric models
-    atm = SUAVE.Attributes.Atmospheres.Earth.International_Standard()
+    atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     
     # test elevations -3 km <= z <= 90 km
     z = np.linspace(-3,90,100) * Units.km
 
     # compute values from each model
-    p, T, rho, a, mew = atm.compute_values(z)
+    conditions = atm.compute_values(z)
+    p = conditions.pressure
+    T = conditions.temperature
+    rho = conditions.density
+    a = conditions.speed_of_sound
     
     # get the comparison values
     p_truth, T_truth, rho_truth, a_truth = get_truth()
     
     # difference
-    p_err   = np.max( p_truth  -p   )
-    T_err   = np.max( T_truth  -T   )
-    rho_err = np.max( rho_truth-rho )
-    a_err   = np.max( a_truth  -a   )
+    p_err   = np.max( p_truth   - p   )
+    T_err   = np.max( T_truth   - T   )
+    rho_err = np.max( rho_truth - rho )
+    a_err   = np.max( a_truth   - a   )
     
     print 'Max Pressure Difference       = %.4e' % p_err
     print 'Max Temperature Difference    = %.4e' % T_err
@@ -52,23 +56,23 @@ def main():
     # ------------------------------------------------------------------    
 
     # plot data
-    title = "International Standard Atmosphere"
+    title = "US 1976 Standard Atmosphere"
     plt.subplot(131)
-    plt.plot(p/101325,z)
+    plt.plot(p/101325,z/Units.km)
     plt.xlabel('Pressure (atm)'); plt.xscale('log')
     plt.ylabel('Altitude (km)')
     plt.title(title)
     plt.grid(True)
 
     plt.subplot(132)
-    plt.plot(rho,z)
+    plt.plot(rho,z/Units.km)
     plt.xlabel('Density (kg/m^3)'); plt.xscale('log')
     plt.ylabel('Altitude (km)')
     plt.title(title)
     plt.grid(True)
 
     plt.subplot(133)
-    plt.plot(T,z)
+    plt.plot(T,z/Units.km)
     plt.xlabel('Temperature (K)'); 
     plt.ylabel('Altitude (km)')
     plt.title(title)
@@ -126,7 +130,7 @@ def get_truth():
              8.10259515e-01,   6.89999674e-01,   5.86721242e-01,
              4.98150771e-01,   4.22302265e-01,   3.73400000e-01,
              3.73400000e-01,   3.73400000e-01,   3.73400000e-01,
-             3.73400000e-01])    
+             3.73400000e-01])
 
     T_truth = np.array([ 301.15      ,  301.15      ,  295.43916158,  289.33185191,
         283.22634305,  277.1226342 ,  271.02072458,  264.92061337,
@@ -214,6 +218,10 @@ def get_truth():
         282.99847695,  281.69460399,  280.38505001,  279.06973485,
         277.7485765 ,  276.421491  ,  275.08839241,  274.09915863,
         274.09915863,  274.09915863,  274.09915863,  274.09915863])
+    
+    # 2D Column Array
+    p_truth, T_truth, rho_truth, a_truth = \
+        p_truth[:,None], T_truth[:,None], rho_truth[:,None], a_truth[:,None]
 
     return p_truth, T_truth, rho_truth, a_truth
     
@@ -224,4 +232,4 @@ def get_truth():
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    plt.show(block=True)

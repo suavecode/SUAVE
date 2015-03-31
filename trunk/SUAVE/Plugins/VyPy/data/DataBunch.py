@@ -162,7 +162,7 @@ class DataBunch(IndexableBunch):
         data = self
          
         if len(keys) > 1:
-            for k in keys[:-2]:
+            for k in keys[:-1]:
                 data = data[k]
         
         value = data[ keys[-1] ]

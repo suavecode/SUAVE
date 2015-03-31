@@ -13,6 +13,9 @@ from copy import deepcopy
 
 from time import time
 
+import pylab as plt
+
+#SUAVE.Analyses.Process.verbose = True
 
 # ----------------------------------------------------------------------
 #  Main
@@ -22,67 +25,118 @@ def main():
     
     vehicle  = full_setup.vehicle_setup()
     configs  = full_setup.configs_setup(vehicle)
-    
     analyses = full_setup.analyses_setup(configs)
+    mission  = mission_setup(configs,analyses)
     
+    vehicle.mass_properties.takeoff = 70000 * Units.kg
     
-    vehicle  = configs.base
     configs.finalize()
-    
-    analyses = analyses.base
     analyses.finalize()
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
-    segment.analyses.extend(analyses)
+    results = mission.evaluate()
+    results = results.merged()
     
-    
-    segment.altitude  = 10.668  * Units.km
-    segment.air_speed = 230.412 * Units['m/s']
-    segment.distance  = 3933.65 * Units.km
-    
-    tic = time()
-    ## once!
-    #state1 = segment.evaluate()
-    #print state1.conditions.weights.total_mass[-1,0]
-    
-    ## again!
-    #state2 = segment.evaluate()
-    #print state2.conditions.weights.total_mass[-1,0]
-    
-    #print 't' , time()-tic
-    
-    # Ok now do a climb segment
-    csegment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Throttle_Constant_Speed()
-    csegment.altitude_start = 0.0
-    csegment.altitude_end   = 10* Units.km
-    csegment.throttle       = 1.0
-    csegment.air_speed      = 230.412 * Units['m/s']
-    csegment.analyses.extend(analyses)
-    
-    state3 = csegment.evaluate()
-    print state3.conditions.weights.total_mass
-    print state3.conditions.freestream.altitude
-    
-    ## segment container!
-    
-    #segment_1 = deepcopy(segment)
-    #segment_2 = deepcopy(segment)
-    
-    #mission = SUAVE.Analyses.Missions.Mission()
-    
-    #mission.segments.segment_1 = segment_1
-    #mission.segments.segment_2 = segment_2
-    
-    #tic = time()
-    
-    #state4 = mission.evaluate( )    
-    
-    #print 't', time()-tic
-    #print state4.merged().conditions.weights.total_mass
+    plot_results(results)
     
     return
+    
+    
+    
+    
+def mission_setup(configs,analyses):
 
+    # ------------------------------------------------------------------
+    #   Initialize the Mission
+    # ------------------------------------------------------------------
+    
+    #mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    #mission = SUAVE.Analyses.Mission.All_At_Once()
+    mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_Weight()
+    mission.tag = 'the_mission'
+    
+    # the cruise tag to vary cruise distance
+    mission.cruise_tag = 'cruise'
+    mission.target_landing_weight = 40000.0 * Units.kg
+    
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+        
+    
+    # ------------------------------------------------------------------
+    #   Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------
+    
+    segment = Segments.Climb.Constant_Speed_Constant_Rate()
+    segment.tag = "climb"
+    
+    segment.analyses.extend( analyses.takeoff )
+    
+    segment.altitude_start = 0.0   * Units.km
+    segment.altitude_end   = 5.0   * Units.km
+    segment.air_speed      = 125.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
+    
+    # add to misison
+    mission.append_segment(segment)
+    
+    
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------    
+    
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment.tag = "cruise"
+    
+    segment.analyses.extend( analyses.cruise )
+    
+    segment.air_speed  = 230.412 * Units['m/s']
+    segment.distance   = 2000.00 * Units.km
+        
+    mission.append_segment(segment)
+    
+    
+    # ------------------------------------------------------------------    
+    #   Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------    
 
+    segment = Segments.Descent.Constant_Speed_Constant_Rate()
+    segment.tag = "descent"
+
+    segment.analyses.extend( analyses.landing )
+    
+    segment.altitude_end = 0.0   * Units.km
+    segment.air_speed    = 145.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']    
+    
+    mission.append_segment(segment)
+    
+    return mission
+
+def plot_results(results):
+    
+    plt.figure('Altitude')
+    plt.plot( results.conditions.frames.inertial.position_vector[:,0,None] / Units.km ,
+              results.conditions.freestream.altitude / Units.km ,
+              'bo-' )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Altitude (km)')
+    
+    plt.figure('Angle of Attack')
+    plt.plot( results.conditions.frames.inertial.position_vector[:,0,None] / Units.km ,
+              results.conditions.aerodynamics.angle_of_attack / Units.deg ,
+              'bo-' )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Angle of Attack (deg)') 
+    
+    plt.figure('Weight')
+    plt.plot( results.conditions.frames.inertial.position_vector[:,0,None] / Units.km ,
+              results.conditions.weights.total_mass / Units.kg ,
+              'bo-' )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Vehicle Total Mass (kg)')     
+    
+    plt.show(block=True)
+    
 
 if __name__ == '__main__':
     main()

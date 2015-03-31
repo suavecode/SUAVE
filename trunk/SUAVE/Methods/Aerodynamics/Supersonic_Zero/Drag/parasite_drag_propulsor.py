@@ -56,11 +56,11 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         
     freestream = conditions.freestream
     
-    Sref        = propulsor.nacelle_dia**2 / 4 * np.pi
-    Swet        = propulsor.nacelle_dia * np.pi * propulsor.engine_length
+    Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
+    Swet        = propulsor.nacelle_diameter * np.pi * propulsor.engine_length
     
     l_prop  = propulsor.engine_length
-    d_prop  = propulsor.nacelle_dia
+    d_prop  = propulsor.nacelle_diameter
     
     # conditions
     Mc  = freestream.mach_number
@@ -78,7 +78,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     
     # form factor for cylindrical bodies
     try: # Check if propulsor has an intake
-        A_max = propulsor.nacelle_dia
+        A_max = propulsor.nacelle_diameter
         A_exit = propulsor.A7
         A_inflow = propulsor.Ao
         d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))

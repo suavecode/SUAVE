@@ -499,7 +499,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
    
     vehicle.Mass_Props.m_full+=100000*abs(min(climb_alt_3-climb_alt_2, climb_alt_2-climb_alt_1, climb_alt_3-climb_alt_1, 0.))#penalty function in case altitude segments don't match up
     vehicle.Mass_Props.m_full+=100000*abs(max(0,230.412-V_cruise))                                                           #penalty function to make sure that cruise velocity >=737 cruise
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     # initial mass
@@ -514,7 +514,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
@@ -538,7 +538,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
    
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -564,7 +564,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 3"
 
     # connect vehicle configuration
@@ -590,7 +590,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -610,7 +610,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   First Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -632,7 +632,7 @@ def define_mission(vehicle,climb_alt_1,climb_alt_2,climb_alt_3, Vclimb_1, Vclimb
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed()
     segment.tag = "Descent - 2"
 
     # connect vehicle configuration

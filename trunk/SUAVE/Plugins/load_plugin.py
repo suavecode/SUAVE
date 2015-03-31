@@ -12,7 +12,7 @@ def load_plugin(package_name):
     saved_path = sys.path
     
     # remove references to package name in path
-    paths = [ p  for p in sys.path  if package_name in p ]
+    paths = [ p  for p in sys.path  if package_name.lower() in p.lower() ]
     
     for p in paths:  sys.path.remove(p)
     
@@ -20,6 +20,7 @@ def load_plugin(package_name):
     sys.path.append( __dir__ )
     
     package = __import__(package_name)
+    #package = reload(package)
     
     sys.path = saved_path
     

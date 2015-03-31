@@ -17,7 +17,7 @@ from SUAVE.Components.Fuselages import Fuselage
 from SUAVE.Components.Propulsors import Ducted_Fan
 from SUAVE.Methods.Geometry import wing_planform
 from SUAVE.Methods.Geometry import fuselage_planform
-from SUAVE.Analyses.Missions.Segments import Segment
+from SUAVE.Analyses.Mission.Segments import Segment
 
 # ----------------------------------------------------------------------
 #  Main
@@ -254,7 +254,7 @@ def main():
     ## create a climb segment: constant Mach, constant climb angle 
   
     
-    climb = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantSpeed()
+    climb = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantSpeed()
     climb.tag = "Climb"
     climb.altitude = [0.0, 3.0]                     # km
     climb.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -269,7 +269,7 @@ def main():
     
     
    
-    climb1 = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantSpeed()
+    climb1 = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantSpeed()
     climb1.tag = "Climb1"
     climb1.altitude = [3.0, 8.0]                     # km
     climb1.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -283,7 +283,7 @@ def main():
     climb.options.N = 4
     
     
-    climb2 = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantMach()
+    climb2 = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantMach()
     climb2.tag = "Climb2"
     climb2.altitude = [8.0, 10.0]                     # km
     climb2.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -302,8 +302,8 @@ def main():
     # create a cruise segment: constant speed, constant altitude
     
 
-    #cruise = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantSpeed()    
-    cruise = SUAVE.Analyses.Missions.Segments.CruiseConstantSpeedConstantAltitude()
+    #cruise = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantSpeed()    
+    cruise = SUAVE.Analyses.Mission.Segments.CruiseConstantSpeedConstantAltitude()
     cruise.tag = "Cruise"
     cruise.altitude = 10.0                         # km
     cruise.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -325,7 +325,7 @@ def main():
 
     #-------------------------------descent segments------------------------
 
-    descent1 = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantSpeed()
+    descent1 = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantSpeed()
     descent1.tag = "Descent"
     descent1.altitude = [10.0, 5.0]                     # km
     descent1.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -342,7 +342,7 @@ def main():
 
 
     ## create a descent segment: consant speed, constant descent rate
-    descent = SUAVE.Analyses.Missions.Segments.ClimbDescentConstantSpeed()
+    descent = SUAVE.Analyses.Mission.Segments.ClimbDescentConstantSpeed()
     descent.tag = "Descent2"
     descent.altitude = [5.0, 0.0]                     # km
     descent.atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
@@ -358,7 +358,7 @@ def main():
 
 
     # create a Mission
-    flight = SUAVE.Analyses.Missions.Mission()
+    flight = SUAVE.Analyses.Mission.Sequential_Segments()
     flight.tag = "BWB test mission"
     flight.m0 = BWB.Mass_Props.m_full          # kg
     flight.add_segment(climb)

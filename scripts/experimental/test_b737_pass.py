@@ -181,7 +181,7 @@ def create_mission():
     #=============================================================================
     
     #These parameters apply the mission as a whole not a specific mission segment
-    miss_param = SUAVE.Analyses.Missions.Segments.Segment( 
+    miss_param = SUAVE.Analyses.Mission.Segments.Segment( 
         tag = 'Design Mission',
         wt_cargo = 10117.4, #lb #PASS name:"wcargo"
         num_pax  = 160,     #PASS name:"#passengers"
@@ -191,7 +191,7 @@ def create_mission():
     isa = None  # TWL - broke atmosphere... 
     #isa = SUAVE.Atmosphere.EarthIntlStandardAtmosphere()
     
-    to_seg = SUAVE.Analyses.Missions.Segments.Segment( 
+    to_seg = SUAVE.Analyses.Mission.Segments.Segment( 
         tag = 'Take-Off',
         seg_type     = 'to',       #Flag to set kind of segment
         reserve      = False,      #This is not a reserve fuel segment
@@ -204,7 +204,7 @@ def create_mission():
         slat_setting = 15.0,       #PASS name: "slatdeflection_to"
     )
     
-    climb_seg = SUAVE.Analyses.Missions.Segments.Segment( 
+    climb_seg = SUAVE.Analyses.Mission.Segments.Segment( 
         tag = 'Climb-Out',
         seg_type = 'climb', #Flag to set kind of segment
         reserve  = False,   #This is not a reserve fuel segment
@@ -214,7 +214,7 @@ def create_mission():
         adjust   = False,   #This segment is not adjustable
     )
     
-    init_cr = SUAVE.Analyses.Missions.Segments.Segment( 
+    init_cr = SUAVE.Analyses.Mission.Segments.Segment( 
         tag ='Initial Cruise',
         seg_type   = 'cruise',
         reserve    = False,    #This is not a reserve fuel segment
@@ -225,7 +225,7 @@ def create_mission():
         cdi_factor = 1.035,    #PASS name: "cdi_factor.initcr"
     )
     
-    final_cr = SUAVE.Analyses.Missions.Segments.Segment( 
+    final_cr = SUAVE.Analyses.Mission.Segments.Segment( 
         tag ='Final Cruise',
         seg_type   = 'cruise',
         reserve    = False,    #This is not a reserve fuel segment
@@ -236,7 +236,7 @@ def create_mission():
         cdi_factor = 1.035,    #PASS name: "cdi_factor.finalcr"
     )
     
-    ldg_seg = SUAVE.Analyses.Missions.Segments.Segment( 
+    ldg_seg = SUAVE.Analyses.Mission.Segments.Segment( 
         tag = 'Landing',
         seg_type     = 'ldg',      #Flag to set kind of segment
         reserve      = False,      #This is not a reserve fuel segment
@@ -249,7 +249,7 @@ def create_mission():
         slat_setting = 15.924825,  #PASS name: "slatdeflection.landing"  #Another really precise number           
     )
     
-    res = SUAVE.Analyses.Missions.Segments.Segment( 
+    res = SUAVE.Analyses.Mission.Segments.Segment( 
         tag ='Reserve',
         seg_type = 'cruise',
         reserve  = True,     #This is a reserve fuel segment
@@ -261,7 +261,7 @@ def create_mission():
     #    Create a Mission and store all the "inputs"
     #-----------------------------------------------------------------------------
     
-    The_Mission = SUAVE.Analyses.Missions.Mission(miss_param)
+    The_Mission = SUAVE.Analyses.Mission.Mission(miss_param)
     
     #Add the mission segments
     The_Mission.add_segment(to_seg)

@@ -80,8 +80,14 @@ class Compression_Nozzle(Energy_Component):
         Tt_out  = Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out  = Cp*Tt_out
         
+        # in case pressures go too low
+        if np.any(Pt_out<Po):
+            warn('Pt_out goes too low',RuntimeWarning)
+            Pt_out[Pt_out<Po] = Po[Pt_out<Po]
+        
+        
         #compute the output Mach number, static quantities and the output velocity
-        Mach    = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+        Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
         T_out   = Tt_out/(1+(gamma-1)/2*Mach**2)
         h_out   = Cp*T_out
         u_out   = np.sqrt(2*(ht_out-h_out))
