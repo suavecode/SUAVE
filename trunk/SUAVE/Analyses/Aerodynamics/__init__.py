@@ -7,6 +7,7 @@ from AVL              import AVL
 from Markup           import Markup
 from Fidelity_Zero    import Fidelity_Zero
 from Inviscid_Wings_Lift import Inviscid_Wings_Lift
+from Vortex_Lattice import Vortex_Lattice
 
 import Surrogates
 

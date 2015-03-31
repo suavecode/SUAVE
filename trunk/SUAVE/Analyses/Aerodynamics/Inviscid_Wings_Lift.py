@@ -76,11 +76,9 @@ class Inviscid_Wings_Lift(Aerodynamics):
         # unpack
         settings   = self.settings
         #geometry   = self.geometry
-<<<<<<< HEAD
-        #surrogates = self.surrogates
-=======
+
         surrogates = self.surrogates
->>>>>>> b337aa018686b637a0c458ada3bdf0cd00d5b841
+
         conditions = state.conditions
         
         q    = conditions.freestream.dynamic_pressure
@@ -92,7 +90,7 @@ class Inviscid_Wings_Lift(Aerodynamics):
         # inviscid lift of wings only
         inviscid_wings_lift = 2*np.pi*AoA 
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
-        
+        state.conditions.aerodynamics.lift_coefficient = inviscid_wings_lift
 
         return inviscid_wings_lift
 

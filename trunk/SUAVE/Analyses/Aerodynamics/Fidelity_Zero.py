@@ -15,6 +15,7 @@ from Results import Results
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
 from Inviscid_Wings_Lift import Inviscid_Wings_Lift
+from Vortex_Lattice import Vortex_Lattice
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -61,9 +62,11 @@ class Fidelity_Zero(Markup):
         
         compute.lift = Process()
 
-        compute.lift.inviscid_wings                = Methods.Lift.linear_inviscid_wing #Inviscid_Wings_Lift()
+        #compute.lift.inviscid_wings                = Methods.Lift.linear_inviscid_wing #Inviscid_Wings_Lift()
 
 #        compute.lift.inviscid_wings                = Inviscid_Wings_Lift()
+        compute.lift.inviscid_wings                = Vortex_Lattice()
+
 
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
@@ -90,4 +93,7 @@ class Fidelity_Zero(Markup):
         compute.drag.total                         = Methods.Drag.total_aircraft
         
         
+    def initialize(self):
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        self.process.compute.lift.inviscid_wings.initialize()
         
