@@ -97,3 +97,4 @@ class Fidelity_Zero(Markup):
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         
+    finalize = initialize
