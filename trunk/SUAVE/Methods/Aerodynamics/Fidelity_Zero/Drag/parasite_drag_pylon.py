@@ -70,9 +70,9 @@ def parasite_drag_pylon(state,settings,geometry):
         reynolds_factor           = pylon_rey_fact   ,
         form_factor               = pylon_FF   ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_parasite_drag #pylon_result
+    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_parasite_drag 
 
-    conditions.aerodynamics.drag_breakdown.pylon_parasite_total = pylon_parasite_drag #pylon_result
+    
 
     # done!
     return pylon_parasite_drag

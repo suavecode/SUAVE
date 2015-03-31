@@ -74,7 +74,7 @@ def parasite_drag_fuselage(state,settings,geometry):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
@@ -96,26 +96,19 @@ def parasite_drag_fuselage(state,settings,geometry):
     # find the final result    
     fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref 
     
-    
-    state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_parasite_drag   
-    
-    
-    #fuselage_parasite_drag_total += fuselage_parasite_drag
-        # --------------------------------------------------------
-    
-    #state.conditions.aerodynamics.drag_breakdown.fuselage_parasite_total = fuselage_parasite_drag_total   
+          
             
     # dump data to conditions
     fuselage_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
-        parasite_drag_coefficient = fuselage_parasite_drag_total ,
+        parasite_drag_coefficient = fuselage_parasite_drag ,
         skin_friction_coefficient = cf_fus ,
         compressibility_factor    = k_comp ,
         reynolds_factor           = k_reyn , 
         form_factor               = k_fus  ,
     )
-    #state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
+    state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
     
     return fuselage_parasite_drag
 

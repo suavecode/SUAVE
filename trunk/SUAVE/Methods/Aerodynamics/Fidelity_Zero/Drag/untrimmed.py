@@ -37,8 +37,11 @@ def untrimmed(state,settings,geometry):
     
     drag_breakdown             = conditions.aerodynamics.drag_breakdown
 
+
+
+
     # various drag components
-    parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total         
+    parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total            
     induced_total         = conditions.aerodynamics.drag_breakdown.induced.total            
     compressibility_total = conditions.aerodynamics.drag_breakdown.compressible.total         
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 

@@ -69,12 +69,13 @@ def total_aircraft(state,settings,geometry):
     drag_coefficient_increment = configuration.drag_coefficient_increment
     trim_corrected_drag       = conditions.aerodynamics.drag_breakdown.trim_corrected_drag
 
+    aircraft_total_drag = 0.0
     # add drag_coefficient_increment
     aircraft_total_drag += trim_corrected_drag + drag_coefficient_increment
-    drag_breakdown.drag_coefficient_increment = drag_coefficient_increment
+    conditions.aerodynamics.drag_breakdown.drag_coefficient_increment = drag_coefficient_increment
 
     # store to results
-    drag_breakdown.total     = aircraft_total_drag
+    conditions.aerodynamics.drag_breakdown.total     = aircraft_total_drag
     
     # done!
     return aircraft_total_drag

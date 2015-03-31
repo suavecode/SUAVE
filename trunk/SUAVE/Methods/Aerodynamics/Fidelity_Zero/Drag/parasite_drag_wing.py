@@ -105,7 +105,7 @@ def parasite_drag_wing(state,settings,geometry):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
     
@@ -128,26 +128,22 @@ def parasite_drag_wing(state,settings,geometry):
     # find the final result
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
     
-    
-    
-    #wing_parasite_drag_total = wing_parasite_drag_total +  wing_parasite_drag    
-        
-        # --------------------------------------------------------
-    
-    #state.conditions.aerodynamics.drag_breakdown.wing_parasite_total = wing_parasite_drag_total    
+       
     
     # dump data to conditions
     wing_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
-        parasite_drag_coefficient = wing_parasite_drag , #wing_parasite_drag ,
+        parasite_drag_coefficient = wing_parasite_drag ,
         skin_friction_coefficient = (cf_w_u+cf_w_l)/2.   ,
         compressibility_factor    = k_comp_u ,
         reynolds_factor           = k_reyn_l , 
         form_factor               = k_w    ,
     )
-    #state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = Data()
-    state.conditions.aerodynamics.drag_breakdown.parasite = wing_parasite_drag
+    
+    
+    state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
+
     
     # done!
     return wing_parasite_drag_total

@@ -63,37 +63,17 @@ def linear_inviscid_wing(state,settings,geometry):
     """    
    
     # unpack
-    fus_correction = settings.fuselage_lift_correction
     Mc             = state.conditions.freestream.mach_number
     AoA            = state.conditions.aerodynamics.angle_of_attack
     
+    # inviscid lift of wings only
+    inviscid_wings_lift = 2*np.pi*AoA 
+    state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
+         
     wings_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
     
-    #wing = geometry.wings[0]
-    #if wing.vortex_lift is True:
-        #vortex_cl = vortex_lift(X_interp,configuration,wing) # This was initialized at 0.0
-        #wings_lift = wings_lift + vortex_cl   
     
-    ## compressibility correction
-    #compress_corr = 1./(np.sqrt(1.-Mc**2.))
-    
-    ## correct lift
-    #wings_lift_comp = wings_lift * compress_corr
-    
-    ## total lift, accounting one fuselage
-    #aircraft_lift_total = wings_lift_comp * fus_correction 
-    
-    ## store results
-    #lift_results = Results(
-        #total                = aircraft_lift_total ,
-        #incompressible_wings = wings_lift          ,
-        #compressible_wings   = wings_lift_comp     ,
-        #compressibility_correction_factor = compress_corr  ,
-        #fuselage_correction_factor        = fus_correction ,
-    #)
-    #conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
-    
-    conditions.aerodynamics.lift_coefficient= wings_lift
+    state.conditions.aerodynamics.lift_coefficient= wings_lift
 
     return wings_lift
 

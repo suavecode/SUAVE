@@ -48,9 +48,25 @@ def main():
     
     state.conditions.aerodynamics.angle_of_attack[:,0] = angle_of_attacks
     state.conditions.freestream.velocity[:,0] = 10.0
+    state.conditions.freestream.dynamic_viscosity = np.zeros([n_control_points,1])
+    state.conditions.freestream.dynamic_viscosity[:,0] = 1.5e-5
+    state.conditions.freestream.temperature[:,0] = 218.0
+    state.conditions.freestream.pressure[:,0] = 20000.0
+    state.conditions.freestream.density[:,0] = 0.78
+    state.conditions.freestream.mach_number[:,0] = 0.78
+    
+    del state.conditions.freestream.viscosity
     # populate as needed for model
     
     results = aerodynamics.evaluate(state)
+    
+    polar = Data()
+    polar.drag = 0000
+    polar.lift = 0000
+    
+    SUAVE.Input_Output.archive(polar,'polar.pkl')
+    
+    old_polar = SUAVE.Input_Output.load('old_polar.pkl')
     
     print results
     

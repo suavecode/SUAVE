@@ -81,7 +81,7 @@ def parasite_drag_propulsor(state,settings,geometry):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
@@ -110,24 +110,21 @@ def parasite_drag_propulsor(state,settings,geometry):
     # find the final result    
     propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
     
-    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_parasite_drag
     
-    #propulsor_parasite_drag_total += propulsor_parasite_drag
-    # --------------------------------------------------------
-        
-    #conditions.aerodynamics.drag_breakdown.propulsor_parasite_total = propulsor_parasite_drag_total   
         
     # dump data to conditions
     propulsor_result = Results(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
-        parasite_drag_coefficient = propulsor_parasite_drag_total ,#propulsor_parasite_drag ,
+        parasite_drag_coefficient = propulsor_parasite_drag ,
         skin_friction_coefficient = cf_prop ,
         compressibility_factor    = k_comp  ,
         reynolds_factor           = k_reyn  , 
         form_factor               = k_prop  ,
     )
-    #conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+        
+    
     
     return propulsor_parasite_drag
 

@@ -65,6 +65,7 @@ class Aerodynamics(Basic):
         self.aerodynamics.drag_coefficient = ones_1col * 0
         self.aerodynamics.lift_breakdown   = Conditions()
         self.aerodynamics.drag_breakdown   = Conditions()
+        self.aerodynamics.drag_breakdown.parasite = Conditions()
 
         # stability conditions
         self.stability = Conditions()        
@@ -81,3 +82,5 @@ class Aerodynamics(Basic):
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
+
+

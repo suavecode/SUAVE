@@ -54,26 +54,6 @@ class Inviscid_Wings_Lift(Aerodynamics):
         self.geometry = Data()
         self.settings = Data()
 
-        ## correction factors
-        #self.settings.fuselage_lift_correction           = 1.14
-        #self.settings.trim_drag_correction_factor        = 1.02
-        #self.settings.wing_parasite_drag_form_factor     = 1.1
-        #self.settings.fuselage_parasite_drag_form_factor = 2.3
-        #self.settings.aircraft_span_efficiency_factor    = 0.78
-        #self.settings.drag_coefficient_increment         = 0.0000
-
-        # vortex lattice configurations
-        self.settings.number_panels_spanwise  = 5
-        self.settings.number_panels_chordwise = 1
-
-        # conditions table, used for surrogate model training
-        self.training = Data()        
-        self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        self.training.lift_coefficient = None
-        
-        # surrogoate models
-        self.surrogates = Data()
-        self.surrogates.lift_coefficient = None
 
 
     def evaluate(self,state,settings,geometry):
@@ -95,124 +75,21 @@ class Inviscid_Wings_Lift(Aerodynamics):
 
         # unpack
         settings   = self.settings
-        geometry   = self.geometry
-        surrogates = self.surrogates
+        #geometry   = self.geometry
+        #surrogates = self.surrogates
         conditions = state.conditions
         
         q    = conditions.freestream.dynamic_pressure
         AoA  = conditions.aerodynamics.angle_of_attack
         Sref = geometry.reference_area
         
-        wings_lift_model = surrogates.lift_coefficient
+        
         
         # inviscid lift of wings only
-        inviscid_wings_lift = wings_lift_model(AoA)
+        inviscid_wings_lift = 2*np.pi*AoA 
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
         
-        ## lift needs to compute first, updates data needed for drag
-        #CL = compute_aircraft_lift(conditions,settings,geometry)
-        
-        ## drag computes second
-        #CD = compute_aircraft_drag(conditions,settings,geometry)
-
-        ## pack conditions
-        #conditions.aerodynamics.lift_coefficient = CL
-        #conditions.aerodynamics.drag_coefficient = CD
-
-        ## pack results
-        #results = Data()
-        #results.lift_coefficient = CL
-        #results.drag_coefficient = CD
-
-        #N = q.shape[0]
-        #L = np.zeros([N,3])
-        #D = np.zeros([N,3])
-
-        #L[:,2] = ( -CL * q * Sref )[:,0]
-        #D[:,0] = ( -CD * q * Sref )[:,0]
-
-        #results.lift_force_vector = L
-        #results.drag_force_vector = D
 
         return inviscid_wings_lift
-
-
-    def finalize(self):
-        
-        # sample training data
-        self.sample_training()
-        
-        # build surrogate
-        self.build_surrogate()        
-
-    def sample_training(self):
-        
-        # unpack
-        geometry = self.geometry
-        settings = self.settings
-        training = self.training
-        
-        AoA = training.angle_of_attack
-        CL  = np.zeros_like(AoA)
-
-        # condition input, local, do not keep
-        konditions              = Data()
-        konditions.aerodynamics = Data()
-
-        # calculate aerodynamics for table
-        for i,_ in enumerate(AoA):
-            
-            # overriding conditions, thus the name mangling
-            konditions.aerodynamics.angle_of_attack = AoA[i]
-            
-            # these functions are inherited from Aerodynamics() or overridden
-            CL[i] = calculate_lift_vortex_lattice(konditions, settings, geometry)
-
-        # store training data
-        training.lift_coefficient = CL
-
-        return
-
-    def build_surrogate(self):
-
-        # unpack data
-        training = self.training
-        AoA_data = training.angle_of_attack
-        CL_data  = training.lift_coefficient
-
-        # pack for surrogate model
-        X_data = np.array([AoA_data]).T
-        X_data = np.reshape(X_data,-1)
-        
-        # learn the model
-        cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
-
-        #Interpolation = Fidelity_Zero.Interpolation
-        self.surrogates.lift_coefficient = cl_surrogate
-
-        return
-
-
-# ----------------------------------------------------------------------
-#  Helper Functions
-# ----------------------------------------------------------------------
-
-
-def calculate_lift_vortex_lattice(conditions,settings,geometry):
-    """ calculate total vehicle lift coefficient by vortex lattice
-    """
-
-    # unpack
-    vehicle_reference_area = geometry.reference_area
-
-    # iterate over wings
-    total_lift_coeff = 0.0
-    for wing in geometry.wings.values():
-
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
-        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-
-    return total_lift_coeff
-
 
 

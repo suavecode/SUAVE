@@ -77,20 +77,8 @@ def wing_compressibility_correction(state,settings,geometry):
     # correct lift
     wings_lift_comp = wings_lift * compress_corr
     
-    ## total lift, accounting one fuselage
-    #aircraft_lift_total = wings_lift_comp * fus_correction 
-    
-    ## store results
-    #lift_results = Results(
-        #total                = aircraft_lift_total ,
-        #incompressible_wings = wings_lift          ,
-        #compressible_wings   = wings_lift_comp     ,
-        #compressibility_correction_factor = compress_corr  ,
-        #fuselage_correction_factor        = fus_correction ,
-    #)
-    #conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
-    
-    conditions.aerodynamics.lift_coefficient= wings_lift_comp
+    state.conditions.aerodynamics.lift_breakdown.compressible_wings = wings_lift_comp
+    state.conditions.aerodynamics.lift_coefficient= wings_lift_comp
 
     return wings_lift_comp
 
