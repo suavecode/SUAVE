@@ -50,7 +50,7 @@ class Aerodynamics(Basic):
         self.freestream.temperature        = ones_1col * 0
         self.freestream.density            = ones_1col * 0
         self.freestream.speed_of_sound     = ones_1col * 0
-        self.freestream.viscosity          = ones_1col * 0
+        self.freestream.dynamic_viscosity          = ones_1col * 0
         self.freestream.altitude           = ones_1col * 0
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0

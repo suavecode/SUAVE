@@ -88,7 +88,7 @@ def main():
     conditions.freestream = Data()
     conditions.freestream.mach_number = Mc
     conditions.freestream.density = rho
-    conditions.freestream.viscosity = mu
+    conditions.freestream.dynamic_viscosity = mu
     conditions.freestream.temperature = T
     conditions.freestream.pressure = pressure
     
@@ -255,9 +255,7 @@ if __name__ == '__main__':
     
     #compute_aircraft_drag(conditions, configuration, geometry)
     #CD = conditions.aerodynamics.drag_breakdown.total
-    
-    del state.conditions.freestream.viscosity
-    
+        
     results = aerodynamics.evaluate(state)
     
     polar = Data()    
@@ -271,14 +269,14 @@ if __name__ == '__main__':
     polar.lift = CL
     polar.drag = CD
     
-    old_polar = SUAVE.Input_Output.load('polar_old2.pkl')
-    CL_old = old_polar.lift
-    CD_old = old_polar.drag
-    print old_polar.drag_breakdown
+    #old_polar = SUAVE.Input_Output.load('polar_old2.pkl')
+    #CL_old = old_polar.lift
+    #CD_old = old_polar.drag
+    #print old_polar.drag_breakdown
     
     plt.figure("Drag Polar")
     axes = plt.gca()     
-    axes.plot(CD,CL,'bo-',CD_old,CL_old,'*')
+    axes.plot(CD,CL,'bo-') #,CD_old,CL_old,'*')
     axes.set_xlabel('$C_D$')
     axes.set_ylabel('$C_L$')
     

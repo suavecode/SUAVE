@@ -41,7 +41,7 @@ def parasite_drag_wing(state,settings,geometry):
             conditions
             -freestream mach number
             -freestream density
-            -freestream viscosity
+            -freestream dynamic_viscosity
             -freestream temperature
             -freestream pressuve
             

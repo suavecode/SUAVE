@@ -45,7 +45,7 @@ def update_atmosphere(segment,state):
                 freestream.temperature
                 freestream.density
                 freestream.speed_of_sound
-                freestream.viscosity
+                freestream.dynamic_viscosity
                     
     """
     
@@ -62,7 +62,7 @@ def update_atmosphere(segment,state):
     conditions.freestream.temperature    = atmo_data.temperature
     conditions.freestream.density        = atmo_data.density
     conditions.freestream.speed_of_sound = atmo_data.speed_of_sound
-    conditions.freestream.viscosity      = atmo_data.dynamic_viscosity
+    conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
     
     return
     
@@ -80,7 +80,7 @@ def update_freestream(segment,state):
                 frames.inertial.velocity_vector
                 freestream.density
                 freestream.speed_of_sound
-                freestream.viscosity
+                freestream.dynamic_viscosity
 
         Outputs:
             state.conditions:
@@ -94,7 +94,7 @@ def update_freestream(segment,state):
     Vvec = conditions.frames.inertial.velocity_vector
     rho  = conditions.freestream.density
     a    = conditions.freestream.speed_of_sound
-    mew  = conditions.freestream.viscosity
+    mew  = conditions.freestream.dynamic_viscosity
 
     # velocity magnitude
     Vmag2 = np.sum( Vvec**2, axis=1)[:,None] # keep 2d column vector
@@ -143,16 +143,30 @@ def update_aerodynamics(segment,state):
     # unpack
     conditions = state.conditions
     aerodynamics_model = segment.analyses.aerodynamics
-
+    q = state.conditions.freestream.dynamic_pressure
+    Sref = aerodynamics_model.geometry.reference_area
+    
     # call aerodynamics model
     results = aerodynamics_model( state )    
-    #results = aerodynamics_model( state.conditions )    
+    #results = aerodynamics_model( state.conditions )
 
     # unpack results
-    L = results.lift_force_vector
-    D = results.drag_force_vector
+    CL = results.lift.total
+    CD = results.drag.total
+    
+    # dimensionalize
+    L = state.ones_row(3) * 0.0
+    D = state.ones_row(3) * 0.0
+
+    L[:,2] = ( -CL * q * Sref )[:,0]
+    D[:,0] = ( -CD * q * Sref )[:,0]
+
+    results.lift_force_vector = L
+    results.drag_force_vector = D    
 
     # pack conditions
+    conditions.aerodynamics.lift_coefficient = CL
+    conditions.aerodynamics.drag_coefficient = CD
     conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
     conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
 

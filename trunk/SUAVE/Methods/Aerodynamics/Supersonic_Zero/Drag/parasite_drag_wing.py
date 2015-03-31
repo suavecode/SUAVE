@@ -40,7 +40,7 @@ def parasite_drag_wing(conditions,configuration,wing):
             conditions
             -freestream mach number
             -freestream density
-            -freestream viscosity
+            -freestream dynamic_viscosity
             -freestream temperature
             -freestream pressuve
             
@@ -89,7 +89,7 @@ def parasite_drag_wing(conditions,configuration,wing):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
     

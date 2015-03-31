@@ -100,7 +100,7 @@ def estimate_landing_field_length(vehicle,config,airport):
         conditions  = atmo.compute_values(10000. * Units.ft)
         conditions.freestream=Data()
         conditions.freestream.density   = conditions.density
-        conditions.freestream.viscosity = conditions.dynamic_viscosity
+        conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:

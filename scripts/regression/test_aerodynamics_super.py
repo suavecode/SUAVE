@@ -90,7 +90,7 @@ def main():
     conditions.freestream = Data()
     conditions.freestream.mach_number = Mc
     conditions.freestream.density = rho
-    conditions.freestream.viscosity = mu
+    conditions.freestream.dynamic_viscosity = mu
     conditions.freestream.temperature = T
     conditions.freestream.pressure = pressure
     
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     ## Cruise conditions (except Mach number)
     #conditions.freestream.mach_number = np.array([0.2]*test_num)
     #conditions.freestream.density = np.array([0.3804534]*test_num)
-    #conditions.freestream.viscosity = np.array([1.43408227e-05]*test_num)
+    #conditions.freestream.dynamic_viscosity = np.array([1.43408227e-05]*test_num)
     #conditions.freestream.temperature = np.array([218.92391647]*test_num)
     #conditions.freestream.pressure = np.array([23908.73408391]*test_num)
     

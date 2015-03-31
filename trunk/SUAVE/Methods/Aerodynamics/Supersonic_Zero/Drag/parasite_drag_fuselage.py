@@ -65,7 +65,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 

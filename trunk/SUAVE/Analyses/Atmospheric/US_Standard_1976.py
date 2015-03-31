@@ -54,7 +54,7 @@ class US_Standard_1976(Atmospheric):
                 temperature    : static temperature (K)
                 density        : density (kg/m^3)
                 speed_of_sound : speed of sound (m/s)
-                viscosity      : viscosity (kg/m-s)
+                dynamic_viscosity      : dynamic_viscosity (kg/m-s)
             
         Example:
             atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
