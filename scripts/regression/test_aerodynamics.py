@@ -66,7 +66,7 @@ def main():
     
     SUAVE.Input_Output.archive(polar,'polar.pkl')
     
-    old_polar = SUAVE.Input_Output.load('old_polar.pkl')
+    #old_polar = SUAVE.Input_Output.load('old_polar.pkl')
     
     print results
     
