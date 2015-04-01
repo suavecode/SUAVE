@@ -18,7 +18,7 @@ import numpy as np
 #  Compute field length required for takeoff
 # ----------------------------------------------------------------------
 
-def estimate_take_off_field_length(config,airport):
+def estimate_take_off_field_length(config,analyses,airport):
     """ SUAVE.Methods.Performance.estimate_take_off_field_length(config,airport):
         Computes the takeoff field length for a given config condition in a given airport
 
@@ -142,9 +142,9 @@ def estimate_take_off_field_length(config,airport):
     conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
     conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
     conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
-    network=config.propulsors.network
+    propulsor=analyses.configs.base.propulsion.propulsor
   
-    thrust, mdot, P = network.evaluate(conditions,numerics) # total thrust
+    thrust, mdot, P = propulsor.evaluate(conditions,numerics) # total thrust
 
     # ==============================================
     # Calculate takeoff distance

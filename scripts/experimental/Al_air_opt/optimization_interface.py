@@ -16,7 +16,8 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 import SUAVE.Plugins.VyPy.optimize as vypy_opt
-
+from SUAVE.Methods.Performance import estimate_take_off_field_length
+from SUAVE.Methods.Performance import estimate_landing_field_length 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -95,11 +96,7 @@ def setup_interface():
     process.missions = missions
     
     # performance studies
-    process.takeoff_field_length    = takeoff_field_length  # generates surrogate
-    process.fuel_for_missions       = fuel_for_missions     # generates surrogate
-    process.short_field             = short_field         
-    process.mission_fuel            = mission_fuel
-    process.max_range               = max_range
+    process.evaluate_field_length    = evaluate_field_length  
     process.noise                   = noise
         
     # summarize the results
@@ -244,161 +241,34 @@ def missions(interface):
 #   Field Length Evaluation
 # ----------------------------------------------------------------------    
     
-def takeoff_field_length(interface):
-    
-    # import tofl analysis module
-    estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
-    
-    # unpack data
-    analyses        = interface.analyses
-    missions        = interface.analyses.missions
-    config          = interface.configs.takeoff
-    # defining required data for tofl evaluation
-    takeoff_airport = missions.base.airport    
-    ref_weight      = config.mass_properties.takeoff
-    weight_max      = config.mass_properties.max_takeoff
-    weight_min      = config.mass_properties.operating_empty    
-                
-    # evaluate
-    try:
-        del config.maximum_lift_coefficient
-    except: pass
-
-    # weight vector to eval tofl
-    weight_vec  = np.linspace(weight_min,weight_max,10)
-    takeoff_field_length = np.zeros_like(weight_vec)
-    
-    # loop of tofl evaluation
-    for idw,weight in enumerate(weight_vec):
-        config.mass_properties.takeoff = weight
-        takeoff_field_length[idw] = estimate_tofl(config,analyses, takeoff_airport)
-    
-    # return initial value for takeoff weight
-    config.mass_properties.takeoff = ref_weight
-    
-    # pack results
-    results = Data()
-    results.takeoff_field_length = takeoff_field_length
-    results.takeoff_weights      = weight_vec        
-        
-    return results
-
-# ----------------------------------------------------------------------
-#   Run mission for fuel consumption
-# ----------------------------------------------------------------------
-def fuel_for_missions(interface):
-
-    # unpack data
-    config   = interface.configs.cruise
-    analyses = interface.analyses
-
-    mission         = interface.analyses.missions.fuel.mission
-    mission_payload = interface.analyses.missions.fuel.payload
-    
-    # determine maximum range based in tow short_field
-    from SUAVE.Methods.Performance import size_mission_range_given_weights
-    
+def evaluate_field_length(interface):
+    configs=interface.configs
     # unpack
-    cruise_segment_tag = 'cruise'
+    configs=interface.configs
+    analyses=interface.analyses
+    mission=interface.analyses.missions.base
+    results=interface.results
+    airport = mission.airport
     
-    weight_max    = config.mass_properties.max_takeoff
-    weight_min    = config.mass_properties.operating_empty + 0.10 * mission_payload  # 10%
+    takeoff_config = configs.takeoff
+    landing_config = configs.landing
     
-    takeoff_weight_vec  = np.linspace(weight_min,weight_max,3)
-    distance_vec        = np.zeros_like(takeoff_weight_vec)
-    fuel_vec            = np.zeros_like(takeoff_weight_vec)
     
-    # call function
-    distance_vec,fuel_vec = size_mission_range_given_weights(config,mission,cruise_segment_tag,mission_payload,takeoff_weight_vec)
-
-    # pack 
-    results = Data()
-    results.tag            = 'missions_fuel'
-    results.weights        = takeoff_weight_vec
-    results.distances      = distance_vec
-    results.fuels          = fuel_vec
+    # evaluate
+    TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
+    LFL = estimate_landing_field_length(landing_config,airport)
     
-##    print results
+    # pack
+    field_length = SUAVE.Core.Data()
+    field_length.takeoff = TOFL[0]
+    field_length.landing = LFL[0]
     
-    return results
-
-# ----------------------------------------------------------------------
-#   Evaluate Range from short field
-# ----------------------------------------------------------------------
-def short_field(interface):
-
-    # unpack data
-    results_field   = interface.results.takeoff_field_length
-    results_fuel    = interface.results.fuel_for_missions
-    available_tofl  = interface.analyses.missions.short_field.mission.airport.available_tofl
+    results.field_length = field_length
  
-    tofl_vec        = results_field.takeoff_field_length
-    weight_vec_tofl = results_field.takeoff_weights
     
-    range_vec       = results_fuel.distances
-    weight_vec_fuel = results_fuel.weights
-    fuel_vec        = results_fuel.fuels
-        
-    # evaluate maximum allowable takeoff weight from a given airfield
-    tow_short_field = np.interp(available_tofl,tofl_vec,weight_vec_tofl)
-
-    # determine maximum range/fuel based in tow short_field
-    range_short_field = np.interp(tow_short_field,weight_vec_fuel,range_vec)
-    fuel_short_field  = np.interp(tow_short_field,weight_vec_fuel,fuel_vec)
-
-    # pack 
-    results = Data()
-    results.tag            = 'short_field'
-    results.takeoff_weight = tow_short_field
-    results.range          = range_short_field
-    results.fuel           = fuel_short_field
-
     return results
 
-# ----------------------------------------------------------------------
-#   Evaluate fuel for design mission
-# ----------------------------------------------------------------------
-def mission_fuel(interface):
 
-    # unpack data
-    design_range  = interface.analyses.missions.fuel.range  
-    range_vec     = interface.results.fuel_for_missions.distances
-    fuel_vec      = interface.results.fuel_for_missions.fuels
-        
-    # determine maximum range/fuel based in tow short_field
-    fuel_design_mission  = np.interp(design_range,range_vec,fuel_vec)
-
-    # pack results
-    results = Data()
-    results.tag            = 'design_mission'
-    results.range          = design_range
-    results.fuel           = fuel_design_mission
-
-    return results
-
-# ----------------------------------------------------------------------
-#   Evaluate fuel for design mission
-# ----------------------------------------------------------------------
-def max_range(interface):
-
-    # unpack data
-    max_takeoff_weight  = interface.configs.base.mass_properties.max_takeoff
-    range_vec           = interface.results.fuel_for_missions.distances
-    weight_vec_fuel     = interface.results.fuel_for_missions.weights
-    fuel_vec            = interface.results.fuel_for_missions.fuels
-        
-    # determine maximum range/fuel based in max_tow
-    range = np.interp(max_takeoff_weight,weight_vec_fuel,range_vec)
-    fuel  = np.interp(max_takeoff_weight,weight_vec_fuel,fuel_vec)
-
-    # pack results
-    results = Data()
-    results.tag            = 'short_field'
-    results.takeoff_weight = max_takeoff_weight
-    results.range          = range
-    results.fuel           = fuel
-
-    return results
 
 # ----------------------------------------------------------------------
 #   Noise Evaluation
@@ -439,9 +309,7 @@ def summarize(interface):
     vehicle               = interface.configs.base    
     results               = interface.results
     mission_profile       = results.missions.base    
-    short_field_results   = results.short_field
-    takeoff_field_results = results.takeoff_field_length
-    range_results         = results.max_range
+  
     # Weights
     max_zero_fuel     = vehicle.mass_properties.max_zero_fuel
     operating_empty   = vehicle.mass_properties.operating_empty
@@ -451,34 +319,25 @@ def summarize(interface):
     summary = SUAVE.Core.Results()
     
     # TOFL for MTOW @ SL, ISA
-    summary.takeoff_field_length  = float(takeoff_field_results.takeoff_field_length[-1]) 
-    # Range from a short field
-    summary.range_short_field_nmi = float(short_field_results.range / Units.nmi)
-    # Maximum range
-    summary.range_max_nmi         = float(range_results.range / Units.nmi)   
+    summary.total_range           =mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0]
+    summary.GLW                   =mission_profile.segments[-1].conditions.weights.total_mass[-1,0] 
+    summary.takeoff_field_length  =results.field_length.takeoff
+    summary.landing_field_length  =results.field_length.landing
     # MZFW margin calculation
     summary.max_zero_fuel_margin  = max_zero_fuel - (operating_empty + payload)
     # fuel margin calculation
-    from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
-    wing_fuel_volume(vehicle.wings['main_wing'])
-    fuel_density = vehicle.propulsors['turbo_fan'].combustor.fuel_data.density
-    fuel_available = 0.97 * vehicle.wings['main_wing'].fuel_volume * fuel_density    
-    summary.available_fuel_margin = fuel_available - range_results.fuel
     
-    # Fuel burn
-    summary.fuel_burn  = results.mission_fuel.fuel
-##    if summary.fuel_burn < 0:  # work around for negative fuel results.
-##        summary.fuel_burn = summary.fuel_burn ** 2.
-
     # Print outs   
     printme = Data()
-    printme.fuel_burn    = summary.fuel_burn
     printme.weight_empty = operating_empty
-    printme.tofl_MTOW    = summary.takeoff_field_length
-    printme.SF_range     = summary.range_short_field_nmi
-    printme.range_max    = summary.range_max_nmi    
-    printme.max_zero_fuel_margin      = summary.max_zero_fuel_margin
-    printme.available_fuel_margin     = summary.available_fuel_margin
+    printme.total_range  =summary.total_range/1000.
+    printme.GLW     =summary.GLW
+    printme.tofl    = summary.takeoff_field_length
+    printme.lfl     = summary.landing_field_length
+    
+    #printme.range_max    = summary.range_max_nmi    
+    #printme.max_zero_fuel_margin      = summary.max_zero_fuel_margin
+    #printme.available_fuel_margin     = summary.available_fuel_margin
     
     print "RESULTS"
     print printme  
@@ -487,9 +346,16 @@ def summarize(interface):
     import datetime
     fid = open('Results.dat','a')
 
-    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
-        inputs.aspect_ratio,inputs.reference_area,inputs.sweep,inputs.design_thrust,inputs.wing_thickness,inputs.MTOW,inputs.MZFW_ratio,
-        summary.fuel_burn , operating_empty , summary.takeoff_field_length , summary.range_short_field_nmi , summary.range_max_nmi , summary.max_zero_fuel_margin , summary.available_fuel_margin
+    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
+        inputs.aspect_ratio,
+        inputs.reference_area,
+        inputs.sweep,inputs.design_thrust,
+        inputs.wing_thickness,
+        inputs.MTOW,
+        inputs.MZFW_ratio,
+        operating_empty ,
+        summary.takeoff_field_length , 
+        summary.landing_field_length
     ))
     fid.write(datetime.datetime.now().strftime("%I:%M:%S"))
     fid.write('\n')

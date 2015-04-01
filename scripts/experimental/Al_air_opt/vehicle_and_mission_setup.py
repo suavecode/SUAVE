@@ -50,12 +50,12 @@ def vehicle_setup():
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25 * Units.deg
-    wing.areas.reference         = 124.862 
-    wing.thickness_to_chord      = 0.11
-    wing.taper                   = 0.16
+    wing.sweep                   = 0 * Units.deg
+    wing.areas.reference         = 32.4779 
+    wing.thickness_to_chord      = 0.1218 
+    wing.taper                   = 0.2083 
     
-    wing.span_efficiency         = 0.9    
+    wing.span_efficiency         = 0.7    
    
     wing.flaps.type              = 'double_slotted'
     wing.flaps.chord             = 0.28        
@@ -64,7 +64,7 @@ def vehicle_setup():
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.reference
     
-    wing.twists.root             = 3.0 * Units.degrees
+    wing.twists.root             = 3.5 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees
     
     wing.origin                  = [20,0,0]
@@ -99,7 +99,7 @@ def vehicle_setup():
     wing.chords.tip              = 0.763
     wing.chords.mean_aerodynamic = 1.696
 
-    wing.areas.reference         = 32.488    #
+    wing.areas.reference         = 6.4593    #
     wing.areas.wetted            = 1.7 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.0 
@@ -138,7 +138,7 @@ def vehicle_setup():
     wing.chords.tip              = 1.57
     wing.chords.mean_aerodynamic = 3.624
     
-    wing.areas.reference         = 26.4    #
+    #wing.areas.reference         = 26.4    #
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.95 * wing.areas.wetted
     wing.areas.affected          = 0.0 
@@ -154,7 +154,11 @@ def vehicle_setup():
     wing.t_tail                  = False
     
     wing.dynamic_pressure_ratio  = 1.0
-        
+    c_vt                         =.0925
+    w2v                          =20.
+    w2h                          =16.
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(wing,vehicle.wings['main_wing'], w2v, c_vt)
+    
     # add to vehicle
     vehicle.append_component(wing)
 
@@ -167,28 +171,29 @@ def vehicle_setup():
     fuselage.tag = 'fuselage'
     
     #fuselage.number_coach_seats    = vehicle.passengers
-    fuselage.seats_abreast         = 6
-    fuselage.seat_pitch            = 1
+    fuselage.seats_abreast         = 3
+    fuselage.seat_pitch            = 32.*Units.inches
     
-    fuselage.fineness.nose         = 1.6
+    fuselage.fineness.nose         = 1.5
     fuselage.fineness.tail         = 2.
     
-    fuselage.lengths.nose          = 3.841 + 4.752 #6.4
-    fuselage.lengths.tail          = 5.09 + 5.99 #8.0
-    fuselage.lengths.cabin         = 18.353 # 28.85 #44.0
-    fuselage.lengths.total         = 38.02 #58.4
+    fuselage.lengths.nose          = 3.45
+    fuselage.lengths.tail          = 3.45/.75
+    fuselage.lengths.cabin         = 9.5 # 28.85 #44.0
+    fuselage.lengths.total         = fuselage.lengths.nose+\
+    fuselage.lengths.tail+fuselage.lengths.cabin 
     fuselage.lengths.fore_space    = 6.
     fuselage.lengths.aft_space     = 5.    
+    width                          =2.3
+    fuselage.width                 = width
     
-    fuselage.width                 = 3.74 #4.
-    
-    fuselage.heights.maximum       = 3.74  #4.    #
-    fuselage.heights.at_quarter_length          = 3.74 #4. # Not correct
-    fuselage.heights.at_three_quarters_length   = 3.74 #4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.74 #4. # Not correct
+    fuselage.heights.maximum       = 2.3
+    fuselage.heights.at_quarter_length          = width
+    fuselage.heights.at_three_quarters_length   = width
+    fuselage.heights.at_wing_root_quarter_chord = width
 
     fuselage.areas.side_projected  = 3.74* 38.02 #4.* 59.8 #  Not correct
-    fuselage.areas.wetted          = 3.1415 * 3.74 * (18.353 + fuselage.lengths.nose * .8 + fuselage.lengths.tail * .8) # + 446.718 #688.64
+    fuselage.areas.wetted          = 3.1415 * fuselage.heights.maximum * (fuselage.lengths.cabin + fuselage.lengths.nose * .8 + fuselage.lengths.tail * .8) # + 446.718 #688.64
     fuselage.areas.front_projected = 12.57
     
     fuselage.effective_diameter    = 3.74 #4.0
@@ -390,7 +395,7 @@ def vehicle_setup():
     
     # add turbofan to vehicle
     vehicle.propulsors.append(turbofan)
-    vehicle.propulsors.network=turbofan
+    
     # done!!
     return vehicle
 
