@@ -127,8 +127,7 @@ def parasite_drag_wing(state,settings,geometry):
     # --------------------------------------------------------
     # find the final result
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
-    
-       
+     
     
     # dump data to conditions
     wing_result = Results(

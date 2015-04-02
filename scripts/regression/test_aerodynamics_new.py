@@ -225,7 +225,10 @@ if __name__ == '__main__':
 
     # initialize the vehicle
     vehicle = vehicle_setup() 
-    
+    for wing in vehicle.wings:
+        wing.areas.wetted   = 2.0 * wing.areas.reference
+        wing.areas.exposed  = 0.8 * wing.areas.wetted
+        wing.areas.affected = 0.6 * wing.areas.wetted     
     # initalize the aero model
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
@@ -262,21 +265,20 @@ if __name__ == '__main__':
     
     CL = results.lift.total
     
-    print "CL",CL
+ 
     
     CD = results.drag.total
     
     polar.lift = CL
     polar.drag = CD
     
-    #old_polar = SUAVE.Input_Output.load('polar_old2.pkl')
-    #CL_old = old_polar.lift
-    #CD_old = old_polar.drag
-    #print old_polar.drag_breakdown
+    old_polar = SUAVE.Input_Output.load('polar_old2.pkl')
+    CL_old = old_polar.lift
+    CD_old = old_polar.drag
     
     plt.figure("Drag Polar")
     axes = plt.gca()     
-    axes.plot(CD,CL,'bo-') #,CD_old,CL_old,'*')
+    axes.plot(CD,CL,'bo-',CD_old,CL_old,'*')
     axes.set_xlabel('$C_D$')
     axes.set_ylabel('$C_L$')
     
