@@ -65,14 +65,22 @@ def setup_problem(interface):
     
     # setup variables, list style
     problem.variables = [
-    #   [ 'tag'             ,   x0,      (lb ,            ub    ) , scl      ],
-        [ 'aspect_ratio'    ,   10.    , (     5.    ,    20.   ) , 'bounds' ], 
-        [ 'reference_area'  ,   30.   , (    10.    ,   100.   ) , 'bounds' ],
-        [ 'sweep'           ,    0.   , (     0.    ,    30.   ) , 'bounds' ],
-        #[ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 'bounds' ],
-        [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) , 'bounds' ],
-        #[ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 'bounds' ],
-        #[ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ],
+    #   [ 'tag'                     ,   x0,      (lb ,            ub    ) , scl      ],
+        [ 'aspect_ratio'            ,  10.     , (5.        ,    20.    ) , 'bounds' ], 
+        [ 'reference_area'          ,  30.     , (10.       ,    100.   ) , 'bounds' ],
+        [ 'sweep'                   ,  0.      , (0.        ,    30.    ) , 'bounds' ],
+        [ 'taper'                   ,  .2      , (.1        ,    .4     ) ,'bounds' ],
+        [ 'wing_thickness'          ,  0.11    , (0.07      ,    0.20   ) , 'bounds' ],
+        [ 'cruise_range'            ,  500     , (1.        ,    50000. ) , 'bounds'],
+        [ 'Vclimb1'                 ,  80      , (50.       ,    140.   ) , 'bounds'],
+        [ 'Vclimb2'                 ,  85      , (50.       ,    140.   ) , 'bounds'],
+        [ 'Vclimb3'                 ,  140     , (50.       ,    144    ) , 'bounds'],
+        [ 'cruise_altitude'         ,  5       , (4.        ,    12.    ) , 'bounds'],
+        [ 'climb_alt_fraction_1'    , .1       , (.01       ,    1.     ) , 'bounds'],
+        [ 'climb_alt_fraction_2'    , .5       , (.01       ,    1.     ) , 'bounds'],
+        [ 'desc_alt_fraction_1'     , .4       , (.01       ,    1.     ) , 'bounds'],
+        
+        
     ]    
     
     # remember avoids calling the function twice for same inputs
@@ -89,7 +97,9 @@ def setup_problem(interface):
     problem.constraints = [
     #   [ func     , ('tag'                     , '><=', val   ), scl ] ,
         [ evaluator, ('takeoff_field_length'    , '<'  ,  1500.), 100. ],           
-        [ evaluator, ('landing_field_length'    , '>'  ,  1500.), 100. ],       
+        [ evaluator, ('landing_field_length'    , '<'  ,  1500.), 100. ],  
+        [ evaluator, ('climb_alt_constr'        , '<'  ,   0.  ), 1.   ],
+        
        
     ]    
   

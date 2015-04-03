@@ -99,7 +99,7 @@ def vehicle_setup():
     wing.chords.tip              = 0.763
     wing.chords.mean_aerodynamic = 1.696
 
-    wing.areas.reference         = 6.4593    #
+    #wing.areas.reference         = 6.4593    #
     wing.areas.wetted            = 1.7 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.0 
@@ -235,7 +235,7 @@ def vehicle_setup():
     ducted_fan.fan_pressure_ratio = 1.65
     ducted_fan.fan_nozzle_pressure_ratio = 0.99
     #ducted_fan.design_thrust = 2.5*Preq/V_cruise #factor of 2.5 accounts for top of climb
-    ducted_fan.number_of_engines=2.0   
+    ducted_fan.number_of_engines=4.0   
     ducted_fan.eta_pe=.95         #electric efficiency of battery
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
     vehicle.propulsor=ducted_fan    
@@ -331,7 +331,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.cruise )
     
     segment.altitude_end = 3. * Units.km
-    segment.air_speed    =144* Units['m/s']
+    segment.air_speed    =140* Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
     
     # add to mission
