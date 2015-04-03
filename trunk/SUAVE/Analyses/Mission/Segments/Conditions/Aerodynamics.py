@@ -66,6 +66,7 @@ class Aerodynamics(Basic):
         self.aerodynamics.lift_breakdown   = Conditions()
         self.aerodynamics.drag_breakdown   = Conditions()
         self.aerodynamics.drag_breakdown.parasite = Conditions()
+        self.aerodynamics.drag_breakdown.compressible = Conditions()
 
         # stability conditions
         self.stability = Conditions()        

@@ -247,7 +247,7 @@ if __name__ == '__main__':
     
     
     state.conditions.aerodynamics.angle_of_attack[:,0] = angle_of_attacks
-    state.conditions.freestream.mach_number = np.array([0.2]*test_num)
+    state.conditions.freestream.mach_number = np.array([0.8]*test_num)
     state.conditions.freestream.density = np.array([0.3804534]*test_num)
     state.conditions.freestream.dynamic_viscosity = np.array([1.43408227e-05]*test_num)
     state.conditions.freestream.temperature = np.array([218.92391647]*test_num)
@@ -259,6 +259,8 @@ if __name__ == '__main__':
     #compute_aircraft_drag(conditions, configuration, geometry)
     #CD = conditions.aerodynamics.drag_breakdown.total
         
+        
+    print state.conditions.aerodynamics.drag_breakdown.compressible
     results = aerodynamics.evaluate(state)
     
     polar = Data()    
@@ -272,9 +274,14 @@ if __name__ == '__main__':
     polar.lift = CL
     polar.drag = CD
     
-    old_polar = SUAVE.Input_Output.load('polar_old2.pkl')
+    old_polar = SUAVE.Input_Output.load('polar_M8.pkl') #('polar_old2.pkl')
     CL_old = old_polar.lift
     CD_old = old_polar.drag
+    
+    #print state.conditions.aerodynamics.drag_breakdown.compressible.total
+    #print results
+    print "\n---------------------------------\n"
+    #print old_polar.drag_breakdown.compressible  #.compressible.compressibility_drag
     
     plt.figure("Drag Polar")
     axes = plt.gca()     
@@ -282,5 +289,6 @@ if __name__ == '__main__':
     axes.set_xlabel('$C_D$')
     axes.set_ylabel('$C_L$')
     
+
     
     plt.show(block=True) # here so as to not block the regression test

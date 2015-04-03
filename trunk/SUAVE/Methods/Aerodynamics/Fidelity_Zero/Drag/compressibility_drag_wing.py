@@ -51,9 +51,11 @@ def compressibility_drag_wing(state,settings,geometry):
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
+    print  drag_breakdown.compressible
+    
     # start result
     total_compressibility_drag = 0.0
-    drag_breakdown.compressible = Results()
+    #drag_breakdown.compressible = Results()
 
     
         
@@ -95,7 +97,7 @@ def compressibility_drag_wing(state,settings,geometry):
     cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
     
     # increment
-    total_compressibility_drag += cd_c
+    #total_compressibility_drag += cd_c
     
     # dump data to conditions
     wing_results = Results(
@@ -107,9 +109,10 @@ def compressibility_drag_wing(state,settings,geometry):
     )
     drag_breakdown.compressible[wing.tag] = wing_results
 
-#: for each wing
 
     # dump total comp drag
-    drag_breakdown.compressible.total = total_compressibility_drag
+    #drag_breakdown.compressible.total = total_compressibility_drag
+    #conditions.aerodynamics.drag_breakdown.compressible[wing.tag] = wing_results
+    #conditions.aerodynamics.drag_breakdown.compressible.total = total_compressibility_drag
     
     return total_compressibility_drag

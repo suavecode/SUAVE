@@ -87,6 +87,7 @@ class Fidelity_Zero(Markup):
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.wings         = Process_Geometry('wings')
         compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
         compute.drag.untrimmed                     = Methods.Drag.untrimmed
         compute.drag.trim                          = Methods.Drag.trim

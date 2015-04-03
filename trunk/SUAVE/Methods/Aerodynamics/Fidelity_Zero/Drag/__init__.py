@@ -17,3 +17,4 @@ from untrimmed import untrimmed
 from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU
 from trim import trim
 from total_aircraft import total_aircraft
+from compressibility_drag_wing_total import compressibility_drag_wing_total
