@@ -112,7 +112,7 @@ def empty_custom_eng(vehicle):
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories  
     #l_w2h      = vehicle.wings['horizontal_stabilizer'].position[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].position[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
-    l_w2h      = vehicle.w2h
+    l_w2h      = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0]
     S_fus      = vehicle.fuselages['fuselage'].areas.wetted
     diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
     w_fus      = vehicle.fuselages['fuselage'].width

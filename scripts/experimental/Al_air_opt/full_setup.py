@@ -140,6 +140,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
+    weights.settings.empty_weight_method= \
+    SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -159,7 +161,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.propulsor = vehicle.propulsors['turbo_fan']
+    propulsion.propulsor = vehicle.propulsors['network']
     analyses.append(propulsion)
     
     # ------------------------------------------------------------------

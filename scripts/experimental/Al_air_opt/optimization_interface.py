@@ -72,11 +72,9 @@ def setup_interface():
     from full_setup import full_setup
     
     configs,analyses = full_setup()
-    
     interface.configs  = configs
     interface.analyses = analyses
-    
-    
+    #interface.evaluate=evaluate_interface
     # ------------------------------------------------------------------
     #   Analysis Process
     # ------------------------------------------------------------------
@@ -87,17 +85,20 @@ def setup_interface():
     process.unpack_inputs = unpack_inputs
     
     # size the base config
-    process.simple_sizing = simple_sizing
+    #process.simple_sizing = simple_sizing
     
+  
+    #sizing loop; size the aircraft
+    process.sizing_loop=sizing_loop
     # finalizes the data dependencies
-    process.finalize = finalize
-    
+    #process.finalize = finalize
     # the missions
-    process.missions = missions
+    
+    #process.missions = evaluate_mission
     
     # performance studies
     process.evaluate_field_length    = evaluate_field_length  
-    process.noise                   = noise
+    #process.noise                   = noise
         
     # summarize the results
     process.summary = summarize
@@ -127,12 +128,11 @@ def unpack_inputs(interface):
     vehicle.wings['main_wing'].aspect_ratio         = inputs.aspect_ratio
     vehicle.wings['main_wing'].areas.reference      = inputs.reference_area
     vehicle.wings['main_wing'].sweep                = inputs.sweep * Units.deg
-    vehicle.propulsors['turbo_fan'].design_thrust   = inputs.design_thrust
     vehicle.wings['main_wing'].thickness_to_chord   = inputs.wing_thickness
-    vehicle.mass_properties.max_takeoff             = inputs.MTOW   
-    vehicle.mass_properties.max_zero_fuel           = inputs.MTOW * inputs.MZFW_ratio
-    
-    vehicle.mass_properties.takeoff                 = inputs.MTOW   
+    #vehicle.mass_properties.max_takeoff             = inputs.MTOW   
+    #vehicle.mass_properties.max_zero_fuel           = inputs.MTOW * inputs.MZFW_ratio
+    #
+    #vehicle.mass_properties.takeoff                 = inputs.MTOW   
 
     vehicle.store_diff()
      
@@ -142,8 +142,7 @@ def unpack_inputs(interface):
 #   Apply Simple Sizing Principles
 # ----------------------------------------------------------------------
 
-def simple_sizing(interface):
-      
+def simple_sizing(interface, Ereq, Preq):      
     from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 
     # unpack
@@ -152,67 +151,79 @@ def simple_sizing(interface):
     base = configs.base
     base.pull_base()
     
-##    # wing areas
-##    for wing in base.wings:
-##        wing.areas.wetted   = 2.00 * wing.areas.reference
-##        wing.areas.affected = 0.60 * wing.areas.reference
-##        wing.areas.exposed  = 0.75 * wing.areas.wetted
-
-    # wing simple sizing function
-    # size main wing
+    base = configs.base
+    base.pull_base()
+    #determine geometry of fuselage as well as wings
+    fuselage=base.fuselages['fuselage']
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    fuselage.areas.side_projected   = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #  Not correct
+    c_vt                         =.0925
+    w2v                          =20.
+    w2h                          =16.
     base.wings['main_wing'] = wing_planform(base.wings['main_wing'])
-    # reference values for empennage scaling, keeping tail coeff. volumes constants
-    Sref = base.wings['main_wing'].areas.reference
-    span = base.wings['main_wing'].spans.projected
-    CMA  = base.wings['main_wing'].chords.mean_aerodynamic    
-    Sh = 32.48 * (Sref * CMA)  / (124.86 * 4.1535)  # hardcoded values represent the reference airplane data
-    Sv = 26.40 * (Sref * span) / (124.86 * 35.35)   # hardcoded values represent the reference airplane data
-        
-    # empennage scaling
-    base.wings['horizontal_stabilizer'].areas.reference = Sh
-    base.wings['vertical_stabilizer'].areas.reference = Sv
-    # sizing of new empennages
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(base.wings['vertical_stabilizer'],base.wings['main_wing'], w2v, c_vt)
+   
     base.wings['horizontal_stabilizer'] = wing_planform(base.wings['horizontal_stabilizer']) 
     base.wings['vertical_stabilizer']   = wing_planform(base.wings['vertical_stabilizer'])   
-    
     # wing areas
     for wing in base.wings:
         wing.areas.wetted   = 2.00 * wing.areas.reference
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
-         
-    # fuselage seats
-    base.fuselages['fuselage'].number_coach_seats = base.passengers        
+  
+    battery=base.propulsors.network['battery']
+    ducted_fan=base.propulsors.network['ducted_fan']
+    SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
+    battery.current_energy=[battery.max_energy] #initialize list of current energy
+    m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
+    m_water     =battery.find_water_mass()
+    #now add the electric motor weight
+    motor_mass=ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines)
+    propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
     
-    # Weight estimation
+    ducted_fan.mass_properties.mass=propulsion_mass
+   
     breakdown = analyses.configs.base.weights.evaluate()
+    breakdown.battery=battery.mass_properties.mass
     
-    # pack
-    base.mass_properties.breakdown = breakdown
-    base.mass_properties.operating_empty = breakdown.empty
-       
-    # diff the new data
+    base.mass_properties.breakdown=breakdown
+    m_fuel=0.
+    
+    base.mass_properties.operating_empty     = breakdown.empty 
+    
+    #weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng(vehicle, ducted_fan)
+    m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload
+    m_end=m_full+m_air
+    base.mass_properties.takeoff                 = m_full
     base.store_diff()
-    
+   
     # Update all configs with new base data    
     for config in configs:
         config.pull_base()
+
     
+    ##############################################################################
     # ------------------------------------------------------------------
-    #   Landing Configuration
+    #   Define Configurations
     # ------------------------------------------------------------------
-    landing = configs.landing
+    '''
+    takeoff_config=configs.takeoff
+    takeoff_config.pull_base()
+    takeoff_config.mass_properties.takeoff= m_full
+    takeoff_config.store_diff()
+    '''
+    landing_config=configs.landing
     
-    # make sure base data is current
-    landing.pull_base()
-    
-    # landing weight
-    landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
-    
-    # diff the new data
-    landing.store_diff()    
+    landing_config.wings['main_wing'].flaps.angle =  50. * Units.deg
+    landing_config.wings['main_wing'].slats.angle  = 25. * Units.deg
+    landing_config.mass_properties.landing = m_end
+    landing_config.store_diff()
         
-    # done!
+    
+    #analyses.weights=configs.base.mass_properties.takeoff
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ---------------------------------
     return
 # ----------------------------------------------------------------------
 #   Finalizing Function (make part of optimization interface)[needs to come after simple sizing doh]
@@ -229,6 +240,32 @@ def finalize(interface):
 #   Process Missions
 # ----------------------------------------------------------------------    
 
+def evaluate_mission(configs,mission):
+    
+    # ------------------------------------------------------------------    
+    #   Run Mission
+    # ------------------------------------------------------------------
+    
+    results = mission.evaluate()
+    
+    #determine energy characteristiscs
+    e_current_min=1E20
+    Pmax=0.
+    for i in range(len(results.segments)):
+            if np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])<e_current_min:
+                e_current_min=np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])
+            if np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))>Pmax:
+                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))
+    print 'e_current_min=', e_current_min          
+    results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
+    results.Pmax=Pmax
+    print 'e_current_min=',e_current_min
+    print "e_total=", results.e_total
+    print "Pmax=", Pmax
+    print "e_current_min=", e_current_min
+ 
+    return results
+'''
 def missions(interface):
     
     missions = interface.analyses.missions
@@ -236,7 +273,7 @@ def missions(interface):
     results = missions.evaluate()
     
     return results            
-    
+'''    
 # ----------------------------------------------------------------------
 #   Field Length Evaluation
 # ----------------------------------------------------------------------    
@@ -260,9 +297,9 @@ def evaluate_field_length(interface):
     
     # pack
     field_length = SUAVE.Core.Data()
-    field_length.takeoff = TOFL[0]
-    field_length.landing = LFL[0]
-    
+    field_length.takeoff = TOFL[0][0][0]
+    field_length.landing = LFL[0][0]
+
     results.field_length = field_length
  
     
@@ -299,6 +336,9 @@ def noise(interface):
     
     return results    
     
+
+ 
+   
 # ----------------------------------------------------------------------
 #   Summarize the Data
 # ----------------------------------------------------------------------    
@@ -308,10 +348,9 @@ def summarize(interface):
     # Unpack
     vehicle               = interface.configs.base    
     results               = interface.results
-    mission_profile       = results.missions.base    
+    mission_profile       = results.sizing_loop   
   
     # Weights
-    max_zero_fuel     = vehicle.mass_properties.max_zero_fuel
     operating_empty   = vehicle.mass_properties.operating_empty
     payload           = vehicle.mass_properties.payload    
           
@@ -323,8 +362,9 @@ def summarize(interface):
     summary.GLW                   =mission_profile.segments[-1].conditions.weights.total_mass[-1,0] 
     summary.takeoff_field_length  =results.field_length.takeoff
     summary.landing_field_length  =results.field_length.landing
+    
     # MZFW margin calculation
-    summary.max_zero_fuel_margin  = max_zero_fuel - (operating_empty + payload)
+    #summary.max_zero_fuel_margin  = max_zero_fuel - (operating_empty + payload)
     # fuel margin calculation
     
     # Print outs   
@@ -345,15 +385,12 @@ def summarize(interface):
     inputs = interface.inputs
     import datetime
     fid = open('Results.dat','a')
-
-    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
+    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
         inputs.aspect_ratio,
         inputs.reference_area,
-        inputs.sweep,inputs.design_thrust,
+        inputs.sweep,
         inputs.wing_thickness,
-        inputs.MTOW,
-        inputs.MZFW_ratio,
-        operating_empty ,
+        #operating_empty ,
         summary.takeoff_field_length , 
         summary.landing_field_length
     ))
@@ -363,7 +400,50 @@ def summarize(interface):
 ##    print interface.configs.takeoff.maximum_lift_coefficient
     
     return summary
-
+def sizing_loop(interface):
+    m_guess=30000*Units.lbs
+    Ereq_guess=1.E9
+    Preq_guess=1E6
+    Ereq=[Ereq_guess]
+    mass=[m_guess]
+ 
+    tol=.01
+    dE=1.
+    dm=1.
+    configs=interface.configs
+    analyses=interface.analyses
+    mission=analyses.missions.base
+    max_iter=3
+    j=0
+    while abs(dm)>tol or abs(dE)>tol: #sizing loop for the vehicle
+        Ereq_guess=Ereq[j]
+        m_guess=mass[j]
+        simple_sizing(interface, Ereq_guess, Preq_guess);
+        battery=configs.base.propulsors.network['battery']
+        #initialize battery in mission
+        mission.segments[0].battery_energy=battery.max_energy
+        configs.finalize()
+        analyses.finalize()
+        results = evaluate_mission(configs,mission)
+       
+        mass.append(results.segments[-1].conditions.weights.total_mass[-1,0] )
+        Ereq.append(results.e_total)
+        Preq_guess=results.Pmax
+        dm=(mass[j+1]-mass[j])/mass[j]
+        dE=(Ereq[j+1]-Ereq[j])/Ereq[j]
+        #display convergence of aircraft
+        print 'mass=', mass[j+1]
+        print 'dm=', dm
+        print 'dE=', dE
+        print 'Ereq_guess=', Ereq_guess 
+        print 'Preq=', results.Pmax
+        j=j+1
+        
+        if j>max_iter:
+            print "maximum number of iterations exceeded"
+            break
+     
+    return results
 if __name__ == '__main__':
     main()
     

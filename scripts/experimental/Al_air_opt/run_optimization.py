@@ -67,12 +67,12 @@ def setup_problem(interface):
     problem.variables = [
     #   [ 'tag'             ,   x0,      (lb ,            ub    ) , scl      ],
         [ 'aspect_ratio'    ,   10.    , (     5.    ,    20.   ) , 'bounds' ], 
-        [ 'reference_area'  ,   125.   , (    70.    ,   200.   ) , 'bounds' ],
-        [ 'sweep'           ,    25.   , (     0.    ,    60.   ) , 'bounds' ],
-        [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 'bounds' ],
+        [ 'reference_area'  ,   30.   , (    10.    ,   100.   ) , 'bounds' ],
+        [ 'sweep'           ,    0.   , (     0.    ,    30.   ) , 'bounds' ],
+        #[ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 'bounds' ],
         [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) , 'bounds' ],
-        [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 'bounds' ],
-        [ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ],
+        #[ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 'bounds' ],
+        #[ 'MZFW_ratio'      ,     0.75 , (     0.50  ,     1.0  ) , 'bounds' ],
     ]    
     
     # remember avoids calling the function twice for same inputs
