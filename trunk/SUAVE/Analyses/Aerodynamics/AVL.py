@@ -16,8 +16,8 @@ from warnings import warn
 from SUAVE.Core import Data
 import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
-from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics import Aerodynamics
-from SUAVE.Analyses.Missions.Segments.Conditions.Conditions   import Conditions
+from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics import Aerodynamics
+from SUAVE.Analyses.Mission.Segments.Conditions.Conditions   import Conditions
 
 from SUAVE.Methods.Aerodynamics.AVL.write_geometry   import write_geometry
 from SUAVE.Methods.Aerodynamics.AVL.write_run_cases  import write_run_cases

@@ -12,7 +12,7 @@ import numpy as np
 from SUAVE.Core import Data, Units
 from SUAVE.Analyses.Aerodynamics.Aerodynamics import Aerodynamics
 from SUAVE.Analyses.Aerodynamics import AVL as AVL_Callable
-from SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics\
+from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics\
      import Aerodynamics as Aero_Conditions
 
 from SUAVE.Analyses import Surrogate

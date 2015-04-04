@@ -21,6 +21,8 @@ import copy, time
 from copy import deepcopy
 import random
 
+SUAVE.Analyses.Process.verbose = True
+
 def main():
     
     vehicle = vehicle_setup() # Create the vehicle for testing
@@ -239,8 +241,8 @@ if __name__ == '__main__':
     
     angle_of_attacks = np.linspace(-.174,.174,test_num) #* Units.deg
     # Cruise conditions (except Mach number)
-    state = SUAVE.Analyses.Missions.Segments.Conditions.State()
-    state.conditions = SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics()
+    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     
     state.expand_rows(test_num)    
@@ -260,7 +262,7 @@ if __name__ == '__main__':
     #CD = conditions.aerodynamics.drag_breakdown.total
         
         
-    print state.conditions.aerodynamics.drag_breakdown.compressible
+    #print state.conditions.aerodynamics.drag_breakdown.compressible
     results = aerodynamics.evaluate(state)
     
     polar = Data()    
