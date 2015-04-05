@@ -78,8 +78,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
+    config.wings['main_wing'].flaps.angle = 30. * Units.deg
+    config.wings['main_wing'].slats.angle = 15. * Units.deg
     
     config.V2_VS_ratio = 1.21
     
@@ -91,7 +91,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
     
-    config.wings['main_wing'].flaps.angle = 30. * Units.deg
+    config.wings['main_wing'].flaps.angle = 50. * Units.deg
     config.wings['main_wing'].slats.angle = 25. * Units.deg
     config.Vref_VS_ratio = 1.23
     

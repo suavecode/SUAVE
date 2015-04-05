@@ -189,7 +189,7 @@ def vehicle_setup():
     fuselage.heights.at_three_quarters_length   = width
     fuselage.heights.at_wing_root_quarter_chord = width
 
-    fuselage.areas.side_projected  = 3.74* 38.02 #4.* 59.8 #  Not correct
+    fuselage.areas.side_projected  =fuselage.heights.maximum*fuselage.lengths.total*.9 #4.* 59.8 #  Not correct
     fuselage.areas.wetted          = 3.1415 * fuselage.heights.maximum * (fuselage.lengths.cabin + fuselage.lengths.nose * .8 + fuselage.lengths.tail * .8) # + 446.718 #688.64
     fuselage.areas.front_projected = 12.57
     

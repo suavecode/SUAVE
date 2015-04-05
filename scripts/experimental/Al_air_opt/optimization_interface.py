@@ -163,10 +163,11 @@ def simple_sizing(interface, Ereq, Preq):
     # unpack
     configs  = interface.configs
     analyses = interface.analyses   
+    airport=interface.analyses.missions.base.airport
+    atmo            = airport.atmosphere
     mission=interface.analyses.missions.base.segments 
     base = configs.base
     base.pull_base()
-    
     base = configs.base
     base.pull_base()
     Vcruise=mission['cruise'].air_speed
@@ -177,8 +178,8 @@ def simple_sizing(interface, Ereq, Preq):
     fuselage.areas.side_projected   = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #  Not correct
     c_vt                         =.08
     c_ht                         =.6
-    w2v                          =20.
-    w2h                          =16.
+    w2v                          =8.54
+    w2h                          =8.54
     base.wings['main_wing'] = wing_planform(base.wings['main_wing'])
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.vertical_tail_planform_raymer(base.wings['vertical_stabilizer'],base.wings['main_wing'], w2v, c_vt)
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.horizontal_tail_planform_raymer(base.wings['horizontal_stabilizer'],base.wings['main_wing'], w2h, c_ht)
@@ -202,19 +203,32 @@ def simple_sizing(interface, Ereq, Preq):
     motor_mass=ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines)
     propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
     
+    
+    #more geometry sizing of ducted fan
+    cruise_altitude= mission['climb_3'].altitude_end
+    conditions = atmo.compute_values(cruise_altitude)
+    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+    sizing_segment.M   = mission['cruise'].air_speed/conditions.speed_of_sound       
+    sizing_segment.alt = cruise_altitude
+    sizing_segment.T   = conditions.temperature        
+    sizing_segment.p   = conditions.pressure
     ducted_fan.design_thrust =design_thrust
     ducted_fan.mass_properties.mass=propulsion_mass
-   
+    ducted_fan.engine_sizing_ducted_fan(sizing_segment) 
+    
+    #compute overall mass properties
     breakdown = analyses.configs.base.weights.evaluate()
     breakdown.battery=battery.mass_properties.mass
-    
+    breakdown.water =m_water
+    breakdown.air   =m_air
     base.mass_properties.breakdown=breakdown
+    print breakdown
     m_fuel=0.
     
     base.mass_properties.operating_empty     = breakdown.empty 
     
     #weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng(vehicle, ducted_fan)
-    m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload
+    m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload+m_water
     m_end=m_full+m_air
     base.mass_properties.takeoff                 = m_full
     base.store_diff()
@@ -391,7 +405,7 @@ def summarize(interface):
     # Print outs   
     printme = Data()
     printme.weight_empty = operating_empty
-    printme.total_range  =summary.total_range/1000.
+    printme.total_range  =summary.total_range/Units.nautical_miles
     printme.GLW     =summary.GLW
     printme.tofl    = summary.takeoff_field_length
     printme.lfl     = summary.landing_field_length
@@ -423,8 +437,10 @@ def summarize(interface):
     return summary
 def sizing_loop(interface):
     m_guess=30000*Units.lbs
-    Ereq_guess=1.E9
-    Preq_guess=1E6
+    Ereq_guess=25748509091
+    Preq_guess=1100363.636
+
+
     Ereq=[Ereq_guess]
     mass=[m_guess]
  
@@ -434,7 +450,7 @@ def sizing_loop(interface):
     configs=interface.configs
     analyses=interface.analyses
     mission=analyses.missions.base
-    max_iter=3
+    max_iter=4
     j=0
     while abs(dm)>tol or abs(dE)>tol: #sizing loop for the vehicle
         Ereq_guess=Ereq[j]
@@ -454,6 +470,7 @@ def sizing_loop(interface):
         dE=(Ereq[j+1]-Ereq[j])/Ereq[j]
         #display convergence of aircraft
         print 'mass=', mass[j+1]
+        print 'takeoff_mass=',results.segments[0].conditions.weights.total_mass[0,0]
         print 'dm=', dm
         print 'dE=', dE
         print 'Ereq_guess=', Ereq_guess 
