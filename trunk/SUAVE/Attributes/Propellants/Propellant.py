@@ -1,13 +1,14 @@
-""" Propellant.py: Physical properties of propellants """
+# Propellant.py
+# 
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
-# from SUAVE.Attributes.Gases import Gas
 from SUAVE.Core import Data
-# from SUAVE.Attributes.Constants import Composition
 
 # ----------------------------------------------------------------------
 #  Class
