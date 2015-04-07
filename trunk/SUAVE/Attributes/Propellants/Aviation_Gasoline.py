@@ -1,4 +1,7 @@
-""" Aviation_Gasoline.py: Physical properties of aviation gasoline """
+# Aviation_Gasoline.py
+# 
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
 
 # ----------------------------------------------------------------------
 #  Imports
