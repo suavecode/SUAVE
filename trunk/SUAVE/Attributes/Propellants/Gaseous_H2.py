@@ -1,5 +1,7 @@
-""" Gaseous_H2.py: Physical properties of gaseous H2 for propulsion use """
-
+#Gaseous_H2.py: Physical properties of gaseous H2 for propulsion use
+#
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -28,10 +30,10 @@ class Gaseous_H2(Propellant):
         self.temperatures.boiling = 0.0                         # K
 
         # gas properties
-        self.Composition    = Composition( H2 = 1.0 )
-        self.MolecularMass  = 2.016                             # kg/kmol
-        self.R              = 4124.0                            # J/kg-K              
-        self.p              = 700e5                             # Pa
-        self.T              = 293.0                             # K
-        self.Z              = 1.4699                            # compressibility factor
-        self.density        = 39.4116                           # kg/m^3
+        self.composition              = Composition( H2 = 1.0 )
+        self.molecular_mass           = 2.016                             # kg/kmol
+        self.gas_constant             = 4124.0                            # J/kg-K              
+        self.pressure                 = 700e5                             # Pa
+        self.temperature              = 293.0                             # K
+        self.compressibility_factor   = 1.4699                            # compressibility factor
+        self.density                  = 39.4116                           # kg/m^3
