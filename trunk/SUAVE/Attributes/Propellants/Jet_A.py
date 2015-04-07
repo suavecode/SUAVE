@@ -1,4 +1,7 @@
-""" Jet_A.py: Physical properties of Jet A hydrocarbon propellant """
+#Jet A
+#
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
 
 # ----------------------------------------------------------------------
 #  Imports
