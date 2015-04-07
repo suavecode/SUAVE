@@ -1,5 +1,7 @@
-""" Liquid_Natural_Gas.py: Physical properties of Jet A-1 hydrocarbon propellant """
-
+# Liquid_Natural_Gas.py
+# 
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
