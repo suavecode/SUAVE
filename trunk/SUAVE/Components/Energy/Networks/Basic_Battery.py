@@ -51,13 +51,15 @@ class Basic_Battery(Data):
         # Set battery energy
   
         F, mdot, Pe =propulsor(conditions)
+       
         try:
             initial_energy=conditions.propulsion.battery_energy
-           
+          
             if initial_energy[0]==0: #beginning of segment; initialize battery
-               battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
+                battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
         except AttributeError: #battery energy not initialized, e.g. in takeoff
-            battery.current_energy=battery.max_energy*np.ones_like(F)
+            battery.current_energy=battery.current_energy[-1]*np.ones_like(F)
+       
         pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
         
         battery_logic     = Data()

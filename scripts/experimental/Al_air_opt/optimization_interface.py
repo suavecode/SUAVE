@@ -95,14 +95,15 @@ def setup_interface():
     # the missions
     
     #process.missions = evaluate_mission
-    
+
     # performance studies
     process.evaluate_field_length    = evaluate_field_length  
     #process.noise                   = noise
         
     # summarize the results
+	
     process.summary = summarize
-    
+    #process.post_process=post_process
     # done!
     return interface    
     
@@ -132,7 +133,7 @@ def unpack_inputs(interface):
     vehicle.wings['main_wing'].aspect_ratio         = inputs.aspect_ratio
     vehicle.wings['main_wing'].areas.reference      = inputs.reference_area
     vehicle.wings['main_wing'].taper                = inputs.taper
-    vehicle.wings['main_wing'].sweep                = inputs.sweep * Units.deg
+    #vehicle.wings['main_wing'].sweep                = inputs.sweep * Units.deg
     vehicle.wings['main_wing'].thickness_to_chord   = inputs.wing_thickness
     mission['climb_1'].altitude_end                 = inputs.climb_alt_fraction_1*cruise_altitude
     mission['climb_2'].altitude_end                 = inputs.climb_alt_fraction_2*cruise_altitude
@@ -141,6 +142,9 @@ def unpack_inputs(interface):
     mission['descent_1'].altitude_end               = inputs.desc_alt_fraction_1*cruise_altitude
     mission['cruise'].distance                      = inputs.cruise_range*Units.nautical_miles
     
+    mission['climb_1'].air_speed                    = inputs.Vclimb1
+    mission['climb_2'].air_speed                    = inputs.Vclimb2
+    mission['climb_3'].air_speed                    = inputs.Vclimb3
     #initialize fuselage pressure differential from cruise altitude
     conditions0 = atmo.compute_values(12500.*Units.ft) #cabin pressure
     conditions = atmo.compute_values(cruise_altitude)
@@ -195,10 +199,14 @@ def simple_sizing(interface, Ereq, Preq):
     battery=base.propulsors.network['battery']
     ducted_fan=base.propulsors.network['ducted_fan']
     ducted_fan
-    SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
+    #SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
+    battery.mass_properties.mass  = Ereq/battery.specific_energy
+    battery.max_energy=Ereq
+    battery.max_power =Preq
     battery.current_energy=[battery.max_energy] #initialize list of current energy
-    m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
-    m_water     =battery.find_water_mass()
+    from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
+    m_air       =-find_mass_gain_rate(battery,Ereq) #normally uses power as input to find mdot, but can use E to find m 
+    m_water     =battery.find_water_mass(Ereq)
     #now add the electric motor weight
     motor_mass=ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines)
     propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
@@ -222,7 +230,7 @@ def simple_sizing(interface, Ereq, Preq):
     breakdown.water =m_water
     breakdown.air   =m_air
     base.mass_properties.breakdown=breakdown
-    print breakdown
+    #print breakdown
     m_fuel=0.
     
     base.mass_properties.operating_empty     = breakdown.empty 
@@ -393,6 +401,7 @@ def summarize(interface):
     summary = SUAVE.Core.Results()
     
     # TOFL for MTOW @ SL, ISA
+    
     summary.total_range           =mission_profile.segments[-1].conditions.frames.inertial.position_vector[-1,0]
     summary.GLW                   =mission_profile.segments[-1].conditions.weights.total_mass[-1,0] 
     summary.takeoff_field_length  =results.field_length.takeoff
@@ -420,10 +429,10 @@ def summarize(interface):
     inputs = interface.inputs
     import datetime
     fid = open('Results.dat','a')
-    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ;'.format( \
+    fid.write('{:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; {:18.10f} ; '.format( \
         inputs.aspect_ratio,
         inputs.reference_area,
-        inputs.sweep,
+        #inputs.sweep,
         inputs.wing_thickness,
         #operating_empty ,
         summary.takeoff_field_length , 
@@ -436,8 +445,8 @@ def summarize(interface):
     
     return summary
 def sizing_loop(interface):
-    m_guess=30000*Units.lbs
-    Ereq_guess=25748509091
+    m_guess=11489.
+    Ereq_guess=8080653526
     Preq_guess=1100363.636
 
 
@@ -450,15 +459,19 @@ def sizing_loop(interface):
     configs=interface.configs
     analyses=interface.analyses
     mission=analyses.missions.base
-    max_iter=4
+    max_iter=10
     j=0
     while abs(dm)>tol or abs(dE)>tol: #sizing loop for the vehicle
         Ereq_guess=Ereq[j]
         m_guess=mass[j]
         simple_sizing(interface, Ereq_guess, Preq_guess);
         battery=configs.base.propulsors.network['battery']
+        configs.cruise.propulsors.network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.propulsors.network['battery']=battery
+        configs.landing.propulsors.network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
+       
         configs.finalize()
         analyses.finalize()
         results = evaluate_mission(configs,mission)
@@ -482,6 +495,205 @@ def sizing_loop(interface):
             break
      
     return results
+	
+def post_process(interface):
+	
+    mission=interface.analyses.missions.base
+    configs=interface.configs
+    results=interface.results.sizing_loop
+    battery=configs.base.propulsors.network['battery']
+    #battery = vehicle.energy.Storages['Battery']
+    #battery_lis = vehicle.Energy.Storages['Battery_Li_S']
+    # ------------------------------------------------------------------    
+    #   Thrust Angle
+    # ------------------------------------------------------------------
+    '''
+    title = "Thrust Angle History"
+    plt.figure(0)
+    for i in range(len(results.segments)):
+        plt.plot(results.segments[i].t/60,np.degrees(results.segments[i].gamma),'bo-')
+    plt.xlabel('Time (mins)'); plt.ylabel('Thrust Angle (deg)'); plt.title(title)
+    plt.grid(True)
+    '''
+    # ------------------------------------------------------------------    
+    #   Throttle
+    # ------------------------------------------------------------------
+    plt.figure("Throttle History")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
+        axes.plot(time, eta, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Throttle')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------    
+    #   Angle of Attack
+    # ------------------------------------------------------------------
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        axes.plot(time, aoa, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)        
+    
+    # ------------------------------------------------------------------    
+    #   Vehicle Mass
+    # ------------------------------------------------------------------
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
+    
+    
+    
+    # ------------------------------------------------------------------    
+    #   Mass Gain Rate
+    # ------------------------------------------------------------------
+    plt.figure("Mass Accumulation Rate")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):     
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        axes.plot(time, -mdot, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Mass Accumulation Rate(kg/s)')
+    axes.grid(True)    
+    
+    
+ 
+
+    
+    
+    # ------------------------------------------------------------------    
+    #   Altitude
+    # ------------------------------------------------------------------
+    plt.figure("Altitude")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):   
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] /Units.km
+        axes.plot(time, altitude, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Altitude (km)')
+    axes.grid(True)
+    
+    
+    # ------------------------------------------------------------------    
+    #   Horizontal Distance
+    # ------------------------------------------------------------------
+    '''
+    title = "Ground Distance"
+    plt.figure(title)
+    for i in range(len(results.segments)):
+        plt.plot(results.segments[i].t/60,results.segments[i].conditions.frames.inertial.position_vector[:,0])
+    plt.xlabel('Time (mins)'); plt.ylabel('ground distance(km)'); plt.title(title)
+    plt.grid(True)
+    '''
+    
+    # ------------------------------------------------------------------    
+    #   Energy
+    # ------------------------------------------------------------------
+    
+    title = "Energy and Power"
+    fig=plt.figure(title)
+    #print results.segments[0].Ecurrent[0]
+    for segment in results.segments:
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        axes = fig.add_subplot(2,1,1)
+        axes.plot(time, segment.conditions.propulsion.battery_energy/battery.max_energy,'bo-')
+        #print 'E=',segment.conditions.propulsion.battery_energy
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('State of Charge of the Battery')
+        axes.grid(True)
+        axes = fig.add_subplot(2,1,2)
+        axes.plot(time, -segment.conditions.propulsion.battery_draw,'bo-')
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Electric Power (Watts)')
+        axes.grid(True)
+    """
+    for i in range(len(results.segments)):
+        plt.plot(results.segments[i].t/60, results.segments[i].Ecurrent_lis/battery_lis.TotalEnergy,'ko-')
+      
+        #results.segments[i].Ecurrent_lis/battery_lis.TotalEnergy
+    """
+    # ------------------------------------------------------------------    
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Forces")
+    for segment in results.segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , Lift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Lift (N)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , Drag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag (N)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , Thrust , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Thrust (N)')
+        axes.grid(True)
+        
+    # ------------------------------------------------------------------    
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients")
+    for segment in results.segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+
+        axes = fig.add_subplot(4,1,1)
+        axes.plot( time , CLift , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CL')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(4,1,2)
+        axes.plot( time , CDrag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CD')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(4,1,3)
+        axes.plot( time , Drag   , 'bo-' )
+        axes.plot( time , Thrust , 'ro-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Drag and Thrust (N)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , CLift/CDrag , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('CL/CD')
+        axes.grid(True)
+    plt.show()
+    raw_input('Press Enter To Quit')
+    return     
 if __name__ == '__main__':
     main()
     

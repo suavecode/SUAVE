@@ -59,29 +59,32 @@ messages :
 # ----------------------------------------------------------------------
 
 def setup_problem(interface):
-    target_range=950*Units.nautical_miles
+    target_range=550*Units.nautical_miles
     # initialize the problem
     problem = vypy_opt.Problem()
     
     # setup variables, list style
     problem.variables = [
-    #   [ 'tag'                     ,   x0,      (lb ,            ub    ) , scl      ],
-        [ 'aspect_ratio'            ,  12.     , (5.        ,    12.    ) , 'bounds' ], 
-        [ 'reference_area'          ,  20.     , (10.       ,    100.   ) , 'bounds' ],
-        [ 'sweep'                   ,  0.      , (0.        ,    30.    ) , 'bounds' ],
-        [ 'taper'                   ,  .2      , (.1        ,    .4     ) ,'bounds' ],
-        [ 'wing_thickness'          ,  0.11    , (0.07      ,    0.20   ) , 'bounds' ],
-        [ 'cruise_range'            ,  500     , (1.        ,    50000. ) , 'bounds'],
-        [ 'Vclimb1'                 ,  80      , (50.       ,    140.   ) , 'bounds'],
-        [ 'Vclimb2'                 ,  85      , (50.       ,    140.   ) , 'bounds'],
-        [ 'Vclimb3'                 ,  122     , (50.       ,    144    ) , 'bounds'],
-        [ 'cruise_altitude'         ,  5.8       , (4.        ,    12.    ) , 'bounds'],
-        [ 'climb_alt_fraction_1'    , .1       , (.01       ,    1.     ) , 'bounds'],
-        [ 'climb_alt_fraction_2'    , .2       , (.01       ,    1.     ) , 'bounds'],
-        [ 'desc_alt_fraction_1'     , .08       , (.01       ,    1.     ) , 'bounds'],
+    #   [ 'tag'                     ,   x0,               (lb ,            ub    ) , scl      ],
+        [ 'aspect_ratio'            , 11.9999999799     , (5.        ,    12.    ) , 'bounds' ], 
+        [ 'reference_area'          , 21.             ,          (20.       ,    100.   ) , 'bounds' ],
+        [ 'taper'                   , 0.20368           , (.1        ,    .3     ) ,'bounds' ],
+        [ 'wing_thickness'          , 0.10916           , (0.07      ,    0.20   ) , 'bounds' ],
+        [ 'cruise_range'            , 410.652242348     , (1.        ,    50000. ) , 'bounds'],
+        [ 'Vclimb1'                 , 100.96            , (50.       ,    140.   ) , 'bounds'],
+        [ 'Vclimb2'                 , 101.732           , (50.       ,    140.   ) , 'bounds'],
+        [ 'Vclimb3'                 , 116.751585109     , (50.       ,    144    ) , 'bounds'],
+        [ 'cruise_altitude'         , 5.875             , (4.        ,    12.    ) , 'bounds'],
+        [ 'climb_alt_fraction_1'    , 0.72387           , (.1        ,    1.     ) , 'bounds'],
+        [ 'climb_alt_fraction_2'    , 0.76221           , (.2        ,    1.     ) , 'bounds'],
+        [ 'desc_alt_fraction_1'     , 0.3001            , (.1        ,    1.     ) , 'bounds'],
         
         
     ]    
+
+   
+   
+   
     
     # remember avoids calling the function twice for same inputs
     evaluator = vypy_opt.Remember(interface)
@@ -98,8 +101,8 @@ def setup_problem(interface):
     #   [ func     , ('tag'                     , '><=', val   ), scl ] ,
         [ evaluator, ('takeoff_field_length'    , '<'  ,  1500.)          , 100.   ],           
         [ evaluator, ('landing_field_length'    , '<'  ,  1500.)          , 100.   ],  
-        [ evaluator, ('climb_alt_constr'        , '<'  ,   0.  )          , 1.     ],
-        [ evaluator, ('total_range'             , '>'  ,   target_range  ), 1000.  ],
+        [ evaluator, ('climb_alt_constr'        , '<'  ,   0.  )          , .1     ],
+        [ evaluator, ('total_range'             , '>'  ,   target_range  ), 100.  ],
        
     ]    
   
@@ -123,6 +126,9 @@ def optimize_problem(problem):
 ##    driver = vypy_opt.drivers.COBYLA()
 
     driver.verbose = True
+    
+    
+    
     
     # ------------------------------------------------------------------
     #   Run the Problem

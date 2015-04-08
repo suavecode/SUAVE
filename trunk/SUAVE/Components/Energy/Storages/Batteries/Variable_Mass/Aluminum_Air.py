@@ -25,6 +25,6 @@ class Aluminum_Air(Battery):
         self.mass_gain_factor=(5.50723E-05)*Units.kg/Units.Wh
         self.water_mass_gain_factor=0.000123913*Units.kg/Units.Wh
      
-    def find_water_mass(self):
-        water_mass=self.max_energy*self.water_mass_gain_factor
+    def find_water_mass(self, energy):
+        water_mass=energy*self.water_mass_gain_factor
         return water_mass

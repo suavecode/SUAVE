@@ -232,7 +232,7 @@ def vehicle_setup():
     ducted_fan.tag='ducted_fan'
     #ducted_fan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
     ducted_fan.diffuser_pressure_ratio = 0.98
-    ducted_fan.fan_pressure_ratio = 1.65
+    ducted_fan.fan_pressure_ratio = 1.2
     ducted_fan.fan_nozzle_pressure_ratio = 0.99
     #ducted_fan.design_thrust = 2.5*Preq/V_cruise #factor of 2.5 accounts for top of climb
     ducted_fan.number_of_engines=4.0   

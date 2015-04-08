@@ -46,7 +46,7 @@ def main():
     m_guess=  64204.6490117
     Ereq_guess= 117167406053.0
     Preq_guess= 8007935.5158
-    disp_results=0                            #1 for displaying results, 0 for optimize    
+    disp_results=1                            #1 for displaying results, 0 for optimize    
     target_range=2800
     
     wclimb1=3000.*(Units.ft/Units.minute)
@@ -173,12 +173,15 @@ def run(inputs):                #sizing loop to enable optimization
         simple_sizing(configs,analyses, m_guess,Ereq_guess,Preq)
         mission = analyses.missions.base
         battery=configs.base.propulsors.network['battery']
-       
+        configs.finalize()
+        analyses.finalize()
+        configs.cruise.propulsors.network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.propulsors.network['battery']=battery
+        configs.landing.propulsors.network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
         
-        configs.finalize()
-        analyses.finalize()
+        
        
        
         results = evaluate_mission(configs,mission)
@@ -906,7 +909,7 @@ def evaluate_field_length(configs,analyses,mission,results):
     
     
     # evaluate
-    TOFL = estimate_take_off_field_length(takeoff_config,airport)
+    TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
     LFL = estimate_landing_field_length(landing_config,airport)
     
     # pack
