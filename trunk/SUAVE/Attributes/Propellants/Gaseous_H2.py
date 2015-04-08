@@ -30,10 +30,10 @@ class Gaseous_H2(Propellant):
         self.temperatures.boiling      = 0.0                               # K
 
         # gas properties
-        self.composition              = Composition( H2 = 1.0 )
-        self.molecular_mass           = 2.016                             # kg/kmol
-        self.gas_constant             = 4124.0                            # J/kg-K              
-        self.pressure                 = 700e5                             # Pa
-        self.temperature              = 293.0                             # K
-        self.compressibility_factor   = 1.4699                            # compressibility factor
-        self.density                  = 39.4116                           # kg/m^3
+        self.composition               = Composition( H2 = 1.0 )
+        self.molecular_mass            = 2.016                             # kg/kmol
+        self.gas_constant              = 4124.0                            # J/kg-K              
+        self.pressure                  = 700e5                             # Pa
+        self.temperature               = 293.0                             # K
+        self.compressibility_factor    = 1.4699                            # compressibility factor
+        self.density                   = 39.4116                           # kg/m^3
