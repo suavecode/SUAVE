@@ -1,4 +1,7 @@
-""" Liquid_H2.py: Physical properties of liquid H2 for propulsion use """
+# Liquid_H2.py: Physical properties of liquid H2 for propulsion use
+#
+# Created:  Unk 2013, SUAVE TEAM
+# Modified: Apr 2015, SUAVE TEAM
 
 # ----------------------------------------------------------------------
 #  Imports
