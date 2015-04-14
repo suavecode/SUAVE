@@ -1,10 +1,7 @@
-# Constants.py: Physical constants and helepr functions
+# Earth.py
 # 
-# Created By:       J. Sinsay
-# Updated:          M. Colonno   04/09/2013
-#                   T. Lukaczyk  06/23/2013
-
-""" SUAVE Data Class for Constants """
+# Created:  Unk 2013, J. Sinsay
+# Modified: Apr 2015, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,14 +9,13 @@
 
 # classes
 from Planet import Planet
-from SUAVE.Attributes.Constants import Composition
      
 # ----------------------------------------------------------------------
 #  Earth
 # ----------------------------------------------------------------------
      
 class Earth(Planet):
-    """ Physical constants specific to Earth and Earth's atmosphere """
+    """ Physical constants specific to Earth"""
     def __defaults__(self):
         self.tag = 'Earth'
         self.mass              = 5.98e24  # kg

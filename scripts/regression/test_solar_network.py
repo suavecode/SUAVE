@@ -49,7 +49,7 @@ def main():
     
     # Component 5 the Propeller
     
-    #Propeller design specs
+    # Propeller design specs
     design_altitude = 0.0 * Units.km
     Velocity        = 10.0  # freestream m/s
     RPM             = 5887
