@@ -1,7 +1,10 @@
 # example_test_script.py
 # 
-# Created:  Your Name, Jun 2014
-# Modified:     
+# Created:  Jan 2015, J. Dawson
+# Modified: 
+
+## style note --
+## this is a test script that exercises the code.
 
 # ----------------------------------------------------------------------        
 #   Imports
