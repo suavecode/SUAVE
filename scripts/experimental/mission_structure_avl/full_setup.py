@@ -617,8 +617,8 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Atmosphere Analysis
-    atmosphere = SUAVE.Analyses.Atmospheres.Atmosphere()
-    atmosphere.features.planet = planet.features
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere.planet = planet.features
     analyses.append(atmosphere)    
     
     # done!
@@ -637,7 +637,7 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
     
     #airport
@@ -652,7 +652,7 @@ def mission_setup(analyses):
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "climb_1"
     
     segment.analyses.extend( analyses.takeoff )
@@ -670,7 +670,7 @@ def mission_setup(analyses):
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "climb_2"
     
     segment.analyses.extend( analyses.cruise )
@@ -687,7 +687,7 @@ def mission_setup(analyses):
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "climb_3"
     
     segment.analyses.extend( analyses.cruise )
@@ -704,7 +704,7 @@ def mission_setup(analyses):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.tag = "cruise"
     
     segment.analyses.extend( analyses.cruise )
@@ -719,7 +719,7 @@ def mission_setup(analyses):
     #   First Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "descent_1"
     
     segment.analyses.extend( analyses.cruise )
@@ -736,7 +736,7 @@ def mission_setup(analyses):
     #   Second Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Analyses.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "descent_2"
 
     segment.analyses.extend( analyses.landing )
@@ -762,7 +762,7 @@ def mission_setup(analyses):
 def missions_setup(base_mission):
 
     # the mission container
-    missions = SUAVE.Analyses.Missions.Mission.Container()
+    missions = SUAVE.Analyses.Mission.Mission.Container()
     
     # ------------------------------------------------------------------
     #   Base Mission
@@ -775,7 +775,7 @@ def missions_setup(base_mission):
     #   Mission for Constrained Fuel
     # ------------------------------------------------------------------    
     
-    fuel_mission = SUAVE.Analyses.Missions.Mission() #Fuel_Constrained()
+    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
     fuel_mission.tag = 'fuel'
     fuel_mission.mission = base_mission
     missions.append(fuel_mission)
@@ -785,7 +785,7 @@ def missions_setup(base_mission):
     #   Mission for Constrained Short Field
     # ------------------------------------------------------------------
     
-    short_field = SUAVE.Analyses.Missions.Mission() #Short_Field_Constrained()
+    short_field = SUAVE.Analyses.Mission.Mission() #Short_Field_Constrained()
     short_field.tag = 'short_field'
     short_field.mission = base_mission
     missions.append(short_field)
@@ -795,7 +795,7 @@ def missions_setup(base_mission):
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
 
-    payload = SUAVE.Analyses.Missions.Mission() #Payload_Constrained()
+    payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
     payload.tag = 'payload'
     payload.mission = base_mission
     missions.append(payload)

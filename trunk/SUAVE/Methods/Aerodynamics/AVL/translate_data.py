@@ -34,13 +34,13 @@ def translate_results_to_conditions(cases,results):
         each in its own Data() object. Translates into the Conditions() data structure.
     """
     # set up aerodynamic Conditions object
-    res = SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics()
+    res = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     ones_1col = res.ones_row(1)
     # add missing entries
     res.aerodynamics.roll_moment_coefficient  = ones_1col * 0
     res.aerodynamics.pitch_moment_coefficient = ones_1col * 0
     res.aerodynamics.yaw_moment_coefficient   = ones_1col * 0
-    res.aerodynamics.drag_breakdown.induced   = SUAVE.Analyses.Missions.Segments.Conditions.Conditions()
+    res.aerodynamics.drag_breakdown.induced   = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
     res.aerodynamics.drag_breakdown.induced.total = ones_1col * 0
     res.aerodynamics.drag_breakdown.induced.efficiency_factor = ones_1col * 0
     res.aerodynamics.cz_alpha                 = ones_1col * 0

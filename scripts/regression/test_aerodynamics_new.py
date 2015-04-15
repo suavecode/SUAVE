@@ -18,8 +18,6 @@ import copy, time
 from copy import deepcopy
 import random
 
-SUAVE.Analyses.Process.verbose = True
-
 def main():
     
 # --------------------------------------------------------------------
@@ -71,10 +69,12 @@ def main():
     polar.lift = CL
     polar.drag = CD
     
+
     #load old results
     old_polar = SUAVE.Input_Output.load('polar_M8.pkl') #('polar_old2.pkl')
     CL_old = old_polar.lift
     CD_old = old_polar.drag
+
     
     #plot the results
     plt.figure("Drag Polar")

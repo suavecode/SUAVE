@@ -404,7 +404,7 @@ def mission_setup(analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Mission()
     mission.tag = 'the_mission'
     
     #airport
@@ -416,7 +416,7 @@ def mission_setup(analyses):
     mission.airport = airport    
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Missions.Segments
+    Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
     base_segment = Segments.Segment()
