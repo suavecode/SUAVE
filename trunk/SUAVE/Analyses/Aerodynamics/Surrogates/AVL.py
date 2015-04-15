@@ -68,7 +68,8 @@ class AVL(Aerodynamics,Surrogate):
         
         return
 
-
+    initialize = finalize
+    
     def sample_training(self):
 
         # define conditions for run cases
@@ -122,7 +123,7 @@ class AVL(Aerodynamics,Surrogate):
         return
 
 
-    def evaluate(self,state):
+    def evaluate(self,state,settings=None,geometry=None):
         
         # unpack
         aoa           = state.conditions.aerodynamics.angle_of_attack

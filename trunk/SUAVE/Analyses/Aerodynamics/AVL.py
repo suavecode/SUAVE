@@ -75,7 +75,7 @@ class AVL(Aero_Analysis):
         return
 
 
-    def evaluate(self,state):
+    def evaluate(self,state,**args):
         
         # unpack
         conditions = state.conditions

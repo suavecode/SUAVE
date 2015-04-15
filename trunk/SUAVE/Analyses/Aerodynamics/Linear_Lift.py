@@ -31,19 +31,19 @@ from warnings import warn
 # package imports
 import numpy as np
 import scipy as sp
-
+from numpy import pi
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 
-class Inviscid_Wings_Lift(Aerodynamics):
-    """ SUAVE.Analyses.Aerodynamics.Fidelity_Zero
+class Linear_Lift(Aerodynamics):
+    """ SUAVE.Analyses.Aerodynamics.Linear_Lift
         aerodynamic model that builds a surrogate model for clean wing
         lift, using vortex lattice, and various handbook methods
         for everything else
 
-        this class is callable, see self.__call__
+        this class is callable, see self.evaluate
 
     """
 
@@ -53,44 +53,48 @@ class Inviscid_Wings_Lift(Aerodynamics):
 
         self.geometry = Data()
         self.settings = Data()
+        
+        self.settings.zero_lift_coefficient = 0.0
+        self.settings.slope_correction_coefficient = 1.0
+        
+        #self.settings.span = 1.0
+        #self.settings.sweep_angle  = 0.0
+        
 
 
 
-    def evaluate(self,state,settings,geometry):
+    def evaluate(self,state,settings=None,geometry=None):
         """ process vehicle to setup geometry, condititon and settings
+        
+            Settings:
+                zero_lift_coefficient = 0.0
+                slope_correction_coefficient = 1.0
 
             Inputs:
-                conditions - DataDict() of aerodynamic conditions
+                state - a data dictionary with fields
+                   conditions.aerodynamics.angle_of_attack
 
             Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
+                CL - inviscid lift coefficient 
 
             Assumptions:
-                linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or settings
+                that standard 2 pi alpha thing, anil fix this
         """
 
         # unpack
         settings   = self.settings
-        #geometry   = self.geometry
-
-        surrogates = self.surrogates
-
         conditions = state.conditions
-        
-        q    = conditions.freestream.dynamic_pressure
-        AoA  = conditions.aerodynamics.angle_of_attack
-        Sref = geometry.reference_area
-        
-        
+        alpha      = conditions.aerodynamics.angle_of_attack
+        e          = settings.slope_correction_coefficient
+        CL0        = settings.zero_lift_coefficient
         
         # inviscid lift of wings only
-        inviscid_wings_lift = 2*np.pi*AoA 
+        CL = 2.0 * pi * alpha * e + CL0
+        
+        # pack
+        inviscid_wings_lift = CL
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
-        state.conditions.aerodynamics.lift_coefficient = inviscid_wings_lift
+        conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift
 
         return inviscid_wings_lift
 

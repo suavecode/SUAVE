@@ -132,6 +132,18 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    
+    ## modify inviscid wings - linear lift model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Linear_Lift()
+    #inviscid_wings.settings.slope_correction_coefficient = 1.04
+    #inviscid_wings.settings.zero_lift_coefficient = 2.*np.pi* 3.1 * Units.deg    
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings        
+    
+    ## modify inviscid wings - avl model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Surrogates.AVL()
+    #inviscid_wings.geometry = vehicle
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
+    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
@@ -172,7 +184,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing 737-800'    
+    vehicle.tag = 'Boeing_737800'    
     
     
     # ------------------------------------------------------------------

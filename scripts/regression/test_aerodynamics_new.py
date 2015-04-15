@@ -35,7 +35,20 @@ def main():
     # initalize the aero model
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    
+    ## modify inviscid wings - linear model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Linear_Lift()
+    #inviscid_wings.settings.slope_correction_coefficient = 1.04
+    #inviscid_wings.settings.zero_lift_coefficient = 2.*np.pi* 3.1 * Units.deg    
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
+    
+    # modify inviscid wings - avl model
+    inviscid_wings = SUAVE.Analyses.Aerodynamics.Surrogates.AVL()
+    inviscid_wings.geometry = vehicle
+    aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
+    
     aerodynamics.initialize()    
+    
     
     #no of test points
     test_num = 11
