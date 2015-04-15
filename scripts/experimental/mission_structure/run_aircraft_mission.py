@@ -42,9 +42,9 @@ def main():
     plot_mission(results)
     
     # old results
-    old_results = SUAVE.Input_Output.load('results_mission_B737.pkl')
-    #old_results = SUAVE.Input_Output.load('develop_results.pkl')
-    old_results = old_results.mission_profile
+    #old_results = SUAVE.Input_Output.load('results_mission_B737.pkl')
+    old_results = SUAVE.Input_Output.load('develop_results.pkl')
+    #old_results = old_results.mission_profile
     plot_mission(old_results,'k-')
     
     plt.show(block=True)
