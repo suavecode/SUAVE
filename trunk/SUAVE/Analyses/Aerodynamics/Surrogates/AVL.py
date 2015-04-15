@@ -145,7 +145,7 @@ class AVL(Aerodynamics,Surrogate):
         results.induced_drag_coefficient = CDi
         results.pitch_moment_coefficient = Cm
         
-        results.update( self.compute_forces(state.conditions) )
+        #results.update( self.compute_forces(state.conditions) )
 
         return results
 

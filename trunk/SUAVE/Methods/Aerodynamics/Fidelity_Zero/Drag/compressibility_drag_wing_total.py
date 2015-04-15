@@ -40,8 +40,6 @@ def compressibility_drag_wing_total(state,settings,geometry):
     #compute parasite drag total
     total_compressibility_drag = 0.0
     
-    print  conditions.aerodynamics.drag_breakdown.compressible
-    
     ### from wings
     #for wing in wings.values():
         #print conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag_coefficient 

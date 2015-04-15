@@ -14,11 +14,10 @@ import sys
 # SUAVE Imports
 from SUAVE.Core        import Units
 from full_setup_737800 import vehicle_setup
-from SUAVE.Analyses.Missions.Segments.Conditions import Aerodynamics
+from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics
 
 # SUAVE-AVL Imports
 from SUAVE.Analyses.Aerodynamics  import AVL as AVL_Callable
-
 
 def main():
 

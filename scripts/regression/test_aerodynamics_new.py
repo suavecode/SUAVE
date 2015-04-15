@@ -21,8 +21,6 @@ import copy, time
 from copy import deepcopy
 import random
 
-SUAVE.Analyses.Process.verbose = True
-
 def main():
     
     vehicle = vehicle_setup() # Create the vehicle for testing
@@ -276,9 +274,9 @@ if __name__ == '__main__':
     polar.lift = CL
     polar.drag = CD
     
-    old_polar = SUAVE.Input_Output.load('polar_M8.pkl') #('polar_old2.pkl')
-    CL_old = old_polar.lift
-    CD_old = old_polar.drag
+    #old_polar = SUAVE.Input_Output.load('polar_M8.pkl') #('polar_old2.pkl')
+    #CL_old = old_polar.lift
+    #CD_old = old_polar.drag
     
     #print state.conditions.aerodynamics.drag_breakdown.compressible.total
     #print results
@@ -287,7 +285,7 @@ if __name__ == '__main__':
     
     plt.figure("Drag Polar")
     axes = plt.gca()     
-    axes.plot(CD,CL,'bo-',CD_old,CL_old,'*')
+    axes.plot(CD,CL,'bo-')#,CD_old,CL_old,'*')
     axes.set_xlabel('$C_D$')
     axes.set_ylabel('$C_L$')
     

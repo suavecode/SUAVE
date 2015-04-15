@@ -51,8 +51,6 @@ def compressibility_drag_wing(state,settings,geometry):
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
-    print  drag_breakdown.compressible
-    
     # start result
     total_compressibility_drag = 0.0
     #drag_breakdown.compressible = Results()

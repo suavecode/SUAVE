@@ -99,7 +99,7 @@ class AVL(Aero_Analysis):
 
             Outputs:
                 results - a DataDict() of type 
-                SUAVE.Analyses.Missions.Segments.Conditions.Aerodynamics(), augmented with
+                SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics(), augmented with
                 case data on moment coefficients and control derivatives
 
             Assumptions:

@@ -14,7 +14,7 @@ import sys
 # SUAVE Imports
 from SUAVE.Core        import Units
 from SUAVE.Analyses.Aerodynamics.Surrogates import AVL
-from SUAVE.Analyses.Missions.Segments.Conditions import Aerodynamics,State
+from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,State
 # SUAVE test script imports
 from full_setup_737800 import vehicle_setup
 from test_callable_avl import run_avl_test
@@ -56,7 +56,7 @@ def main():
     CDi_te    = test_set.aerodynamics.drag_breakdown.induced.total
     CM_te     = test_set.aerodynamics.pitch_moment_coefficient
     
-    alphas_su = state.conditions.freestream.angle_of_attack / Units.deg
+    alphas_su = state.conditions.aerodynamics.angle_of_attack / Units.deg
     CL_su     = surrogate_results.lift_coefficient
     CDi_su    = surrogate_results.induced_drag_coefficient
     CM_su     = surrogate_results.pitch_moment_coefficient

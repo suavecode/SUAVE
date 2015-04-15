@@ -164,8 +164,6 @@ class Vortex_Lattice(Aerodynamics):
         X_data = np.array([AoA_data]).T
         X_data = np.reshape(X_data,-1)
         
-        print X_data 
-        
         # learn the model
         cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
 
