@@ -1,18 +1,20 @@
-# Method.py
+# Example_Callable_Attribute.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:
+# Created:  Jan 2015, J. Dawson
+# Modified: 
 
-""" SUAVE Method with Attributes
-    <very brief description here if any>
-"""
+## style note --
+## since this is an Attribute class, it is Camel_Case_With_Underscore()
+## as a special judicious case when used for Analysis objects, it can
+## include methods that manage vehicle analysis.
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+## remove any unnecessary imports
 
 # suave imports
-# these should start with SUAVE, unless importing locally
+## these should start with SUAVE, unless importing locally
 from SUAVE.Core import (
     Function, Data, Container, Data_Exception, Data_Warning,
 )
