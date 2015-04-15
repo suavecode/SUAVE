@@ -62,7 +62,6 @@ class Fidelity_Zero(Markup):
         
         compute.lift = Process()
 
-        #compute.lift.inviscid_wings                = Methods.Lift.linear_inviscid_wing #Inviscid_Wings_Lift()
 
 #        compute.lift.inviscid_wings                = Inviscid_Wings_Lift()
         compute.lift.inviscid_wings                = Vortex_Lattice()

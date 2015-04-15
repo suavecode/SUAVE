@@ -146,3 +146,6 @@ class AVL(Aero_Analysis):
 
     def __call__(self,*args,**kwarg):
         return self.evaluate(*args,**kwarg)
+    
+    
+    initialize = finalize
