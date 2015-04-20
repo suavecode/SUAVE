@@ -80,6 +80,7 @@ def wing_compressibility_correction(state,settings,geometry):
     state.conditions.aerodynamics.lift_breakdown.compressible_wings = wings_lift_comp
     state.conditions.aerodynamics.lift_coefficient= wings_lift_comp
 
+
     return wings_lift_comp
 
 

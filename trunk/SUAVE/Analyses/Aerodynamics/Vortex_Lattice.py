@@ -122,6 +122,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
         state.conditions.aerodynamics.lift_coefficient = inviscid_wings_lift
 
+
         return inviscid_wings_lift
 
 
