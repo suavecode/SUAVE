@@ -1,10 +1,7 @@
-# Constants.py: Physical constants and helepr functions
+# Planet.py
 # 
-# Created By:       J. Sinsay
-# Updated:          M. Colonno   04/09/2013
-#                   T. Lukaczyk  06/23/2013
-
-""" SUAVE Data Class for Constants """
+# Created:  Unk 2013, J. Sinsay
+# Modified: Apr 2015, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

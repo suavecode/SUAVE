@@ -1,4 +1,10 @@
-""" template for tutorial missions """
+# tutorial_template.py
+# 
+# Created:  Jan 2015, J. Dawson
+# Modified: 
+
+## style note --
+## this is a template for writing a vehicle tutorial
 
 # ----------------------------------------------------------------------
 #   Imports

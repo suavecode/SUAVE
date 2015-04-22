@@ -30,7 +30,7 @@ from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power,
 # ----------------------------------------------------------------------
 def main():
     
-    # build the vehicle
+    # build the vehicle 
     vehicle = define_vehicle()
     
     # define the mission

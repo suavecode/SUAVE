@@ -1,18 +1,20 @@
-# Attribute.py
+# Example_Attribute.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Jan 2015, J. Dawson
+# Modified:
 
-""" SUAVE Data Class for Design Attributes
-    <very brief description here if any>
-"""
+## style note --
+## since this is an Attribute class, it is Camel_Case_With_Underscore()
+## it should not have any major analysis methods, 
+## only data manipulation methods
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+## remove any unnecessary imports
 
 # suave imports
-# these should start with SUAVE, unless importing locally
+## these should start with SUAVE, unless importing locally
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )

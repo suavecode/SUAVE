@@ -18,6 +18,7 @@ import copy, time
 
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
 
 def main():
 
@@ -48,7 +49,7 @@ def main():
     
     # Component 5 the Propeller
     
-    #Propeller design specs
+    # Propeller design specs
     design_altitude = 0.0 * Units.km
     Velocity        = 10.0  # freestream m/s
     RPM             = 5887
@@ -103,9 +104,12 @@ def main():
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 50.  #kg
+    batterymass = 50.  #kg
     bat.type = 'Li-Ion'
     bat.resistance = 0.0
+    bat.energy_density = 250.
+    initialize_from_mass(bat,batterymass)
+    bat.current_energy = bat.max_energy
     net.battery = bat
     
     #Component 9 the system logic controller and MPPT
@@ -125,8 +129,13 @@ def main():
     numerics                   = Data()
     
     # Calculate atmospheric properties
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(design_altitude)
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere_conditions =  atmosphere.compute_values(prop_attributes.design_altitude)
+    
+    rho = atmosphere_conditions.density[0,:]
+    a   = atmosphere_conditions.speed_of_sound[0,:]
+    mu  = atmosphere_conditions.dynamic_viscosity[0,:]
+    T   = atmosphere_conditions.temperature[0,:]
     
     conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
     conditions.freestream.velocity            = np.array([[1.0],[1.0]])
@@ -152,7 +161,7 @@ def main():
     truth_P   = [[ 13687.25140962],[ 13687.25140962]]
     truth_i   = [[ 314.90485916],[ 314.90485916]]
     truth_rpm = [[ 6581.17653732],[ 6581.17653732]]
-    truth_bat = [[ 45000000.],[ 44984254.75704217]]
+    truth_bat = [[ 36000000.    ],[ 35984254.75704217]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
