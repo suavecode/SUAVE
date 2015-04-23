@@ -927,7 +927,7 @@ def mission_setup(analyses):
     segment.altitude_end = 5.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
-    
+
     # add to mission
     mission.append_segment(segment)
     
