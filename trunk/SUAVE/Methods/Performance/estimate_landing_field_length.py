@@ -106,7 +106,6 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
-            print vehicle
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
