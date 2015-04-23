@@ -60,6 +60,7 @@ def update_thrust(segment,state):
     # pack conditions
     conditions.frames.body.thrust_force_vector[:,:] = F_vec[:,:]
     conditions.propulsion.fuel_mass_rate[:,0]       = mdot[:,0]
+    
     end
     
     

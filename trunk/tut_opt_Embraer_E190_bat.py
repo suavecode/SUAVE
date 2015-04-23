@@ -152,12 +152,12 @@ def run(inputs):                #sizing loop to enable optimization
         configs, analyses = full_setup(inputs,m_guess, Ereq_guess)
         simple_sizing(configs,analyses, m_guess,Ereq_guess,Preq)
         mission = analyses.missions.base
-        battery=configs.base.propulsors.network['battery']
+        battery=configs.base.network['battery']
         configs.finalize()
         analyses.finalize()
-        configs.cruise.propulsors.network['battery']=battery #make it so all configs handle the exact same battery object
-        configs.takeoff.propulsors.network['battery']=battery
-        configs.landing.propulsors.network['battery']=battery
+        configs.cruise.network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.network['battery']=battery
+        configs.landing.network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
         
@@ -507,10 +507,11 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
  
     #ducted fan
     ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan_Bat()
-    from SUAVE.Methods.Propulsor import setup_fidelity_zero   
-    setup_fidelity_zero(ducted_fan)
-    setup_high_fidelity(ducted_fan)
-    
+    '''
+    #from SUAVE.Methods.Propulsor import setup_fidelity_zero   
+    #setup_fidelity_zero(ducted_fan)
+    #setup_high_fidelity(ducted_fan)
+    '''
     
     ducted_fan.tag='ducted_fan'
     ducted_fan.diffuser_pressure_ratio = 0.98
@@ -520,7 +521,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     ducted_fan.number_of_engines=2.0   
     ducted_fan.eta_pe=.95         #electric efficiency of motor
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
-    vehicle.propulsor=ducted_fan
+    vehicle.propulsors=ducted_fan
 
     # ------------------------------------------------------------------
     #  Energy Network
@@ -536,7 +537,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     net.battery=battery
     net.number_of_engines=ducted_fan.number_of_engines
     
-    vehicle.network=network
+    vehicle.network=net
     #vehicle.propulsors.append(turbofan)
     #vehicle.propulsion_model=net
     return vehicle
@@ -565,8 +566,8 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    battery=base.propulsors.network['battery']
-    ducted_fan=base.propulsors.network['ducted_fan']
+    battery=base.network['battery']
+    ducted_fan=base.propulsors
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
     battery.current_energy=[battery.max_energy] #initialize list of current energy
     m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
@@ -1044,7 +1045,7 @@ def base_analysis(vehicle):
     #  Propulsion Analysis
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.network #what is called throughout the mission (at every time step))
-    analyses.append(propulsion)
+    analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis

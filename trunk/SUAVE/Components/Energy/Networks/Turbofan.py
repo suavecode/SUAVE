@@ -363,5 +363,5 @@ class Turbofan(Propulsor):
     
 
 
-    __call__ = evaluate
+    __call__ = evaluate_thrust
 
