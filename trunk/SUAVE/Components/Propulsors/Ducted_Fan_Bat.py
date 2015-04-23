@@ -203,10 +203,7 @@ class Ducted_Fan_Bat(Propulsor):
         #if bli
         
         
-        #fan exit conditions
-        
-        #etapolf=Feta(pif,pif,1,1)  
-        #etapolf=1  #if available for engine use that
+        #fan exit conditionst
         
         pt2_1=pt2*pif
         Tt2_1=Tt2*pif**((gamma-1)/(gamma*etapolf))
@@ -279,9 +276,7 @@ class Ducted_Fan_Bat(Propulsor):
       
         mdot_df=FD/(Fsp*ao)
         #print mdot_core
-    
-    
-        #Component area sizing---------------------------------------------------
+
         
         #Component area sizing----------------------------------------------------
         
@@ -335,36 +330,18 @@ class Ducted_Fan_Bat(Propulsor):
       ##end
         self.Ao= Ao
         self.A2= A2
-        #Turbofan.df= df
-        #Turbofan.A2_5= A2_5
-        #Turbofan.dhc= dhc
         self.A7= A7
-        #Turbofan.A5= A5
-        #Turbofan.Ao=Ao
-        #Turbofan.mdt= mhtD
-        #Turbofan.mlt= mltD
-        #Turbofan.mdf=mdfD
-        #Turbofan.mdlc=mdlcD
         self.nacelle_diameter=numpy.sqrt(A2/(numpy.pi/4))
         self.engine_length=self.nacelle_diameter/1.5
       
-      
-        #Turbofan.sfc=sfc
-        #Turbofan.thrust=th  
-        #Turbofan.mdhc=mdhcD
-      
-        #return Fsp,TSFC,mdhcD
-          
+     
     
-    
-    
-      #engine analysis based on TASOPT
-      #constant Cp is not assumed 
+
       #pressure ratio prescribed
       #MAIN CODE
     
     #def __call__(self,eta,State):
-    def __call__(self,conditions):
+    def evaluate_thrust(self,conditions):
     #def engine_analysis_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,mdhc): 
        
         Minf=conditions.freestream.mach_number
@@ -529,21 +506,6 @@ class Ducted_Fan_Bat(Propulsor):
         # 
         u7=numpy.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
-    
-        # #core nozzle ppties
-    
-     
-        # 
-        # #core nozzle area
-        # 
-        #u5=numpy.sqrt(2*(ht5-h5))
-        #rho5=p5/(R*T5)
-        # 
-        # #-------------------------
-        # #Thrust calculation based on that
-        # 
-       
-        #Ae_b_Ao=1/(1+aalpha)*(fm_id(Mo)/fm_id(M5)*(1/(pt5/pto))*(numpy.sqrt(Tt5/Tto)))
         
         A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*numpy.sqrt(Tt7/Tto)
          
@@ -577,10 +539,6 @@ class Ducted_Fan_Bat(Propulsor):
       
         u7=numpy.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
-        #A7=mdot_df/(rho7*u7)    
-        #mdot_df=A7*rho7*u7
-        
-        #print 'prop Ao' ,Ao
  ###############################################################################################################################       
         mdot_df=Ao*rhoo*uo
         FD=Fsp*ao*mdot_df*no_eng*throttle

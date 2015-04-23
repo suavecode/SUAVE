@@ -198,14 +198,14 @@ class Turbofan(Propulsor):
         
         #getting the network outputs from the thrust outputs
         
-        F          = thrust.outputs.thrust*[1,0,0]
-        mdot       = thrust.outputs.fuel_flow_rate
-        Isp        = thrust.outputs.specific_impulse
-        P          = thrust.outputs.power
-        F_vec      = conditions.ones_row(3) * 0.0
-        F_vec[:,0] = F[:,0]
-        F          =F_vec
-        return F,mdot
+        F            = thrust.outputs.thrust*[1,0,0]
+        mdot         = thrust.outputs.fuel_flow_rate
+        Isp          = thrust.outputs.specific_impulse
+        output_power = thrust.outputs.power
+        F_vec        = conditions.ones_row(3) * 0.0
+        F_vec[:,0]   = F[:,0]
+        F            =F_vec
+        return F,mdot, output_power
     
     
     

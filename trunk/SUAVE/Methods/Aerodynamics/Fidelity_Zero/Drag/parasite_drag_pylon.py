@@ -28,7 +28,6 @@ def parasite_drag_pylon(conditions,configuration,geometry):
             simplified estimation, considering pylon drag a fraction of the nacelle drag
 
     """
-    print geometry
     # unpack
     pylon_factor        =  0.20 # 20% of propulsor drag
     n_propulsors        =  len(geometry.propulsors)  # number of propulsive system in vehicle (NOT # of ENGINES)

@@ -18,11 +18,12 @@ import numpy as np
 #  Compute field length required for landing
 # ----------------------------------------------------------------------
 
-def estimate_landing_field_length(config,airport):
+def estimate_landing_field_length(vehicle,analyses,airport):
     """ SUAVE.Methods.Performance.estimate_landing_field_length(vehicle,config,airport):
         Computes the landing field length for a given vehicle condition in a given airport
 
         Inputs:
+            vehicle	 - SUAVE type vehicle
 
             config   - data dictionary with fields:
                 Mass_Properties.landing    - Landing weight to be evaluated
@@ -47,15 +48,15 @@ def estimate_landing_field_length(config,airport):
     Aircraft Design", 2013 (equation 9.25)
             - Considering average aav/g values of two-wheel truck (0.40)
     """
-
+   
     # ==============================================
         # Unpack
     # ==============================================
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.mass_properties.landing
-    reference_area  = config.reference_area
+    weight          = vehicle.mass_properties.landing
+    reference_area  = vehicle.reference_area
     try:
         Vref_VS_ratio = config.Vref_VS_ratio
     except:
@@ -89,7 +90,7 @@ def estimate_landing_field_length(config,airport):
     # ==============================================
     
     try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = config.maximum_lift_coefficient
+        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
         
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
@@ -103,9 +104,9 @@ def estimate_landing_field_length(config,airport):
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
-            config.maximum_lift_coefficient = maximum_lift_coefficient
-         
+            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
+            print vehicle
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 

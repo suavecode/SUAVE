@@ -26,7 +26,7 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Ducted_Fan_Battery(Data):
+class Battery_Ducted_Fan(Data):
     def __defaults__(self):
         self.propulsor   = None
         self.battery     = None
@@ -35,7 +35,7 @@ class Ducted_Fan_Battery(Data):
         self.tag         = 'Network'
     
     # manage process with a driver function
-    def evaluate(self,conditions,numerics):
+    def evaluate_thrust(self,conditions,numerics):
         
         # unpack
 
@@ -44,7 +44,7 @@ class Ducted_Fan_Battery(Data):
     
         # Set battery energy
   
-        F, mdot, Pe =propulsor(conditions)
+        F, mdot, Pe =propulsor.evaluate_thrust(conditions,numerics)
        
         try:
             initial_energy=conditions.propulsion.battery_energy
@@ -54,7 +54,7 @@ class Ducted_Fan_Battery(Data):
         except AttributeError: #battery energy not initialized, e.g. in takeoff
             battery.current_energy=battery.current_energy[-1]*np.ones_like(F)
        
-        pbat=np.multiply(-F, conditions.freestream.velocity)/self.motor_efficiency
+        pbat=-Pe/self.motor_efficiency
         
         battery_logic     = Data()
         battery_logic.power_in = pbat
@@ -80,13 +80,14 @@ class Ducted_Fan_Battery(Data):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        F_vec      = conditions.ones_row(3) * 0.0
-        F_vec[:,0] = F[:,0]
-        F          =F_vec
+        F_vec       = conditions.ones_row(3) * 0.0
+        F_vec[:,0]  = F[:,0]
+        F           = F_vec
+        output_power= battery_draw
         #number_of_engines
         #Create the outputs
 
         
-        return F, mdot
+        return F, mdot, output_power
             
     __call__ = evaluate_thrust

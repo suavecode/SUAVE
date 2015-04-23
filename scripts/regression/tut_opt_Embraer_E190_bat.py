@@ -506,29 +506,28 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     # attributes
  
     #ducted fan
-    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan_Bat()
+    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan()
     '''
     #from SUAVE.Methods.Propulsor import setup_fidelity_zero   
     #setup_fidelity_zero(ducted_fan)
     #setup_high_fidelity(ducted_fan)
     '''
     
-    ducted_fan.tag='ducted_fan'
-    ducted_fan.diffuser_pressure_ratio = 0.98
-    ducted_fan.fan_pressure_ratio = 1.65
+    ducted_fan.tag                       ='ducted_fan'
+    ducted_fan.diffuser_pressure_ratio   = 0.98
+    ducted_fan.fan_pressure_ratio        = 1.65
     ducted_fan.fan_nozzle_pressure_ratio = 0.99
-    ducted_fan.design_thrust = Preq/V_cruise 
-    ducted_fan.number_of_engines=2.0   
-    ducted_fan.eta_pe=.95         #electric efficiency of motor
+    ducted_fan.design_thrust             = Preq/V_cruise 
+    ducted_fan.number_of_engines         =2.0   
+    ducted_fan.eta_pe                   =.95         #electric efficiency of motor
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
-    vehicle.propulsors=ducted_fan
-
+    
     # ------------------------------------------------------------------
     #  Energy Network
     # ------------------------------------------------------------------ 
     
     #define the energy network
-    net=SUAVE.Components.Energy.Networks.Basic_Battery()
+    net=SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
     net.propulsor=ducted_fan
     net.nacelle_diameter=ducted_fan.nacelle_diameter
     net.engine_length=ducted_fan.engine_length
@@ -538,6 +537,8 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     net.number_of_engines=ducted_fan.number_of_engines
     
     vehicle.network=net
+    vehicle.propulsors.append(ducted_fan)
+
     #vehicle.propulsors.append(turbofan)
     #vehicle.propulsion_model=net
     return vehicle
@@ -566,9 +567,10 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    battery=base.network['battery']
-    ducted_fan=base.propulsors
+    battery   =base.network['battery']
+    ducted_fan=base.propulsors['ducted_fan']
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
+    
     battery.current_energy=[battery.max_energy] #initialize list of current energy
     m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
     #now add the electric motor weight
@@ -877,11 +879,10 @@ def evaluate_field_length(configs,analyses,mission,results):
     
     takeoff_config = configs.takeoff
     landing_config = configs.landing
-    
-    
+   
     # evaluate
     TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
-    LFL = estimate_landing_field_length(landing_config,airport)
+    LFL = estimate_landing_field_length (landing_config, analyses,airport)
     
     # pack
     field_length = SUAVE.Core.Data()

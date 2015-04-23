@@ -58,7 +58,7 @@ class Container(Physical_Component.Container):
             example: find_instances(Propulsors.Turbojet) > return all Turbojets
     """
     
-    def __call__(self,conditions,numerics):
+    def evaluate_thrust(self,conditions,numerics):
         
         segment = Data()
         segment.q  = conditions.freestream.dynamic_pressure[:,0]
@@ -77,52 +77,9 @@ class Container(Physical_Component.Container):
         P    = np.zeros_like(eta)
         
         for propulsor in self.values():
-            CF, Isp, etaPe = propulsor(eta,segment)
-
-            # get or determine intake area
-            A = propulsor.get_area()
-
-            # compute data
-            F += CF*segment.q*A                             # N
+            F, mdot, P = propulsor.evaluate_thrust(conditions, numerics) 
             
-            # propellant-based
-            if np.isscalar(Isp):
-                if Isp != 0.0:
-                    mdot += F/(Isp*segment.g0)              # kg/s
-                    
-            else:
-                mask = (Isp != 0.0)
-                mdot[mask] += F[mask]/(Isp[mask]*segment.g0)   # kg/s
-                
-            # electric-based
-            if np.isscalar(etaPe):
-                if etaPe != 0.0:
-                    P += F*segment.V/etaPe                  # W
-                    
-                   #Account for mass gain of Li-air battery
-                    try:
-                        self.battery
-                    except AttributeError:
-                        
-                        if propulsor.battery.type=='Li-Air': 
-                            
-                            for i in range(len(P)):
-                                if propulsor.battery.MaxPower>P[i]:
-                                    [Ploss,Mdot]=propulsor.battery(P[i],.01 )       #choose small dt here (has not been solved for yet); its enough to find mass rate gain of battery
-                                else:
-                                    [Ploss,Mdot]=propulsor.battery(propulsor.battery.MaxPower,.01 )
-                                mdot[i]+=Mdot.real
-                                
-                                
-                                
-                                
-                   
-            else:
-                mask = (etaPe != 0.0)
-                P += F[mask]*segment.V[mask]/etaPe[mask]    # W
-            #print mdot   
-            
-        return F[:,None], mdot[:,None], P[:,None]
+        return F, mdot, P
 
     def power_flow(self,eta,segment):
 
