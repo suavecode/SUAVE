@@ -20,6 +20,8 @@ class Energy(Analysis):
         self.settings = Data()
         
         
-    def evaluate(self,condtitions):
+    def evaluate_thrust(self,conditions):
+        network=self.network
+        F, mdot= network.evaluate_thrust(conditions, numerics) 
         return Results()
     

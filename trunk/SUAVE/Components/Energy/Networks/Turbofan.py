@@ -47,7 +47,7 @@ class Turbofan(Propulsor):
         
     
     # linking the different network components
-    def evaluate(self,conditions,numerics):
+    def evaluate_thrust(self,conditions,numerics):
 
     
         #Unpack components
@@ -198,13 +198,14 @@ class Turbofan(Propulsor):
         
         #getting the network outputs from the thrust outputs
         
-        F      = thrust.outputs.thrust
-        mdot   = thrust.outputs.fuel_flow_rate
-        Isp    = thrust.outputs.specific_impulse
-        P      = thrust.outputs.power
-        
-        
-        return F,mdot,P
+        F          = thrust.outputs.thrust*[1,0,0]
+        mdot       = thrust.outputs.fuel_flow_rate
+        Isp        = thrust.outputs.specific_impulse
+        P          = thrust.outputs.power
+        F_vec      = conditions.ones_row(3) * 0.0
+        F_vec[:,0] = F[:,0]
+        F          =F_vec
+        return F,mdot
     
     
     

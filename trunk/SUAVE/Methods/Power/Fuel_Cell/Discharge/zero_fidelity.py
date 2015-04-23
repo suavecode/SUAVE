@@ -1,7 +1,7 @@
+#Created by M. Vegh 4/23/15
 
-#by M. Vegh
-
-""" SUAVE Methods for Energy Systems """
+""" Calculates mass flow of fuel cell based solely on specific energy
+end base efficiency factor """
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,4 +17,4 @@ def zero_fidelity(fuel_cell,conditions,numerics): #adds a battery that is optimi
     power  = fuel_cell.inputs.power_in
     mdot        = power/(self.propellant.specific_energy*self.efficiency)                      #mass flow rate of the fuel  
   
-    return [mdot]
+    return mdot
