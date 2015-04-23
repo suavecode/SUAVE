@@ -55,8 +55,8 @@ def estimate_landing_field_length(vehicle,config,airport):
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
-    weight          = config.mass_properties.landing
-    reference_area  = config.reference_area
+    weight          = vehicle.mass_properties.landing
+    reference_area  = vehicle.reference_area
     try:
         Vref_VS_ratio = config.Vref_VS_ratio
     except:
@@ -90,7 +90,7 @@ def estimate_landing_field_length(vehicle,config,airport):
     # ==============================================
     
     try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = config.maximum_lift_coefficient
+        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
         
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
@@ -105,7 +105,7 @@ def estimate_landing_field_length(vehicle,config,airport):
         
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
-            config.maximum_lift_coefficient = maximum_lift_coefficient
+            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
             print config
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
