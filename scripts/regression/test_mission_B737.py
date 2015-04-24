@@ -50,14 +50,14 @@ def main():
 
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
     
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(old_results,'k-')
     
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
     
     return
 
@@ -142,10 +142,10 @@ def base_analysis(vehicle):
     analyses.append(stability)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
-    analyses.append(propulsion)
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
