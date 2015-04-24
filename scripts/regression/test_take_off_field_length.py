@@ -36,17 +36,15 @@ def main():
     configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
-    
-    configs_analyses = analyses_setup(configs)
-    analyses = SUAVE.Analyses.Analysis.Container()
-    analyses.configs  = configs_analyses
-    
+   
+    #configs_analyses = analyses_setup(configs)
+    analyses=base_analysis(vehicle)
     #analyses = SUAVE.Analyses.Analysis.Container()
     #analyses.configs  = configs_analyses
     
     # CLmax for a given configuration may be informed by user
     # configuration.maximum_lift_coefficient = 2.XX
-    
+
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
     airport.tag = 'airport'
@@ -60,11 +58,11 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        configuration.propulsors['turbo_fan'].number_of_engines = engine_number
+        configuration.propulsors.turbo_fan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
-            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(configuration, analyses,airport)
+            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(configuration,analyses,airport)
   
     truth_TOFL = np.array([[  850.19992906,   567.03906016,   411.69975426],
                            [  893.11528215,   592.95224563,   430.3183183 ],
@@ -446,28 +444,10 @@ def vehicle_setup():
     
     # add turbofan to vehicle
     vehicle.propulsors.append(turbofan)
+    vehicle.network=turbofan
     # done!!
     return vehicle    
-def analyses_setup(configs):
-    
-    analyses = SUAVE.Analyses.Analysis.Container()
-    
-    # build a base analysis for each config
-    for tag,config in configs.items():
-        analysis = base_analysis(config)
-        analyses[tag] = analysis
-       
-    # adjust analyses for configs
-    
-    # takeoff_analysis
-    analyses.takeoff.aerodynamics.drag_coefficient_increment = 0.1000
 
-    # do something here eventually
-    
-    return analyses
-
-    
- 
 def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -481,10 +461,10 @@ def base_analysis(vehicle):
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.propulsor = vehicle.propulsors['turbo_fan']
-    analyses.append(propulsion)
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.network #what is called throughout the mission (at every time step))
+    analyses.append(energy)
     
     # done!
     return analyses    

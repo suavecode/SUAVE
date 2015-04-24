@@ -90,7 +90,7 @@ def main():
     
     #print mybounds
     #print inputs
-    out=sp.optimize.fmin(run, inputs)
+    out=sp.optimize.fmin(run, inputs, options={disp:'true'},disp=1)
     #out=run(inputs)
     
 
@@ -110,7 +110,6 @@ def run(inputs):                #sizing loop to enable optimization
     Preq_guess = 8007935.5158
     disp_results=0                         #1 for displaying results, 0 for optimize    
     target_range=2800                       #minimum flight range of the aircraft (constraint)
-    iteration_number=1
     
     #mass=[ 100034.162173]
     #mass=[ 113343.414181]     
@@ -257,8 +256,7 @@ def run(inputs):                #sizing loop to enable optimization
     time2=time.time()
     iteration_number+=1
     print 't=', time2-time1, 'seconds'
-    print 'iteration number=', iteration_number
-    
+ 
     #print inputs of each iteration so they can be directly copied
     
     print '[',
@@ -1043,7 +1041,7 @@ def base_analysis(vehicle):
     analyses.append(stability)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
+    #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.network #what is called throughout the mission (at every time step))
     analyses.append(energy)
