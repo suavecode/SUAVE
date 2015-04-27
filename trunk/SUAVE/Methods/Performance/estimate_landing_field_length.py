@@ -17,7 +17,6 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compute field length required for landing
 # ----------------------------------------------------------------------
-
 def estimate_landing_field_length(vehicle,analyses,airport):
     """ SUAVE.Methods.Performance.estimate_landing_field_length(vehicle,config,airport):
         Computes the landing field length for a given vehicle condition in a given airport
@@ -104,9 +103,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
-            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
-        except:
+                    except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
     # ==============================================

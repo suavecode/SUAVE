@@ -35,9 +35,7 @@ class Fuel_Cell(Energy_Component):
         self.discharge_model= zero_fidelity
         
     def energy_calc(self,conditions,numerics):
-        mdot=self.discharge_model(self, numerics)
+        mdot=self.discharge_model(self, conditions, numerics)
         return mdot  
-    
-        return
-    
+
     
