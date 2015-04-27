@@ -103,9 +103,10 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:
-                    except:
+            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
+        except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
-
     # ==============================================
     # Computing speeds (Vs, Vref)
     # ==============================================
