@@ -42,9 +42,11 @@ class Solar(Propulsor):
         self.tag               = 'Network'
     
     # manage process with a driver function
-    def evaluate(self,conditions,numerics):
+    def evaluate_thrust(self,state):
     
         # unpack
+        conditions  = state.conditions
+        numerics    = state.numerics
         solar_flux  = self.solar_flux
         solar_panel = self.solar_panel
         motor       = self.motor
@@ -146,4 +148,4 @@ class Solar(Propulsor):
         
         return F, mdot, P
             
-    __call__ = evaluate
+    __call__ = evaluate_thrust

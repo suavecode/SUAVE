@@ -128,10 +128,13 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     # ==============================================
     # Getting engine thrust
     # ==============================================
-    conditions = Data()
+    state                 = Data()
+    state.conditions      = Data()
+    state.numerics        = Data()
+    conditions            = state.conditions
+    numerics              = state.numerics
     conditions.freestream = Data()
     conditions.propulsion = Data()
-    numerics = Data()
 
     conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
@@ -140,7 +143,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
     conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
     conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
-    thrust, mdot, P = vehicle.propulsors.evaluate_thrust(conditions, numerics) # total thrust
+    thrust, mdot, P = vehicle.propulsors.evaluate_thrust(state) # total thrust
 
     # ==============================================
     # Calculate takeoff distance

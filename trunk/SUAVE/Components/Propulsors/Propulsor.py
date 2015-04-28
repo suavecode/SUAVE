@@ -58,8 +58,10 @@ class Container(Physical_Component.Container):
             example: find_instances(Propulsors.Turbojet) > return all Turbojets
     """
     
-    def evaluate_thrust(self,conditions,numerics):
+    def evaluate_thrust(self,state):
         
+        
+        conditions = state.conditions
         segment = Data()
         segment.q  = conditions.freestream.dynamic_pressure[:,0]
         segment.g0 = conditions.freestream.gravity[:,0]
@@ -77,7 +79,7 @@ class Container(Physical_Component.Container):
         P    = np.zeros_like(eta)
         
         for propulsor in self.values():
-            F, mdot, P = propulsor.evaluate_thrust(conditions, numerics) 
+            F, mdot, P = propulsor.evaluate_thrust(state) 
             
         return F, mdot, P
 

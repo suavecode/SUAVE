@@ -35,14 +35,15 @@ class Battery_Ducted_Fan(Data):
         self.tag         = 'Network'
     
     # manage process with a driver function
-    def evaluate_thrust(self,conditions,numerics):
+    def evaluate_thrust(self,state):
         
         # unpack
 
         propulsor   = self.propulsor
         battery     = self.battery
     
-        # Set battery energy
+        conditions = state.conditions
+        numerics   = state.numerics
   
         F, mdot, Pe =propulsor.evaluate_thrust(conditions,numerics)
        

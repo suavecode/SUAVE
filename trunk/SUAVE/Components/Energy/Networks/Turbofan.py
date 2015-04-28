@@ -47,10 +47,13 @@ class Turbofan(Propulsor):
         
     
     # linking the different network components
-    def evaluate_thrust(self,conditions,numerics):
+    def evaluate_thrust(self,state):
 
     
-        #Unpack components
+        #Unpack
+        
+        conditions = state.conditions
+        numerics   = state.numerics
         
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
@@ -209,9 +212,12 @@ class Turbofan(Propulsor):
     
     
     
-    def size(self,conditions,numerics):  
+    def size(self,state):  
         
         #Unpack components
+        
+        conditions = state.conditions
+        numerics   = state.numerics        
         
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle

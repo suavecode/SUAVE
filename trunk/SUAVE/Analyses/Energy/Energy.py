@@ -16,12 +16,10 @@ class Energy(Analysis):
     """
     def __defaults__(self):
         self.tag    = 'energy'
-        self.features = Data()
-        self.settings = Data()
         
+    def evaluate(self,state):
+        network    = self.network
+        F, mdot, P = network.evaluate_thrust(state) 
         
-    def evaluate(self,conditions, numerics):
-        network=self.network
-        F, mdot, P= network.evaluate_thrust(conditions, numerics) 
         return F, mdot, P
     
