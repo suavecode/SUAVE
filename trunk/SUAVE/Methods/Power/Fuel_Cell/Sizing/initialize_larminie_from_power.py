@@ -13,8 +13,6 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 
-def zero_fidelity(fuel_cell,conditions,numerics): #adds a battery that is optimized based on power and energy requirements and technology
-    power       = fuel_cell.inputs.power_in
-    mdot        = power/(fuel_cell.propellant.specific_energy*fuel_cell.efficiency)                      #mass flow rate of the fuel  
-  
-    return mdot
+def initialize_larminie_from_power(fuel_cell,power): #adds a fuel cell that is sized based on the specific power of the fuel cell
+    fuel_cell.mass_properties.mass=power/fuel_cell.specific_power
+    return

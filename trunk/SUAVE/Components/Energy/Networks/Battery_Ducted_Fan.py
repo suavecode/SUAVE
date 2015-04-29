@@ -81,9 +81,6 @@ class Battery_Ducted_Fan(Data):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        F_vec       = conditions.ones_row(3) * 0.0
-        F_vec[:,0]  = F[:,0]
-        F           = F_vec
         output_power= battery_draw
         #number_of_engines
         #Create the outputs

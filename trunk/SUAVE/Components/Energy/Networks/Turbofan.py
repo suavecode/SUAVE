@@ -196,6 +196,7 @@ class Turbofan(Propulsor):
 
         #compute the trust
         thrust(conditions)
+ 
         
         
         

@@ -228,7 +228,7 @@ def vehicle_setup():
     # attributes
  
     #ducted fan
-    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan_Bat()
+    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan()
     ducted_fan.tag='ducted_fan'
     #ducted_fan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
     ducted_fan.diffuser_pressure_ratio = 0.98
@@ -244,16 +244,14 @@ def vehicle_setup():
     #  Define the Energy Network
     # ------------------------------------------------------------------ 
     
-    net=SUAVE.Components.Energy.Networks.Basic_Battery()
+    net=SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
     net.propulsor=ducted_fan
-    net.nacelle_diameter=ducted_fan.nacelle_diameter
-    net.engine_length=ducted_fan.engine_length
     net.tag='network'
-    net.append(ducted_fan)
+    #net.append(ducted_fan)
     net.battery=battery
     net.number_of_engines=ducted_fan.number_of_engines
-    
-    vehicle.propulsors.append(net)
+    vehicle.network=net
+    vehicle.propulsors.append(ducted_fan)
     # done!!
     return vehicle
 

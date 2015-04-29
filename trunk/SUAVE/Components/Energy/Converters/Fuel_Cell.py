@@ -28,7 +28,7 @@ class Fuel_Cell(Energy_Component):
         self.propellant     = Gaseous_H2()
         self.oxidizer       = Air()
         self.efficiency     = .65                                 #normal fuel cell operating efficiency at sea level
-        self.specific_power = 2.08        *Units.kw/Units.kg      #specific power of fuel cell [kW/kg]; default is Nissan 2011 level
+        self.specific_power = 2.08        *Units.kW/Units.kg      #specific power of fuel cell [kW/kg]; default is Nissan 2011 level
         self.mass_density   = 1203.208556 *Units.kg/Units.m**3.   #take default as specs from Nissan 2011 fuel cell            
         self.volume         = 0.0
         self.max_power      = 0.0

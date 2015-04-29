@@ -71,13 +71,9 @@ class Container(Physical_Component.Container):
         segment.p  = conditions.freestream.pressure[:,0]
         
 
-        eta        = conditions.propulsion.throttle[:,0]
+        #eta        = conditions.propulsion.throttle[:,0]
 
-        
-        F    = np.zeros_like(eta)
-        mdot = np.zeros_like(eta)
-        P    = np.zeros_like(eta)
-        
+
         for propulsor in self.values():
             F, mdot, P = propulsor.evaluate_thrust(state) 
             

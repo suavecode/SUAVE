@@ -2,10 +2,29 @@
 import sys
 sys.path.append('../trunk')
 import SUAVE
+import numpy as np
+from SUAVE.Core import Units
+from SUAVE.Core import Data
 from SUAVE.Components.Energy.Converters.Fuel_Cell import Fuel_Cell
+from SUAVE.Methods.Power.Fuel_Cell.Sizing.initialize_from_power import initialize_from_power
+from SUAVE.Methods.Power.Chemistry import hydrogen
 import numpy as np
 
 def main():
+    fuel_cell=SUAVE.Components.Energy.Converters.Fuel_Cell()
+    max_power=10000.*Units.W
+    initialize_from_power(fuel_cell,max_power)
+    inputs=Data()
+    inputs.power_in=np.linspace(0, max_power, 30)
+    fuel_cell.inputs=inputs
+    conditions=Data() #not used in zero_fidelity, but may be used in higher fidelity evaluation
+    numerics=Data()
+    mdot=fuel_cell.energy_calc(conditions,numerics)
+    print fuel_cell
+    print mdot
+    
+    
+    '''
     N=3
     thermo=SUAVE.Core.Data()
     air=SUAVE.Attributes.Gases.Air()
@@ -47,5 +66,7 @@ def main():
     
     #now run fuel cell without specifying any thermodynamic properties
     [mdot_h2,mdot_products]=fuel_cell(power)
+    '''
+    return
 if __name__ == '__main__':
     main()

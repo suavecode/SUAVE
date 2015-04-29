@@ -1,5 +1,4 @@
 #by M. Vegh
-#note; this script uses the old SUAVE mission at the moment
 import SUAVE
 import numpy as np
 import scipy as sp
@@ -85,12 +84,14 @@ def main():
     
     #esp=2000 W-h/kg, range=2800 km
   
-    inputs=[ 1.1002930213 , 0.12714229163 , 1.19233385293 , 1.32797778959 , 1.6778039998 ,9.59897255167 , -0.293218719974 , -1.18759256603 , 0.00934404616381 , 0.99290647912 , 1.38679165481 , 0.592197896868 , 1.64675349776 , 1.77328152881 , 1.59240873243 , 4.67937473065 , 1.29663779453 , 1.79563659929 ]
-    
-    
+    inputs=[ 1.08530522454 , 0.00227279054645 , 1.42158414941 , 1.50217691987 , 1.88238390869 , 10.399999126 , -0.335686364566 , -1.48758101905 , 0.0126402136516 , 0.940446493577 , 1.38076763733 , 0.416976454205 , 1.79794690403 , 1.83414699932 , 1.50680658686 , 3.83559575271 , 1.48036528725 , 1.75514435472 ]
+
+
     #print mybounds
     #print inputs
-    out=sp.optimize.fmin(run, inputs, options={disp:'true'},disp=1)
+    global iteration_number
+    iteration_number=1
+    out=sp.optimize.fmin(run, inputs, disp=1)
     #out=run(inputs)
     
 
@@ -99,6 +100,9 @@ def main():
 #   Calls
 # ----------------------------------------------------------------------
 def run(inputs):                #sizing loop to enable optimization
+    global iteration_number
+    print 'iteration number=', iteration_number
+    iteration_number+=1
     time1=time.time()
         
     i=0 #counter for inputs
@@ -254,7 +258,6 @@ def run(inputs):                #sizing loop to enable optimization
     print 'Ereq=',Ereq_guess, 'Preq=', results.Pmax
     print 'takeoff field length=', results.field_length.takeoff,'landing field length=', results.field_length.landing
     time2=time.time()
-    iteration_number+=1
     print 't=', time2-time1, 'seconds'
  
     #print inputs of each iteration so they can be directly copied
@@ -854,8 +857,7 @@ def evaluate_mission(configs,mission):
             if np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])<e_current_min:
                 e_current_min=np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])
             if np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))>Pmax:
-                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))
-    print 'e_current_min=', e_current_min          
+                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))         
     results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
     results.Pmax=Pmax
     #print 'battery_energy=', results.segments[0].conditions.propulsion.battery_energy

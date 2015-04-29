@@ -56,13 +56,15 @@ def energy_network():
     
     
     # setup conditions
-    conditions = Data()
+    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    '''
     conditions.frames       = Data()
     conditions.freestream   = Data()
     conditions.aerodynamics = Data()
     conditions.propulsion   = Data()
     conditions.weights      = Data()
     conditions.energies     = Data()
+    '''
   #  self.conditions = conditions
     
 
@@ -103,13 +105,15 @@ def energy_network():
     
     
     # setup conditions
-    conditions_sizing = Data()
+    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    '''
     conditions_sizing.frames       = Data()
     conditions_sizing.freestream   = Data()
     conditions_sizing.aerodynamics = Data()
     conditions_sizing.propulsion   = Data()
     conditions_sizing.weights      = Data()
     conditions_sizing.energies     = Data()
+    '''
   #  self.conditions = conditions
     
 
@@ -342,7 +346,7 @@ def energy_network():
     turbofan_sizing(turbofan,conditions_sizing,numerics)
     
     
-    [F,mdot,Isp] = turbofan(conditions,numerics)
+    [F,mdot,output_power] = turbofan(conditions,numerics)
         
     #Test the model 
     
@@ -351,15 +355,14 @@ def energy_network():
     
     expected.thrust = 42383.01818423 
     expected.mdot =  0.77416551
-    expected.Isp = 9980753.25807261   
+    expected.output_power = 9980753.25807261   
     
     #error data function
     error =  Data()
     
-    error.thrust = (F -  expected.thrust)/expected.thrust
-    error.mdot =  (mdot-expected.mdot)/expected.mdot
-    error.Isp = (Isp-expected.Isp)/expected.Isp
-    
+    error.thrust = (F[0][0] -  expected.thrust)/expected.thrust
+    error.mdot =  (mdot[0][0]-expected.mdot)/expected.mdot
+    error.output_power = (output_power[0][0]-expected.output_power)/expected.output_power
     print error
     for k,v in error.items():
         assert(np.abs(v)<1e-4)    

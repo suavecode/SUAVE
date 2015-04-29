@@ -125,6 +125,7 @@ def unpack_inputs(interface):
     vehicle = interface.configs.base
     vehicle.pull_base()
     mission=interface.analyses.missions.base.segments
+    
     airport=interface.analyses.missions.base.airport
     cruise_altitude=inputs.cruise_altitude*Units.km
     atmo            = airport.atmosphere
@@ -196,9 +197,8 @@ def simple_sizing(interface, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    battery=base.propulsors.network['battery']
-    ducted_fan=base.propulsors.network['ducted_fan']
-    ducted_fan
+    battery=base.network['battery']
+    ducted_fan=base.propulsors['ducted_fan']
     #SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
     battery.mass_properties.mass  = Ereq/battery.specific_energy
     battery.max_energy=Ereq
@@ -248,14 +248,9 @@ def simple_sizing(interface, Ereq, Preq):
     
     ##############################################################################
     # ------------------------------------------------------------------
-    #   Define Configurations
+    #   Define Landing Configurations
     # ------------------------------------------------------------------
-    '''
-    takeoff_config=configs.takeoff
-    takeoff_config.pull_base()
-    takeoff_config.mass_properties.takeoff= m_full
-    takeoff_config.store_diff()
-    '''
+ 
     landing_config=configs.landing
     
     landing_config.wings['main_wing'].flaps.angle =  50. * Units.deg
@@ -289,9 +284,7 @@ def evaluate_mission(configs,mission):
     # ------------------------------------------------------------------    
     #   Run Mission
     # ------------------------------------------------------------------
-    
     results = mission.evaluate()
-    
     #determine energy characteristiscs
     e_current_min=1E20
     Pmax=0.
@@ -335,11 +328,11 @@ def evaluate_field_length(interface):
     
     # evaluate
     TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
-    LFL = estimate_landing_field_length(landing_config,airport)
+    LFL = estimate_landing_field_length(landing_config, analyses,airport)
     
     # pack
     field_length = SUAVE.Core.Data()
-    field_length.takeoff = TOFL[0][0][0]
+    field_length.takeoff = TOFL[0][0]
     field_length.landing = LFL[0][0]
 
     results.field_length = field_length
@@ -465,10 +458,10 @@ def sizing_loop(interface):
         Ereq_guess=Ereq[j]
         m_guess=mass[j]
         simple_sizing(interface, Ereq_guess, Preq_guess);
-        battery=configs.base.propulsors.network['battery']
-        configs.cruise.propulsors.network['battery']=battery #make it so all configs handle the exact same battery object
-        configs.takeoff.propulsors.network['battery']=battery
-        configs.landing.propulsors.network['battery']=battery
+        battery=configs.base.network['battery']
+        configs.cruise.network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.network['battery']=battery
+        configs.landing.network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
        
