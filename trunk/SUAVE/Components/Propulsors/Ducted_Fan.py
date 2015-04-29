@@ -339,7 +339,9 @@ class Ducted_Fan(Propulsor):
       #MAIN CODE
     
     #def __call__(self,eta,State):
-    def evaluate_thrust(self,conditions, numerics):
+    def evaluate_thrust(self,state):
+        conditions=state.conditions
+        numerics  =state.numerics
     #def engine_analysis_1d(Minf,Tinf,pinf,pid,pif,pifn,pilc,pihc,pib,pitn,Tt4,aalpha,mdhc): 
         Minf=conditions.freestream.mach_number
         Tinf=conditions.freestream.temperature

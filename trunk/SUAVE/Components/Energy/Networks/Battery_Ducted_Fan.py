@@ -45,7 +45,7 @@ class Battery_Ducted_Fan(Data):
         conditions = state.conditions
         numerics   = state.numerics
   
-        F, mdot, Pe =propulsor.evaluate_thrust(conditions,numerics)
+        F, mdot, Pe =propulsor.evaluate_thrust(state)
        
         try:
             initial_energy=conditions.propulsion.battery_energy
