@@ -1,15 +1,16 @@
 # estimate_landing_field_length.py
 #
 # Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified:
+# Modified: M. Vegh Apr. 2015
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-from SUAVE.Core            import Data
-from SUAVE.Core import Units
+#SUAVE Imports
+import SUAVE
+from   SUAVE.Core            import Data
+from   SUAVE.Core            import Units
 
 # package imports
 import numpy as np
@@ -64,24 +65,25 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    conditions0 = atmo.compute_values(0.)
-    conditions = atmo.compute_values(altitude)
-    p = conditions.pressure
-    T = conditions.temperature
-    rho = conditions.density
-    a = conditions.speed_of_sound
-    mu = conditions.dynamic_viscosity
-
-    p0 = conditions0.pressure
-    T0 = conditions0.temperature
-    rho0 = conditions0.density
-    a0 = conditions0.speed_of_sound
-    mu0 = conditions0.dynamic_viscosity
-    T_delta_ISA = T + delta_isa
-    sigma_disa = (p/p0) / (T_delta_ISA/T0)
-    rho = rho0 * sigma_disa
-    a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
-    mu = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
+    conditions0       = atmo.compute_values(0.)
+    atmo_values       = atmo.compute_values(altitude)
+    conditions        =SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    p                 = atmo_values.pressure
+    T                 = atmo_values.temperature
+    rho               = atmo_values.density
+    a                 = atmo_values.speed_of_sound
+    mu                = atmo_values.dynamic_viscosity
+                      
+    p0                = conditions0.pressure
+    T0                = conditions0.temperature
+    rho0              = conditions0.density
+    a0                = conditions0.speed_of_sound
+    mu0               = conditions0.dynamic_viscosity
+    T_delta_ISA       = T + delta_isa
+    sigma_disa        = (p/p0) / (T_delta_ISA/T0)
+    rho               = rho0 * sigma_disa
+    a_delta_ISA       = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
+    mu                = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
     sea_level_gravity = atmo.planet.sea_level_gravity
    
     # ==============================================
@@ -90,21 +92,20 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     
     try:   # aircraft maximum lift informed by user
         maximum_lift_coefficient = vehicle.maximum_lift_coefficient
-        
     except:
         # Using semi-empirical method for maximum lift coefficient calculation
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
-        # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        conditions  = atmo.compute_values(10000. * Units.ft)
+        
         conditions.freestream=Data()
-        conditions.freestream.density   = conditions.density
-        conditions.freestream.viscosity = conditions.dynamic_viscosity
+        conditions.freestream.density   = rho
+        conditions.freestream.viscosity = mu
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
             vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
+            
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
     # ==============================================

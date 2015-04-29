@@ -66,21 +66,24 @@ def setup_problem(interface):
     # setup variables, list style
     problem.variables = [
     #   [ 'tag'                     ,   x0,               (lb ,            ub    ) , scl      ],
-        [  'aspect_ratio'           , 11.999914278   , (5.        ,    12.    ) , 'bounds' ], 
-        [  'reference_area'         , 25.500000000 1 , (20.       ,    100.   ) , 'bounds' ],
-        [  'taper'                  , 0.289438709163 , (.1        ,    .3     ) ,'bounds' ],
-        [  'wing_thickness'         , 0.109852863522 , (0.07      ,    0.20   ) , 'bounds' ],
-        [  'cruise_range'           , 1044.712103625 , (1.        ,    50000. ) , 'bounds'],
-        [  'Vclimb1'                , 88.4487232104  , (50.       ,    140.   ) , 'bounds'],
-        [  'Vclimb2'                , 95.9905677968  , (50.       ,    140.   ) , 'bounds'],
-        [  'Vclimb3'                , 137.894689078  , (50.       ,    144    ) , 'bounds'],
-        [  'cruise_altitude'        , 11.872385473   , (4.        ,    12.    ) , 'bounds'],
-        [  'climb_alt_fraction_1'   , 0.411998980463 , (.1        ,    1.     ) , 'bounds'],
-        [  'climb_alt_fraction_2'   , 0.968193875956 , (.2        ,    1.     ) , 'bounds'],
-        [  'desc_alt_fraction_1'    , 0.111365084358 , (.1        ,    1.     ) , 'bounds'],
-               
+        [  'aspect_ratio'           ,  12.0          , (5.        ,    12.    ) , 'bounds' ], 
+        [  'reference_area'         ,  26.0           , (20.       ,    100.   ) , 'bounds' ],
+        [  'taper'                  ,  0.228661219618 , (.1        ,    .3     ) ,'bounds' ],
+        [  'wing_thickness'         ,  0.116067132274 , (0.07      ,    0.20   ) , 'bounds' ],
+        [  'cruise_range'           ,  1215.37670387  , (1.        ,    50000. ) , 'bounds'],
+        [  'Vclimb1'                ,  91.3649470863  , (50.       ,    140.   ) , 'bounds'],
+        [  'Vclimb2'                ,  82.9017201597  , (50.       ,    140.   ) , 'bounds'],
+        [  'Vclimb3'                ,  132.324003294  , (50.       ,    144    ) , 'bounds'],
+        [  'cruise_altitude'        ,  8.72339174668  , (4.        ,    12.    ) , 'bounds'],
+        [  'climb_alt_fraction_1'   ,  0.769157688064 , (.1        ,    1.     ) , 'bounds'],
+        [  'climb_alt_fraction_2'   ,  0.769157688299 , (.2        ,    1.     ) , 'bounds'],
+        [  'desc_alt_fraction_1'    ,  0.147859845677 , (.1        ,    1.     ) , 'bounds'],
     ]    
 
+    
+
+
+    
     '''
  aspect_ratio         : 11.999914278
  reference_area       : 20.0000000001

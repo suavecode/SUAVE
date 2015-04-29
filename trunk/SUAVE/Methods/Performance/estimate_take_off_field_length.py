@@ -8,8 +8,9 @@
 # ----------------------------------------------------------------------
 
 # SUave Imports
+import SUAVE
 from SUAVE.Core            import Data
-from SUAVE.Core import Units
+from SUAVE.Core            import Units
 
 # package imports
 import numpy as np
@@ -58,7 +59,6 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.takeoff
     reference_area  = vehicle.reference_area
-    print 'reference_area=', reference_area
     try:
         V2_VS_ratio = vehicle.V2_VS_ratio
     except:
@@ -67,25 +67,27 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    conditions0 = atmo.compute_values(0.)
-    conditions = atmo.compute_values(altitude)
-    p = conditions.pressure
-    T = conditions.temperature
-    rho = conditions.density
-    a = conditions.speed_of_sound
-    mu = conditions.dynamic_viscosity
+    conditions0       = atmo.compute_values(0.)
+    atmo_values       = atmo.compute_values(altitude)
+    conditions        =SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    
+    p   = atmo_values.pressure
+    T   = atmo_values.temperature
+    rho = atmo_values.density
+    a   = atmo_values.speed_of_sound
+    mu  =atmo_values.dynamic_viscosity
 
-    p0 = conditions0.pressure
-    T0 = conditions0.temperature
+    p0   = conditions0.pressure
+    T0   = conditions0.temperature
     rho0 = conditions0.density
-    a0 = conditions0.speed_of_sound
-    mu0 = conditions0.dynamic_viscosity
+    a0   = conditions0.speed_of_sound
+    mu0  = conditions0.dynamic_viscosity
 
-    T_delta_ISA = T + delta_isa
-    sigma_disa = (p/p0) / (T_delta_ISA/T0)
-    rho = rho0 * sigma_disa
-    a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
-    mu = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
+    T_delta_ISA       = T + delta_isa
+    sigma_disa        = (p/p0) / (T_delta_ISA/T0)
+    rho               = rho0 * sigma_disa
+    a_delta_ISA       = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
+    mu                = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
     sea_level_gravity = atmo.planet.sea_level_gravity
     
     # ==============================================
@@ -128,18 +130,18 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     # ==============================================
     # Getting engine thrust
     # ==============================================
-    conditions = Data()
+
     conditions.freestream = Data()
     conditions.propulsion = Data()
     numerics = Data()
 
-    conditions.freestream.dynamic_pressure = np.array([np.atleast_1d(0.5 * rho * speed_for_thrust**2)])
+    conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
-    conditions.freestream.velocity         = np.array([np.atleast_1d(speed_for_thrust)])
-    conditions.freestream.mach_number      = np.array([np.atleast_1d(speed_for_thrust/ a_delta_ISA)])
-    conditions.freestream.temperature      = np.array([np.atleast_1d(T_delta_ISA)])
-    conditions.freestream.pressure         = np.array([np.atleast_1d(p)])
-    conditions.propulsion.throttle         = np.array([np.atleast_1d(1.)])   
+    conditions.freestream.velocity         = np.array(np.atleast_1d(speed_for_thrust))
+    conditions.freestream.mach_number      = np.array(np.atleast_1d(speed_for_thrust/ a_delta_ISA))
+    conditions.freestream.temperature      = np.array(np.atleast_1d(T_delta_ISA))
+    conditions.freestream.pressure         = np.array(np.atleast_1d(p))
+    conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))   
     thrust, mdot, P = vehicle.propulsors.evaluate_thrust(conditions, numerics) # total thrust
 
     # ==============================================
@@ -175,14 +177,13 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
             print 'Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number)
 
     # Define takeoff index   (V2^2 / (T/W)
-    takeoff_index = V2_speed**2. / (thrust / weight)
+    takeoff_index = V2_speed**2. / (thrust[0][0] / weight)
     # Calculating takeoff field length
     takeoff_field_length = 0.
     for idx,constant in enumerate(takeoff_constants):
         takeoff_field_length += constant * takeoff_index**idx
         p
     takeoff_field_length = takeoff_field_length * Units.ft
-    
     # return
     return takeoff_field_length
 
@@ -284,8 +285,6 @@ if __name__ == '__main__':
         # ------------------------------------------------------------------
         #   Simple Propulsion Model
         # ------------------------------------------------------------------
-    
-        vehicle.propulsion_model = vehicle.propulsors
     
     
         # ------------------------------------------------------------------

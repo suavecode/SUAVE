@@ -1,5 +1,4 @@
 #by M. Vegh
-#note; this script uses the old SUAVE mission at the moment
 import SUAVE
 import numpy as np
 import scipy as sp

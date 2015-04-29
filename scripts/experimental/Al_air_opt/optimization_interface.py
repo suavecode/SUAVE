@@ -332,7 +332,7 @@ def evaluate_field_length(interface):
     
     # pack
     field_length = SUAVE.Core.Data()
-    field_length.takeoff = TOFL[0][0][0]
+    field_length.takeoff = TOFL[0][0]
     field_length.landing = LFL[0][0]
 
     results.field_length = field_length

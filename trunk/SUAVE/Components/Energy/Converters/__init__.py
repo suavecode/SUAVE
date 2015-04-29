@@ -5,6 +5,7 @@ from Compression_Nozzle import Compression_Nozzle
 from Compressor import Compressor
 from Expansion_Nozzle import Expansion_Nozzle
 from Fan import Fan
+from Fuel_Cell import Fuel_Cell
 from Motor import Motor
 from Motor_Lo_Fid import Motor_Lo_Fid
 from Propeller import Propeller

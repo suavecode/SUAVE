@@ -538,9 +538,12 @@ class Ducted_Fan(Propulsor):
  ###############################################################################################################################       
         mdot_df=Ao*rhoo*uo
         FD=Fsp*ao*mdot_df*no_eng*throttle
+        thrust=FD*[1,0,0]
         eta_motor=1
         P=uo*FD
-    
+        F_vec        = conditions.ones_row(3) * 0.0
+        F_vec[:,0]   = thrust[:,0]
+        F            =F_vec          
  
         CF = FD/(conditions.freestream.dynamic_pressure*self.A2)
         thermo=Data()
@@ -550,6 +553,4 @@ class Ducted_Fan(Propulsor):
         mdot = 0.
 
       
-   
-      
-        return FD,0.0,P    
+        return F,0.0,P    
