@@ -142,6 +142,10 @@ def energy_network():
     # propulsion conditions
     conditions_sizing.propulsion.throttle           =  ones_1col*1.0
 
+    state = Data()
+    state.numerics = Data()
+    state.conditions = conditions
+    
     
 
 
@@ -346,7 +350,7 @@ def energy_network():
     turbofan_sizing(turbofan,conditions_sizing,numerics)
     
     
-    [F,mdot,output_power] = turbofan(conditions,numerics)
+    [F,mdot,output_power] = turbofan(state)
         
     #Test the model 
     
