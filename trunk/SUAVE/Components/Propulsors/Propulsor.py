@@ -59,20 +59,6 @@ class Container(Physical_Component.Container):
     """
     
     def evaluate_thrust(self,state):
-        
-        
-        conditions = state.conditions
-        segment = Data()
-        segment.q  = conditions.freestream.dynamic_pressure[:,0]
-        segment.g0 = conditions.freestream.gravity[:,0]
-        segment.V  = conditions.freestream.velocity[:,0]
-        segment.M  = conditions.freestream.mach_number[:,0]
-        segment.T  = conditions.freestream.temperature[:,0]
-        segment.p  = conditions.freestream.pressure[:,0]
-        
-
-        #eta        = conditions.propulsion.throttle[:,0]
-
 
         for propulsor in self.values():
             F, mdot, P = propulsor.evaluate_thrust(state) 
