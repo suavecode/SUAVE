@@ -44,7 +44,7 @@ def update_thrust(segment,state):
     energy_model = segment.analyses.energy
 
     # evaluate
-    results   = energy_model(state)
+    results   = energy_model.evaluate_thrust(state)
 
     # pack conditions
     conditions = state.conditions
