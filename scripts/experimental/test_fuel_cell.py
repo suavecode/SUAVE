@@ -10,6 +10,9 @@ from SUAVE.Methods.Power.Fuel_Cell.Sizing.initialize_from_power import initializ
 from SUAVE.Methods.Power.Fuel_Cell.Sizing.initialize_larminie_from_power import initialize_larminie_from_power
 from SUAVE.Methods.Power.Fuel_Cell.Chemistry.hydrogen import hydrogen
 from SUAVE.Methods.Power.Fuel_Cell.Discharge.setup_larminie import setup_larminie
+from SUAVE.Methods.Power.Fuel_Cell.Discharge.find_voltage_larminie import find_voltage_larminie
+from SUAVE.Methods.Power.Fuel_Cell.Discharge.find_power_larminie import find_power_larminie
+import matplotlib.pyplot as plt
 import numpy as np
 
 def main():
@@ -31,6 +34,24 @@ def main():
     mdot_larminie=fuel_cell_larminie.energy_calc(conditions,numerics)
     print fuel_cell_larminie
     print mdot_larminie
+    current_density_vec=np.linspace(.1, 1000, 50)*(Units.mA/(Units.cm**2.))
+    i1= current_density_vec/(Units.mA/(Units.cm**2.))
+    vvec= find_voltage_larminie(fuel_cell_larminie,current_density_vec)
+    pvec=find_power_larminie(current_density_vec,fuel_cell_larminie)
+    
+    fig, ax1=plt.subplots()
+    title='Larminie Discharge Plot'
+    ax1.plot(i1,vvec, label='voltage')
+    ax1.set_xlabel('current density (mA/cm^2)')
+    ax1.set_ylabel('voltage (V)')
+    plt.title(title)    
+    
+    ax2 = ax1.twinx()
+    title2='Power Plot'
+    ax2.plot(current_density_vec/(Units.mA/(Units.cm**2.)),pvec, 'r', label='Power (W/cell)')
+    plt.xlabel('current density (mA/cm^2)')
+    ax2.set_ylabel('Power/cell(W)')
+    
     '''
     N=3
     thermo=SUAVE.Core.Data()
@@ -77,3 +98,4 @@ def main():
     return
 if __name__ == '__main__':
     main()
+    plt.show()

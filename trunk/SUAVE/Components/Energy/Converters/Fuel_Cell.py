@@ -24,7 +24,6 @@ from SUAVE.Methods.Power.Fuel_Cell.Discharge import zero_fidelity
 class Fuel_Cell(Energy_Component):
     
     def __defaults__(self):
-        self.area           = 0.0
         self.propellant     = Gaseous_H2()
         self.oxidizer       = Air()
         self.efficiency     = .65                                 #normal fuel cell operating efficiency at sea level

@@ -1,4 +1,4 @@
-""" Ducted_Fan_Motor.py: Ducted Fan 1D gasdynamic model powered by a motor """
+""" Ducted_Fan.py: Ducted Fan 1D gasdynamic model powered"""
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -8,9 +8,6 @@ import numpy #as np
 from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
 import Segments
-#from SUAVE.Components.Energy.Storages import Battery
-# from SUAVE.Methods.Power import RunFuelCell
-# from SUAVE.Components.Energy.Converters import Fuel_Cell
 
 # ----------------------------------------------------------------------
 #  Turbo_Fan
@@ -41,9 +38,9 @@ def Cp(T):
 class Ducted_Fan(Propulsor):
     def __defaults__(self):
         self.tag = 'ducted_fan'
-        self.thrust_sls = 0.0
-        self.sfc_TF     = 0.0
-        self.kwt0_eng   = 0.0
+        self.thrust_sls         = 0.0
+        self.sfc_TF             = 0.0
+        self.kwt0_eng           = 0.0
         self.type               = 0
         self.length             = 0.0
         self.cowl_length        = 0.0
@@ -54,11 +51,11 @@ class Ducted_Fan(Propulsor):
         self.upper_surf_shape_factor = 0.0
         self.lower_surf_shape_factor = 0.0
         self.dive_flap_ratio    = 0.0
-        self.tip      = Data()
-        self.inlet    = Data()
-        self.diverter = Data()
-        self.nozzle   = Data()
-        self.analysis_type= 'pass'
+        self.tip                = Data()
+        self.inlet              = Data()
+        self.diverter           = Data()
+        self.nozzle             = Data()
+        self.analysis_type      = 'pass'
       
         
         #--geometry pass like
