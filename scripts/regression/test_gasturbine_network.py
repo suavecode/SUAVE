@@ -350,7 +350,10 @@ def energy_network():
     turbofan_sizing(turbofan,conditions_sizing,numerics)
     
     
-    [F,mdot,output_power] = turbofan(state)
+    results = turbofan(state)
+    
+    F    = results.thrust_force_vector
+    mdot = results.vehicle_mass_rate
         
     #Test the model 
     
@@ -359,14 +362,12 @@ def energy_network():
     
     expected.thrust = 42383.01818423 
     expected.mdot =  0.77416551
-    expected.output_power = 9980753.25807261   
     
     #error data function
     error =  Data()
     
     error.thrust = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot =  (mdot[0][0]-expected.mdot)/expected.mdot
-    error.output_power = (output_power[0][0]-expected.output_power)/expected.output_power
     print error
     for k,v in error.items():
         assert(np.abs(v)<1e-4)    

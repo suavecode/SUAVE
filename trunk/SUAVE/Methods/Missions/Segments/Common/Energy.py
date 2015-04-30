@@ -44,13 +44,12 @@ def update_thrust(segment,state):
     energy_model = segment.analyses.energy
 
     # evaluate
-    F, mdot, P   = energy_model(state)
+    results   = energy_model(state)
 
     # pack conditions
     conditions = state.conditions
-    conditions.frames.body.thrust_force_vector[:,:] = F[:,:]
-    conditions.propulsion.fuel_mass_rate[:,0]       = mdot[:,0]
-    conditions.energies.propulsion_power[:,0]       = P[:,0]
+    conditions.frames.body.thrust_force_vector = results.thrust_force_vector
+    conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
     return
     

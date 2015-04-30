@@ -208,8 +208,13 @@ class Turbofan(Propulsor):
         output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = F[:,0]
-        F            =F_vec
-        return F,mdot, output_power
+        F            = F_vec
+
+        results = Data()
+        results.thrust_force_vector = F
+        results.vehicle_mass_rate   = mdot
+        
+        return results
     
     
     
