@@ -32,7 +32,8 @@ import scipy as sp
 #   The Function
 # ----------------------------------------------------------------------
 
-def parasite_drag_wing(conditions,configuration,wing):
+#def parasite_drag_wing(conditions,configuration,wing):
+def parasite_drag_wing(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_wing(conditions,configuration,wing)
         computes the parastite drag associated with a wing 
         
@@ -68,8 +69,10 @@ def parasite_drag_wing(conditions,configuration,wing):
     """
     
     # unpack inputs
-    C = configuration.wing_parasite_drag_form_factor
-    freestream = conditions.freestream
+    C = settings.wing_parasite_drag_form_factor
+    freestream = state.conditions.freestream
+    
+    wing =  geometry
     Sref = wing.areas.reference
     
     # wing
@@ -133,7 +136,7 @@ def parasite_drag_wing(conditions,configuration,wing):
         reynolds_factor           = k_reyn_l , 
         form_factor               = k_w    ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
+    state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
     
     # done!
     return wing_parasite_drag

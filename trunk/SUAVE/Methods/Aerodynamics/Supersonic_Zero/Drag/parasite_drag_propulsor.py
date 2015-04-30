@@ -34,8 +34,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 
-
-def parasite_drag_propulsor(conditions,configuration,propulsor):
+def parasite_drag_propulsor(state,settings,geometry):
+#def parasite_drag_propulsor(conditions,configuration,propulsor):
     """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
         computes the parasite drag associated with a propulsor 
         
@@ -48,6 +48,14 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         
     """
 
+
+
+    # unpack inputs
+    
+    conditions = state.conditions
+    configuration = settings
+    propulsor = geometry
+    
     # unpack inputs
     try:
         form_factor = configuration.propulsor_parasite_drag_form_factor
@@ -114,7 +122,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         reynolds_factor           = k_reyn  , 
         form_factor               = k_prop  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+    state.conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
     
     return propulsor_parasite_drag
 

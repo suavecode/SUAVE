@@ -42,7 +42,7 @@ def main():
     test_num = 11
     
     #specify the angle of attack
-    angle_of_attacks = np.linspace(-.174,.174,test_num) #* Units.deg
+    angle_of_attacks = np.linspace(-.174,.174,test_num)[:,None] #* Units.deg
     
     
     # Cruise conditions (except Mach number)
@@ -121,7 +121,7 @@ def main():
 
     print lift
         
-    #assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
     
     
     # --------------------------------------------------------------------
@@ -163,8 +163,8 @@ def main():
     print '\nCompute Drag Test Results\n'
     print drag_tests
     
-    #for i, tests in drag_tests.items():
-        #assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
+    for i, tests in drag_tests.items():
+        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
     
     #return conditions, configuration, geometry, test_num
       

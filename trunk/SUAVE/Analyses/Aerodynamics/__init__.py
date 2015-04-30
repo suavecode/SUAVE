@@ -8,6 +8,7 @@ from Markup           import Markup
 from Fidelity_Zero    import Fidelity_Zero
 from Linear_Lift      import Linear_Lift
 from Vortex_Lattice   import Vortex_Lattice
+from Supersonic_Zero  import Supersonic_Zero
 
 import Surrogates
 

@@ -145,7 +145,7 @@ def parasite_drag_wing(state,settings,geometry):
 
     
     # done!
-    return wing_parasite_drag_total
+    return wing_parasite_drag
 
 
 # ----------------------------------------------------------------------
