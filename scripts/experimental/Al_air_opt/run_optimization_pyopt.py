@@ -60,27 +60,33 @@ messages :
 # ----------------------------------------------------------------------
 
 def setup_problem(interface):
+    mywrap = lambda inputs:wrap(inputs,vehicle,mission)
+    problem = pyOpt.Optimization('short_range_transport',mywrap)
     target_range=1300*Units.nautical_miles
     # initialize the problem
+    #mywrap = lambda inputs:wrap(inputs,vehicle,mission)
     problem = vypy_opt.Problem()
     
     # setup variables, list style
-    problem.variables = [
-    #   [ 'tag'                     ,   x0,               (lb ,            ub    ) , scl      ],
-        [  'aspect_ratio'           ,  12.0             , (5.        ,    12.    ) , 'bounds' ], 
-        [  'reference_area'         ,  27.0000000001    , (20.       ,    100.   ) , 'bounds' ],
-        [  'taper'                  ,  0.192064084935   , (.1        ,    .3     ) ,'bounds' ],
-        [  'wing_thickness'         ,  0.0940891095763  , (0.07      ,    0.20   ) , 'bounds' ],
-        [  'cruise_range'           ,  1062.96627871    , (1.        ,    50000. ) , 'bounds'],
-        [  'Vclimb1'                ,  112.333027578    , (50.       ,    140.   ) , 'bounds'],
-        [  'Vclimb2'                ,  115.5508516339    , (50.       ,    140.   ) , 'bounds'],
-        [  'Vclimb3'                ,  116.990689576    , (50.       ,    144    ) , 'bounds'],
-        [  'cruise_altitude'        ,  9.98216984292    , (4.        ,    12.    ) , 'bounds'],
-        [  'climb_alt_fraction_1'   ,  0.734510828856   , (.1        ,    1.     ) , 'bounds'],
-        [  'climb_alt_fraction_2'   ,  0.837007282348   , (.2        ,    1.     ) , 'bounds'],
-        [  'desc_alt_fraction_1'    ,  0.364968738014   , (.1        ,    1.     ) , 'bounds'],
-    ]    
 
+  
+    #   [ 'tag'                     ,   x0,               (lb ,            ub    ) , scl      ],
+    problem.addVar('aspect_ratio'         ,'c'  , value= 12.0             , lower=5.        ,  upper=  12.  )
+    problem.addVar('reference_area'       ,'c'  , value= 27.0000000001    , lower=20.       ,  upper=  100. )
+    problem.addVar('taper'                ,'c'  , value= 0.192064084935   , lower=.1        ,  upper=  .3   )
+    problem.addVar('wing_thickness'       ,'c'  , value= 0.0940891095763  , lower=0.07      ,  upper=  0.20 )
+    problem.addVar('cruise_range'         ,'c'  , value= 1062.96627871    , lower=1.        ,  upper=  50000.)
+    problem.addVar('Vclimb1'              ,'c'  , value= 112.333027578    , lower=50.       ,  upper=  140. )
+    problem.addVar('Vclimb2'              ,'c'  , value= 115.5508516339    ,lower=(50.       , upper=   140.)
+    problem.addVar('Vclimb3'              ,'c'  , value= 116.990689576    , lower=50.       ,  upper=  144  )
+    problem.addVar('cruise_altitude'      ,'c'  , value= 9.98216984292    , lower=4.        ,  upper=  12.  )
+    problem.addVar('climb_alt_fraction_1' ,'c'  , value= 0.734510828856   , lower=.1        ,  upper=  1.   )
+    problem.addVar('climb_alt_fraction_2' ,'c'  , value= 0.837007282348   , lower=.2        ,  upper=  1.   )
+    problem.addVar('desc_alt_fraction_1'  ,'c'  , value= 0.364968738014   , lower=.1        ,  upper=  1.   )
+    
+    # setup objective. Most useless line of code, but its needs to be there...
+    problem.addObj('GLW')
+    problem.addConGroup('g',4,'i') 
     '''
 aspect_ratio         : 12.0
 reference_area       : 20.0000000001
@@ -120,6 +126,7 @@ GLW : 13547.1218784
 tofl : 415.137474455
 lfl : 1388.78947072
     '''
+    '''
     # remember avoids calling the function twice for same inputs
     evaluator=interface
     #evaluator = vypy_opt.Remember(interface)
@@ -138,9 +145,8 @@ lfl : 1388.78947072
         [ evaluator, ('landing_field_length'    , '<'  ,  1500.)          , 100.   ],  
         [ evaluator, ('climb_alt_constr'        , '<'  ,   0.  )          , .1     ],
         [ evaluator, ('total_range'             , '>'  ,   target_range  ), 1000.  ],
-       
     ]    
-  
+    '''
     # done!
     return problem
     

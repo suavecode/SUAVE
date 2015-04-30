@@ -7,7 +7,9 @@ from SUAVE.Core import Units
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Converters.Fuel_Cell import Fuel_Cell
 from SUAVE.Methods.Power.Fuel_Cell.Sizing.initialize_from_power import initialize_from_power
-from SUAVE.Methods.Power.Chemistry import hydrogen
+from SUAVE.Methods.Power.Fuel_Cell.Sizing.initialize_larminie_from_power import initialize_larminie_from_power
+from SUAVE.Methods.Power.Fuel_Cell.Chemistry.hydrogen import hydrogen
+from SUAVE.Methods.Power.Fuel_Cell.Discharge.setup_larminie import setup_larminie
 import numpy as np
 
 def main():
@@ -22,8 +24,13 @@ def main():
     mdot=fuel_cell.energy_calc(conditions,numerics)
     print fuel_cell
     print mdot
-    
-    
+    fuel_cell_larminie=SUAVE.Components.Energy.Converters.Fuel_Cell() #higher fidelity model\
+    setup_larminie(fuel_cell_larminie)
+    initialize_larminie_from_power(fuel_cell_larminie,max_power)
+    fuel_cell_larminie.inputs=inputs
+    mdot_larminie=fuel_cell_larminie.energy_calc(conditions,numerics)
+    print fuel_cell_larminie
+    print mdot_larminie
     '''
     N=3
     thermo=SUAVE.Core.Data()
