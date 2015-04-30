@@ -19,35 +19,6 @@ from SUAVE.Core import Units as Units
 
 def main():
     #use global variables for guess to make optimization faster
-    '''
-    global m_guess
-    global Ereq_guess
-    global Preq_guess
-    global iteration_number
-    global disp_results #set to 0 unless you want to display plots
-    #use these global variables so both optimizer aircraft have access to constraints
-    
-    global target_range #target overall range
-    
-    global wclimb1 #vertical velocity for climb segment 1
-    global wclimb2
-    global wclimb3
-    global wclimb4
-    global wclimb5
-    global wdesc1 #vertical velocity for descent segment 1
-    global wdesc2
-    global wdesc3
-    
-    global Vdesc1 #velocity magnitude of first descent segment
-    global Vdesc2
-    global Vdesc3
-    '''
-    #initial guess  
-
-    
-    
-
-
     #############
     #input guesses and indices
     i=0
@@ -782,9 +753,9 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
     segment.analyses.extend( analyses.cruise )
     
     # segment attributes
-    segment.altitude_end   =  desc_alt_1  * Units.km
+    segment.altitude_end    =  desc_alt_1  * Units.km
     segment.air_speed       = 230.        # m/s
-    segment.descent_rate         =2600.*(Units.ft/Units.minute)
+    segment.descent_rate    =2600.*(Units.ft/Units.minute)
     
     # add to mission
     mission.append_segment(segment)
@@ -802,9 +773,7 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
 
     # segment attributes
     segment.altitude_end   =  desc_alt_2 * Units.km # km
-    #segment.altitude   = [5., 0.0]
     segment.air_speed      = 200.     # m/s
-    #segment.rate       = 5.0         # m/s
     segment.descent_rate         =2300.*(Units.ft/Units.minute)
     # append to mission
     mission.append_segment(segment)
@@ -822,7 +791,6 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
 
     segment.altitude_end   =  0.  # km
     segment.air_speed       = 140.0      # m/s
-    #segment.rate       = 5.0         # m/s
     segment.descent_rate         =1500.*(Units.ft/Units.minute)
     # append to mission
     mission.append_segment(segment)
@@ -860,7 +828,6 @@ def evaluate_mission(configs,mission):
                 Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))         
     results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
     results.Pmax=Pmax
-    #print 'battery_energy=', results.segments[0].conditions.propulsion.battery_energy
     print 'e_current_min=',e_current_min
     print "e_total=", results.e_total
     print "Pmax=", Pmax
@@ -871,6 +838,7 @@ def evaluate_mission(configs,mission):
     #vehicle.mass_properties.m_full+=m_li_air
     '''
     return results
+
 #########################################################################################################################
 def evaluate_field_length(configs,analyses,mission,results):
     
@@ -937,7 +905,6 @@ def configs_setup(vehicle):
     config.wings['main_wing'].flaps.angle = 30. * Units.deg
     config.wings['main_wing'].slats.angle = 25. * Units.deg
     config.Vref_VS_ratio = 1.23
-    #config.mass_properties.landing = vehicle.mass_properties.landing
     configs.append(config)    
     
     # done!
@@ -1074,8 +1041,6 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 def post_process(mission,configs, results):
     battery=configs.base.propulsors.network['battery']
-    #battery = vehicle.energy.Storages['Battery']
-    #battery_lis = vehicle.Energy.Storages['Battery_Li_S']
     # ------------------------------------------------------------------    
     #   Thrust Angle
     # ------------------------------------------------------------------
