@@ -19,7 +19,7 @@ class Energy(Analysis):
         
     def evaluate(self,state):
         network    = self.network
-        F, mdot, P = network.evaluate_thrust(state) 
+        results = network.evaluate_thrust(state) 
         
-        return F, mdot, P
+        return results
     

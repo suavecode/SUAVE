@@ -119,19 +119,12 @@ def main():
     net.solar_logic       = logic
     
     # Setup the conditions to run the network
-    state = Data()
-    state.conditions           = Data()
-    state.numerics             = Data()
-    conditions                 = state.conditions
-    numerics                   = state.numerics
-    conditions.propulsion      = Data()
-    conditions.freestream      = Data()
-    conditions.frames          = Data()
-    conditions.frames.body     = Data()
-    conditions.frames.inertial = Data()
-    conditions.frames.planet   = Data()
-    numerics.time              = Data()
+    state            = Data()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state.numerics   = SUAVE.Analyses.Mission.Segments.Conditions.Numerics()
     
+    conditions = state.conditions
+    numerics   = state.numerics
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -142,8 +135,6 @@ def main():
     mu  = atmosphere_conditions.dynamic_viscosity[0,:]
     T   = atmosphere_conditions.temperature[0,:]
 
-
-    
     conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
     conditions.freestream.velocity            = np.array([[1.0],[1.0]])
     conditions.freestream.density             = np.array([rho,rho])
@@ -161,18 +152,17 @@ def main():
     conditions.freestream.temperature         = np.array([T, T])
     
     # Run the network and print the results
-    F, mdot, P = net(state)
+    results = net(state)
+    F       = results.thrust_force_vector
     
     # Truth results
     truth_F   = [[ 522.40448791],[ 522.40448791]]
-    truth_P   = [[ 13687.25140962],[ 13687.25140962]]
     truth_i   = [[ 314.90485916],[ 314.90485916]]
     truth_rpm = [[ 6581.17653732],[ 6581.17653732]]
     truth_bat = [[ 36000000.    ],[ 35984254.75704217]]
     
     error = Data()
-    error.Thrust = np.max(np.abs(F-truth_F))
-    error.Propeller_Power   = np.max(np.abs(P-truth_P))
+    error.Thrust = np.max(np.abs(F[:,0]-truth_F))
     error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
     error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))

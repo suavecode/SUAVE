@@ -144,7 +144,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
     conditions.freestream.temperature      = np.array(np.atleast_1d(T_delta_ISA))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
     conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))
-    thrust, mdot, P = vehicle.propulsors.evaluate_thrust(state) # total thrust
+    results = vehicle.propulsors.evaluate_thrust(state) # total thrust
+    
+    thrust = results.thrust_force_vector
 
     # ==============================================
     # Calculate takeoff distance
