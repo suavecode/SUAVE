@@ -1100,8 +1100,7 @@ def post_process(mission,configs, results):
     axes = plt.gca()    
     for i in range(len(results.segments)):     
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        print results.segments[i].conditions
-        mdot = results.segments[i].conditions.vehicle_mass_rate[:,0]
+        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, -mdot, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Mass Accumulation Rate(kg/s)')
