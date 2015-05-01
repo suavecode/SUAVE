@@ -250,7 +250,7 @@ def vehicle_setup():
     #net.append(ducted_fan)
     net.battery=battery
     net.number_of_engines=ducted_fan.number_of_engines
-    vehicle.network=net
+    vehicle.energy_network=net
     vehicle.propulsors.append(ducted_fan)
     # done!!
     return vehicle

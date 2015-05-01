@@ -196,7 +196,7 @@ def simple_sizing(interface, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    battery=base.network['battery']
+    battery=base.energy_network['battery']
     ducted_fan=base.propulsors['ducted_fan']
     #SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
     battery.mass_properties.mass  = Ereq/battery.specific_energy
@@ -457,10 +457,10 @@ def sizing_loop(interface):
         Ereq_guess=Ereq[j]
         m_guess=mass[j]
         simple_sizing(interface, Ereq_guess, Preq_guess);
-        battery=configs.base.network['battery']
-        configs.cruise.network['battery']=battery #make it so all configs handle the exact same battery object
-        configs.takeoff.network['battery']=battery
-        configs.landing.network['battery']=battery
+        battery=configs.base.energy_network['battery']
+        configs.cruise.energy_network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.energy_network['battery']=battery
+        configs.landing.energy_network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
        

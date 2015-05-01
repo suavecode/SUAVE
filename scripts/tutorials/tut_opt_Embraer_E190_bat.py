@@ -108,7 +108,7 @@ def run(inputs):                #sizing loop to enable optimization
     if disp_results==0:
         max_iter=20
     else:
-        max_iter=5
+        max_iter=1
     j=0
     P_mot=inputs[1]
     Preq=P_mot*10**7 
@@ -1148,6 +1148,7 @@ def post_process(mission,configs, results):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         axes = fig.add_subplot(2,1,1)
         axes.plot(time, segment.conditions.propulsion.battery_energy/battery.max_energy,'bo-')
+        print 'battery_energy=', segment.conditions.propulsion.battery_energy
         #print 'E=',segment.conditions.propulsion.battery_energy
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('State of Charge of the Battery')

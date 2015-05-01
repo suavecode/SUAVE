@@ -82,6 +82,7 @@ class Battery_Ducted_Fan(Propulsor):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
+        
         output_power= battery_draw
         #number_of_engines
         #Create the outputs
