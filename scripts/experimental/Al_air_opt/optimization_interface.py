@@ -30,8 +30,7 @@ def main():
     
     # quick test
     inputs = Data()
-    inputs.projected_span  = 36.
-    inputs.fuselage_length = 58.
+    
     
     # evalute!
     results = interface.evaluate(inputs)
