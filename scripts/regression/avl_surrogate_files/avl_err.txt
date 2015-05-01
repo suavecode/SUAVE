@@ -1,3 +1,0 @@
-Log File of System stderr from AVL Run 
-Mon Apr 20 11:05:01 2015
-

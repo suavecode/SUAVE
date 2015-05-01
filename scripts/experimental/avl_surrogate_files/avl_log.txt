@@ -1,3 +1,0 @@
-Log File of System stdout from AVL Run 
-Wed Apr 15 09:39:02 2015
-
