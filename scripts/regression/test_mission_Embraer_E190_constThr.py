@@ -817,7 +817,7 @@ def plot_mission(results,line_style='bo-'):
     axes = plt.gca()
     for i in range(len(results.segments)):
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, mdot, line_style)
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Fuel Burn Rate (kg/s)')
