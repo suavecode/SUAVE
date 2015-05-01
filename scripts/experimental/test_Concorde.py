@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Attributes.Aerodynamics import Conditions
 
 import numpy as np
@@ -77,7 +77,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.sref      = 358.25         #
     wing.ar        = 1.83           #
@@ -88,7 +88,7 @@ def define_vehicle():
     wing.taper     = 0              # Estimated based on drawing
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 14.02                 #
     wing.S_exposed   = 0.8*wing.area_wetted  #
@@ -126,7 +126,7 @@ def define_vehicle():
     wing.highmach  = True
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   # Estimate
     wing.S_exposed  = 1.0*wing.area_wetted  #
@@ -147,7 +147,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 0    # Actually ~120, using 0 for length simplicity
     fuselage.seats_abreast   = 4    #
@@ -160,7 +160,7 @@ def define_vehicle():
     fuselage.height          = 3.30 #
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -251,7 +251,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     # initial mass
@@ -267,7 +267,7 @@ def define_mission(vehicle):
     #   Sixth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 6"
     
     # connect vehicle configuration
@@ -289,7 +289,7 @@ def define_mission(vehicle):
     #   Seventh Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 7"
     
     # connect vehicle configuration
@@ -310,7 +310,7 @@ def define_mission(vehicle):
     #   Eighth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Linear_Mach_Constant_Rate()
     segment.tag = "Climb - 8"
     
     # connect vehicle configuration
@@ -332,7 +332,7 @@ def define_mission(vehicle):
     #   Eighth Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Linear_Mach_Constant_Rate()
     segment.tag = "Climb - 9"
     
     # connect vehicle configuration
@@ -354,7 +354,7 @@ def define_mission(vehicle):
     #   Cruise-Climb Segment 1: constant speed, constant throttle
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Mach_Constant_Rate()
     segment.tag = "Cruise-Climb"
     
     # connect vehicle configuration
@@ -375,7 +375,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Mach_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -395,7 +395,7 @@ def define_mission(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Linear_Mach_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -418,7 +418,7 @@ def define_mission(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Linear_Mach_Constant_Rate()
     segment.tag = "Descent - 2"
     
     # connect vehicle configuration
@@ -441,7 +441,7 @@ def define_mission(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 5"
 
     # connect vehicle configuration

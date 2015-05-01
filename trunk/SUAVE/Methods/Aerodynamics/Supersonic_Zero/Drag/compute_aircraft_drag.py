@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      parasite_drag_aircraft, induced_drag_aircraft, compressibility_drag_total, \

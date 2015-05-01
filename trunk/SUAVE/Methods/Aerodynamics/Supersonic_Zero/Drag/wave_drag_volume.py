@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 

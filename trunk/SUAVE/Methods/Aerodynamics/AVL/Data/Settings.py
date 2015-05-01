@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from Cases import Run_Case
 
 # ------------------------------------------------------------
@@ -35,8 +35,9 @@ class Settings(Data):
 		self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
 		self.filenames.features        = 'aircraft.avl'
 		self.filenames.batch_template  = 'batch_{0:03d}.run'
-		self.filenames.input_deck      = 'avl_commands.deck'
-		self.filenames.output_template = 'results_case_{0:03d}-{1:03d}.txt'
+		self.filenames.deck_template   = 'commands_{0:03d}.deck'
+		self.filenames.output_template = 'results_{}.txt'
+		self.filenames.case_template   = 'case_{0:03d}_{1:02d}'
 		self.filenames.log_filename    = 'avl_log.txt'
 		self.filenames.err_filename    = 'avl_err.txt'
 		

@@ -9,7 +9,7 @@
 
 # SUAVE imports
 import SUAVE
-from SUAVE.Attributes.Units import Units
+from SUAVE.Core import Units
 
 # other imports
 import time
@@ -114,10 +114,10 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             print('   EVALUATING POINT : ' + str(i+1))
 
         # Define takeoff weight
-        mission.segments[0].config.mass_properties.takeoff = TOW[i]
+        mission.segments[0].analyses.weights.vehicle.mass_properties.takeoff = TOW[i]
 
         # Evaluate mission with current TOW
-        results = SUAVE.Methods.Performance.evaluate_mission(mission)
+        results = mission.evaluate()
         segment = results.segments[segmentNum]
 
         # Distance convergency in order to have total fuel equal to target fuel
@@ -141,7 +141,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             missingFuel = FUEL[i] - TotalFuel
 
             # Current distance and fuel consuption in the cruise segment
-            CruiseDist = segment.distance                # Distance [m]
+            CruiseDist = np.diff( segment.conditions.frames.inertial.position_vector[[0,-1],0] )[0]        # Distance [m]
             CruiseFuel = segment.conditions.weights.total_mass[0,0] - segment.conditions.weights.total_mass[-1,0]    # [kg]
             # Current specific range (m/kg)
             CruiseSR    = CruiseDist / CruiseFuel        # [m/kg]
@@ -151,7 +151,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
-            results = SUAVE.Methods.Performance.evaluate_mission(mission)
+            results = mission.evaluate()
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel

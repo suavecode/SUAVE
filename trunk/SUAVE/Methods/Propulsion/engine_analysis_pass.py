@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes import Constants
 # import SUAVE
 

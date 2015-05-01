@@ -15,10 +15,10 @@ import numpy as np
 import scipy as sp
 import datetime
 import time
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -36,15 +36,17 @@ class Solar(Propulsor):
         self.payload           = None
         self.solar_logic       = None
         self.battery           = None
-        self.nacelle_diameter  = 0.0
-        self.engine_length     = 1.0
-        self.number_of_engines = 1.0
+        self.nacelle_diameter  = None
+        self.engine_length     = None
+        self.number_of_engines = None
         self.tag               = 'Network'
     
     # manage process with a driver function
-    def evaluate(self,conditions,numerics):
+    def evaluate_thrust(self,state):
     
         # unpack
+        conditions  = state.conditions
+        numerics    = state.numerics
         solar_flux  = self.solar_flux
         solar_panel = self.solar_panel
         motor       = self.motor
@@ -140,10 +142,13 @@ class Solar(Propulsor):
         conditions.propulsion.battery_energy = battery_energy
         
         #Create the outputs
-        F    = self.number_motors * F
+        F    = self.number_motors * F * [1,0,0]      
         mdot = np.zeros_like(F)
-        P    = self.number_motors * P
+
+        results = Data()
+        results.thrust_force_vector = F
+        results.vehicle_mass_rate   = mdot
         
-        return F, mdot, P
+        return results
             
-    __call__ = evaluate
+    __call__ = evaluate_thrust

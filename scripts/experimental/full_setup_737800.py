@@ -2,6 +2,7 @@
 #
 # Created:  SUave Team    , Aug 2014
 # Modified: Tim MacDonald , Sep 2014
+# Modified: Tim Momose    , Feb 2015 (for avl control surface testing)
 
 """ setup file for a mission with a Boeing 737-800 single aisle
 """
@@ -12,14 +13,14 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 import numpy as np
 import pylab as plt
 
 import copy, time
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -68,7 +69,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.areas.reference = 125.0      #
     wing.aspect_ratio    = 9.45       #
@@ -102,7 +103,7 @@ def vehicle_setup():
 
     # Set up the control surfaces
     from SUAVE.Components.Wings.Control_Surface import Control_Surface
-    from SUAVE.Geometry.Two_Dimensional.Planform.populate_control_sections import populate_control_sections as populate
+    from SUAVE.Methods.Geometry.Two_Dimensional.Planform.populate_control_sections import populate_control_sections as populate
     aileron = Control_Surface()
     aileron.tag = 'aileron'
     aileron.deflection_symmetry = -1
@@ -120,7 +121,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference = 32.78     #
     wing.aspect_ratio    = 6.16      #
@@ -158,7 +159,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
 
     wing.areas.reference = 26.44     #
     wing.aspect_ratio    = 1.91      #
@@ -196,7 +197,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats = 160
     fuselage.seats_abreast = 6
@@ -231,7 +232,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
 
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
 
@@ -271,57 +272,57 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(turbofan)
 
-    # ------------------------------------------------------------------
-    #   Simple Aerodynamics Model
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Simple Aerodynamics Model
+    ## ------------------------------------------------------------------
 
-    aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
-    aerodynamics.initialize(vehicle)
+    #aerodynamics = SUAVE.Attributes.Aerodynamics.Fidelity_Zero()
+    #aerodynamics.initialize(vehicle)
 
-    # build stability model
-    stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
-    stability.initialize(vehicle)
-    aerodynamics.stability = stability
-    vehicle.aerodynamics_model = aerodynamics
+    ## build stability model
+    #stability = SUAVE.Attributes.Flight_Dynamics.Fidelity_Zero()
+    #stability.initialize(vehicle)
+    #aerodynamics.stability = stability
+    #vehicle.aerodynamics_model = aerodynamics
 
-    # ------------------------------------------------------------------
-    #   Simple Propulsion Model
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Simple Propulsion Model
+    ## ------------------------------------------------------------------
 
-    vehicle.propulsion_model = vehicle.propulsors
+    #vehicle.propulsion_model = vehicle.propulsors
 
-    # ------------------------------------------------------------------
-    #   Define Configurations
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Define Configurations
+    ## ------------------------------------------------------------------
 
-    # --- Takeoff Configuration ---
-    config = vehicle.new_configuration("takeoff")
-    # this configuration is derived from the baseline vehicle
+    ## --- Takeoff Configuration ---
+    #config = vehicle.new_configuration("takeoff")
+    ## this configuration is derived from the baseline vehicle
 
-    # --- Cruise Configuration ---
-    config = vehicle.new_configuration("cruise")
-    # this configuration is derived from vehicle.configs.takeoff
+    ## --- Cruise Configuration ---
+    #config = vehicle.new_configuration("cruise")
+    ## this configuration is derived from vehicle.configs.takeoff
 
-    # --- Takeoff Configuration ---
-    takeoff_config = vehicle.configs.takeoff
-    takeoff_config.wings['Main Wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
-    # V2_V2_ratio may be informed by user. If not, use default value (1.2)
-    takeoff_config.V2_VS_ratio = 1.21
-    # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
-    takeoff_config.maximum_lift_coefficient = 2.
-    #takeoff_config.max_lift_coefficient_factor = 1.0
+    ## --- Takeoff Configuration ---
+    #takeoff_config = vehicle.configs.takeoff
+    #takeoff_config.wings['Main Wing'].flaps_angle =  20. * Units.deg
+    #takeoff_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    ## V2_V2_ratio may be informed by user. If not, use default value (1.2)
+    #takeoff_config.V2_VS_ratio = 1.21
+    ## CLmax for a given configuration may be informed by user. If not, is calculated using correlations
+    #takeoff_config.maximum_lift_coefficient = 2.
+    ##takeoff_config.max_lift_coefficient_factor = 1.0
 
-    # --- Landing Configuration ---
-    landing_config = vehicle.new_configuration("landing")
-    landing_config.wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
-    # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
-    landing_config.Vref_VS_ratio = 1.23
-    # CLmax for a given configuration may be informed by user
-    landing_config.maximum_lift_coefficient = 2.
-    #landing_config.max_lift_coefficient_factor = 1.0
-    landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
+    ## --- Landing Configuration ---
+    #landing_config = vehicle.new_configuration("landing")
+    #landing_config.wings['Main Wing'].flaps_angle =  30. * Units.deg
+    #landing_config.wings['Main Wing'].slats_angle  = 25. * Units.deg
+    ## Vref_V2_ratio may be informed by user. If not, use default value (1.23)
+    #landing_config.Vref_VS_ratio = 1.23
+    ## CLmax for a given configuration may be informed by user
+    #landing_config.maximum_lift_coefficient = 2.
+    ##landing_config.max_lift_coefficient_factor = 1.0
+    #landing_config.mass_properties.landing = 0.85 * vehicle.mass_properties.takeoff
 
 
     # ------------------------------------------------------------------

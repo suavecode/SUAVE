@@ -7,9 +7,9 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -38,20 +38,18 @@ def main():
     prop_attributes                     = propeller_design(prop_attributes)    
 
     # Find the operating conditions
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(prop_attributes.design_altitude)
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere_conditions =  atmosphere.compute_values(prop_attributes.design_altitude)
     
     V = prop_attributes.freestream_velocity
     
     conditions = Data()
     conditions.freestream = Data()
     conditions.propulsion = Data()
-    conditions.freestream.density        = np.array([rho])
-    conditions.freestream.viscosity      = np.array([mu])
-    conditions.freestream.velocity       = np.array([[V]])
-    conditions.freestream.speed_of_sound = np.array([a])
-    conditions.freestream.temperature    = np.array([T])
-    conditions.propulsion.throttle       = np.array([[1.0]])
+    conditions.freestream.update(atmosphere_conditions)
+    conditions.freestream.dynamic_viscosity = atmosphere_conditions.dynamic_viscosity
+    conditions.freestream.velocity = np.array([[V]])
+    conditions.propulsion.throttle = np.array([[1.0]])
     
     # Create and attach this propeller
     prop                 = SUAVE.Components.Energy.Converters.Propeller()
@@ -72,6 +70,7 @@ def main():
     error.Torque  = np.max(np.abs(Q-Q_truth))
     error.Cp      = np.max(np.abs(Cplast-Cplast_truth))   
     
+    print 'Errors:'
     print  error
     
     for k,v in error.items():

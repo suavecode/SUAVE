@@ -6,7 +6,7 @@ import numpy as np
 import copy, time
 from collections import OrderedDict as odict
 
-from SUAVE.Geometry.Three_Dimensional import angle_to_dcm
+from SUAVE.Methods.Geometry.Three_Dimensional import angle_to_dcm
 
 # MAIN
 def main():
@@ -65,7 +65,7 @@ def import_B737_H2():
     cad_component(components,'Wing_1',SW_Model,True)
     cad_component(components,'Wing_2',SW_Model,True)
     cad_component(components,'Tails',SW_Model,True)
-    cad_component(components,'Fuselage',SW_Model)
+    cad_component(components,'fuselage',SW_Model)
     
     
     
@@ -129,7 +129,7 @@ def import_vsp():
     
     cad_wing(Vehicle.Wings['Wing'],SW_Model)
     cad_wing(Vehicle.Wings['Tails'],SW_Model)
-    cad_fuselage(Vehicle.Fuselages['Fuselage'],SW_Model)
+    cad_fuselage(Vehicle.Fuselages['fuselage'],SW_Model)
     #cad_wing(Vehicle.Wings['Wing_Body'],SW_Model)
     #cad_wing(Vehicle.Wings['Vertical_Tails'],SW_Model)
     

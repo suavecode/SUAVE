@@ -30,7 +30,7 @@ def create_vehicle():
     myAV.AddComponent('PASS', pass_params)
 
     # Fuselage 
-    fuselage = SUAVE.Attributes.Components.Fuselage(tag = 'Fuselage')
+    fuselage = SUAVE.Attributes.Components.Fuselage(tag = 'fuselage')
 
     fuselage.seats = 160                                                #PASS name: "#coachseats"
     fuselage.seat_layout_lower = 33                                     #PASS name: "seatlayout1"
@@ -50,10 +50,10 @@ def create_vehicle():
     fuselage.aft_space = SUAVE.Units.ConvertLength(0.0,'ft','m')        #PASS name: "aftspace" ft ---> m
     fuselage.num_crew = 2                                               #PASS name: "#crew"
     fuselage.num_attendants = 5                                         #PASS name: "#attendants"
-    B737.AddComponent('Fuselage', fuselage)
+    B737.AddComponent('fuselage', fuselage)
     
     # Main wing
-    mainWing = SUAVE.Attributes.Components.Wing(tag = 'Main Wing')
+    mainWing = SUAVE.Attributes.Components.Wing(tag = 'main_wing')
     s = SUAVE.Attributes.Components.Segment()
     a = SUAVE.Attributes.Components.XSection.Airfoil()
 
@@ -188,7 +188,7 @@ def create_vehicle():
     
     vehicle = SUAVE.Vehicle()
     
-    myAV.AddComponent('Fuselage', fuselage)
+    myAV.AddComponent('fuselage', fuselage)
     
     myAV.AddComponent('Wing', mainWing)
     myAV.AddComponent('Wing', horzTail)

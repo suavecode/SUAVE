@@ -10,8 +10,8 @@ import sys
 sys.path.append('../trunk')
 
 import SUAVE
-from SUAVE.Attributes import Units
-from SUAVE.Structure  import Data
+from SUAVE.Core import Units
+from SUAVE.Core  import Data
 
 import numpy as np
 import pylab as plt
@@ -21,7 +21,7 @@ matplotlib.interactive(True)
 
 import copy
 
-from SUAVE.Attributes.Missions.Segments.Ground import Ground_Segment, Taxi, Takeoff, Landing
+from SUAVE.Analyses.Mission.Segments.Ground import Ground_Segment, Taxi, Takeoff, Landing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -78,7 +78,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.sref      = vehicle.S     #
     wing.ar        = 8.3           #
@@ -89,7 +89,7 @@ def define_vehicle():
     wing.taper     = 0.28          #
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 12.0                  #
     wing.S_exposed   = 0.8*wing.area_wetted  # might not be needed as input
@@ -112,7 +112,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.sref      = 26.         #
     wing.ar        = 5.5         #
@@ -123,7 +123,7 @@ def define_vehicle():
     wing.taper     = 0.11           #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -153,7 +153,7 @@ def define_vehicle():
     wing.taper     = 0.10          #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 11.0                  #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -172,7 +172,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 114  #
     fuselage.seat_pitch      = 0.7455    # m
@@ -185,7 +185,7 @@ def define_vehicle():
     fuselage.height          = 3.4  #
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -196,7 +196,7 @@ def define_vehicle():
     # ------------------------------------------------------------------    
     
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
     
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
@@ -274,7 +274,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'EMBRAER_E190AR test mission'
 
     # atmospheric model
@@ -324,7 +324,7 @@ def define_mission(vehicle):
     #   First Climb Segment: Constant Speed, Constant Climb Rate
     # ------------------------------------------------------------------
     
-    segment =  SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment =  SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb to 35'"
     
     # connect vehicle configuration

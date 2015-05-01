@@ -72,7 +72,7 @@ class Bunch(Dict):
     
     def viewvalues(self):
         return self.__dict__.viewvalues()
-
+    
     @classmethod
     def fromkeys(cls, iterable, value=None):
         d = cls()
@@ -80,8 +80,19 @@ class Bunch(Dict):
             d[key] = value
         return d
     
+    def to_dict(self):
+        r = {}
+        for k,v in self.items():
+            if isinstance(v,Bunch):
+                v = v.to_dict()
+            r[k] = v
+        return r
+    
     def __cmp__(self,other):
-        return self.__dict__.__cmp__(other)
+        try:
+            return self.__dict__.__cmp__(other)
+        except TypeError:
+            return False
     
     def __contains__(self,k):
         return self.__dict__.__contains__(k)

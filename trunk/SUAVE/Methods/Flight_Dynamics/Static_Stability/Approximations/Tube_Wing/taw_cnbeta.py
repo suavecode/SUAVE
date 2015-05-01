@@ -17,8 +17,8 @@ import copy
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
-from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import Units
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -101,7 +101,7 @@ def taw_cnbeta(geometry,conditions,configuration):
                 v_inf - true airspeed [meters/second]
                 M - flight Mach number
                 rho - air density [kg/meters**3]
-                mew - air dynamic viscosity [kg/meter/second]
+                mew - air dynamic dynamic_viscosity [kg/meter/second]
                 
             configuration - a data dictionary with the fields:
                 mass_properties - a data dictionary with the field:
@@ -134,27 +134,27 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_other = []
 
     # Unpack inputs
-    S      = geometry.wings['Main Wing'].areas.reference
-    b      = geometry.wings['Main Wing'].spans.projected
-    sweep  = geometry.wings['Main Wing'].sweep
-    AR     = geometry.wings['Main Wing'].aspect_ratio
-    z_w    = geometry.wings['Main Wing'].origin[2]
-    S_bs   = geometry.fuselages.Fuselage.areas.side_projected
-    l_f    = geometry.fuselages.Fuselage.lengths.total
-    h_max  = geometry.fuselages.Fuselage.heights.maximum
-    w_max  = geometry.fuselages.Fuselage.width
-    h1     = geometry.fuselages.Fuselage.heights.at_quarter_length
-    h2     = geometry.fuselages.Fuselage.heights.at_three_quarters_length
-    d_i    = geometry.fuselages.Fuselage.heights.at_vertical_root_quarter_chord
+    S      = geometry.wings['main_wing'].areas.reference
+    b      = geometry.wings['main_wing'].spans.projected
+    sweep  = geometry.wings['main_wing'].sweep
+    AR     = geometry.wings['main_wing'].aspect_ratio
+    z_w    = geometry.wings['main_wing'].origin[2]
+    S_bs   = geometry.fuselages['fuselage'].areas.side_projected
+    l_f    = geometry.fuselages['fuselage'].lengths.total
+    h_max  = geometry.fuselages['fuselage'].heights.maximum
+    w_max  = geometry.fuselages['fuselage'].width
+    h1     = geometry.fuselages['fuselage'].heights.at_quarter_length
+    h2     = geometry.fuselages['fuselage'].heights.at_three_quarters_length
+    d_i    = geometry.fuselages['fuselage'].heights.at_wing_root_quarter_chord
     other  = configuration.other
-    vert   = extend_to_ref_area(geometry.wings['Vertical Stabilizer'])
+    vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
     S_v    = vert.areas.reference
     x_v    = vert.origin[0]
     b_v    = vert.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
-    mu     = conditions.freestream.viscosity
+    mu     = conditions.freestream.dynamic_viscosity
     rho    = conditions.freestream.density
     M      = conditions.freestream.mach_number
     
@@ -222,7 +222,7 @@ def taw_cnbeta(geometry,conditions,configuration):
         k_v = 0.76 + 0.24*(bf-2.0)/1.5
     else:
         k_v = 1.0
-    quarter_chord_sweep = convert_sweep(geometry.wings['Main Wing'])
+    quarter_chord_sweep = convert_sweep(geometry.wings['main_wing'])
     k_sweep  = (1.0+np.cos(quarter_chord_sweep))
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
     Cy_bv    = -k_v*CLa_v*dsdb_e*(S_v/S)  #ASSUMING SINGLE VERTICAL TAIL
@@ -572,7 +572,7 @@ if __name__ == '__main__':
     altitude           = 0.0 * Units.feet
     p, T, rho, a, mew = segment.atmosphere.compute_values(altitude)
     segment.conditions.freestream.velocity = M * a
-    segment.conditions.freestream.viscosity = mew
+    segment.conditions.freestream.dynamic_viscosity = mew
     segment.conditions.freestream.density = rho
     segment.conditions.freestream.mach_number = M
     

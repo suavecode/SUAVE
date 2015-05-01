@@ -7,7 +7,7 @@ import scipy
 import numpy as np
 from copy import deepcopy
 # SUAVE Imports
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 #from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.parasite_drag_aircraft import parasite_drag_aircraft
 # SUAVE-AVL Imports
 from .Data.Inputs   import Inputs

@@ -1,6 +1,6 @@
 # Build a Wing
 main_wing = Components.Wings.Wing(
-    tag = 'Main Wing',    
+    tag = 'main_wing',    
     ref_area     = 1344.0 , #[sq-ft]
     aspect_ratio = 10.19  , #[-]
     # <...>

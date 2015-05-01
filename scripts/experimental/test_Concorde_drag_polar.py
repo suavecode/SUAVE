@@ -12,8 +12,8 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
-from SUAVE.Structure import \
+from SUAVE.Core import Units
+from SUAVE.Core import \
     Data, Container, Data_Exception, Data_Warning
 
 
@@ -78,7 +78,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.sref      = 358.25         #
     wing.ar        = 1.83           #
@@ -89,7 +89,7 @@ def define_vehicle():
     wing.taper     = 0              # Estimated based on drawing
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 14.02                 #
     wing.S_exposed   = 0.8*wing.area_wetted  #
@@ -114,7 +114,7 @@ def define_vehicle():
     # Concorde does not have a horizontal stabilizer
     
     #wing = SUAVE.Components.Wings.Wing()
-    #wing.tag = 'Horizontal Stabilizer'
+    #wing.tag = 'horizontal_stabilizer'
     
     #wing.sref      = 32.488         #
     #wing.ar        = 6.16           #
@@ -125,7 +125,7 @@ def define_vehicle():
     #wing.taper     = 0.4            #
     
     ## size the wing planform
-    #SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    #SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     #wing.chord_mac  = 8.0                   #
     #wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -154,7 +154,7 @@ def define_vehicle():
     wing.taper     = 0.25           # Estimate
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   # Estimate
     wing.S_exposed  = 1.0*wing.area_wetted  #
@@ -175,7 +175,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 0    # Actually ~120, using 0 for length simplicity
     fuselage.seats_abreast   = 4    #
@@ -188,7 +188,7 @@ def define_vehicle():
     fuselage.height          = 3.30 #
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -289,7 +289,7 @@ def evaluate_polar(vehicle):
         konditions = SUAVE.Attributes.Aerodynamics.Conditions_polar()
         konditions.freestream.mach_number = mach
         konditions.freestream.density = rho
-        konditions.freestream.viscosity = mew
+        konditions.freestream.dynamic_viscosity = mew
         konditions.freestream.temperature = T
         konditions.freestream.pressure = p
         konditions.aerodynamics.angle_of_attack = AoA[ii]

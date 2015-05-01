@@ -8,6 +8,6 @@ import sampling
 #import plotting
 
 #import parallel
-#import optimize
+import optimize
 
 #import regression

@@ -15,7 +15,7 @@ from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -34,8 +34,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 
-
-def parasite_drag_propulsor(conditions,configuration,propulsor):
+def parasite_drag_propulsor(state,settings,geometry):
+#def parasite_drag_propulsor(conditions,configuration,propulsor):
     """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
         computes the parasite drag associated with a propulsor 
         
@@ -48,6 +48,14 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         
     """
 
+
+
+    # unpack inputs
+    
+    conditions = state.conditions
+    configuration = settings
+    propulsor = geometry
+    
     # unpack inputs
     try:
         form_factor = configuration.propulsor_parasite_drag_form_factor
@@ -56,16 +64,16 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         
     freestream = conditions.freestream
     
-    Sref        = propulsor.nacelle_dia**2 / 4 * np.pi
-    Swet        = propulsor.nacelle_dia * np.pi * propulsor.engine_length
+    Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
+    Swet        = propulsor.nacelle_diameter * np.pi * propulsor.engine_length
     
     l_prop  = propulsor.engine_length
-    d_prop  = propulsor.nacelle_dia
+    d_prop  = propulsor.nacelle_diameter
     
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
@@ -78,7 +86,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     
     # form factor for cylindrical bodies
     try: # Check if propulsor has an intake
-        A_max = propulsor.nacelle_dia
+        A_max = propulsor.nacelle_diameter
         A_exit = propulsor.A7
         A_inflow = propulsor.Ao
         d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))
@@ -105,7 +113,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     # --------------------------------------------------------
     
     # dump data to conditions
-    propulsor_result = Result(
+    propulsor_result = Results(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
         parasite_drag_coefficient = propulsor_parasite_drag ,
@@ -114,7 +122,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         reynolds_factor           = k_reyn  , 
         form_factor               = k_prop  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+    state.conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
     
     return propulsor_parasite_drag
 

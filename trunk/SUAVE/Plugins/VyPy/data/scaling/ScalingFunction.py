@@ -14,12 +14,12 @@ class ScalingFunction(object):
         raise NotImplementedError
     
     # operator overloading
+    def __rdiv__(self,other):
+        return self.set_scaling(other)    
     def __rmul__(self,other):
         ## TODO
         #if isinstance(other,Gradient):
-            #return self.set_scaling_gradient(other)
-        return self.set_scaling(other)
-    def __rdiv__(self,other):
+            #return self.unset_scaling_gradient(other)
         return self.unset_scaling(other)
     __mul__ = __rmul__
     __div__ = __rdiv__

@@ -1,4 +1,10 @@
-""" template for tutorial missions """
+# tutorial_template.py
+# 
+# Created:  Jan 2015, J. Dawson
+# Modified: 
+
+## style note --
+## this is a template for writing a vehicle tutorial
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -60,7 +66,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
     
     # ------------------------------------------------------------------    

@@ -2,10 +2,10 @@
 
 import SUAVE
 import numpy as np
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Approximations as Approximations
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Full_Linearized_Equations as Full_Linearized_Equations
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 

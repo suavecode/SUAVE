@@ -14,7 +14,7 @@
 
 # suave imports
 #from SUAVE.Attributes.Gases.Air import compute_speed_of_sound
-from SUAVE.Attributes.Results import Result
+from SUAVE.Core import Results
 
 # python imports
 import os, sys, shutil
@@ -27,7 +27,8 @@ import scipy as sp
 #-------------------compressiblity drag----------------------------------------------------------
 
 #def cdp_misc(sweep_w, sweep_h, sweep_v, d_engexit,Sref,Mc,roc,muc ,Tc,S_affected_w,S_affected_h,S_affected_v):
-def miscellaneous_drag_aircraft(conditions,configuration,geometry):
+#def miscellaneous_drag_aircraft(conditions,configuration,geometry):
+def miscellaneous_drag_aircraft(state,settings,geometry):
     """ SUAVE.Methods.miscellaneous_drag_aircraft(Wing,segment)
         computes the miscellaneous drag associated with an aircraft
         
@@ -47,10 +48,14 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     """
 
     # unpack inputs
+    configuration = settings
+    
     trim_correction_factor = configuration.trim_drag_correction_factor    
     propulsors             = geometry.propulsors
     vehicle_reference_area = geometry.reference_area
-    ones_1col              = conditions.freestream.mach_number *0.+1
+    ones_1col              = state.conditions.freestream.mach_number *0.+1
+        
+    conditions = state.conditions
         
     # ------------------------------------------------------------------
     #   Control surface gap drag
@@ -68,12 +73,12 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     #   Nacelle base drag
     # ------------------------------------------------------------------
     total_nacelle_base_drag = 0.0
-    nacelle_base_drag_results = Result()
+    nacelle_base_drag_results = Results()
     
     for propulsor in propulsors.values():
         
         # calculate
-        nacelle_base_drag = 0.5/12. * np.pi * propulsor.nacelle_dia * 0.2/vehicle_reference_area
+        nacelle_base_drag = 0.5/12. * np.pi * propulsor.nacelle_diameter * 0.2/vehicle_reference_area
         
         # dump
         nacelle_base_drag_results[propulsor.tag] = nacelle_base_drag * ones_1col
@@ -103,7 +108,7 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     
     
     # dump to results
-    conditions.aerodynamics.drag_breakdown.miscellaneous = Result(
+    conditions.aerodynamics.drag_breakdown.miscellaneous = Results(
         fuselage_upsweep = fuselage_upsweep_drag     *ones_1col, 
         nacelle_base     = nacelle_base_drag_results ,
         fuselage_base    = fuselage_base_drag        *ones_1col,

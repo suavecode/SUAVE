@@ -7,9 +7,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 import numpy as np
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 

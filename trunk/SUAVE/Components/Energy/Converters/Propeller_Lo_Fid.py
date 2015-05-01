@@ -13,9 +13,9 @@ import SUAVE
 # package imports
 import numpy as np
 import scipy as sp
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 from warnings import warn
@@ -68,7 +68,7 @@ class Propeller_Lo_Fid(Energy_Component):
         omega = self.inputs.omega
         Qm    = self.inputs.torque
         rho   = conditions.freestream.density[:,0,None]
-        mu    = conditions.freestream.viscosity[:,0,None]
+        mu    = conditions.freestream.dynamic_viscosity[:,0,None]
         V     = conditions.freestream.velocity[:,0,None]
         a     = conditions.freestream.speed_of_sound[:,0,None]
         T     = conditions.freestream.temperature[:,0,None]

@@ -10,8 +10,8 @@ import SUAVE
 import numpy as np
 from wing_structure import wing_structure
 
-from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import Units
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 

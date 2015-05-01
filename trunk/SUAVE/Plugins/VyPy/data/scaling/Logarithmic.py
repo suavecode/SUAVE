@@ -15,8 +15,8 @@ import numpy as np
 class Logarithmic(ScalingFunction):
     
     def __init__(self,scale=1.0,base=10.0):
-        """ o * scl ==> np.log_base(other*scale)
-            o / scl ==> (base**other) / scale
+        """ o / scl ==> np.log_base(other/scale)
+            o * scl ==> (base**other) * scale
             
             base defualt to 10.0
             base could be numpy.e for example
@@ -25,9 +25,9 @@ class Logarithmic(ScalingFunction):
         self.base   = base
         
     def set_scaling(self,other):
-        return np.log10(other*self.scale)/np.log10(self.base)
+        return np.log10(other/self.scale)/np.log10(self.base)
     def unset_scaling(self,other):
-        return (self.base**other)/self.center
+        return (self.base**other)*self.scale
     
     
 # ----------------------------------------------------------------------
@@ -38,16 +38,22 @@ if __name__ == '__main__':
     
     import numpy as np
     
-    s = Logarithmic(0.0,10.0)
+    s = Logarithmic(2.0,10.0)
     
-    a = 10.0
-    b = np.array([10,100,3000.])
-
-    a = a * s    
-    b = b * s
+    a = 20.0
+    b = np.array([20,200,6000.])
     
     print a
     print b
     
-    print a / s
-    print b / s    
+    a = a / s    
+    b = b / s
+    
+    print a
+    print b
+    
+    a = a * s    
+    b = b * s    
+    
+    print a
+    print b

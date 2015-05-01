@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
 from SUAVE import Components
 from SUAVE.Components import Component_Exception
 from SUAVE.Methods.Utilities import switch
@@ -25,7 +25,7 @@ class Vehicle(Data):
     '''
 
     def __defaults__(self):
-        self.tag = 'Vehicle'
+        self.tag = 'vehicle'
         self.fuselages       = Components.Fuselages.Fuselage.Container()
         self.wings           = Components.Wings.Wing.Container()
         self.propulsors      = Components.Propulsors.Propulsor.Container()
@@ -34,7 +34,6 @@ class Vehicle(Data):
         self.mass_properties = Vehicle_Mass_Properties()
         self.cost            = Components.Cost()
         self.envelope        = Components.Envelope()
-        self.configs         = ConfigContainer()
         self.reference_area  = 0.0
         self.passengers      = 0.0
 
@@ -92,78 +91,6 @@ class Vehicle(Data):
         component_root.append(component)
 
         return
-
-
-    def new_configuration(self,tag,ref_index=None,new_index=None):
-        """ config = SUAVE.Vehicle.new_configuration(name,ref=None,index=None)
-            start a new configuration, with tag name, appended to vehicle.configs[]
-            each new configuration is a linked copy to its reference
-            the first configuration is a linked copy to Vehicle
-
-            Inputs:
-                tag       - name of the new configuration
-                ref_index - optional, index or key to reference the configuration
-                            default, will referernce to the last configuration
-                new_index - optional, index before which to add the configuration
-                            default, will append to the end of vehicle.configs
-
-            Outputs:
-                config - a reference to the new configuration
-
-            See also:
-                SUAVE.Data.linked_copy()
-
-        """
-
-        # first config
-        if not self.configs:
-            # linked copy from self
-            #new_config = self.linked_copy()
-            new_config = deepcopy(self)
-
-            # avoid recursion problems
-            del new_config.configs
-
-        # not first config
-        else:
-            # ref_index default is end
-            if ref_index is None: ref_index = -1
-
-            # get linked copy
-            #new_config = self.configs[ref_index].linked_copy()
-            new_config = deepcopy(self.configs[ref_index])
-
-        # prepare new config
-        new_config.tag = tag
-        new_config.Functions = FunctionContainer()
-
-        # new_index default is end
-        if new_index is None: new_index = len(self.configs)
-
-        # insert new config
-        self.configs.insert(new_index,tag,new_config)
-
-        return new_config
-
-class ConfigContainer(Container):
-    def __str__(self,indent=''):
-
-        args = ''
-
-        # trunk data name
-        if not indent:
-            args += str(type(self)) + '\n'
-            indent = '  '
-        else:
-            args += '\n'
-
-        for key in self.keys():
-            args += indent + key + '\n'
-
-        return args
-
-class FunctionContainer(Container):
-    pass
 
 
 class Vehicle_Mass_Properties(Components.Mass_Properties):

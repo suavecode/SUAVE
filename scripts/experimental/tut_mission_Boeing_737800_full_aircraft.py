@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 import numpy as np
 import pylab as plt
@@ -23,7 +23,7 @@ import copy, time
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -92,7 +92,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.Areas.reference = 124.862    #
     wing.aspect_ratio    = 8        #
@@ -103,7 +103,7 @@ def define_vehicle():
     wing.taper           = 0.16
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 12.5
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -126,7 +126,7 @@ def define_vehicle():
     
     wing = SUAVE.Components.Wings.Wing()
 
-    wing.tag = 'Horizontal Stabilizer' 
+    wing.tag = 'horizontal_stabilizer' 
     
     wing.Areas.reference = 32.488    #
     wing.aspect_ratio    = 6.16      #
@@ -137,7 +137,7 @@ def define_vehicle():
     wing.taper           = 0.4
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 8.0
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -160,7 +160,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.Areas.reference = 32.488    #
     wing.aspect_ratio    = 1.91      #
@@ -171,7 +171,7 @@ def define_vehicle():
     wing.taper           = 0.4
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.Chords.mean_aerodynamic = 8.0
     wing.Areas.exposed = 0.8*wing.Areas.wetted
@@ -194,7 +194,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.number_coach_seats = 200
     fuselage.seats_abreast = 6
@@ -212,7 +212,7 @@ def define_vehicle():
     fuselage.differential_pressure = 10**5   * Units.pascal    # Maximum differential pressure
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -223,7 +223,7 @@ def define_vehicle():
     # ------------------------------------------------------------------    
     
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
     
     turbofan.propellant = SUAVE.Attributes.Propellants.Jet_A()
     
@@ -265,8 +265,8 @@ def define_vehicle():
     # ------------------------------------------------------------------
     vehicle.Mass_Props.fuel_density = turbofan.propellant.density
 
-    wing = vehicle.Wings['Main Wing']
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
+    wing = vehicle.Wings['main_wing']
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing)
     vehicle.Mass_Props.max_usable_fuel = wing.fuel_volume * vehicle.Mass_Props.fuel_density # [kg]
     
     
@@ -322,7 +322,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     # initial mass
@@ -337,7 +337,7 @@ def define_mission(vehicle):
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
@@ -360,8 +360,8 @@ def define_mission(vehicle):
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
-    #segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
+    #segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Mach_Constant_Rate()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -386,7 +386,7 @@ def define_mission(vehicle):
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate()
     segment.tag = "Climb - 3"
     
     # connect vehicle configuration
@@ -408,7 +408,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -428,7 +428,7 @@ def define_mission(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -450,7 +450,7 @@ def define_mission(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "Descent - 2"
 
     # connect vehicle configuration
@@ -776,8 +776,8 @@ def define_field_configs(vehicle):
 
     # --- Takeoff Configuration ---
     takeoff_config = vehicle.Configs.takeoff
-    takeoff_config.Wings['Main Wing'].flaps_angle =  20. * Units.deg
-    takeoff_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    takeoff_config.Wings['main_wing'].flaps_angle =  20. * Units.deg
+    takeoff_config.Wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     takeoff_config.V2_VS_ratio = 1.21
     # CLmax for a given configuration may be informed by user. If not, is calculated using correlations
@@ -786,8 +786,8 @@ def define_field_configs(vehicle):
 
     # --- Landing Configuration ---
     landing_config = vehicle.new_configuration("landing")
-    landing_config.Wings['Main Wing'].flaps_angle =  30. * Units.deg
-    landing_config.Wings['Main Wing'].slats_angle  = 25. * Units.deg
+    landing_config.Wings['main_wing'].flaps_angle =  30. * Units.deg
+    landing_config.Wings['main_wing'].slats_angle  = 25. * Units.deg
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user

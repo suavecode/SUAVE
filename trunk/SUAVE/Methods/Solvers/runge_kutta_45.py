@@ -7,8 +7,7 @@
 import numpy as np
 #import ad
 ##from scipy.optimize import root   #, fsolve, newton_krylov  ## TODO: FIXME
-from SUAVE.Structure import Data
-from SUAVE.Attributes.Results import Segment
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Methods

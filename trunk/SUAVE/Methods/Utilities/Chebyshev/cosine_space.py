@@ -5,8 +5,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Structure import Data
-from SUAVE.Attributes.Results import Segment
+from SUAVE.Core import Data
+
 
 # ----------------------------------------------------------------------
 #  Methods

@@ -4,13 +4,13 @@
 
 import SUAVE
 import numpy as np
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta import taw_cnbeta
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac import trapezoid_mac
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -19,7 +19,7 @@ def main():
         #Using values for a Boeing 747-200
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     wing.areas.reference = 5500.0 * Units.feet**2
     wing.spans.projected = 196.0  * Units.feet
     wing.sweep           = 42.0   * Units.deg # Leading edge
@@ -29,14 +29,14 @@ def main():
     wing.taper           = wing.chords.tip / wing.chords.root
     wing.aspect_ratio    = wing.spans.projected**2/wing.areas.reference
     wing.symmetric       = True
-    wing.origin          = np.array([58.6,0.,3.6]) * Units.feet
-
-    #reference = SUAVE.Structure.Container()
+    wing.origin          = np.array([58.6,0.,3.6]) * Units.feet  
+    
+    reference = SUAVE.Core.Container()
     vehicle.reference_area = wing.areas.reference
     vehicle.append_component(wing)
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
     vertical = SUAVE.Components.Wings.Wing()
     vertical.spans.exposed = 32.4   * Units.feet
     vertical.chords.root   = 38.7 * Units.feet      # vertical.chords.fuselage_intersect
@@ -63,14 +63,14 @@ def main():
     vehicle.append_component(wing)
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     fuselage.areas.side_projected               = 4696.16 * Units.feet**2
     fuselage.lengths.total                      = 229.7   * Units.feet
     fuselage.heights.maximum                    = 26.9    * Units.feet
     fuselage.width                              = 20.9    * Units.feet
     fuselage.heights.at_quarter_length          = 26.0    * Units.feet
     fuselage.heights.at_three_quarters_length   = 19.7    * Units.feet
-    fuselage.heights.at_vertical_root_quarter_chord = 23.8    * Units.feet
+    fuselage.heights.at_wing_root_quarter_chord = 23.8    * Units.feet
     vehicle.append_component(fuselage)
 
     configuration = Data()
@@ -78,14 +78,17 @@ def main():
     configuration.mass_properties.center_of_gravity = Data()
     configuration.mass_properties.center_of_gravity = np.array([112.2,0,6.8]) * Units.feet
 
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    #segment            = SUAVE.Analyses.Mission.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Mission.Segments.Segment()
     segment.freestream = Data()
     segment.freestream.mach_number = Mach[0]
-    segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    segment.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     altitude           = 0.0 * Units.feet
-    segment.a          = segment.atmosphere.compute_values(altitude / Units.km, type="a")
-    segment.freestream.density   = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
-    segment.freestream.viscosity = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
+    
+    conditions = segment.atmosphere.compute_values(altitude / Units.km)
+    segment.a          = conditions.speed_of_sound
+    segment.freestream.density   = conditions.density
+    segment.freestream.dynamic_viscosity = conditions.dynamic_viscosity
     segment.freestream.velocity  = segment.freestream.mach_number * segment.a
 
     #Method Test
@@ -150,7 +153,7 @@ def main():
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 17.2 * Units.feet
 
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Mission.Segments.Base_Segment()
     segment.M          = 0.152
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet
@@ -215,7 +218,7 @@ def main():
     aircraft.vertical     = vertical
     aircraft.Mass_Props.pos_cg[0] = 16.6 * Units.feet
 
-    segment            = SUAVE.Attributes.Missions.Segments.Base_Segment()
+    segment            = SUAVE.Analyses.Mission.Segments.Base_Segment()
     segment.M          = 0.111
     segment.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     altitude           = 0.0 * Units.feet

@@ -11,8 +11,8 @@ import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
-from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import Units
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -71,17 +71,17 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 
     # Unpack inputs
     Sref  = geometry.reference_area
-    mac   = geometry.wings['Main Wing'].chords.mean_aerodynamic
-    c_root= geometry.wings['Main Wing'].chords.root
-    taper = geometry.wings['Main Wing'].taper
+    mac   = geometry.wings['main_wing'].chords.mean_aerodynamic
+    c_root= geometry.wings['main_wing'].chords.root
+    taper = geometry.wings['main_wing'].taper
     c_tip = taper*c_root
-    span  = geometry.wings['Main Wing'].spans.projected
-    sweep = geometry.wings['Main Wing'].sweep
+    span  = geometry.wings['main_wing'].spans.projected
+    sweep = geometry.wings['main_wing'].sweep
     C_Law = conditions.lift_curve_slope
-    w_f   = geometry.fuselages.Fuselage.width
-    l_f   = geometry.fuselages.Fuselage.lengths.total
+    w_f   = geometry.fuselages['fuselage'].width
+    l_f   = geometry.fuselages['fuselage'].lengths.total
     x_cg  = configuration.mass_properties.center_of_gravity[0]
-    x_rqc = geometry.wings['Main Wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
+    x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
     M     = mach
     
     #Evaluate the effect of each lifting surface in turn
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     #Using values for a Boeing 747-200  
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     wing.areas.reference           = 5500.0 * Units.feet**2
     wing.spans.projected           = 196.0  * Units.feet
     wing.chords.mean_aerodynamic   = 27.3 * Units.feet
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     main_wing_ar  = wing.aspect_ratio
     
     wing                     = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     wing.areas.reference     = 1490.55* Units.feet**2
     wing.spans.projected     = 71.6   * Units.feet
     wing.sweep               = 44.0   * Units.deg # leading edge
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     fuselage.x_root_quarter_chord = 77.0 * Units.feet
     fuselage.lengths.total     = 229.7  * Units.feet
     fuselage.width      = 20.9   * Units.feet 
@@ -183,5 +183,5 @@ if __name__ == '__main__':
     print 'Cm_alpha       = {0:.4f}'.format(cm_a[0])
     print 'Expected value = {}'.format(expected)
     print 'Percent Error  = {0:.2f}%'.format(100.0*(cm_a[0]-expected)/expected)
-    print 'Static Margin  = {0:.4f}'.format(-cm_a[0]/vehicle.wings['Main Wing'].CL_alpha[0])
+    print 'Static Margin  = {0:.4f}'.format(-cm_a[0]/vehicle.wings['main_wing'].CL_alpha[0])
     print ' '

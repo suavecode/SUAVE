@@ -170,7 +170,7 @@ sbtp58
 a(S'mission_profile'
 p59
 g1
-(cSUAVE.Attributes.Missions.Mission
+(cSUAVE.Analyses.Mission.Mission
 Mission
 p60
 (lp61
@@ -182,14 +182,14 @@ tp64
 a(S'segments'
 p65
 g1
-(cSUAVE.Attributes.Missions.Segments.Base_Segment
+(cSUAVE.Analyses.Mission.Segments.Base_Segment
 Container
 p66
 (lp67
 (S'CLIMB_250KCAS'
 p68
 g1
-(cSUAVE.Attributes.Missions.Segments.Climb.Constant_Throttle_Constant_Speed
+(cSUAVE.Analyses.Mission.Segments.Climb.Constant_Throttle_Constant_Speed
 Constant_Throttle_Constant_Speed
 p69
 (lp70
@@ -213,7 +213,7 @@ g1
 Container
 p77
 (lp78
-(S'Fuselage'
+(S'fuselage'
 p79
 g1
 (cSUAVE.Components.Fuselages.Fuselage
@@ -547,7 +547,7 @@ g1
 Container
 p203
 (lp204
-(S'Main Wing'
+(S'main_wing'
 p205
 g1
 (cSUAVE.Components.Wings.Wing
@@ -935,7 +935,7 @@ F0.3490658503988659
 sg286
 g290
 sbtp336
-a(S'Horizontal Stabilizer'
+a(S'horizontal_stabilizer'
 p337
 g1
 (g206
@@ -1277,7 +1277,7 @@ g361
 sg286
 g402
 sbtp431
-a(S'Vertical Stabilizer'
+a(S'vertical_stabilizer'
 p432
 g1
 (g206
@@ -1635,7 +1635,7 @@ g1
 Container
 p531
 (lp532
-(S'Turbo Fan'
+(S'turbo_fan'
 p533
 g1
 (cSUAVE.Components.Propulsors.Turbofan
@@ -7466,7 +7466,7 @@ tg15
 I00
 S'q\x1cf/\xb4Du@]\x83\x9b\x88\xa8Bu@h9QX\x9b<u@`a\xd7%\xcd2u@s\x8e\x88\xee\xa6%u@\xd9\xab\x00V\xb6\x15u@[\x19\xa4_\xa8\x03u@\xd3$!\xc7B\xf0t@\xf0\xeb\xae\x1b\\\xdct@3\x0eh\xd4\xd2\xc8t@%Pm\xaa\x83\xb6t@\x88at\x9d?\xa6t@\x0b7\xbe\x1d\xc2\x98t@\xab\xf2\xe3\xe6\xa7\x8et@Iz\xf5\x1cg\x88t@\x10\x8aW5I\x86t@'
 tbtp2195
-a(S'viscosity'
+a(S'dynamic_viscosity'
 p2196
 g49
 (g50
@@ -23662,7 +23662,7 @@ sbtp5858
 a(S'Cruise'
 p5859
 g1
-(cSUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude
+(cSUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude
 Constant_Speed_Constant_Altitude
 p5860
 (lp5861
@@ -27437,7 +27437,7 @@ sbtp6562
 a(S'DESCENT_M0.77'
 p6563
 g1
-(cSUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate
+(cSUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate
 Constant_Speed_Constant_Rate
 p6564
 (lp6565

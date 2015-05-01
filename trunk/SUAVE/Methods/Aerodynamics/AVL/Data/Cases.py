@@ -4,8 +4,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data
-from SUAVE.Structure import Container as Container_Base
+from SUAVE.Core import Data
+from SUAVE.Core import Container as Container_Base
 
 # ------------------------------------------------------------
 #   Configuration

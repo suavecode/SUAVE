@@ -9,9 +9,9 @@
 
 #SUave Imports
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 from SUAVE.Components import Wings
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 
 # python imports
 import os, sys, shutil
@@ -81,7 +81,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         # conditions data
         V    = conditions.freestream.velocity 
         roc  = conditions.freestream.density 
-        nu   = conditions.freestream.viscosity
+        nu   = conditions.freestream.dynamic_viscosity
         
         ##Mcr  =  segment.M
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     #   Main Wing
     # ------------------------------------------------------------------
     wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
     wing.sweep                   = 22. * Units.deg
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference         = 26.
     wing.sweep                   = 34.5 * Units.deg
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'
+    wing.tag = 'vertical_stabilizer'
     wing.areas.reference         = 16.0
     wing.sweep                   = 35. * Units.deg
     wing.symmetric               = False
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats = 114  #
     fuselage.seat_pitch         = 0.7455    # m
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     conditions.freestream.mach_number = 0.3
     conditions.freestream.velocity    = 51. #m/s
     conditions.freestream.density     = 1.1225 #kg/m?
-    conditions.freestream.viscosity   = 1.79E-05
+    conditions.freestream.dynamic_viscosity   = 1.79E-05
 
 
     Cl_max_ls, Cd_ind = compute_max_lift_coeff(vehicle,conditions)

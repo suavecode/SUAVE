@@ -6,8 +6,7 @@
 import SUAVE
 import numpy as np
 
-from SUAVE.Attributes.Results.Result import Result
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 from SUAVE.Methods.Aerodynamics.Drag.Correlations import \

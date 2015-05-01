@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
 
 # ----------------------------------------------------------------------
 #  Analysis

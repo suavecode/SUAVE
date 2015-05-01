@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from Propulsor import Propulsor
 import numpy as np
 

@@ -1,8 +1,10 @@
-# Method.py
+# simple_method.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Jan 2015, J. Dawson
+# Modified: 
 
+## style note --
+## this is a stand alone method, and should be lower_case_with_underscore
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +12,7 @@
 
 # suave imports
 # these should start with SUAVE, unless importing locally
-from SUAVE.Structure import (
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 

@@ -9,7 +9,7 @@
 
 # SUAVE imports
 import SUAVE
-from SUAVE.Attributes.Units import Units
+from SUAVE.Core import Units
 from SUAVE.Methods.Performance.size_mission_range_given_weights import size_mission_range_given_weights
 
 # other imports

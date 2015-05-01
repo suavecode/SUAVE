@@ -1,14 +1,17 @@
 # example_test_script.py
 # 
-# Created:  Your Name, Jun 2014
-# Modified:     
+# Created:  Jan 2015, J. Dawson
+# Modified: 
+
+## style note --
+## this is a test script that exercises the code.
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
 import numpy as np
 import matplotlib.pyplot as plt

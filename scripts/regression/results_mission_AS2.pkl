@@ -173,7 +173,7 @@ sbtp59
 a(S'mission_profile'
 p60
 g1
-(cSUAVE.Attributes.Missions.Mission
+(cSUAVE.Analyses.Mission.Mission
 Mission
 p61
 (lp62
@@ -185,14 +185,14 @@ tp65
 a(S'segments'
 p66
 g1
-(cSUAVE.Attributes.Missions.Segments.Base_Segment
+(cSUAVE.Analyses.Mission.Segments.Base_Segment
 Container
 p67
 (lp68
 (S'Climb - 6'
 p69
 g1
-(cSUAVE.Attributes.Missions.Segments.Climb.Constant_Speed_Constant_Rate
+(cSUAVE.Analyses.Mission.Segments.Climb.Constant_Speed_Constant_Rate
 Constant_Speed_Constant_Rate
 p70
 (lp71
@@ -217,7 +217,7 @@ g1
 Container
 p79
 (lp80
-(S'Fuselage'
+(S'fuselage'
 p81
 g1
 (cSUAVE.Components.Fuselages.Fuselage
@@ -551,7 +551,7 @@ g1
 Container
 p205
 (lp206
-(S'Main Wing'
+(S'main_wing'
 p207
 g1
 (cSUAVE.Components.Wings.Wing
@@ -927,7 +927,7 @@ g232
 sg288
 g292
 sbtp334
-a(S'Horizontal Stabilizer'
+a(S'horizontal_stabilizer'
 p335
 g1
 (g208
@@ -1269,7 +1269,7 @@ g359
 sg288
 g400
 sbtp429
-a(S'Vertical Stabilizer'
+a(S'vertical_stabilizer'
 p430
 g1
 (g208
@@ -1627,7 +1627,7 @@ g1
 Container
 p529
 (lp530
-(S'Turbo Fan'
+(S'turbo_fan'
 p531
 g1
 (cSUAVE.Components.Propulsors.Turbojet_Supersonic
@@ -7749,7 +7749,7 @@ tg15
 I00
 S'q\x1cf/\xb4Du@\xa8\x01\xa10\xa8Bu@\x94\x14\xdf\xfb\x99<u@Vz\xc0"\xca2u@N\xef\x7f\xb3\xa1%u@\xc7o\xaeh\xae\x15u@\xbf\xb2\x07b\x9d\x03u@2\x84\x05|4\xf0t@T\x97\xf2iJ\xdct@\x95j\xdc\xc8\xbd\xc8t@\x1aG\x17xk\xb6t@B\xe4\x06\x9c$\xa6t@\xe7\xb1=\xc6\xa4\x98t@\x8b\xe4\x7f\xce\x88\x8et@}\x8dH\xeeF\x88t@\xa8~b\xa8(\x86t@'
 tbtp2217
-a(S'viscosity'
+a(S'dynamic_viscosity'
 p2218
 g50
 (g51
@@ -13704,7 +13704,7 @@ sbtp3407
 a(S'Climb - 8'
 p3408
 g1
-(cSUAVE.Attributes.Missions.Segments.Climb.Linear_Mach_Constant_Rate
+(cSUAVE.Analyses.Mission.Segments.Climb.Linear_Mach_Constant_Rate
 Linear_Mach_Constant_Rate
 p3409
 (lp3410
@@ -21426,7 +21426,7 @@ sbtp4818
 a(S'Cruise'
 p4819
 g1
-(cSUAVE.Attributes.Missions.Segments.Cruise.Constant_Mach_Constant_Altitude
+(cSUAVE.Analyses.Mission.Segments.Cruise.Constant_Mach_Constant_Altitude
 Constant_Mach_Constant_Altitude
 p4820
 (lp4821
@@ -25290,7 +25290,7 @@ sbtp5524
 a(S'Descent - 1'
 p5525
 g1
-(cSUAVE.Attributes.Missions.Segments.Descent.Linear_Mach_Constant_Rate
+(cSUAVE.Analyses.Mission.Segments.Descent.Linear_Mach_Constant_Rate
 Linear_Mach_Constant_Rate
 p5526
 (lp5527
@@ -33021,7 +33021,7 @@ sbtp6936
 a(S'Descent - 5'
 p6937
 g1
-(cSUAVE.Attributes.Missions.Segments.Descent.Constant_Speed_Constant_Rate
+(cSUAVE.Analyses.Mission.Segments.Descent.Constant_Speed_Constant_Rate
 Constant_Speed_Constant_Rate
 p6938
 (lp6939

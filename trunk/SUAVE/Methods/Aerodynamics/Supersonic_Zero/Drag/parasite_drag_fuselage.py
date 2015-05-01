@@ -15,7 +15,7 @@ from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -35,7 +35,8 @@ import scipy as sp
 
 
 
-def parasite_drag_fuselage(conditions,configuration,fuselage):
+#def parasite_drag_fuselage(conditions,configuration,fuselage):
+def parasite_drag_fuselage(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
         computes the parasite drag associated with a fuselage 
         
@@ -49,9 +50,11 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     """
 
     # unpack inputs
+    configuration =settings
     form_factor = configuration.fuselage_parasite_drag_form_factor
-
-    freestream = conditions.freestream
+    fuselage = geometry
+    
+    freestream = state.conditions.freestream
     
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
@@ -65,7 +68,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
@@ -111,7 +114,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     # --------------------------------------------------------
     
     # dump data to conditions
-    fuselage_result = Result(
+    fuselage_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
         parasite_drag_coefficient = fuselage_parasite_drag ,
@@ -121,7 +124,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
         form_factor               = k_fus  ,
     )
     try:
-        conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result
+        state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result
     except:
         print("Drag Polar Mode fuse parasite")
     

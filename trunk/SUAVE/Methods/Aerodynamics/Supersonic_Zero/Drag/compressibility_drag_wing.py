@@ -8,8 +8,8 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Attributes.Results.Result import Result
-from SUAVE.Structure import (
+from SUAVE.Core import Results
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
@@ -54,7 +54,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
     
     # start result
     total_compressibility_drag = 0.0
-    drag_breakdown.compressible = Result()
+    drag_breakdown.compressible = Results()
 
     # go go go
     for i_wing, wing, in enumerate(wings.values()):
@@ -118,7 +118,7 @@ def compressibility_drag_wing(conditions,configuration,geometry):
             #total_compressibility_drag += cd_c  ## todo when there is a lift break down by wing
             
             # dump data to conditions
-            wing_results = Result(
+            wing_results = Results(
                 compressibility_drag      = cd_c    ,
                 thickness_to_chord        = tc      , 
                 wing_sweep                = sweep_w , 

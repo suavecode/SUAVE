@@ -39,7 +39,7 @@ class Dict(dict):
         ksplit = key_wild.split('%i')
         
         keys = []
-        for k in keys():
+        for k in self.keys():
             try:
                 i = int( k.lstrip(ksplit[0]).rstrip(ksplit[1]) )
                 keys.append(i)
@@ -106,7 +106,7 @@ class Dict(dict):
         for key,value in self.iteritems():
             
             # skip 'hidden' items
-            if key.startswith('_'):
+            if isinstance(key,str) and key.startswith('_'):
                 continue
             
             # recurse into other dict types

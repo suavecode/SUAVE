@@ -15,7 +15,7 @@ from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -34,8 +34,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 
-
-def parasite_drag_fuselage(conditions,configuration,fuselage):
+def parasite_drag_fuselage(state,settings,geometry):
+#def parasite_drag_fuselage(conditions,configuration,fuselage):
     """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
         computes the parasite drag associated with a fuselage 
         
@@ -49,27 +49,38 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     """
 
     # unpack inputs
+    
+    conditions = state.conditions   
+    configuration =settings 
+    #fuselages = geometry.fuselages
+    fuselage = geometry
+    
+    
     form_factor = configuration.fuselage_parasite_drag_form_factor
     freestream = conditions.freestream
+    
+    fuselage_parasite_drag_total = 0.0
+    #for fuselage in fuselages.values():
+    
     
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
     
     l_fus  = fuselage.lengths.cabin
-    d_fus  = fuselage.width
+    d_fus  = fuselage.effective_diameter
     l_nose = fuselage.lengths.nose
     l_tail = fuselage.lengths.tail
     
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
     # reynolds number
     V = Mc * compute_speed_of_sound(Tc, pc) 
-    Re_fus = roc * V * l_fus/muc
+    Re_fus = roc * V * (l_fus + l_nose + l_tail)/muc
     
     # skin friction coefficient
     cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
@@ -83,11 +94,12 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
     
     # --------------------------------------------------------
     # find the final result    
-    fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
-    # --------------------------------------------------------
+    fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref 
     
+          
+            
     # dump data to conditions
-    fuselage_result = Result(
+    fuselage_result = Results(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
         parasite_drag_coefficient = fuselage_parasite_drag ,
@@ -96,7 +108,7 @@ def parasite_drag_fuselage(conditions,configuration,fuselage):
         reynolds_factor           = k_reyn , 
         form_factor               = k_fus  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
+    state.conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag] = fuselage_result    
     
     return fuselage_parasite_drag
 

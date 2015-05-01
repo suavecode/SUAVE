@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use('Agg') 
         
 import SUAVE
-from SUAVE.Structure import Ordered_Bunch
+from SUAVE.Core import Ordered_Bunch
 import sys, os, traceback, time
 import matplotlib.pyplot as plt
 
@@ -42,18 +42,23 @@ modules = [
     #'regression/test_mission_AS2.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
-    #'regression/test_solar_network.py',
-    #'regression/test_solar_radiation.py',
-    #'regression/test_propeller.py',
+    'regression/test_solar_network.py',
+    'regression/test_solar_radiation.py',
+    'regression/test_propeller.py',
     'regression/test_aerodynamics.py',
     'regression/test_aerodynamics_super.py',
     'regression/test_battery.py',
     'regression/test_cmalpha.py',
     'regression/test_cnbeta.py',
-    #'regression/test_gasturbine_network.py',
-    #'regression/test_payload_range.py',
+    'regression/test_gasturbine_network.py',
+    'regression/test_payload_range.py',
+    'regression/test_input_output/test_xml_read_write.py',
+    'regression/test_input_output/test_freemind_write.py',
+    'regression/test_variable_cruise_distance.py',
     
     # tutorials
+    'tutorials/tut_mission_B737.py',
+    'tutorials/tut_mission_Embraer_E190_constThr.py',
     
 ]
 

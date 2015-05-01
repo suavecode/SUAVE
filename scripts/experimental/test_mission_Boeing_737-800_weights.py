@@ -18,7 +18,7 @@ import numpy as np
 import pylab as plt
 
 import copy
-from SUAVE.Attributes import Units as Units
+from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.sref      = vehicle.S       #
     wing.ar        = 8             #
@@ -89,7 +89,7 @@ def define_vehicle():
     wing.taper     = 0.16          #
 
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac   = 12.5                  #
     wing.S_exposed   = 0.8*wing.area_wetted  #
@@ -115,7 +115,7 @@ def define_vehicle():
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.sref      =32.488         #
     wing.ar        = 6.16          #
@@ -126,7 +126,7 @@ def define_vehicle():
     wing.taper     = 0.4           #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 8.0                   #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -146,7 +146,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.sref      = 32.488        #
     wing.ar        = 1.91          #
@@ -157,7 +157,7 @@ def define_vehicle():
     wing.taper     = 0.25          #
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chord_mac  = 12.5                  #
     wing.S_exposed  = 0.8*wing.area_wetted  #
@@ -176,7 +176,7 @@ def define_vehicle():
     # ------------------------------------------------------------------
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'Fuselage'
+    fuselage.tag = 'fuselage'
     
     fuselage.num_coach_seats = 200  #
     fuselage.seat_pitch      = 1    #
@@ -195,7 +195,7 @@ def define_vehicle():
     diff_p_fus=max(abs(p2-p1),0)   
     
     # size fuselage planform
-    SUAVE.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -206,7 +206,7 @@ def define_vehicle():
     # ------------------------------------------------------------------    
     
     turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'Turbo Fan'
+    turbofan.tag = 'turbo_fan'
     
     turbofan.propellant = SUAVE.Attributes.Propellants.Aviation_Gasoline()
     
@@ -317,7 +317,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     # initial mass
@@ -332,7 +332,7 @@ def define_mission(vehicle):
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 1"
     
     # connect vehicle configuration
@@ -356,7 +356,7 @@ def define_mission(vehicle):
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 2"
     
     # connect vehicle configuration
@@ -380,7 +380,7 @@ def define_mission(vehicle):
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Climb.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Climb.Constant_Speed()
     segment.tag = "Climb - 3"
 
     # connect vehicle configuration
@@ -404,7 +404,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     segment.tag = "Cruise"
     
     # connect vehicle configuration
@@ -422,7 +422,7 @@ def define_mission(vehicle):
     #   First Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed()
     segment.tag = "Descent - 1"
     
     # connect vehicle configuration
@@ -443,7 +443,7 @@ def define_mission(vehicle):
     #   Second Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    segment = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed()
     segment.tag = "Descent - 2"
 
     # connect vehicle configuration

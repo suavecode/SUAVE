@@ -17,8 +17,8 @@ import wing as wing
 import fuselage as fuselage
 import warnings
 
-from SUAVE.Attributes import Units as Units
-from SUAVE.Structure import (
+from SUAVE.Core import Units
+from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
     )
 
@@ -85,49 +85,49 @@ def empty(vehicle):
     qm     = vehicle.qm
     
     # Wing weight
-    if not vehicle.wings.has_key('Main Wing'):
+    if not vehicle.wings.has_key('main_wing'):
         wt_wing = 0.0
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
     else:
-        Sw      = vehicle.wings['Main Wing'].areas.reference
-        bw      = vehicle.wings['Main Wing'].spans.projected
-        cw      = vehicle.wings['Main Wing'].chords.mean_aerodynamic
-        Nwr     = vehicle.wings['Main Wing'].number_ribs
-        t_cw    = vehicle.wings['Main Wing'].thickness_to_chord
-        Nwer    = vehicle.wings['Main Wing'].number_end_ribs
+        Sw      = vehicle.wings['main_wing'].areas.reference
+        bw      = vehicle.wings['main_wing'].spans.projected
+        cw      = vehicle.wings['main_wing'].chords.mean_aerodynamic
+        Nwr     = vehicle.wings['main_wing'].number_ribs
+        t_cw    = vehicle.wings['main_wing'].thickness_to_chord
+        Nwer    = vehicle.wings['main_wing'].number_end_ribs
         wt_wing = wing.wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,gw)
-        vehicle.wings['Main Wing'].mass_properties.mass = wt_wing
+        vehicle.wings['main_wing'].mass_properties.mass = wt_wing
     
     # Horizontal Tail weight
-    if not vehicle.wings.has_key('Horizontal Stabilizer'):
+    if not vehicle.wings.has_key('horizontal_stabilizer'):
         wt_ht = 0.0
         warnings.warn("There is no Horizontal Tail Weight being added to the Configuration", stacklevel=1)
     else:      
-        S_h    = vehicle.wings['Horizontal Stabilizer'].areas.reference
-        b_h    = vehicle.wings['Horizontal Stabilizer'].spans.projected
-        chs    = vehicle.wings['Horizontal Stabilizer'].chords.mean_aerodynamic
-        Nhsr   = vehicle.wings['Horizontal Stabilizer'].number_ribs
-        t_ch   = vehicle.wings['Horizontal Stabilizer'].thickness_to_chord
+        S_h    = vehicle.wings['horizontal_stabilizer'].areas.reference
+        b_h    = vehicle.wings['horizontal_stabilizer'].spans.projected
+        chs    = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
+        Nhsr   = vehicle.wings['horizontal_stabilizer'].number_ribs
+        t_ch   = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         wt_ht  = tail.tail(S_h,b_h,chs,Nhsr,t_ch,qm)
-        vehicle.wings['Horizontal Stabilizer'].mass_properties.mass = wt_ht
+        vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_ht
     
     # Vertical Tail weight
-    if not vehicle.wings.has_key('Vertical Stabilizer'):   
+    if not vehicle.wings.has_key('vertical_stabilizer'):   
         wt_vt = 0.0
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
     else:    
-        S_v    = vehicle.wings['Vertical Stabilizer'].areas.reference
-        b_v    = vehicle.wings['Vertical Stabilizer'].spans.projected
-        cvs    = vehicle.wings['Vertical Stabilizer'].chords.mean_aerodynamic
-        Nvsr   = vehicle.wings['Vertical Stabilizer'].number_ribs
-        t_cv   = vehicle.wings['Vertical Stabilizer'].thickness_to_chord
+        S_v    = vehicle.wings['vertical_stabilizer'].areas.reference
+        b_v    = vehicle.wings['vertical_stabilizer'].spans.projected
+        cvs    = vehicle.wings['vertical_stabilizer'].chords.mean_aerodynamic
+        Nvsr   = vehicle.wings['vertical_stabilizer'].number_ribs
+        t_cv   = vehicle.wings['vertical_stabilizer'].thickness_to_chord
         wt_vt   = tail.tail(S_v,b_v,cvs,Nvsr,t_cv,qm)
-        vehicle.wings['Vertical Stabilizer'].mass_properties.mass = wt_vt
+        vehicle.wings['vertical_stabilizer'].mass_properties.mass = wt_vt
 
     ##Fuselage weight
     #Ltb     = vehicle.Ltb  
     #wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
-    #vehicle.Fuselages.Fuselage.mass_properties.mass = wt_tb
+    #vehicle.Fuselages['fuselage'].mass_properties.mass = wt_tb
     
     weight                 = Data()
     weight.wing            = wt_wing

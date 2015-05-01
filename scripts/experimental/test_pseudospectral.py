@@ -25,7 +25,7 @@ def main():
     config.Functions.Aero = aero
 
     # define problem to be solved
-    projectile = SUAVE.Attributes.Missions.Segments.Glide()
+    projectile = SUAVE.Analyses.Mission.Segments.Glide()
     projectile.tag = "Projectile Motion with Drag"
     projectile.final_condition = landing
     projectile.atmosphere = SUAVE.Attributes.Atmospheres.Atmosphere()

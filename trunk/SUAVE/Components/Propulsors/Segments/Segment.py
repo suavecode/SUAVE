@@ -6,7 +6,7 @@
 
 import numpy as np
 from SUAVE.Components import Component
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Propellants import Propellant
 

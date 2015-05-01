@@ -13,7 +13,7 @@
 # classes
 from Gas import Gas
 from SUAVE.Attributes.Constants import Composition
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 
 # ----------------------------------------------------------------------
 #  CO2

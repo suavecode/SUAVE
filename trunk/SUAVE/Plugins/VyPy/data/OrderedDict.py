@@ -40,8 +40,9 @@ class OrderedDict(Dict):
 
         self = super(OrderedDict,klass).__new__(klass)
         
-        if len(args) > 1:
-            raise TypeError('expected at most 1 arguments, got %d' % len(args))
+        #if len(args) > 1:
+            #raise TypeError('expected at most 1 arguments, got %d' % len(args))
+            
         if self.__root is None:
             root = [] # sentinel node
             root[:] = [root, root, None]
@@ -62,23 +63,34 @@ class OrderedDict(Dict):
         # Or if E is an iterable of items, does:   for k, v in E: od[k] = v
         # In either case, this is followed by:     for k, v in F.items(): od[k] = v        
         
+        ## result data structure
+        #klass = self.__class__
+        #from VyPy.data import DataBunch
+        #if isinstance(klass,DataBunch):
+            #klass = DataBunch
+            
+        def append_value(key,value):
+            #if isinstance(value,dict):
+                #value = klass(value)                
+            self[key] = value            
+        
         # a dictionary
         if hasattr(items, 'iterkeys'):
             for key in items.iterkeys():
-                self[key] = items[key]
+                append_value(key,items[key])
+
         elif hasattr(items, 'keys'):
             for key in items.keys():
-                self[key] = items[key]
+                append_value(key,items[key])
                 
         # items lists
         elif items:
             for key, value in items:
-                self[key] = value
+                append_value(key,value)
                 
         # key words
         for key, value in kwds.iteritems():
-            self[key] = value
-
+            append_value(key,value)
 
     def __setitem__(self, key, value):
         """od.__setitem__(i, y) <==> od[i]=y"""
@@ -284,7 +296,7 @@ class OrderedDict(Dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from ..tools.arrays import atleast_2d_col, array_type, matrix_type
+        from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
         if not output in ('vector','array'): raise Exception , 'output type must be "vector" or "array"'        
@@ -361,7 +373,7 @@ class OrderedDict(Dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from ..tools.arrays import atleast_2d_col, array_type, matrix_type
+        from VyPy.tools.arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
         vector = np.rank(M) == 1
@@ -438,12 +450,12 @@ class OrderedDict(Dict):
          
         # done!
         return self
-
+    
     def do_recursive(self,method,other=None,default=None):
         
         # result data structure
         klass = self.__class__
-        from SUAVE.Plugins.VyPy.data import DataBunch
+        from VyPy.data import DataBunch
         if isinstance(klass,DataBunch):
             klass = DataBunch
         result = klass()
@@ -452,7 +464,10 @@ class OrderedDict(Dict):
         def do_operation(A,B,C):
             for k,a in A.iteritems():
                 if isinstance(B,OrderedDict):
-                    b = B[k]
+                    if B.has_key(k):
+                        b = B[k]
+                    else: 
+                        continue
                 else:
                     b = B
                 # recursion
@@ -476,6 +491,7 @@ class OrderedDict(Dict):
         do_operation(self,other,result)    
         
         return result
+        
 
 
 # for rebuilding dictionaries with attributes
@@ -520,8 +536,8 @@ if __name__ == '__main__':
     print ''
     print p
     
-    
     import numpy as np
+    import VyPy
     a = OrderedDict()
     a['f'] = 1
     a['g'] = 2
@@ -529,7 +545,7 @@ if __name__ == '__main__':
     a['b']['h'] = np.array([1,2,3])
     
     from copy import deepcopy
-    b = deepcopy(a)    
+    b = deepcopy(a)
     
     def method(self,other):
         return self-other
@@ -545,7 +561,11 @@ if __name__ == '__main__':
             return None
     
     d = a.do_recursive(method)
-    print d    
+    print d
+    
+    wait = 0
+    
+
     
     
     

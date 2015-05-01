@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 
 
@@ -14,7 +14,7 @@ from SUAVE.Components import Component, Physical_Component, Lofted_Body
 
 class Fuselage(Lofted_Body):
     def __defaults__(self):
-        self.tag = 'Fuselage'
+        self.tag = 'fuselage'
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()
         self.Segments    = Lofted_Body.Segment.Container()

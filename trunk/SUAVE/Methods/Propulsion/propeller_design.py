@@ -14,9 +14,9 @@ import SUAVE
 import numpy as np
 import scipy as sp
 
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -64,9 +64,10 @@ def propeller_design(prop_attributes):
     Power  = prop_attributes.design_power
     
     # Calculate atmospheric properties
-    atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(alt)
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    p, T, rho, a, mu = [ v[0] for v in atmosphere.compute_values(alt) ]
     nu = mu/rho
+    
     
     # Nondimensional thrust
     Tc = 2.*Thrust/(rho*(V**2.)*np.pi*(R**2.))

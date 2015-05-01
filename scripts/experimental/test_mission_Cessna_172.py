@@ -59,7 +59,7 @@ def main():
     cruise_config = Cessna172.new_configuration("cruise")
 
     # create a climb segment: constant Mach, constant climb angle 
-    climb = SUAVE.Attributes.Missions.Segments.Climb.Constant_Mach()
+    climb = SUAVE.Analyses.Mission.Segments.Climb.Constant_Mach()
     climb.tag = "Cessena 172 Climb"
     climb.altitude = [0.0, 10.0]                     # km
     climb.atmosphere = atm
@@ -70,7 +70,7 @@ def main():
     climb.options.N = 16
 
     # create a cruise segment: constant speed, constant altitude
-    cruise = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Constant_Altitude()
+    cruise = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Constant_Altitude()
     cruise.tag = "Cessena 172 Cruise"
     cruise.altitude = 10.0                         # km
     cruise.atmosphere = atm
@@ -81,7 +81,7 @@ def main():
     cruise.options.N = 16
 
     # create a descent segment: consant speed, constant descent rate
-    descent = SUAVE.Attributes.Missions.Segments.Descent.Constant_Speed()
+    descent = SUAVE.Analyses.Mission.Segments.Descent.Constant_Speed()
     descent.tag = "Cessena 172 Descent"
     descent.altitude = [10.0, 0.0]                     # km
     descent.atmosphere = atm
@@ -92,7 +92,7 @@ def main():
     descent.options.N = 16
 
     # create a Mission
-    flight = SUAVE.Attributes.Missions.Mission()
+    flight = SUAVE.Analyses.Mission.Mission()
     flight.tag = "Cessna 172 test mission"
     flight.m0 = Cessna172.Mass_Props.m_full         # kg
     flight.append_segment(climb)

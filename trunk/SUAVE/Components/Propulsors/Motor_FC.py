@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 # from SUAVE.Methods.Power import RunFuelCell
 from Propulsor import Propulsor
 import copy

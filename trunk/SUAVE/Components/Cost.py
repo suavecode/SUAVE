@@ -1,5 +1,5 @@
 
-from SUAVE.Structure import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
 from Component import Component
 
 class Cost(Component):

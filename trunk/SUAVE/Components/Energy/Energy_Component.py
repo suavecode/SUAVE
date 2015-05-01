@@ -2,7 +2,7 @@
 #  Imports
 # ------------------------------------------------------------
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 from SUAVE.Components import Physical_Component

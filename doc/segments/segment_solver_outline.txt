@@ -83,7 +83,7 @@ SUAVE.Methods.Performance.evaluate_segment()
     unknowns, residuals, conditions, numerics
     
     # works on a segment, see
-    # SUAVE.Attributes.Missions.Segments.Segment()
+    # SUAVE.Analyses.Mission.Segments.Segment()
     
     # initialize arrays in unknowns, residuals, conditions
     segment.initialize_differentials()    

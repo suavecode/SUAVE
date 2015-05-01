@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Attributes.Results.Result import Result
+from SUAVE.Core import Results
 air = Air()
 compute_speed_of_sound = air.compute_speed_of_sound
 
@@ -74,7 +74,7 @@ def wave_drag_lift(conditions,configuration,wing):
 
     
     # Dump data to conditions
-    wave_lift_result = Result(
+    wave_lift_result = Results(
         reference_area            = Sref   , 
         wave_drag_lift_coefficient = wave_drag_lift ,
         length_AR                 = ARL,

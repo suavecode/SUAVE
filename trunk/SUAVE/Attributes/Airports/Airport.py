@@ -3,7 +3,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from SUAVE.Attributes.Atmospheres import Earth
 from Runway import Runway
 

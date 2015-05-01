@@ -10,9 +10,9 @@ sys.path.append('../trunk')
 
 
 import SUAVE
-from SUAVE.Attributes import Units
+from SUAVE.Core import Units
 
-from SUAVE.Structure import (
+from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
@@ -90,7 +90,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------   
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Main Wing'
+    wing.tag = 'main_wing'
     
     wing.areas.reference    = vehicle.reference_area     #
     wing.spans.projected    = 40.          #m
@@ -101,7 +101,7 @@ def define_vehicle(weight):
     wing.taper              = 1.             #    
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
@@ -125,7 +125,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------        
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Horizontal Stabilizer'
+    wing.tag = 'horizontal_stabilizer'
     
     wing.areas.reference    = vehicle.reference_area*.15  #m^2
     wing.aspect_ratio       = 20.            #
@@ -137,7 +137,7 @@ def define_vehicle(weight):
     wing.twists.root        = 0.0*Units.degrees     #
     wing.twists.tip         = 0.0*Units.degrees     #
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
@@ -155,7 +155,7 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'Vertical Stabilizer'    
+    wing.tag = 'vertical_stabilizer'    
     
     wing.areas.reference    = vehicle.reference_area*.1 #m^2
     wing.aspect_ratio       = 20.             #
@@ -168,7 +168,7 @@ def define_vehicle(weight):
     wing.twists.tip         = 0.0*Units.degrees     #       
     
     # size the wing planform
-    SUAVE.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  #
     wing.areas.exposed           = 0.8*wing.areas.wetted  # might not be needed as input
@@ -281,9 +281,9 @@ def define_vehicle(weight):
     # ------------------------------------------------------------------
     #   Add up all of the masses
     # ------------------------------------------------------------------
-    wingmass  = vehicle.wings['Main Wing'].mass_properties.mass
-    HTmass    = vehicle.wings['Horizontal Stabilizer'].mass_properties.mass
-    VTmass    = vehicle.wings['Vertical Stabilizer'].mass_properties.mass
+    wingmass  = vehicle.wings['main_wing'].mass_properties.mass
+    HTmass    = vehicle.wings['horizontal_stabilizer'].mass_properties.mass
+    VTmass    = vehicle.wings['vertical_stabilizer'].mass_properties.mass
     batmass   = bat.mass_properties.mass
     motmass   = motor.mass_properties.mass
     paylmass  = payload.mass_properties.mass
@@ -321,7 +321,7 @@ def define_mission(vehicle):
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
-    mission = SUAVE.Attributes.Missions.Mission()
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'The Test Mission'
 
     mission.start_time  = time.strptime("Thu, Mar 20 12:00:00  2014", "%a, %b %d %H:%M:%S %Y",)
@@ -332,7 +332,7 @@ def define_mission(vehicle):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = SUAVE.Attributes.Missions.Segments.Cruise.Constant_Speed_Altitude_Radius_Loiter()
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Speed_Altitude_Radius_Loiter()
     segment.tag = "Loiter"
     
     # connect vehicle configuration

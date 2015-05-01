@@ -1,7 +1,7 @@
 # test_Data.py
 
 import SUAVE
-from SUAVE.Structure import Data
+from SUAVE.Core import Data
 from copy import deepcopy
 
 # ----------------------------------------------------------------------
