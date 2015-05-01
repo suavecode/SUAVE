@@ -545,11 +545,9 @@ class Ducted_Fan(Propulsor):
         F            =F_vec          
  
         CF = FD/(conditions.freestream.dynamic_pressure*self.A2)
-        thermo=Data()
-        thermo.cp=Cpp;
-        thermo.ht=h7
-        
-        mdot = 0.
+        results = Data()
+        results.thrust_force_vector = F
+        results.vehicle_mass_rate   = 0.0
 
       
-        return F,0.0,P    
+        return results 

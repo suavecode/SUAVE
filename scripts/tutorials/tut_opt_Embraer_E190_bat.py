@@ -83,7 +83,7 @@ def run(inputs):                #sizing loop to enable optimization
     m_guess    = 64204.6490117
     Ereq_guess = 117167406053.0
     Preq_guess = 8007935.5158
-    disp_results=0                         #1 for displaying results, 0 for optimize    
+    disp_results=1                         #1 for displaying results, 0 for optimize    
     target_range=2800                       #minimum flight range of the aircraft (constraint)
     
     #mass=[ 100034.162173]
@@ -108,7 +108,7 @@ def run(inputs):                #sizing loop to enable optimization
     if disp_results==0:
         max_iter=20
     else:
-        max_iter=20
+        max_iter=5
     j=0
     P_mot=inputs[1]
     Preq=P_mot*10**7 
@@ -126,12 +126,12 @@ def run(inputs):                #sizing loop to enable optimization
         configs, analyses = full_setup(inputs,m_guess, Ereq_guess)
         simple_sizing(configs,analyses, m_guess,Ereq_guess,Preq)
         mission = analyses.missions.base
-        battery=configs.base.network['battery']
+        battery=configs.base.energy_network['battery']
         configs.finalize()
         analyses.finalize()
-        configs.cruise.network['battery']=battery #make it so all configs handle the exact same battery object
-        configs.takeoff.network['battery']=battery
-        configs.landing.network['battery']=battery
+        configs.cruise.energy_network['battery']=battery #make it so all configs handle the exact same battery object
+        configs.takeoff.energy_network['battery']=battery
+        configs.landing.energy_network['battery']=battery
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
         
@@ -508,7 +508,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     net.battery=battery
     net.number_of_engines=ducted_fan.number_of_engines
     
-    vehicle.network=net
+    vehicle.energy_network=net
     vehicle.propulsors.append(ducted_fan)
 
     #vehicle.propulsors.append(turbofan)
@@ -539,7 +539,7 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    battery   =base.network['battery']
+    battery   =base.energy_network['battery']
     ducted_fan=base.propulsors['ducted_fan']
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
     
@@ -1012,7 +1012,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.network #what is called throughout the mission (at every time step))
+    energy.network = vehicle.energy_network #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -1040,7 +1040,7 @@ def missions_setup(base_mission):
 #   Plot Results
 # ----------------------------------------------------------------------
 def post_process(mission,configs, results):
-    battery=configs.base.propulsors.network['battery']
+    battery=configs.base.energy_network['battery']
     # ------------------------------------------------------------------    
     #   Thrust Angle
     # ------------------------------------------------------------------
@@ -1100,7 +1100,8 @@ def post_process(mission,configs, results):
     axes = plt.gca()    
     for i in range(len(results.segments)):     
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        print results.segments[i].conditions
+        mdot = results.segments[i].conditions.vehicle_mass_rate[:,0]
         axes.plot(time, -mdot, 'bo-')
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Mass Accumulation Rate(kg/s)')

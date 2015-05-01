@@ -19,6 +19,7 @@ import datetime
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
@@ -26,7 +27,7 @@ Data, Container, Data_Exception, Data_Warning,
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Battery_Ducted_Fan(Data):
+class Battery_Ducted_Fan(Propulsor):
     def __defaults__(self):
         self.propulsor   = None
         self.battery     = None
@@ -45,16 +46,17 @@ class Battery_Ducted_Fan(Data):
         conditions = state.conditions
         numerics   = state.numerics
   
-        F, mdot, Pe =propulsor.evaluate_thrust(state)
-       
+        results=propulsor.evaluate_thrust(state)
+        Pe     =results.thrust_force_vector[:,0]*conditions.freestream.velocity
+        '''
         try:
             initial_energy=conditions.propulsion.battery_energy
-          
-            if initial_energy[0]==0: #beginning of segment; initialize battery
+            print conditions.propulsion
+            if initial_energy[0][0]==0: #beginning of segment; initialize battery
                 battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
         except AttributeError: #battery energy not initialized, e.g. in takeoff
             battery.current_energy=battery.current_energy[-1]*np.ones_like(F)
-       
+        '''
         pbat=-Pe/self.motor_efficiency
         
         battery_logic     = Data()
@@ -84,8 +86,11 @@ class Battery_Ducted_Fan(Data):
         output_power= battery_draw
         #number_of_engines
         #Create the outputs
-
         
-        return F, mdot, output_power
+        
+ 
+        results.vehicle_mass_rate   = mdot
+        results.energy              = battery_energy
+        return results
             
     __call__ = evaluate_thrust
