@@ -15,10 +15,11 @@ class Energy(Analysis):
     """ SUAVE.Analyses.Energy.Energy()
     """
     def __defaults__(self):
-        self.tag    = 'energy'
+        self.tag     = 'energy'
+        self.network = None
         
-    def evaluate(self,state):
-        network    = self.network
+    def evaluate_thrust(self,state):
+        network = self.network
         results = network.evaluate_thrust(state) 
         
         return results
