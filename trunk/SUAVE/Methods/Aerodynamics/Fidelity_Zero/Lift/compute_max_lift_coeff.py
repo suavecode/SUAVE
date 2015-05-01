@@ -87,7 +87,6 @@ def compute_max_lift_coeff(vehicle,conditions=None):
 
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-        
         #-reynolds number effect
         Reyn     =  V * roc * chord_mac / nu
         Re_ref   = 9*10**6

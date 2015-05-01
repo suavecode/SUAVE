@@ -74,7 +74,7 @@ class Solar_Logic(Energy_Component):
         volts_motor = self.inputs.volts_motor
         volts       = self.voltage()
         esccurrent  = self.inputs.currentesc
-        I           = numerics.integrate_time
+        I           = numerics.time.integrate
         
         pavail = pin*self.MPPT_efficiency
         

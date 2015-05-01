@@ -76,12 +76,12 @@ class Aerodynamics(Basic):
         # propulsion conditions
         self.propulsion = Conditions()
         self.propulsion.throttle           = ones_1col * 0
-        self.propulsion.fuel_mass_rate     = ones_1col * 0
         self.propulsion.battery_energy     = ones_1col * 0
         self.propulsion.thrust_breakdown   = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
-
-
+        
+        # weights conditions
+        self.weights.vehicle_mass_rate     = ones_1col * 0

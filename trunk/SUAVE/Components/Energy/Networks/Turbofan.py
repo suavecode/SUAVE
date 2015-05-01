@@ -47,10 +47,13 @@ class Turbofan(Propulsor):
         
     
     # linking the different network components
-    def evaluate(self,conditions,numerics):
+    def evaluate_thrust(self,state):
 
     
-        #Unpack components
+        #Unpack
+        
+        conditions = state.conditions
+        numerics   = state.numerics
         
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
@@ -193,24 +196,34 @@ class Turbofan(Propulsor):
 
         #compute the trust
         thrust(conditions)
+ 
         
         
         
         #getting the network outputs from the thrust outputs
         
-        F      = thrust.outputs.thrust
-        mdot   = thrust.outputs.fuel_flow_rate
-        Isp    = thrust.outputs.specific_impulse
-        P      = thrust.outputs.power
+        F            = thrust.outputs.thrust*[1,0,0]
+        mdot         = thrust.outputs.fuel_flow_rate
+        Isp          = thrust.outputs.specific_impulse
+        output_power = thrust.outputs.power
+        F_vec        = conditions.ones_row(3) * 0.0
+        F_vec[:,0]   = F[:,0]
+        F            = F_vec
+
+        results = Data()
+        results.thrust_force_vector = F
+        results.vehicle_mass_rate   = mdot
         
-        
-        return F,mdot,P
+        return results
     
     
     
-    def size(self,conditions,numerics):  
+    def size(self,state):  
         
         #Unpack components
+        
+        conditions = state.conditions
+        numerics   = state.numerics        
         
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
@@ -362,5 +375,5 @@ class Turbofan(Propulsor):
     
 
 
-    __call__ = evaluate
+    __call__ = evaluate_thrust
 

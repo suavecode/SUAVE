@@ -11,10 +11,11 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def initialize_weights(segment,state):
-    
+ 
     if state.initials:
         m_initial = state.initials.conditions.weights.total_mass[-1,0]
     else:
+       
         m_initial = segment.analyses.weights.vehicle.mass_properties.takeoff
 
     m_current = state.conditions.weights.total_mass
@@ -53,7 +54,7 @@ def update_weights(segment,state):
     conditions = state.conditions
     m0        = conditions.weights.total_mass[0,0]
     m_empty   = segment.analyses.weights.mass_properties.operating_empty
-    mdot_fuel = conditions.propulsion.fuel_mass_rate
+    mdot_fuel = conditions.weights.vehicle_mass_rate
     I         = state.numerics.time.integrate
     g         = conditions.freestream.gravity
 

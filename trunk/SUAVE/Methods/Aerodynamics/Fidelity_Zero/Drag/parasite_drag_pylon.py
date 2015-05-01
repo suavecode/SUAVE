@@ -31,7 +31,6 @@ def parasite_drag_pylon(state,settings,geometry):
             simplified estimation, considering pylon drag a fraction of the nacelle drag
 
     """
-
     # unpack
     
     conditions = state.conditions

@@ -18,14 +18,15 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
     Rbat  = battery.resistance
-    I     = numerics.integrate_time
-    D     = numerics.differentiate_time
+    I     = numerics.time.integrate
+    D     = numerics.time.differentiate
     
     # Maximum energy
     max_energy = battery.max_energy
     
-    #state of charge of the batter
-    x = np.divide(battery.current_energy,battery.max_energy)[:,0,None]
+    #state of charge of the battery
+   
+    x = np.divide(battery.current_energy,battery.max_energy)
 
     # C rate from 
     C = 3600.*pbat/battery.max_energy
@@ -42,25 +43,29 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     
     # Calculate resistive losses
     Ploss = (Ibat**2)*R
-    
+
     # Energy loss from power draw
     eloss = np.dot(I,Ploss)
 
     # Pack up
-    battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
+    #battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
 
     # Possible Energy going into the battery:
     energy_unmodified = np.dot(I,pbat)
-    
+   
     # How much energy the battery could be overcharged by
     delta = energy_unmodified - max_energy + battery.current_energy[0]
     delta[delta<0.] = 0.
+  
     ddelta = np.dot(D,delta) # Power that shouldn't go in
     
     # Power actually going into the battery
     P = pbat - ddelta
     ebat = np.dot(I,P)
+    
     # Add this to the current state
+    eloss=0
     battery.current_energy = ebat - eloss + battery.current_energy[0]
     battery.resistive_losses=Ploss
+    
     return
