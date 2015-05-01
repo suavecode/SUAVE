@@ -83,7 +83,7 @@ def main():
     altitude           = 0.0 * Units.feet
     segment.a          = segment.atmosphere.compute_values(altitude / Units.km, type="a")
     segment.freestream.density        = segment.atmosphere.compute_values(altitude / Units.km, type="rho")
-    segment.freestream.viscosity        = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
+    segment.freestream.dynamic_viscosity        = segment.atmosphere.compute_values(altitude / Units.km, type="mew")
     segment.freestream.velocity      = segment.freestream.mach_number * segment.a    
     
     #Method Test   

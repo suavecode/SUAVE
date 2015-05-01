@@ -138,7 +138,7 @@ def main():
     conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
     conditions.freestream.velocity            = np.array([[1.0],[1.0]])
     conditions.freestream.density             = np.array([rho,rho])
-    conditions.freestream.viscosity           = np.array([mu, mu])
+    conditions.freestream.dynamic_viscosity           = np.array([mu, mu])
     conditions.freestream.speed_of_sound      = np.array([a, a])
     conditions.freestream.altitude            = np.array([[design_altitude], [design_altitude]])
     conditions.propulsion.battery_energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)

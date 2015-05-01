@@ -11,7 +11,7 @@
 
 import numpy as np
 from scipy import trapz
-from SUAVE.Structure  import Data
+from SUAVE.Core  import Data
 #from SUAVE.Attributes import Constants
 from SUAVE.Attributes.Atmospheres.Earth import USStandard1976
 from SUAVE.Attributes.Gases import Air

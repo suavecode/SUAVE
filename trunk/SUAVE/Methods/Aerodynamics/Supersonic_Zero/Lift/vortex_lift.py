@@ -23,7 +23,8 @@ import numpy as np
 #   The Function
 # ----------------------------------------------------------------------
 
-def vortex_lift(AoA,configuration,wing):
+#def vortex_lift(AoA,configuration,wing):
+def vortex_lift(state,settings,geometry):
     """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
         computes the vortex lift on highly swept wings
         
@@ -38,16 +39,32 @@ def vortex_lift(AoA,configuration,wing):
 
         
     """
+    
+    Mc        = state.conditions.freestream.mach_number
+    AoA       = state.conditions.aerodynamics.angle_of_attack
+    
+    wings_lift = state.conditions.aerodynamics.lift_coefficient
 
-    
-    AR = wing.aspect_ratio
-    GAMMA = wing.sweep
-    
-    # angle of attack
-    a = AoA
-    
-    # lift coefficient addition
-    CL_prime = np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA)))
+    vortex_cl = np.array([[0.0]] * len(Mc))
     
     
-    return CL_prime
+
+    for wing in geometry.wings:
+    
+        if wing.vortex_lift is True:
+            #vortex_cl[Mc < 1.0] = vortex_lift(AoA[Mc < 1.0],configuration,wing) # This was initialized at 0.0
+            AR = wing.aspect_ratio
+            GAMMA = wing.sweep
+            
+            # angle of attack
+            a = AoA[Mc < 1.0]
+            
+            # lift coefficient addition
+            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA)))
+    
+    
+    wings_lift[Mc <= 1.05] = wings_lift[Mc <= 1.05] + vortex_cl[Mc <= 1.05]    
+    
+    state.conditions.aerodynamics.lift_breakdown.vortex_lift = vortex_cl   
+    
+    return wings_lift

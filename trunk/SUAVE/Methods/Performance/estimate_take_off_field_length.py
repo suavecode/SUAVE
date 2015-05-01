@@ -103,7 +103,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport):
         conditions  = atmo.compute_values(10000. * Units.ft)
         conditions.freestream=Data()
         conditions.freestream.density   = conditions.density
-        conditions.freestream.viscosity = conditions.dynamic_viscosity
+        conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)

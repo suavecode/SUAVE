@@ -32,7 +32,7 @@ def main():
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     vehicle.aerodynamics_model = aerodynamics   
-    vehicle.aerodynamics_model.finalize()       
+    vehicle.aerodynamics_model.initialize()       
     
     test_num = 11 # Length of arrays used in this test
     
@@ -42,22 +42,11 @@ def main():
     
     AoA = np.linspace(-.174,.174,test_num)[:,None] # +- 10 degrees
     
-    lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient_sub
+    # Cruise conditions (except Mach number)
+    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
-    wing_lift = lift_model(AoA)
-    
-    # Truth value
-    wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
-                            0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
-                            1.47463553])[:,None]
-    
-    surg_test = np.abs((wing_lift-wing_lift_r)/wing_lift)
-    
-    print 'Surrogate Test Results \n'
-    print surg_test
-    
-    assert(np.max(surg_test)<1e-4), 'Supersonic Aero regression failed at surrogate test'
-
+    state.expand_rows(test_num)     
     
     # --------------------------------------------------------------------
     # Initialize variables needed for CL and CD calculations
@@ -85,38 +74,38 @@ def main():
     pressure = np.linspace(10**5,10**6,test_num)
     pressure = pressure.reshape(test_num,1)
     
-    conditions = Data()
+    state.conditions.freestream.mach_number = Mc
+    state.conditions.freestream.density = rho
+    state.conditions.freestream.dynamic_viscosity = mu
+    state.conditions.freestream.temperature = T
+    state.conditions.freestream.pressure = pressure
     
-    conditions.freestream = Data()
-    conditions.freestream.mach_number = Mc
-    conditions.freestream.density = rho
-    conditions.freestream.viscosity = mu
-    conditions.freestream.temperature = T
-    conditions.freestream.pressure = pressure
+    state.conditions.aerodynamics.angle_of_attack = AoA    
     
-    conditions.aerodynamics = Data()
-    conditions.aerodynamics.angle_of_attack = AoA
-    conditions.aerodynamics.lift_breakdown = Data()
-    conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lift
     
-    configuration = vehicle.aerodynamics_model.settings
+    # --------------------------------------------------------------------
+    # Surrogate
+    # --------------------------------------------------------------------    
     
-    conditions.aerodynamics.drag_breakdown = Data()
-
-    geometry = Data()
-    for k in ['fuselages','wings','propulsors']:
-        geometry[k] = deepcopy(vehicle[k])    
-    geometry.reference_area = vehicle.reference_area  
-    #geometry.wings[0] = Data()
-    #geometry.wings[0].vortex_lift = False
+            
+    #call the aero model        
+    results = aerodynamics.evaluate(state)
+    
+    #build a polar for the markup aero
+    polar = Data()    
+    CL = results.lift.total
+    CD = results.drag.total
+    polar.lift = CL
+    polar.drag = CD    
+    
     
     # --------------------------------------------------------------------
     # Test compute Lift
     # --------------------------------------------------------------------
     
-    compute_aircraft_lift(conditions, configuration, geometry) 
+    #compute_aircraft_lift(conditions, configuration, geometry) 
     
-    lift = conditions.aerodynamics.lift_breakdown.total
+    lift = state.conditions.aerodynamics.lift_coefficient
     
     # Truth value
     lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
@@ -136,10 +125,10 @@ def main():
     # Test compute drag 
     # --------------------------------------------------------------------
     
-    compute_aircraft_drag(conditions, configuration, geometry)
+    #compute_aircraft_drag(conditions, configuration, geometry)
     
     # Pull calculated values
-    drag_breakdown = conditions.aerodynamics.drag_breakdown
+    drag_breakdown = state.conditions.aerodynamics.drag_breakdown
     
     # Only one wing is evaluated since they rely on the same function
     cd_c           = drag_breakdown.compressible['main_wing'].compressibility_drag
@@ -185,7 +174,158 @@ def main():
     for i, tests in drag_tests.items():
         assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
     
-    return conditions, configuration, geometry, test_num  
+    #return state.conditions, configuration, geometry, test_num  
+
+
+    
+    
+    
+    #lift_model = vehicle.aerodynamics_model.surrogates.lift_coefficient_sub
+    
+    #wing_lift = lift_model(AoA)
+    
+    ## Truth value
+    #wing_lift_r = np.array([-0.79420805, -0.56732369, -0.34043933, -0.11355497,  0.11332939,
+                            #0.34021374,  0.5670981 ,  0.79398246,  1.02086682,  1.24775117,
+                            #1.47463553])[:,None]
+    
+    #surg_test = np.abs((wing_lift-wing_lift_r)/wing_lift)
+    
+    #print 'Surrogate Test Results \n'
+    #print surg_test
+    
+    #assert(np.max(surg_test)<1e-4), 'Supersonic Aero regression failed at surrogate test'
+
+    
+    ## --------------------------------------------------------------------
+    ## Initialize variables needed for CL and CD calculations
+    ## Use a seeded random order for values
+    ## --------------------------------------------------------------------
+    
+    #random.seed(1)
+    #Mc = np.linspace(0.05,0.9,test_num)
+    #random.shuffle(Mc)
+    #AoA = AoA.reshape(test_num,1)
+    #Mc = Mc.reshape(test_num,1)
+    
+    #rho = np.linspace(0.3,1.3,test_num)
+    #random.shuffle(rho)
+    #rho = rho.reshape(test_num,1)
+    
+    #mu = np.linspace(5*10**-6,20*10**-6,test_num)
+    #random.shuffle(mu)
+    #mu = mu.reshape(test_num,1)
+    
+    #T = np.linspace(200,300,test_num)
+    #random.shuffle(T)
+    #T = T.reshape(test_num,1)
+    
+    #pressure = np.linspace(10**5,10**6,test_num)
+    #pressure = pressure.reshape(test_num,1)
+    
+    #conditions = Data()
+    
+    #conditions.freestream = Data()
+    #conditions.freestream.mach_number = Mc
+    #conditions.freestream.density = rho
+    #conditions.freestream.dynamic_viscosity = mu
+    #conditions.freestream.temperature = T
+    #conditions.freestream.pressure = pressure
+    
+    #conditions.aerodynamics = Data()
+    #conditions.aerodynamics.angle_of_attack = AoA
+    #conditions.aerodynamics.lift_breakdown = Data()
+    #conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lift
+    
+    #configuration = vehicle.aerodynamics_model.settings
+    
+    #conditions.aerodynamics.drag_breakdown = Data()
+
+    #geometry = Data()
+    #for k in ['fuselages','wings','propulsors']:
+        #geometry[k] = deepcopy(vehicle[k])    
+    #geometry.reference_area = vehicle.reference_area  
+    ##geometry.wings[0] = Data()
+    ##geometry.wings[0].vortex_lift = False
+    
+    ## --------------------------------------------------------------------
+    ## Test compute Lift
+    ## --------------------------------------------------------------------
+    
+    #compute_aircraft_lift(conditions, configuration, geometry) 
+    
+    #lift = conditions.aerodynamics.lift_breakdown.total
+    
+    ## Truth value
+    #lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
+                       #0.5075275 ,  0.67883681,  0.92787301,  1.40470556,  2.08126751,
+                       #1.69661601])
+    #lift_r = lift_r.reshape(test_num,1)
+    
+    #lift_test = np.abs((lift-lift_r)/lift)
+    
+    #print '\nCompute Lift Test Results\n'
+    #print lift_test
+        
+    #assert(np.max(lift_test)<1e-4), 'Supersonic Aero regression failed at compute lift test'    
+    
+    
+    ## --------------------------------------------------------------------
+    ## Test compute drag 
+    ## --------------------------------------------------------------------
+    
+    #compute_aircraft_drag(conditions, configuration, geometry)
+    
+    ## Pull calculated values
+    #drag_breakdown = conditions.aerodynamics.drag_breakdown
+    
+    ## Only one wing is evaluated since they rely on the same function
+    #cd_c           = drag_breakdown.compressible['main_wing'].compressibility_drag
+    #cd_i           = drag_breakdown.induced.total
+    #cd_m           = drag_breakdown.miscellaneous.total
+    #cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
+    #cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep
+    #cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['turbo_fan']
+    #cd_m_ctrl      = drag_breakdown.miscellaneous.control_gaps
+    #cd_p_fuse      = drag_breakdown.parasite['fuselage'].parasite_drag_coefficient
+    #cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
+    #cd_tot         = drag_breakdown.total
+    
+    ## Truth values
+    #(cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
+    
+    #cd_c_r = cd_c_r.reshape(test_num,1)
+    #cd_i_r = cd_i_r.reshape(test_num,1)
+    #cd_m_r = cd_m_r.reshape(test_num,1)
+    #cd_m_fuse_base_r = cd_m_fuse_base_r.reshape(test_num,1)
+    #cd_m_fuse_up_r = cd_m_fuse_up_r.reshape(test_num,1)
+    #cd_m_nac_base_r = cd_m_nac_base_r.reshape(test_num,1)
+    #cd_m_ctrl_r = cd_m_ctrl_r.reshape(test_num,1)
+    #cd_p_fuse_r = cd_p_fuse_r.reshape(test_num,1)
+    #cd_p_wing_r = cd_p_wing_r.reshape(test_num,1)
+    #cd_tot_r = cd_tot_r.reshape(test_num,1)
+    
+    #drag_tests = Data()
+    #drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
+    #drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
+    #drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
+    ## Line below is not normalized since regression values are 0, insert commented line if this changes
+    #drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
+    #drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
+    #drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
+    #drag_tests.cd_p_fuse      = np.abs((cd_p_fuse - cd_p_fuse_r)/cd_p_fuse)
+    #drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
+    #drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
+    
+    #print '\nCompute Drag Test Results\n'
+    #print drag_tests
+    
+    #for i, tests in drag_tests.items():
+        #assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
+    
+    #return conditions, configuration, geometry, test_num  
+    
+    
 
 def reg_values():
     
@@ -232,7 +372,8 @@ def reg_values():
            cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
 
 if __name__ == '__main__':
-    (conditions, configuration, geometry, test_num) = main()
+    #(conditions, configuration, geometry, test_num) = main()
+    main()
     
     print 'Supersonic Aero regression test passed!'
     
@@ -240,24 +381,102 @@ if __name__ == '__main__':
     # Drag Polar
     # --------------------------------------------------------------------  
     
-    ## Cruise conditions (except Mach number)
-    #conditions.freestream.mach_number = np.array([0.2]*test_num)
-    #conditions.freestream.density = np.array([0.3804534]*test_num)
-    #conditions.freestream.viscosity = np.array([1.43408227e-05]*test_num)
-    #conditions.freestream.temperature = np.array([218.92391647]*test_num)
-    #conditions.freestream.pressure = np.array([23908.73408391]*test_num)
+    # --------------------------------------------------------------------
+    # Drag Polar
+    # --------------------------------------------------------------------
     
-    #compute_aircraft_lift(conditions, configuration, geometry) # geometry is third variable, not used
-    #CL = conditions.aerodynamics.lift_breakdown.total    
+    # initialize the vehicle
+    vehicle = vehicle_setup() 
+    for wing in vehicle.wings:
+        wing.areas.wetted   = 2.0 * wing.areas.reference
+        wing.areas.exposed  = 0.8 * wing.areas.wetted
+        wing.areas.affected = 0.6 * wing.areas.wetted  
+        
+        
+    # initalize the aero model
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics.geometry = vehicle
     
-    #compute_aircraft_drag(conditions, configuration, geometry)
-    #CD = conditions.aerodynamics.drag_breakdown.total
+    ## modify inviscid wings - linear model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Linear_Lift()
+    #inviscid_wings.settings.slope_correction_coefficient = 1.04
+    #inviscid_wings.settings.zero_lift_coefficient = 2.*np.pi* 3.1 * Units.deg    
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
     
-    #plt.figure("Drag Polar")
-    #axes = plt.gca()     
-    #axes.plot(CD,CL,'bo-')
-    #axes.set_xlabel('$C_D$')
-    #axes.set_ylabel('$C_L$')
+    ## modify inviscid wings - avl model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Surrogates.AVL()
+    #inviscid_wings.geometry = vehicle
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
+    
+    aerodynamics.initialize()    
     
     
-    #plt.show(block=True) # here so as to not block the regression test
+    #no of test points
+    test_num = 11
+    
+    #specify the angle of attack
+    AoA = np.linspace(-.174,.174,test_num)[:,None] #* Units.deg
+    
+    
+    # Cruise conditions (except Mach number)
+    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    
+    
+    state.expand_rows(test_num)   
+    
+    random.seed(1)
+    Mc = np.linspace(0.05,0.9,test_num)
+    random.shuffle(Mc)
+    AoA = AoA.reshape(test_num,1)
+    Mc = Mc.reshape(test_num,1)
+    
+    rho = np.linspace(0.3,1.3,test_num)
+    random.shuffle(rho)
+    rho = rho.reshape(test_num,1)
+    
+    mu = np.linspace(5*10**-6,20*10**-6,test_num)
+    random.shuffle(mu)
+    mu = mu.reshape(test_num,1)
+    
+    T = np.linspace(200,300,test_num)
+    random.shuffle(T)
+    T = T.reshape(test_num,1)
+    
+    pressure = np.linspace(10**5,10**6,test_num)
+    pressure = pressure.reshape(test_num,1)    
+    
+    #specify  the conditions at which to perform the aerodynamic analysis
+    state.conditions.aerodynamics.angle_of_attack = AoA #angle_of_attacks
+    state.conditions.freestream.mach_number = Mc #np.array([0.8]*test_num)
+    state.conditions.freestream.density = rho #np.array([0.3804534]*test_num)
+    state.conditions.freestream.dynamic_viscosity = mu #np.array([1.43408227e-05]*test_num)
+    state.conditions.freestream.temperature = T #np.array([218.92391647]*test_num)
+    state.conditions.freestream.pressure = pressure #np.array([23908.73408391]*test_num)
+            
+    #call the aero model        
+    results = aerodynamics.evaluate(state)
+    
+    #build a polar for the markup aero
+    polar = Data()    
+    CL = results.lift.total
+    CD = results.drag.total
+    polar.lift = CL
+    polar.drag = CD
+    
+
+    ##load old results
+    #old_polar = SUAVE.Input_Output.load('polar_M8.pkl') #('polar_old2.pkl')
+    #CL_old = old_polar.lift
+    #CD_old = old_polar.drag
+
+    
+    #plot the results
+    plt.figure("Drag Polar")
+    axes = plt.gca()     
+    axes.plot(CD,CL,'bo-') #,CD_old,CL_old,'*')
+    axes.set_xlabel('$C_D$')
+    axes.set_ylabel('$C_L$')
+    
+    
+    plt.show(block=True) # here so as to not block the regression test

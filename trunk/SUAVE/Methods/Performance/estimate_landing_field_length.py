@@ -99,7 +99,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         
         conditions.freestream=Data()
         conditions.freestream.density   = rho
-        conditions.freestream.viscosity = mu
+        conditions.freestream.dynamic_viscosity = mu
         conditions.freestream.velocity  = 90. * Units.knots
         
         try:

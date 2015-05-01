@@ -81,7 +81,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         # conditions data
         V    = conditions.freestream.velocity 
         roc  = conditions.freestream.density 
-        nu   = conditions.freestream.viscosity
+        nu   = conditions.freestream.dynamic_viscosity
         
         ##Mcr  =  segment.M
 
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     conditions.freestream.mach_number = 0.3
     conditions.freestream.velocity    = 51. #m/s
     conditions.freestream.density     = 1.1225 #kg/m?
-    conditions.freestream.viscosity   = 1.79E-05
+    conditions.freestream.dynamic_viscosity   = 1.79E-05
 
 
     Cl_max_ls, Cd_ind = compute_max_lift_coeff(vehicle,conditions)

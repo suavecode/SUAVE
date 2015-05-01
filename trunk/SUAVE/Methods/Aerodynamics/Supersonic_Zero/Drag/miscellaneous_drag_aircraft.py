@@ -27,7 +27,8 @@ import scipy as sp
 #-------------------compressiblity drag----------------------------------------------------------
 
 #def cdp_misc(sweep_w, sweep_h, sweep_v, d_engexit,Sref,Mc,roc,muc ,Tc,S_affected_w,S_affected_h,S_affected_v):
-def miscellaneous_drag_aircraft(conditions,configuration,geometry):
+#def miscellaneous_drag_aircraft(conditions,configuration,geometry):
+def miscellaneous_drag_aircraft(state,settings,geometry):
     """ SUAVE.Methods.miscellaneous_drag_aircraft(Wing,segment)
         computes the miscellaneous drag associated with an aircraft
         
@@ -47,10 +48,14 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     """
 
     # unpack inputs
+    configuration = settings
+    
     trim_correction_factor = configuration.trim_drag_correction_factor    
     propulsors             = geometry.propulsors
     vehicle_reference_area = geometry.reference_area
-    ones_1col              = conditions.freestream.mach_number *0.+1
+    ones_1col              = state.conditions.freestream.mach_number *0.+1
+        
+    conditions = state.conditions
         
     # ------------------------------------------------------------------
     #   Control surface gap drag

@@ -155,7 +155,7 @@ def test():
     conditions.freestream.temperature        = Seg.T  
     conditions.freestream.density            = Seg.rho
     #conditions.freestream.speed_of_sound     = ones_1col * 0
-    conditions.freestream.viscosity          = Seg.mew
+    conditions.freestream.dynamic_viscosity          = Seg.mew
     #conditions.freestream.altitude           = ones_1col * 0
     #conditions.freestream.gravity            = ones_1col * 0
     #conditions.freestream.reynolds_number    = ones_1col * 0
