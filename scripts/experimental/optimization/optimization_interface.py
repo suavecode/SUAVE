@@ -271,7 +271,7 @@ def takeoff_field_length(interface):
     # loop of tofl evaluation
     for idw,weight in enumerate(weight_vec):
         config.mass_properties.takeoff = weight
-        takeoff_field_length[idw] = estimate_tofl(config,analyses.configs.takeoff, takeoff_airport)
+        takeoff_field_length[idw] = estimate_tofl(config,analyses, takeoff_airport)
     
     # return initial value for takeoff weight
     config.mass_properties.takeoff = ref_weight

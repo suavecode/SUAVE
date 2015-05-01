@@ -55,8 +55,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         form_factor = 2.3
         
     freestream = conditions.freestream
-    
-    Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
+    Sref        = propulsor.nacelle_diameter**2. / 4. * np.pi
     try:
         Swet        = propulsor.areas.wetted
     except:

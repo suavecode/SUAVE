@@ -461,10 +461,10 @@ def base_analysis(vehicle):
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
-    analyses.append(propulsion)
+    #  Energy Analysis
+    energy  = SUAVE.Analyses.Energy.Energy()
+    energy.network=vehicle.propulsors
+    analyses.append(energy)
     
     # done!
     return analyses    

@@ -390,7 +390,7 @@ def vehicle_setup():
     
     # add turbofan to vehicle
     vehicle.propulsors.append(turbofan)
-    
+    vehicle.propulsors.network=turbofan
     # done!!
     return vehicle
 

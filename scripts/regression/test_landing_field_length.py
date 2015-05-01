@@ -58,7 +58,7 @@ def vehicle_setup():
     wing.areas.affected          = 0.6*wing.areas.reference # part of high lift system
     wing.flaps.type   = 'double_slotted'
     wing.flaps.chord  = 0.28
-
+    wing.high_lift    =True
     # add to vehicle
     vehicle.append_component(wing)
 
@@ -359,7 +359,7 @@ def main():
     landing_field_length = np.zeros_like(w_vec)
     for id_w,weight in enumerate(w_vec):
         landing_config.mass_properties.landing = weight
-        landing_field_length[id_w] = estimate_landing_field_length(vehicle,landing_config,airport)
+        landing_field_length[id_w] = estimate_landing_field_length(landing_config,landing_config,airport)
 
     truth_LFL = np.array([705.78061286, 766.55136124, 827.32210962, 888.092858, 948.86360638, 
                           1009.63435476, 1070.40510314, 1131.17585152, 1191.9465999, 1252.71734828])
