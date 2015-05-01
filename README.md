@@ -21,6 +21,7 @@ Contributing Developers
 * Michael Vegh
 * Tarik Orra
 * Tim MacDonald
+* Tim Momose
 * Tom Economon
 * Trent Lukaczyk
 
