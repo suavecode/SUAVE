@@ -34,11 +34,11 @@ nosetests.xml
 # Translations
 *.mo
 
-# Mr Developer
+# IDEs
 .mr.developer.cfg
 .project
 .pydevproject
-
+*.wpu
 
 # local directories
 /workspace
@@ -57,3 +57,5 @@ nosetests.xml
 
 
 *.dat
+
+

@@ -12,7 +12,8 @@ from SUAVE.Core import Results
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
-def miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
+def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
+#def miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
     """ SUAVE.Methods.miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
         computes the miscellaneous drag based in ESDU 94044, figure 1
 
@@ -30,6 +31,10 @@ def miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
     """
 
     # unpack inputs
+    
+    conditions = state.conditions
+    configuration = settings
+    
     Sref        = geometry.reference_area
     ones_1col   = conditions.freestream.mach_number *0.+1
 

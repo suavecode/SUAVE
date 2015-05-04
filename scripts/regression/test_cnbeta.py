@@ -88,7 +88,7 @@ def main():
     conditions = segment.atmosphere.compute_values(altitude / Units.km)
     segment.a          = conditions.speed_of_sound
     segment.freestream.density   = conditions.density
-    segment.freestream.viscosity = conditions.dynamic_viscosity
+    segment.freestream.dynamic_viscosity = conditions.dynamic_viscosity
     segment.freestream.velocity  = segment.freestream.mach_number * segment.a
 
     #Method Test

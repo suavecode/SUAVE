@@ -289,7 +289,7 @@ def evaluate_polar(vehicle):
         konditions = SUAVE.Attributes.Aerodynamics.Conditions_polar()
         konditions.freestream.mach_number = mach
         konditions.freestream.density = rho
-        konditions.freestream.viscosity = mew
+        konditions.freestream.dynamic_viscosity = mew
         konditions.freestream.temperature = T
         konditions.freestream.pressure = p
         konditions.aerodynamics.angle_of_attack = AoA[ii]

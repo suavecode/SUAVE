@@ -50,7 +50,7 @@ class Aerodynamics(Basic):
         self.freestream.temperature        = ones_1col * 0
         self.freestream.density            = ones_1col * 0
         self.freestream.speed_of_sound     = ones_1col * 0
-        self.freestream.viscosity          = ones_1col * 0
+        self.freestream.dynamic_viscosity          = ones_1col * 0
         self.freestream.altitude           = ones_1col * 0
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0
@@ -65,6 +65,8 @@ class Aerodynamics(Basic):
         self.aerodynamics.drag_coefficient = ones_1col * 0
         self.aerodynamics.lift_breakdown   = Conditions()
         self.aerodynamics.drag_breakdown   = Conditions()
+        self.aerodynamics.drag_breakdown.parasite = Conditions()
+        self.aerodynamics.drag_breakdown.compressible = Conditions()
 
         # stability conditions
         self.stability = Conditions()        
@@ -74,10 +76,12 @@ class Aerodynamics(Basic):
         # propulsion conditions
         self.propulsion = Conditions()
         self.propulsion.throttle           = ones_1col * 0
-        self.propulsion.fuel_mass_rate     = ones_1col * 0
         self.propulsion.battery_energy     = ones_1col * 0
         self.propulsion.thrust_breakdown   = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
         self.energies.propulsion_power     = ones_1col * 0
+        
+        # weights conditions
+        self.weights.vehicle_mass_rate     = ones_1col * 0

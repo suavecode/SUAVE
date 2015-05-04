@@ -132,9 +132,9 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
-    analyses.append(propulsion)
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
@@ -641,7 +641,7 @@ def plot_mission(results,line_style='bo-'):
     axes = plt.gca()
     for i in range(len(results.segments)):
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, mdot, line_style)
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Fuel Burn Rate (kg/s)')
@@ -758,14 +758,14 @@ def plot_mission(results,line_style='bo-'):
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
         cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
+        #cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
 
         if line_style == 'bo-':
             axes.plot( time , cdp , 'ko-', label='CD_P' )
             axes.plot( time , cdi , 'bo-', label='CD_I' )
-            axes.plot( time , cdc , 'go-', label='CD_C' )
+            #axes.plot( time , cdc , 'go-', label='CD_C' )
             axes.plot( time , cdm , 'yo-', label='CD_M' )
             axes.plot( time , cd  , 'ro-', label='CD'   )
             if i == 0:
@@ -773,7 +773,7 @@ def plot_mission(results,line_style='bo-'):
         else:
             axes.plot( time , cdp , line_style )
             axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
+            #axes.plot( time , cdc , line_style )
             axes.plot( time , cdm , line_style )
             axes.plot( time , cd  , line_style )            
 
@@ -927,7 +927,7 @@ def mission_setup(analyses):
     segment.altitude_end = 5.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
-    
+
     # add to mission
     mission.append_segment(segment)
     

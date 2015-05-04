@@ -57,7 +57,7 @@ def main():
     plot_mission(old_results,'k-')
     
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
     
     return
 
@@ -132,6 +132,18 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    
+    ## modify inviscid wings - linear lift model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Linear_Lift()
+    #inviscid_wings.settings.slope_correction_coefficient = 1.04
+    #inviscid_wings.settings.zero_lift_coefficient = 2.*np.pi* 3.1 * Units.deg    
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings        
+    
+    ## modify inviscid wings - avl model
+    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Surrogates.AVL()
+    #inviscid_wings.geometry = vehicle
+    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
+    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
@@ -142,10 +154,10 @@ def base_analysis(vehicle):
     analyses.append(stability)
     
     # ------------------------------------------------------------------
-    #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
-    analyses.append(propulsion)
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    analyses.append(energy)
     
     # ------------------------------------------------------------------
     #  Planet Analysis
@@ -172,7 +184,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing 737-800'    
+    vehicle.tag = 'Boeing_737800'    
     
     
     # ------------------------------------------------------------------
@@ -652,7 +664,7 @@ def plot_mission(results,line_style='bo-'):
     axes = plt.gca()
     for i in range(len(results.segments)):
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.propulsion.fuel_mass_rate[:,0]
+        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, mdot, line_style)
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Fuel Burn Rate (kg/s)')
@@ -1030,7 +1042,7 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.stability.static.cm_alpha',
         'segments.cruise.conditions.stability.static.cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
-        'segments.cruise.conditions.propulsion.fuel_mass_rate',
+        'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]
     
     # do the check
@@ -1067,6 +1079,7 @@ def check_results(new_results,old_results):
     ## do the check
     #check_vals(old_results.output,new_results.output)
     
+
     return
 
     

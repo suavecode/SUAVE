@@ -31,8 +31,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 #  The Function
 # ----------------------------------------------------------------------
-
-def compressibility_drag_total(conditions,configuration,geometry):
+def compressibility_drag_total(state,settings,geometry):
+#def compressibility_drag_total(conditions,configuration,geometry):
     """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
         computes the compressibility drag on a full aircraft
 
@@ -53,6 +53,9 @@ def compressibility_drag_total(conditions,configuration,geometry):
     """
 
     # Unpack
+    conditions = state.conditions
+    configuration = settings
+    
     wings       = geometry.wings
     fuselages   = geometry.fuselages
     propulsor   = geometry.propulsors[0]

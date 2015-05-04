@@ -56,13 +56,15 @@ def energy_network():
     
     
     # setup conditions
-    conditions = Data()
+    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    '''
     conditions.frames       = Data()
     conditions.freestream   = Data()
     conditions.aerodynamics = Data()
     conditions.propulsion   = Data()
     conditions.weights      = Data()
     conditions.energies     = Data()
+    '''
   #  self.conditions = conditions
     
 
@@ -72,7 +74,7 @@ def energy_network():
     conditions.freestream.temperature        = ones_1col*215.
     conditions.freestream.density            = ones_1col*0.8
 
-    conditions.freestream.viscosity          = ones_1col* 0.000001475
+    conditions.freestream.dynamic_viscosity          = ones_1col* 0.000001475
     conditions.freestream.altitude           = ones_1col* 10.
     conditions.freestream.gravity            = ones_1col*9.81
     conditions.freestream.gamma              = ones_1col*1.4
@@ -103,13 +105,15 @@ def energy_network():
     
     
     # setup conditions
-    conditions_sizing = Data()
+    conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    '''
     conditions_sizing.frames       = Data()
     conditions_sizing.freestream   = Data()
     conditions_sizing.aerodynamics = Data()
     conditions_sizing.propulsion   = Data()
     conditions_sizing.weights      = Data()
     conditions_sizing.energies     = Data()
+    '''
   #  self.conditions = conditions
     
 
@@ -119,7 +123,7 @@ def energy_network():
     conditions_sizing.freestream.temperature        = ones_1col*215. #*258.0
     conditions_sizing.freestream.density            = ones_1col*0.8 #*1.225
 
-    conditions_sizing.freestream.viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
+    conditions_sizing.freestream.dynamic_viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
     conditions_sizing.freestream.altitude           = ones_1col* 10. #* 0.5
 
     conditions_sizing.freestream.gravity            = ones_1col*9.81
@@ -138,6 +142,10 @@ def energy_network():
     # propulsion conditions
     conditions_sizing.propulsion.throttle           =  ones_1col*1.0
 
+    state = Data()
+    state.numerics = Data()
+    state.conditions = conditions
+    
     
 
 
@@ -342,7 +350,10 @@ def energy_network():
     turbofan_sizing(turbofan,conditions_sizing,numerics)
     
     
-    [F,mdot,Isp] = turbofan(conditions,numerics)
+    results = turbofan(state)
+    
+    F    = results.thrust_force_vector
+    mdot = results.vehicle_mass_rate
         
     #Test the model 
     
@@ -351,15 +362,12 @@ def energy_network():
     
     expected.thrust = 42383.01818423 
     expected.mdot =  0.77416551
-    expected.Isp = 9980753.25807261   
     
     #error data function
     error =  Data()
     
-    error.thrust = (F -  expected.thrust)/expected.thrust
-    error.mdot =  (mdot-expected.mdot)/expected.mdot
-    error.Isp = (Isp-expected.Isp)/expected.Isp
-    
+    error.thrust = (F[0][0] -  expected.thrust)/expected.thrust
+    error.mdot =  (mdot[0][0]-expected.mdot)/expected.mdot
     print error
     for k,v in error.items():
         assert(np.abs(v)<1e-4)    
