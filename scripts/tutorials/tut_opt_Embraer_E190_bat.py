@@ -43,21 +43,11 @@ def main():
     cruise_range=2900;   i_cruise_range=copy.copy(i);   i+=1 #cruise range in km
  
 
-    #esp=1500 W-h/kg, range =3800 km
-    #inputs= [  2.08480239e+11 ,  1.56398971e+02  , 2.26671872e+02 ,  2.13920953e+00,  5.26093979e+00 ,  5.70421849e+00 ,  5.76221019e+00 ,  5.76221019e+00,  9.08494888e-01 , -4.97338819e+00 ,  2.03386957e-04 ,  1.56432236e+02,   1.31848163e+02 ,  1.57824691e+02 ,  1.74230984e+02 ,  2.00350719e+02,   2.62705750e+02 ,  2.30000000e+02 ,  3.58529306e+03]
-   
-    #esp=4000 W-h/kg, range=3800 km
-    #inputs= [  2.38659244e+11 ,  2.30908552e+04  , 5.14354632e+03  , 2.39493637e+00,  6.46783420e+00,   6.46783421e+00,   6.50325679e+00,   6.50325679e+00,  5.00000000e+00,  -4.99986122e+00 , -2.42616090e-07,   1.03206563e+02, 1.35560173e+02,   1.67515945e+02 ,  1.82203092e+02,   1.70670293e+02,   2.44657141e+02,   2.30000000e+02 ,  3.55771157e+03]
-
+    #range =2800 km
+    #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 10.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 1.39193333997 , 1.74925037953 ]
+    #range=4800 km
+    inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 10.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 1.39193333997 , 3.74925037953 ]
     
-    #esp=2000 W-h/kg, range=2400 km
-    #inputs=   [  2.53815497e+00 ,  4.61192540e+00 ,  5.81856327e+00,   5.88529881e+00,   5.95456804e+00 ,  1.76614416e+00,  -4.91528402e+00  , 1.31966981e-04,  7.96927333e+01 ,  1.20086331e+02 ,  1.75800907e+02  , 1.73174135e+02,   1.77817946e+02 ,  2.36432755e+02  , 5.94550201e+00 ,  2.42198671e+00,  2.13912785e+03]
-    
-    #esp=2000 W-h/kg, range=2800 km
-  
-    inputs=[ 1.08530522454 , 0.00227279054645 , 1.42158414941 , 1.50217691987 , 1.88238390869 , 10.399999126 , -0.335686364566 , -1.48758101905 , 0.0126402136516 , 0.940446493577 , 1.38076763733 , 0.416976454205 , 1.79794690403 , 1.83414699932 , 1.50680658686 , 3.83559575271 , 1.48036528725 , 1.75514435472 ]
-
-
     #print mybounds
     #print inputs
     global iteration_number
@@ -83,8 +73,8 @@ def run(inputs):                #sizing loop to enable optimization
     m_guess    = 64204.6490117
     Ereq_guess = 117167406053.0
     Preq_guess = 8007935.5158
-    disp_results=1                         #1 for displaying results, 0 for optimize    
-    target_range=2800                       #minimum flight range of the aircraft (constraint)
+    disp_results=0                         #1 for displaying results, 0 for optimize    
+    target_range=4800                       #minimum flight range of the aircraft (constraint)
     
     #mass=[ 100034.162173]
     #mass=[ 113343.414181]     
@@ -108,7 +98,7 @@ def run(inputs):                #sizing loop to enable optimization
     if disp_results==0:
         max_iter=20
     else:
-        max_iter=5
+        max_iter=20
     j=0
     P_mot=inputs[1]
     Preq=P_mot*10**7 
@@ -284,14 +274,10 @@ def evaluate_penalty(vehicle,results, inputs,target_range):
     for i in range(len(results.segments)):
     
         aoa=results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-      
-    #Smin_Ebat_lis[i]=min(results.segments[i].Ecurrent_lis)
-    
-    max_alpha[i]=max(aoa)
-    min_alpha[i]=min(aoa)
+        max_alpha[i]=max(aoa)
+        min_alpha[i]=min(aoa)
     max_alpha=max(max_alpha)
     min_alpha=min(min_alpha)
-
     results.segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, 15-max_alpha))+10000.*abs(min(0, 15+min_alpha))
     
     #now add penalty function if wing sweep is too high
