@@ -119,11 +119,10 @@ class Fidelity_Zero(Stability):
         
         # Calculate change in downwash with respect to change in angle of attack
         for surf in geometry.wings:
-            e = surf.span_efficiency
             sref = surf.areas.reference
             span = (surf.aspect_ratio * sref ) ** 0.5
             surf.CL_alpha = datcom(surf,mach)
-            surf.ep_alpha = Supporting_Functions.ep_alpha(surf.CL_alpha, sref, span, e)
+            surf.ep_alpha = Supporting_Functions.ep_alpha(surf.CL_alpha, sref, span)
         
         # Static Stability Methods
         static_stability.cm_alpha = taw_cmalpha(geometry,mach,conditions,configuration)

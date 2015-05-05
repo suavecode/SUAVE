@@ -39,7 +39,8 @@ class Fidelity_Zero(Markup):
         settings.trim_drag_correction_factor        = 1.02
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
-        settings.aircraft_span_efficiency_factor    = 0.78
+        settings.oswald_efficiency_factor           = None
+        settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.wing_span_efficiency               = 0.90
         
