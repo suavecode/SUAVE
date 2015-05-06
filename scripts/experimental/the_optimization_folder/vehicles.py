@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 #   Define the Vehicle
 # ----------------------------------------------------------------------
 
-def vehicle_setup():
+def setup():
     
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
