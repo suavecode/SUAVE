@@ -23,10 +23,6 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-# the analysis functions
-from the_aircraft_function import the_aircraft_function
-
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
