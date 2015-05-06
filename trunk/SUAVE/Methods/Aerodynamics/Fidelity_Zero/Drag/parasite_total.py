@@ -70,7 +70,7 @@ def parasite_total(state,settings,geometry):
     
  
     # from pylons
-    parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon']
+    parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient
     
 
     
