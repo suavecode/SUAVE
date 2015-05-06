@@ -215,3 +215,9 @@ if __name__ == '__main__':
     vehicles = vehicles.setup()
     analyses = analyses.setup(vehicles)
     missions = setup(analyses)
+    
+    vehicles.finalize()
+    analyses.finalize()
+    missions.finalize()
+    
+    missions.base.evaluate()
