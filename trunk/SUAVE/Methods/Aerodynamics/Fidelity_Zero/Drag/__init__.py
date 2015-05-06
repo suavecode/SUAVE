@@ -4,7 +4,6 @@ from compute_aircraft_drag import compute_aircraft_drag
 from parasite_drag_propulsor import parasite_drag_propulsor
 from parasite_drag_wing import parasite_drag_wing
 from parasite_drag_fuselage import parasite_drag_fuselage
-from parasite_drag_aircraft import parasite_drag_aircraft
 from miscellaneous_drag_aircraft import miscellaneous_drag_aircraft
 from induced_drag_aircraft import induced_drag_aircraft
 from compressibility_drag_wing import compressibility_drag_wing
