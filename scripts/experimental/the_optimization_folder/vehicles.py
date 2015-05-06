@@ -16,6 +16,14 @@ from SUAVE.Core import Units
 
 def setup():
     
+    base_vehicle = base_setup()
+    configs = configs_setup(base_vehicle)
+    
+    return configs
+    
+    
+def base_setup():
+    
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    

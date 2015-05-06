@@ -13,13 +13,13 @@ import SUAVE
 #   Setup Analyses
 # ----------------------------------------------------------------------  
 
-def analyses_setup(configs):
+def setup(configs):
     
     analyses = SUAVE.Analyses.Analysis.Container()
     
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config)
+        analysis = base(config)
         analyses[tag] = analysis
         
     # adjust analyses for configs
@@ -36,7 +36,7 @@ def analyses_setup(configs):
 #   Define Base Analysis
 # ----------------------------------------------------------------------  
 
-def base_analysis(vehicle):
+def base(vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses

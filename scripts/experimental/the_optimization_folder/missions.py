@@ -26,7 +26,8 @@ def setup(analyses):
     #   Base Mission
     # ------------------------------------------------------------------
     
-    missions.base = base(analyses)
+    base_mission = base(analyses)
+    missions.base = base_mission
     
     
     # ------------------------------------------------------------------
@@ -208,10 +209,9 @@ def base(analyses):
 # ----------------------------------------------------------------------    
 
 if __name__ == '__main__':
-    from vehicles import setup as vehicles_setup
-    from analyses import setup as analyses_setup
-    missions_setup = setup
+    import vehicles
+    import analyses
     
-    vehicles = vehicles_setup()
-    analyses = analyses_setup(vehicles)
-    missions = missions_setup(analyses)
+    vehicles = vehicles.setup()
+    analyses = analyses.setup(vehicles)
+    missions = setup(analyses)
