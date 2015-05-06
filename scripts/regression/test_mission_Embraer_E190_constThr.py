@@ -28,6 +28,7 @@ from the_aircraft_function import the_aircraft_function
 
 from SUAVE.Methods.Performance  import payload_range
 
+from SUAVE.Input_Output.Results import print_parasite_drag,print_compress_drag,print_engine_data
 
 # ----------------------------------------------------------------------
 #   Main
@@ -44,10 +45,20 @@ def main():
     # weight analysis
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()      
-    
+
     # mission analysis
     mission = analyses.missions
-    results = mission.evaluate()    
+    results = mission.evaluate()
+
+    # print engine data into file
+    print_engine_data(configs.base,analyses.missions,filename = 'engine_drag.dat')
+
+    # print parasite drag data into file
+	# define reference condition for parasite drag
+    ref_condition = Data()
+    ref_condition.mach_number = 0.3
+    ref_condition.reynolds_number = 20e6     
+    print_parasite_drag(ref_condition,configs.cruise,analyses,'parasite_drag.dat')
     
     # load older results
     #save_results(results)
@@ -182,13 +193,13 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 51800.0   # kg
-    vehicle.mass_properties.operating_empty           = 29100.0   # kg
-    vehicle.mass_properties.takeoff                   = 51800.0   # kg
-    vehicle.mass_properties.max_zero_fuel             = 45600.0   # kg
+    vehicle.mass_properties.max_takeoff               = 51800.   # kg
+    vehicle.mass_properties.operating_empty           = 27837.   # kg
+    vehicle.mass_properties.takeoff                   = 50989. #51800.   # kg
+    vehicle.mass_properties.max_zero_fuel             = 40900.   # kg
     vehicle.mass_properties.cargo                     = 0.0 * Units.kg
-    vehicle.mass_properties.max_payload               = 11786. * Units.kg
-    vehicle.mass_properties.max_fuel                  = 12970.
+    vehicle.mass_properties.max_payload               = 13063. * Units.kg
+    vehicle.mass_properties.max_fuel                  = 12971.
 
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
@@ -211,16 +222,16 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 8.4
-    wing.sweep                   = 22.0 * Units.deg
+    wing.sweep                   = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
-    wing.taper                   = 0.16
+    wing.taper                   = 0.28
     wing.span_efficiency         = 1.0
 
     wing.spans.projected         = 27.8
 
-    wing.chords.root             = 5.7057
-    wing.chords.tip              = 0.9129
-    wing.chords.mean_aerodynamic = 3.8878
+    wing.chords.root             = 5.203
+    wing.chords.tip              = 1.460
+    wing.chords.mean_aerodynamic = 3.680
 
     wing.areas.reference         = 92.0
     wing.areas.wetted            = 2.0 * wing.areas.reference
@@ -236,7 +247,7 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
 
-    wing.dynamic_pressure_ratio                     = 1.0
+    wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -256,9 +267,9 @@ def vehicle_setup():
 
     wing.spans.projected         = 11.958
 
-    wing.chords.root             = 3.9175
-    wing.chords.tip              = 0.4309
-    wing.chords.mean_aerodynamic = 2.6401
+    wing.chords.root             = 3.030
+    wing.chords.tip              = 0.883
+    wing.chords.mean_aerodynamic = 2.3840
 
     wing.areas.reference         = 26.0
     wing.areas.wetted            = 2.0 * wing.areas.reference
@@ -268,7 +279,7 @@ def vehicle_setup():
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 2.0 * Units.degrees
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [35,0,0]
     wing.aerodynamic_center      = [2,0,0]
 
     wing.vertical                = False
@@ -287,16 +298,16 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.7      #
-    wing.sweep                   = 25 * Units.deg
-    wing.thickness_to_chord      = 0.12
-    wing.taper                   = 0.10
+    wing.sweep                   = 35 * Units.deg
+    wing.thickness_to_chord      = 0.11
+    wing.taper                   = 0.31
     wing.span_efficiency         = 0.9
 
-    wing.spans.projected         = 5.2153     #
+    wing.spans.projected         = 5.270     #
 
-    wing.chords.root             = 5.5779
-    wing.chords.tip              = 0.5577
-    wing.chords.mean_aerodynamic = 3.7524
+    wing.chords.root             = 4.70
+    wing.chords.tip              = 1.45
+    wing.chords.mean_aerodynamic = 3.36
 
     wing.areas.reference         = 16.0    #
     wing.areas.wetted            = 2.0 * wing.areas.reference
@@ -306,7 +317,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [35,0,0]
     wing.aerodynamic_center      = [2,0,0]
 
     wing.vertical                = True
@@ -338,18 +349,18 @@ def vehicle_setup():
     fuselage.lengths.fore_space    = 0.
     fuselage.lengths.aft_space     = 0.
 
-    fuselage.width                 = 3.0
+    fuselage.width                 = 3.18
 
-    fuselage.heights.maximum       = 3.4    #
-    fuselage.heights.at_quarter_length          = 3.4 # Not correct
-    fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.maximum       = 4.18    #
+    fuselage.heights.at_quarter_length          = 3.18 # Not correct
+    fuselage.heights.at_three_quarters_length   = 3.18 # Not correct
+    fuselage.heights.at_wing_root_quarter_chord = 4.00 # Not correct
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
     fuselage.areas.front_projected = 8.0110
 
-    fuselage.effective_diameter    = 3.2
+    fuselage.effective_diameter    = 3.18
 
     fuselage.differential_pressure = 10**5 * Units.pascal    # Maximum differential pressure
 
@@ -368,7 +379,7 @@ def vehicle_setup():
     gt_engine.number_of_engines = 2.0
     gt_engine.design_thrust     = 20300.0
     gt_engine.engine_length     = 3.0
-    gt_engine.nacelle_diameter  = 1.0
+    gt_engine.nacelle_diameter  = 1.5
 
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
@@ -501,8 +512,8 @@ def vehicle_setup():
     thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
     thrust.reference_temperature              = 288.15
     thrust.reference_pressure                 = 1.01325*10**5
-    thrust.design = 24000.0
-    thrust.number_of_engines                  =gt_engine.number_of_engines   
+    thrust.design = 24000.0 * Units.lbf
+    thrust.number_of_engines                  = gt_engine.number_of_engines   
 
     
     # add thrust to the network
@@ -668,7 +679,7 @@ def mission_setup(analyses):
     segment.atmosphere   = atmosphere
     segment.planet       = planet
 
-    segment.altitude_end = 37000. * Units.ft
+    segment.altitude_end = 35000. * Units.ft
     segment.air_speed    = 390.0  * Units.knots
     segment.throttle     = 1.0
 
@@ -689,7 +700,7 @@ def mission_setup(analyses):
     segment.atmosphere = atmosphere
     segment.planet     = planet
 
-    segment.air_speed  = 447. * Units.knots #230.  * Units['m/s']
+    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
     ## 35kft:
     # 415. => M = 0.72
     # 450. => M = 0.78
@@ -825,6 +836,22 @@ def plot_mission(results,line_style='bo-'):
     axes.grid(True)
 
 
+##    # ------------------------------------------------------------------
+##    #   Engine SFC
+##    # ------------------------------------------------------------------
+##    plt.figure("Engine SFC")
+##    axes = plt.gca()
+##    for i in range(len(results.segments)):
+##        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+##        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0] * 360.
+##        Thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0] / 9.81
+##        sfc = np.divide(mdot,Thrust)
+##        axes.plot(time, sfc, line_style)
+##    axes.set_xlabel('Time (mins)')
+##    axes.set_ylabel('Engine SFC (kg/kg)')
+##    axes.grid(True)
+    
+    
     # ------------------------------------------------------------------
     #   Altitude
     # ------------------------------------------------------------------
