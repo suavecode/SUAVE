@@ -49,8 +49,8 @@ class Thrust(Energy_Component):
         self.tag ='Thrust'
         self.bypass_ratio                             = 1.0
         self.compressor_nondimensional_massflow       = 1.0
-        self.reference_temperature                    = 1.0
-        self.reference_pressure                       = 1.0
+        self.reference_temperature                    = 288.15
+        self.reference_pressure                       = 1.01325*10**5
         self.number_of_engines                        = 1.0
         self.inputs.fuel_to_air_ratio                 = 1.0
         self.outputs.thrust                           = 1.0
@@ -89,13 +89,13 @@ class Thrust(Energy_Component):
         core_exit_velocity   = self.inputs.core_nozzle.velocity
         fan_area_ratio       = self.inputs.fan_nozzle.area_ratio
         core_area_ratio      = self.inputs.core_nozzle.area_ratio
+        no_eng               = self.inputs.number_of_engines                      
+        bypass_ratio         = self.inputs.bypass_ratio           
         
         #unpacking from self
-        bypass_ratio         =  self.bypass_ratio
         Tref                 = self.reference_temperature
         Pref                 = self.reference_pressure
-        no_eng               = self.number_of_engines
-        mdhc                 =  self.compressor_nondimensional_massflow
+        mdhc                 = self.compressor_nondimensional_massflow
         
         
     
@@ -154,7 +154,7 @@ class Thrust(Energy_Component):
         M0                   = conditions.freestream.mach_number
         p0                   = conditions.freestream.pressure  
         g                    = conditions.freestream.gravity
-        throttle             = conditions.propulsion.throttle        
+        throttle             = 1.0      
         
         #unpacking from inputs
         f                    = self.inputs.fuel_to_air_ratio
@@ -166,14 +166,13 @@ class Thrust(Energy_Component):
         core_exit_velocity   = self.inputs.core_nozzle.velocity
         fan_area_ratio       = self.inputs.fan_nozzle.area_ratio
         core_area_ratio      = self.inputs.core_nozzle.area_ratio
+        bypass_ratio         = self.inputs.bypass_ratio
+        no_eng               = self.inputs.number_of_engines
         
         #unpacking from self
-        bypass_ratio         = self.bypass_ratio
         Tref                 = self.reference_temperature
         Pref                 = self.reference_pressure
-        no_eng               = self.number_of_engines
-        mdhc                 = self.compressor_nondimensional_massflow
-        design_thrust        = self.design_thrust
+        design_thrust        = self.total_design
          
         #computing the area ratios for the core and fan
         Ae_b_Ao          = 1/(1+bypass_ratio)*core_area_ratio

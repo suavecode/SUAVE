@@ -28,6 +28,8 @@ from the_aircraft_function import the_aircraft_function
 
 from SUAVE.Methods.Performance  import payload_range
 
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
                                         print_compress_drag, \
                                         print_engine_data,   \
@@ -386,7 +388,7 @@ def vehicle_setup():
     gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
-    gt_engine.design_thrust     = 20300.0
+    gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 3.0
     gt_engine.nacelle_diameter  = 1.5
 
@@ -516,20 +518,27 @@ def vehicle_setup():
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
-    
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.design = 24000.0 * Units.lbf
-    thrust.number_of_engines                  = gt_engine.number_of_engines   
-
+ 
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 48000.0 #37278.0* Units.N #Newtons
+ 
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
     
     # add thrust to the network
     gt_engine.thrust = thrust
 
+    #size the turbofan
+    turbofan_sizing(gt_engine,mach_number,altitude)   
+    
+    #temporary fix (this should be done automatically by the method)
+    gt_engine.design_thrust = thrust.total_design
+
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
+    
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete

@@ -56,7 +56,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            p,T,rho,a,mu = atmosphere.compute_values(altitude)
+            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -64,29 +64,23 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
         
         
             # freestream conditions
-            conditions_sizing.freestream.mach_number        = ones_1col*0.8 #*0.3
-            conditions_sizing.freestream.pressure           = ones_1col*20000. #*100000.
-            conditions_sizing.freestream.temperature        = ones_1col*215. #*258.0
-            conditions_sizing.freestream.density            = ones_1col*0.8 #*1.225
-        
-            conditions_sizing.freestream.dynamic_viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
-            conditions_sizing.freestream.altitude           = ones_1col* 10. #* 0.5
-        
-            conditions_sizing.freestream.gravity            = ones_1col*9.81
-            conditions_sizing.freestream.gamma              = ones_1col*1.4
-            conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
-            conditions_sizing.freestream.R                  = 287.87
-            conditions_sizing.M = conditions_sizing.freestream.mach_number 
-            conditions_sizing.T = conditions_sizing.freestream.temperature
-            conditions_sizing.p = conditions_sizing.freestream.pressure
-            conditions_sizing.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions_sizing.freestream.Cp/(conditions_sizing.freestream.Cp-conditions_sizing.freestream.R)*conditions_sizing.freestream.R*conditions_sizing.freestream.temperature) #300.
-            conditions_sizing.freestream.velocity           = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-            conditions_sizing.velocity = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-            conditions_sizing.q = 0.5*conditions_sizing.freestream.density*conditions_sizing.velocity**2
-            conditions_sizing.g0 = conditions_sizing.freestream.gravity
+            
+            conditions.freestream.altitude           = np.atleast_1d(altitude)
+            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
+            
+            conditions.freestream.pressure           = np.atleast_1d(p)
+            conditions.freestream.temperature        = np.atleast_1d(T)
+            conditions.freestream.density            = np.atleast_1d(rho)
+            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
+            conditions.freestream.gravity            = np.atleast_1d(9.81)
+            conditions.freestream.gamma              = np.atleast_1d(1.4)
+            conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
+            conditions.freestream.R                  = 287.87
+            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
+            conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
             
             # propulsion conditions
-            conditions_sizing.propulsion.throttle           =  ones_1col*1.0
+            conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
     
     
@@ -102,7 +96,8 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     fan_nozzle                = turbofan.fan_nozzle
     thrust                    = turbofan.thrust
     
-    
+    bypass_ratio              = turbofan.bypass_ratio
+    number_of_engines         = turbofan.number_of_engines
     
     #Creating the network by manually linking the different components
     
@@ -186,7 +181,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     #link the low pressure turbine to the fan
     low_pressure_turbine.inputs.fan                        =  fan.outputs
     #get the bypass ratio from the thrust component
-    low_pressure_turbine.inputs.bypass_ratio               =  thrust.bypass_ratio
+    low_pressure_turbine.inputs.bypass_ratio               =  bypass_ratio
     
     #flow through the low pressure turbine
     low_pressure_turbine(conditions)
@@ -226,6 +221,9 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     #link the thrust component to the low pressure compressor 
     thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
     thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
+    thrust.inputs.number_of_engines                        = number_of_engines
+    thrust.inputs.bypass_ratio                             = bypass_ratio
+
 
     #compute the trust
     thrust.size(conditions)

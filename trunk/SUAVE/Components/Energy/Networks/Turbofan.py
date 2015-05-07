@@ -67,7 +67,8 @@ class Turbofan(Propulsor):
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
         
-        
+        bypass_ratio              = self.bypass_ratio
+        number_of_engines         = self.number_of_engines        
         
         #Creating the network by manually linking the different components
         
@@ -149,9 +150,9 @@ class Turbofan(Propulsor):
         #link the low pressure turbine to the combustor
         low_pressure_turbine.inputs.fuel_to_air_ratio          = combustor.outputs.fuel_to_air_ratio
         #link the low pressure turbine to the fan
-        low_pressure_turbine.inputs.fan                        =  fan.outputs
+        low_pressure_turbine.inputs.fan                        = fan.outputs
         #get the bypass ratio from the thrust component
-        low_pressure_turbine.inputs.bypass_ratio               =  thrust.bypass_ratio
+        low_pressure_turbine.inputs.bypass_ratio               = bypass_ratio
         
         #flow through the low pressure turbine
         low_pressure_turbine(conditions)
@@ -191,6 +192,8 @@ class Turbofan(Propulsor):
         #link the thrust component to the low pressure compressor 
         thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
         thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
+        thrust.inputs.number_of_engines                        = number_of_engines
+        thrust.inputs.bypass_ratio                             = bypass_ratio
 
         
 
