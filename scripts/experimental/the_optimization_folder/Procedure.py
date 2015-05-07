@@ -28,13 +28,13 @@ def setup():
     # ------------------------------------------------------------------
     
     # the input unpacker
-    #procedure.unpack_inputs = unpack_inputs
+    procedure.unpack_inputs = Procedure.unpack_inputs
     
     # size the base config
     procedure.simple_sizing = simple_sizing
     
     # finalizes the data dependencies
-    procedure.finalize = finalize
+    procedure.finalize = Procedure.finalize
     
     # the missions
     procedure.missions = missions
