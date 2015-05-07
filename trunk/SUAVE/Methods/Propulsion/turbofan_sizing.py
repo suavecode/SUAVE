@@ -35,9 +35,60 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
 
-def turbofan_sizing(turbofan,conditions,numerics):  
+def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
+    
     
     #Unpack components
+    
+    #check if altitude is passed or conditions is passed
+    
+    if(conditions):
+        #use conditions
+        pass
+        
+    else:
+        #check if mach number and temperature are passed
+        if(mach_number==None or altitude==None):
+            
+            #raise an error
+            raise NameError('The sizing conditions require an altitude and a Mach number')
+        
+        else:
+            #call the atmospheric model to get the conditions at the specified altitude
+            atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+            p,T,rho,a,mu = atmosphere.compute_values(altitude)
+        
+            # setup conditions
+            conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
+        
+        
+        
+            # freestream conditions
+            conditions_sizing.freestream.mach_number        = ones_1col*0.8 #*0.3
+            conditions_sizing.freestream.pressure           = ones_1col*20000. #*100000.
+            conditions_sizing.freestream.temperature        = ones_1col*215. #*258.0
+            conditions_sizing.freestream.density            = ones_1col*0.8 #*1.225
+        
+            conditions_sizing.freestream.dynamic_viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
+            conditions_sizing.freestream.altitude           = ones_1col* 10. #* 0.5
+        
+            conditions_sizing.freestream.gravity            = ones_1col*9.81
+            conditions_sizing.freestream.gamma              = ones_1col*1.4
+            conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
+            conditions_sizing.freestream.R                  = 287.87
+            conditions_sizing.M = conditions_sizing.freestream.mach_number 
+            conditions_sizing.T = conditions_sizing.freestream.temperature
+            conditions_sizing.p = conditions_sizing.freestream.pressure
+            conditions_sizing.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions_sizing.freestream.Cp/(conditions_sizing.freestream.Cp-conditions_sizing.freestream.R)*conditions_sizing.freestream.R*conditions_sizing.freestream.temperature) #300.
+            conditions_sizing.freestream.velocity           = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
+            conditions_sizing.velocity = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
+            conditions_sizing.q = 0.5*conditions_sizing.freestream.density*conditions_sizing.velocity**2
+            conditions_sizing.g0 = conditions_sizing.freestream.gravity
+            
+            # propulsion conditions
+            conditions_sizing.propulsion.throttle           =  ones_1col*1.0
+    
+    
     
     ram                       = turbofan.ram
     inlet_nozzle              = turbofan.inlet_nozzle
