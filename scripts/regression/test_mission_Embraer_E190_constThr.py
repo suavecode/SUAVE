@@ -28,7 +28,10 @@ from the_aircraft_function import the_aircraft_function
 
 from SUAVE.Methods.Performance  import payload_range
 
-from SUAVE.Input_Output.Results import print_parasite_drag,print_compress_drag,print_engine_data
+from SUAVE.Input_Output.Results import  print_parasite_drag,  \
+                                        print_compress_drag, \
+                                        print_engine_data,   \
+                                        print_mission_breakdown
 
 # ----------------------------------------------------------------------
 #   Main
@@ -51,7 +54,7 @@ def main():
     results = mission.evaluate()
 
     # print engine data into file
-    print_engine_data(configs.base,analyses.missions,filename = 'engine_drag.dat')
+    print_engine_data(configs.base,analyses.missions,filename = 'engine_data.dat')
 
     # print parasite drag data into file
 	# define reference condition for parasite drag
@@ -63,7 +66,9 @@ def main():
     # print compressibility drag data into file
     print_compress_drag(configs.cruise,analyses,filename = 'compress_drag.dat')
     
-    return
+    # print mission breakdown
+    print_mission_breakdown(results,filename='mission_breakdown.dat')
+    
     # load older results
     #save_results(results)
     old_results = load_results()   

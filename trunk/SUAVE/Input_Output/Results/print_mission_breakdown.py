@@ -38,7 +38,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
     k2 = 0.2857142857                               # constant to airspeed conversion
 
     TotalRange = 0
-    for i in range(len(results.segments)):          #loop for all segments
+    for i,(tag,segment) in enumerate(results.segments.items()):          #loop for all segments
         segment = results.segments[i]
 
         HPf = -segment.conditions.frames.inertial.position_vector[-1,2] / Units.ft      #Final segment Altitude   [ft]
@@ -57,7 +57,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         Mi = segment.conditions.freestream.mach_number[0]           # Initial segment mach number
 
 #       Aispeed conversion: KTAS to  KCAS
-        p0 = np.interp(0,segment.atmosphere.breaks.altitude,segment.atmosphere.breaks.pressure )
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        p0 , dummy , dummy , dummy , dummy  = atmosphere.compute_values(0)
         deltai = segment.conditions.freestream.pressure[0] / p0
         deltaf = segment.conditions.freestream.pressure[-1]/ p0
 
@@ -86,7 +87,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         KCASi_str = str('%7.1f'   % KCASi)    + '|'
         KCASf_str = str('%7.1f'   % KCASf)    + '|'
 
-        Segment_str = ' ' + segment.tag[0:31] + (31-len(segment.tag))*' ' + '|'
+        Segment_str = '%- 31s |' % tag 
+        
 
         if i == 0:  #Write header
             fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
