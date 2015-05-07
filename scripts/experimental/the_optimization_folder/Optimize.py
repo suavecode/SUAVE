@@ -10,6 +10,11 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
+import Vehicles
+import Analyses
+import Missions
+import Procedure
+
 # TODO
 Interface = Data()
 
@@ -66,7 +71,7 @@ def setup():
     problem.constraints =[
         [ 'takeoff_field_length' , '<',  2180., 5000.,    Units.m],
         [ 'range_short_field'    , '>',   650.,  500.,  Units.nmi],
-        [ 'range_max_nmi'        , '>',  2725., 1000.,  Units.nmi],
+        [ 'range_max'            , '>',  2725., 1000.,  Units.nmi],
         [ 'max_zero_fuel_margin' , '>',     0.,    1., Units.less],
         [ 'available_fuel_margin', '>'  ,   0.,    1., Units.less],
     ]
@@ -84,16 +89,41 @@ def setup():
         [ 'design_thrust'        ,  'configs.*.propulsors.turbo_fan.design_thrust'],
         [ 'wing_thickness'       ,  'configs.*.wings.main_wing.thickness'         ],
         [ 'MTOW'                 , ['configs.*.mass_properties.max_takeoff'      ,
-                                    'configs.*.mass_properties.takeoff'      ]],
-        [ 'MZFW'                 ,  'configs.*.mass_properties.max_zero_fuel'],
-        [ 'takeoff_field_length' ,  'results.takeoff_field_length' ],
-        [ 'range_short_field'    ,  'results.range_short_field'],
-        [ 'range_max_nmi'        ,  'results.range_max'],
-        [ 'max_zero_fuel_margin' ,  'results.max_zero_fuel_margin'],
-        [ 'available_fuel_margin',  'results.available_fuel_margin'],
-        [ 'available_fuel_margin',  'results.mission_fuel.fuel']
+                                    'configs.*.mass_properties.takeoff'          ]],
+        [ 'MZFW'                 ,  'configs.*.mass_properties.max_zero_fuel'     ],
+        [ 'takeoff_field_length' ,  'results.takeoff_field_length'                ],
+        [ 'range_short_field'    ,  'results.range_short_field'                   ],
+        [ 'range_max'            ,  'results.range_max'                           ],
+        [ 'max_zero_fuel_margin' ,  'results.max_zero_fuel_margin'                ],
+        [ 'available_fuel_margin',  'results.available_fuel_margin'               ],
+        [ 'available_fuel_margin',  'results.mission_fuel.fuel'                   ],
     ]
-
+    
+    
+    # -------------------------------------------------------------------
+    #  Vehicles
+    # -------------------------------------------------------------------
+    problem.vehicles = Vehicles.setup()
+    
+    
+    # -------------------------------------------------------------------
+    #  Analyses
+    # -------------------------------------------------------------------
+    problem.analyses = Analyses.setup(problem.vehicles)
+    
+    
+    # -------------------------------------------------------------------
+    #  Missions
+    # -------------------------------------------------------------------
+    problem.missions = Missions.setup(problem.analyses)
+    
+    
+    # -------------------------------------------------------------------
+    #  Procedure
+    # -------------------------------------------------------------------    
+    problem.procedure = Procedure.setup()
+    
+    
     return problem
 
 
