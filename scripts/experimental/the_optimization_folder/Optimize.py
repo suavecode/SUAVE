@@ -83,14 +83,20 @@ def setup():
     
     # [ 'alias' , ['data.path1.name','data.path2.name'] ]
     problem.aliases = [
-        [ 'aspect_ratio'  ,  'configs.*.wings.main_wing.aspect_ratio'      ],
-        [ 'reference_area',  'configs.*.wings.main_wing.reference_area'    ],
-        [ 'sweep'         ,  'configs.*.wings.main_wing.sweep'             ],
-        [ 'design_thrust' ,  'configs.*.propulsors.turbo_fan.design_thrust'],
-        [ 'wing_thickness',  'configs.*.wings.main_wing.thickness'         ],
-        [ 'MTOW'          , ['configs.*.mass_properties.max_takeoff'      ,
-                             'configs.*.mass_properties.takeoff'          ]],
-        [ 'MZFW'          ,  'configs.*.mass_properties.max_zero_fuel'     ],
+        [ 'aspect_ratio'         ,  'configs.*.wings.main_wing.aspect_ratio'      ],
+        [ 'reference_area'       ,  'configs.*.wings.main_wing.reference_area'    ],
+        [ 'sweep'                ,  'configs.*.wings.main_wing.sweep'             ],
+        [ 'design_thrust'        ,  'configs.*.propulsors.turbo_fan.design_thrust'],
+        [ 'wing_thickness'       ,  'configs.*.wings.main_wing.thickness'         ],
+        [ 'MTOW'                 , ['configs.*.mass_properties.max_takeoff'      ,
+                                    'configs.*.mass_properties.takeoff'      ]],
+        [ 'MZFW'                 ,  'configs.*.mass_properties.max_zero_fuel'],
+        [ 'takeoff_field_length' ,  'results.takeoff_field_length' ],
+        [ 'range_short_field'    ,  'results.range_short_field'],
+        [ 'range_max_nmi'        ,  'results.range_max_nmi'],
+        [ 'max_zero_fuel_margin' ,  'results.max_zero_fuel_margin'],
+        [ 'available_fuel_margin',  'results.available_fuel_margin'],
+        [ 'available_fuel_margin',  'results.mission_fuel.fuel']
     ]
     
     
