@@ -330,13 +330,20 @@ def post_process(interface):
     # Unpack data
     vehicle               = interface.configs.base    
     results               = interface.results
-    mission_profile       = results.missions.base    
-    short_field_results   = results.short_field
-    takeoff_field_results = results.takeoff_field_length
-    range_results         = results.max_range
+    
     # Weights
     max_zero_fuel     = vehicle.mass_properties.max_zero_fuel
     operating_empty   = vehicle.mass_properties.operating_empty
     payload           = vehicle.mass_properties.payload   
     
-    return results
+    # MZFW margin calculation
+    results.max_zero_fuel_margin  = max_zero_fuel - (operating_empty + payload)
+    
+    # fuel margin calculation
+    from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
+    wing_fuel_volume(vehicle.wings['main_wing'])
+    fuel_density = vehicle.propulsors['turbo_fan'].combustor.fuel_data.density
+    fuel_available = 0.97 * vehicle.wings['main_wing'].fuel_volume * fuel_density    
+    results.available_fuel_margin = fuel_available - range_results.fuel
+    
+    return interface
