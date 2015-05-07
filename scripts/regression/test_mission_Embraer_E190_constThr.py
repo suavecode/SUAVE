@@ -60,6 +60,10 @@ def main():
     ref_condition.reynolds_number = 20e6     
     print_parasite_drag(ref_condition,configs.cruise,analyses,'parasite_drag.dat')
     
+    # print compressibility drag data into file
+    print_compress_drag(configs.cruise,analyses,filename = 'compress_drag.dat')
+    
+    return
     # load older results
     #save_results(results)
     old_results = load_results()   

@@ -3,19 +3,21 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+import SUAVE
 import numpy as np
 from SUAVE.Core import Units,Data
 
 # ----------------------------------------------------------------------
 #  Print output file with compressibility drag
 # ----------------------------------------------------------------------
-def print_compress_drag(vehicle,filename = 'compress_drag.dat'):
+def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     """ SUAVE.Methods.Results.print_compress_drag(vehicle,filename = 'compress_drag.dat'):
         
         Print output file with compressibility drag
         
         Inputs:
             vehicle         - SUave type vehicle
+            analyses        - 
             filename [optional] - Name of the file to be created
 
         Outputs:
@@ -31,10 +33,10 @@ def print_compress_drag(vehicle,filename = 'compress_drag.dat'):
     import datetime                 # importing library
 
     # Unpack
-    sweep           = vehicle.wings['Main Wing'].sweep  / Units.deg
-    t_c             = vehicle.wings['Main Wing'].thickness_to_chord
+    sweep           = vehicle.wings['main_wing'].sweep  / Units.deg
+    t_c             = vehicle.wings['main_wing'].thickness_to_chord
     sref            = vehicle.reference_area
-    configuration   = vehicle.configs.cruise.aerodynamics_model.configuration 
+    settings        = analyses.configs.cruise.aerodynamics.settings
     
     # Define mach and CL vectors    
     mach_vec                = np.linspace(0.45,0.95,11)
@@ -46,20 +48,17 @@ def print_compress_drag(vehicle,filename = 'compress_drag.dat'):
     cd_compress_tot = np.zeros_like(cd_compress[0])        
     
     # Alocatting array necessary for the drag estimation method
-    conditions = Data()
-    conditions.freestream = Data()
-    conditions.aerodynamics = Data()
-    conditions.aerodynamics.lift_breakdown = Data()
-    conditions.aerodynamics.drag_breakdown = Data()
-    conditions.freestream.mach_number      = mach_vec  
-    
+    state = Data()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state.conditions.freestream.mach_number      = mach_vec
+
     # write header of file
     fid = open(filename,'w')   # Open output file
     fid.write('Output file with compressibility drag breakdown\n\n') 
     fid.write('  VEHICLE TAG : ' + vehicle.tag + '\n\n')
-    fid.write('  REFERENCE AREA .............. ' + str('%5.1f' %   sref               )   + ' m2 ' + '\n')
-    fid.write('  WING SWEEP .................. ' + str('%5.1f' %   sweep              )   + ' deg' + '\n')
-    fid.write('  WING THICKNESS RATIO ........ ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
+    fid.write('  REFERENCE AREA ................ ' + str('%5.1f' %   sref               )   + ' m2 ' + '\n')
+    fid.write('  MAIN WING SWEEP ............... ' + str('%5.1f' %   sweep              )   + ' deg' + '\n')
+    fid.write('  MAIN WING THICKNESS RATIO ..... ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
     fid.write(' \n')
     fid.write(' TOTAL COMPRESSIBILITY DRAG \n')
     fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
@@ -67,11 +66,12 @@ def print_compress_drag(vehicle,filename = 'compress_drag.dat'):
 
     # call aerodynamic method for each CL
     for idcl, cl in enumerate(cl_vec):
-        conditions.aerodynamics.lift_breakdown.compressible_wings = np.atleast_1d(cl)
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings = np.atleast_1d(cl)
         # call method
-        compressibility_drag_wing(conditions,configuration,vehicle)
+        for wing in vehicle.wings:
+            analyses.configs.cruise.aerodynamics.process.compute.drag.compressibility.wings.wing(state,settings,wing)
         # process output for print
-        drag_breakdown = conditions.aerodynamics.drag_breakdown.compressible
+        drag_breakdown = state.conditions.aerodynamics.drag_breakdown.compressible
         for wing in vehicle.wings:
             cd_compress[wing.tag][:,idcl] =  drag_breakdown[wing.tag].compressibility_drag
             cd_compress_tot[:,idcl]      +=  drag_breakdown[wing.tag].compressibility_drag
@@ -81,7 +81,7 @@ def print_compress_drag(vehicle,filename = 'compress_drag.dat'):
     fid.write( 119*'-' )
     # print results of other components
     for wing in vehicle.wings: 
-        fid.write('\n ' + wing.tag.upper() + '\n')
+        fid.write('\n ' + wing.tag.upper() + '  ( t/c: {:4.3f} )'.format(wing.thickness_to_chord) + '\n')
         fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
         fid.write('\n')
         for idcl, cl in enumerate(cl_vec):
