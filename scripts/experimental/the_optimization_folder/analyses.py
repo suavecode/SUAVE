@@ -1,4 +1,4 @@
-# analyses.py
+# Analyses.py
 # 
 # Created:  May 2015, E. Botero
 # Modified: 

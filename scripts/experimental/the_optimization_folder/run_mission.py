@@ -6,6 +6,7 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
+
 import SUAVE
 from SUAVE.Core import Units
 
@@ -44,7 +45,6 @@ def main():
     mission = the_missions.base
     results = mission.evaluate()
     plot_mission(results)
-    
     
     return
 
