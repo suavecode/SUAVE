@@ -533,9 +533,6 @@ def vehicle_setup():
     #size the turbofan
     turbofan_sizing(gt_engine,mach_number,altitude)   
     
-    #temporary fix (this should be done automatically by the method)
-    gt_engine.design_thrust = thrust.total_design
-
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
     
