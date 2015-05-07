@@ -8,14 +8,17 @@
 # ----------------------------------------------------------------------    
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
+
+# TODO
+Interface = Data
 
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
 def main():
 
-    problem = setup_problem()
+    problem = setup()
 
 
     return
@@ -26,7 +29,7 @@ def main():
 
 def setup():
 
-    problem = Data() # Change me
+    problem = Interface() # Change me
 
     # -------------------------------------------------------------------
     # Inputs
@@ -42,7 +45,8 @@ def setup():
         [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 79000.  ,      Units.kg],
         [ 'MZFW'            , 59250.   , ( 30000.    ,100000.   ) , 59250.  ,    Units.less], 
     ]
-
+    
+    
     # -------------------------------------------------------------------
     # Objective
     # -------------------------------------------------------------------
@@ -52,11 +56,12 @@ def setup():
     problem.objective = [
         [ 'fuel_burn', 10000, Units.kg ]
     ]
-
+    
+    
     # -------------------------------------------------------------------
     # Constraints
     # -------------------------------------------------------------------
-
+    
     # [ tag, sense, edge, scaling, units ]
     problem.constraints =[
         [ 'takeoff_field_length' , '<',  2180., 5000.,    Units.m],
@@ -65,8 +70,8 @@ def setup():
         [ 'max_zero_fuel_margin' , '>',     0.,    1., Units.less],
         [ 'available_fuel_margin', '>'  ,   0.,    1., Units.less],
     ]
-
-
+    
+    
     # -------------------------------------------------------------------
     #  Aliases
     # -------------------------------------------------------------------
