@@ -50,3 +50,19 @@ def simple_sizing(configs):
     
     # done!
     return
+
+def post_process(interface):
+    
+    # Unpack data
+    vehicle               = interface.configs.base    
+    results               = interface.results
+    mission_profile       = results.missions.base    
+    short_field_results   = results.short_field
+    takeoff_field_results = results.takeoff_field_length
+    range_results         = results.max_range
+    # Weights
+    max_zero_fuel     = vehicle.mass_properties.max_zero_fuel
+    operating_empty   = vehicle.mass_properties.operating_empty
+    payload           = vehicle.mass_properties.payload   
+    
+    return results
