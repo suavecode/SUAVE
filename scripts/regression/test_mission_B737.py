@@ -46,11 +46,11 @@ def main():
 
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
     
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(old_results,'k-')
     
     # check the results
     #check_results(results,old_results)
@@ -367,7 +367,7 @@ def vehicle_setup():
     
     # setup
     turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 24000.0
+    #turbofan.design_thrust     = 24000.0
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -536,16 +536,16 @@ def vehicle_setup():
     thrust.tag ='thrust'
     
     # setup
-    thrust.bypass_ratio                       = 5.4
+   
     thrust.compressor_nondimensional_massflow = 49.7272495725
     thrust.reference_temperature              = 288.15
     thrust.reference_pressure                 = 1.01325*10**5
     thrust.number_of_engines                  = turbofan.number_of_engines   
-    
+    thrust.total_design                       = 24000.0
     # add to network
     turbofan.thrust = thrust
-    
-    
+    turbofan.bypass_ratio                     = 5.4
+    turbofan.design_thrust                    =thrust.total_design
     # add turbofan to vehicle
     vehicle.propulsors.append(turbofan)
     
