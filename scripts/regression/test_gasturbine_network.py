@@ -136,12 +136,12 @@ def energy_network():
     # propulsion conditions
     conditions_sizing.propulsion.throttle           =  ones_1col*1.0
 
-    state = Data()
-    state.numerics = Data()
-    state.conditions = conditions
-    
-    
-
+    state_sizing = Data()
+    state_sizing.numerics = Data()
+    state_sizing.conditions = conditions_sizing
+    state_off_design=Data()
+    state_off_design.numerics=Data()
+    state_off_design.conditions=conditions
 
 
     # ------------------------------------------------------------------
@@ -156,7 +156,7 @@ def energy_network():
     
     # setup
     turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 42383.01818423 #24000.0
+    #turbofan.design_thrust     = 42383.01818423 #24000.0
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -325,15 +325,16 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.bypass_ratio                       = 5.4
+    #thrust.bypass_ratio                       = 5.4
     thrust.compressor_nondimensional_massflow = 49.7272495725
     thrust.reference_temperature              = 288.15
     thrust.reference_pressure                 = 1.01325*10**5
     thrust.number_of_engines                  = turbofan.number_of_engines   
-    thrust.design_thrust                      = turbofan.design_thrust
+    #thrust.design_thrust                      = turbofan.design_thrust
+    thrust.total_design                       =42383.01818423
     # add to network
     turbofan.thrust = thrust    
-
+    turbofan.bypass_ratio                    = 5.4
     #bypass ratio  closer to fan
     
     numerics = Data()
@@ -344,18 +345,19 @@ def energy_network():
     turbofan_sizing(turbofan,0.8,10000.0)
     
     
-    results = turbofan(state)
-    
-    F    = results.thrust_force_vector
-    mdot = results.vehicle_mass_rate
-        
+    results_design = turbofan(state_sizing)
+    results_off_design=turbofan(state_off_design)
+    F    = results_design.thrust_force_vector
+    mdot = results_design.vehicle_mass_rate
+    F_off_design=results_off_design.thrust_force_vector
+    mdot_off_design = results_off_design.vehicle_mass_rate
     #Test the model 
     
     #Specify the expected values
     expected = Data()
     
     expected.thrust = 42383.01818423 
-    expected.mdot =  0.77416551
+    expected.mdot =  0.7657905
     
     #error data function
     error =  Data()
@@ -363,6 +365,7 @@ def energy_network():
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error =  (mdot[0][0]-expected.mdot)/expected.mdot
     print error
+    
     for k,v in error.items():
         assert(np.abs(v)<1e-4)    
     

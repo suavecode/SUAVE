@@ -23,7 +23,6 @@ def main():
     #input guesses and indices
     i=0
     P_mot        =2E7;   i_P_mot=copy.copy(i);          i+=1
- 
     climb_alt_1  =.01;   i_climb_alt_1=copy.copy(i);    i+=1
     climb_alt_2  =.1;    i_climb_alt_2=copy.copy(i);    i+=1
     climb_alt_3  =1;     i_climb_alt_3=copy.copy(i);    i+=1
@@ -46,7 +45,7 @@ def main():
     #range =2800 km
     #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 10.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 1.39193333997 , 1.74925037953 ]
     #range=4800 km
-    inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 10.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 1.39193333997 , 3.74925037953 ]
+    inputs=[ 1.54604550359 , 0.0026654229292 , 0.289787785294 , 1.44804227092 , 1.80919375579 , 10.1729377809 , -0.367599978501 , -1.85658394768 , 0.0101657124464 , 1.47564460919 , 0.582801615984 , 1.07729537922 , 0.9785551605 , 1.36662369919 , 1.53642386294 , 10.1468617851 , 1.61700428281 , 3.75624624443 ]
     
     #print mybounds
     #print inputs
@@ -264,7 +263,7 @@ def evaluate_penalty(vehicle,results, inputs,target_range):
     results.segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(min(0, alpha_tc+5))
     results.segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(max(0, alpha_rc-5))
     #now add penalty function if range is not met
-    results.segments[-1].conditions.weights.total_mass[-1,0]+=1000.*abs(min(results.segments[-1].conditions.frames.inertial.position_vector[-1,0]/1000-target_range,0,))
+    results.segments[-1].conditions.weights.total_mass[-1,0]+=1000.*abs(min(results.segments[-1].conditions.frames.inertial.position_vector[-1,0]/1000.-target_range,0,))
     #add penalty function for washin
     results.segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, alpha_rc-alpha_tc))
     
