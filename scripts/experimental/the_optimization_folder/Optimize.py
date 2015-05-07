@@ -11,7 +11,7 @@ import SUAVE
 from SUAVE.Core import Units, Data
 
 # TODO
-Interface = Data
+Interface = Data()
 
 # ----------------------------------------------------------------------        
 #   Run the whole thing
