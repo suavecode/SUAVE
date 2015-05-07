@@ -155,8 +155,8 @@ def energy_network():
     turbofan.tag = 'turbo_fan'
     
     # setup
+    turbofan.bypass_ratio      = 5.4
     turbofan.number_of_engines = 2.0
-    #turbofan.design_thrust     = 42383.01818423 #24000.0
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -325,16 +325,11 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    #thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 49.7272495725
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
-    #thrust.design_thrust                      = turbofan.design_thrust
     thrust.total_design                       =42383.01818423
+    
     # add to network
     turbofan.thrust = thrust    
-    turbofan.bypass_ratio                    = 5.4
+
     #bypass ratio  closer to fan
     
     numerics = Data()
@@ -344,6 +339,9 @@ def energy_network():
     #size the turbofan
     turbofan_sizing(turbofan,0.8,10000.0)
     
+    print "Design thrust ",turbofan.design_thrust
+    print "Sealevel static thrust ",turbofan.sealevel_static_thrust
+    
     
     results_design = turbofan(state_sizing)
     results_off_design=turbofan(state_off_design)
@@ -351,6 +349,8 @@ def energy_network():
     mdot = results_design.vehicle_mass_rate
     F_off_design=results_off_design.thrust_force_vector
     mdot_off_design = results_off_design.vehicle_mass_rate
+    
+
     #Test the model 
     
     #Specify the expected values
