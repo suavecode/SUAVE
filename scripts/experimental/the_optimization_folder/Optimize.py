@@ -10,6 +10,11 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
+import Vehicles
+import Analyses
+import Missions
+import Procedure
+
 # TODO
 Interface = Data
 
@@ -87,7 +92,33 @@ def setup():
                              'configs.*.mass_properties.takeoff'          ]],
         [ 'MZFW'          ,  'configs.*.mass_properties.max_zero_fuel'     ],
     ]
-
+    
+    
+    
+    # -------------------------------------------------------------------
+    #  Vehicles
+    # -------------------------------------------------------------------
+    problem.vehicles = Vehicles.setup()
+    
+    
+    # -------------------------------------------------------------------
+    #  Analyses
+    # -------------------------------------------------------------------
+    problem.analyses = Analyses.setup(problem.vehicles)
+    
+    
+    # -------------------------------------------------------------------
+    #  Missions
+    # -------------------------------------------------------------------
+    problem.missions = Missions.setup(problem.analyses)
+    
+    
+    # -------------------------------------------------------------------
+    #  Procedure
+    # -------------------------------------------------------------------    
+    problem.procedure = Procedure.setup()
+    
+    
     return problem
 
 
