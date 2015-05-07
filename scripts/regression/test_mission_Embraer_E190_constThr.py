@@ -389,8 +389,8 @@ def vehicle_setup():
     
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 3.0
-    gt_engine.nacelle_diameter  = 1.5
+    gt_engine.engine_length     = 2.71
+    gt_engine.nacelle_diameter  = 2.05
 
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
@@ -412,7 +412,7 @@ def vehicle_setup():
     inlet_nozzle.tag = 'inlet nozzle'
 
     inlet_nozzle.polytropic_efficiency = 0.98
-    inlet_nozzle.pressure_ratio        = 0.99
+    inlet_nozzle.pressure_ratio        = 0.98 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
     
     #add inlet nozzle to the network
     gt_engine.inlet_nozzle = inlet_nozzle
@@ -446,7 +446,7 @@ def vehicle_setup():
     low_pressure_turbine.tag='lpt'
     
     low_pressure_turbine.mechanical_efficiency = 0.99
-    low_pressure_turbine.polytropic_efficiency = 0.99
+    low_pressure_turbine.polytropic_efficiency = 0.93
     
     #add low pressure turbine to the network    
     gt_engine.low_pressure_turbine = low_pressure_turbine
@@ -458,7 +458,7 @@ def vehicle_setup():
     high_pressure_turbine.tag='hpt'
 
     high_pressure_turbine.mechanical_efficiency = 0.99
-    high_pressure_turbine.polytropic_efficiency = 0.99
+    high_pressure_turbine.polytropic_efficiency = 0.93
     
     #add the high pressure turbine to the network    
     gt_engine.high_pressure_turbine = high_pressure_turbine 
@@ -496,7 +496,7 @@ def vehicle_setup():
     fan_nozzle.tag = 'fan nozzle'
 
     fan_nozzle.polytropic_efficiency = 0.95
-    fan_nozzle.pressure_ratio        = 0.98    
+    fan_nozzle.pressure_ratio        = 0.99
     
     #add the fan nozzle to the network
     gt_engine.fan_nozzle = fan_nozzle
@@ -520,7 +520,7 @@ def vehicle_setup():
     thrust.tag ='compute_thrust'
  
     #total design thrust (includes all the engines)
-    thrust.total_design             = 48000.0 #37278.0* Units.N #Newtons
+    thrust.total_design             = 37278.0* Units.N #Newtons
  
     #design sizing conditions
     altitude      = 35000.0*Units.ft
