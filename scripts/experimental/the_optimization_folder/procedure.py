@@ -14,7 +14,6 @@ from SUAVE.Core import Units
 #   Sizing
 # ----------------------------------------------------------------------    
 
-
 def simple_sizing(configs):
     
     base = configs.base

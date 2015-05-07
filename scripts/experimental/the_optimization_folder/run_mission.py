@@ -18,10 +18,10 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-import vehicles
-import missions
-import analyses
-import procedure
+import Vehicles
+import Missions
+import Analyses
+import Procedure
 
 # ----------------------------------------------------------------------
 #   Main
@@ -29,19 +29,19 @@ import procedure
 
 def main():
     
-    configs, analyses = full_setup()
+    the_vehicles, the_analyses, the_missions = full_setup()
     
-    procedure.simple_sizing(configs)
+    Procedure.simple_sizing(the_vehicles)
     
-    configs.finalize()
-    analyses.finalize()
+    the_vehicles.finalize()
+    the_analyses.finalize()
     
     # weight analysis
-    weights = analyses.configs.base.weights
+    weights = the_analyses.base.weights
     breakdown = weights.evaluate()      
     
     # mission analysis
-    mission = analyses.missions.base
+    mission = the_missions.base
     results = mission.evaluate()
     plot_mission(results)
     
@@ -54,22 +54,16 @@ def main():
 
 def full_setup():
     
-    # vehicle data
-    vehicle  = vehicle.setup()
-    configs  = vehicle.configs_setup(vehicle)
+    # Make a Vehicle
+    the_vehicles = Vehicles.setup()
     
-    # vehicle analyses
-    configs_analyses = analyses.setup(configs)
+    # Define the analyses
+    the_analyses = Analyses.setup(the_vehicles)
     
-    # mission analyses
-    mission  = mission.setup(configs_analyses)
-    missions_analyses = missions.setup(mission)
-
-    analyses = SUAVE.Analyses.Analysis.Container()
-    analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
+    # Create a mission
+    the_missions = Missions.setup(the_analyses)
     
-    return configs, analyses
+    return the_vehicles, the_analyses, the_missions
 
 # ----------------------------------------------------------------------
 #   Plot Mission
@@ -254,3 +248,7 @@ def plot_mission(results,line_style='bo-'):
     axes.grid(True)
 
     return
+
+if __name__ == '__main__': 
+    main()    
+    plt.show()
