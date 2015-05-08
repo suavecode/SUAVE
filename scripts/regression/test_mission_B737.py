@@ -27,7 +27,8 @@ from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
                                         print_compress_drag, \
                                         print_engine_data,   \
-                                        print_mission_breakdown
+                                        print_mission_breakdown, \
+                                        print_weight_breakdown
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -48,6 +49,9 @@ def main():
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
+
+    # print weight breakdown
+    print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
 
     # print engine data into file
     print_engine_data(configs.base,filename = 'B737_engine_data.dat')
@@ -76,15 +80,16 @@ def main():
     # check the results
     #check_results(results,old_results)
     
-	# print some results, for check agaist Aviation paper
-    end_segment = results.segments[-1]
-    time     = end_segment.conditions.frames.inertial.time[-1,0] / Units.min
-    distance = end_segment.conditions.frames.inertial.position_vector[-1,0] / Units.nautical_miles
-    mass_end     = end_segment.conditions.weights.total_mass[-1,0]
-    mass_begin   = results.segments[0].conditions.weights.total_mass[0,0]
-    fuelburn = (mass_begin- mass_end) / Units.lbs
-    
-    print 'Time: {:5.0f} min , Distance: {:5.0f} nm ; FuelBurn: {:5.0f} lbs'.format(time,distance,fuelburn)
+##	# print some results, for check agaist Aviation paper
+##    end_segment = results.segments[-1]
+##    time     = end_segment.conditions.frames.inertial.time[-1,0] / Units.min
+##    distance = end_segment.conditions.frames.inertial.position_vector[-1,0] / Units.nautical_miles
+##    mass_end     = end_segment.conditions.weights.total_mass[-1,0]
+##    mass_begin   = results.segments[0].conditions.weights.total_mass[0,0]
+##    fuelburn = (mass_begin- mass_end) / Units.lbs
+##    
+##    print 'Time: {:5.0f} min , Distance: {:5.0f} nm ; FuelBurn: {:5.0f} lbs'.format(time,distance,fuelburn)
+
     return
 
 
