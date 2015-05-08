@@ -52,7 +52,7 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     swet_tot *= 1.10
     
     # Estimating excrescence drag, based in ESDU 94044, figure 1
-    D_q = 0.0184 + 0.000469 * swet_tot - 1.13*10**-7 * swet_tot ** 2
+    D_q = 0.40* (0.0184 + 0.000469 * swet_tot - 1.13*10**-7 * swet_tot ** 2)
     cd_excrescence = D_q / Sref
 
     # ------------------------------------------------------------------

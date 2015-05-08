@@ -28,7 +28,6 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     """ 
 
     # Imports
-    from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.compressibility_drag_wing import compressibility_drag_wing
     import time                     # importing library
     import datetime                 # importing library
 
