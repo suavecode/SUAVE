@@ -34,7 +34,7 @@ def main():
 
 def setup():
 
-    problem = Interface() # Change me
+    problem = Interface # Change me
 
     # -------------------------------------------------------------------
     # Inputs
@@ -42,13 +42,13 @@ def setup():
 
     # [ tag , initial, [lb,ub], scaling, units ]
     problem.inputs = [
-        [ 'aspect_ratio'    ,   10.    , (     5.    ,    20.   ) ,    10.  ,    Units.less], 
-        [ 'reference_area'  ,   125.   , (    70.    ,   200.   ) ,   125.  , Units.meter^2],
-        [ 'sweep'           ,    25.   , (     0.    ,    60.   ) ,    25.  , Units.degrees],
-        [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 24000.  , Units.Newtons],
-        [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) ,      .11,    Units.less],
-        [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 79000.  ,      Units.kg],
-        [ 'MZFW'            , 59250.   , ( 30000.    ,100000.   ) , 59250.  ,    Units.less], 
+        [ 'aspect_ratio'    ,   10.    , (     5.    ,    20.   ) ,    10.  ,     Units.less], 
+        [ 'reference_area'  ,   125.   , (    70.    ,   200.   ) ,   125.  , Units.meter**2],
+        [ 'sweep'           ,    25.   , (     0.    ,    60.   ) ,    25.  ,  Units.degrees],
+        [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 24000.  ,   Units.newton],
+        [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) ,      .11,     Units.less],
+        [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 79000.  ,       Units.kg],
+        [ 'MZFW'            , 59250.   , ( 30000.    ,100000.   ) , 59250.  ,     Units.less], 
     ]
     
     
@@ -96,7 +96,7 @@ def setup():
         [ 'range_max'            ,  'results.range_max'                           ],
         [ 'max_zero_fuel_margin' ,  'results.max_zero_fuel_margin'                ],
         [ 'available_fuel_margin',  'results.available_fuel_margin'               ],
-        [ 'available_fuel_margin',  'results.mission_fuel.fuel'                   ],
+        [ 'fuel_burn'            ,  'results.mission_fuel.fuel'                   ],
     ]
     
     
@@ -121,7 +121,7 @@ def setup():
     # -------------------------------------------------------------------
     #  Procedure
     # -------------------------------------------------------------------    
-    problem.procedure = Procedure.setup()
+    #problem.procedure = Procedure.setup()
     
     
     return problem

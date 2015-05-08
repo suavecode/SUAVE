@@ -3,18 +3,12 @@
 # Created:  May 2015, E. Botero
 # Modified: 
 
-
-
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
 import SUAVE
 from SUAVE.Core import Units, Data
-
-import Vehicles
-import Missions
-import Analyses
 
 # TODO
 Procedure = Data()
@@ -30,7 +24,7 @@ def setup():
     #   Instantiate Interface
     # ------------------------------------------------------------------
     
-    procedure = Procedure()
+    procedure = Procedure
     
     interface = Data()
     
