@@ -266,5 +266,5 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     state_sls.numerics = Data()
     state_sls.conditions = conditions_sls   
     results_sls = turbofan.evaluate_thrust(state_sls)
-    turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0]
+    turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
     #return
