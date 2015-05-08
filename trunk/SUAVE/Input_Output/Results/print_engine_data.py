@@ -12,7 +12,7 @@ import datetime                 # importing library
 # ----------------------------------------------------------------------
 #  Print output file with compressibility drag
 # ----------------------------------------------------------------------
-def print_engine_data(vehicle,mission,filename = 'engine_data.dat'):
+def print_engine_data(vehicle,filename = 'engine_data.dat'):
     """ SUAVE.Methods.Results.print_compress_drag(vehicle,filename = 'compress_drag.dat'):
         
         Print output file with compressibility drag
@@ -60,20 +60,6 @@ def print_engine_data(vehicle,mission,filename = 'engine_data.dat'):
     state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() 
     state.numerics   = SUAVE.Analyses.Mission.Segments.Conditions.Numerics()
     
-##    state.sizing_conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() 
-##
-##    
-##    thrust.bypass_ratio                       = 5.4
-####    thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
-##    thrust.reference_temperature              = 288.15
-##    thrust.reference_pressure                 = 1.01325*10**5
-##    thrust.design = 24000.0 * Units.lbf
-##    thrust.number_of_engines                  = gt_engine.number_of_engines   
-##    
-##       #size the turbofan
-##    turbofan_sizing(turbofan,conditions_sizing,state.numerics)
-    
-   
     # write header of file
     fid = open(filename,'w')   # Open output file
     fid.write('Output file with engine data \n\n') 
