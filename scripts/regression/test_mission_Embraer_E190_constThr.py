@@ -56,7 +56,7 @@ def main():
     results = mission.evaluate()
 
     # print engine data into file
-    print_engine_data(configs.base,analyses.missions,filename = 'engine_data.dat')
+    print_engine_data(configs.base,filename = 'engine_data.dat')
 
     # print parasite drag data into file
 	# define reference condition for parasite drag
@@ -511,9 +511,7 @@ def vehicle_setup():
     fan.pressure_ratio        = 1.7    
     
     #add the fan to the network
-    gt_engine.fan = fan
-
-    
+    gt_engine.fan = fan    
     
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
