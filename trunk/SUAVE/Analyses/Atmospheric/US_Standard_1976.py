@@ -40,13 +40,14 @@ class US_Standard_1976(Atmospheric):
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
         self.update(atmo_data)        
     
-    def compute_values(self,altitude):
+    def compute_values(self,altitude,temperature_deviation = 0):
 
         """ Computes values from the International Standard Atmosphere
 
         Inputs:
             altitude     : geometric altitude (elevation) (m)
                            can be a float, list or 1D array of floats
+            temperature_deviation :  delta_isa
          
         Outputs:
             list of conditions -
@@ -69,6 +70,7 @@ class US_Standard_1976(Atmospheric):
         grav   = self.planet.sea_level_gravity        
         Rad    = self.planet.mean_radius
         gamma  = gas.gas_specific_constant
+        delta_isa = temperature_deviation
         
         # check properties
         if not gas == Air():
@@ -123,10 +125,12 @@ class US_Standard_1976(Atmospheric):
         p[i_isoth] = p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(gamma*T0[i_isoth]))
         p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*gamma)) )
         
-        T   = T0 - dz*alpha
+        T   = T0 - dz*alpha + delta_isa
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mew = gas.compute_absolute_viscosity(T)
+        
+
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
@@ -147,39 +151,42 @@ if __name__ == '__main__':
     import pylab as plt
     
     h = np.linspace(-1.,60.,200) * Units.km
-    
+    delta_isa = 0.
+    h = 5000.
     atmosphere = US_Standard_1976()
     
-    data = atmosphere.compute_values(h)
+    data = atmosphere.compute_values(h,delta_isa)
     p   = data.pressure
     T   = data.temperature
     rho = data.density
     a   = data.speed_of_sound
     mew = data.dynamic_viscosity
     
-    plt.figure(1)
-    plt.plot(p,h)
-    plt.xlabel('Pressure (Pa)')
-    plt.ylabel('Altitude (km)')
+    print data
     
-    plt.figure(2)
-    plt.plot(T,h)
-    plt.xlabel('Temperature (K)')
-    plt.ylabel('Altitude (km)')    
+    #plt.figure(1)
+    #plt.plot(p,h)
+    #plt.xlabel('Pressure (Pa)')
+    #plt.ylabel('Altitude (km)')
     
-    plt.figure(3)
-    plt.plot(rho,h)
-    plt.xlabel('Density (kg/m^3)')
-    plt.ylabel('Altitude (km)')       
+    #plt.figure(2)
+    #plt.plot(T,h)
+    #plt.xlabel('Temperature (K)')
+    #plt.ylabel('Altitude (km)')    
     
-    plt.figure(4)
-    plt.plot(a,h)
-    plt.xlabel('Speed of Sound (m/s)')
-    plt.ylabel('Altitude (km)') 
+    #plt.figure(3)
+    #plt.plot(rho,h)
+    #plt.xlabel('Density (kg/m^3)')
+    #plt.ylabel('Altitude (km)')       
     
-    plt.figure(6)
-    plt.plot(mew,h)
-    plt.xlabel('Viscosity (kg/m-s)')
-    plt.ylabel('Altitude (km)')   
+    #plt.figure(4)
+    #plt.plot(a,h)
+    #plt.xlabel('Speed of Sound (m/s)')
+    #plt.ylabel('Altitude (km)') 
+    
+    #plt.figure(6)
+    #plt.plot(mew,h)
+    #plt.xlabel('Viscosity (kg/m-s)')
+    #plt.ylabel('Altitude (km)')   
 
-    plt.show(block=True)
+    #plt.show(block=True)

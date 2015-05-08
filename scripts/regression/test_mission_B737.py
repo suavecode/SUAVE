@@ -23,6 +23,11 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Input_Output.Results import  print_parasite_drag,  \
+                                        print_compress_drag, \
+                                        print_engine_data,   \
+                                        print_mission_breakdown
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -44,17 +49,42 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
 
+    # print engine data into file
+    print_engine_data(configs.base,filename = 'B737_engine_data.dat')
+
+    # print parasite drag data into file
+	# define reference condition for parasite drag
+    ref_condition = Data()
+    ref_condition.mach_number = 0.3
+    ref_condition.reynolds_number = 12e6     
+    print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
+    
+    # print compressibility drag data into file
+    print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
+    
+    # print mission breakdown
+    print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
+    
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
     
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(old_results,'k-')
     
     # check the results
     #check_results(results,old_results)
     
+	# print some results, for check agaist Aviation paper
+    end_segment = results.segments[-1]
+    time     = end_segment.conditions.frames.inertial.time[-1,0] / Units.min
+    distance = end_segment.conditions.frames.inertial.position_vector[-1,0] / Units.nautical_miles
+    mass_end     = end_segment.conditions.weights.total_mass[-1,0]
+    mass_begin   = results.segments[0].conditions.weights.total_mass[0,0]
+    fuelburn = (mass_begin- mass_end) / Units.lbs
+    
+    print 'Time: {:5.0f} min , Distance: {:5.0f} nm ; FuelBurn: {:5.0f} lbs'.format(time,distance,fuelburn)
     return
 
 
@@ -97,7 +127,7 @@ def analyses_setup(configs):
     # adjust analyses for configs
     
     # takeoff_analysis
-    analyses.takeoff.aerodynamics.drag_coefficient_increment = 0.1000
+    analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
     
     # landing analysis
     aerodynamics = analyses.landing.aerodynamics
@@ -191,13 +221,14 @@ def vehicle_setup():
     vehicle.mass_properties.max_takeoff               = 79015.8   # kg
     vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
     
     # envelope properties
-    vehicle.envelope.ultimate_load = 3.5
+    vehicle.envelope.ultimate_load = 2.5
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
@@ -211,7 +242,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 10.18
@@ -224,7 +255,7 @@ def vehicle_setup():
     
     wing.chords.root             = 6.81
     wing.chords.tip              = 1.09
-    wing.chords.mean_aerodynamic = 12.5
+    wing.chords.mean_aerodynamic = 4.235
     
     wing.areas.reference         = 124.862 
     
@@ -333,25 +364,25 @@ def vehicle_setup():
     
     fuselage.lengths.nose          = 6.4
     fuselage.lengths.tail          = 8.0
-    fuselage.lengths.cabin         = 44.0
-    fuselage.lengths.total         = 58.4    
+    fuselage.lengths.cabin         = 28.85 #44.0
+    fuselage.lengths.total         = 38.02 #58.4
     fuselage.lengths.fore_space    = 6.
     fuselage.lengths.aft_space     = 5.    
     
-    fuselage.width                 = 4.
+    fuselage.width                 = 3.74 #4.
     
-    fuselage.heights.maximum       = 4.    #
+    fuselage.heights.maximum       = 3.74  #4.    #
     fuselage.heights.at_quarter_length          = 4. # Not correct
     fuselage.heights.at_three_quarters_length   = 4. # Not correct
     fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
 
-    fuselage.areas.side_projected  = 4.* 59.8 #  Not correct
-    fuselage.areas.wetted          = 688.64
+    fuselage.areas.side_projected  = 3.74* 38.02 #4.* 59.8 #  Not correct
+    fuselage.areas.wetted          = 446.718 #688.64
     fuselage.areas.front_projected = 12.57
     
-    fuselage.effective_diameter    = 4.0
+    fuselage.effective_diameter    = 3.74 #4.0
     
-    fuselage.differential_pressure = 10**5 * Units.pascal    # Maximum differential pressure
+    fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -367,9 +398,9 @@ def vehicle_setup():
     
     # setup
     turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 24000.0
-    turbofan.engine_length     = 2.5
-    turbofan.nacelle_diameter  = 1.580
+    turbofan.bypass_ratio      = 5.4
+    turbofan.engine_length     = 2.71
+    turbofan.nacelle_diameter  = 2.05
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -527,29 +558,32 @@ def vehicle_setup():
     
     
     # ------------------------------------------------------------------
-    #  Component 10 - Thrust
-    
-    # to compute thrust
-    
-    # instantiate
+    #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
-    thrust.tag ='thrust'
-    
-    # setup
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 49.7272495725
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
+    thrust.tag ='compute_thrust'
+ 
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 2*24000. * Units.N #Newtons
+ 
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
     
     # add to network
     turbofan.thrust = thrust
+
+    #size the turbofan
+    turbofan_sizing(turbofan,mach_number,altitude)   
+    
+    # add  gas turbine network gt_engine to the vehicle
+    vehicle.append_component(turbofan)      
     
     
-    # add turbofan to vehicle
-    vehicle.propulsors.append(turbofan)
-    
-    # done!!
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+
     return vehicle
 
 
@@ -674,9 +708,10 @@ def plot_mission(results,line_style='bo-'):
     axes = plt.gca()
     for i in range(len(results.segments)):
         time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        distance = results.segments[i].conditions.frames.inertial.position_vector[:,0] / Units.nautical_miles
         altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
-        axes.plot(time, altitude, line_style)
-    axes.set_xlabel('Time (mins)')
+        axes.plot(distance, altitude, line_style)
+    axes.set_xlabel('Distance (nm)')
     axes.set_ylabel('Altitude (km)')
     axes.grid(True)
 
@@ -929,7 +964,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.cruise )
     
     segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = 3933.65 * Units.km
+    segment.distance   = (3933.65 + 770) * Units.km
         
     mission.append_segment(segment)
     

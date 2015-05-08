@@ -28,6 +28,8 @@ from the_aircraft_function import the_aircraft_function
 
 from SUAVE.Methods.Performance  import payload_range
 
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
                                         print_compress_drag, \
                                         print_engine_data,   \
@@ -54,7 +56,7 @@ def main():
     results = mission.evaluate()
 
     # print engine data into file
-    print_engine_data(configs.base,analyses.missions,filename = 'engine_data.dat')
+    print_engine_data(configs.base,filename = 'engine_data.dat')
 
     # print parasite drag data into file
 	# define reference condition for parasite drag
@@ -386,9 +388,9 @@ def vehicle_setup():
     gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
-    gt_engine.design_thrust     = 20300.0
-    gt_engine.engine_length     = 3.0
-    gt_engine.nacelle_diameter  = 1.5
+    gt_engine.bypass_ratio      = 5.4
+    gt_engine.engine_length     = 2.71
+    gt_engine.nacelle_diameter  = 2.05
 
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
@@ -410,7 +412,7 @@ def vehicle_setup():
     inlet_nozzle.tag = 'inlet nozzle'
 
     inlet_nozzle.polytropic_efficiency = 0.98
-    inlet_nozzle.pressure_ratio        = 0.99
+    inlet_nozzle.pressure_ratio        = 0.98 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
     
     #add inlet nozzle to the network
     gt_engine.inlet_nozzle = inlet_nozzle
@@ -444,7 +446,7 @@ def vehicle_setup():
     low_pressure_turbine.tag='lpt'
     
     low_pressure_turbine.mechanical_efficiency = 0.99
-    low_pressure_turbine.polytropic_efficiency = 0.99
+    low_pressure_turbine.polytropic_efficiency = 0.93
     
     #add low pressure turbine to the network    
     gt_engine.low_pressure_turbine = low_pressure_turbine
@@ -456,7 +458,7 @@ def vehicle_setup():
     high_pressure_turbine.tag='hpt'
 
     high_pressure_turbine.mechanical_efficiency = 0.99
-    high_pressure_turbine.polytropic_efficiency = 0.99
+    high_pressure_turbine.polytropic_efficiency = 0.93
     
     #add the high pressure turbine to the network    
     gt_engine.high_pressure_turbine = high_pressure_turbine 
@@ -494,7 +496,7 @@ def vehicle_setup():
     fan_nozzle.tag = 'fan nozzle'
 
     fan_nozzle.polytropic_efficiency = 0.95
-    fan_nozzle.pressure_ratio        = 0.98    
+    fan_nozzle.pressure_ratio        = 0.99
     
     #add the fan nozzle to the network
     gt_engine.fan_nozzle = fan_nozzle
@@ -509,27 +511,29 @@ def vehicle_setup():
     fan.pressure_ratio        = 1.7    
     
     #add the fan to the network
-    gt_engine.fan = fan
-
-    
+    gt_engine.fan = fan    
     
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
-    
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.design = 24000.0 * Units.lbf
-    thrust.number_of_engines                  = gt_engine.number_of_engines   
-
+ 
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 37278.0* Units.N #Newtons
+ 
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
     
     # add thrust to the network
     gt_engine.thrust = thrust
 
+    #size the turbofan
+    turbofan_sizing(gt_engine,mach_number,altitude)   
+    
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
+    
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete

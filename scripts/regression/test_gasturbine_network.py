@@ -118,36 +118,30 @@ def energy_network():
     
 
     # freestream conditions
-    conditions_sizing.freestream.mach_number        = ones_1col*0.8 #*0.3
-    conditions_sizing.freestream.pressure           = ones_1col*20000. #*100000.
-    conditions_sizing.freestream.temperature        = ones_1col*215. #*258.0
-    conditions_sizing.freestream.density            = ones_1col*0.8 #*1.225
+    conditions_sizing.freestream.mach_number        = ones_1col*0.8
+    conditions_sizing.freestream.pressure           = ones_1col*26499.73156529
+    conditions_sizing.freestream.temperature        = ones_1col*223.25186491
+    conditions_sizing.freestream.density            = ones_1col*0.41350854
 
-    conditions_sizing.freestream.dynamic_viscosity          = ones_1col* 0.000001475 #*1.789*10**(-5)
-    conditions_sizing.freestream.altitude           = ones_1col* 10. #* 0.5
+    conditions_sizing.freestream.dynamic_viscosity  = ones_1col* 1.45766126e-05 #*1.789*10**(-5)
+    conditions_sizing.freestream.altitude           = ones_1col* 10000. #* 0.5
 
     conditions_sizing.freestream.gravity            = ones_1col*9.81
     conditions_sizing.freestream.gamma              = ones_1col*1.4
     conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
     conditions_sizing.freestream.R                  = 287.87
-    conditions_sizing.M = conditions_sizing.freestream.mach_number 
-    conditions_sizing.T = conditions_sizing.freestream.temperature
-    conditions_sizing.p = conditions_sizing.freestream.pressure
-    conditions_sizing.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions_sizing.freestream.Cp/(conditions_sizing.freestream.Cp-conditions_sizing.freestream.R)*conditions_sizing.freestream.R*conditions_sizing.freestream.temperature) #300.
-    conditions_sizing.freestream.velocity           = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-    conditions_sizing.velocity = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-    conditions_sizing.q = 0.5*conditions_sizing.freestream.density*conditions_sizing.velocity**2
-    conditions_sizing.g0 = conditions_sizing.freestream.gravity
+    conditions_sizing.freestream.speed_of_sound     = 299.53150968
+    conditions_sizing.freestream.velocity           = conditions_sizing.freestream.mach_number * conditions_sizing.freestream.speed_of_sound
     
     # propulsion conditions
     conditions_sizing.propulsion.throttle           =  ones_1col*1.0
 
-    state = Data()
-    state.numerics = Data()
-    state.conditions = conditions
-    
-    
-
+    state_sizing = Data()
+    state_sizing.numerics = Data()
+    state_sizing.conditions = conditions_sizing
+    state_off_design=Data()
+    state_off_design.numerics=Data()
+    state_off_design.conditions=conditions
 
 
     # ------------------------------------------------------------------
@@ -161,8 +155,8 @@ def energy_network():
     turbofan.tag = 'turbo_fan'
     
     # setup
+    turbofan.bypass_ratio      = 5.4
     turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 42383.01818423 #24000.0
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -331,12 +325,8 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 49.7272495725
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
-    thrust.design_thrust                      = turbofan.design_thrust
+    thrust.total_design                       =42383.01818423
+    
     # add to network
     turbofan.thrust = thrust    
 
@@ -347,28 +337,35 @@ def energy_network():
     eta=1.0
     
     #size the turbofan
-    turbofan_sizing(turbofan,conditions_sizing,numerics)
+    turbofan_sizing(turbofan,0.8,10000.0)
+    
+    print "Design thrust ",turbofan.design_thrust
+    print "Sealevel static thrust ",turbofan.sealevel_static_thrust
     
     
-    results = turbofan(state)
+    results_design = turbofan(state_sizing)
+    results_off_design=turbofan(state_off_design)
+    F    = results_design.thrust_force_vector
+    mdot = results_design.vehicle_mass_rate
+    F_off_design=results_off_design.thrust_force_vector
+    mdot_off_design = results_off_design.vehicle_mass_rate
     
-    F    = results.thrust_force_vector
-    mdot = results.vehicle_mass_rate
-        
+
     #Test the model 
     
     #Specify the expected values
     expected = Data()
     
     expected.thrust = 42383.01818423 
-    expected.mdot =  0.77416551
+    expected.mdot =  0.7657905
     
     #error data function
     error =  Data()
     
-    error.thrust = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot =  (mdot[0][0]-expected.mdot)/expected.mdot
+    error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
+    error.mdot_error =  (mdot[0][0]-expected.mdot)/expected.mdot
     print error
+    
     for k,v in error.items():
         assert(np.abs(v)<1e-4)    
     

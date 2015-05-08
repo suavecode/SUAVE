@@ -35,9 +35,54 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
 
-def turbofan_sizing(turbofan,conditions,numerics):  
+def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
+    
     
     #Unpack components
+    
+    #check if altitude is passed or conditions is passed
+    
+    if(conditions):
+        #use conditions
+        pass
+        
+    else:
+        #check if mach number and temperature are passed
+        if(mach_number==None or altitude==None):
+            
+            #raise an error
+            raise NameError('The sizing conditions require an altitude and a Mach number')
+        
+        else:
+            #call the atmospheric model to get the conditions at the specified altitude
+            atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+        
+            # setup conditions
+            conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
+        
+        
+        
+            # freestream conditions
+            
+            conditions.freestream.altitude           = np.atleast_1d(altitude)
+            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
+            
+            conditions.freestream.pressure           = np.atleast_1d(p)
+            conditions.freestream.temperature        = np.atleast_1d(T)
+            conditions.freestream.density            = np.atleast_1d(rho)
+            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
+            conditions.freestream.gravity            = np.atleast_1d(9.81)
+            conditions.freestream.gamma              = np.atleast_1d(1.4)
+            conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
+            conditions.freestream.R                  = 287.87
+            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
+            conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
+            
+            # propulsion conditions
+            conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+    
+    
     
     ram                       = turbofan.ram
     inlet_nozzle              = turbofan.inlet_nozzle
@@ -51,7 +96,8 @@ def turbofan_sizing(turbofan,conditions,numerics):
     fan_nozzle                = turbofan.fan_nozzle
     thrust                    = turbofan.thrust
     
-    
+    bypass_ratio              = turbofan.bypass_ratio
+    number_of_engines         = turbofan.number_of_engines
     
     #Creating the network by manually linking the different components
     
@@ -135,7 +181,7 @@ def turbofan_sizing(turbofan,conditions,numerics):
     #link the low pressure turbine to the fan
     low_pressure_turbine.inputs.fan                        =  fan.outputs
     #get the bypass ratio from the thrust component
-    low_pressure_turbine.inputs.bypass_ratio               =  thrust.bypass_ratio
+    low_pressure_turbine.inputs.bypass_ratio               =  bypass_ratio
     
     #flow through the low pressure turbine
     low_pressure_turbine(conditions)
@@ -175,12 +221,50 @@ def turbofan_sizing(turbofan,conditions,numerics):
     #link the thrust component to the low pressure compressor 
     thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
     thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
+    thrust.inputs.number_of_engines                        = number_of_engines
+    thrust.inputs.bypass_ratio                             = bypass_ratio
+
 
     #compute the trust
     thrust.size(conditions)
     
+    #update the design thrust value
+    turbofan.design_thrust = thrust.total_design
     
     
+    #compute the sls_thrust
     
+    #call the atmospheric model to get the conditions at the specified altitude
+    atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
+
+    # setup conditions
+    conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
+
+
+
+    # freestream conditions
     
+    conditions_sls.freestream.altitude           = np.atleast_1d(0.)
+    conditions_sls.freestream.mach_number        = np.atleast_1d(0.01)
+    
+    conditions_sls.freestream.pressure           = np.atleast_1d(p)
+    conditions_sls.freestream.temperature        = np.atleast_1d(T)
+    conditions_sls.freestream.density            = np.atleast_1d(rho)
+    conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
+    conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
+    conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
+    conditions_sls.freestream.Cp                 = 1.4*287.87/(1.4-1)
+    conditions_sls.freestream.R                  = 287.87
+    conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
+    conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
+    
+    # propulsion conditions
+    conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
+    
+    state_sls = Data()
+    state_sls.numerics = Data()
+    state_sls.conditions = conditions_sls   
+    results_sls = turbofan.evaluate_thrust(state_sls)
+    turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0]
     #return

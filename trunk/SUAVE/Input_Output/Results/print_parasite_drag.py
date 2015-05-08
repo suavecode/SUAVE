@@ -157,14 +157,20 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
             # Print segment data
             fid.write(component + cd_p + wetted_area + form_factor + cf + f_rey + f_compress + '\n')
 
-    # String formatting
+    # Print miscelllaneous drag
     component             =   ' Miscellaneous Drag' + 19*' ' +'|'
     cd_misc               =   str('%11.5f'   % state.conditions.aerodynamics.drag_breakdown.miscellaneous.total)   + '    |'
+    CD_p                 +=  float(cd_misc[0:14])
     fid.write(component + cd_misc + 5*( 8*' '+'-'+6*' '+'|') + '\n')
 
+    # String formatting for miscelllaneous drag
+    component             =   ' Drag Coefficient Increment' + 11*' ' +'|'
+    cd_increment          =   str('%11.5f'   % settings.drag_coefficient_increment)   + '    |'
+    CD_p                 +=  float(cd_increment[0:14])
+    fid.write(component + cd_increment + 5*( 8*' '+'-'+6*' '+'|') + '\n')
+    
     # Print line with totals
     swet_tot     =  str('%11.1f'   % swet_tot)                 + '    |'
-    CD_p        +=  float(cd_misc[0:14])
     CD_p         =  str('%11.5f'   % CD_p    )                 + '    |'
     fid.write(38*' ' + '|'+ 6*( 15*' '+'|') + '\n')
     fid.write(29*' ' + 'SUM 	  |' + CD_p + swet_tot + 4*( 15*' '+'|') + '\n')

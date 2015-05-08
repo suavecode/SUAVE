@@ -12,6 +12,7 @@ from SUAVE.Core import Results
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
+from SUAVE.Components import Wings
 
 # python imports
 import os, sys, shutil
@@ -43,11 +44,16 @@ def compressibility_drag_wing(state,settings,geometry):
 
     # unpack
     conditions = state.conditions
-    configuration = settings
+    configuration = settings    
     
-    
-    wing      = geometry
-    wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
+    wing       = geometry
+    if isinstance(wing,Wings.Main_Wing):
+        wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
+    elif wing.vertical:
+        wing_lifts = 0
+    else:
+        wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
+        
     mach       = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
