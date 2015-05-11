@@ -1030,7 +1030,6 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------    
     fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
     fuel_mission.tag = 'fuel'
-    fuel_mission.mission = base_mission
     fuel_mission.range   = 1277. * Units.nautical_mile
     fuel_mission.payload   = 19000.
     missions.append(fuel_mission)    
@@ -1039,8 +1038,7 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Mission for Constrained Short Field
     # ------------------------------------------------------------------    
-    short_field = SUAVE.Analyses.Mission.Mission() #Short_Field_Constrained()
-    short_field.mission = base_mission
+    short_field = SUAVE.Analyses.Mission.Mission(base_mission) #Short_Field_Constrained()
     short_field.tag = 'short_field'    
     
     #airport
@@ -1049,7 +1047,7 @@ def missions_setup(base_mission):
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     airport.available_tofl = 1500.
-    short_field.mission.airport = airport    
+    short_field.airport = airport    
     missions.append(short_field)
    
 
@@ -1058,7 +1056,6 @@ def missions_setup(base_mission):
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
     payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
-    payload.mission = base_mission
     payload.tag = 'payload'
     payload.range   = 2316. * Units.nautical_mile
     payload.payload   = 19000.
