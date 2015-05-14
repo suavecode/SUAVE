@@ -28,8 +28,8 @@ def main():
     
     # build network
     net = Solar()
-    net.number_motors = 1.
-    net.nacelle_dia   = 0.2
+    net.number_of_engines = 1.
+    net.nacelle_dia       = 0.2
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
