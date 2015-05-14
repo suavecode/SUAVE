@@ -45,7 +45,6 @@ class Vehicle(Analysis.Container):
             SUAVE.Analyses.Weights.Weights           : 'weights'      ,
             SUAVE.Analyses.Aerodynamics.Aerodynamics : 'aerodynamics' ,
             SUAVE.Analyses.Stability.Stability       : 'stability'    ,
-            #SUAVE.Analyses.Energy.Propulsion         : 'propulsion'   , #taken out
             SUAVE.Analyses.Energy.Energy             : 'energy'       ,
             SUAVE.Analyses.Atmospheric.Atmospheric   : 'atmosphere'   ,
             SUAVE.Analyses.Planets.Planet            : 'planet'       ,

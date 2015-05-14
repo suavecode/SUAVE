@@ -47,25 +47,25 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Energy loss from power draw
     eloss = np.dot(I,Ploss)
 
-    # Pack up
-    #battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
-
     # Possible Energy going into the battery:
     energy_unmodified = np.dot(I,pbat)
+    
+    # Available capacity
+    capacity_available = max_energy - battery.current_energy[0]
    
     # How much energy the battery could be overcharged by
-    delta = energy_unmodified - max_energy + battery.current_energy[0]
+    delta = energy_unmodified -capacity_available
     delta[delta<0.] = 0.
-  
+    
     ddelta = np.dot(D,delta) # Power that shouldn't go in
     
     # Power actually going into the battery
-    P = pbat - ddelta
+    P = pbat
+    P[pbat>0.] = pbat[pbat>0.] - ddelta[pbat>0.]
     ebat = np.dot(I,P)
     
     # Add this to the current state
-    eloss=0
-    battery.current_energy = ebat - eloss + battery.current_energy[0]
-    battery.resistive_losses=Ploss
+    battery.current_energy   = ebat - eloss + battery.current_energy[0]
+    battery.resistive_losses = Ploss
     
     return
