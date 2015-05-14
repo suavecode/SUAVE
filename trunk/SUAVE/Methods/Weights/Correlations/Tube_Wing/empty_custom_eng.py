@@ -25,7 +25,7 @@ from SUAVE.Core import (
 #  Method
 # ----------------------------------------------------------------------
 
-def empty_custom_eng(vehicle,propulsor):
+def empty_custom_eng(vehicle):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
         This is for a standard Tube and Wing aircraft configuration.        
         
@@ -112,7 +112,7 @@ def empty_custom_eng(vehicle,propulsor):
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories  
     #l_w2h      = vehicle.wings['horizontal_stabilizer'].position[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].position[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
-    l_w2h      = vehicle.w2h
+    l_w2h      = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0]
     S_fus      = vehicle.fuselages['fuselage'].areas.wetted
     diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
     w_fus      = vehicle.fuselages['fuselage'].width
@@ -137,8 +137,9 @@ def empty_custom_eng(vehicle,propulsor):
    
     wt_wing            = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
     wt_landing_gear    = landing_gear(TOW)
-   
-    wt_propulsion      =propulsor.mass_properties.mass
+    wt_propulsion      = 0.
+    for propulsor in vehicle.propulsors:
+        wt_propulsion      += propulsor.mass_properties.mass  #weight of a single propulsor
     wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r)
     output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
     wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)
@@ -156,7 +157,7 @@ def empty_custom_eng(vehicle,propulsor):
     #vehicle.propulsors['turbo_fan'].mass_properties.mass = wt_engine_jet
     
     # packup outputs
-    output             = payload(TOW, wt_empty, num_pax,wt_cargo)
+    output                   = payload(TOW, wt_empty, num_pax,wt_cargo)
     
     output.wing              = wt_wing
     output.fuselage          = wt_fuselage

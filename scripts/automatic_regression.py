@@ -42,7 +42,7 @@ modules = [
     #'regression/test_mission_AS2.py',
     'regression/test_landing_field_length.py',
     'regression/test_take_off_field_length.py',
-    #'regression/test_solar_network.py',
+    'regression/test_solar_network.py',
     'regression/test_solar_radiation.py',
     'regression/test_propeller.py',
     'regression/test_aerodynamics.py',

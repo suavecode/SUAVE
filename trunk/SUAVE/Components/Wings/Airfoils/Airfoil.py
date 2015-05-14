@@ -32,3 +32,6 @@ class Airfoil(Lofted_Body.Section):
         self.flap_shear_flag = False
         self.flap_chord      = 0.0
         self.flap_angle      = 0.0
+
+        self.coord_file = None    # absolute path
+        self.points     = [[],[]]

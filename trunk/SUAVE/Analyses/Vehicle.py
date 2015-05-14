@@ -23,7 +23,6 @@ class Vehicle(Analysis.Container):
         self.aerodynamics = None
         self.stability    = None
         self.energy       = None
-        self.propulsion   = None
         self.atmosphere   = None
         self.planet       = None
 
@@ -46,7 +45,6 @@ class Vehicle(Analysis.Container):
             SUAVE.Analyses.Weights.Weights           : 'weights'      ,
             SUAVE.Analyses.Aerodynamics.Aerodynamics : 'aerodynamics' ,
             SUAVE.Analyses.Stability.Stability       : 'stability'    ,
-            SUAVE.Analyses.Energy.Propulsion         : 'propulsion'   ,
             SUAVE.Analyses.Energy.Energy             : 'energy'       ,
             SUAVE.Analyses.Atmospheric.Atmospheric   : 'atmosphere'   ,
             SUAVE.Analyses.Planets.Planet            : 'planet'       ,

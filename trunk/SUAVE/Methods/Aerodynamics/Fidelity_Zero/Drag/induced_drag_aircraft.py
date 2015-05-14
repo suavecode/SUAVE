@@ -25,7 +25,8 @@ import scipy as sp
 #  The Function
 # ----------------------------------------------------------------------
 
-def induced_drag_aircraft(conditions,configuration,geometry):
+#def induced_drag_aircraft(conditions,configuration,geometry):
+def induced_drag_aircraft(state,settings,geometry):
     """ SUAVE.Methods.induced_drag_aircraft(conditions,configuration,geometry)
         computes the induced drag associated with a wing 
         
@@ -39,9 +40,20 @@ def induced_drag_aircraft(conditions,configuration,geometry):
     """
 
     # unpack inputs
+    conditions = state.conditions
+    configuration = settings
+    
+    
     aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
+    e             = configuration.oswald_efficiency_factor
+    K             = configuration.viscous_lift_dependent_drag_factor
+    wing_e        = geometry.wings[0].span_efficiency
     ar            = geometry.wings[0].aspect_ratio # TODO: get estimate from weissinger
+    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    
+    if e == None:
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
+    
     
     # start the result
     total_induced_drag = 0.0

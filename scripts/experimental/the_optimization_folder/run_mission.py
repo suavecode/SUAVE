@@ -1,0 +1,233 @@
+# run_mission.py
+# 
+# Created:  May 2015, E. Botero
+# Modified: 
+
+# ----------------------------------------------------------------------        
+#   Imports
+# ----------------------------------------------------------------------    
+
+import SUAVE
+from SUAVE.Core import Units
+
+import numpy as np
+import pylab as plt
+
+import copy, time
+
+from SUAVE.Core import (
+Data, Container, Data_Exception, Data_Warning,
+)
+
+import Vehicles
+import Missions
+import Analyses
+import Procedure
+
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
+
+def main():
+    
+    the_vehicles, the_analyses, the_missions = full_setup()
+    
+    Procedure.simple_sizing(the_vehicles)
+    
+    the_vehicles.finalize()
+    the_analyses.finalize()
+    
+    # weight analysis
+    weights = the_analyses.base.weights
+    breakdown = weights.evaluate()      
+    
+    # mission analysis
+    mission = the_missions.base
+    results = mission.evaluate()
+    plot_mission(results)
+    
+    return
+
+# ----------------------------------------------------------------------
+#   Analysis Setup
+# ----------------------------------------------------------------------
+
+def full_setup():
+    
+    # Make a Vehicle
+    the_vehicles = Vehicles.setup()
+    
+    # Define the analyses
+    the_analyses = Analyses.setup(the_vehicles)
+    
+    # Create a mission
+    the_missions = Missions.setup(the_analyses)
+    
+    return the_vehicles, the_analyses, the_missions
+
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
+
+def plot_mission(results,line_style='bo-'):
+    
+    merged_results = results.merged()
+
+    # ------------------------------------------------------------------
+    #   Throttle
+    # ------------------------------------------------------------------
+    plt.figure("Throttle History")
+    axes = plt.gca()
+    time = merged_results.conditions.frames.inertial.time[:,0] / Units.min
+    eta  = merged_results.conditions.propulsion.throttle[:,0]
+    axes.plot(time, eta, line_style)    
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Throttle')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Angle of Attack
+    # ------------------------------------------------------------------
+
+    plt.figure("Angle of Attack History")
+    axes = plt.gca()
+    aoa = merged_results.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+    axes.plot(time, aoa, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Angle of Attack (deg)')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Fuel Burn Rate
+    # ------------------------------------------------------------------
+    plt.figure("Fuel Burn Rate")
+    axes = plt.gca()
+    mdot = merged_results.conditions.weights.vehicle_mass_rate[:,0]
+    axes.plot(time, mdot, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Altitude
+    # ------------------------------------------------------------------
+    plt.figure("Altitude")
+    axes = plt.gca()
+    altitude = merged_results.conditions.freestream.altitude[:,0] / Units.km
+    axes.plot(time, altitude, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Altitude (km)')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Vehicle Mass
+    # ------------------------------------------------------------------
+    plt.figure("Vehicle Mass")
+    axes = plt.gca()
+    mass = merged_results.conditions.weights.total_mass[:,0]
+    axes.plot(time, mass, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Forces")
+    Lift   = -merged_results.conditions.frames.wind.lift_force_vector[:,2]
+    Drag   = -merged_results.conditions.frames.wind.drag_force_vector[:,0]
+    Thrust = merged_results.conditions.frames.body.thrust_force_vector[:,0]
+
+    axes = fig.add_subplot(4,1,1)
+    axes.plot( time , Lift , line_style )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('Lift (N)')
+    axes.grid(True)
+
+    axes = fig.add_subplot(4,1,2)
+    axes.plot( time , Drag , line_style )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('Drag (N)')
+    axes.grid(True)
+
+    axes = fig.add_subplot(4,1,3)
+    axes.plot( time , Thrust , line_style )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('Thrust (N)')
+    axes.grid(True)
+
+    try:
+        Pitching_moment = merged_results.conditions.stability.static.cm_alpha[:,0]
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Pitching_moment , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Pitching_moment (~)')
+        axes.grid(True)            
+    except:
+        pass 
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients")
+
+    CLift  = merged_results.conditions.aerodynamics.lift_coefficient[:,0]
+    CDrag  = merged_results.conditions.aerodynamics.drag_coefficient[:,0]
+    Drag   = -merged_results.conditions.frames.wind.drag_force_vector[:,0]
+    Thrust = merged_results.conditions.frames.body.thrust_force_vector[:,0]
+
+    axes = fig.add_subplot(3,1,1)
+    axes.plot( time , CLift , line_style )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CL')
+    axes.grid(True)
+
+    axes = fig.add_subplot(3,1,2)
+    axes.plot( time , CDrag , line_style )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
+
+    axes = fig.add_subplot(3,1,3)
+    axes.plot( time , Drag   , line_style )
+    axes.plot( time , Thrust , 'ro-' )
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('Drag and Thrust (N)')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 3
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components")
+    axes = plt.gca()
+    
+    drag_breakdown = merged_results.conditions.aerodynamics.drag_breakdown
+    cdp = drag_breakdown.parasite.total[:,0]
+    cdi = drag_breakdown.induced.total[:,0]
+    cdc = drag_breakdown.compressible.total[:,0]
+    cdm = drag_breakdown.miscellaneous.total[:,0]
+    cd  = drag_breakdown.total[:,0]
+
+    if line_style == 'bo-':
+        axes.plot( time , cdp , 'ko-', label='CD_P' )
+        axes.plot( time , cdi , 'bo-', label='CD_I' )
+        axes.plot( time , cdc , 'go-', label='CD_C' )
+        axes.plot( time , cdm , 'yo-', label='CD_M' )
+        axes.plot( time , cd  , 'ro-', label='CD'   )
+        axes.legend(loc='upper center')            
+    else:
+        axes.plot( time , cdp , line_style )
+        axes.plot( time , cdi , line_style )
+        axes.plot( time , cdc , line_style )
+        axes.plot( time , cdm , line_style )
+        axes.plot( time , cd  , line_style )            
+
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
+
+    return
+
+if __name__ == '__main__': 
+    main()    
+    plt.show()

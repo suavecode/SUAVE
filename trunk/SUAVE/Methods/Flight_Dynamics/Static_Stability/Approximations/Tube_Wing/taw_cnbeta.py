@@ -101,7 +101,7 @@ def taw_cnbeta(geometry,conditions,configuration):
                 v_inf - true airspeed [meters/second]
                 M - flight Mach number
                 rho - air density [kg/meters**3]
-                mew - air dynamic viscosity [kg/meter/second]
+                mew - air dynamic dynamic_viscosity [kg/meter/second]
                 
             configuration - a data dictionary with the fields:
                 mass_properties - a data dictionary with the field:
@@ -154,7 +154,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
-    mu     = conditions.freestream.viscosity
+    mu     = conditions.freestream.dynamic_viscosity
     rho    = conditions.freestream.density
     M      = conditions.freestream.mach_number
     
@@ -572,7 +572,7 @@ if __name__ == '__main__':
     altitude           = 0.0 * Units.feet
     p, T, rho, a, mew = segment.atmosphere.compute_values(altitude)
     segment.conditions.freestream.velocity = M * a
-    segment.conditions.freestream.viscosity = mew
+    segment.conditions.freestream.dynamic_viscosity = mew
     segment.conditions.freestream.density = rho
     segment.conditions.freestream.mach_number = M
     

@@ -1,8 +1,9 @@
 
-from Analysis import Analysis
-from Results  import Results
-from Process  import Process
-from Settings import Settings
+from Analysis  import Analysis
+from Surrogate import Surrogate
+from Results   import Results
+from Process   import Process
+from Settings  import Settings
 
 from Vehicle import Vehicle
      

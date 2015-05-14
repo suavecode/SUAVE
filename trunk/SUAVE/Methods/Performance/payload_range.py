@@ -19,7 +19,7 @@ import numpy as np
 #  Calculate vehicle Payload Range Diagram
 # ----------------------------------------------------------------------
 
-def payload_range(vehicle,mission,cruise_segment_tag):
+def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     """ SUAVE.Methods.Performance.payload_range(vehicle,mission,cruise_segment_tag):
         Calculates vehicle payload range diagram
 
@@ -138,7 +138,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             TotalFuel  = TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0]
 
             # Difference between burned fuel and target fuel
-            missingFuel = FUEL[i] - TotalFuel
+            missingFuel = FUEL[i] - TotalFuel - reserves
 
             # Current distance and fuel consuption in the cruise segment
             CruiseDist = np.diff( segment.conditions.frames.inertial.position_vector[[0,-1],0] )[0]        # Distance [m]
@@ -155,12 +155,12 @@ def payload_range(vehicle,mission,cruise_segment_tag):
             segment = results.segments[segmentNum]
 
             # Difference between burned fuel and target fuel
-            err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i]
+            err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i] + reserves
 
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
-                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Error : '+str('%8.0F' % err))
+                  + str('%8.0F' % (err+FUEL[i]+reserves))+' (kg) | Error : '+str('%8.0F' % err))
 
         # Allocating resulting range in ouput array.
         R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
@@ -176,6 +176,7 @@ def payload_range(vehicle,mission,cruise_segment_tag):
     payload_range.payload   = PLD
     payload_range.fuel      = FUEL
     payload_range.takeoff_weight = TOW
+    payload_range.reserves = reserves
 
     # Write output file
     if iwrite:
@@ -188,7 +189,8 @@ def payload_range(vehicle,mission,cruise_segment_tag):
         fid.write( ' Operational Empty Weight .........( OEW  ).....: ' + str( '%8.0F'   %   OEW    ) + ' kg\n' )
         fid.write( ' Maximum Zero Fuel Weight .........( MZFW ).....: ' + str( '%8.0F'   %   MZFW   ) + ' kg\n' )
         fid.write( ' Maximum Payload Weight ...........( PLDMX  )...: ' + str( '%8.0F'   %   MaxPLD ) + ' kg\n' )
-        fid.write( ' Maximum Fuel Weight ..............( FUELMX )...: ' + str( '%8.0F'   %   MaxFuel ) + ' kg\n\n' )
+        fid.write( ' Maximum Fuel Weight ..............( FUELMX )...: ' + str( '%8.0F'   %   MaxFuel) + ' kg\n' )
+        fid.write( ' Reserve Fuel  .................................: ' + str( '%8.0F'   %   reserves)+ ' kg\n\n' )
 
         fid.write( '    RANGE    |   PAYLOAD   |   FUEL      |    TOW      |  \n')
         fid.write( '     nm      |     kg      |    kg       |     kg      |  \n')

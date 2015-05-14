@@ -49,7 +49,8 @@ def main():
     
     # run payload diagram
     cruise_segment_tag = "Cruise"
-    payload_range_results = payload_range(vehicle,mission,cruise_segment_tag)    
+    reserves = 1750.
+    payload_range_results = payload_range(vehicle,mission,cruise_segment_tag,reserves)    
     
     check_results(payload_range_results)
     

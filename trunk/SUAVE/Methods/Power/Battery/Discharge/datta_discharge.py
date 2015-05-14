@@ -18,49 +18,54 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
     Rbat  = battery.resistance
-    I     = numerics.integrate_time
-    D     = numerics.differentiate_time
+    I     = numerics.time.integrate
+    D     = numerics.time.differentiate
     
     # Maximum energy
     max_energy = battery.max_energy
     
-    #state of charge of the batter
-    x = np.divide(battery.current_energy,battery.max_energy)[:,0,None]
+    #state of charge of the battery
+   
+    x = np.divide(battery.current_energy,battery.max_energy)
 
     # C rate from 
-    C = 3600.*pbat/battery.max_energy
+    C = np.abs(3600.*pbat/battery.max_energy)
     
     # Empirical value for discharge
     x[x<-35.] = -35. # Fix x so it doesn't warn
     
-    f = 1-np.exp(-20*x)-np.exp(-20*(1-x)) 
+    f = 1-np.exp(-20.*x)-np.exp(-20.*(1.-x)) 
     
     f[x<0.0] = 0.0 # Negative f's don't make sense
     
     # Model discharge characteristics based on changing resistance
-    R = Rbat*(1+C*f)
+    R = Rbat*(1.+C*f)
     
     # Calculate resistive losses
-    Ploss = (Ibat**2)*R
-    
-    # Energy loss from power draw
-    eloss = np.dot(I,Ploss)
+    Ploss = (Ibat**2.)*R
 
-    # Pack up
-    battery.current_energy=battery.current_energy[0]*np.ones_like(eloss)
+    # Power going into the battery accounting for resistance losses
+    P = pbat - Ploss
 
     # Possible Energy going into the battery:
-    energy_unmodified = np.dot(I,pbat)
+    energy_unmodified = np.dot(I,P)
     
+    # Available capacity
+    capacity_available = max_energy - battery.current_energy[0]
+   
     # How much energy the battery could be overcharged by
-    delta = energy_unmodified - max_energy + battery.current_energy[0]
+    delta = energy_unmodified -capacity_available
     delta[delta<0.] = 0.
-    ddelta = np.dot(D,delta) # Power that shouldn't go in
+    
+    # Power that shouldn't go in
+    ddelta = np.dot(D,delta) 
     
     # Power actually going into the battery
-    P = pbat - ddelta
+    P[P>0.] = P[P>0.] - ddelta[P>0.]
     ebat = np.dot(I,P)
+    
     # Add this to the current state
-    battery.current_energy = ebat - eloss + battery.current_energy[0]
-    battery.resistive_losses=Ploss
+    battery.current_energy   = ebat + battery.current_energy[0]
+    battery.resistive_losses = Ploss
+    
     return

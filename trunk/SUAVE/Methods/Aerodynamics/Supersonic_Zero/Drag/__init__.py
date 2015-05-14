@@ -14,3 +14,9 @@ from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 from compressibility_drag_total import compressibility_drag_total
 
 from compute_aircraft_drag import compute_aircraft_drag
+
+from parasite_total import parasite_total
+from untrimmed import untrimmed
+from trim import trim
+from total_aircraft import total_aircraft 
+

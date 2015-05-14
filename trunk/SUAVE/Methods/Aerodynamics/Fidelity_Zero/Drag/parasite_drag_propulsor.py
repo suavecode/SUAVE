@@ -34,8 +34,8 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 
-
-def parasite_drag_propulsor(conditions,configuration,propulsor):
+def parasite_drag_propulsor(state,settings,geometry):
+#def parasite_drag_propulsor(conditions,configuration,propulsor):
     """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
         computes the parasite drag associated with a propulsor 
         
@@ -49,12 +49,23 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     """
 
     # unpack inputs
+    
+    conditions = state.conditions
+    configuration = settings
+    
     try:
         form_factor = configuration.propulsor_parasite_drag_form_factor
     except(AttributeError):
         form_factor = 2.3
         
     freestream = conditions.freestream
+    
+    propulsor_parasite_drag_total = 0.0
+    
+    propulsor = geometry
+    
+    #for propulsor in propulsors.values():
+    
     
     Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
     try:
@@ -70,7 +81,7 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     # conditions
     Mc  = freestream.mach_number
     roc = freestream.density
-    muc = freestream.viscosity
+    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
     pc  = freestream.pressure
 
@@ -97,9 +108,10 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
     
     # --------------------------------------------------------
     # find the final result    
-    propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref  
-    # --------------------------------------------------------
+    propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
     
+    
+        
     # dump data to conditions
     propulsor_result = Results(
         wetted_area               = Swet    , 
@@ -111,6 +123,8 @@ def parasite_drag_propulsor(conditions,configuration,propulsor):
         form_factor               = k_prop  ,
     )
     conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+        
+    
     
     return propulsor_parasite_drag
 

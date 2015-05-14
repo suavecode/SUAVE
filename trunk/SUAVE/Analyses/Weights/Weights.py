@@ -33,6 +33,12 @@ class Weights(Analysis):
         # evaluate
         results = empty(vehicle)
         
+        # storing weigth breakdown into vehicle
+        vehicle.weight_breakdown = results 
+
+        # updating empty weight
+        vehicle.mass_properties.operating_empty = results.empty
+        
         # done!
         return results
     

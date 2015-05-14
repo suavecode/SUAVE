@@ -23,6 +23,7 @@ class Envelope(Component):
         self.alt_vc      = 0.0
         self.alt_gust    = 0.0
         self.max_ceiling = 0.0
+        self.maximum_dynamic_pressure = 0.0
         
         self.maneuver = Data()
         self.maneuver.load_alleviation_factor = 0.0

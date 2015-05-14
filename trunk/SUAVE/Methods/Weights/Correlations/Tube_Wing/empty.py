@@ -112,7 +112,7 @@ def empty(vehicle):
                 # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
                 # weight estimation. Engine sizing should return this value.
                 # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
-        thrust_sls         = vehicle.propulsors['turbo_fan'].design_thrust / 0.20 # to account for difference in thrust as SL and design thrust
+        thrust_sls         = vehicle.propulsors['turbo_fan'].sealevel_static_thrust #design_thrust / 0.20 # to account for difference in thrust as SL and design thrust
         wt_engine_jet      = Propulsion.engine_jet(thrust_sls)
         wt_propulsion      = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
 
@@ -186,10 +186,19 @@ def empty(vehicle):
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion
     output.landing_gear      = wt_landing_gear
-    output.systems           = output_2.wt_systems
-    output.wt_furnish        = output_2.wt_furnish
     output.horizontal_tail   = wt_tail_horizontal
     output.vertical_tail     = output_3.wt_tail_vertical
-    output.rudder            = output_3.wt_rudder    
+    output.rudder            = output_3.wt_rudder
+    output.systems                   = output_2.wt_systems       
+    output.systems_breakdown = Data()
+    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
+    output.systems_breakdown.apu               = output_2.wt_apu         
+    output.systems_breakdown.hydralics         = output_2.wt_hyd_pnu     
+    output.systems_breakdown.intruments        = output_2.wt_instruments 
+    output.systems_breakdown.avionics          = output_2.wt_avionics    
+    output.systems_breakdown.optionals         = output_2.wt_opitems     
+    output.systems_breakdown.electrical        = output_2.wt_elec        
+    output.systems_breakdown.air_conditioner   = output_2.wt_ac          
+    output.systems_breakdown.furnish           = output_2.wt_furnish    
 
     return output

@@ -82,7 +82,7 @@ def empty(vehicle):
     
     nult   = vehicle.envelope.ultimate_load
     gw     = vehicle.mass_properties.max_takeoff
-    qm     = vehicle.qm
+    qm     = vehicle.envelope.maximum_dynamic_pressure
     
     # Wing weight
     if not vehicle.wings.has_key('main_wing'):
@@ -124,16 +124,22 @@ def empty(vehicle):
         wt_vt   = tail.tail(S_v,b_v,cvs,Nvsr,t_cv,qm)
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = wt_vt
 
-    ##Fuselage weight
-    #Ltb     = vehicle.Ltb  
-    #wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
-    #vehicle.Fuselages['fuselage'].mass_properties.mass = wt_tb
+    # Fuselage weight
+    if not vehicle.fuselages.has_key('fuselage'):   
+        wt_tb = 0.0
+        warnings.warn("There is no Fuselage Weight being added to the Configuration", stacklevel=1)    
+    else: 
+        Ltb     = vehicle.Ltb  
+        wt_tb   = fuselage.fuselage(S_h,qm,Ltb)
+        vehicle.Fuselages['fuselage'].mass_properties.mass = wt_tb
     
     weight                 = Data()
     weight.wing            = wt_wing
-    #weight.fuselage        = wt_tb
+    weight.fuselage        = wt_tb
     weight.horizontal_tail = wt_ht
     weight.vertical_tail   = wt_vt
+    
+    weight.empty = wt_ht + wt_tb + wt_vt + wt_wing
     
     return weight
     

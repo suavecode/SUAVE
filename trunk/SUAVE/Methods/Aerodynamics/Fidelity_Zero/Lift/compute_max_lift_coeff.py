@@ -38,7 +38,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
                 mach_number - float or 1D array of freestream mach numbers
                 airspeed    - float or 1D array of freestream airspeed
                 rho         - air density
-                mu          - air viscosity
+                mu          - air dynamic_viscosity
 
 
 
@@ -81,13 +81,12 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         # conditions data
         V    = conditions.freestream.velocity 
         roc  = conditions.freestream.density 
-        nu   = conditions.freestream.viscosity
+        nu   = conditions.freestream.dynamic_viscosity
         
         ##Mcr  =  segment.M
 
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-        
         #-reynolds number effect
         Reyn     =  V * roc * chord_mac / nu
         Re_ref   = 9*10**6
@@ -217,7 +216,7 @@ if __name__ == '__main__':
     conditions.freestream.mach_number = 0.3
     conditions.freestream.velocity    = 51. #m/s
     conditions.freestream.density     = 1.1225 #kg/m?
-    conditions.freestream.viscosity   = 1.79E-05
+    conditions.freestream.dynamic_viscosity   = 1.79E-05
 
 
     Cl_max_ls, Cd_ind = compute_max_lift_coeff(vehicle,conditions)

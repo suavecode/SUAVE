@@ -6,13 +6,16 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+import numpy as np
+
 # Suave imports
 from SUAVE.Core import Results
 
 # ----------------------------------------------------------------------
 #  Computes the pyloan parasite drag
 # ----------------------------------------------------------------------
-def parasite_drag_pylon(conditions,configuration,geometry):
+#def parasite_drag_pylon(conditions,configuration,geometry):
+def parasite_drag_pylon(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
         Simplified estimation, considering pylon drag a fraction of the nacelle drag
 
@@ -28,8 +31,12 @@ def parasite_drag_pylon(conditions,configuration,geometry):
             simplified estimation, considering pylon drag a fraction of the nacelle drag
 
     """
-
     # unpack
+    
+    conditions = state.conditions
+    configuration = settings
+    
+    
     pylon_factor        =  0.20 # 20% of propulsor drag
     n_propulsors        =  len(geometry.propulsors)  # number of propulsive system in vehicle (NOT # of ENGINES)
     
@@ -42,7 +49,8 @@ def parasite_drag_pylon(conditions,configuration,geometry):
 
     # Estimating pylon drag
     for propulsor in geometry.propulsors:
-        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient
+        ref_area = propulsor.nacelle_diameter**2 / 4 * np.pi
+        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area * propulsor.number_of_engines)
         pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].wetted_area * propulsor.number_of_engines
         pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].skin_friction_coefficient
         pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].compressibility_factor
@@ -64,7 +72,9 @@ def parasite_drag_pylon(conditions,configuration,geometry):
         reynolds_factor           = pylon_rey_fact   ,
         form_factor               = pylon_FF   ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_result
+    conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_result 
+ 
+    
 
     # done!
     return pylon_parasite_drag

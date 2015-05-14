@@ -11,10 +11,9 @@
 from SUAVE.Core import Results
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
-     parasite_drag_aircraft, induced_drag_aircraft, compressibility_drag_wing, \
+     induced_drag_aircraft, compressibility_drag_wing, \
      miscellaneous_drag_aircraft
 
-from parasite_drag_aircraft import parasite_drag_aircraft
 from induced_drag_aircraft import induced_drag_aircraft
 from compressibility_drag_wing import compressibility_drag_wing
 from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU

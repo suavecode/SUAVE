@@ -47,7 +47,7 @@ def main():
     conditions.freestream = Data()
     conditions.propulsion = Data()
     conditions.freestream.update(atmosphere_conditions)
-    conditions.freestream.viscosity = atmosphere_conditions.dynamic_viscosity
+    conditions.freestream.dynamic_viscosity = atmosphere_conditions.dynamic_viscosity
     conditions.freestream.velocity = np.array([[V]])
     conditions.propulsion.throttle = np.array([[1.0]])
     
