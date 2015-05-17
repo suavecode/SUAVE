@@ -581,7 +581,7 @@ def vehicle_setup():
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
     
-    # add  gas turbine network gt_engine to the vehicle
+    # add  gas turbine network gt_engine to the vehicle 
     vehicle.append_component(turbofan)      
     
     

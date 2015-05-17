@@ -33,10 +33,11 @@ class Segment(Analysis):
         self.analyses = Analysis.Container()
         
         self.process = Process()
-        self.process.initialize = Process()
-        self.process.converge   = Process()
-        self.process.iterate    = Process()
-        self.process.finalize   = Process()
+        self.process.initialize       = Process()
+        self.process.converge         = Process()
+        self.process.iterate          = Process()
+        self.process.iterate.initials = Process()
+        self.process.finalize         = Process()
         
 
     def initialize(self,state):
