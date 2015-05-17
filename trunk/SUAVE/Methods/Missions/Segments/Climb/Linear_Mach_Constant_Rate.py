@@ -9,13 +9,14 @@ def initialize_conditions(segment,state):
     
     # unpack
     # unpack user inputs
-    climb_rate = self.climb_rate
-    Mo         = self.mach_start
-    Mf         = self.mach_end
+    climb_rate = segment.climb_rate
+    Mo         = segment.mach_start
+    Mf         = segment.mach_end
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
     conditions = state.conditions  
+    a          = conditions.freestream.speed_of_sound
 
     # check for initial altitude
     if alt0 is None:
