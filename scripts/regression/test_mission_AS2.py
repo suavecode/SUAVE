@@ -25,6 +25,7 @@ Data, Container, Data_Exception, Data_Warning,
 
 # the analysis functions
 from the_aircraft_function import the_aircraft_function
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 
 # ----------------------------------------------------------------------
@@ -379,8 +380,8 @@ def vehicle_setup():
     turbofan.tag = 'turbo_fan'
     
     # setup
-    turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 24000.0
+    turbofan.number_of_engines = 3.0
+    turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.5
     turbofan.nacelle_diameter  = 1.580
     
@@ -523,10 +524,9 @@ def vehicle_setup():
     # add to network
     turbofan.append(nozzle)
     
-    
     # ------------------------------------------------------------------
     #  Component 10 - Fan
-    
+        
     # instantiate
     fan = SUAVE.Components.Energy.Converters.Fan()   
     fan.tag = 'fan'
@@ -540,29 +540,32 @@ def vehicle_setup():
     
     
     # ------------------------------------------------------------------
-    #  Component 10 - Thrust
-    
-    # to compute thrust
-    
-    # instantiate
+    #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
-    thrust.tag ='thrust'
-    
-    # setup
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 49.7272495725
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
+    thrust.tag ='compute_thrust'
+ 
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 2*24000. * Units.N #Newtons
+ 
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
     
     # add to network
     turbofan.thrust = thrust
+
+    #size the turbofan
+    turbofan_sizing(turbofan,mach_number,altitude)   
+    
+    # add  gas turbine network gt_engine to the vehicle
+    vehicle.append_component(turbofan)      
     
     
-    # add turbofan to vehicle
-    vehicle.propulsors.append(turbofan)
-    
-    # done!!
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+
     return vehicle
 
 
