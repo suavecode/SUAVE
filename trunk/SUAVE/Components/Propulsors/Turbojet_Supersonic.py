@@ -919,6 +919,10 @@ class Turbojet_SupersonicPASS(Propulsor):
       
         #return FD_a,TSFC_a,mfuel_a
         eta_Pe = 0.0
+        
+        if Mo[0] > 1.0:
+            fff = 0
+        
         return CF, Isp, eta_Pe    
     
 def fm_id(M):

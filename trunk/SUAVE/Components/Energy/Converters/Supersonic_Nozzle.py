@@ -34,7 +34,7 @@ from SUAVE.Methods.Propulsion.fm_id import fm_id
 #  Expansion Nozzle Component
 # ----------------------------------------------------------------------
 
-class Expansion_Nozzle(Energy_Component):
+class Supersonic_Nozzle(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
         a nozzle component
         
@@ -89,9 +89,8 @@ class Expansion_Nozzle(Energy_Component):
         #compute the output Mach number, static quantities and the output velocity
         Mach          = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
         
-        #Checking from Mach numbers below, above 1.0
-        i_low         = Mach < 1.0
-        i_high        = Mach >=1.0
+        #Remove check on mach numbers from expansion nozzle
+        i_low         = Mach < 10.0
         
         #initializing the Pout array
         P_out         = 1.0 *Mach/Mach
@@ -99,10 +98,6 @@ class Expansion_Nozzle(Energy_Component):
         #Computing output pressure and Mach number for the case Mach <1.0
         P_out[i_low]  = Po[i_low]
         Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        
-        #Computing output pressure and Mach number for the case Mach >=1.0        
-        Mach[i_high]  = 1.0*Mach[i_high]/Mach[i_high]
-        P_out[i_high] = Pt_out[i_high]/(1+(gamma-1)/2*Mach[i_high]**2)**(gamma/(gamma-1))
         
         #Computing the output temperature,enthalpy, velocity and density
         T_out         = Tt_out/(1+(gamma-1)/2*Mach**2)

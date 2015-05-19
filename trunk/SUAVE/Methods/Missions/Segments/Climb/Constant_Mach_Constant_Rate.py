@@ -1,5 +1,5 @@
 import numpy as np
-
+import SUAVE
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -9,12 +9,16 @@ def initialize_conditions(segment,state):
     
     # unpack
     # unpack user inputs
-    climb_rate  = self.climb_rate
-    mach_number = self.mach
+    climb_rate  = segment.climb_rate
+    mach_number = segment.mach
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
     conditions = state.conditions  
+
+    # Update freestream to get speed of sound
+    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
+    a          = conditions.freestream.speed_of_sound
 
     # check for initial altitude
     if alt0 is None:
