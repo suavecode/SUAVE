@@ -41,9 +41,10 @@ def main():
     cruise_range=2900;  
     '''
     #range =2800 km
-    #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 10.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 1.39193333997 , 1.74925037953 ]
+    #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 7.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 7.39193333997 , 1.74925037953 ]
     #range=4800 km
-    inputs=[ 1.54713157632 , 0.00272758274777 , 0.00282056768962 , 1.45021575543 , 1.81279408832 , 10.160605488 , -0.390116545692 , -1.79464393061 , 0.0103931822971 , 1.47442032769 , 0.592393139666 , 1.04593004595 , 1.14347236168 , 1.32740526805 , 1.53493859556 , 10.1586139091 , 1.6827551914 , 3.754975628 ]
+    inputs=[ 1.79211328496 , 1.90756152779e-05 , 0.00238958640103 , 1.82011538473 , 2.08154232041 , 7.57777910585 , -0.363214734176 , -1.72250251281 , 0.010781975587 , 1.39120004887 , 0.879685624334 , 1.32964187588 , 1.35903590906 , 1.32986213447 , 1.53905576166 , 4.88339543964 , 2.6114325761 , 4.07682219426 ]
+    
     global iteration_number #one global variable to keep track of how long optimization has been going on
     iteration_number=1
     out=sp.optimize.fmin(run, inputs, disp=1)
@@ -55,8 +56,17 @@ def main():
 #   Calls
 # ----------------------------------------------------------------------
 def run(inputs):                #sizing loop to enable optimization
+    disp_results=0                        #1 for displaying results, 0 for optimize    
     global iteration_number
     print 'iteration number=', iteration_number
+       #print inputs of each iteration so they can be directly copied
+    print '[',
+    for j in range(len(inputs)):
+        print inputs[j],
+        if j!=len(inputs)-1:
+            print ',',
+    print ']'
+
     iteration_number+=1
     time1=time.time()
         
@@ -66,7 +76,6 @@ def run(inputs):                #sizing loop to enable optimization
     m_guess    = 64204.6490117
     Ereq_guess = 117167406053.0
     Preq_guess = 8007935.5158
-    disp_results=0                         #1 for displaying results, 0 for optimize    
     target_range=4800                       #minimum flight range of the aircraft (constraint)
       
     Ereq=[Ereq_guess]
@@ -93,7 +102,7 @@ def run(inputs):                #sizing loop to enable optimization
     else:
         max_iter=20
     j=0
-    P_mot=inputs[1]
+    P_mot=inputs[0]
     Preq=P_mot*10**7 
    
     while abs(dm)>tol or abs(dE)>tol:      #size the vehicle
@@ -112,7 +121,7 @@ def run(inputs):                #sizing loop to enable optimization
         #initialize battery in mission
         mission.segments[0].battery_energy=battery.max_energy
         results = evaluate_mission(configs,mission)
-        results = evaluate_field_length(configs,analyses, mission,results) #now evaluate field length
+       
         mass.append(results.segments[-1].conditions.weights.total_mass[-1,0] )
         Ereq.append(results.e_total)
      
@@ -131,6 +140,8 @@ def run(inputs):                #sizing loop to enable optimization
         if j>max_iter:
             print "maximum number of iterations exceeded"
             break
+     #vehicle sized:now find field length
+    results = evaluate_field_length(configs,analyses, mission,results) #now evaluate field length
  
     if  disp_results:
         #unpack inputs
@@ -143,7 +154,7 @@ def run(inputs):                #sizing loop to enable optimization
         climb_alt_5=inputs[i];       i+=1
         alpha_rc   =inputs[i];       i+=1
         alpha_tc   =inputs[i];       i+=1
-        wing_sweep =inputs[i];       i+=1
+        wing_sweep =inputs[i];       i+=1; 
         vehicle_S  =inputs[i]*100;   i+=1
         Vclimb_1   =inputs[i]*100;   i+=1
         Vclimb_2   =inputs[i]*100;   i+=1
@@ -192,15 +203,7 @@ def run(inputs):                #sizing loop to enable optimization
     time2=time.time()       #time between iterations
     print 't=', time2-time1, 'seconds'
  
-    #print inputs of each iteration so they can be directly copied
-    
-    print '[',
-    for j in range(len(inputs)):
-        print inputs[j],
-        if j!=len(inputs)-1:
-            print ',',
-    print ']'
-
+ 
     #scale vehicle objective function to be of order 1
     return results.segments[-1].conditions.weights.total_mass[-1,0]/(10.**4.)
     
@@ -226,10 +229,11 @@ def evaluate_penalty(vehicle,results, inputs,target_range):
     desc_alt_2 =inputs[i]      ;   i+=1
     cruise_range=inputs[i]*1000;   i+=1
     V_cruise=230.
- 
+    print 'P_mot=', P_mot
+    print 'results.Pmax=', results.Pmax
     results.segments[-1].conditions.weights.total_mass[-1,0]+=abs(min(0, P_mot-results.Pmax))
     #add penalty function for takeoff and landing field length
-    results.segments[-1].conditions.weights.total_mass[-1,0]+=100.*abs(min(0, 1500-results.field_length.takeoff, 1500-results.field_length.landing))
+    #results.segments[-1].conditions.weights.total_mass[-1,0]+=100.*abs(min(0, 1500-results.field_length.takeoff, 1500-results.field_length.landing))
     #add penalty functions for twist, ensuring that trailing edge is >-5 degrees
     results.segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(min(0, alpha_tc+5))
     results.segments[-1].conditions.weights.total_mass[-1,0]+=100000.*abs(max(0, alpha_rc-5))
@@ -247,6 +251,8 @@ def evaluate_penalty(vehicle,results, inputs,target_range):
         min_alpha[i]=min(aoa)
     max_alpha=max(max_alpha)
     min_alpha=min(min_alpha)
+    print 'max_alpha=', max_alpha
+    print 'min_alpha=', min_alpha
     results.segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, 15-max_alpha))+10000.*abs(min(0, 15+min_alpha))
     
     #now add penalty function if wing sweep is too high
@@ -428,7 +434,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     ducted_fan.diffuser_pressure_ratio   = 0.98
     ducted_fan.fan_pressure_ratio        = 1.65
     ducted_fan.fan_nozzle_pressure_ratio = 0.99
-    ducted_fan.design_thrust             = Preq/V_cruise 
+    ducted_fan.design_thrust             = Preq*1.5/V_cruise 
     ducted_fan.number_of_engines         =2.0    
     ducted_fan.eta_pe                    =.95             #electric efficiency of motor
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
@@ -465,14 +471,21 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
    
     base = configs.base
     base.pull_base()
+    base.mass_properties.max_takeoff=m_guess
     #determine geometry of fuselage as well as wings
     fuselage=base.fuselages['fuselage']
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     fuselage.areas.side_projected   = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #  Not correct
     base.wings['main_wing'] = wing_planform(base.wings['main_wing'])
     base.wings['horizontal_stabilizer'] = wing_planform(base.wings['horizontal_stabilizer']) 
-    base.wings['vertical_stabilizer']   = wing_planform(base.wings['vertical_stabilizer'])   
-    # wing areas
+    
+    base.wings['vertical_stabilizer']   = wing_planform(base.wings['vertical_stabilizer'])
+    #calculate position of horizontal stabilizer
+    base.wings['horizontal_stabilizer'].aerodynamic_center[0]= base.w2h- \
+    (base.wings['horizontal_stabilizer'].origin[0] + \
+     base.wings['horizontal_stabilizer'].aerodynamic_center[0] - \
+     base.wings['main_wing'].origin[0] - base.wings['main_wing'].aerodynamic_center[0])
+    #wing areas
     for wing in base.wings:
         wing.areas.wetted   = 2.00 * wing.areas.reference
         wing.areas.affected = 0.60 * wing.areas.reference
@@ -481,7 +494,6 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
     battery   =base.energy_network['battery']
     ducted_fan=base.propulsors['ducted_fan']
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
-    
     battery.current_energy=[battery.max_energy] #initialize list of current energy
     m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
     #now add the electric motor weight
@@ -492,12 +504,11 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
    
     breakdown = analyses.configs.base.weights.evaluate()
     breakdown.battery=battery.mass_properties.mass
-    
+    breakdown.air=m_air
     base.mass_properties.breakdown=breakdown
     m_fuel=0.
     
     base.mass_properties.operating_empty     = breakdown.empty 
-    
     #weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng(vehicle, ducted_fan)
     m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload
     m_end=m_full+m_air
