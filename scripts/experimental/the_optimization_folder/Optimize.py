@@ -45,11 +45,7 @@ def setup():
         [ 'aspect_ratio'    ,   10.    , (     5.    ,    20.   ) ,    10.  ,     Units.less], 
         [ 'reference_area'  ,   125.   , (    70.    ,   200.   ) ,   125.  , Units.meter**2],
         [ 'sweep'           ,    25.   , (     0.    ,    60.   ) ,    25.  ,  Units.degrees],
-<<<<<<< HEAD
         [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 24000.  ,   Units.newton],
-=======
-        [ 'design_thrust'   , 24000.   , ( 10000.    , 35000.   ) , 24000.  ,   Units.N     ],
->>>>>>> 9183bb28596397a4805d5955a64b537006afcae8
         [ 'wing_thickness'  ,     0.11 , (     0.07  ,     0.20 ) ,      .11,     Units.less],
         [ 'MTOW'            , 79000.   , ( 60000.    ,100000.   ) , 79000.  ,       Units.kg],
         [ 'MZFW'            , 59250.   , ( 30000.    ,100000.   ) , 59250.  ,     Units.less], 

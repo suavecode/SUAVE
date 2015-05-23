@@ -39,7 +39,7 @@ class Solar(Propulsor):
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag               = 'Network'
+        self.tag               = 'network'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -121,7 +121,7 @@ class Solar(Propulsor):
         # Run the esc
         esc.currentin()
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_motors
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         #
         solar_logic.logic(conditions,numerics)
@@ -142,7 +142,7 @@ class Solar(Propulsor):
         conditions.propulsion.battery_energy = battery_energy
         
         #Create the outputs
-        F    = self.number_motors * F * [1,0,0]      
+        F    = self.number_of_engines * F * [1,0,0]      
         mdot = np.zeros_like(F)
 
         results = Data()
