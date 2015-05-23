@@ -1016,7 +1016,7 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_2"
     
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.landing )
     
     print analyses.landing.aerodynamics.settings
     print "\n------------------------------\n"
@@ -1037,7 +1037,7 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_3"
     
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.landing )
     
     print analyses.landing.aerodynamics.settings
     print "\n------------------------------\n"
