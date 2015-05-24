@@ -39,8 +39,14 @@ def initialize_time(segment,state):
         
         state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0])
         
-    #else:
-        #t_initial = state.conditions.frames.inertial.time[0,0]
+    else:
+        t_initial = state.conditions.frames.inertial.time[0,0]
+        
+    if state.initials:
+        state.conditions.frames.planet.start_time = state.initials.conditions.frames.planet.start_time
+        
+    elif segment.has_key('start_time'):
+        state.conditions.frames.planet.start_time = segment.start_time
     
     return
     
@@ -54,6 +60,9 @@ def initialize_planet_position(segment,state):
     if state.initials:
         longitude_initial = state.initials.conditions.frames.planet.longitude[-1,0]
         latitude_initial  = state.initials.conditions.frames.planet.latitude[-1,0] 
+    elif segment.has_key('latitude'):
+        longitude_initial = segment.longitude
+        latitude_initial  = segment.latitude      
     else:
         longitude_initial = 0.0
         latitude_initial  = 0.0

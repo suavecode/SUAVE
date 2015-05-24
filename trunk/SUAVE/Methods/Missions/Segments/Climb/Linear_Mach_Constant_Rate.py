@@ -41,6 +41,3 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
     
-    if mach_number[0] > 2.0:
-        fff = 0
-    

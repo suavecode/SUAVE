@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 
 import SUAVE
+=======
+import SUAVE
+
+>>>>>>> origin/develop
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -11,8 +16,16 @@ def initialize_conditions(segment,state):
     alt        = segment.altitude
     xf         = segment.distance
     mach       = segment.mach
+<<<<<<< HEAD
     t_nondim   = state.numerics.dimensionless.control_points
     conditions = state.conditions    
+=======
+    conditions = state.conditions   
+    
+    # Update freestream to get speed of sound
+    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
+    a          = conditions.freestream.speed_of_sound    
+>>>>>>> origin/develop
     
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
@@ -34,8 +47,12 @@ def initialize_conditions(segment,state):
     time      =  t_nondim * (t_final-t_initial) + t_initial
     
     # pack
-    state.conditions.freestream.altitude[:,0] = alt
+    state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
+<<<<<<< HEAD
     state.conditions.frames.inertial.time[:,0] = time[:,0]
     
+=======
+    state.conditions.frames.inertial.time[:,0]            = time[:,0]
+>>>>>>> origin/develop
