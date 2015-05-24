@@ -38,3 +38,4 @@ def initialize_conditions(segment,state):
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
     state.conditions.frames.inertial.time[:,0] = time[:,0]
+    

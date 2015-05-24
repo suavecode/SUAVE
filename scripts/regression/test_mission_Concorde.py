@@ -15,6 +15,9 @@ import SUAVE
 from SUAVE.Core import Units
 
 import numpy as np
+import scipy as sp
+from scipy import integrate
+
 import pylab as plt
 
 import copy, time
@@ -451,7 +454,7 @@ def vehicle_setup():
     #  Component 8 - Core Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
     # setup
@@ -670,15 +673,12 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)
 
-        try:
-            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
-            axes = fig.add_subplot(4,1,4)
-            axes.plot( time , Pitching_moment , line_style )
-            axes.set_xlabel('Time (min)')
-            axes.set_ylabel('Pitching_moment (~)')
-            axes.grid(True)            
-        except:
-            pass 
+        LD = Lift/Drag
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , LD , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('L/D')
+        axes.grid(True)            
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -745,6 +745,75 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
+    
+    # ------------------------------------------------------------------    
+    #   Concorde Debug
+    # ------------------------------------------------------------------
+     
+    fig = plt.figure("Velocity and Density")
+    dist_base = 0.0
+    for segment in results.segments.values():
+            
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        velocity   = segment.conditions.freestream.velocity[:,0]
+        density   = segment.conditions.freestream.density[:,0]
+        mach_number   = segment.conditions.freestream.mach_number[:,0]
+        
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , velocity , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Velocity (m/s)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , mach_number , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Mach')
+        axes.grid(True)
+        
+        distance = np.array([dist_base] * len(time))
+        distance[1:] = integrate.cumtrapz(velocity*1.94,time/60.0)+dist_base
+        dist_base = distance[-1]
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , distance , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Distance (nmi)')    
+
+    # ------------------------------------------------------------------    
+    #   SUAVE Paper Chart
+    # ------------------------------------------------------------------
+     
+    fig = plt.figure("SUAVE Paper Chart")
+    dist_base = 0.0
+    for segment in results.segments.values():         
+            
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        altitude  = segment.conditions.freestream.altitude[:,0] / Units.km
+        density   = segment.conditions.freestream.density[:,0]
+        mach_number   = segment.conditions.freestream.mach_number[:,0]
+        
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , altitude , 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Altitude (km)')
+        axes.grid(True)  
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , mach_number , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Mach')
+        axes.grid(True) 
+        
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+
+        LD = Lift/Drag
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , LD , line_style )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('L/D')
+        axes.grid(True)   
 
     return
 
@@ -887,7 +956,7 @@ def mission_setup(analyses):
     #   Fourth Climb Segment: linear Mach, constant segment angle 
     # ------------------------------------------------------------------    
     
-    # Cruise-climb
+    ## Cruise-climb
     
     segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
     segment.tag = "climb_5"
@@ -896,10 +965,25 @@ def mission_setup(analyses):
     
     segment.altitude_end = 18.288   * Units.km
     segment.mach_number  = 2.02
-    segment.climb_rate   = 0.5  * Units['m/s']
+    segment.climb_rate   = 0.65  * Units['m/s']
     
     # add to mission
     mission.append_segment(segment)
+    
+    # Cruise-climb
+    
+    #segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
+    #segment.tag = "climb_5"
+    
+    #segment.analyses.extend( analyses.cruise )
+    
+    #segment.altitude_end = 18.288   * Units.km
+    #segment.mach_start   = 2.02
+    #segment.mach_end     = 2.02
+    #segment.climb_rate   = 0.5  * Units['m/s']
+    
+    # add to mission
+    #mission.append_segment(segment)    
     
     
     # ------------------------------------------------------------------    

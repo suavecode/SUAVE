@@ -72,7 +72,7 @@ def compressibility_drag_total(state,settings,geometry):
         # initialize array to correct length
         cd_c = np.array([[0.0]] * len(Mc))
         mcc = np.array([[0.0]] * len(Mc))
-        MDiv = np.array([[0.0]] * len(Mc))
+        MDiv = np.array([[0.0]] * len(Mc))     
 
         # Use main wing reference area for drag coefficients
         if i_wing == 0:
@@ -90,7 +90,7 @@ def compressibility_drag_total(state,settings,geometry):
         cl = conditions.aerodynamics.lift_breakdown.compressible_wings
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
-        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,i_wing,cl)
+        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,i_wing,cl,Sref_main)
         (drag105,a,b) = wave_drag(conditions, 
                                   configuration, 
                                   main_fuselage, 
@@ -99,7 +99,7 @@ def compressibility_drag_total(state,settings,geometry):
                                   num_engines,i_wing,Sref_main,True)
 
         # For subsonic mach numbers, use drag divergence correlations to find the drag
-        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,i_wing,cl[Mc <= 0.99])
+        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,i_wing,cl[Mc <= 0.99],Sref_main)
 
         # For mach numbers close to 1, use an interpolation to avoid intensive calculations
         cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
@@ -122,7 +122,7 @@ def compressibility_drag_total(state,settings,geometry):
             crest_critical            = mcc     ,
             divergence_mach           = MDiv    ,
         )
-        drag_breakdown.compressible[wing.tag] = wing_results
+        drag_breakdown.compressible[wing.tag] = wing_results        
 
     #: for each wing
 
@@ -136,7 +136,7 @@ def compressibility_drag_total(state,settings,geometry):
     return total_compressibility_drag
 
 
-def drag_div(Mc_ii,wing,i_wing,cl):
+def drag_div(Mc_ii,wing,i_wing,cl,Sref_main):
     # Use drag divergence mach number to determine drag for subsonic speeds
 
     # Check if the wing is designed for high subsonic cruise
@@ -189,6 +189,9 @@ def drag_div(Mc_ii,wing,i_wing,cl):
         cd_c = dcdc_cos3g
     else:
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
+        
+    if i_wing != 0:
+        cd_c = cd_c*wing.areas.reference/Sref_main    
 
     return (cd_c,mcc,MDiv)
 

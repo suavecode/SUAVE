@@ -493,8 +493,8 @@ def vehicle_setup():
     #  Component 8 - Core Nozzle
     
     # instantiate
-    #nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()  
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
+    nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()  
+    #nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
     nozzle.tag = 'core_nozzle'
     
     # setup

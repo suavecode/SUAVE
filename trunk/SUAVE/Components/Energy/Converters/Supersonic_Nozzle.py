@@ -118,9 +118,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
         self.outputs.area_ratio              = area_ratio
-        
-        if Mo[0] > 1.0:
-            fff = 0        
+            
     
 
     __call__ = compute
