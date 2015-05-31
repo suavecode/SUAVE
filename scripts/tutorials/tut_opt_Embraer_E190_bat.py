@@ -41,13 +41,27 @@ def main():
     cruise_range=2900;  
     '''
     #range =2800 km
-    #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 7.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 7.39193333997 , 1.74925037953 ]
+    #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 7.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 3.39193333997 , 1.74925037953 ]
     #range=4800 km
-    inputs=[ 1.79211328496 , 1.90756152779e-05 , 0.00238958640103 , 1.82011538473 , 2.08154232041 , 7.57777910585 , -0.363214734176 , -1.72250251281 , 0.010781975587 , 1.39120004887 , 0.879685624334 , 1.32964187588 , 1.35903590906 , 1.32986213447 , 1.53905576166 , 4.88339543964 , 2.6114325761 , 4.07682219426 ]
+    
+    lower_bounds=[1,  .01,.01,0.1,0.1,  0.1, -5., -5.,0.01,  50./100.,  50./100., 50./100.,  50./100.,  50./100.,  50./100.,   .1,   .1, 1800./1000.]
+    upper_bounds=[1E3, 8.,10, 10., 10., 12., 5. , 5., 25. , 250./100., 230./100, 230./100., 230./100., 230./100., 230./100. , 11.,  11., 3800./1000.]
+    mybounds=[]
+    for i in range(len(lower_bounds)):
+        mybounds.append((lower_bounds[i], upper_bounds[i]))
+    
+    
+    inputs=[ 1.62326100388 , 0.747369247103 , 1.15893259838 , 1.28928564603 , 1.81569354312 , 7.31648803814 , -0.211391113093 , -0.35922505017 , 0.000850021004312 , 1.09729592263 , 1.12969905354 , 1.57311649926 , 1.878987619 , 1.96838948442 , 1.68651512159 , 7.09992401828 , 0.18033175491 , 4.03064865864 ]
+    #mass=84214 kg
+    
+    
+
     
     global iteration_number #one global variable to keep track of how long optimization has been going on
     iteration_number=1
+    #out=sp.optimize.differential_evolution(run, mybounds, disp=1)
     out=sp.optimize.fmin(run, inputs, disp=1)
+    #mass=84489.0450279
     #out=run(inputs)
     
 
@@ -55,8 +69,10 @@ def main():
 # ----------------------------------------------------------------------
 #   Calls
 # ----------------------------------------------------------------------
+    
 def run(inputs):                #sizing loop to enable optimization
-    disp_results=0                        #1 for displaying results, 0 for optimize    
+
+    disp_results= 1                    #1 for displaying results, 0 for optimize    
     global iteration_number
     print 'iteration number=', iteration_number
        #print inputs of each iteration so they can be directly copied
@@ -242,7 +258,7 @@ def evaluate_penalty(vehicle,results, inputs,target_range):
     #add penalty function for washin
     results.segments[-1].conditions.weights.total_mass[-1,0]+=10000.*abs(min(0, alpha_rc-alpha_tc))
     
-    #make sure that angle of attack is below 30 degrees but above -30 degrees
+    #make sure that angle of attack is below 15 degrees but above -15 degrees
     max_alpha=np.zeros(len(results.segments))
     min_alpha=np.zeros(len(results.segments))
     for i in range(len(results.segments)):
@@ -507,14 +523,14 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
     breakdown.air=m_air
     base.mass_properties.breakdown=breakdown
     m_fuel=0.
-    
+    #print breakdown
     base.mass_properties.operating_empty     = breakdown.empty 
     #weight =SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng(vehicle, ducted_fan)
     m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload
     m_end=m_full+m_air
     base.mass_properties.takeoff                 = m_full
     base.store_diff()
-
+    print breakdown
     # Update all configs with new base data    
     for config in configs:
         config.pull_base()
@@ -985,20 +1001,7 @@ def post_process(mission,configs, results):
     axes.set_ylabel('Angle of Attack (deg)')
     axes.grid(True)        
     
-    # ------------------------------------------------------------------    
-    #   Vehicle Mass
-    # ------------------------------------------------------------------
-    plt.figure("Vehicle Mass")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mass = results.segments[i].conditions.weights.total_mass[:,0]
-        axes.plot(time, mass, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Vehicle Mass (kg)')
-    axes.grid(True)
-    
-    
+
     
     # ------------------------------------------------------------------    
     #   Mass Gain Rate
@@ -1030,28 +1033,85 @@ def post_process(mission,configs, results):
     axes.set_xlabel('Time (mins)')
     axes.set_ylabel('Altitude (km)')
     axes.grid(True)
+    # ------------------------------------------------------------------    
+    #   Vehicle Mass
+    # ------------------------------------------------------------------
+    fig=plt.figure("Vehicle Mass")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        mass = results.segments[i].conditions.weights.total_mass[:,0]
+        axes.plot(time, mass, 'bo-')
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Vehicle Mass (kg)')
+    axes.grid(True)
+    
     
     # ------------------------------------------------------------------    
-    #   Energy
+    #   State of Charge
     # ------------------------------------------------------------------
     
-    title = "Energy and Power"
+    title = "State of Charge"
     fig=plt.figure(title)
+    
+    axes = plt.gca() 
     #print results.segments[0].Ecurrent[0]
     for segment in results.segments:
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        axes = fig.add_subplot(2,1,1)
         axes.plot(time, segment.conditions.propulsion.battery_energy[:,0]/battery.max_energy,'bo-')
         #print 'E=',segment.conditions.propulsion.battery_energy
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('State of Charge of the Battery')
         axes.grid(True)
-        axes = fig.add_subplot(2,1,2)
-        axes.plot(time, -segment.conditions.propulsion.battery_draw[:,0],'bo-')
+
+     # ------------------------------------------------------------------    
+    #   Power
+    # ------------------------------------------------------------------
+    
+    title = "Battery Discharge Power"
+    fig=plt.figure(title)
+    axes = plt.gca() 
+    #print results.segments[0].Ecurrent[0]
+    for segment in results.segments:
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        axes.plot(time, -segment.conditions.propulsion.battery_draw[:,0]/Units.MW,'bo-')
         axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Electric Power (Watts)')
+        axes.set_ylabel('Electric Power (MW)')
         axes.grid(True)
- 
+        
+        
+    # ------------------------------------------------------------------    
+    #  Mass, State of Charge, Power
+    # ------------------------------------------------------------------
+    fig = plt.figure("Electric Aircraft Outputs")
+    fig.set_figheight(10)
+    fig.set_figwidth(6.5)
+    for segment in results.segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        mass = segment.conditions.weights.total_mass[:,0]
+        state_of_charge=segment.conditions.propulsion.battery_energy[:,0]/battery.max_energy
+        battery_power=-segment.conditions.propulsion.battery_draw[:,0]/Units.MW
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , mass , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('vehicle mass')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , state_of_charge , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('State of Charge')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , battery_power , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Battery Discharge Power')
+        axes.grid(True)
+        
+        
     # ------------------------------------------------------------------    
     #   Aerodynamics
     # ------------------------------------------------------------------
