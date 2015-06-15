@@ -18,10 +18,13 @@ from SUAVE.Core import Units as Units
 # ----------------------------------------------------------------------
 
 def main():
+    global iteration_number #use global variable to keep track of how long optimization has gone
+    global disp_results
+    disp_results=0
     #############
     '''
     Input Variable Order
-    P_mot        =2E7;  
+    P_mot        =2E7 /(10.**7.);  
     climb_alt_1  =.01;  
     climb_alt_2  =.1;   
     climb_alt_3  =1;    
@@ -30,15 +33,15 @@ def main():
     alpha_rc     =-1.2; 
     alpha_tc     =-1.3; 
     wing_sweep   =0.1;  
-    vehicle_S    =45;   
-    Vclimb_1     =120.; 
-    Vclimb_2     =130;  
-    Vclimb_3     =200;  
-    Vclimb_4     =210;  
-    Vclimb_5     =230;  
+    vehicle_S    =45*1./100.;   
+    Vclimb_1     =120.*1./100.; 
+    Vclimb_2     =130.*1./100.;  
+    Vclimb_3     =200.*1./100.;  
+    Vclimb_4     =210.*1./100.;  
+    Vclimb_5     =230.*1./100.;  
     desc_alt_1   =2.;   
     desc_alt_2   =1;    
-    cruise_range=2900;  
+    cruise_range=2900.*1./1000;  
     '''
     #range =2800 km
     #inputs=[ 1.01420090388 , 0.00211788693039 , 1.23478937042 , 1.41300163708 , 1.70807214708 , 7.1561218447 , -0.375058275159 , -1.46732112946 , 0.0119959909091 , 1.14938713948 , 1.29630577308 , 0.584463567988 , 1.65584269711 , 1.64579846566 , 1.55989976031 , 4.48764563837 , 3.39193333997 , 1.74925037953 ]
@@ -50,17 +53,20 @@ def main():
     for i in range(len(lower_bounds)):
         mybounds.append((lower_bounds[i], upper_bounds[i]))
     
+    inputs=[ 1.87730705157 , 0.637622847562 , 1.11239985729 , 1.21070191056 , 1.7949329454, 6.53675080597 , -0.322893971891 , -0.411890594667 , 0.00107751770403 , 1.030704418 , 1.19521439536 , 1.67158910456 , 1.92683103238 , 1.95938547301 , 1.71876988746 , 6.50515607681 , 1.72167954875 , 4.12062564473 ]
+    #mass= 93903.6517907 kg
     
-    inputs=[ 1.62326100388 , 0.747369247103 , 1.15893259838 , 1.28928564603 , 1.81569354312 , 7.31648803814 , -0.211391113093 , -0.35922505017 , 0.000850021004312 , 1.09729592263 , 1.12969905354 , 1.57311649926 , 1.878987619 , 1.96838948442 , 1.68651512159 , 7.09992401828 , 0.18033175491 , 4.03064865864 ]
-    #mass=84214 kg
     
+    #inputs=[ 1.74072782207 , 3.90409155283 , 4.46456878553 , 5.07612917153 , 8.22948282046, 9.50434678136 , 0.80625748605 , 0.00677073969815 , 29.9826226848 , 1.21482602234 , 1.04674284873 , 1.65270580158 , 2.02901449594 , 1.8152477401 , 2.24004234312 , 9.45943374212 , 1.59760893972 , 4.2865664147 ]
     
-
-    
-    global iteration_number #one global variable to keep track of how long optimization has been going on
     iteration_number=1
     #out=sp.optimize.differential_evolution(run, mybounds, disp=1)
-    out=sp.optimize.fmin(run, inputs, disp=1)
+    
+    
+    if disp_results==0:  #run optimization
+        out=sp.optimize.fmin(run, inputs, disp=1)
+    else:
+        run(inputs)    #display and plot the results
     #mass=84489.0450279
     #out=run(inputs)
     
@@ -72,7 +78,7 @@ def main():
     
 def run(inputs):                #sizing loop to enable optimization
 
-    disp_results= 1                    #1 for displaying results, 0 for optimize    
+    global disp_results                #1 for displaying results, 0 for optimize    
     global iteration_number
     print 'iteration number=', iteration_number
        #print inputs of each iteration so they can be directly copied
@@ -110,16 +116,16 @@ def run(inputs):                #sizing loop to enable optimization
     print 'mguess=', m_guess
 
     
-    tol=.01 #percentage difference in mass and energy between iterations
+    tol=.05 #percentage difference in mass and energy between iterations
     dm=10000. #initialize error
     dE=10000.
     if disp_results==0:
-        max_iter=20
+        max_iter=5
     else:
-        max_iter=20
+        max_iter=5
     j=0
-    P_mot=inputs[0]
-    Preq=P_mot*10**7 
+    P_mot=inputs[0]*10.**7.
+    Preq=P_mot 
    
     while abs(dm)>tol or abs(dE)>tol:      #size the vehicle
         m_guess=mass[j]
@@ -162,7 +168,7 @@ def run(inputs):                #sizing loop to enable optimization
     if  disp_results:
         #unpack inputs
         i=0
-        P_mot      =inputs[i];       i+=1
+        P_mot      =inputs[i]*10**7;       i+=1
         climb_alt_1=inputs[i];       i+=1
         climb_alt_2=inputs[i];       i+=1
         climb_alt_3=inputs[i];       i+=1
@@ -226,24 +232,24 @@ def run(inputs):                #sizing loop to enable optimization
 def evaluate_penalty(vehicle,results, inputs,target_range):
     i=0
     #use penalty functions to constrain problem; unpack inputs, scaling them propery
-    P_mot      =inputs[i]*10**7;   i+=1
-    climb_alt_1=inputs[i]      ;   i+=1
-    climb_alt_2=inputs[i]      ;   i+=1
-    climb_alt_3=inputs[i]      ;   i+=1
-    climb_alt_4=inputs[i]      ;   i+=1
-    climb_alt_5=inputs[i]      ;   i+=1
-    alpha_rc   =inputs[i]      ;   i+=1
-    alpha_tc   =inputs[i]      ;   i+=1
-    wing_sweep =inputs[i]      ;   i+=1
-    vehicle_S  =inputs[i]*100  ;   i+=1
-    Vclimb_1   =inputs[i]*100  ;   i+=1
-    Vclimb_2   =inputs[i]*100  ;   i+=1
-    Vclimb_3   =inputs[i]*100  ;   i+=1
-    Vclimb_4   =inputs[i]*100  ;   i+=1
-    Vclimb_5   =inputs[i]*100  ;   i+=1
-    desc_alt_1 =inputs[i]      ;   i+=1
-    desc_alt_2 =inputs[i]      ;   i+=1
-    cruise_range=inputs[i]*1000;   i+=1
+    P_mot      =inputs[i]*10.**7.;   i+=1
+    climb_alt_1=inputs[i]      ;     i+=1
+    climb_alt_2=inputs[i]      ;     i+=1
+    climb_alt_3=inputs[i]      ;     i+=1
+    climb_alt_4=inputs[i]      ;     i+=1
+    climb_alt_5=inputs[i]      ;     i+=1
+    alpha_rc   =inputs[i]      ;     i+=1
+    alpha_tc   =inputs[i]      ;     i+=1
+    wing_sweep =inputs[i]      ;     i+=1
+    vehicle_S  =inputs[i]*100  ;     i+=1
+    Vclimb_1   =inputs[i]*100  ;     i+=1
+    Vclimb_2   =inputs[i]*100  ;     i+=1
+    Vclimb_3   =inputs[i]*100  ;     i+=1
+    Vclimb_4   =inputs[i]*100  ;     i+=1
+    Vclimb_5   =inputs[i]*100  ;     i+=1
+    desc_alt_1 =inputs[i]      ;     i+=1
+    desc_alt_2 =inputs[i]      ;     i+=1
+    cruise_range=inputs[i]*1000;     i+=1
     V_cruise=230.
     print 'P_mot=', P_mot
     print 'results.Pmax=', results.Pmax
@@ -342,7 +348,7 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     wing.twists.tip                =alpha_tc*Units.degrees 
     wing.vertical                  =False
     wing.high_lift                 = True                 
-
+    wing.span_efficiency           =1.0
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -440,11 +446,11 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     sizing_segment.p   = p2     
     #create battery
     battery = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
+    #battery.specific_energy=2000.*Units.Wh/Units.kg
     battery.tag = 'battery'
    
     # attributes
  
-    #ducted fan
     ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan()
     ducted_fan.tag                       ='ducted_fan'
     ducted_fan.diffuser_pressure_ratio   = 0.98
@@ -452,7 +458,6 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     ducted_fan.fan_nozzle_pressure_ratio = 0.99
     ducted_fan.design_thrust             = Preq*1.5/V_cruise 
     ducted_fan.number_of_engines         =2.0    
-    ducted_fan.eta_pe                    =.95             #electric efficiency of motor
     ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
     
     # ------------------------------------------------------------------
@@ -488,6 +493,10 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
     base = configs.base
     base.pull_base()
     base.mass_properties.max_takeoff=m_guess
+    base.mass_properties.max_zero_fuel=m_guess  #just used for weight calculation
+    mission=analyses.missions.base.segments
+    airport=analyses.missions.base.airport
+    atmo            = airport.atmosphere
     #determine geometry of fuselage as well as wings
     fuselage=base.fuselages['fuselage']
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
@@ -507,6 +516,19 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
+  
+    cruise_altitude= mission['climb_3'].altitude_end
+    conditions = atmo.compute_values(cruise_altitude)
+    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+    sizing_segment.M   = mission['cruise'].air_speed/conditions.speed_of_sound       
+    sizing_segment.alt = cruise_altitude
+    sizing_segment.T   = conditions.temperature        
+    sizing_segment.p   = conditions.pressure
+    conditions0 = atmo.compute_values(12500.*Units.ft) #cabin pressure
+    p0 = conditions0.pressure
+    fuselage_diff_pressure=max(conditions0.pressure-conditions.pressure,0)
+    fuselage.differential_pressure = fuselage_diff_pressure
+    
     battery   =base.energy_network['battery']
     ducted_fan=base.propulsors['ducted_fan']
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
@@ -530,7 +552,7 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
     m_end=m_full+m_air
     base.mass_properties.takeoff                 = m_full
     base.store_diff()
-    print breakdown
+
     # Update all configs with new base data    
     for config in configs:
         config.pull_base()
@@ -699,8 +721,8 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
     
     # segment attributes
     segment.altitude_end    =  desc_alt_1  * Units.km
-    segment.air_speed       = 230.        # m/s
-    segment.descent_rate    =2600.*(Units.ft/Units.minute)
+    segment.air_speed       = 440.0 * Units.knots
+    segment.descent_rate    =2600. * Units['ft/min']
     
     # add to mission
     mission.append_segment(segment)
@@ -718,8 +740,8 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
 
     # segment attributes
     segment.altitude_end   =  desc_alt_2 * Units.km # km
-    segment.air_speed      = 200.     # m/s
-    segment.descent_rate         =2300.*(Units.ft/Units.minute)
+    segment.air_speed    = 365.0 * Units.knots
+    segment.descent_rate    =2300. * Units['ft/min']
     # append to mission
     mission.append_segment(segment)
 
@@ -734,8 +756,8 @@ def mission_setup( analyses,climb_alt_1,climb_alt_2,climb_alt_3, climb_alt_4, cl
     segment.analyses.extend( analyses.landing )
     # segment attributes
     segment.altitude_end   =  0.  # km
-    segment.air_speed       = 140.0      # m/s
-    segment.descent_rate         =1500.*(Units.ft/Units.minute)
+    segment.air_speed    = 250.0 * Units.knots
+    segment.descent_rate = 1500. * Units['ft/min']
     # append to mission
     mission.append_segment(segment)
     
@@ -1017,9 +1039,20 @@ def post_process(mission,configs, results):
     axes.grid(True)    
     
     
- 
 
-    
+
+    # ------------------------------------------------------------------    
+    #   Trajectory
+    # ------------------------------------------------------------------
+    plt.figure("Trajectory")
+    axes = plt.gca()    
+    for i in range(len(results.segments)):   
+        ground_dist    = results.segments[i].conditions.frames.inertial.position_vector[:,0] / Units.km
+        altitude = results.segments[i].conditions.freestream.altitude[:,0] /Units.km
+        axes.plot(ground_dist, altitude, 'bo-')
+    axes.set_xlabel('Ground Distance(km)')
+    axes.set_ylabel('Altitude (km)')
+    axes.grid(True)
     
     # ------------------------------------------------------------------    
     #   Altitude
@@ -1079,7 +1112,7 @@ def post_process(mission,configs, results):
         axes.set_ylabel('Electric Power (MW)')
         axes.grid(True)
         
-        
+    '''    
     # ------------------------------------------------------------------    
     #  Mass, State of Charge, Power
     # ------------------------------------------------------------------
@@ -1110,7 +1143,7 @@ def post_process(mission,configs, results):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Battery Discharge Power')
         axes.grid(True)
-        
+    '''    
         
     # ------------------------------------------------------------------    
     #   Aerodynamics
@@ -1177,8 +1210,47 @@ def post_process(mission,configs, results):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('CL/CD')
         axes.grid(True)
+        
+        
+        
+    # ------------------------------------------------------------------
+    #   Drag Breakdown
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components")
+    axes = plt.gca()
+    for i, segment in enumerate(results.segments.values()):
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+
+  
+        axes.plot( time , cdp , 'ko-', label='CD_P' )
+        axes.plot( time , cdi , 'bo-', label='CD_I' )
+        axes.plot( time , cdc , 'go-', label='CD_C' )
+        axes.plot( time , cdm , 'yo-', label='CD_M' )
+        axes.plot( time , cd  , 'ro-', label='CD'   )
+        if i == 0:
+             axes.legend(loc='upper center')            
+           
+
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)    
+        
+        
+        
+        
+        
+        
     plt.show()
     raw_input('Press Enter To Quit')
+    
+    
     return     
    
   
