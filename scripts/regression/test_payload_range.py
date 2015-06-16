@@ -14,23 +14,9 @@
 import SUAVE
 from SUAVE.Core import Units
 
-import numpy as np
-import pylab as plt
-
-import copy, time
-
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
-
-# the analysis functions
-from the_aircraft_function import the_aircraft_function
-from plot_mission import plot_mission
-
 from test_mission_Embraer_E190_constThr import full_setup
 
 from SUAVE.Methods.Performance  import payload_range
-
 
 # ----------------------------------------------------------------------
 #   Main
