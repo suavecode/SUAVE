@@ -50,4 +50,3 @@ def check_results(new_results):
 
 if __name__ == '__main__':
     main()
-    plt.show()
