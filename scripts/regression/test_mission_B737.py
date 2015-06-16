@@ -264,8 +264,8 @@ def vehicle_setup():
     
     wing.areas.reference         = 124.862 
     
-    wing.twists.root             = 3.0 * Units.degrees
-    wing.twists.tip              = 3.0 * Units.degrees
+    wing.twists.root             = 4.0 * Units.degrees
+    wing.twists.tip              = -4.0 * Units.degrees
     
     wing.origin                  = [20,0,0]
     wing.aerodynamic_center      = [3,0,0] 
@@ -975,24 +975,26 @@ def mission_setup(analyses):
     
     
     # ------------------------------------------------------------------    
-    #   First Descent Segment: consant speed, constant segment rate
+    #   First Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
     
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
     segment.tag = "descent_1"
     
     segment.analyses.extend( analyses.cruise )
     
     segment.altitude_end = 5.0   * Units.km
-    segment.air_speed    = 170.0 * Units['m/s']
+    #segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
+    segment.mach_end    = 0.65
+    segment.mach_start  = 0.78    
     
     # add to mission
     mission.append_segment(segment)
     
     
     # ------------------------------------------------------------------    
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
