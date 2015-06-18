@@ -266,6 +266,7 @@ def vehicle_setup():
     turbofan.design_thrust     = 20300.0
     turbofan.engine_length     = 3.0
     turbofan.nacelle_diameter  = 1.0
+    turbofan.bypass_ratio      = 5.4
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
