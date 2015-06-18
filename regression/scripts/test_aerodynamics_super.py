@@ -108,9 +108,9 @@ def main():
     lift = state.conditions.aerodynamics.lift_coefficient
     
     # Truth value
-    lift_r = np.array([-2.07712357, -0.73495391, -0.38858687, -0.1405849 ,  0.22295808,
-                       0.5075275 ,  0.67883681,  0.92787301,  1.40470556,  2.08126751,
-                       1.69661601])
+    lift_r = np.array([-2.42489437, -0.90696416, -0.53991953, -0.3044834 ,  -0.03710598,
+                       0.31061936 ,  0.52106899,  0.77407765,  1.22389024,  1.86240501,
+                       1.54587835])[:,None]
     lift_r = lift_r.reshape(test_num,1)
     
     lift_test = np.abs((lift-lift_r)/lift)
@@ -142,6 +142,18 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
     
+    print cd_c
+    print cd_i
+    print cd_m
+    print cd_m_fuse_base
+    print cd_m_fuse_up
+    print cd_m_nac_base
+    print cd_m_ctrl 
+    print cd_p_fuse
+    print cd_p_wing
+    print cd_tot 
+    
+    
     # Truth values
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
     
@@ -169,7 +181,7 @@ def main():
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
     print '\nCompute Drag Test Results\n'
-    print drag_tests
+    #print drag_tests
     
     for i, tests in drag_tests.items():
         assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
