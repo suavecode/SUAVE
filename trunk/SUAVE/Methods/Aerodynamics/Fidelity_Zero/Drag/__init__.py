@@ -1,5 +1,4 @@
 
-from compute_aircraft_drag import compute_aircraft_drag
 
 from parasite_drag_propulsor import parasite_drag_propulsor
 from parasite_drag_wing import parasite_drag_wing
