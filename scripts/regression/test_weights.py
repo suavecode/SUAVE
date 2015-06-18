@@ -8,7 +8,7 @@ from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
 )
-
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 def main():
     vehicle = SUAVE.Vehicle()# Create the vehicle for testing
@@ -19,11 +19,193 @@ def main():
     vehicle.mass_properties.max_zero_fuel               = 79015.8 * 0.9 * Units.kilograms # Maximum zero fuel weight in kilograms
     vehicle.envelope.limit_load                         = 1.5                             # Limit Load
     
-    turbofan = SUAVE.Components.Propulsors.TurboFanPASS()
-    turbofan.tag = 'turbo_fan'    
-    turbofan.number_of_engines   = 2.                              # Number of engines on the aircraft
-    turbofan.design_thrust  = 200.   * Units.newton    # Define Thrust in Newtons    
-    vehicle.append_component(turbofan) 
+    #Build an dsize the turbofan to get sls sthrust
+    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.tag = 'turbo_fan'
+    
+    # setup
+    turbofan.number_of_engines = 2.0
+    turbofan.bypass_ratio      = 5.4
+    turbofan.engine_length     = 2.71
+    turbofan.nacelle_diameter  = 2.05
+    
+    # working fluid
+    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+    
+    
+    # ------------------------------------------------------------------
+    #   Component 1 - Ram
+    
+    # to convert freestream static to stagnation quantities
+    
+    # instantiate
+    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram.tag = 'ram'
+    
+    # add to the network
+    turbofan.append(ram)
+
+
+    # ------------------------------------------------------------------
+    #  Component 2 - Inlet Nozzle
+    
+    # instantiate
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle.tag = 'inlet_nozzle'
+    
+    # setup
+    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.pressure_ratio        = 0.98
+    
+    # add to network
+    turbofan.append(inlet_nozzle)
+    
+    
+    # ------------------------------------------------------------------
+    #  Component 3 - Low Pressure Compressor
+    
+    # instantiate 
+    compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    compressor.tag = 'low_pressure_compressor'
+
+    # setup
+    compressor.polytropic_efficiency = 0.91
+    compressor.pressure_ratio        = 1.14    
+    
+    # add to network
+    turbofan.append(compressor)
+
+    
+    # ------------------------------------------------------------------
+    #  Component 4 - High Pressure Compressor
+    
+    # instantiate
+    compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    compressor.tag = 'high_pressure_compressor'
+    
+    # setup
+    compressor.polytropic_efficiency = 0.91
+    compressor.pressure_ratio        = 13.415    
+    
+    # add to network
+    turbofan.append(compressor)
+
+
+    # ------------------------------------------------------------------
+    #  Component 5 - Low Pressure Turbine
+    
+    # instantiate
+    turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    turbine.tag='low_pressure_turbine'
+    
+    # setup
+    turbine.mechanical_efficiency = 0.99
+    turbine.polytropic_efficiency = 0.93     
+    
+    # add to network
+    turbofan.append(turbine)
+    
+      
+    # ------------------------------------------------------------------
+    #  Component 6 - High Pressure Turbine
+    
+    # instantiate
+    turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    turbine.tag='high_pressure_turbine'
+
+    # setup
+    turbine.mechanical_efficiency = 0.99
+    turbine.polytropic_efficiency = 0.93     
+    
+    # add to network
+    turbofan.append(turbine)
+      
+    
+    # ------------------------------------------------------------------
+    #  Component 7 - Combustor
+    
+    # instantiate    
+    combustor = SUAVE.Components.Energy.Converters.Combustor()   
+    combustor.tag = 'combustor'
+    
+    # setup
+    combustor.efficiency                = 0.99 
+    combustor.alphac                    = 1.0     
+    combustor.turbine_inlet_temperature = 1450
+    combustor.pressure_ratio            = 0.95
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
+    
+    # add to network
+    turbofan.append(combustor)
+
+    
+    # ------------------------------------------------------------------
+    #  Component 8 - Core Nozzle
+    
+    # instantiate
+    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle.tag = 'core_nozzle'
+    
+    # setup
+    nozzle.polytropic_efficiency = 0.95
+    nozzle.pressure_ratio        = 0.99    
+    
+    # add to network
+    turbofan.append(nozzle)
+
+
+    # ------------------------------------------------------------------
+    #  Component 9 - Fan Nozzle
+    
+    # instantiate
+    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    nozzle.tag = 'fan_nozzle'
+
+    # setup
+    nozzle.polytropic_efficiency = 0.95
+    nozzle.pressure_ratio        = 0.99    
+    
+    # add to network
+    turbofan.append(nozzle)
+    
+    
+    # ------------------------------------------------------------------
+    #  Component 10 - Fan
+    
+    # instantiate
+    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan.tag = 'fan'
+
+    # setup
+    fan.polytropic_efficiency = 0.93
+    fan.pressure_ratio        = 1.7    
+    
+    # add to network
+    turbofan.append(fan)
+    
+    
+    # ------------------------------------------------------------------
+    #Component 10 : thrust (to compute the thrust)
+    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust.tag ='compute_thrust'
+ 
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 2*24000. * Units.N #Newtons
+ 
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
+    
+    # add to network
+    turbofan.thrust = thrust
+
+    #size the turbofan
+    turbofan_sizing(turbofan,mach_number,altitude)   
+    
+    # add  gas turbine network gt_engine to the vehicle
+    vehicle.append_component(turbofan)      
+    
 
     vehicle.passengers                                  = 170.                            # Number of passengers
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
@@ -77,15 +259,16 @@ def main():
     
     weight = Tube_Wing.empty(vehicle)
     
+    
     actual = Data()
     actual.payload = 17349.9081525
     actual.pax = 15036.5870655
     actual.bag = 2313.321087
-    actual.fuel = -6993.89102491
-    actual.empty = 68659.7828724
+    actual.fuel = -13680.6265874
+    actual.empty = 75346.5184349
     actual.wing = 27694.192985
-    actual.fuselage = 11504.5186408
-    actual.propulsion = 88.3696093424
+    actual.fuselage = 11423.9380852
+    actual.propulsion = 6855.68572746 
     actual.landing_gear = 3160.632
     actual.systems = 16655.7076511
     actual.wt_furnish = 7466.1304102
@@ -104,10 +287,12 @@ def main():
     error.propulsion = (actual.propulsion - weight.propulsion)/actual.propulsion
     error.landing_gear = (actual.landing_gear - weight.landing_gear)/actual.landing_gear
     error.systems = (actual.systems - weight.systems)/actual.systems
-    error.wt_furnish = (actual.wt_furnish - weight.wt_furnish)/actual.wt_furnish
+    error.wt_furnish = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
+    
     error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
     error.vertical_tail = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder = (actual.rudder - weight.rudder)/actual.rudder
+      
       
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
