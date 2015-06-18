@@ -292,10 +292,16 @@ def main():
     error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
     error.vertical_tail = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder = (actual.rudder - weight.rudder)/actual.rudder
-      
+    
+    print 'Results (kg)'
+    print weight
+    
+    print 'Relative Errors'
+    print error  
       
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
+   
     
     return
 
