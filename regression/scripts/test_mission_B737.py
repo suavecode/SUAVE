@@ -975,7 +975,7 @@ def mission_setup(analyses):
     
     
     # ------------------------------------------------------------------    
-    #   First Descent Segment: constant speed, constant segment rate
+    #   First Descent Segment: Linear Mach, constant rate segment
     # ------------------------------------------------------------------    
     
     segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
