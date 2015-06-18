@@ -12,7 +12,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import compute_aircraft_drag
 
-from test_mission_B737 import vehicle_setup
+from mission_B737 import vehicle_setup
 
 import numpy as np
 import pylab as plt

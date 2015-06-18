@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import test_mission_B737
+import mission_B737
 
 import SUAVE
 from SUAVE.Core import Units
@@ -23,9 +23,9 @@ import pylab as plt
 
 def main():
     
-    vehicle  = test_mission_B737.vehicle_setup()
-    configs  = test_mission_B737.configs_setup(vehicle)
-    analyses = test_mission_B737.analyses_setup(configs)
+    vehicle  = mission_B737.vehicle_setup()
+    configs  = mission_B737.configs_setup(vehicle)
+    analyses = mission_B737.analyses_setup(configs)
     mission  = mission_setup(configs,analyses)
     
     vehicle.mass_properties.takeoff = 70000 * Units.kg

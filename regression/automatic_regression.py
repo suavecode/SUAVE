@@ -33,33 +33,28 @@ import matplotlib.pyplot as plt
 modules = [
     
     # regression
-    'scripts/test_atmosphere.py',
-    'scripts/test_dynamicstability.py',
-    'scripts/test_weights.py',
-    'scripts/DC_10_noise.py',
-    #'scripts/test_mission_B737.py',
-    'scripts/test_mission_Embraer_E190_constThr.py',
+    'scripts/atmosphere/atmosphere.py',
+    'scripts/dynamic_stability/dynamicstability.py',
+    'scripts/weights/weights.py',
+    'scripts/DC_10_noise/DC_10_noise.py',
+    #'scripts/B737/mission_B737.py',
+    'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     #'regression/test_mission_AS2.py',
-    'scripts/test_landing_field_length.py',
-    'scripts/test_take_off_field_length.py',
-    'scripts/test_solar_network.py',
-    'scripts/test_solar_radiation.py',
-    'scripts/test_propeller.py',
-    'scripts/test_aerodynamics.py',
-    #'scripts/test_aerodynamics_super.py',
-    'scripts/test_battery.py',
-    'scripts/test_cmalpha.py',
-    'scripts/test_cnbeta.py',
-    'scripts/test_gasturbine_network.py',
-    'scripts/test_payload_range.py',
+    'scripts/landing_field_length/landing_field_length.py',
+    'scripts/take_off_field_length/take_off_field_length.py',
+    'scripts/solar_network/solar_network.py',
+    'scripts/solar_radiation/solar_radiation.py',
+    'scripts/propeller/propeller.py',
+    'scripts/aerodynamics/aerodynamics.py',
+    #'scripts/aerodynamics_super/aerodynamics_super.py',
+    'scripts/battery/battery.py',
+    'scripts/cmalpha/cmalpha.py',
+    'scripts/cnbeta/cnbeta.py',
+    'scripts/gasturbine_network/gasturbine_network.py',
+    'scripts/payload_range/payload_range.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
-    'scripts/test_variable_cruise_distance.py',
-    
-    # tutorials
-    'scripts/tut_mission_B737.py',
-    'scripts/tut_mission_Embraer_E190_constThr.py',
-    
+    'scripts/variable_cruise_distance/variable_cruise_distance.py',
 ]
 
 

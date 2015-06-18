@@ -24,7 +24,6 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 # the analysis functions
-from the_aircraft_function import the_aircraft_function
 
 from SUAVE.Methods.Performance  import payload_range
 
