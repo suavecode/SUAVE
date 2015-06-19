@@ -30,7 +30,6 @@ from mission_Embraer_E190_constThr import full_setup
 
 from SUAVE.Methods.Performance  import payload_range
 
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -63,4 +62,3 @@ def check_results(new_results):
 
 if __name__ == '__main__':
     main()
-    plt.show()

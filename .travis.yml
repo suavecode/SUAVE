@@ -10,6 +10,7 @@ notifications:
   
 branches:
     only:
+        - master
         - develop
 
 before_install:

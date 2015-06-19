@@ -461,7 +461,6 @@ def vehicle_setup():
     
     #add the high pressure turbine to the network    
     gt_engine.high_pressure_turbine = high_pressure_turbine 
-      
     
     
     #Component 6 :combustor  
