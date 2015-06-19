@@ -20,7 +20,7 @@ before_install:
 install:
     - cd trunk
     - python setup.py install
-    - cd ../scripts
+    - cd ../regression
   
 # run test
 script:  
