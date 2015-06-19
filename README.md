@@ -5,7 +5,7 @@ A multi-fidelity conceptual design environment.
 Its purpose is to credibly produce conceptual-level design conclusions 
 for future aircraft incorporating advanced technologies.
 
-[![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=develop)](https://travis-ci.org/suavecode/SUAVE)
+[![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)
 
 License: CC BY-NC-SA 4.0
  
