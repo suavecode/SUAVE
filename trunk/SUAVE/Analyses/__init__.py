@@ -14,7 +14,6 @@ import Weights
 import Geometry
 import Loads
 import Mission
-import Sizing
 import Structures
 import Atmospheric
 import Planets
