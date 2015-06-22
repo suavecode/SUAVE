@@ -1,4 +1,4 @@
-SUAVE: Stanford University Aerospace Vehicle Environment
+[SUAVE: Standard and Unconventional Aerospace Vehicle Environment](http://suave.stanford.edu)
 ========================================================
  
 A multi-fidelity conceptual design environment.

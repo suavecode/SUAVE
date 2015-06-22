@@ -13,7 +13,7 @@ evaluate_mission()
             unpack
             segment.initialize_differentials()
             segment.initalize_conditions()
-            x_sol = root( segement_residuals() )
+            x_sol = root( segment_residuals() )
                 unpack
                 segment.update_differentials()
                 segment.update_conditions()
@@ -90,17 +90,17 @@ SUAVE.Methods.Performance.evaluate_segment()
     # arrays are defaulted to one-row 2D-arrays
     # this step expands them out to the segment's number of time points
     
-    # initialize segmenet conditions
+    # initialize segment conditions
     segment.initalize_conditions()
     # this is likely the first function defined for a new segment
     # does all the pre-processing needed to run the segment
     
     # iterate and converge the segment residuals
-    x_sol = root( segement_residuals() )
+    x_sol = root( segment_residuals() )
     
     # post process segments 
     segment.post_process()
-    # does all the post-processing after a segmenet is run
+    # does all the post-processing after a segment is run
     # this function fills in all the conditions that weren't needed
     # during the segment solve
     
