@@ -1,13 +1,16 @@
-SUAVE: Stanford University Aerospace Vehicle Environment
+SUAVE: An Aerospace Vehicle Environment
 ========================================================
  
-A multi-fidelity conceptual design environment.
+SUAVE is a multi-fidelity conceptual design environment.
 Its purpose is to credibly produce conceptual-level design conclusions 
 for future aircraft incorporating advanced technologies.
 
 [![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=develop)](https://travis-ci.org/suavecode/SUAVE)
 
 License: CC BY-NC-SA 4.0
+
+[suavecode.github.io](suavecode.github.io)
+
  
 Contributing Developers
 -----------------------
@@ -41,17 +44,19 @@ cd SUAVE/trunk
 python setup.py install
 ```
 
+More information available at [download](suavecode.github.io/download).
+
 
 Requirements
 ------------
 
-numpy, scipy, matplotlib
+numpy, scipy, matplotlib, pip
 
 
 Developer Install
 -----------------
 
-See [INSTALL](INSTALL)
+See [develop](suavecode.github.io/develop).
 
 
 
