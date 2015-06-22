@@ -33,9 +33,8 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-# the analysis functions
-#from the_aircraft_function import the_aircraft_function
-#from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
+# This is a sizing function to fill turbojet parameters
+from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 
 
 # ----------------------------------------------------------------------
@@ -44,31 +43,22 @@ Data, Container, Data_Exception, Data_Warning,
 
 def main():
     
+    # First we construct the baseline aircraft
     configs, analyses = full_setup()
     
+    # Any sizing functions are included here to size components
     simple_sizing(configs)
     
+    # Here we finalize the configuration and analysis settings
     configs.finalize()
     analyses.finalize()
-    
-    # weight analysis
-    # weights = analyses.configs.base.weights
-    # breakdown = weights.evaluate()      
-    
-    # mission analysis
+
+    # These functions analyze the mission
     mission = analyses.missions.base
     results = mission.evaluate()
-
-    # load older results
-    #save_results(results)
-    #old_results = load_results()   
     
-    # plt the old results
+    # Plot the mission results
     plot_mission(results)
-    #plot_mission(old_results,'k-')
-    
-    # check the results
-    #check_results(results,old_results)
     
     return
 
@@ -79,14 +69,14 @@ def main():
 
 def full_setup():
     
-    # vehicle data
+    # Vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
     
-    # vehicle analyses
+    # Vehicle analyses
     configs_analyses = analyses_setup(configs)
     
-    # mission analyses
+    # Mission analyses
     mission  = mission_setup(configs_analyses)
     missions_analyses = missions_setup(mission)
 
@@ -108,15 +98,6 @@ def analyses_setup(configs):
     for tag,config in configs.items():
         analysis = base_analysis(config)
         analyses[tag] = analysis
-        
-    # adjust analyses for configs
-    
-    # takeoff_analysis
-    analyses.takeoff.aerodynamics.drag_coefficient_increment = 0.1000
-    
-    # landing analysis
-    aerodynamics = analyses.landing.aerodynamics
-    # do something here eventually
     
     return analyses
 
@@ -143,17 +124,6 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    
-    ## modify inviscid wings - linear lift model
-    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Linear_Lift()
-    #inviscid_wings.settings.slope_correction_coefficient = 1.04
-    #inviscid_wings.settings.zero_lift_coefficient = 2.*np.pi* 3.1 * Units.deg    
-    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings        
-    
-    ## modify inviscid wings - avl model
-    #inviscid_wings = SUAVE.Analyses.Aerodynamics.Surrogates.AVL()
-    #inviscid_wings.geometry = vehicle
-    #aerodynamics.process.compute.lift.inviscid_wings = inviscid_wings
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -485,8 +455,7 @@ def vehicle_setup():
     #total design thrust (includes all the engines)
     thrust.total_design             = 4*140000. * Units.N #Newtons
  
-    # Note: Sizing designed to give roughly nominal values - M = 2.02 is not achieved at 35,000 ft
-    # and thrust shown is dry thrust
+    # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
     #design sizing conditions
     altitude      = 35000.0*Units.ft
     mach_number   = 2.02
@@ -542,8 +511,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
+    config.wings['main_wing'].flaps.angle = 0. * Units.deg
+    config.wings['main_wing'].slats.angle = 0. * Units.deg
     
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
@@ -558,14 +527,13 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
     
-    config.wings['main_wing'].flaps_angle = 30. * Units.deg
-    config.wings['main_wing'].slats_angle = 25. * Units.deg
+    config.wings['main_wing'].flaps_angle = 0. * Units.deg
+    config.wings['main_wing'].slats_angle = 0. * Units.deg
 
     config.Vref_VS_ratio = 1.23
     config.maximum_lift_coefficient = 2.
     
     configs.append(config)
-    
     
     # done!
     return configs
@@ -790,45 +758,8 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------    
     #   SUAVE Paper Chart
     # ------------------------------------------------------------------
-     
-    fig = plt.figure("SUAVE Paper Chart 1")
-    fig.set_figheight(10)
-    fig.set_figwidth(6.5)
-    for segment in results.segments.values():         
-            
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        altitude  = segment.conditions.freestream.altitude[:,0] / Units.km
-        density   = segment.conditions.freestream.density[:,0]
-        mach_number   = segment.conditions.freestream.mach_number[:,0]
-        
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , altitude , 'bo-' )
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Altitude (km)')
-        axes.grid(True)  
-        
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mach_number , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Mach')
-        axes.grid(True) 
-        
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-
-        LD = Lift/Drag
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , LD , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('L/D')
-        axes.grid(True)   
-
-    fig.set_figheight(10)
-    fig.set_figwidth(6.5)    
-
-    # ------------------------------------------------------------------    
-    #   SUAVE Paper Chart Attempt 2
-    # ------------------------------------------------------------------
+    
+    # This is chart provided in paper presented at Aviation 2015
 
     fig = plt.figure("SUAVE Paper Chart")
     fig.set_figheight(10)
@@ -861,7 +792,7 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('L/D')
     axes.grid(True)   
-    plt.savefig('Concorde_data.pdf')
+    #plt.savefig('Concorde_data.pdf')
         
     return
 
@@ -1017,21 +948,6 @@ def mission_setup(analyses):
     
     # add to mission
     mission.append_segment(segment)
-    
-    # Cruise-climb
-    
-    #segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-    #segment.tag = "climb_5"
-    
-    #segment.analyses.extend( analyses.cruise )
-    
-    #segment.altitude_end = 18.288   * Units.km
-    #segment.mach_start   = 2.02
-    #segment.mach_end     = 2.02
-    #segment.climb_rate   = 0.5  * Units['m/s']
-    
-    # add to mission
-    #mission.append_segment(segment)    
     
     
     # ------------------------------------------------------------------    

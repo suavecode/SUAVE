@@ -116,8 +116,8 @@ def parasite_drag_wing(state,settings,geometry):
                         / (2.*(1.-(Mc[Mc < 0.95]*np.cos(sweep_w))**2.))
 
 
-
-    k_w[Mc >= 0.95] =  1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
+    k_w[Mc >= 0.95] =  1. 
+    #k_w[Mc >= 0.95] =  1. + 2.7*(t_c_w) + 100.*(t_c_w)**4
 
 
 
