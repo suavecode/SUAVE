@@ -9,7 +9,7 @@ for future aircraft incorporating advanced technologies.
 
 License: CC BY-NC-SA 4.0
 
-[suavecode.github.io](suavecode.github.io)
+Guides and Forum available at [suavecode.github.io](https://suavecode.github.io).
 
  
 Contributing Developers
