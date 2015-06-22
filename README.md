@@ -30,10 +30,10 @@ Contributing Developers
 
 Contributing Institutions
 -------------------------
-* Stanford University Aerospace Design Lab ([adl.stanford.edu](adl.stanford.edu))
-* Embraer ([www.embraer.com](www.embraer.com))
-* Intelligent Automation Inc.  ([www.i-a-i.com](www.i-a-i.com))
-* Rand Corporation ([www.rand.org](www.rand.org))
+* Stanford University Aerospace Design Lab ([adl.stanford.edu](http://adl.stanford.edu))
+* Embraer ([www.embraer.com](http://www.embraer.com))
+* Intelligent Automation Inc.  ([www.i-a-i.com](http://www.i-a-i.com))
+* Rand Corporation ([www.rand.org](http://www.rand.org))
 
 Simple Setup
 ------------
@@ -44,7 +44,7 @@ cd SUAVE/trunk
 python setup.py install
 ```
 
-More information available at [download](suavecode.github.io/download).
+More information available at [download](https://suavecode.github.io/download).
 
 
 Requirements
@@ -56,7 +56,7 @@ numpy, scipy, matplotlib, pip
 Developer Install
 -----------------
 
-See [develop](suavecode.github.io/develop).
+See [develop](https://suavecode.github.io/develop).
 
 
 
