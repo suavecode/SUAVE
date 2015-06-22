@@ -58,7 +58,7 @@ def main():
     print_engine_data(configs.base,filename = 'engine_data.dat')
 
     # print parasite drag data into file
-        # define reference condition for parasite drag
+    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 20e6     
@@ -79,7 +79,7 @@ def main():
     plot_mission(old_results,'k-')
 
     # check the results
-    #check_results(results,old_results)
+    check_results(results,old_results)
 
     return
 
