@@ -15,7 +15,7 @@ import numpy as np
 import scipy as sp
 from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from copy import deepcopy
+
 # ----------------------------------------------------------------------
 #  Electronic Speed Controller Class
 # ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ class Electronic_Speed_Controller(Energy_Component):
                
         """
         # Unpack, deep copy since I replace values
-        eta = deepcopy(conditions.propulsion.throttle[:,0,None])
+        eta = (conditions.propulsion.throttle[:,0,None])*1.0
         
         # Negative throttle is bad
         eta[eta<=0.0] = 0.0
