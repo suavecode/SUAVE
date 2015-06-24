@@ -7,7 +7,6 @@
 import numpy #as np
 from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
-import Segments
 
 # ----------------------------------------------------------------------
 #  Turbo_Fan
