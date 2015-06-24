@@ -60,6 +60,9 @@ Developer Install
 
 See [develop](https://suavecode.github.io/develop).
 
+Frequently Asked Questions
+-----------------
 
+See [FAQ](https://suavecode.github.io/FAQ/).
 
 
