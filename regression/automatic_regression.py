@@ -1,8 +1,7 @@
-
 # automatic_regression.py
 # 
-# Created:  Trent Lukaczyk, Jun 2014
-# Modified:     
+# Created:  Jun 2014, T. Lukaczyk
+# Modified: Jun 2014, SUAVE Team
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -38,7 +37,7 @@ modules = [
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/weights/weights.py',
     'scripts/DC_10_noise/DC_10_noise.py',
-    #'scripts/B737/mission_B737.py',
+    'scripts/B737/mission_B737.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     #'regression/test_mission_AS2.py',
     'scripts/landing_field_length/landing_field_length.py',

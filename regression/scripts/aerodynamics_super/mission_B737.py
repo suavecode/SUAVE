@@ -673,8 +673,8 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
         axes.grid(True)	
 
-        #plt.savefig("B737_engine.pdf")
-        #plt.savefig("B737_engine.png")
+        plt.savefig("B737_engine.pdf")
+        plt.savefig("B737_engine.png")
 
 
     # ------------------------------------------------------------------
@@ -710,8 +710,8 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
 
-        #plt.savefig("B737_aero.pdf")
-        #plt.savefig("B737_aero.png")
+        plt.savefig("B737_aero.pdf")
+        plt.savefig("B737_aero.png")
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -746,8 +746,8 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
-    #plt.savefig("B737_drag.pdf")
-    #plt.savefig("B737_drag.png")
+    plt.savefig("B737_drag.pdf")
+    plt.savefig("B737_drag.png")
 
     # ------------------------------------------------------------------
     #   Altitude,sfc,vehiclde weight
@@ -789,8 +789,8 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
 
-        #plt.savefig("B737_mission.pdf")
-        #plt.savefig("B737_mission.png")
+        plt.savefig("B737_mission.pdf")
+        plt.savefig("B737_mission.png")
 
     return
 
