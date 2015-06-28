@@ -16,7 +16,7 @@ def initialize_conditions(segment,state):
     conditions = state.conditions
     rho        = conditions.freestream.density[:,0]
     
-    # Update freestream to get speed of sound
+    # Update freestream to get density
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
     rho        = conditions.freestream.density[:,0]   
 
