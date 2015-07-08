@@ -34,7 +34,7 @@ def compute_slat_lift(slat_angle,sweep_angle):
     sa = slat_angle  / Units.deg
     sw = sweep_angle
 
-    #---PASS Method
+    #---AA241 Method
     dcl_slat = (sa/23.)*(np.cos(sw))**1.4 * np.cos(sa * Units.deg)**2
 
     #returning dcl_slat

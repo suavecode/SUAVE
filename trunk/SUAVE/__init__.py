@@ -20,3 +20,6 @@ import Input_Output
 
 # the vehicle class
 from Vehicle import Vehicle
+
+from warnings import simplefilter
+simplefilter('ignore')
