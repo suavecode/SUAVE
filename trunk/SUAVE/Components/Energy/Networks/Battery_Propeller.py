@@ -34,6 +34,7 @@ class Battery_Propeller(Propulsor):
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
+        self.voltage           = None
         self.tag               = 'network'
     
     # manage process with a driver function
