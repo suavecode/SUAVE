@@ -31,6 +31,8 @@ class Battery_Propeller(Propulsor):
         self.propeller         = None
         self.esc               = None
         self.battery           = None
+        self.avionics          = None
+        self.payload           = None
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
@@ -45,6 +47,8 @@ class Battery_Propeller(Propulsor):
         numerics    = state.numerics
         motor       = self.motor
         propeller   = self.propeller
+        avionics    = self.avionics
+        payload     = self.payload
         esc         = self.esc
         battery     = self.battery
         
@@ -83,6 +87,16 @@ class Battery_Propeller(Propulsor):
         eta = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
+
+        # Run the avionics
+        avionics.power()
+        # link
+        solar_logic.inputs.pavionics =  avionics.outputs.power
+        
+        # Run the payload
+        payload.power()
+        # link
+        solar_logic.inputs.ppayload = payload.outputs.power
         
         # Run the motor for current
         motor.current(conditions)
