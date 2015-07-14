@@ -149,10 +149,12 @@ class DataBunch(IndexableBunch):
         data = self
          
         if len(keys) > 1:
-            for k in keys[:-2]:
+            for k in keys[:-1]:
                 data = data[k]
         
-        data[ keys[-1] ] = value
+        data[ keys[-1] ] = val
+        
+        return data
 
     def deep_get(self,keys):
         
