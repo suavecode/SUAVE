@@ -1,7 +1,7 @@
 #Battery_Propeller.py
 # 
 # Created: Jul 2015, E. Botero
-# Modified:  Jul 2015, M Kruger
+# Modified:  Jul 2015, M. Kruger
 
 # ----------------------------------------------------------------------
 #  Imports
