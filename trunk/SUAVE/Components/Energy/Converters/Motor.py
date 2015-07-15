@@ -38,7 +38,7 @@ class Motor(Energy_Component):
             
             Inputs:
                 Motor resistance - in ohms
-                Motor zeros load current - in amps
+                Motor zero load current - in amps
                 Motor Kv - in rad/s/volt
                 Propeller radius - in meters
                 Propeller Cp - power coefficient
@@ -64,13 +64,14 @@ class Motor(Energy_Component):
         R     = self.propeller_radius
         Cp    = self.propeller_Cp 
         v     = self.inputs.voltage
-
+        
         #Omega
         #This is solved by setting the torque of the motor equal to the torque of the prop
         #It assumes that the Cp is constant
         omega1  =   (np.pi**(3./2.)*((- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
                     16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
+#        print(omega1)
 
         # store to outputs
         self.outputs.omega = omega1

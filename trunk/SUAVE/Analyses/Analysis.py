@@ -1,5 +1,3 @@
-
-
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -16,6 +14,7 @@ from Results import Results
 class Analysis(Data):
     """ SUAVE.Analyses.Analysis()
     """
+    
     def __defaults__(self):
         self.tag    = 'analysis'
         self.features = Data()
@@ -26,7 +25,7 @@ class Analysis(Data):
             avoid analysis specific algorithms
         """
         return
-        
+      
     def initialize(self,*args,**kwarg):
         """ analysis specific initialization algorithms
         """
