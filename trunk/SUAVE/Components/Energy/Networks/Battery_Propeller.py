@@ -1,7 +1,7 @@
 #Battery_Propeller.py
 # 
 # Created: Jul 2015, E. Botero
-# Modified:  Jul 2015, M. Kruger
+# Modified:  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -30,8 +30,6 @@ class Battery_Propeller(Propulsor):
         self.motor             = None
         self.propeller         = None
         self.esc               = None
-        self.avionics          = None
-        self.payload           = None
         self.battery           = None
         self.nacelle_diameter  = None
         self.engine_length     = None
@@ -48,8 +46,6 @@ class Battery_Propeller(Propulsor):
         motor       = self.motor
         propeller   = self.propeller
         esc         = self.esc
-        avionics    = self.avionics
-        payload     = self.payload
         battery     = self.battery
         
         # Set battery energy
@@ -87,12 +83,6 @@ class Battery_Propeller(Propulsor):
         eta = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-
-        # Run the avionics
-        avionics.power()
-
-        # Run the payload
-        payload.power()
         
         # Run the motor for current
         motor.current(conditions)
@@ -101,17 +91,9 @@ class Battery_Propeller(Propulsor):
         
         # Run the esc
         esc.currentin()
-
-        # Calculate avionics and payload power
-        avionics_payload_power = avionics.outputs.power + payload.outputs.power
-
-        # Calculate avionics and payload current
-        avionics_payload_current = avionics_payload_power/self.voltage
-        
-
         # link
         battery.inputs.current  = esc.outputs.currentin*self.number_of_engines
-        battery.inputs.power_in = -(esc.outputs.voltageout*battery.inputs.current + avionics_payload_power)
+        battery.inputs.power_in = -esc.outputs.voltageout*battery.inputs.current
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
