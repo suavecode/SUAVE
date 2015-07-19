@@ -1,7 +1,7 @@
 #Battery_Propeller.py
 # 
 # Created: Jul 2015, E. Botero
-# Modified:  
+# Modified: Jul 2015, M. Kruger
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -109,8 +109,8 @@ class Battery_Propeller(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*battery.inputs.current + avionics_payload_power)
+        battery.inputs.current = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
