@@ -93,7 +93,7 @@ def main():
 
     #Method Test
     cn_b = taw_cnbeta(vehicle,segment,configuration)
-    expected = 0.10045 # Should be 0.184
+    expected = 0.08122837 # Should be 0.184
     error = Data()
     error.cn_b_747 = (cn_b-expected)/expected
 
