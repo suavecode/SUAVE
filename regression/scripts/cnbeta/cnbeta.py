@@ -81,7 +81,7 @@ def main():
     #segment            = SUAVE.Analyses.Mission.Segments.Base_Segment()
     segment            = SUAVE.Analyses.Mission.Segments.Segment()
     segment.freestream = Data()
-    segment.freestream.mach_number = Mach[0]
+    segment.freestream.mach_number = Mach
     segment.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     altitude           = 0.0 * Units.feet
     
