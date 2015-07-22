@@ -21,7 +21,7 @@ from primary_noise_component import primary_noise_component
 from secondary_noise_component import secondary_noise_component
 
 
-def noise_SAE ():
+def noise_SAE (turbofan):
 
     #SAE ARP*876D 1994
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
@@ -69,6 +69,11 @@ def noise_SAE ():
                     ."""
 
 
+    #unpack
+    Velocity_primary=np.atleast1d(turbofan.core_nozzle.outputs.velocity)
+    
+    
+    
     #Necessary input for the code
     pressure_amb=997962 #[Pa]
     pressure_isa=101325 #[Pa]
