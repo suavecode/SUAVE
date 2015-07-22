@@ -13,6 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 # Compute the clean wing noise
@@ -52,7 +53,7 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
     #Process
     kt2fts=1.6878098571
 
-    delta=0.37*(S/b)*(velocity*kt2fts*S/(b*viscosity))**(-0.2)
+    delta=0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
 
     if IsHorz==1:
         DIR=np.cos(phi)
@@ -64,10 +65,10 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
         SPL=np.zeros(24)
     else:
 
-        fmax=0.1*velocity*kt2fts/(delta*(1-M*np.cos(theta)))
-        fmaxw=0.1*velocity*kt2fts/deltaw
+        fmax=0.1*(velocity/Units.ft)/(delta*(1-M*np.cos(theta)))
+        fmaxw=0.1*(velocity/Units.ft)/deltaw
 
-        OASPL=50*np.log10(velocity/100.0)+10*np.log10(delta*b/(distance**2.0))+8*ND+ \
+        OASPL=50*np.log10((velocity/Units.kts)/100.0)+10*np.log10(delta*b/(distance**2.0))+8*ND+ \
             20*np.log10(DIR*np.sin(theta)*np.cos(theta/2.0))+104.3
 
         SPL=OASPL+10.0*np.log10(0.613*(frequency/fmax)**4*((frequency/fmax)**1.5+0.5)**(-4))-0.03*np.abs(((frequency/fmaxw)-1))**1.5
