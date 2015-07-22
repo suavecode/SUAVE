@@ -13,6 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 # Compute the trailing edge flap noise
@@ -43,7 +44,7 @@ def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,f
     G=np.zeros(24)
     kt2fts=1.6878098571
 
-    test=frequency*cf/(velocity*kt2fts*(1-M*np.cos(theta)))
+    test=frequency*cf/(velocity/Units.ft*(1-M*np.cos(theta)))
 
     if (slots==1 or slots==2):
         for i in range (0,24):
@@ -67,6 +68,6 @@ def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,f
     directivity=20.0*np.log10(np.sin(theta)*(np.cos(phi))**2*np.sin(theta+deltaf))
 
     SPL=G+10*np.log10(Sf*(np.sin(deltaf))**2/(distance**2))+ \
-        60*np.log10(velocity/100.0)+directivity
+        60*np.log10((velocity/Units.kts)/100.0)+directivity
 
     return(SPL)
