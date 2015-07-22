@@ -37,11 +37,9 @@ def main():
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
    
-    #configs_analyses = analyses_setup(configs)
-    analyses=base_analysis(vehicle)
-    #analyses = SUAVE.Analyses.Analysis.Container()
-    #analyses.configs  = configs_analyses
-    
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.base = base_analysis(vehicle)
+
     # CLmax for a given configuration may be informed by user
     # configuration.maximum_lift_coefficient = 2.XX
 
@@ -466,6 +464,17 @@ def base_analysis(vehicle):
     energy  = SUAVE.Analyses.Energy.Energy()
     energy.network=vehicle.propulsors
     analyses.append(energy)
+    
+    # ------------------------------------------------------------------
+    #  Planet Analysis
+    planet = SUAVE.Analyses.Planets.Planet()
+    analyses.append(planet)    
+    
+    # ------------------------------------------------------------------
+    #  Atmosphere Analysis
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere.features.planet = planet.features
+    analyses.append(atmosphere)     
     
     # done!
     return analyses    
