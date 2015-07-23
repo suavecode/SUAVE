@@ -8,14 +8,19 @@ def unpack_unknowns(segment,state):
     # unpack unknowns
     unknowns   = state.unknowns
     velocity_x = unknowns.velocity_x
-    final_time = unknowns.time
+    v0 = segment.velocity_start 
+    vf = segment.velocity_end
 
     #apply unknowns
     conditions = state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x[:,0]
-    conditions.frames.inertial.velocity_vector[velocity_x[:,0]==0.0,0] = 0.1
+    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
+    conditions.frames.inertial.velocity_vector[velocity_x==0.0,0] = 0.1
+    conditions.frames.inertial.velocity_vector[0,0] = v0
     
-    return
+    t_initial = state.conditions.frames.inertial.time[0,0]
+    t_final   = t_initial + state.unknowns.time     
+    N = len(conditions.frames.inertial.velocity_vector[:,0])
+    state.conditions.frames.inertial.time[:,0] = np.linspace(t_initial,t_final,N)    
 
 def initialize_conditions(segment,state):
     """ Segment.initialize_conditions(conditions,numerics,initials=None)
@@ -57,6 +62,7 @@ def initialize_conditions(segment,state):
 
     # pack conditions
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
+    state.unknowns.velocity_x            = np.linspace(v0,vf,N)
 
 
 def compute_ground_forces(segment,state):
@@ -113,7 +119,7 @@ def solve_residuals(segment,state):
     FT = conditions.frames.inertial.total_force_vector
     vf = segment.velocity_end
     v  = conditions.frames.inertial.velocity_vector
-    D  = state.numerics.dimensionless.differentiate
+    D  = state.numerics.time.differentiate
     m  = conditions.weights.total_mass
 
     # process and pack
@@ -121,7 +127,9 @@ def solve_residuals(segment,state):
     conditions.frames.inertial.acceleration_vector = acceleration
 
     state.residuals.final_velocity_error = (v[-1,0] - vf)
-    state.residuals.acceleration_x       = (FT / m - acceleration)
+    state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
+
+    state
 
 
 # ------------------------------------------------------------------
@@ -153,8 +161,9 @@ def post_process(segment,state):
     """
 
     # unpack inputs
+    conditions = state.conditions
     ground_velocity  = conditions.frames.inertial.velocity_vector
-    I                = numerics.integrate_time
+    I                = state.numerics.time.integrate
     initial_position = conditions.frames.inertial.position_vector[0,:]
 
     # process

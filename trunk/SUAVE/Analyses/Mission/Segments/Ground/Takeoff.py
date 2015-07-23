@@ -36,9 +36,6 @@ class Takeoff(Ground):
     
         initialize = self.process.initialize
         initialize.conditions = Methods.Ground.Takeoff.initialize_conditions
-
-        post_process = self.process.finalize.post_process
-        post_process.ground = Methods.Ground.Takeoff.post_process
         
         return
 

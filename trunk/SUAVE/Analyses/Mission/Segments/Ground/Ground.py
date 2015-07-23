@@ -61,7 +61,7 @@ class Ground(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.unknowns.time                  = ones_row(1) * 0.0
+        self.state.unknowns.time                  = 0.1
         self.state.residuals.acceleration_x       = ones_row(1) * 0.0
         self.state.residuals.final_velocity_error = ones_row(1) * 0.0
     
