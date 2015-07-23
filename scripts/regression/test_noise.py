@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 
 from SUAVE.Methods.Noise.Fidelity_One.Airframe import noise_fidelity_one
 from SUAVE.Methods.Noise.Fidelity_One.Engine import noise_SAE
-
+from SUAVE.Methods.Noise.Fidelity_One import flight_trajectory
 
 import numpy as np
 
@@ -38,15 +38,16 @@ def main():
     configs.finalize()
     analyses.finalize()
 
-      #noise
-    airframe_noise=noise_fidelity_one(configs,analyses)
+    #noise
+    trajectory = 1 #flight_trajectory(configs)
+
+    airframe_noise=noise_fidelity_one(configs,analyses,trajectory)
 
 
-    turbofan = configs.base.propulsors[0]
+  #  turbofan = configs.base.propulsors[0]
 
-    turbofan = configs.base.propulsors.turbo_fan
 
-    engine_noise = noise_SAE(turbofan)
+   # engine_noise = noise_SAE(turbofan)
 
 
 # ----------------------------------------------------------------------

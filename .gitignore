@@ -59,3 +59,4 @@ nosetests.xml
 *.dat
 
 
+/scripts/experimental/test_noise_fidelity_one.py
