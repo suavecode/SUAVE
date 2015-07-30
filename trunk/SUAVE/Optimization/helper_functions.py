@@ -35,40 +35,38 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
                 newstrings = find_a_star(dictionary,pointer[ii])
                 for jj in xrange(0,len(newstrings)):
                     localstrs = newstrings[jj].split('.')
-                    correctname = '.'.join(localstrs[1:])
+                    correctname = '.'.join(localstrs[0:])
                     dictionary.deep_set(correctname,converted_values[ii])
                     
             elif '*' not in pointers:
-                for jj in xrange(0,length):
-                    localstrs = pointers[jj].split('.')
-                    correctname = '.'.join(localstrs[1:])
-                    dictionary.deep_set(correctname,converted_values[ii])              
+                localstrs = pointers.split('.')
+                correctname = '.'.join(localstrs[0:])
+                dictionary.deep_set(correctname,converted_values[ii])              
         else:
-            for zz in xrange(1,len(pointers)):
+            for zz in xrange(1,len(pointers)+1):
                 if '*' in pointers[zz-1]:
                     newstrings = find_a_star(dictionary,pointer[ii][zz-1])
                     for jj in xrange(0,len(newstrings)):
                         localstrs = newstrings[jj].split('.')
-                        correctname = '.'.join(localstrs[1:])
+                        correctname = '.'.join(localstrs[0:])
                         dictionary.deep_set(correctname,converted_values[ii])
                         
                 elif '*' not in pointers[zz-1]:
-                    for jj in xrange(0,length):
-                        localstrs = pointers[jj].split('.')
-                        correctname = '.'.join(localstrs[1:])
-                        dictionary.deep_set(correctname,converted_values[ii])            
-                
+                    localstrs = pointers[zz-1].split('.')
+                    correctname = '.'.join(localstrs[0:])
+                    dictionary.deep_set(correctname,converted_values[ii])            
+            
     return dictionary
         
 
 def find_a_star(dictionary,string):
     splitstring = string.split('.')
-    for ii in xrange(1,len(splitstring)):
+    for ii in xrange(0,len(splitstring)):
         if '*' in splitstring[ii]:
-            if ii==1:
+            if ii==0:
                 newkeys = dictionary.keys()
-            elif ii !=1:
-                strtoeval = 'dictionary.'+'.'.join(splitstring[1:ii])+'.keys()'
+            elif ii !=0:
+                strtoeval = 'dictionary.'+'.'.join(splitstring[0:ii])+'.keys()'
                 newkeys = eval(strtoeval)
             lastindex   = ii
             
@@ -117,7 +115,7 @@ def get_values(dictionary,outputs,aliases):
     values = []
     for ii in xrange(0,len(outputs)):
         splitstring = pointer[ii].split('.')
-        values.append(eval('dictionary.'+'.'.join(splitstring[1:])))
+        values.append(eval('dictionary.'+'.'.join(splitstring[0:])))
     
     return values
 

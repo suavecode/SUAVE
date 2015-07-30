@@ -65,7 +65,7 @@ class Nexus(Data):
         objective   = self.optimization_problem.objective
         results     = self.results
     
-        objective_value  = help_fun.get_values(results,objective,aliases)  
+        objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
         return scaled_objective
@@ -78,7 +78,7 @@ class Nexus(Data):
         constraints = self.optimization_problem.constraints
         results     = self.results
     
-        constraint_values = help_fun.get_values(results,constraints,aliases) 
+        constraint_values = help_fun.get_values(self,constraints,aliases) 
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
     
         return scaled_constraints  
@@ -91,7 +91,7 @@ class Nexus(Data):
         constraints = self.optimization_problem.constraints
         results     = self.results
 
-        constraint_values = help_fun.get_values(results,constraints,aliases)  
+        constraint_values = help_fun.get_values(self,constraints,aliases)  
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
         
         return scaled_constraints 
@@ -111,7 +111,7 @@ class Nexus(Data):
         aliases = self.optimization_problem.aliases
         vehicle = self.vehicle_configurations
         
-        vehicle = help_fun.set_values(vehicle,inputs,converted_values,aliases)     
+        self = help_fun.set_values(self,inputs,converted_values,aliases)     
     
     def constraints_individual(self,x):
         pass     
