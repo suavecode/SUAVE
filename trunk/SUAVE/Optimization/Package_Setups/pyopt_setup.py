@@ -18,6 +18,8 @@ try:
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     myrank = comm.Get_rank()
+except:
+    pass
 
 # ----------------------------------------------------------------------
 #  Something that should become a class at some point
