@@ -18,8 +18,6 @@ try:
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     myrank = comm.Get_rank()
-except:
-    raise ImportError('mpi4py is required for parallelization')
 
 # ----------------------------------------------------------------------
 #  Something that should become a class at some point
