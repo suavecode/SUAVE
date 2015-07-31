@@ -112,10 +112,10 @@ def get_values(dictionary,outputs,aliases):
             if output_names[ii] == aliases[jj][0]:
                 pointer.append(aliases[jj][1])    
                 
-    values = []
+    values = np.zeros(len(outputs))
     for ii in xrange(0,len(outputs)):
         splitstring = pointer[ii].split('.')
-        values.append(eval('dictionary.'+'.'.join(splitstring[0:])))
+        values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
     
     return values
 
@@ -128,7 +128,7 @@ def scale_obj_values(inputs,x):
 
 def scale_const_values(inputs,x):
     
-    provided_scale = inputs[:,3]
+    provided_scale = np.array(inputs[:,3],dtype = float)
     scaled =  x/provided_scale
     
     return scaled
