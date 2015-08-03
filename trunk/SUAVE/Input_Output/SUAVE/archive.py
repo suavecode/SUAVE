@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Plugins.VyPy.data import save as vypy_save
+from SUAVE.Core.Input_Output import save_data
 
 # ----------------------------------------------------------------------
 #  Method
@@ -31,5 +31,5 @@ def archive(data,filename):
     
     to_data(data)
     
-    vypy_save(data,filename,file_format='pickle')
+    Input_Output.save_data(data,filename,file_format='pickle')
     

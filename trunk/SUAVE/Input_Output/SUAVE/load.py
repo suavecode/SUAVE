@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Plugins.VyPy.data import load as vypy_load
+from SUAVE.Core.Input_Output import load_data
 
 
 # ----------------------------------------------------------------------
@@ -18,6 +18,6 @@ from SUAVE.Plugins.VyPy.data import load as vypy_load
 def load(filename):
     """ load data from file """
     
-    data = vypy_load(filename,file_format='pickle')
+    data = load_data(filename,file_format='pickle')
     
     return data

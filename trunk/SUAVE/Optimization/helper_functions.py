@@ -8,7 +8,6 @@
 # ----------------------------------------------------------------------    
 
 from SUAVE.Core import Data, Units
-from SUAVE.Plugins.VyPy.data.DataBunch import DataBunch
 import numpy as np
 from copy import deepcopy
 
