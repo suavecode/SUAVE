@@ -77,7 +77,7 @@ def main():
     
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
         
-    expected = -1.627 #Should be -1.45
+    expected = -1.56222373 #Should be -1.45
     error = Data()
     error.cm_a_747 = (cm_a - expected)/expected
     
@@ -145,7 +145,7 @@ def main():
     
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
     
-    expected = -2.521 #Should be -2.08
+    expected = -2.48843437 #Should be -2.08
     error.cm_a_beech_99 = (cm_a - expected)/expected   
     
     
@@ -212,7 +212,7 @@ def main():
     
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
     
-    expected = -0.5409 #Should be -0.6
+    expected = -0.54071741 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected
 
     for k,v in error.items():

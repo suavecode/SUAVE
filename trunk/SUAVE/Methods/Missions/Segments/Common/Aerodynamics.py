@@ -60,11 +60,11 @@ def update_atmosphere(segment,state):
     atmo_data = atmosphere.compute_values(h,temperature_deviation)
     
     # pack
-    conditions.freestream.pressure       = atmo_data.pressure
-    conditions.freestream.temperature    = atmo_data.temperature
-    conditions.freestream.density        = atmo_data.density
-    conditions.freestream.speed_of_sound = atmo_data.speed_of_sound
-    conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
+    conditions.freestream.pressure          = atmo_data.pressure
+    conditions.freestream.temperature       = atmo_data.temperature
+    conditions.freestream.density           = atmo_data.density
+    conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
+    conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
     
     return
     
@@ -150,8 +150,7 @@ def update_aerodynamics(segment,state):
     
     # call aerodynamics model
     results = aerodynamics_model( state )    
-    #results = aerodynamics_model( state.conditions )
-
+    
     # unpack results
     CL = results.lift.total
     CD = results.drag.total
@@ -171,8 +170,6 @@ def update_aerodynamics(segment,state):
     conditions.aerodynamics.drag_coefficient = CD
     conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
     conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
-
-    return
 
 
 # ----------------------------------------------------------------------
