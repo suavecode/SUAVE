@@ -21,7 +21,9 @@ def noise_tone_correction(SPL):
 
                 Outputs: 
                     tone_correction_max     - Maximum tone correction for a time history signal"""
-    
+                    
+                    
+    #Defining the necessary arrays for the tone correction procedure
     nsteps=len(SPL)
     slope=np.zeros(23)
     aux_ds=np.zeros(23)
