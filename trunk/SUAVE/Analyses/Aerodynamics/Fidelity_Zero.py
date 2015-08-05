@@ -43,6 +43,7 @@ class Fidelity_Zero(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.wing_span_efficiency               = 0.90
+        settings.spoiler_drag_increment             = 0.00       
         
         # vortex lattice configurations
         settings.number_panels_spanwise  = 5
@@ -86,6 +87,7 @@ class Fidelity_Zero(Markup):
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
         compute.drag.untrimmed                     = Methods.Drag.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
+        compute.drag.spoiler                       = Methods.Drag.spoiler_drag
         compute.drag.total                         = Methods.Drag.total_aircraft
         
         

@@ -1,5 +1,4 @@
 
-from compute_aircraft_drag import compute_aircraft_drag
 
 from parasite_drag_propulsor import parasite_drag_propulsor
 from parasite_drag_wing import parasite_drag_wing
@@ -17,3 +16,4 @@ from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU
 from trim import trim
 from total_aircraft import total_aircraft
 from compressibility_drag_wing_total import compressibility_drag_wing_total
+from spoiler_drag import spoiler_drag

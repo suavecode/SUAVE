@@ -1,8 +1,8 @@
 # Build a Wing
 main_wing = Components.Wings.Wing(
     tag = 'main_wing',    
-    ref_area     = 1344.0 , #[sq-ft]
-    aspect_ratio = 10.19  , #[-]
+    ref_area     = 1344.0 * Units['sq-ft'],
+    aspect_ratio = 10.19,
     # <...>
 )
 
@@ -16,15 +16,16 @@ climb_config = vehicle.new_configuration()
 config.Wings.Main_Wing.flaps = 'down'
 
 # Plan a Segment
-climb = Missions.Segments.ClimbDescent( 
+climb = Segments.Climb.Constant_Speed_Constant_Rate( 
     tag = 'Climb',
-    altitude   = [0.0, 3.0],  # [km]
-    config     = climb_config,
+    altitude_start = 0.0 * Units.km,
+    altitude_end   = 5.2 * Units.km,
+    analyses = climb_analyses
     #<...>
 )
 
 # Create a Mission
-mission = Missions.Mission()
+mission = Analyses.Missions.Mission()
 mission.add_segment(climb)
 # <...>
 

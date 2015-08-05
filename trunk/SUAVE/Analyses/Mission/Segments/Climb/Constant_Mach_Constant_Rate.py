@@ -31,7 +31,7 @@ class Constant_Mach_Constant_Rate(Unknown_Throttle):
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
         self.climb_rate     = 3.  * Units.m / Units.s
-        self.mach           = 0.7
+        self.mach_number    = 0.7
         
         # --------------------------------------------------------------
         #   The Solving Process

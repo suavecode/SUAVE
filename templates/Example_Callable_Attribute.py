@@ -21,7 +21,6 @@ from SUAVE.Core import (
 
 # python imports
 import os, sys, shutil
-from copy import deepcopy
 from warnings import warn
 
 # package imports

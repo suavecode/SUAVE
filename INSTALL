@@ -9,8 +9,11 @@
 - Additional Options
 - Un-Installation
 
-Revision - October 16, 2014
+Revision - June 22, 2015
  
+HTML version, and more information is available at 
+- suavecode.github.io/download
+- suavecode.github.io/develop
 
 # -----------------------------------------------------------
 #   Dependencies
@@ -24,31 +27,13 @@ Let us know if you find that it works on additonal versions.
 
 # Package Requirements
 
-numpy      - http://sourceforge.net/projects/numpy/files/NumPy/1.8.0/
-- windows  - http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
-    
-scipy      - http://sourceforge.net/projects/scipy/files/scipy/0.13.2/
-- windows  - http://www.lfd.uci.edu/~gohlke/pythonlibs/#scipy
-    
-matplotlib - http://sourceforge.net/projects/matplotlib/files/matplotlib/matplotlib-1.3.1/
-- windows  - http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
+numpy, scipy, matplotlib, pip
 
 The above can be obtained at once with the installation of python 
 distributions like "Anaconda" and "Enthought"
 
-
-# Optional, but Highly Recommended Requirements
-
-setuptools - https://pypi.python.org/pypi/setuptools#id102  (download the source)
-pip        - https://pypi.python.org/pypi/pip#downloads     (download the source)
-
-Note: setuptools and pip can be installed using the same 
-      'Full-Install' instructions below.
-Note: setuptools must be installed first, and pip second.
-
-The above can be obtained at once with the installation of python 
-distributions like "Anaconda" and "Enthought"
-
+See suavecode.github.io/download for recommendations for where
+to get these packages individually.
 
 # -----------------------------------------------------------
 #   Installation

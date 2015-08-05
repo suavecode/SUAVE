@@ -63,7 +63,7 @@ def vortex_lift(state,settings,geometry):
             vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA)))
     
     
-    wings_lift[Mc <= 1.05] = wings_lift[Mc <= 1.05] + vortex_cl[Mc <= 1.05]    
+    wings_lift[Mc <= 1.05] = wings_lift[Mc <= 1.05] + vortex_cl[Mc <= 1.05]   # updates conditions.lift_coefficient 
     
     state.conditions.aerodynamics.lift_breakdown.vortex_lift = vortex_cl   
     

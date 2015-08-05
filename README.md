@@ -1,13 +1,19 @@
-SUAVE: Stanford University Aerospace Vehicle Environment
-========================================================
+
+[SUAVE: Standard and Unconventional Aerospace Vehicle Environment](http://suave.stanford.edu)
+=======
+
  
-A multi-fidelity conceptual design environment.
+SUAVE is a multi-fidelity conceptual design environment.
 Its purpose is to credibly produce conceptual-level design conclusions 
 for future aircraft incorporating advanced technologies.
 
-[![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=develop)](https://travis-ci.org/suavecode/SUAVE)
+[![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.19734.svg)](http://dx.doi.org/10.5281/zenodo.19734)
 
 License: CC BY-NC-SA 4.0
+
+Guides and Forum available at [suavecode.github.io](https://suavecode.github.io).
+
  
 Contributing Developers
 -----------------------
@@ -27,10 +33,10 @@ Contributing Developers
 
 Contributing Institutions
 -------------------------
-* Stanford University Aerospace Design Lab ([adl.stanford.edu](adl.stanford.edu))
-* Embraer ([www.embraer.com](www.embraer.com))
-* Intelligent Automation Inc.  ([www.i-a-i.com](www.i-a-i.com))
-* Rand Corporation ([www.rand.org](www.rand.org))
+* Stanford University Aerospace Design Lab ([adl.stanford.edu](http://adl.stanford.edu))
+* Embraer ([www.embraer.com](http://www.embraer.com))
+* Intelligent Automation Inc.  ([www.i-a-i.com](http://www.i-a-i.com))
+* Rand Corporation ([www.rand.org](http://www.rand.org))
 
 Simple Setup
 ------------
@@ -41,18 +47,23 @@ cd SUAVE/trunk
 python setup.py install
 ```
 
+More information available at [download](https://suavecode.github.io/download).
+
 
 Requirements
 ------------
 
-numpy, scipy, matplotlib
+numpy, scipy, matplotlib, pip
 
 
 Developer Install
 -----------------
 
-See [INSTALL](INSTALL)
+See [develop](https://suavecode.github.io/develop).
 
+Frequently Asked Questions
+-----------------
 
+See [FAQ](https://suavecode.github.io/FAQ/).
 
 

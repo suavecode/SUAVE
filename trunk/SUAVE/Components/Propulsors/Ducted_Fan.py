@@ -7,7 +7,6 @@
 import numpy #as np
 from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
-import Segments
 
 # ----------------------------------------------------------------------
 #  Turbo_Fan
@@ -451,9 +450,7 @@ class Ducted_Fan(Propulsor):
         Tt2=Tt1_8
         ht2=ht1_8
         
-        
-        #if bli
-        
+   
         
         #fan exit conditions
         
@@ -484,9 +481,7 @@ class Ducted_Fan(Propulsor):
         u8=numpy.sqrt(2*(ht8-h8))
     
     
-        if numpy.linalg.norm(M8) < 1.0:
-       
-        
+        if numpy.linalg.norm(M8) < 1.0:        
             p7=po
             
             M7=numpy.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
@@ -538,7 +533,6 @@ class Ducted_Fan(Propulsor):
         mdot_df=Ao*rhoo*uo
         FD=Fsp*ao*mdot_df*no_eng*throttle
         thrust=FD*[1,0,0]
-        eta_motor=1
         P=uo*FD
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = thrust[:,0]

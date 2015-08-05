@@ -6,3 +6,5 @@ import Constant_Mach_Constant_Angle
 import Linear_Mach_Constant_Rate
 import Linear_Speed_Constant_Rate
 import Constant_Throttle_Constant_Speed
+import Constant_Dynamic_Pressure_Constant_Rate
+import Constant_Throttle_Constant_Dynamic_Pressure

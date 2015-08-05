@@ -159,8 +159,8 @@ class Propeller(Energy_Component):
             psiold = psi
             
             ii += 1
-            #if ii>100:
-                #break
+            if ii>100:
+                break
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling

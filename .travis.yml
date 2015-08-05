@@ -10,6 +10,7 @@ notifications:
   
 branches:
     only:
+        - master
         - develop
 
 before_install:
@@ -19,7 +20,7 @@ before_install:
 install:
     - cd trunk
     - python setup.py install
-    - cd ../scripts
+    - cd ../regression
   
 # run test
 script:  

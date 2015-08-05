@@ -27,7 +27,6 @@ from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Components import Component_Exception
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 
 # ----------------------------------------------------------------------
@@ -88,9 +87,6 @@ class Expansion_Nozzle(Energy_Component):
         
         #compute the output Mach number, static quantities and the output velocity
         Mach          = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-        T_out         = Tt_out/(1+(gamma-1)/2*Mach**2)
-        h_out         = Cp*T_out
-        u_out         = np.sqrt(2*(ht_out-h_out))
         
         #Checking from Mach numbers below, above 1.0
         i_low         = Mach < 1.0
@@ -126,6 +122,7 @@ class Expansion_Nozzle(Energy_Component):
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
         self.outputs.area_ratio              = area_ratio
+        
     
 
     __call__ = compute

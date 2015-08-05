@@ -1,6 +1,5 @@
 
 from . import SUAVE
-from . import PASS
 from . import VSP
 from . import XML
 from . import FreeMind

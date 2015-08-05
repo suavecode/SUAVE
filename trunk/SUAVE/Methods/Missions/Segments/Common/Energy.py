@@ -13,7 +13,8 @@ def initialize_battery(segment,state):
     
     if state.initials:
         energy_initial = state.initials.conditions.propulsion.battery_energy[-1,0]
-        
+    elif segment.has_key('battery_energy'):
+        energy_initial = segment.battery_energy
     else:
         energy_initial = 0.0
     
@@ -55,5 +56,5 @@ def update_thrust(segment,state):
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
-    return
+
     

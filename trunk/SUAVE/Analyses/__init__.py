@@ -1,5 +1,6 @@
 
 from Analysis  import Analysis
+from Sizing    import Sizing
 from Surrogate import Surrogate
 from Results   import Results
 from Process   import Process
@@ -14,8 +15,8 @@ import Weights
 import Geometry
 import Loads
 import Mission
-import Sizing
 import Structures
 import Atmospheric
 import Planets
+import Sizing
 
