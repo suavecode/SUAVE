@@ -8,13 +8,12 @@ import numpy as np
 def initialize_conditions(segment,state):
     
     # unpack
-    # unpack user inputs
-    climb_angle = segment.climb_angle
-    mach_number = segment.mach
-    alt0       = segment.altitude_start 
-    altf       = segment.altitude_end
-    t_nondim   = state.numerics.dimensionless.control_points
-    conditions = state.conditions  
+    descent_angle= segment.descent_angle
+    air_speed    = segment.air_speed   
+    alt0         = segment.altitude_start 
+    altf         = segment.altitude_end
+    t_nondim     = state.numerics.dimensionless.control_points
+    conditions   = state.conditions  
 
     # check for initial altitude
     if alt0 is None:
@@ -26,9 +25,9 @@ def initialize_conditions(segment,state):
     alt = t_nondim * (altf-alt0) + alt0
     
     # process velocity vector
-    v_mag = mach_number * a
-    v_x   = v_mag * np.cos(climb_angle)
-    v_z   = -v_mag * np.sin(climb_angle)
+    v_mag = air_speed
+    v_x   = v_mag * np.cos(-descent_angle)
+    v_z   = -v_mag * np.sin(-descent_angle)
     
     # pack conditions    
     conditions.frames.inertial.velocity_vector[:,0] = v_x

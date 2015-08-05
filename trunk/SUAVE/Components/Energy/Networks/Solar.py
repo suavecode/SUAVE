@@ -148,7 +148,7 @@ class Solar(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
+
         return results
             
     __call__ = evaluate_thrust
