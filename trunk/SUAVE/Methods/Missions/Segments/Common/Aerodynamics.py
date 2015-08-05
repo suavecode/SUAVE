@@ -52,11 +52,12 @@ def update_atmosphere(segment,state):
     # unpack
     conditions = state.conditions
     h = conditions.freestream.altitude
+    temperature_deviation = segment.temperature_deviation
     
     atmosphere = segment.analyses.atmosphere
     
     # compute
-    atmo_data = atmosphere.compute_values(h)
+    atmo_data = atmosphere.compute_values(h,temperature_deviation)
     
     # pack
     conditions.freestream.pressure       = atmo_data.pressure

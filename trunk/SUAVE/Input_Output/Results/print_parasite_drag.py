@@ -65,7 +65,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 
     # compute atmosphere
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(altitude)
+    p , T , rho , a , mew  = atmosphere.compute_values(altitude,0)
 
     # Define variables needed in the aerodynamic method
     state = Data()
@@ -184,7 +184,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 def solve_altitude(alt,alt_conditions):
 
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(alt)
+    p , T , rho , a , mew  = atmosphere.compute_values(alt,0)
 
     # conditions
     Mc  = alt_conditions.Mc
