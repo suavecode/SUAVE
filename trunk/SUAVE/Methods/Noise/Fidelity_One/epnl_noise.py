@@ -12,9 +12,20 @@
 import numpy as np
 
 def epnl_noise(PNLT):
-    
+    """This method calculates de effective perceived noise level (EPNL) based on a time history PNLT
+     (Perceived Noise Level with Tone Correction).
+
+        Inputs:
+                    PNLT                     - Perceived Noise Level with Tone Correction
+
+                Outputs: 
+                    EPNL                     - Effective Perceived Noise Level in EPNdB"""
+                    
+                    
+    #Maximum PNLT on the time history data    
     PNLT_max = np.max(PNLT)
     
+    #Calculates the number of discrete points on the trajectory
     nsteps = len(PNLT)    
     
     #Exclude sources that are not being calculated or doesn't contribute for the total noise of the aircraft
@@ -40,23 +51,19 @@ def epnl_noise(PNLT):
     #The time duration where the noise is higher than the maximum PNLT - 10 dB is:
     time_interval=(t2-t1)*0.5
     
-    #Modification 31/07
-    #duration_correction = 10*np.log10(np.sum(10**(PNLT/10)))-PNLT_max-13
-   # EPNL=PNLT_max+duration_correction
-    
+    #Calculates the integral of the PNLT which between t1 and t2 points
     sumation=0
     for i in range (t1-1,t2+1):
         sumation=10**(PNLT[i]/10)+sumation
-   
+        
+        
+   #Duration Correction calculation
     duration_correction=10*np.log10(sumation)-PNLT_max-13
                 
-    
+    #Final EPNL calculation
     EPNL=PNLT_max+duration_correction
     
     
     return (EPNL)    
     
-#Test
-#PNLT_test=np.array((66.96,68.34,69.73,71.11,72.5,73.92,75.34,76.81,78.96,81.35,83.84,86.75,89.8,92.4,93.75,93.09,90.49,87.37,84.8,82.92,81.43,80.09,78.89,77.8,76.71,75.61,74.75,74,73.27,72.54,71.79,71.08,70.36,69.62,68.9,68.19,67.47))
-#test=epnl_noise(PNLT_test)
 
