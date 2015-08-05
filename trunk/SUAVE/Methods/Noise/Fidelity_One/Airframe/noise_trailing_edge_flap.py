@@ -65,7 +65,11 @@ def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,f
                 G[i]=158.11-30*np.log10(test[i])
 
     G=np.transpose(G)
-    directivity=20.0*np.log10(np.sin(theta)*(np.cos(phi))**2*np.sin(theta+deltaf))
+    
+    if theta+deltaf>=np.pi:
+        directivity=0.0
+    else:     
+        directivity=20.0*np.log10(np.sin(theta)* (np.cos(phi))**2 * np.sin(theta+deltaf))
 
     SPL=G+10*np.log10(Sf*(np.sin(deltaf))**2/(distance**2))+ \
         60*np.log10((velocity/Units.kts)/100.0)+directivity
