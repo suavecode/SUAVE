@@ -45,6 +45,7 @@ def pnl_noise (SPL):
             [24, 10000, 50.7, 41, 37, 21, 29, 0.042285,	0.02996, 0.05964, 0.043573]]
 
     
+    #Defining the necessary arrays for the calculation
     nsteps=len(SPL)
     SPL_noy=np.zeros((nsteps,24))
     PNL=np.zeros(nsteps)
@@ -79,8 +80,3 @@ def pnl_noise (SPL):
         PNL[j]=40+(10/np.log10(2))*np.log10(Perceived_noisinees)
         
     return (PNL)
-
-# test
-
-#SPLn=[[36.89,	38.74,	40.55,	42.14,	43.55,	44.84,	45.67,	46.09,	46.02,	45.35,	44.17,	42.44,	40.17,	37.67,	34.83,	31.33,	27.78,	23.84,	19.24,	13.77,	9.62,	3.11,	-5.81,	-17.81]]
-#SPL=pnl_noise(SPLn)
