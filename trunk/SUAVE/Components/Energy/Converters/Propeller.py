@@ -160,8 +160,8 @@ class Propeller(Energy_Component):
             psiold = psi
             
             ii += 1
-            if ii>100:
-                break
+            #if ii>100:
+                #break
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
@@ -184,17 +184,10 @@ class Propeller(Energy_Component):
         D        = 2*R
         Cp       = power/(rho*(n**3)*(D**5))
 
-
-        thrust[omega<0.0] = 0.0
-        power[omega<0.0]  = 0.0
-
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
 
-        etap     = V*thrust/(power)
-        etap[omega<0.0] = 0.0
-        
-        #Cp[omega<0.0] = self.prop_attributes.Cp
+        etap     = V*thrust/(power)        
         
         conditions.propulsion.etap = etap
         
