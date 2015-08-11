@@ -8,12 +8,14 @@
 # Copyright:   (c) CARIDSIL 2015
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import SUAVE
+
 import numpy as np
 from SUAVE.Core            import Units
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
-def flight_trajectory(configs,turbofan):
+def flight_trajectory(configs,turbofan,analyses):
     """ SUAVE.Methods.Noise.Fidelity_One.flight_trajectory(configs,turbofan):
             This routine calculates a simplified flight trajectory of an aircraft for the noise calculation procedure. 
             It is possible to simulate the three certification points (sideline, flyover, approach) and also a constant altitute flight path. 
@@ -123,7 +125,7 @@ def flight_trajectory(configs,turbofan):
             time[i]=time[i-1]+dt
             
         #Determine the engine performance parameter for the velocity and altitute    
-        engine_data=engine_performnace(altitute,velocity,turbofan)
+        engine_data=engine_performnace(altitute,velocity,turbofan,analyses)
         
         
     #----------------------------------------
@@ -166,7 +168,7 @@ def flight_trajectory(configs,turbofan):
             time[i]=time[i-1]+dt
             
         #Determine the engine performance parameter for the velocity and altitute    
-        engine_data=engine_performnace(altitute,velocity,turbofan)
+        engine_data=engine_performnace(altitute,velocity,turbofan,analyses)
         
     #----------------------------------------
     # SIDELINE NOISE TRAJECTORY
@@ -213,12 +215,12 @@ def flight_trajectory(configs,turbofan):
             time[i]=time[i-1]+dt
 
         #Determine the engine performance parameter for the velocity and altitute
-        engine_data=engine_performnace(altitute,velocity,turbofan)
+        engine_data=engine_performnace(altitute,velocity,turbofan,analyses)
 
     
     return(time,altitute,dist,theta,phi,engine_data)
 
-def engine_performnace(altitude,velocity,turbofan):
+def engine_performnace(altitude,velocity,turbofan,analyses):
     """ SUAVE.Methods.Noise.Fidelity_One.engine_performnace(altitude,velocity,turbofan):
             This routine generates the engine performance parameter for each point on the noise trajectory. 
 
@@ -258,7 +260,17 @@ def engine_performnace(altitude,velocity,turbofan):
     #size the turbofan
 
     for i in range (0,n_steps):
-      #  turbofan_sizing(turbofan,mach_number,altitude[i])
+        
+      #  atmo_data = analyses.atmosphere.compute_values(altitude[i])
+         
+         #call the atmospheric model to get the conditions at the specified altitude
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        conditions = atmosphere.compute_values(altitude[i])
+        
+            # setup conditions
+       # conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+        
+        turbofan(conditions)
       
       #Flight iddle CF34_10
             
@@ -273,14 +285,21 @@ def engine_performnace(altitude,velocity,turbofan):
         
     #Normal takeoff
     
-        velocity_primary[i]        = 400       #np.float(turbofan.core_nozzle.outputs.velocity)
-        temperature_primary[i]     = 653.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-        pressure_primary[i]        = 103076     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
+       # velocity_primary[i]        = 400       #np.float(turbofan.core_nozzle.outputs.velocity)
+       # temperature_primary[i]     = 653.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
+       # pressure_primary[i]        = 103076     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
     
-        velocity_secondary[i]      = 311     # np.float(turbofan.fan_nozzle.outputs.velocity)
-        temperature_secondary[i]   = 296.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-        pressure_secondary[i]      = 110178      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
+    #    velocity_secondary[i]      = 311     # np.float(turbofan.fan_nozzle.outputs.velocity)
+     #   temperature_secondary[i]   = 296.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
+      #  pressure_secondary[i]      = 110178      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
     
+        velocity_primary[i]        = np.float(turbofan.core_nozzle.outputs.velocity)
+        temperature_primary[i]     = np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
+        pressure_primary[i]        = np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
+    
+        velocity_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.velocity)
+        temperature_secondary[i]   = np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
+        pressure_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.stagnation_pressure) 
         
     return (velocity_primary,temperature_primary,pressure_primary,velocity_secondary,temperature_secondary,pressure_secondary)
 
