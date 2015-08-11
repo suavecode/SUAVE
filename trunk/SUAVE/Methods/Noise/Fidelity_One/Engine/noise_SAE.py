@@ -5,7 +5,7 @@
 # Author:      CARIDSIL
 #
 # Created:     26/06/2015
-# Copyright:   (c) CARIDSIL 2015
+
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
@@ -22,9 +22,9 @@ from primary_noise_component import primary_noise_component
 from secondary_noise_component import secondary_noise_component
 
 
-from SUAVE.Methods.Noise.Fidelity_One import pnl_noise
-from SUAVE.Methods.Noise.Fidelity_One import noise_tone_correction
-from SUAVE.Methods.Noise.Fidelity_One import epnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 
 
 def noise_SAE (turbofan,trajectory,configs,analyses):
@@ -428,16 +428,16 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
         
      
     #Calculation of the Perceived Noise Level EPNL based on the sound time history
-    PNL_total               =  pnl_noise.pnl_noise(SPL_total_history)    
-    PNL_primary               =  pnl_noise.pnl_noise(SPL_primary_history)  
-    PNL_secondary               =  pnl_noise.pnl_noise(SPL_secondary_history)  
-    PNL_mixed               =  pnl_noise.pnl_noise(SPL_mixed_history)  
+    PNL_total               =  pnl_noise(SPL_total_history)    
+    PNL_primary               =  pnl_noise(SPL_primary_history)  
+    PNL_secondary               =  pnl_noise(SPL_secondary_history)  
+    PNL_mixed               =  pnl_noise(SPL_mixed_history)  
     
    #Calculation of the tones corrections on the SPL for each component and total
-    tone_correction_total = noise_tone_correction.noise_tone_correction(SPL_total_history) 
-    tone_correction_primary = noise_tone_correction.noise_tone_correction(SPL_primary_history) 
-    tone_correction_secondary = noise_tone_correction.noise_tone_correction(SPL_secondary_history) 
-    tone_correction_mixed = noise_tone_correction.noise_tone_correction(SPL_mixed_history) 
+    tone_correction_total =noise_tone_correction(SPL_total_history) 
+    tone_correction_primary = noise_tone_correction(SPL_primary_history) 
+    tone_correction_secondary = noise_tone_correction(SPL_secondary_history) 
+    tone_correction_mixed = noise_tone_correction(SPL_mixed_history) 
     
     #Calculation of the PLNT for each component and total
     PNLT_total=PNL_total+tone_correction_total
@@ -446,10 +446,10 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
     PNLT_mixed=PNL_mixed+tone_correction_mixed
     
     #Calculation of the EPNL for each component and total
-    EPNL_total=epnl_noise.epnl_noise(PNLT_total)
-    EPNL_primary=epnl_noise.epnl_noise(PNLT_primary)
-    EPNL_secondary=epnl_noise.epnl_noise(PNLT_secondary)
-    EPNL_mixed=epnl_noise.epnl_noise(PNLT_mixed)
+    EPNL_total=epnl_noise(PNLT_total)
+    EPNL_primary=epnl_noise(PNLT_primary)
+    EPNL_secondary=epnl_noise(PNLT_secondary)
+    EPNL_mixed=epnl_noise(PNLT_mixed)
     
    # print EPNL_total
     

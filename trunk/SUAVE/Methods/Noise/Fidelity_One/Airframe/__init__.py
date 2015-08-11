@@ -1,5 +1,5 @@
 # Packages
-from noise_fidelity_one import noise_fidelity_one
+from noise_airframe_Fink import noise_fidelity_one
 
 from noise_clean_wing import noise_clean_wing
 
