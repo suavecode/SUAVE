@@ -11,7 +11,7 @@ from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
 
-from Unknown_Throttle import Unknown_Throttle
+from SUAVE.Analyses.Mission.Segments.Climb.Unknown_Throttle import Unknown_Throttle
 
 # Units
 from SUAVE.Core import Units
@@ -29,18 +29,17 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
-        self.altitude_end   = 10. * Units.km
-        self.climb_angle    = 3.  * Units.deg
-        self.mach           = 0.7
+        self.altitude_end   = 0.0 * Units.km
+        self.descent_angle  = 3.  * Units.deg
+        self.air_speed      = 100 * Units.m / Units.s
         
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
     
-        # only need to change one setup step from constant_speed_constant_ate
+        # only need to change one setup step from constant_speed_constant_rate
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Speed_Constant_Angle.initialize_conditions
-        
+        initialize.conditions = Methods.Descent.Constant_Speed_Constant_Angle.initialize_conditions
        
         return
 

@@ -112,7 +112,7 @@ class Propeller(Energy_Component):
         ii = 0
         while (np.any(diff>tol)):
             Wa    = 0.5*Ua + 0.5*U*np.sin(psi)
-            Wt    = 0.5*Ut + 0.5*U*np.cos(psi)           
+            Wt    = 0.5*Ut + 0.5*U*np.cos(psi)  
             #va    = Wa - Ua
             vt    = Ut - Wt
             alpha = beta - np.arctan2(Wa,Wt)
@@ -126,7 +126,7 @@ class Propeller(Energy_Component):
             lamdaw = r*Wa/(R*Wt)
             f      = (B/2.)*(1.-r/R)/lamdaw
             piece  = np.exp(-f)
-            piece[piece>1] = 1.0
+            #piece[piece>1] = 1.0
             F      = 2.*np.arccos(piece)/np.pi
             Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))**2.)
             
@@ -152,6 +152,7 @@ class Propeller(Energy_Component):
                       Ut*np.cos(psi) + Ua*np.sin(psi)))/((2*Wa)**2.*(1. - np.exp(-(B*(2*Wt)*(R - r))/(r*(Ua + U*np.sin(psi)))))**(0.5)) + 
                       (128.*U*r*np.arccos(piece)*(Ua + U*np.sin(psi))*(Ut/2. - (U*np.cos(psi))/2.)*(U + Ut*np.cos(psi) + 
                       Ua*np.sin(psi)))/(B**3.*np.pi**2.*(Ut + U*np.cos(psi))**3.*((16.*(2*Wa)**2.)/(B**2.*np.pi**2.*(2*Wt)**2.) + 1.)**(0.5))) 
+            dR_dpsi[np.isnan(dR_dpsi)] = 0.1
                       
             dpsi   = -Rsquiggly/dR_dpsi
             psi    = psi + dpsi
@@ -159,8 +160,8 @@ class Propeller(Energy_Component):
             psiold = psi
             
             ii += 1
-            if ii>100:
-                break
+            #if ii>100:
+                #break
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
@@ -183,10 +184,10 @@ class Propeller(Energy_Component):
         D        = 2*R
         Cp       = power/(rho*(n**3)*(D**5))
 
-        thrust[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0
+        thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
+        power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
 
-        etap     = V*thrust/(power)
+        etap     = V*thrust/(power)        
         
         conditions.propulsion.etap = etap
         
