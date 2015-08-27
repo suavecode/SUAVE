@@ -8,7 +8,7 @@ def initialize_conditions(segment,state):
     
     # unpack
     alt        = segment.altitude
-    xf         = segment.distance
+    final_time = segment.time
     mach       = segment.mach
     conditions = state.conditions   
     
@@ -30,7 +30,10 @@ def initialize_conditions(segment,state):
     air_speed = mach * a
     
     # dimensionalize time
-    time      =  segment.time
+    t_initial = conditions.frames.inertial.time[0,0]
+    t_final   = final_time + t_initial
+    t_nondim  = state.numerics.dimensionless.control_points
+    time      =  t_nondim * (t_final-t_initial) + t_initial
     
     # pack
     state.conditions.freestream.altitude[:,0]             = alt
