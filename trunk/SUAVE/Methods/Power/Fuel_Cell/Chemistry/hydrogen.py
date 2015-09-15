@@ -1,10 +1,10 @@
 #by M. Vegh
+#Created : M. Vegh 2015
+#Modified: M. Vegh, September 2015
 """ Calculates chemical properties of fuel cell exhaust """
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-import numpy as np
 
 # ----------------------------------------------------------------------
 #  Methods

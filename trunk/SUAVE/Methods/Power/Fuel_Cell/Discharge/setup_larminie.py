@@ -1,5 +1,5 @@
-#Created by M. Vegh 4/27/15
-
+#Created: M. Vegh 4/27/15
+#Modified:M. Vegh, September 2015
 """ sets up additional values of fuel cell to run method from Larminie and 
 Dicks (Fuel Cell Systems Explained) """
 
@@ -7,7 +7,6 @@ Dicks (Fuel Cell Systems Explained) """
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from larminie import larminie
