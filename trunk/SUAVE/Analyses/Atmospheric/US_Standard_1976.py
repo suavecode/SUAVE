@@ -40,7 +40,7 @@ class US_Standard_1976(Atmospheric):
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
         self.update(atmo_data)        
     
-    def compute_values(self,altitude,temperature_deviation):
+    def compute_values(self,altitude,temperature_deviation=0.0):
 
         """ Computes values from the International Standard Atmosphere
 
