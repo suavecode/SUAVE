@@ -63,7 +63,6 @@ class Battery_Ducted_Fan(Propulsor):
         battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
       
         battery.inputs    =battery_logic
-        battery.inputs.power_in=pbat
         tol = 1e-6
         battery.energy_calc(numerics)
         #allow for mass gaining batteries
@@ -82,12 +81,7 @@ class Battery_Ducted_Fan(Propulsor):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        
-        output_power= battery_draw
-        #number_of_engines
-        #Create the outputs
-        
-        
+
  
         results.vehicle_mass_rate   = mdot
         return results
