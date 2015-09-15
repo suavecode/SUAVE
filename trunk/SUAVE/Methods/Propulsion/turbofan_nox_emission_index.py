@@ -19,9 +19,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
 from SUAVE.Core import Units, Data
 
 

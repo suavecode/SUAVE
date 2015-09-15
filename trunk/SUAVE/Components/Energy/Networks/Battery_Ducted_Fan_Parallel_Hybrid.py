@@ -1,9 +1,10 @@
-#Basic_Battery_Network.py
+#Battery_Ducted_Fan_Parallel_Hybrid.py
 # 
-# Created:  Michael Vegh, September 2014
+# Created:  Michael Vegh, September 2015
 # Modified:  
 '''
-Simply connects a battery to a ducted fan, with an assumed motor efficiency
+Uses two batteries to run a motor connected to a ducted fan; the primary_battery always runs,
+while the auxiliary_battery meets additional power needs
 '''
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,8 +15,7 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
+
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate

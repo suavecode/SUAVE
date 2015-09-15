@@ -1,7 +1,7 @@
 #Basic_Battery_Network.py
 # 
 # Created:  Michael Vegh, September 2014
-# Modified:  
+# Modified:  September 2015
 '''
 Simply connects a battery to a ducted fan, with an assumed motor efficiency
 '''
@@ -14,8 +14,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
