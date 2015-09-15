@@ -153,5 +153,33 @@ class Nexus(Data):
     def constraints_individual(self,x = None):
         pass     
 
+    def finite_difference(self,x):
+        
+        obj = self.objective(x)
+        con = self.all_constraints(x)
+        
+        inpu  = self.optimization_problem.inputs
+        const = self.optimization_problem.constraints
+        
+        inplen = len(inpu)
+        conlen = len(const)
+        
+        grad_obj = np.zeros(inplen)
+        jac_con  = np.zeros((conlen,inplen))
+        
+        for ii in xrange(0,inplen):
+            newx     = x*1.0
+            newx[ii] = newx[ii]+ 1e-6
+            
+            grad_obj[ii]  = self.objective(newx)
+            jac_con[:,ii] = self.all_constraints(newx)
+        
+        grad_obj = (grad_obj - obj)/(1e-6)
+        
+        for ii in xrange(0,conlen):
+            jac_con[ii,:]  = (jac_con[ii,:]  - con[ii])/(1e-6)
+            
+        
+        return grad_obj.astype(float), jac_con.astype(float)
     
  

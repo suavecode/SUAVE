@@ -14,13 +14,6 @@ import numpy as np
 
 # pyopt imports
 
-try:
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    myrank = comm.Get_rank()
-except:
-    pass
-
 # ----------------------------------------------------------------------
 #  Solve Setup
 # ----------------------------------------------------------------------
@@ -33,6 +26,11 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints
+    
+    if FD == 'parallel':
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        myrank = comm.Get_rank()       
     
     # Instantiate the problem and set objective
     import pyOpt 
