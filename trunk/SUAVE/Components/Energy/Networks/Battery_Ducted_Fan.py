@@ -1,7 +1,7 @@
 #Basic_Battery_Network.py
 # 
 # Created:  Michael Vegh, September 2014
-# Modified:  
+# Modified:  September 2015
 '''
 Simply connects a battery to a ducted fan, with an assumed motor efficiency
 '''
@@ -14,8 +14,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
@@ -63,7 +61,6 @@ class Battery_Ducted_Fan(Propulsor):
         battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
       
         battery.inputs    =battery_logic
-        battery.inputs.power_in=pbat
         tol = 1e-6
         battery.energy_calc(numerics)
         #allow for mass gaining batteries
@@ -82,12 +79,7 @@ class Battery_Ducted_Fan(Propulsor):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        
-        output_power= battery_draw
-        #number_of_engines
-        #Create the outputs
-        
-        
+
  
         results.vehicle_mass_rate   = mdot
         return results

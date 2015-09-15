@@ -30,7 +30,7 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
-        self.climb_angle    = 3.  * deg
+        self.climb_angle    = 3.  * Units.deg
         self.mach           = 0.7
         
         # --------------------------------------------------------------
@@ -39,7 +39,7 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
     
         # only need to change one setup step from constant_speed_constant_ate
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions
+        initialize.conditions = Methods.Climb.Constant_Speed_Constant_Angle.initialize_conditions
         
        
         return

@@ -3,7 +3,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Plugins.VyPy.data import DiffedDataBunch
+from Deep_Core import DiffedDataBunch
 from Container import Container as ContainerBase
 from Data import Data
 

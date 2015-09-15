@@ -53,7 +53,7 @@ class Nexus(Data):
                 nexus = step(nexus)
             self = nexus
                 
-        ## Store to cache
+        # Store to cache
         self.last_inputs = deepcopy(self.optimization_problem.inputs)
           
     
@@ -77,24 +77,61 @@ class Nexus(Data):
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
         results     = self.results
+        
+        # Setup constraints  
+        indices = []
+        for ii in xrange(0,len(constraints)):
+            if constraints[ii][1]==('='):
+                indices.append(ii)        
+        iqconstraints = np.delete(constraints,indices,axis=0)
     
-        constraint_values = help_fun.get_values(self,constraints,aliases) 
-        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
-    
-        return scaled_constraints  
+        if iqconstraints == []:
+            scaled_constraints = []
+        else:
+            constraint_values = help_fun.get_values(self,iqconstraints,aliases)
+            constraint_values[iqconstraints[:,1]=='<'] = -constraint_values[iqconstraints[:,1]=='<']
+            bnd_constraints   = constraint_values - help_fun.scale_const_bnds(iqconstraints)
+            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
+
+        return scaled_constraints      
     
     def equality_constraint(self,x = None):
+        
+        self.evaluate(x)
+
+        aliases     = self.optimization_problem.aliases
+        constraints = self.optimization_problem.constraints
+        results     = self.results
+        
+        # Setup constraints  
+        indices = []
+        for ii in xrange(0,len(constraints)):
+            if constraints[ii][1]=='>':
+                indices.append(ii)
+            elif constraints[ii][1]=='<':
+                indices.append(ii)
+        eqconstraints = np.delete(constraints,indices,axis=0)
+    
+        if eqconstraints == []:
+            scaled_constraints = []
+        else:
+            constraint_values = help_fun.get_values(self,eqconstraints,aliases) - help_fun.scale_const_bnds(eqconstraints)
+            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values)
+
+        return scaled_constraints   
+    
+    def all_constraints(self,x = None):
         
         self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
         results     = self.results
-
-        constraint_values = help_fun.get_values(self,constraints,aliases)  
+    
+        constraint_values = help_fun.get_values(self,constraints,aliases) 
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
-        
-        return scaled_constraints 
+    
+        return scaled_constraints     
     
     
     def unpack_inputs(self,x = None):
@@ -113,7 +150,7 @@ class Nexus(Data):
         
         self = help_fun.set_values(self,inputs,converted_values,aliases)     
     
-    def constraints_individual(self,x):
+    def constraints_individual(self,x = None):
         pass     
 
     

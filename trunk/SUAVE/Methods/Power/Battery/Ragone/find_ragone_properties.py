@@ -1,13 +1,13 @@
 '''determines mass,  from a ragone curve correlation'''
 #by M. Vegh
-
+#Created 2014
+#Modified September 2015
 """ SUAVE Methods for Energy Systems """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power
 from find_specific_power import find_specific_power
 # ----------------------------------------------------------------------

@@ -22,7 +22,7 @@ except:
     pass
 
 # ----------------------------------------------------------------------
-#  Something that should become a class at some point
+#  Solve Setup
 # ----------------------------------------------------------------------
 
 def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
@@ -81,10 +81,14 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     return outputs
 
 
+# ----------------------------------------------------------------------
+#  Problem Wrapper
+# ----------------------------------------------------------------------
+
 def PyOpt_Problem(problem,x):
     
     obj   = problem.objective(x)
-    const = problem.inequality_constraint(x).tolist()
+    const = problem.all_constraints(x).tolist()
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
 
         

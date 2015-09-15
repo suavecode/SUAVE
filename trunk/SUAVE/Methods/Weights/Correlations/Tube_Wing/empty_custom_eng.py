@@ -7,7 +7,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-import numpy as np
 from tube import tube
 from landing_gear import landing_gear
 from payload import payload
