@@ -45,15 +45,16 @@ class Battery_Ducted_Fan(Propulsor):
         numerics   = state.numerics
   
         results=propulsor.evaluate_thrust(state)
-        Pe     =results.thrust_force_vector[:,0]*conditions.freestream.velocity
+        Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         
         try:
             initial_energy=conditions.propulsion.battery_energy
             if initial_energy[0][0]==0: #beginning of segment; initialize battery
-                battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
+                battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
+           
+                
         except AttributeError: #battery energy not initialized, e.g. in takeoff
-            battery.current_energy=battery.current_energy[-1]*np.ones_like(F)
-        
+            battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
         pbat=-Pe/self.motor_efficiency
         
         battery_logic     = Data()
@@ -62,25 +63,21 @@ class Battery_Ducted_Fan(Propulsor):
       
         battery.inputs    =battery_logic
         tol = 1e-6
+        
         battery.energy_calc(numerics)
         #allow for mass gaining batteries
        
         try:
-            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses))
+            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses)) #put in transpose for solver
         except AttributeError:
-            mdot=np.zeros_like(F)
-           
-       
-        
-        
+            mdot=np.zeros_like(results.thrust_force_vector[:,0])
+        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
         #Pack the conditions for outputs
         battery_draw                         = battery.inputs.power_in
         battery_energy                       = battery.current_energy
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-
- 
         results.vehicle_mass_rate   = mdot
         return results
             
