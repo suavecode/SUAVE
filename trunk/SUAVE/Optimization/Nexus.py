@@ -169,12 +169,12 @@ class Nexus(Data):
         
         for ii in xrange(0,inplen):
             newx     = x*1.0
-            newx[ii] = newx[ii]+ 1e-6
+            newx[ii] = newx[ii]+ 1e-8
             
             grad_obj[ii]  = self.objective(newx)
             jac_con[:,ii] = self.all_constraints(newx)
         
-        grad_obj = (grad_obj - obj)/(1e-6)
+        grad_obj = (grad_obj - obj)/(1e-8)
         
         for ii in xrange(0,conlen):
             jac_con[ii,:]  = (jac_con[ii,:]  - con[ii])/(1e-6)

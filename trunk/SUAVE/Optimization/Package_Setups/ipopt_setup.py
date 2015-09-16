@@ -54,7 +54,7 @@ def Ipopt_Solve(problem):
         name = con[ii][0]
         edge = con[ii][2]
         if con[ii][1]=='<':
-            g_L[ii] = np.inf
+            g_L[ii] = -np.inf
             g_U[ii] = edge
         elif con[ii][1]=='>':
             g_L[ii] = edge
@@ -91,7 +91,7 @@ def eval_grad_f(x, problem):
 
     return grad_f
 
-def eval_jac_g(x,flag,problem):
+def eval_jac_g(x, flag, problem):
     
     grad_f, jac_g = problem.finite_difference(x)
     
@@ -101,7 +101,7 @@ def eval_f(x, problem):
     
     obj = problem.objective(x)
 
-    return obj
+    return obj.astype(float)
 
 def eval_g(x, problem):
     
