@@ -15,7 +15,7 @@ import SUAVE
 
 # package imports
 import numpy as np
-
+import copy
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
@@ -48,8 +48,7 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         numerics   = state.numerics
   
         results=propulsor.evaluate_thrust(state)
-        Pe     =results.thrust_force_vector[:,0]*conditions.freestream.velocity
-        
+        Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         try:
             initial_energy=conditions.propulsion.primary_battery_energy
             initial_energy_auxiliary=conditions.propulsion.auxiliary_battery_energy
@@ -57,21 +56,24 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
                 primary_battery.current_energy  =primary_battery.current_energy[-1]*np.ones_like(initial_energy)
                 auxiliary_battery.current_energy=auxiliary_battery.current_energy[-1]*np.ones_like(initial_energy)
         except AttributeError: #battery energy not initialized, e.g. in takeoff
-            primary_battery.current_energy=primary_battery.current_energy[-1]*np.ones_like(F)
-            auxiliary_battery.current_energy=auxiliary_battery.current_energy[-1]*np.ones_like(F)
-        
+            primary_battery.current_energy=np.transpose(np.array([primary_battery.current_energy[-1]*np.ones_like(Pe)]))
+            auxiliary_battery.current_energy=np.transpose(np.array([auxiliary_battery.current_energy[-1]*np.ones_like(Pe)]))
+       
+       
         pbat=-Pe/self.motor_efficiency
         pbat_primary=pbat
-        pbat_auxiliary=0.
-        if pbat>primary_battery.max_power:   #limit power output of primary_battery
-            pbat_primary=primary_battery.max_power
-            pbat_auxiliary=pbat-pbat_primary
+        pbat_auxiliary=np.zeros_like(pbat)
+
+        for i in range(len(pbat)):
+            if abs(pbat[i])>primary_battery.max_power:   #limit power output of primary_battery
+                pbat_primary[i]  =-primary_battery.max_power #-power means discharge
+                pbat_auxiliary[i]=(pbat[i]-pbat_primary[i])
         primary_battery_logic           = Data()
         primary_battery_logic.power_in  = pbat_primary
         primary_battery_logic.current   = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
         auxiliary_battery_logic         =copy.copy(primary_battery_logic)
         auxiliary_battery_logic.power_in=pbat_auxiliary
-        primary_battery.inputs          =battery_logic
+        primary_battery.inputs          =primary_battery_logic
         auxiliary_battery.inputs        =auxiliary_battery_logic
         tol = 1e-6
         primary_battery.energy_calc(numerics)
@@ -81,14 +83,15 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         try:
             mdot_primary=find_mass_gain_rate(primary_battery,-(pbat_primary-primary_battery.resistive_losses))
         except AttributeError:
-            mdot_primary=np.zeros_like(F)   
+            mdot_primary=np.zeros_like(results.thrust_force_vector[:,0])   
         try:
             mdot_auxiliary=find_mass_gain_rate(auxiliary_battery,-(pbat_auxiliary-auxiliary_battery.resistive_losses))
         except AttributeError:
-            mdot_auxiliary=np.zeros_like(F)
-        
+            mdot_auxiliary=np.zeros_like(results.thrust_force_vector[:,0])
+        print 'pbat_primary=', pbat_primary
+        print 'primary_battery.resistive_losses=', primary_battery.resistive_losses
         mdot=mdot_primary+mdot_auxiliary
-        
+       
         #Pack the conditions for outputs
         primary_battery_draw                 = primary_battery.inputs.power_in
         primary_battery_energy               = primary_battery.current_energy
