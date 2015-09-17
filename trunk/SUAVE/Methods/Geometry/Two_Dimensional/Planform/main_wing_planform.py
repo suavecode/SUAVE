@@ -13,11 +13,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
 from SUAVE.Core  import Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
-#from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------
 #  Methods
