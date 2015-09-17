@@ -61,13 +61,14 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
        
        
         pbat=-Pe/self.motor_efficiency
-        pbat_primary=pbat
+        pbat_primary=copy.copy(pbat) #prevent deep copy nonsense
         pbat_auxiliary=np.zeros_like(pbat)
 
         for i in range(len(pbat)):
-            if abs(pbat[i])>primary_battery.max_power:   #limit power output of primary_battery
+            if  pbat[i]<-primary_battery.max_power:   #limit power output of primary_battery
                 pbat_primary[i]  =-primary_battery.max_power #-power means discharge
-                pbat_auxiliary[i]=(pbat[i]-pbat_primary[i])
+                pbat_auxiliary[i]=pbat[i]-pbat_primary[i]
+  
         primary_battery_logic           = Data()
         primary_battery_logic.power_in  = pbat_primary
         primary_battery_logic.current   = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
@@ -88,18 +89,17 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
             mdot_auxiliary=find_mass_gain_rate(auxiliary_battery,-(pbat_auxiliary-auxiliary_battery.resistive_losses))
         except AttributeError:
             mdot_auxiliary=np.zeros_like(results.thrust_force_vector[:,0])
-        print 'pbat_primary=', pbat_primary
-        print 'primary_battery.resistive_losses=', primary_battery.resistive_losses
+    
         mdot=mdot_primary+mdot_auxiliary
-       
+        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
         #Pack the conditions for outputs
         primary_battery_draw                 = primary_battery.inputs.power_in
         primary_battery_energy               = primary_battery.current_energy
         auxiliary_battery_draw               = auxiliary_battery.inputs.power_in
         auxiliary_battery_energy             = auxiliary_battery.current_energy
       
-      
-      
+        #print 'auxiliary_battery_draw=', auxiliary_battery_draw
+        #print 'auxiliary_battery_energy=', auxiliary_battery_energy
         conditions.propulsion.primary_battery_draw   = primary_battery_draw
         conditions.propulsion.primary_battery_energy = primary_battery_energy
         

@@ -28,7 +28,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
    
     x = np.divide(battery.current_energy,battery.max_energy)
 
-    # C rate from 
+    # C rate
     C = np.abs(3600.*pbat/battery.max_energy)
     
     # Empirical value for discharge
@@ -41,7 +41,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     f=np.reshape(f, np.shape(C))
     # Model discharge characteristics based on changing resistance
     R = Rbat*(1.+np.multiply(C,f)) #have to transpose to prevent large matrices
-    
+    R[R==Rbat]=0.                  #when battery isn't being called
     # Calculate resistive losses
     Ploss = (Ibat**2.)*R
     # Power going into the battery accounting for resistance losses
@@ -67,5 +67,6 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Add this to the current state
     battery.current_energy   = ebat + battery.current_energy[0]
     battery.resistive_losses = Ploss
+    
     
     return
