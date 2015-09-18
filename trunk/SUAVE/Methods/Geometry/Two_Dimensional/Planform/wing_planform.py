@@ -53,7 +53,7 @@ def wing_planform(wing):
     t_c_w = wing.thickness_to_chord
     
     # calculate
-    span = sqrt(ar*sref)
+    span = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     
