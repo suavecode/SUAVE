@@ -19,78 +19,78 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Throttle_Constant_EAS(Aerodynamic):
+class Constant_Throttle_Constant_Altitude(Aerodynamic):
     
+    # ------------------------------------------------------------------
+    #   Data Defaults
+    # ------------------------------------------------------------------  
+
     def __defaults__(self):
         
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 10. * Units.km
-        self.throttle       = 0.5
-        self.equivalent_air_speed      = 100 * Units.kts
+        self.throttle             = None
+        self.velocity_start       = 0.0
+        self.velocity_end         = 0.0 
         
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
-        
+    
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
-        
+    
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
-        self.state.unknowns.wind_angle = ones_row(1) * 5.0 * Units.deg
-        self.state.residuals.forces    = ones_row(2) * 0.0
-        
-        
+        self.state.unknowns.body_angle            = ones_row(1) * 0.0
+        self.state.unknowns.velocity_x            = ones_row(1) * 0.0
+        self.state.unknowns.time                  = 0.1
+        self.state.residuals.final_velocity_error = ones_row(1) * 0.0
+        self.state.residuals.forces               = ones_row(2) * 0.0
+    
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
-        
+    
         # --------------------------------------------------------------
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
         initialize.clear()
-        
+    
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Climb.Constant_Throttle_Constant_EAS.initialize_conditions
-        initialize.velocities              = Methods.Climb.Constant_Throttle_Constant_EAS.update_velocity_vector_from_wind_angle
-        initialize.differentials_altitude  = Methods.Climb.Common.update_differentials_altitude        
-        
+        initialize.conditions              = Methods.Cruise.Constant_Throttle_Constant_Altitude.initialize_conditions        
+    
         # --------------------------------------------------------------
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
         converge.clear()
-        
-        converge.converge_root             = Methods.converge_root        
-        
+    
+        converge.converge_root             = Methods.converge_root    
+       
         # --------------------------------------------------------------
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
         iterate.clear()
-                
+    
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
-        
+    
+    
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Climb.Constant_Throttle_Constant_EAS.unpack_body_angle 
-        
+        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns
+    
         # Update Conditions
         iterate.conditions = Process()
-        iterate.conditions.velocities      = Methods.Climb.Constant_Throttle_Constant_EAS.update_velocity_vector_from_wind_angle
-        iterate.conditions.differentials_a = Methods.Climb.Common.update_differentials_altitude
-        iterate.conditions.differentials_b = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
+        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
@@ -102,21 +102,24 @@ class Constant_Throttle_Constant_EAS(Aerodynamic):
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
+    
+    
+        ## NEW STUFF TO UPDATE   
         
         # Solve Residuals
-        iterate.residuals = Process()
-        iterate.residuals.total_forces     = Methods.Climb.Common.residual_total_forces
-        
+        iterate.residuals = Process()     
+        iterate.residuals.total_forces     = Methods.Cruise.Constant_Throttle_Constant_Altitude.solve_residuals
+    
         # --------------------------------------------------------------
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
         finalize.clear()
-        
+    
         # Post Processing
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
-        finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
-       
-        return
+        #finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
+        finalize.post_process.cruise            = Methods.Cruise.Constant_Throttle_Constant_Altitude.post_process
 
+        return
