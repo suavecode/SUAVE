@@ -165,21 +165,24 @@ class Nexus(Data):
         conlen = len(const)
         
         grad_obj = np.zeros(inplen)
-        jac_con  = np.zeros((conlen,inplen))
+        jac_con  = np.zeros((inplen,conlen))
+        
+        con2 = (con*np.ones_like(jac_con))
         
         for ii in xrange(0,inplen):
             newx     = x*1.0
             newx[ii] = newx[ii]+ 1e-8
             
             grad_obj[ii]  = self.objective(newx)
-            jac_con[:,ii] = self.all_constraints(newx)
+            jac_con[ii,:] = self.all_constraints(newx)
         
         grad_obj = (grad_obj - obj)/(1e-8)
         
-        for ii in xrange(0,conlen):
-            jac_con[ii,:]  = (jac_con[ii,:]  - con[ii])/(1e-6)
-            
+        jac_con = (jac_con - con2).T/(1e-8)
         
-        return grad_obj.astype(float), jac_con.astype(float)
+        grad_obj = grad_obj.astype(float)
+        jac_con  = jac_con.astype(float)
+        
+        return grad_obj, jac_con
     
  
