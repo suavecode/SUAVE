@@ -28,6 +28,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 
 # package imports
 import numpy as np
@@ -153,7 +154,7 @@ def noise_fidelity_one(configs, analyses,trajectory):
 
 
     # write header of file
-    filename = 'Noise_Sideline_190.dat'
+    filename = ('Noise_' + str(configs.flight.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
     fid = open(filename,'w')   # Open output file
 
 
@@ -167,6 +168,9 @@ def noise_fidelity_one(configs, analyses,trajectory):
     SPL_main_landing_gear_history= np.zeros((nrange,24))
     SPL_nose_landing_gear_history= np.zeros((nrange,24))
     SPL_total_history = np.zeros((nrange,24))
+    
+    #Included 02nd September 2015
+    SPLt_dBA_history = np.zeros((nrange,24))
     
     
     #START LOOP FOR EACH POSITION OF AIRCRAFT   
@@ -193,7 +197,7 @@ def noise_fidelity_one(configs, analyses,trajectory):
        else:
             SPL_flap=noise_trailing_edge_flap(Sf,cf,deltaf,slots,velocity,M[i],phi[i],theta,distance,frequency) -delta_atmo #Trailing Edge Flaps Noise
 
-       if gear==0:
+       if gear=='up': #0
             SPL_main_landing_gear=np.zeros(24)
             SPL_nose_landing_gear=np.zeros(24)
        else:
@@ -207,7 +211,9 @@ def noise_fidelity_one(configs, analyses,trajectory):
        SPL_total=10.*np.log10(10.0**(0.1*SPL_wing)+10.0**(0.1*SPLht)+10**(0.1*SPL_flap)+ \
             10.0**(0.1*SPL_slat)+10.0**(0.1*SPL_main_landing_gear)+10.0**(0.1*SPL_nose_landing_gear)) -delta_atmo
             
-       
+       #Included 02nd September 2015
+       SPLt_dBA = dbA_noise(SPL_total)       
+       SPLt_dBA_history[i][:]=SPLt_dBA[:]
            
        SPL_total_history[i][:]=SPL_total[:]
        SPL_wing_history[i][:]=SPL_wing[:]
@@ -218,6 +224,9 @@ def noise_fidelity_one(configs, analyses,trajectory):
        SPL_nose_landing_gear_history[i][:]=SPL_nose_landing_gear[:]
        SPL_main_landing_gear_history[i][:]=SPL_main_landing_gear[:]
        
+       
+   #Calculation of dBA based on the sound pressure time history  - 31/08/2015
+ #   dbA_total                =       dbA_noise(SPL_total_history)    
           
    #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =       pnl_noise(SPL_total_history)
@@ -323,5 +332,29 @@ def noise_fidelity_one(configs, analyses,trajectory):
 ##           fid.write('\n')
 ##
 ## fid.close
+
+    filename1 = ('History_Noise_' + str(configs.flight.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
+    fid = open(filename1,'w')   # Open output file
+    fid.write('Reference speed =  ')
+    fid.write(str('%2.2f' % (velocity/Units.kts))+'  kts')
+    fid.write('\n')
+    fid.write('Sound Pressure Level for the Total Aircraft Noise')
+    fid.write('\n')
+    
+    for nid in range (0,nrange):
+        fid.write('Polar angle = ' + str('%2.2f' % (angle[nid]*(180/np.pi))) + '  degrees' + '\n')
+        fid.write('f		total SPL(dB)    total SPL(dBA)' + '\n')
+        for id in range(0,24):
+               fid.write(str((frequency[id])) + '           ')
+               fid.write(str('%3.2f' % SPL_total_history[nid][id]) + '          ')
+               fid.write(str('%3.2f' % SPLt_dBA_history[nid][id]))
+               fid.write('\n')
+        fid.write('SPLmax (dB) =  ')
+        fid.write(str('%3.2f' % (np.max(SPL_total_history[nid][:])))+'  dB' + '\n')
+        fid.write('SPLmax (dBA) =  ')
+        fid.write(str('%3.2f' % (np.max(SPLt_dBA_history[nid][:])))+'  dB')
+        fid.write('\n')
+
+    fid.close
     
     return (EPNL_total,SPL_total_history)
