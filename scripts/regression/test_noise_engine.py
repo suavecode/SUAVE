@@ -45,18 +45,27 @@ def main():
     
     tinital=time.time()
     
+     
      #noise
      
+  #  mics_array = analyses.microphone_array
+  #  n_mics=np.size(mics_array)
+    
+  # for id in range (0,n_mics): 
     turbofan = configs.base.propulsors[0]
+        
+  # mic_position = mics_array[id]
+    
     trajectory = flight_trajectory(configs,turbofan,analyses)
 
-    airframe_noise=noise_fidelity_one(configs,analyses,trajectory)
-
- 
+    airframe_noise=noise_fidelity_one(configs,analyses,trajectory) 
 
     engine_noise = noise_SAE(turbofan,trajectory,configs,analyses)
     
     total_aircraft_noise=total_noise(airframe_noise,engine_noise)
+        
+#   print mics_array[id]
+#    print airframe_noise[0], engine_noise[0], total_aircraft_noise #modificado
     
     tfinal=time.time()
     
@@ -87,7 +96,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'EMBRAER 190'
+    vehicle.tag = 'EMBRAER_190'
 
 
     # ------------------------------------------------------------------
@@ -337,7 +346,7 @@ def vehicle_setup():
     fan.pressure_ratio  = 1.7
 
     # for noise
-    fan.rotation = 3000 #2.
+    fan.rotation = 3300 #1940 #3000#542 #2.
 
     # add to network
     turbofan.append(fan)
@@ -387,6 +396,10 @@ def base_analyses(vehicle):
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)
+    
+    #Array of microphone positions - 31/08/2015
+    
+    analyses.microphone_array=np.array([-300,-150,0,150,300])
 
     return analyses
 
@@ -403,7 +416,7 @@ def configs_setup(vehicle):
     base_config.wings['main_wing'].flaps.angle = 7. * Units.deg
     
     #0 for gear up and 1 for gear down
-    base_config.landing_gear.gear_condition = 0   
+    base_config.landing_gear.gear_condition = 'up' #0   
    
     configs.append(base_config)
     
@@ -412,17 +425,19 @@ def configs_setup(vehicle):
 
     config.initial_position = -2000*Units.m
     config.initial_time = 0.0
-    config.velocity = 170*Units.knots
+    config.velocity = 166*Units.knots
     config.altitute = 500*Units.ft
-    config.angle_of_climb=4.5    #[degrees]
+    config.angle_of_climb=6.8    #[degrees]
+    config.glide_slope=3
     
     config.angle_of_attack = 7
     
     #Choose trajectory
-    config.flyover = 1
+    config.flyover = 0
     config.approach = 0
     config.sideline = 0
-    config.constant_flight=0
+    config.constant_flight=1
+    config.output_filename='Teste'
 
     configs.append(config)
     
