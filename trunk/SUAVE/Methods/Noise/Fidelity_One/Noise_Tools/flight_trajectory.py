@@ -41,13 +41,17 @@ def flight_trajectory(configs,turbofan,analyses):
     t0  = configs.flight.initial_time
     velocity=configs.flight.velocity
     altitute=configs.flight.altitute
-    gama=configs.flight.angle_of_climb     
+    gama=configs.flight.angle_of_climb  
+    slope=configs.flight.glide_slope   
     
     approach= configs.flight.approach
     flyover= configs.flight.flyover
     sideline= configs.flight.sideline
     constant_flight=configs.flight.constant_flight
     
+ #   mics_array = analyses.microphone_array
+ #   n_mics=np.size(mics_array)
+       
     #Necessary input for determination of noise trajectory    
     dt=0.5*Units.s  #time step for noise calculation - Certification requirement
     
@@ -58,8 +62,8 @@ def flight_trajectory(configs,turbofan,analyses):
         
     if constant_flight==1:
         
-        x0=0 #microphone reference position
-        total_time = 30*Units.s #total time for noise calculation  
+        x0=0 #mics_array[id]  #0 #microphone reference position
+        total_time = 60*Units.s #total time for noise calculation  
         n_steps = np.int(total_time/dt +1)  #number of time steps (space discretization)
         
         #Defining the necessary arrays for the flight trajectory procedure
@@ -87,12 +91,15 @@ def flight_trajectory(configs,turbofan,analyses):
             phi[i]=0
             time[i]=time[i-1]+dt
             
+            
+         #Determine the engine performance parameter for the velocity and altitute    
+        engine_data=engine_performnace(altitute,velocity,turbofan,analyses)    
     #----------------------------------------
     # APPROACH NOISE TRAJECTORY
     #----------------------------------------
     if approach==1:
-        velocity_x=velocity*np.cos(3*np.pi/180)
-        velocity_y=velocity*np.sin(3*np.pi/180)
+        velocity_x=velocity*np.cos(slope*np.pi/180)
+        velocity_y=velocity*np.sin(slope*np.pi/180)
         
         total_time=np.int(4000/velocity_x)    
         n_steps = np.int(total_time/dt +1)  #number of time steps (space discretization)
@@ -108,8 +115,10 @@ def flight_trajectory(configs,turbofan,analyses):
         time[0]=t0
         s[0]=s0
         
+        x0=0 #microphone reference position
+        
         altitute=np.zeros(n_steps)
-        altitute[0]=120+2000*np.tan(3*np.pi/180) 
+        altitute[0]=120+2000*np.tan(slope*np.pi/180) 
         dist[0]=np.sqrt(altitute[0]**2+(s[0]-x0)**2)
         theta[0]=np.arctan(np.abs(altitute[0]/s0))
         phi[0]=0
@@ -198,11 +207,13 @@ def flight_trajectory(configs,turbofan,analyses):
         s[0]=1061*Units.m #Lift-off position from the brake release
         altitute[0]=35*Units.ft   
         phi[0]=np.arctan(z0/altitute[0])    
+        
+        x0=s[0]+(1000-altitute[0])/np.tan(gama) #Position of the sideline microphone for the maximum take-off noise assumed to be at 1000ft of altitute
                 
         dist[0]=np.sqrt((450/np.sin(phi[0]))**2+(x0-s[0])**2)
         theta[0]=np.arccos(np.abs((x0-s[0]))/dist[0])
         
-        x0=s[0]+(1000-altitute[0])/np.tan(gama) #Position of the sideline microphone for the maximum take-off noise assumed to be at 1000ft of altitute
+        
         
         #Calculate flight path
         for i in range(1,n_steps):
@@ -274,24 +285,24 @@ def engine_performnace(altitude,velocity,turbofan,analyses):
       
       #Flight iddle CF34_10
             
-     #   velocity_primary[i]        = 343.3       #np.float(turbofan.core_nozzle.outputs.velocity)
-     #   temperature_primary[i]     = 649.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-     #   pressure_primary[i]        = 96526.6     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
+   #     velocity_primary[i]        = 87.1 #343.3       #np.float(turbofan.core_nozzle.outputs.velocity)
+   #     temperature_primary[i]     = 651.2 #649.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
+   #     pressure_primary[i]        = 101916.9     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
     
-    #    velocity_secondary[i]      = 281.877     # np.float(turbofan.fan_nozzle.outputs.velocity)
-     #   temperature_secondary[i]   = 294.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-      #  pressure_secondary[i]      = 105282      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
+   #     velocity_secondary[i]      = 104.1 #281.877     # np.float(turbofan.fan_nozzle.outputs.velocity)
+   #     temperature_secondary[i]   = 293.7 #294.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
+   #     pressure_secondary[i]      = 106550.3 #105282      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
         
         
-    #Normal takeoff
+    #Normal takeoff - CF34-10E5 - 166kts
     
-        velocity_primary[i]        = 400       #np.float(turbofan.core_nozzle.outputs.velocity)
-        temperature_primary[i]     = 653.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-        pressure_primary[i]        = 103076     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
+        velocity_primary[i]        = 376.0 #412.0 #376.0 #400       #np.float(turbofan.core_nozzle.outputs.velocity)
+        temperature_primary[i]     = 653.15 #838.5 #653.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
+        pressure_primary[i]        = 103076 #141298.3 #103076     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
     
-        velocity_secondary[i]      = 311     # np.float(turbofan.fan_nozzle.outputs.velocity)
-        temperature_secondary[i]   = 296.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-        pressure_secondary[i]      = 110178      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
+        velocity_secondary[i]      = 296 #322.1 #296     # np.float(turbofan.fan_nozzle.outputs.velocity)
+        temperature_secondary[i]   = 296.15 #344.1 #296.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
+        pressure_secondary[i]      = 110178 #172486.8 #110178      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
     
   #      velocity_primary[i]        = np.float(turbofan.core_nozzle.outputs.velocity)
   #      temperature_primary[i]     = np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
