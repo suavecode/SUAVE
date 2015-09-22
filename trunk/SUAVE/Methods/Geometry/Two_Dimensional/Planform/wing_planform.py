@@ -13,10 +13,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
 from SUAVE.Core  import Data
-#from SUAVE.Attributes import Constants
+
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -48,7 +46,6 @@ def wing_planform(wing):
     """
     
     # unpack
-##    span  = wing.spans.projected
     sref  = wing.areas.reference
     taper = wing.taper
     sweep = wing.sweep
@@ -56,8 +53,7 @@ def wing_planform(wing):
     t_c_w = wing.thickness_to_chord
     
     # calculate
-    #ar = span**2. / sref
-    span = sqrt(ar*sref)
+    span = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     
@@ -70,7 +66,6 @@ def wing_planform(wing):
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
-##    wing.aspect_ratio               = ar
     wing.spans.projected            = span
     
     return wing

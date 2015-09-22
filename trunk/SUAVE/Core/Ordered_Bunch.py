@@ -1,2 +1,2 @@
 
-from SUAVE.Plugins.VyPy.data import OrderedBunch as Ordered_Bunch
+from Deep_Core import OrderedBunch as Ordered_Bunch

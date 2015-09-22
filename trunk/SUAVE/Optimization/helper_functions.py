@@ -8,7 +8,6 @@
 # ----------------------------------------------------------------------    
 
 from SUAVE.Core import Data, Units
-from SUAVE.Plugins.VyPy.data.DataBunch import DataBunch
 import numpy as np
 from copy import deepcopy
 
@@ -132,3 +131,15 @@ def scale_const_values(inputs,x):
     scaled =  x/provided_scale
     
     return scaled
+
+def scale_const_bnds(inputs):
+    
+    provided_bounds = np.array(inputs[:,2],dtype = float)
+    
+    # Most important 2 lines of these functions
+    provided_units   = inputs[:,4]*1.0
+    inputs[:,4] = provided_units
+    
+    converted_values = provided_bounds*provided_units
+    
+    return converted_values

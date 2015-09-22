@@ -37,12 +37,13 @@ def main():
     
     #build numerics
     numerics.time                 =Data()
-    numerics.time.integrate       = np.array([[0, 0],[0, 1]])
+    numerics.time.integrate       = np.array([[0, 0],[0, 10]])
     numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
     
     #build battery_inputs(i.e. current it's run at, power, normally done from energy network
     battery_inputs.current        =90*Units.amps
     battery_inputs.power_in       =np.array([[Preq/2.] , [Preq]])
+    print 'battery_inputs=', battery_inputs
     battery_li_ion.inputs         =battery_inputs
     
     #run tests on functionality
@@ -53,7 +54,7 @@ def main():
    
     test_initialize_from_mass(battery_li_ion,li_ion_mass)
     #make sure battery starts fully charged
-    battery_li_ion.current_energy=[[battery_li_ion.max_energy]]
+    battery_li_ion.current_energy=[[battery_li_ion.max_energy, battery_li_ion.max_energy]] #normally handle making sure arrays are same length in network
     #run discharge model
     battery_li_ion.energy_calc( numerics)
     print battery_li_ion

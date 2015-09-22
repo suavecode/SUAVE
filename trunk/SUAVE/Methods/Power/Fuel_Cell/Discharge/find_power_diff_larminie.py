@@ -1,5 +1,5 @@
-#Created by M. Vegh 4/23/15
-
+#Created : M. Vegh 4/23/15
+#Modified:M. Vegh, September 2015
 """ Calculates mass flow of fuel cell based on method from Larminie and 
 Dicks (Fuel Cell Systems Explained) """
 
@@ -7,7 +7,7 @@ Dicks (Fuel Cell Systems Explained) """
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+
 import SUAVE
 from SUAVE.Core import Units
 from find_power_larminie import find_power_larminie

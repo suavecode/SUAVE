@@ -64,7 +64,7 @@ class Propeller(Energy_Component):
         Rh    = self.prop_attributes.hub_radius
         beta  = self.prop_attributes.twist_distribution
         c     = self.prop_attributes.chord_distribution
-        omega = self.inputs.omega
+        omega1 = self.inputs.omega
         rho   = conditions.freestream.density[:,0,None]
         mu    = conditions.freestream.dynamic_viscosity[:,0,None]
         V     = conditions.freestream.velocity[:,0,None]
@@ -73,6 +73,9 @@ class Propeller(Energy_Component):
         
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
+        
+        omega = omega1*1.0
+        omega = np.abs(omega)
            
         ######
         # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
@@ -159,8 +162,7 @@ class Propeller(Energy_Component):
             diff   = abs(psiold-psi)
             psiold = psi
             
-            ii += 1
-            if ii>100:
+            if np.any(psi>(np.pi*85.0/180.)) and np.any(dpsi>0.0):
                 break
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
@@ -184,17 +186,12 @@ class Propeller(Energy_Component):
         D        = 2*R
         Cp       = power/(rho*(n**3)*(D**5))
 
-
-        thrust[omega<0.0] = 0.0
-        power[omega<0.0]  = 0.0
-
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-
-        etap     = V*thrust/(power)
-        etap[omega<0.0] = 0.0
         
-        #Cp[omega<0.0] = self.prop_attributes.Cp
+        thrust[omega1<0.0] = - thrust[omega1<0.0]
+
+        etap     = V*thrust/(power)        
         
         conditions.propulsion.etap = etap
         

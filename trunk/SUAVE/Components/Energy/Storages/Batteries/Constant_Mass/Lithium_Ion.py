@@ -11,8 +11,6 @@
 import SUAVE
 
 # package imports
-import numpy as np
-import scipy as sp
 from SUAVE.Core                         import Units
 from SUAVE.Components.Energy.Storages.Batteries  import Battery
 # ----------------------------------------------------------------------

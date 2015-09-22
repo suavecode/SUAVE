@@ -7,7 +7,7 @@
 import scipy
 import scipy.optimize
 
-from SUAVE.Plugins.VyPy.tools import array_type
+from SUAVE.Core.Arrays import array_type
 
 # ----------------------------------------------------------------------
 #  Converge Root

@@ -1,13 +1,12 @@
 """sizes an optimized battery based on power and energy requirements based on a Ragone plot curve fit"""
 #by M. Vegh
-#Modified 1-27-2015
+#Created 2014
+#Modified September, 2015
 """ SUAVE Methods for Energy Systems """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-import numpy as np
 import scipy as sp
 from find_ragone_properties import find_ragone_properties
 # ----------------------------------------------------------------------

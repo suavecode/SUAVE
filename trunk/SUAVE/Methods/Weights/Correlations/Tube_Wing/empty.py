@@ -1,13 +1,12 @@
 # empty.py
 # 
 # Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014 
+# Modified: Michael Vegh, September 2015 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-import numpy as np
 from tube import tube
 from landing_gear import landing_gear
 from payload import payload

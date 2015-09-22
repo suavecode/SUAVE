@@ -35,6 +35,7 @@ class Aerodynamic(Simple):
         
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
+        self.temperature_deviation = 0.0
         
         # initials and unknowns, Example...
         ##ones_row = self.state.ones_row

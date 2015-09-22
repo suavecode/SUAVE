@@ -3,6 +3,7 @@
 import os
 from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results
 from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
+from SUAVE.Core import redirect
 
 
 def run_analysis(avl_object):
@@ -18,7 +19,6 @@ def call_avl(avl_object):
     import sys
     import time
     import subprocess
-    import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
     log_file = avl_object.settings.filenames.log_filename
     err_file = avl_object.settings.filenames.err_filename
@@ -74,9 +74,8 @@ def run_command(command):
 
     import sys
     import time
-    import SUAVE.Plugins.VyPy.tools.redirect as redirect
 
-    with redirect.output('avl_log.txt','stderr.txt'):
+    with redirect_output('avl_log.txt','stderr.txt'):
         ctime = time.ctime() # Current date and time stamp
         sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
         sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))

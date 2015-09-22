@@ -1,7 +1,10 @@
-#Created by M. Vegh 4/23/15
-
-""" Calculates mass flow of fuel cell based solely on specific energy
-end base efficiency factor """
+#initialize_larminie_from_power
+#Created: M. Vegh, 4/23/15
+#Modified:M. Vegh, September 2015
+""" adds a fuel cell that is sized based on the specific power of the fuel cell,
+uses method from Larminie and Dicks (Fuel Cell Systems Explained)
+ to estimate power
+ """
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,7 +18,7 @@ from SUAVE.Methods.Power.Fuel_Cell.Discharge.find_power_larminie import find_pow
 #  Methods
 # ----------------------------------------------------------------------
 
-def initialize_larminie_from_power(fuel_cell,power): #adds a fuel cell that is sized based on the specific power of the fuel cell
+def initialize_larminie_from_power(fuel_cell,power): 
     lb                            =.1*Units.mA/(Units.cm**2.)    #lower bound on fuel cell current density
     ub                            =1200.0*Units.mA/(Units.cm**2.)
     sign                          =-1. #used to minimize -power

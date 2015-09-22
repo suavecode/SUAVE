@@ -14,7 +14,7 @@ from SUAVE.Analyses import Analysis, Settings, Process
 
 from Conditions import State, Conditions
 
-from SUAVE.Plugins.VyPy.tools import array_type
+from SUAVE.Core.Arrays import array_type
 
 
 

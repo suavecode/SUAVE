@@ -1,7 +1,7 @@
 (lp1
 S'python_data'
 p2
-a.cSUAVE.Plugins.VyPy.data.OrderedBunch
+a.cSUAVE.Core.Deep_Core.OrderedBunch
 _reconstructor
 p1
 (cSUAVE.Core.Data
