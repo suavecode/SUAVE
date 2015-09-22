@@ -21,7 +21,7 @@ def primary_noise_component (SPL_p,Velocity_primary,Temperature_primary,R_gas,th
     #Calculation of the velocity exponent
     for i in range (0,24):
         if theta_p[i] <= 2.2:
-            velocity_exponent=1.5
+            velocity_exponent=1.56
         elif theta_p[i] > 2.2:
             velocity_exponent=1.5*np.exp(-10*(theta_p - 2.2)**2)
 
