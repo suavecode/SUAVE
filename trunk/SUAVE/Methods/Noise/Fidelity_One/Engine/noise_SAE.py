@@ -26,6 +26,8 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
+
 
 def noise_SAE (turbofan,trajectory,configs,analyses):
 
@@ -112,7 +114,7 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
     
     N1=np.float(turbofan.fan.rotation)
     
-    #Mudan?a 03 de Agosto
+    #Mudanca 03 de Agosto
     sound_ambient=np.zeros(nsteps)
     density_ambient=np.zeros(nsteps)
     viscosity=np.zeros(nsteps)
@@ -146,7 +148,7 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
   #  Pressure_primary=112000
 
     
-    Diameter_primary =0.4
+    Diameter_primary =0.873
     Area_primary = np.pi*(Diameter_primary/2)**2 # 0.001963
 
     #Secondary jet input information
@@ -155,7 +157,7 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
  #   Pressure_secondary=110000
 
     
-    Diameter_secondary=1.2
+    Diameter_secondary=1.578
     Area_secondary =  np.pi*(Diameter_secondary/2)**2 #0.00394
 
     #Aircraft input information
@@ -214,13 +216,18 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
     PG_s=np.zeros(24)
     PG_m=np.zeros(24)
     
+    dspl_attenuation_p=np.zeros(24)
+    dspl_attenuation_s=np.zeros(24)
+    dspl_attenuation_m=np.zeros(24)
+    
     SPL_total_history = np.zeros((nsteps,24))
     SPL_primary_history = np.zeros((nsteps,24))
     SPL_secondary_history = np.zeros((nsteps,24))
     SPL_mixed_history = np.zeros((nsteps,24))
 
     # Open output file to print the results
-    filename = 'SAE_Noise_try_2.dat'
+    #filename = 'SAE_Noise_Sideline_Emb190_166kts_teste.dat'
+    filename = ('SAE_Noise_' + str(configs.flight.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
     fid = open(filename,'w')
     
     
@@ -381,14 +388,18 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
                 f_primary=frequency/(1-Mach_aircraft[id]*np.cos(theta_p))
                 f_secondary=frequency/(1-Mach_aircraft[id]*np.cos(theta_s))
                 f_mixed=frequency/(1-Mach_aircraft[id]*np.cos(theta_m))
-                Aci= Acf + ((temperature_ambient[id]-273)-15)/10*(Acq-Acf)
+                Aci= Acf + ((temperature_ambient[id]-0)-15)/10*(Acq-Acf)    #273
+                
                 Ac_primary=np.interp(f_primary,frequency,Aci)
                 Ac_secondary=np.interp(f_secondary,frequency,Aci)
                 Ac_mixed=np.interp(f_mixed,frequency,Aci)
                 
-                dspl_attenuation_p=np.zeros(24) #-Ac_primary*distance_primary
-                dspl_attenuation_s=np.zeros(24) #-Ac_secondary*distance_secondary
-                dspl_attenuation_m=np.zeros(24) #-Ac_mixed*distance_mixed
+                 #Atmospheric attenuation - Modification 26/08
+                delta_atmo=atmospheric_attenuation(distance_primary)
+                
+                dspl_attenuation_p=-delta_atmo #-Ac_primary*distance_primary  #np.zeros(24) #
+                dspl_attenuation_s=-delta_atmo #-Ac_secondary*distance_secondary #np.zeros(24) #
+                dspl_attenuation_m=-delta_atmo #-Ac_mixed*distance_mixed     #np.zeros(24) #
     
         elif tunnel==1: #These corrections are not applicable for jet rigs or static conditions
                 dspl_attenuation_p=np.zeros(24)
@@ -412,7 +423,9 @@ def noise_SAE (turbofan,trajectory,configs,analyses):
     
       #Calculation of the sound pressure level for each jet component
         SPL_p=primary_noise_component(SPL_p,Velocity_primary[id],Temperature_primary[id],R_gas,theta_p,DVPS,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_p,EX_p,Str_p) + Plug[0]
+        
         SPL_s=secondary_noise_component(SPL_s,Velocity_primary[id],theta_s,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_s,EX_s,Str_s) + Plug[1] + INST_s
+        
         SPL_m=mixed_noise_component(SPL_m,Velocity_primary[id],theta_m,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR) + Plug[2] + ATK_m + GPROX_m
     
      #Sum of the Total Noise
