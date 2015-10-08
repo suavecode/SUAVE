@@ -39,9 +39,12 @@ def SciPy_Solve(problem,solver='SLSQP'):
         bnds[ii] = (bnd[ii][0]/scl[ii]),(bnd[ii][1]/scl[ii])
 
 
-    # Finalize problem statement and run  
-    outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds)
-        
+    # Finalize problem statement and run
+    if solver=='SLSQP':
+        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds)
+    else:
+        outputs = sp.optimize.minimize(wrapper,x,method=solver)
+    
     return outputs
 
 
