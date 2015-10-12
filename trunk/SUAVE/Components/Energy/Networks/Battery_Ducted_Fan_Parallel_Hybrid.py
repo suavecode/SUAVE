@@ -48,7 +48,10 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         numerics   = state.numerics
   
         results=propulsor.evaluate_thrust(state)
+        #print 'thrust=', results.thrust_force_vector[:,0]
+        #print 'velocity=', conditions.freestream.velocity[0]
         Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
+        
         try:
             initial_energy=conditions.propulsion.primary_battery_energy
             initial_energy_auxiliary=conditions.propulsion.auxiliary_battery_energy
@@ -68,7 +71,9 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
             if  pbat[i]<-primary_battery.max_power:   #limit power output of primary_battery
                 pbat_primary[i]  =-primary_battery.max_power #-power means discharge
                 pbat_auxiliary[i]=pbat[i]-pbat_primary[i]
-  
+            elif pbat[i]>primary_battery.max_power: #limit charging rate of battery
+                pbat_primary[i]  =primary_battery.max_power
+                pbat_auxiliary[i]=pbat[i]-pbat_primary[i]
         primary_battery_logic           = Data()
         primary_battery_logic.power_in  = pbat_primary
         primary_battery_logic.current   = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
@@ -106,8 +111,7 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         conditions.propulsion.auxiliary_battery_draw   = auxiliary_battery_draw
         conditions.propulsion.auxiliary_battery_energy = auxiliary_battery_energy
         
-     
- 
+    
         results.vehicle_mass_rate   = mdot
         return results
             
