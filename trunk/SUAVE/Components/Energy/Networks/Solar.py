@@ -93,6 +93,9 @@ class Solar(Propulsor):
             propeller.inputs.omega =  motor.outputs.omega #Relink the motor
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
             diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
+            #if np.any(np.isnan(F)):
+                #print 'hi'
+                #print F
             ii += 1
             #if ii>100:
                 #break            

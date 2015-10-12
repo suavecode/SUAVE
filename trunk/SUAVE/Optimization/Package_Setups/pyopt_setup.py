@@ -42,13 +42,18 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     ini = inp[:,1] # Initials
     bnd = inp[:,2] # Bounds
     scl = inp[:,3] # Scale
+    typ = inp[:,4] # Type
     
     x   = ini/scl
     
     for ii in xrange(0,len(inp)):
         lbd = (bnd[ii][0]/scl[ii])
         ubd = (bnd[ii][1]/scl[ii])
-        opt_prob.addVar(nam[ii],'c',lower=lbd,upper=ubd,value=x[ii]) 
+        if typ[ii] == 'continuous':
+            vartype = 'c'
+        if typ[ii] == 'integer':
+            vartype = 'i'
+        opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii]) 
         
     # Setup constraints  
     for ii in xrange(0,len(con)):
@@ -70,6 +75,12 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()
+    elif solver == 'KSOPT':
+        import pyOpt.pyKSOPT
+        opt = pyOpt.pyKSOPT.KSOPT() 
+    elif solver == 'ALHSO':
+        import pyOpt.pyALHSO
+        opt = pyOpt.pyALHSO.ALHSO()   
         
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')

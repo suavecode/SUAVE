@@ -26,6 +26,7 @@ class Nexus(Data):
         self.missions                     = None
         self.procedure                    = None
         self.results                      = SUAVE.Analyses.Results()
+        self.summary                      = Data()
         self.optimization_problem         = None
         self.last_inputs                  = None
         self.evaluation_count             = 0
