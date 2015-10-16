@@ -14,6 +14,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core  import Data
+import numpy as np
 
 
 # ----------------------------------------------------------------------
@@ -46,11 +47,12 @@ def wing_planform(wing):
     """
     
     # unpack
-    sref  = wing.areas.reference
-    taper = wing.taper
-    sweep = wing.sweep
-    ar    = wing.aspect_ratio
-    t_c_w = wing.thickness_to_chord
+    sref     = wing.areas.reference
+    taper    = wing.taper
+    sweep    = wing.sweep
+    ar       = wing.aspect_ratio
+    t_c_w    = wing.thickness_to_chord
+    dihedral = wing.dihedral 
     
     # calculate
     span = (ar*sref)**.5
@@ -61,11 +63,18 @@ def wing_planform(wing):
 
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
+    # estimating aerodynamic center coordinates
+    y_coord = span / 6. * (( 1. + 2. * taper ) / (1. + taper))
+    x_coord = mac * 0.25 + y_coord * np.tan(sweep)
+    z_coord = y_coord * np.tan(dihedral)
+    
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
     wing.spans.projected            = span
+
+    wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     
     return wing
