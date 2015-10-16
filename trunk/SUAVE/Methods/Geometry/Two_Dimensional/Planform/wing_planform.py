@@ -63,9 +63,12 @@ def wing_planform(wing):
 
     mac = 2./3.*( chord_root+chord_tip - chord_root*chord_tip/(chord_root+chord_tip) )
     
+    # calculate leading edge sweep
+    le_sweep = np.arctan( np.tan(sweep) - (4./ar)*(0.-0.25)*(1.-taper)/(1.+taper) )
+    
     # estimating aerodynamic center coordinates
     y_coord = span / 6. * (( 1. + 2. * taper ) / (1. + taper))
-    x_coord = mac * 0.25 + y_coord * np.tan(sweep)
+    x_coord = mac * 0.25 + y_coord * np.tan(le_sweep)
     z_coord = y_coord * np.tan(dihedral)
     
     # update
