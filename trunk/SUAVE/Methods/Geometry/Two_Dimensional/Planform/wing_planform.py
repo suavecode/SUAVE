@@ -71,6 +71,11 @@ def wing_planform(wing):
     x_coord = mac * 0.25 + y_coord * np.tan(le_sweep)
     z_coord = y_coord * np.tan(dihedral)
     
+    if wing.vertical:
+        temp    = y_coord * 1.
+        y_coord = z_coord * 1.
+        z_coord = temp
+    
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
