@@ -55,6 +55,7 @@ def wing_planform(wing):
     dihedral    = wing.dihedral 
     vertical    = wing.vertical
     symmetric   = wing.symmetric
+    origin      = wing.origin
     
     # calculate
     span = (ar*sref)**.5
@@ -80,6 +81,11 @@ def wing_planform(wing):
 
     if symmetric:
         y_coord = 0    
+        
+    # move AC to be in reference to the vehicle:
+    x_coord = x_coord + origin[0]
+    y_coord = y_coord + origin[1]
+    z_coord = z_coord + origin[2]
                     
     # update
     wing.chords.root                = chord_root
