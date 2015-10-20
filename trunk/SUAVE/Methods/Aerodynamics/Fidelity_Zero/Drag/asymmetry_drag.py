@@ -12,12 +12,12 @@ from SUAVE.Components import Wings
 from SUAVE.Core import Units, Data, Results
 
 # ----------------------------------------------------------------------
-#  Compute drag of turbofan in windmilling condition
+#  Compute asymmetry drag due to engine failure 
 # ----------------------------------------------------------------------
 
 def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     """ SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
-        Computes the windmilling drag of turbofan engines
+        Compute asymmetry drag due to engine failure 
 
         Inputs:
             geometry   - data dictionary with data of vehicle and engine
