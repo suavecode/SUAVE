@@ -195,10 +195,12 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         state.conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * V2_speed**2))
         state.conditions.freestream.velocity         = np.array(np.atleast_1d(V2_speed))
         state.conditions.freestream.mach_number      = np.array(np.atleast_1d(V2_speed/ a))
-        results = vehicle.propulsors.evaluate_thrust(state) 
-        thrust_per_engine = results.thrust_force_vector[0][0] / propulsor.number_of_engines
-        thrust = thrust_per_engine * (propulsor.number_of_engines - 1)
-        
+        results = vehicle.propulsors[0].engine_out(state)
+        thrust = results.thrust_force_vector[0][0]
+#        results = vehicle.propulsors.evaluate_thrust(state)
+#        thrust_per_engine = results.thrust_force_vector[0][0] / propulsor.number_of_engines
+#        thrust = thrust_per_engine * (propulsor.number_of_engines - 1)
+
         # Compute windmilling drag
         windmilling_drag_coefficient = windmilling_drag(vehicle,state)
 
