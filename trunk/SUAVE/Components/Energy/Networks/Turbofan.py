@@ -384,7 +384,7 @@ class Turbofan(Propulsor):
         
         results = self.evaluate_thrust(state)
         
-        for i in range(0,len(state.conditions.propulsion.throttle[i])):
+        for i in range(0,len(state.conditions.propulsion.throttle)):
             state.conditions.propulsion.throttle[i] = temp_throttle[i]
         
         
