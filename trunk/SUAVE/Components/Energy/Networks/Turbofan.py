@@ -371,7 +371,30 @@ class Turbofan(Propulsor):
         
         
         
+    def engine_out(self,state):
         
+        
+        temp_throttle = np.zeros(len(state.conditions.propulsion.throttle))
+        
+        for i in range(0,len(state.conditions.propulsion.throttle)):
+            temp_throttle[i] = state.conditions.propulsion.throttle[i]
+            state.conditions.propulsion.throttle[i] = 1.0
+        
+        
+        
+        results = self.evaluate_thrust(state)
+        
+        for i in range(0,len(state.conditions.propulsion.throttle)):
+            state.conditions.propulsion.throttle[i] = temp_throttle[i]
+        
+        
+        
+        results.thrust_force_vector = results.thrust_force_vector/self.number_of_engines*(self.number_of_engines-1)
+        results.vehicle_mass_rate   = results.vehicle_mass_rate/self.number_of_engines*(self.number_of_engines-1)
+        
+        
+        
+        return results
         
         #return
     
