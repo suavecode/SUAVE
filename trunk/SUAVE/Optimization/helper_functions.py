@@ -87,8 +87,8 @@ def convert_values(inputs):
     provided_values  = inputs[:,1] 
     
     # Most important 2 lines of these functions
-    provided_units   = inputs[:,4]*1.0
-    inputs[:,4] = provided_units
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
     
     converted_values = provided_values*provided_units
     
@@ -137,8 +137,8 @@ def scale_const_bnds(inputs):
     provided_bounds = np.array(inputs[:,2],dtype = float)
     
     # Most important 2 lines of these functions
-    provided_units   = inputs[:,4]*1.0
-    inputs[:,4] = provided_units
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
     
     converted_values = provided_bounds*provided_units
     

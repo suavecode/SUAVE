@@ -24,7 +24,7 @@ class Aluminum_Air(Battery):
         self.specific_power=0.2*Units.kW/Units.kg      #convert to W/kg
         self.mass_gain_factor=(5.50723E-05)*Units.kg/Units.Wh
         self.water_mass_gain_factor=0.000123913*Units.kg/Units.Wh
-        self.aluminum_mass_factor=0.000371484004*Units.kg/Units.Wh #aluminum consumed per energy
+        self.aluminum_mass_factor=0.000123828*Units.kg/Units.Wh #aluminum consumed per energy
 
         
     def find_water_mass(self, energy):
