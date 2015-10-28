@@ -49,10 +49,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     for ii in xrange(0,len(inp)):
         lbd = (bnd[ii][0]/scl[ii])
         ubd = (bnd[ii][1]/scl[ii])
-        if typ[ii] == 'continuous':
-            vartype = 'c'
-        if typ[ii] == 'integer':
-            vartype = 'i'
+        #if typ[ii] == 'continuous':
+        vartype = 'c'
+        #if typ[ii] == 'integer':
+            #vartype = 'i'
         opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii]) 
         
     # Setup constraints  
