@@ -74,6 +74,9 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
             elif pbat[i]>primary_battery.max_power: #limit charging rate of battery
                 pbat_primary[i]  =primary_battery.max_power
                 pbat_auxiliary[i]=pbat[i]-pbat_primary[i]
+            if pbat_primary[i]>0: #don't allow non-rechargable battery to charge
+                pbat_primary[i]=0
+                pbat_auxiliary[i]=pbat[i]
         primary_battery_logic           = Data()
         primary_battery_logic.power_in  = pbat_primary
         primary_battery_logic.current   = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
