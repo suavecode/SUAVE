@@ -143,3 +143,10 @@ def scale_const_bnds(inputs):
     converted_values = provided_bounds*provided_units
     
     return converted_values
+
+def unscale_const_values(inputs,x):
+    
+    provided_scale = np.array(inputs[:,3],dtype = float)
+    scaled =  x*provided_scale
+    
+    return scaled
