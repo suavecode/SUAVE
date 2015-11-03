@@ -69,5 +69,5 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.6):
         count+=1 
     vehicle.mass_properties.center_of_gravity[1]=0 #symmetric aircraft
     
-
+    
     return vehicle.mass_properties.center_of_gravity

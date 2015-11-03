@@ -5,5 +5,9 @@
 import numpy as np 
 def compute_span_location_from_chord_length(wing,chord_length):
     chord_span_slope=(.25*wing.chords.root-.25*wing.chords.tip)/(wing.spans.projected/2.)
-    span_location=(.25*chord_length-.25*wing.chords.tip)/chord_span_slope 
+    
+    if chord_span_slope==0:
+        span_location=0
+    else:
+        span_location=(.25*chord_length-.25*wing.chords.tip)/chord_span_slope 
     return span_location
