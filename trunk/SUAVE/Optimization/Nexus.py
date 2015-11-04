@@ -171,7 +171,7 @@ class Nexus(Data):
         con2 = (con*np.ones_like(jac_con))
         
         for ii in xrange(0,inplen):
-            newx     = x*1.0
+            newx     = np.asarray(x)*1.0
             newx[ii] = newx[ii]+ 1e-8
             
             grad_obj[ii]  = self.objective(newx)

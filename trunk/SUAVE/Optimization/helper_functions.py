@@ -146,7 +146,8 @@ def scale_const_bnds(inputs):
 
 def unscale_const_values(inputs,x):
     
+    provided_units   = inputs[:,-1]*1.0
     provided_scale = np.array(inputs[:,3],dtype = float)
-    scaled =  x*provided_scale
+    scaled =  x*provided_scale/provided_units
     
     return scaled
