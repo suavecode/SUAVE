@@ -11,7 +11,7 @@
 import SUAVE
 from SUAVE.Core import Data
 import numpy as np
-
+from SUAVE.Optimization import helper_functions as help_fun
 # pyopt imports
 
 # ----------------------------------------------------------------------
@@ -44,6 +44,9 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     scl = inp[:,3] # Scale
     typ = inp[:,4] # Type
     
+    # Pull out the constraints and scale them
+    bnd_constraints = help_fun.scale_const_bnds(con)
+    scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
     x   = ini/scl
     
     for ii in xrange(0,len(inp)):
@@ -58,9 +61,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     # Setup constraints  
     for ii in xrange(0,len(con)):
         name = con[ii][0]
-        edge = con[ii][2]
+        edge = scaled_constraints[ii]
+        
         if con[ii][1]=='<':
-            opt_prob.addCon(name, type='i', upper=edge,)
+            opt_prob.addCon(name, type='i', upper=edge)
         elif con[ii][1]=='>':
             opt_prob.addCon(name, type='i', lower=edge,upper=np.inf)
         elif con[ii][1]=='=':
