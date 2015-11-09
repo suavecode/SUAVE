@@ -192,8 +192,8 @@ def empty(vehicle):
     output.systems_breakdown = Data()
     output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
     output.systems_breakdown.apu               = output_2.wt_apu         
-    output.systems_breakdown.hydralics         = output_2.wt_hyd_pnu     
-    output.systems_breakdown.intruments        = output_2.wt_instruments 
+    output.systems_breakdown.hydraulics         = output_2.wt_hyd_pnu     
+    output.systems_breakdown.instruments       = output_2.wt_instruments 
     output.systems_breakdown.avionics          = output_2.wt_avionics    
     output.systems_breakdown.optionals         = output_2.wt_opitems     
     output.systems_breakdown.electrical        = output_2.wt_elec        

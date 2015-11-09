@@ -11,7 +11,7 @@
 import SUAVE
 from SUAVE.Core import Data
 import numpy as np
-
+from SUAVE.Optimization import helper_functions as help_fun
 # pyopt imports
 
 # ----------------------------------------------------------------------
@@ -42,20 +42,29 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     ini = inp[:,1] # Initials
     bnd = inp[:,2] # Bounds
     scl = inp[:,3] # Scale
+    typ = inp[:,4] # Type
     
+    # Pull out the constraints and scale them
+    bnd_constraints = help_fun.scale_const_bnds(con)
+    scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
     x   = ini/scl
     
     for ii in xrange(0,len(inp)):
         lbd = (bnd[ii][0]/scl[ii])
         ubd = (bnd[ii][1]/scl[ii])
-        opt_prob.addVar(nam[ii],'c',lower=lbd,upper=ubd,value=x[ii]) 
+        #if typ[ii] == 'continuous':
+        vartype = 'c'
+        #if typ[ii] == 'integer':
+            #vartype = 'i'
+        opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii]) 
         
     # Setup constraints  
     for ii in xrange(0,len(con)):
         name = con[ii][0]
-        edge = con[ii][2]
+        edge = scaled_constraints[ii]
+        
         if con[ii][1]=='<':
-            opt_prob.addCon(name, type='i', upper=edge,)
+            opt_prob.addCon(name, type='i', upper=edge)
         elif con[ii][1]=='>':
             opt_prob.addCon(name, type='i', lower=edge,upper=np.inf)
         elif con[ii][1]=='=':
@@ -70,6 +79,12 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()
+    elif solver == 'KSOPT':
+        import pyOpt.pyKSOPT
+        opt = pyOpt.pyKSOPT.KSOPT() 
+    elif solver == 'ALHSO':
+        import pyOpt.pyALHSO
+        opt = pyOpt.pyALHSO.ALHSO()   
         
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')

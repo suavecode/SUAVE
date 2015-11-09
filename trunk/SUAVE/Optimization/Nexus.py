@@ -21,14 +21,15 @@ import numpy as np
 class Nexus(Data):
     
     def __defaults__(self):
-        self.vehicle_configurations       = SUAVE.Components.Configs.Config.Container()
-        self.analyses                     = SUAVE.Analyses.Analysis.Container()
-        self.missions                     = None
-        self.procedure                    = None
-        self.results                      = SUAVE.Analyses.Results()
-        self.optimization_problem         = None
-        self.last_inputs                  = None
-        self.evaluation_count             = 0
+        self.vehicle_configurations = SUAVE.Components.Configs.Config.Container()
+        self.analyses               = SUAVE.Analyses.Analysis.Container()
+        self.missions               = None
+        self.procedure              = None
+        self.results                = SUAVE.Analyses.Results()
+        self.summary                = Data()
+        self.optimization_problem   = None
+        self.last_inputs            = None
+        self.evaluation_count       = 0
     
     def evaluate(self,x = None):
         
@@ -170,7 +171,7 @@ class Nexus(Data):
         con2 = (con*np.ones_like(jac_con))
         
         for ii in xrange(0,inplen):
-            newx     = x*1.0
+            newx     = np.asarray(x)*1.0
             newx[ii] = newx[ii]+ 1e-8
             
             grad_obj[ii]  = self.objective(newx)
@@ -184,5 +185,32 @@ class Nexus(Data):
         jac_con  = jac_con.astype(float)
         
         return grad_obj, jac_con
+    
+    
+    def translate(self,x = None):
+        
+        # Run the problem just in case
+        self.evaluate(x)
+        
+        # Pull out the inputs and print them
+        inpu       = self.optimization_problem.inputs
+        print('Design Variable Table:\n')
+        print inpu
+        
+        # Pull out the constraints
+        const       = self.optimization_problem.constraints
+        const_vals  = self.all_constraints(x)
+        const_scale = help_fun.unscale_const_values(const,const_vals)
+        
+        # Make a new table
+        const_table = np.array(const)
+        const_table = np.insert(const_table,1,const_scale,axis=1)
+
+        print('\nConstraint Table:\n')
+        print const_table
+        
+        return inpu,const_table
+                               
+        
     
  

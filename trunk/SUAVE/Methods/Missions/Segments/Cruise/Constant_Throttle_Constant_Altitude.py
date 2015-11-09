@@ -58,9 +58,16 @@ def initialize_conditions(segment,state):
     conditions = state.conditions
 
     # unpack inputs
+    alt      = segment.altitude
     v0       = segment.air_speed_start
     vf       = segment.air_speed_end
     N        = len(conditions.frames.inertial.velocity_vector[:,0])
+    
+    # check for initial altitude
+    if alt is None:
+        if not state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        segment.altitude = alt    
 
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
     if v0 == 0.0: v0 = 0.01
@@ -71,6 +78,8 @@ def initialize_conditions(segment,state):
     segment.air_speed_end   = vf
 
     # pack conditions
+    state.conditions.freestream.altitude[:,0] = alt
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down    
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     state.unknowns.velocity_x            = np.linspace(v0,vf,N)
     
