@@ -91,13 +91,12 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         vehicle.mass_properties.center_of_gravity           =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
         fuselage_moment+turbo_fan_moment+electrical_systems_moment+avionics_moment+furnishings_moment+passengers_moment+\
         ac_moment+fuel_moment+apu_moment+landing_gear_moment+ hydraulics_moment+optionals_moment  )/(vehicle.mass_properties.max_takeoff)
-        
-        aft_gear_location[0]                                =(vehicle.mass_properties.center_of_gravity[0]-landing_gear.origin[0])*\
-        nose_load_fraction/(1-nose_load_fraction)+vehicle.mass_properties.center_of_gravity[0]-landing_gear.origin[0]
+        aft_gear_location[0]                               =(1./(1-nose_load_fraction))*(vehicle.mass_properties.center_of_gravity[0]-landing_gear.origin[0])
         error                                               =(center_of_gravity_guess[0]-vehicle.mass_properties.center_of_gravity[0])/((center_of_gravity_guess[0]+vehicle.mass_properties.center_of_gravity[0])/2.)
         center_of_gravity_guess                             =1*vehicle.mass_properties.center_of_gravity #copy value
         count+=1 
+      
     vehicle.mass_properties.center_of_gravity[1]=0 #symmetric aircraft
     
-    
+    print vehicle.mass_properties.center_of_gravity[0]
     return vehicle.mass_properties.center_of_gravity
