@@ -1,6 +1,7 @@
 #compute_span_location_from_chord_length
 
 #Created: M. Vegh, Oct. 2015
+
 '''
 Computes the chord length given a location along the half-span.
 Assumes linear variation of chord with span
