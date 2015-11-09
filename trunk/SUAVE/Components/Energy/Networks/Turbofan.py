@@ -23,7 +23,7 @@ from copy import deepcopy
 from warnings import warn
 
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Data_Exception, Data_Warning, Results
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
@@ -214,26 +214,26 @@ class Turbofan(Propulsor):
         F_vec[:,0]   = F[:,0]
         F            = F_vec
 
-        results = Data()
+        results = Results
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
         
         # store data
-##        conditions.propulsion.acoustic_outputs.core = results(
-##        exit_static_temperature             = core_nozzle.outputs.static_temperature,
-##        exit_static_pressure                = core_nozzle.outputs.static_pressure,
-##        exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
-##        exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
-##        exit_velocity                       = core_nozzle.outputs.velocity
-##        )
-##        
-##        conditions.propulsion.acoustic_outputs.fan = results(
-##        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
-##        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
-##        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
-##        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
-##        exit_velocity                       = fan_nozzle.outputs.velocity
-##        )
+        conditions.propulsion.acoustic_outputs.core = results(
+        exit_static_temperature             = core_nozzle.outputs.static_temperature,
+        exit_static_pressure                = core_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
+        exit_velocity                       = core_nozzle.outputs.velocity
+        )
+        
+        conditions.propulsion.acoustic_outputs.fan = results(
+        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
+        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
+        exit_velocity                       = fan_nozzle.outputs.velocity
+        )
         
         return results
     

@@ -1,11 +1,6 @@
 
 # classes
-from Wing import Wing
-from Control_Surface import Control_Surface
-from Main_Wing import Main_Wing
-from Vertical_Tail import Vertical_Tail
-from Horizontal_Tail import Horizontal_Tail
+from Main_Landing_Gear import Main_Landing_Gear
+from Nose_Landing_Gear import Nose_Landing_Gear
 
-# packages
-import Airfoils
 

@@ -17,7 +17,7 @@ from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Pr
 #  Attribute
 # ----------------------------------------------------------------------
 
-class Main_Landing_Gear(Landing_Gear):
+class Landing_Gear(Physical_Component):
     """ SUAVE.Components.Landing_Gear.Landing_Gear()
 
         Attributes:
@@ -33,33 +33,7 @@ class Main_Landing_Gear(Landing_Gear):
        
         self.tag = 'landing_gear'
 
-        self.tires = Data()
-        self.tires.tire_diameter = 0.0
-        self.tires.units=0.0
-        
-        
-        self.areas.side_projected = 0.0
-        self.areas.wetted = 0.0
-        
-        self.effective_diameter = 0.0
-        self.width = 0.0
-        
-        self.heights = Data()
-        self.heights.maximum = 0.0
-        self.heights.at_quarter_length = 0.0
-        self.heights.at_three_quarters_length = 0.0
-        self.heights.at_vertical_root_quarter_chord = 0.0
-        
-        self.lengths = Data()
-        self.lengths.nose = 0.0
-        self.lengths.tail = 0.0
-        self.lengths.total = 0.0
-        self.lengths.cabin = 0.0
-        self.lengths.fore_space = 0.0
-        self.lengths.aft_space = 0.0
-            
-        self.fineness = Data()
-        pass
+        self.position  = [0.0,0.0,0.0]        
 
     vehicle.landing_gear = Data()
     vehicle.landing_gear.main_tire_diameter = 3.5000
