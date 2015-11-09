@@ -6,7 +6,7 @@ import copy
 
 
 
-def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.6):
+def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     #unpack components
     wing= vehicle.wings['main_wing']
