@@ -82,21 +82,25 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     landing_gear.origin      =1*(fuselage.origin)#front gear location
     landing_gear.origin[0]   =fuselage.origin[0]+fuselage.lengths.nose
-    count                    =0 #don't allow this iteration to break the code
-    
+
    
-    while np.abs(error)>.01 and count<10:
-        landing_gear.mass_properties.center_of_gravity      =aft_gear_location*2./3.   #assume that nose landing gear is 1/3 of overall landing gear (fix later)
-        landing_gear_moment                                 =(landing_gear.origin+landing_gear.mass_properties.center_of_gravity)*landing_gear.mass_properties.mass
-        vehicle.mass_properties.center_of_gravity           =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
-        fuselage_moment+turbo_fan_moment+electrical_systems_moment+avionics_moment+furnishings_moment+passengers_moment+\
-        ac_moment+fuel_moment+apu_moment+landing_gear_moment+ hydraulics_moment+optionals_moment  )/(vehicle.mass_properties.max_takeoff)
-        aft_gear_location[0]                               =(1./(1-nose_load_fraction))*(vehicle.mass_properties.center_of_gravity[0]-landing_gear.origin[0])
-        error                                               =(center_of_gravity_guess[0]-vehicle.mass_properties.center_of_gravity[0])/((center_of_gravity_guess[0]+vehicle.mass_properties.center_of_gravity[0])/2.)
-        center_of_gravity_guess                             =1*vehicle.mass_properties.center_of_gravity #copy value
-        count+=1 
-      
-    vehicle.mass_properties.center_of_gravity[1]=0 #symmetric aircraft
+    #find moment of every object other than landing gear to find aft gear location, then cg
+    sum_moments              =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
+        fuselage_moment+turbo_fan_moment+electrical_systems_moment+\
+        avionics_moment+furnishings_moment+passengers_moment+ac_moment+\
+        fuel_moment+apu_moment+ hydraulics_moment+optionals_moment  )
+            
+    #took some algebra to get this
+    aft_gear_location                             =sum_moments/(vehicle.mass_properties.takeoff+landing_gear.mass_properties.mass/(1-nose_load_fraction))
+    landing_gear_cg                               =aft_gear_location*2./3.  #assume that nose landing gear is 1/3 of overall landing gear (fix later)
+    landing_gear.mass_properties.center_of_gravity=landing_gear_cg      
     
-    print vehicle.mass_properties.center_of_gravity[0]
+    landing_gear_moment                           =(landing_gear.origin+landing_gear_cg)*landing_gear.mass_properties.mass
+    
+    
+    vehicle.mass_properties.center_of_gravity     =(sum_moments+landing_gear_moment)/vehicle.mass_properties.max_takeoff
+    
+    vehicle.mass_properties.center_of_gravity[1]  =0 #symmetric aircraft
+
+    
     return vehicle.mass_properties.center_of_gravity
