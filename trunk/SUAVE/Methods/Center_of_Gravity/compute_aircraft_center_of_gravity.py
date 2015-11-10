@@ -92,7 +92,9 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
             
     #took some algebra to get this
     aft_gear_location                             =sum_moments/(vehicle.mass_properties.takeoff+landing_gear.mass_properties.mass/(1-nose_load_fraction))
-    landing_gear_cg                               =aft_gear_location*2./3.  #assume that nose landing gear is 1/3 of overall landing gear (fix later)
+    aft_gear_fraction                             =.9  #assume that nose landing gear is 10% of landing gear weight (rough estimate based on data in Roskam, Airplaine Design:Part V:Component Weight Estimation)
+    landing_gear_cg                               =aft_gear_location*aft_gear_fraction
+    
     landing_gear.mass_properties.center_of_gravity=landing_gear_cg      
     
     landing_gear_moment                           =(landing_gear.origin+landing_gear_cg)*landing_gear.mass_properties.mass
@@ -102,5 +104,4 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     vehicle.mass_properties.center_of_gravity[1]  =0 #symmetric aircraft
 
-    
     return vehicle.mass_properties.center_of_gravity
