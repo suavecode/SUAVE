@@ -29,7 +29,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
 
-def noise_SAE (turbofan,noise_segment,configs,analyses): 
+def noise_SAE (turbofan,noise_segment,config,analyses): 
 
     #SAE ARP*876D 1994
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
@@ -97,7 +97,7 @@ def noise_SAE (turbofan,noise_segment,configs,analyses):
     time                    =       noise_segment.conditions.frames.inertial.time  
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_geometric(noise_segment)
+    geometric = noise_geometric(noise_segment,analyses)
     #unpack
     angles              = geometric[:][1]
     distance_microphone = geometric[:][0]    
@@ -118,7 +118,7 @@ def noise_SAE (turbofan,noise_segment,configs,analyses):
     # ==============================================
     
     for id in range (0,nsteps):
-        atmo_data = analyses.configs.base.atmosphere.compute_values(Altitude[id])        
+        atmo_data = analyses.atmosphere.compute_values(Altitude[id])        
     
         sound_ambient[id]       =   np.float(atmo_data.speed_of_sound)
         density_ambient[id]     =   np.float(atmo_data.density)
@@ -196,7 +196,7 @@ def noise_SAE (turbofan,noise_segment,configs,analyses):
     SPL_mixed_history     = np.zeros((nsteps,24))
 
     # Open output file to print the results
-    filename = ('SAE_Noise_' + str(configs.landing.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
+    filename = ('SAE_Noise_' + '_' + str(config.tag) + '.dat')
     fid      = open(filename,'w')
     
  #START LOOP FOR EACH POSITION OF AIRCRAFT   

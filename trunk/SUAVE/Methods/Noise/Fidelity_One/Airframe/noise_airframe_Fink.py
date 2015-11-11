@@ -29,9 +29,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 # package imports
 import numpy as np
 
-def noise_fidelity_one(configs, analyses, noise_segment): 
+def noise_fidelity_one(config, analyses, noise_segment): 
 
-    """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(configs, analyses, noise_segment):
+    """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
             Computes the noise from different sources of the airframe for a given vehicle for a constant altitute flight.
 
             Inputs:
@@ -76,34 +76,41 @@ def noise_fidelity_one(configs, analyses, noise_segment):
     # ==============================================
         # Unpack
     # ==============================================
+    wing = config.wings
 
-    Sw      =       configs.base.wings.main_wing.areas.reference  / (Units.ft)**2                  #wing area, sq.ft
-    bw      =       configs.base.wings.main_wing.spans.projected / Units.ft                    #wing span, ft
-    Sht     =       configs.base.wings.horizontal_stabilizer.areas.reference / (Units.ft)**2           #horizontal tail area, sq.ft
-    bht     =       configs.base.wings.horizontal_stabilizer.spans.projected / Units.ft            #horizontal tail span, ft
-    Svt     =       configs.base.wings.vertical_stabilizer.areas.reference / (Units.ft)**2        #vertical tail area, sq.ft
-    bvt     =       configs.base.wings.vertical_stabilizer.spans.projected  / Units.ft          #vertical tail span, ft
-    deltaf  =       configs.landing.wings.main_wing.flaps_angle                                 #flap delection, rad
-    Sf      =       configs.base.wings.main_wing.flaps.area  / (Units.ft)**2                   #flap area, sq.ft
-    cf      =       configs.base.wings.main_wing.flaps.chord  / Units.ft                    #flap chord, ft
-    slots   =       configs.base.wings.main_wing.flaps.number_slots              #Number of slots (Flap type)
-    Dp      =       configs.base.landing_gear.main_tire_diameter  / Units.ft                 #MLG tyre diameter, ft
-    Hp      =       configs.base.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
-    Dn      =       configs.base.landing_gear.main_strut_length   / Units.ft          #NLG tyre diameter, ft
-    Hn      =       configs.base.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
-    gear    =       configs.base.landing_gear.gear_condition                #Gear up or gear down
-    nose_wheels    =   configs.base.landing_gear.nose_wheels               #Number of wheels   
-    main_wheels    =   configs.base.landing_gear.main_wheels               #Number of wheels   
-    main_units     =   configs.base.landing_gear.main_units                #Number of main units
-    
-    
+    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2                  #wing area, sq.ft
+    bw      =       wing.main_wing.spans.projected / Units.ft                    #wing span, ft
+    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2           #horizontal tail area, sq.ft
+    bht     =       wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
+    Svt     =       wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
+    bvt     =       wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
+    deltaf  =       wing.main_wing.flaps.angle                                   #flap delection, rad
+    Sf      =       wing.main_wing.flaps.area  / (Units.ft)**2                   #flap area, sq.ft        
+    cf      =       wing.main_wing.flaps.chord_dimensional  / Units.ft           #flap chord, ft
+    Dp      =       config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft
+    Hp      =       config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
+    Dn      =       config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
+    Hn      =       config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
+    gear    =       config.landing_gear.gear_condition                #Gear up or gear down
+    nose_wheels    =   config.landing_gear.nose_wheels               #Number of wheels   
+    main_wheels    =   config.landing_gear.main_wheels               #Number of wheels   
+    main_units     =   config.landing_gear.main_units                #Number of main units   
+
+    # determining flap slot number
+    if wing.main_wing.flaps.type   == 'single_sloted':
+        slots = 1
+    elif wing.main_wing.flaps.type == 'double_sloted':
+        slots = 2
+    elif wing.main_wing.flaps.type == 'triple_sloted':
+        slots = 3
+       
     #modification 20/07/2015
     velocity= np.float(noise_segment.conditions.freestream.velocity[0,0]) 
    # altitute=configs.flight.altitute
     altitute = noise_segment.conditions.freestream.altitude[:,0] 
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_geometric(noise_segment)
+    geometric = noise_geometric(noise_segment,analyses)
     
     angle=geometric[:][1]
     distance_vector=geometric[:][0]
@@ -126,7 +133,7 @@ def noise_fidelity_one(configs, analyses, noise_segment):
     # ==============================================
     
     for id in range (0,nsteps):
-        atmo_data = analyses.configs.base.atmosphere.compute_values(altitute[id])
+        atmo_data = analyses.atmosphere.compute_values(altitute[id])
         #analyses.atmosphere.compute_values(altitute[id])
     
         sound_speed[id] =    np.float(atmo_data.speed_of_sound)
@@ -156,7 +163,7 @@ def noise_fidelity_one(configs, analyses, noise_segment):
 
 
     # write header of file
-    filename = ('Noise_' + str(configs.landing.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
+    filename = ('Noise_' + str(config.tag) + '.dat')
     fid = open(filename,'w')   # Open output file
 
 
@@ -335,7 +342,7 @@ def noise_fidelity_one(configs, analyses, noise_segment):
 ##
 ## fid.close
 
-    filename1 = ('History_Noise_' + str(configs.landing.output_filename) + '_' + str(configs.base._base.tag) + '.dat')
+    filename1 = ('History_Noise_' + str(config.tag) + '.dat')
     fid = open(filename1,'w')   # Open output file
     fid.write('Reference speed =  ')
     fid.write(str('%2.2f' % (velocity/Units.kts))+'  kts')

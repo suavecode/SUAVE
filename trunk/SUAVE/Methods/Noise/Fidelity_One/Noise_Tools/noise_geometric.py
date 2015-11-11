@@ -10,12 +10,12 @@ import SUAVE
 
 import numpy as np
 
-def noise_geometric(noise_segment):
+def noise_geometric(noise_segment,analyses):
     
     #We need to define a way to set this automaticaly
-    sideline = 1
-    flyover = 0
-    approach = 0
+    sideline = analyses.noise.settings.sideline
+    flyover  = analyses.noise.settings.flyover
+    approach = analyses.noise.settings.approach
     
     #unpack
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
