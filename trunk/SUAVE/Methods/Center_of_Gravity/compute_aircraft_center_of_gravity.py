@@ -98,5 +98,5 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
       
     vehicle.mass_properties.center_of_gravity[1]=0 #symmetric aircraft
     
-    print vehicle.mass_properties.center_of_gravity[0]
+#    print vehicle.mass_properties.center_of_gravity[0]
     return vehicle.mass_properties.center_of_gravity
