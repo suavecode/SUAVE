@@ -91,6 +91,9 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'PSQP':
         import pyOpt.pyPSQP
         opt = pyOpt.pyPSQP.PSQP()     
+    elif solver == 'NLPQL':
+        import pyOpt.pyNLPQL
+        opt = pyOpt.pyNLPQL.NLPQL()        
     
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
