@@ -85,6 +85,9 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'ALHSO':
         import pyOpt.pyALHSO
         opt = pyOpt.pyALHSO.ALHSO()   
+    elif solver == 'FSQP':
+        import pyOpt.pyFSQP
+        opt = pyOpt.pyFSQP.FSQP()
         
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
