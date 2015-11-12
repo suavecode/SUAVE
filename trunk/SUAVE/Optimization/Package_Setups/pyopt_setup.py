@@ -88,7 +88,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'FSQP':
         import pyOpt.pyFSQP
         opt = pyOpt.pyFSQP.FSQP()
-        
+    elif solver == 'PSQP':
+        import pyOpt.pyPSQP
+        opt = pyOpt.pyPSQP.PSQP()     
+    
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
     else:
