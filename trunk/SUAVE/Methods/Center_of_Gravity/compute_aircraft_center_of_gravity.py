@@ -76,9 +76,6 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     #optionals_moment         =np.array([fuselage.lengths.total*.51,0,0])*optionals.mass_properties.mass 
     
     
-    center_of_gravity_guess  =[0,0,0]
-    error                    =1
-    aft_gear_location        =np.zeros(3) #guess
     
     landing_gear.origin      =1*(fuselage.origin)#front gear location
     landing_gear.origin[0]   =fuselage.origin[0]+fuselage.lengths.nose
@@ -104,4 +101,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     vehicle.mass_properties.center_of_gravity[1]  =0 #symmetric aircraft
 
+    sum_moments_less_fuel   =sum_moments-fuel_moment
+    vehicle.mass_properties.zero_fuel_center_of_gravity=(sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
+    
     return vehicle.mass_properties.center_of_gravity
