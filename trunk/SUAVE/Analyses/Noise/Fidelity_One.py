@@ -14,7 +14,8 @@ class Fidelity_One(Noise):
     
         # correction factors
         settings = self.settings
-        settings.flyover  = 0     
-        settings.approach = 0
-        settings.sideline = 0
+        settings.flyover        = 0     
+        settings.approach       = 0
+        settings.sideline       = 0
+        settings.mic_x_position = 0
         
