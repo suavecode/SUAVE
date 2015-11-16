@@ -7,23 +7,39 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-
+from SUAVE.Core import Data
 import numpy as np
 
-def noise_geometric(noise_segment,analyses):
+def noise_geometric(noise_segment,analyses,config):
+    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric(noise_segment,analyses,config):
+            Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
+
+            Inputs:
+                noise_segment	 - SUAVE type vehicle
+                analyses
+                config
+
+            Outputs:
+                dist                         - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
+                theta                        - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+                phi                          - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+
+            Assumptions:
+                For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground."""
     
-    #We need to define a way to set this automaticaly
+    #unpack
+    #Certification point flag
     sideline = analyses.noise.settings.sideline
     flyover  = analyses.noise.settings.flyover
     approach = analyses.noise.settings.approach
+    x0       = analyses.noise.settings.mic_x_position #only sideline
     
-    #unpack
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
-    altitute        = noise_segment.conditions.freestream.altitude[:,0] 
-    climb_angle     = 6. #How can I get this from the code at this point?
+    altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
+
     
     s = position_vector[:,0]
-    n_steps = len(altitute)  #number of time steps (space discretization)
+    n_steps = len(altitude)  #number of time steps (space discretization)
        
     if approach==1:
         
@@ -31,14 +47,15 @@ def noise_geometric(noise_segment,analyses):
         #-------------------APPROACH CALCULATION-----------------
         #--------------------------------------------------------
         
-        phi=np.zeros(n_steps)    
+        # Azimuthal angle is zero for approach condition
+        phi = np.zeros(n_steps)    
         
-        #Microphone position from the threshold
+        #Microphone position from the approach threshold
         x0= 2000.
        
         #Calculation of the distance vector and emission angle
-        dist=np.sqrt(altitute**2+(s-x0)**2)
-        theta=np.arctan(np.abs(altitute/(s-x0)))
+        dist  = np.sqrt(altitude**2+(s-x0)**2)
+        theta = np.arctan(np.abs(altitude/(s-x0)))
     
     elif flyover==1:
         
@@ -46,17 +63,25 @@ def noise_geometric(noise_segment,analyses):
         #------------------ FLYOVER CALCULATION -----------------
         #--------------------------------------------------------
         
+        # Azimuthal angle is zero for flyover condition
         phi=np.zeros(n_steps)    
         
-        #Lift-off position from the brake release
-        S_0=1061 
-        
-        #Microphone position from the threshold
-        x0= 6500. - S_0      
+        #Lift-off position from the brake release    
+        estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
+    
+        # defining required data for tofl evaluation S0
+        takeoff_airport = SUAVE.Attributes.Airports.Airport()        
+        atmo = Data()
+        atmo.base = Data()
+        atmo.base.atmosphere = analyses.atmosphere
+        S_0 = estimate_tofl(config,atmo,takeoff_airport)           
+
+        #Microphone position from the brake release point
+        x0= np.float(6500. - S_0)
         
         #Calculation of the distance vector and emission angle
-        dist=np.sqrt(altitute**2+(s-x0)**2)
-        theta=np.arctan(np.abs(altitute/(s-x0)))
+        dist  = np.sqrt(altitude**2+(s-x0)**2)
+        theta = np.arctan(np.abs(altitude/(s-x0)))
         
     else:
         
@@ -64,18 +89,34 @@ def noise_geometric(noise_segment,analyses):
         #-------------------SIDELINE CALCULATION-----------------
         #--------------------------------------------------------        
 
-        z0 = 450.  #position on the z-direction of the sideline microphone
-        y0=0.    #position on the y-direction of the sideline microphone
+        z0 = 450.  #position on the z-direction of the sideline microphone (lateral coordinate)
+        y0 =   0.  #position on the y-direction of the sideline microphone (altitude coordinate)
         
-        #Lift-off position from the brake release
-        S_0=1061.        
+
+        estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         
-        x0=S_0+(304.8-altitute[0])/np.tan(climb_angle*np.pi/180) #Position of the sideline microphone for the maximum take-off noise assumed to be at 1000ft of altitute
-     
-    
-        phi=np.arctan(z0/altitute)
-        dist=np.sqrt((z0/np.sin(phi))**2+(s-x0)**2)
-        theta=np.arccos(np.abs((x0-s)/dist))
+        # defining required data for tofl evaluation
+        takeoff_airport = SUAVE.Attributes.Airports.Airport()        
+        atmo = Data()
+        atmo.base = Data()
+        atmo.base.atmosphere = analyses.atmosphere
+        S_0 = estimate_tofl(config,atmo,takeoff_airport)        
+ 
         
-    
+        # looking for X coordinate for 1000ft altitude
+        if not x0:
+            if position_vector[-1,2] > -304.8 or position_vector[0,2] < -304.8:
+                degree = 3
+                coefs = np.polyfit(-position_vector[:,2],position_vector[:,0],degree)
+                x0 = 0.
+                for idx,coef in enumerate(coefs):
+                    x0 += coef * 304.8 ** (degree-idx)
+            else:
+                x0 = np.interp(304.8,np.abs(position_vector[:,2]),position_vector[:,0])
+        
+        #Calculation of the distance vector and emission angles phi and theta
+        phi   = np.arctan(z0/altitude)
+        dist  = np.sqrt((z0/np.sin(phi))**2+(s-x0)**2)
+        theta = np.arccos(np.abs((x0-s)/dist))
+
     return (dist,theta,phi)
