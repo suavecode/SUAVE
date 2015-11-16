@@ -29,7 +29,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
 
-def noise_SAE (turbofan,noise_segment,config,analyses): 
+def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0): 
 
     #SAE ARP*876D 1994
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
@@ -52,7 +52,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
                         Area_secondary             - Area of the secondary nozzle
                         AOA                        - Angle of attack
                         Velocity_aircraft          - Aircraft velocity
-                        Altitute                   - Altitude
+                        Altitude                   - Altitude
                         N1                         - Fan rotational speed [rpm]
                         EXA                        - Distance from fan face to fan exit/ fan diameter
                         Plug_diameter              - Diameter of the engine external plug [m]
@@ -89,6 +89,12 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
     N1                      =       np.float(turbofan.fan.rotation)
     Diameter_primary        =       turbofan.core_nozzle_diameter
     Diameter_secondary      =       turbofan.fan_nozzle_diameter
+    engine_height           =       turbofan.engine_height
+    EXA                     =       turbofan.exa
+    Plug_diameter           =       turbofan.plug_diameter 
+    Xe                      =       turbofan.geometry_xe
+    Ye                      =       turbofan.geometry_ye
+    Ce                      =       turbofan.geometry_Ce
     
     Velocity_aircraft       =       np.float(noise_segment.conditions.freestream.velocity[0,0]) 
     Altitude                =       noise_segment.conditions.freestream.altitude[:,0] 
@@ -97,7 +103,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
     time                    =       noise_segment.conditions.frames.inertial.time  
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_geometric(noise_segment,analyses)
+    geometric = noise_geometric(noise_segment,analyses,config)
     #unpack
     angles              = geometric[:][1]
     distance_microphone = geometric[:][0]    
@@ -105,7 +111,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
     
     nsteps=len(time)        
     
-    #Mudanca 03 de Agosto
+    #Preparing matrix for noise calculation
     sound_ambient       = np.zeros(nsteps)
     density_ambient     = np.zeros(nsteps)
     viscosity           = np.zeros(nsteps)
@@ -126,37 +132,21 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
         temperature_ambient[id] =   np.float(atmo_data.temperature)
         pressure_amb[id]        =   np.float(atmo_data.pressure)
     
-    #Necessary input for the code
-    pressure_isa=101325 #[Pa]
-    R_gas=287.1         #[J/kg K]
-    gama_primary=1.37 #Corretion for the primary jet
-    gama=1.4
+    #Base parameters necessary input for the noise code
+    pressure_isa = 101325 #[Pa]
+    R_gas        = 287.1  #[J/kg K]
+    gama_primary = 1.37   #Corretion for the primary jet
+    gama         = 1.4
 
     #Calculation of nozzle areas
-    Area_primary = np.pi*(Diameter_primary/2)**2 
+    Area_primary   = np.pi*(Diameter_primary/2)**2 
     Area_secondary =  np.pi*(Diameter_secondary/2)**2 
 
-    # Engine input information
-    EXA = 1 #(distance from fan face to fan exit/ fan diameter)
-
-    Plug_diameter = 0.1
-
-    #distance_microphone = 13.08
- #   angles=[60,70,80,90,100,110,120,130] #Array of desired polar angles
-    Xo=0 #1 #Acoustic center of reference [m]
-   # dist= 1.5 #Dist?ncia da sa?da de exaust?o at? o microfone(KQ) [m]
+    Xo=0 #Acoustic center of reference [m] - Used for wind tunnel acoustic data
 
     #Flags for definition of near-fiel or wind-tunnel data
     near_field = 0
     tunnel     = 0
-
-    # Geometry information for the installation effects function
-    Xe = 1
-    Ye = 1
-    Ce = 2
-
-    #Engine centerline heigh above the ground plane
-    engine_height = 0.5
 
     """Starting the main program"""
 
@@ -169,8 +159,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
             2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000))
 
 
-#Defining each array before the main loop - Changed August 03rd
-
+#Defining each array before the main loop
     B       = np.zeros(24)
     theta_p = np.ones(24)*np.pi/2
     theta_s = np.ones(24)*np.pi/2
@@ -196,8 +185,11 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
     SPL_mixed_history     = np.zeros((nsteps,24))
 
     # Open output file to print the results
-    filename = ('SAE_Noise_' + '_' + str(config.tag) + '.dat')
-    fid      = open(filename,'w')
+    if ioprint:
+        if not filename:
+            filename = ('SAE_Noise_' + str(config.tag) + '.dat')
+            
+        fid      = open(filename,'w')
     
  #START LOOP FOR EACH POSITION OF AIRCRAFT   
     for id in range(0,nsteps):
@@ -265,8 +257,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
         exd = np.exp(0.6-(EXA)**0.5)
     
         #Excitation source location factor (zk)
-        zk = 1-0.4*(exd)*(exps)
-    
+        zk = 1-0.4*(exd)*(exps)    
 
         #Main loop for the desired polar angles
 
@@ -287,12 +278,11 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
                 EX_m[i] = exd*exs[i]*exc[i]   #mixed component - dependant of the frequency
         
         EX_p = +5*exd*exps   #primary component - no frequency dependance
-        EX_s = 2*sound_ambient[id]/(Velocity_secondary[id]*(zk)) #secondary component - no frequency dependance
+        EX_s = 2*sound_ambient[id]/(Velocity_secondary[id]*(zk)) #secondary component - no frequency dependance    
     
-    
-        distance_primary   = distance_microphone[id] # dist #*sin(theta)/sin(thetaj(i,1));
-        distance_secondary = distance_microphone[id] # #*sin(theta)/sin(thetaj(i,2));
-        distance_mixed     = distance_microphone[id] # #*sin(theta)/sin(thetaj(i,3));
+        distance_primary   = distance_microphone[id] 
+        distance_secondary = distance_microphone[id] 
+        distance_mixed     = distance_microphone[id]
     
         #Noise attenuation due to Ambient Pressure
         dspl_ambient_pressure = 20*np.log10(pressure_amb[id]/pressure_isa)
@@ -341,17 +331,17 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
                  #Atmospheric attenuation
                 delta_atmo = atmospheric_attenuation(distance_primary)
                 
-                dspl_attenuation_p = -delta_atmo #-Ac_primary*distance_primary  #np.zeros(24) #
-                dspl_attenuation_s = -delta_atmo #-Ac_secondary*distance_secondary #np.zeros(24) #
-                dspl_attenuation_m = -delta_atmo #-Ac_mixed*distance_mixed     #np.zeros(24) #
+                dspl_attenuation_p = -delta_atmo 
+                dspl_attenuation_s = -delta_atmo 
+                dspl_attenuation_m = -delta_atmo 
     
         elif tunnel==1: #These corrections are not applicable for jet rigs or static conditions
-                dspl_attenuation_p=np.zeros(24)
-                dspl_attenuation_s=np.zeros(24)
-                dspl_attenuation_m=np.zeros(24)
-                EX_m=np.zeros(24)
-                EX_p=0
-                EX_s=0
+                dspl_attenuation_p = np.zeros(24)
+                dspl_attenuation_s = np.zeros(24)
+                dspl_attenuation_m = np.zeros(24)
+                EX_m = np.zeros(24)
+                EX_p = 0
+                EX_s = 0
     
        #Calculation of the total noise attenuation (p-primary, s-secondary, m-mixed components)
         DSPL_p = dspl_ambient_pressure+dspl_density_p+dspl_geometric_p+dspl_acoustic_p+dspl_attenuation_p+dspl_spherical_p
@@ -407,69 +397,71 @@ def noise_SAE (turbofan,noise_segment,config,analyses):
     EPNL_secondary = epnl_noise(PNLT_secondary)
     EPNL_mixed     = epnl_noise(PNLT_mixed)
     
-   # print EPNL_total
-    
-     #Printing the output solution for the engine noise calculation
-     
-    fid.write('Engine noise module - SAE Model for Turbofan' + '\n')
-    fid.write('Certification point = FLYOVER' + '\n')
-    fid.write('EPNL = ' + str('%3.2f' % EPNL_total) + '\n')
-    fid.write('PNLTM = ' + str('%3.2f' % np.max(PNLT_total)) + '\n')
-    
-    
-    fid.write('Reference speed =  ')
-    fid.write(str('%2.2f' % (Velocity_aircraft/Units.kts))+'  kts')
-    fid.write('\n')
-    fid.write('PNLT history')
-    fid.write('\n')
-    fid.write('time     	altitude     Mach     Core Velocity   Fan Velocity  Polar angle    Azim angle    distance    Primary	  Secondary 	 Mixed        Total')
-    fid.write('\n')
-    for id in range (0,nsteps):
-        fid.write(str('%2.2f' % time[id])+'        ')
-        fid.write(str('%2.2f' % Altitude[id])+'        ')
-        fid.write(str('%2.2f' % Mach_aircraft[id])+'        ')
-        fid.write(str('%3.3f' % Velocity_primary[id])+'        ')
-        fid.write(str('%3.3f' % Velocity_secondary[id])+'        ')
-        fid.write(str('%2.2f' % (angles[id]*180/np.pi))+'        ')
-        fid.write(str('%2.2f' % (phi[id]*180/np.pi))+'        ')
-        fid.write(str('%2.2f' % distance_microphone[id])+'        ')
-        fid.write(str('%2.2f' % PNLT_primary[id])+'        ')
-        fid.write(str('%2.2f' % PNLT_secondary[id])+'        ')
-        fid.write(str('%2.2f' % PNLT_mixed[id])+'        ')
-        fid.write(str('%2.2f' % PNLT_total[id])+'        ')
-        fid.write('\n')
-    fid.write('\n')
-    fid.write('PNLT max =  ')
-    fid.write(str('%2.2f' % (np.max(PNLT_total)))+'  dB')
-    fid.write('\n')
-    fid.write('EPNdB')
-    fid.write('\n')
-    fid.write('f	Primary    Secondary  	 Mixed       Total')
-    fid.write('\n')
-    fid.write(str('%2.2f' % EPNL_primary)+'        ')
-    fid.write(str('%2.2f' % EPNL_secondary)+'        ')
-    fid.write(str('%2.2f' % EPNL_mixed)+'        ')
-    fid.write(str('%2.2f' % EPNL_total)+'        ')
-    fid.write('\n')
-    
-    for id in range (0,nsteps):
-        fid.write('\n')
-        fid.write('Emission angle = ' + str(angles[id]*180/np.pi) + '\n')
-        fid.write('Altitute = ' + str(Altitude[id]) + '\n')
-        fid.write('Distance = ' + str(distance_microphone[id]) + '\n')
-        fid.write('Time = ' + str(time[id]) + '\n')
-        fid.write('f		Primary  Secondary  	Mixed  		Total' + '\n')
-     
    
-        for ijd in range(0,24):
-                fid.write(str((frequency[ijd])) + '       ')
-                fid.write(str('%3.2f' % SPL_primary_history[id][ijd]) + '       ')
-                fid.write(str('%3.2f' % SPL_secondary_history[id][ijd]) + '       ')
-                fid.write(str('%3.2f' % SPL_mixed_history[id][ijd]) + '       ')
-                fid.write(str('%3.2f' % SPL_total_history[id][ijd]) + '       ')
-                fid.write('\n')
+    if ioprint:
+       # print EPNL_total
         
-           
-    fid.close
+         #Printing the output solution for the engine noise calculation
+         
+        fid.write('Engine noise module - SAE Model for Turbofan' + '\n')
+        fid.write('Certification point = FLYOVER' + '\n')
+        fid.write('EPNL = ' + str('%3.2f' % EPNL_total) + '\n')
+        fid.write('PNLTM = ' + str('%3.2f' % np.max(PNLT_total)) + '\n')
+        
+        
+        fid.write('Reference speed =  ')
+        fid.write(str('%2.2f' % (Velocity_aircraft/Units.kts))+'  kts')
+        fid.write('\n')
+        fid.write('PNLT history')
+        fid.write('\n')
+        fid.write('time     	altitude     Mach     Core Velocity   Fan Velocity  Polar angle    Azim angle    distance    Primary	  Secondary 	 Mixed        Total')
+        fid.write('\n')
+        for id in range (0,nsteps):
+            fid.write(str('%2.2f' % time[id])+'        ')
+            fid.write(str('%2.2f' % Altitude[id])+'        ')
+            fid.write(str('%2.2f' % Mach_aircraft[id])+'        ')
+            fid.write(str('%3.3f' % Velocity_primary[id])+'        ')
+            fid.write(str('%3.3f' % Velocity_secondary[id])+'        ')
+            fid.write(str('%2.2f' % (angles[id]*180/np.pi))+'        ')
+            fid.write(str('%2.2f' % (phi[id]*180/np.pi))+'        ')
+            fid.write(str('%2.2f' % distance_microphone[id])+'        ')
+            fid.write(str('%2.2f' % PNLT_primary[id])+'        ')
+            fid.write(str('%2.2f' % PNLT_secondary[id])+'        ')
+            fid.write(str('%2.2f' % PNLT_mixed[id])+'        ')
+            fid.write(str('%2.2f' % PNLT_total[id])+'        ')
+            fid.write('\n')
+        fid.write('\n')
+        fid.write('PNLT max =  ')
+        fid.write(str('%2.2f' % (np.max(PNLT_total)))+'  dB')
+        fid.write('\n')
+        fid.write('EPNdB')
+        fid.write('\n')
+        fid.write('f	Primary    Secondary  	 Mixed       Total')
+        fid.write('\n')
+        fid.write(str('%2.2f' % EPNL_primary)+'        ')
+        fid.write(str('%2.2f' % EPNL_secondary)+'        ')
+        fid.write(str('%2.2f' % EPNL_mixed)+'        ')
+        fid.write(str('%2.2f' % EPNL_total)+'        ')
+        fid.write('\n')
+        
+        for id in range (0,nsteps):
+            fid.write('\n')
+            fid.write('Emission angle = ' + str(angles[id]*180/np.pi) + '\n')
+            fid.write('Altitude = ' + str(Altitude[id]) + '\n')
+            fid.write('Distance = ' + str(distance_microphone[id]) + '\n')
+            fid.write('Time = ' + str(time[id]) + '\n')
+            fid.write('f		Primary  Secondary  	Mixed  		Total' + '\n')
+         
+       
+            for ijd in range(0,24):
+                    fid.write(str((frequency[ijd])) + '       ')
+                    fid.write(str('%3.2f' % SPL_primary_history[id][ijd]) + '       ')
+                    fid.write(str('%3.2f' % SPL_secondary_history[id][ijd]) + '       ')
+                    fid.write(str('%3.2f' % SPL_mixed_history[id][ijd]) + '       ')
+                    fid.write(str('%3.2f' % SPL_total_history[id][ijd]) + '       ')
+                    fid.write('\n')
+            
+               
+        fid.close
     
     return(EPNL_total,SPL_total_history)
