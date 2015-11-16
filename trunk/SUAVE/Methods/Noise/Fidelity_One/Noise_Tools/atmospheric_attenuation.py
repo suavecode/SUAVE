@@ -23,10 +23,10 @@ def atmospheric_attenuation(dist):
                 SAE Model for a standard day."""
       
     #Atmospheric attenuation factor for a 70% humidity and 25 Celsius at 1000ft - Based SAE model
-    Att_dB=np.array((0.09,0.11,0.14,0.17,0.22,0.28,0.35,0.44,0.55,0.7,0.88,1.11,1.42,1.78,2.24,2.88,3.64,4.6,5.89,7.63,8.68,11.08,14.87,20.61))
+    Att_dB = np.array((0.09,0.11,0.14,0.17,0.22,0.28,0.35,0.44,0.55,0.7,0.88,1.11,1.42,1.78,2.24,2.88,3.64,4.6,5.89,7.63,8.68,11.08,14.87,20.61))
     
     
     #Calculates de delta SPL as a function of the distance
-    delta_spl= Att_dB*(dist)/1000
+    delta_spl = Att_dB*(dist)/1000
     
     return (delta_spl)
