@@ -20,9 +20,9 @@ def dbA_noise(SPL):
                     SPL_dbA                 - A-weighted Sound Pressure Level in dbA"""
     
     #Matrix with the dbA attenuation factor for each octave band frequnecy ranging from 50Hz to 10000Hz
-    dbA_attenuation=np.array((-30.2,-26.2,-22.5,-19.1,-16.1,-13.4,-10.9,-8.6,-6.6,-4.8,-3.2,-1.9,-0.8,0,0.6,1,1.2,1.3,1.2,1,0.5,-0.1,-1.1,-2.5))
+    dbA_attenuation = np.array((-30.2,-26.2,-22.5,-19.1,-16.1,-13.4,-10.9,-8.6,-6.6,-4.8,-3.2,-1.9,-0.8,0,0.6,1,1.2,1.3,1.2,1,0.5,-0.1,-1.1,-2.5))
     
     #Calculation the SPL_dbA
-    SPL_dbA=SPL+dbA_attenuation
+    SPL_dbA = SPL+dbA_attenuation
         
     return (SPL_dbA)
