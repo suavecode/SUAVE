@@ -1,4 +1,4 @@
-# Angle_vector_noise.py
+# noise_geometric.py
 # 
 # Created:  Nov 2015, Carlos Ilario
 
