@@ -1,4 +1,4 @@
-# dbA_noise.py
+# atmospheric_attenuation.py
 #
 # Created:  Carlos (July, 15th, 2015)
 # Modified:

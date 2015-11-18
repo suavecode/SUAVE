@@ -1,6 +1,6 @@
 # primary_noise_component.py
 # 
-# Created:  Jun 2015
+# Created:  Jul 2015
 # Modified: 
 
 # ----------------------------------------------------------------------        

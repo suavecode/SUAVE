@@ -1,14 +1,11 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
-#
-# Author:      CARIDSIL
-#
-# Created:     08/07/2015
-# Copyright:   (c) CARIDSIL 2015
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+# angle_of_attack_effect.py
+# 
+# Created:  Jul 2015, Carlos
+# Modified: 
 
+# ----------------------------------------------------------------------        
+#   Imports
+# ---------------------------------------------------------------------- 
 import numpy as np
 
 def angle_of_attack_effect (AOA,Mach_aircraft,theta_m):
