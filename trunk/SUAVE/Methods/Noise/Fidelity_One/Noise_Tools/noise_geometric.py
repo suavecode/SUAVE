@@ -132,7 +132,6 @@ def noise_geometric(noise_segment,analyses,config):
         phi   = np.arctan(z0/altitude)
         dist  = np.sqrt((z0/np.sin(phi))**2+(s-x0)**2)
         
-       # theta = np.arccos(np.abs((x0-s)/dist))
         
         for i in range(0, n_steps):
             if (s[i]-x0)< 0.:
