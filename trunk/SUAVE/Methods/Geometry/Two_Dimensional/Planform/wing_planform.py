@@ -82,11 +82,23 @@ def wing_planform(wing):
     if symmetric:
         y_coord = 0    
         
-    # move AC to be in reference to the vehicle:
-    #x_coord = x_coord + origin[0]
-    #y_coord = y_coord + origin[1]
-    #z_coord = z_coord + origin[2]
-                    
+    # Computing flap geometry
+    if wing.flaps.chord:     
+        flap = wing.flaps
+        #compute wing chords at flap start and end
+        delta_chord = chord_tip - chord_root
+        
+        wing_chord_flap_start = chord_root + delta_chord * flap.span_start 
+        wing_chord_flap_end   = chord_root + delta_chord * flap.span_end  
+        wing_mac_flap = 2./3.*( wing_chord_flap_start+wing_chord_flap_end - \
+                                wing_chord_flap_start*wing_chord_flap_end/  \
+                                (wing_chord_flap_start+wing_chord_flap_end) )
+        
+        flap.chord_dimensional = wing_mac_flap * flap.chord
+        flap_chord_start = wing_chord_flap_start * flap.chord
+        flap_chord_end   = wing_chord_flap_end * flap.chord
+        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.            
+    
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
@@ -106,22 +118,23 @@ def wing_planform(wing):
 if __name__ == '__main__':
 
     from SUAVE.Core import Data,Units
-    
+    from SUAVE.Components.Wings import Wing
+        
     #imports
-    wing = Data()
-    wing.areas = Data()
-    wing.chords = Data()
-    wing.areas = Data()
-    wing.spans = Data()
+    wing = Wing()
     
     wing.areas.reference        = 10.
-    wing.taper                  =  1.0
+    wing.taper                  =  0.50
     wing.sweep                  =  45.  * Units.deg
     wing.aspect_ratio           = 10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg
     wing.vertical               =  1
     wing.symmetric              =  0
+    
+    wing.flaps.chord = 0.28
+    wing.flaps.span_start = 0.50
+    wing.flaps.span_end   = 1.00
 
     wing_planform(wing)
     print wing

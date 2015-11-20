@@ -10,3 +10,4 @@ import Constant_Dynamic_Pressure_Constant_Rate
 import Constant_Throttle_Constant_Dynamic_Pressure
 import Constant_Throttle_Constant_EAS
 import Constant_Speed_Constant_Angle
+import Constant_Speed_Constant_Angle_Noise
