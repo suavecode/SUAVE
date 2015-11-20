@@ -35,7 +35,9 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     # Instantiate the problem and set objective
     import pyOpt 
     opt_prob = pyOpt.Optimization('SUAVE',mywrap)
-    opt_prob.addObj(obj[0,0])    
+    for ii in xrange(len(obj)):
+        opt_prob.addObj(obj[ii,0])    
+        
     
     # Set inputs
     nam = inp[:,0] # Names
@@ -93,7 +95,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
         opt = pyOpt.pyPSQP.PSQP()     
     elif solver == 'NLPQL':
         import pyOpt.pyNLPQL
-        opt = pyOpt.pyNLPQL.NLPQL()        
+        opt = pyOpt.pyNLPQL.NLPQL()    
+    elif solver == 'NSGA2':
+        import pyOpt.pyNSGA2
+        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')     
     
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
