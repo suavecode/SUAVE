@@ -65,6 +65,11 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     ebat = np.dot(I,P)
     ebat =np.reshape(ebat,np.shape(battery.current_energy)) #make sure it's consistent
     # Add this to the current state
+    if np.isnan(ebat).any():
+        ebat=np.ones_like(ebat)*np.max(ebat)
+        if np.isnan(ebat.any()): #all nans; handle this instance
+            ebat=np.zeros_like(ebat)
+        
     battery.current_energy   = ebat + battery.current_energy[0]
     battery.resistive_losses = Ploss
     
