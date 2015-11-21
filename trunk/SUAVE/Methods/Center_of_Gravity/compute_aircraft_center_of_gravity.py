@@ -81,23 +81,6 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     landing_gear.origin[0]   =fuselage.origin[0]+fuselage.lengths.nose
 
    
-<<<<<<< HEAD
-    while np.abs(error)>.01 and count<10:
-        landing_gear.mass_properties.center_of_gravity      =aft_gear_location*2./3.   #assume that nose landing gear is 1/3 of overall landing gear (fix later)
-        landing_gear_moment                                 =(landing_gear.origin+landing_gear.mass_properties.center_of_gravity)*landing_gear.mass_properties.mass
-        vehicle.mass_properties.center_of_gravity           =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
-        fuselage_moment+turbo_fan_moment+electrical_systems_moment+avionics_moment+furnishings_moment+passengers_moment+\
-        ac_moment+fuel_moment+apu_moment+landing_gear_moment+ hydraulics_moment+optionals_moment  )/(vehicle.mass_properties.max_takeoff)
-        aft_gear_location[0]                               =(1./(1-nose_load_fraction))*(vehicle.mass_properties.center_of_gravity[0]-landing_gear.origin[0])
-        error                                               =(center_of_gravity_guess[0]-vehicle.mass_properties.center_of_gravity[0])/((center_of_gravity_guess[0]+vehicle.mass_properties.center_of_gravity[0])/2.)
-        center_of_gravity_guess                             =1*vehicle.mass_properties.center_of_gravity #copy value
-        count+=1 
-      
-    vehicle.mass_properties.center_of_gravity[1]=0 #symmetric aircraft
-    
-#    print vehicle.mass_properties.center_of_gravity[0]
-    return vehicle.mass_properties.center_of_gravity
-=======
     #find moment of every object other than landing gear to find aft gear location, then cg
     sum_moments              =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
         fuselage_moment+turbo_fan_moment+electrical_systems_moment+\
@@ -122,4 +105,3 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     vehicle.mass_properties.zero_fuel_center_of_gravity=(sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
     
     return vehicle.mass_properties.center_of_gravity
->>>>>>> upstream/develop
