@@ -134,12 +134,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     state = Data()
     state.conditions = Aerodynamics() 
     state.numerics   = Numerics()
-    
     conditions = state.conditions    
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream/develop
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity         = np.array(np.atleast_1d(speed_for_thrust))

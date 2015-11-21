@@ -1,7 +1,7 @@
 # Fidelity_Zero.py
 # 
 # Created:  Andrew, July 2014
-# Modified: M. Vegh, November 2015       
+# Modified:        
 
 
 # ----------------------------------------------------------------------
@@ -73,21 +73,13 @@ class Fidelity_Zero(Stability):
     def finalize(self):
                         
         # unpack
-        geometry         = self.geometry  #really a vehicle object
+        geometry         = self.geometry
         configuration    = self.configuration
         stability_model  = self.stability_model
         
-        
         configuration.mass_properties = geometry.mass_properties
         
-        if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
-            configuration.fuel=geometry.fuel
-        else: #assign as zero to allow things to run
-            fuel=SUAVE.Components.Physical_Component()
-            fuel.mass_properties.mass=0.
-            configuration.fuel=fuel
-         
-            
+    
     def __call__(self,conditions):
         """ process vehicle to setup geometry, condititon and configuration
             
@@ -106,7 +98,6 @@ class Fidelity_Zero(Stability):
         # unpack
         configuration   = self.configuration
         geometry        = self.geometry
-     
         stability_model = self.stability_model
         
         q             = conditions.freestream.dynamic_pressure

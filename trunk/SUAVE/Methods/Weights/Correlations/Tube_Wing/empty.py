@@ -179,49 +179,6 @@ def empty(vehicle):
                           wt_tail_horizontal + output_3.wt_tail_vertical + output_3.wt_rudder) 
     vehicle.fuselages['fuselage'].mass_properties.mass = wt_fuselage
 
-    #add these as weight objects now for potential cg calculation
-    landing_gear_component=SUAVE.Components.Physical_Component()
-    vehicle.landing_gear=landing_gear_component
-
-    control_systems=SUAVE.Components.Physical_Component()
-    vehicle.control_systems=control_systems
-    
-    electrical_systems=SUAVE.Components.Physical_Component()
-    vehicle.electrical_systems=electrical_systems
-    
-    avionics=SUAVE.Components.Energy.Peripherals.Avionics()
-    vehicle.avionics=avionics
-    
-    passengers=SUAVE.Components.Physical_Component()
-    vehicle.passenger_weights=passengers
-    
-    furnishings=SUAVE.Components.Physical_Component()
-    vehicle.furnishings=furnishings
-    
-    air_conditioner=SUAVE.Components.Physical_Component()
-    vehicle.air_conditioner=air_conditioner
-    
-    
-    fuel=SUAVE.Components.Physical_Component()
-    vehicle.fuel=fuel
-    
-    apu=SUAVE.Components.Physical_Component()
-    vehicle.apu=apu
-    
-    hydraulics=SUAVE.Components.Physical_Component()
-    vehicle.hydraulics=hydraulics
-    
-    optionals=SUAVE.Components.Physical_Component()
-    vehicle.optionals=optionals
-    
-    rudder=SUAVE.Components.Physical_Component()
-    vehicle.wings['vertical_stabilizer'].rudder=rudder
-    
-    
-    
-    
-    
-    
     # packup outputs
     output             = payload(TOW, wt_empty, num_pax,wt_cargo)
     output.wing              = wt_wing
@@ -242,22 +199,5 @@ def empty(vehicle):
     output.systems_breakdown.electrical        = output_2.wt_elec        
     output.systems_breakdown.air_conditioner   = output_2.wt_ac          
     output.systems_breakdown.furnish           = output_2.wt_furnish    
-    
-    vehicle.wings['vertical_stabilizer'].rudder.mass_properties.mass=output.rudder
-    vehicle.landing_gear.mass_properties.mass=output.landing_gear
-    vehicle.control_systems.mass_properties.mass=output.systems_breakdown.control_systems
-    vehicle.electrical_systems.mass_properties.mass=output.systems_breakdown.electrical
-    vehicle.passenger_weights.mass_properties.mass=output.pax+output.bag
-    vehicle.furnishings.mass_properties.mass=output.systems_breakdown.furnish
-    vehicle.avionics.mass_properties.mass=output.systems_breakdown.avionics+output.systems_breakdown.instruments
-    vehicle.air_conditioner.mass_properties.mass=output.systems_breakdown.air_conditioner
-    vehicle.fuel.mass_properties.mass=output.fuel
-    vehicle.apu.mass_properties.mass=output.systems_breakdown.apu
-    vehicle.propulsors['turbo_fan'].mass_properties.mass=output.propulsion
-    vehicle.hydraulics.mass_properties.mass=output.systems_breakdown.hydraulics
-    vehicle.optionals.mass_properties.mass=output.systems_breakdown.optionals
-    
-    
-    
-    
+
     return output

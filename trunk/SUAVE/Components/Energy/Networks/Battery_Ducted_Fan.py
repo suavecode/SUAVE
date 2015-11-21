@@ -50,7 +50,7 @@ class Battery_Ducted_Fan(Propulsor):
         try:
             initial_energy=conditions.propulsion.battery_energy
             if initial_energy[0][0]==0: #beginning of segment; initialize battery
-                battery.current_energy  =battery.current_energy[-1]*np.ones_like(initial_energy)
+                battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
            
                 
         except AttributeError: #battery energy not initialized, e.g. in takeoff
@@ -60,7 +60,7 @@ class Battery_Ducted_Fan(Propulsor):
         battery_logic     = Data()
         battery_logic.power_in = pbat
         battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-        
+      
         battery.inputs    =battery_logic
         tol = 1e-6
         
