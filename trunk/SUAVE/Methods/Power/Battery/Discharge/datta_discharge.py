@@ -36,8 +36,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     
     f = 1-np.exp(-20.*x)-np.exp(-20.*(1.-x))
     
-    
-    f[x<0.0] = 0.0 # Negative f's don't make sense
+    f[f<0.0] = 0.0 # Negative f's don't make sense
     f=np.reshape(f, np.shape(C))
     # Model discharge characteristics based on changing resistance
     R = Rbat*(1.+np.multiply(C,f)) #have to transpose to prevent large matrices
