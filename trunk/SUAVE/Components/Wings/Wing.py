@@ -60,7 +60,6 @@ class Wing(Lofted_Body):
         self.flaps.span_start = 0.0
         self.flaps.span_end = 0.0
         self.flaps.type = None
-        self.flaps.area = 0.0
 
         self.slats = Data()
         self.slats.chord = 0.0
