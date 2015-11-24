@@ -1,12 +1,11 @@
-# epnl_noise.py
+# jet_installation_effect.py
 # 
-# Created:  20 Jul 2015, Carlos
+# Created:  20th Jul 2015, Carlos
 # Modified: 
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
-
 import SUAVE
 
 import numpy as np

@@ -59,9 +59,5 @@ nosetests.xml
 *.dat
 
 
-<<<<<<< HEAD
-/scripts/experimental/test_noise_fidelity_one.py
-=======
 
 ide/Wing/SUAVE.wpr
->>>>>>> 32b6443510b1df2e3c6d3514a77d97bfe988dbcf
