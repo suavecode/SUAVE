@@ -88,7 +88,8 @@ class Ducted_Fan(Propulsor):
         pid=self.diffuser_pressure_ratio
         pif=self.fan_pressure_ratio
         pifn=self.fan_nozzle_pressure_ratio
-        FD=self.design_thrust
+        number_of_engines=self.number_of_engines
+        FD=self.design_thrust/self.number_of_engines
         
     
     
