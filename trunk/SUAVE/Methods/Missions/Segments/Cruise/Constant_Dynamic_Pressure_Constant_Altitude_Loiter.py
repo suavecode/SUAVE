@@ -24,7 +24,7 @@ def initialize_conditions(segment,state):
         segment.altitude = alt        
     
     # compute speed, constant with constant altitude
-    air_speed = np.sqrt(q/rho)
+    air_speed = np.sqrt(q/(rho*0.5))
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
