@@ -121,6 +121,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     
     Velocity_primary = np.ones(nsteps)*Velocity_primary_1
     Velocity_secondary = np.ones(nsteps)*Velocity_secondary_1
+
     
     # ==============================================
     # Computing atmospheric conditions
