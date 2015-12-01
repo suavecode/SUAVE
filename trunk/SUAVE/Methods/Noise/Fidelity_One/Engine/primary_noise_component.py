@@ -26,7 +26,7 @@ def primary_noise_component (SPL_p,Velocity_primary,Temperature_primary,R_gas,th
 
         #Calculation of the Source Strengh Function (FV)
         FV = Mach_primary_jet*(np.float(DVPS)/sound_ambient)**0.6*(np.float((Velocity_primary+Velocity_secondary))/sound_ambient)**0.4* \
-        (np.float((Velocity_primary-Velocity_aircraft)/Velocity_primary))**velocity_exponent
+        (np.float(np.abs(Velocity_primary-Velocity_aircraft)/Velocity_primary))**velocity_exponent
 
         #Determination of the noise model coefficients
         Z1 = -18*((1.8*theta_p[i]/np.pi)-0.6)**2
