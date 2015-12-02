@@ -1,7 +1,7 @@
 # taw_cmalpha.py
 #
 # Created:  Tim Momose, April 2014
-# Modified: Andrew Wendorff, July 2014
+# Modified: Michael Vegh, November 2015
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +11,7 @@ import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+from SUAVE.Methods.Center_of_Gravity.compute_mission_center_of_gravity import compute_mission_center_of_gravity
 from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
@@ -84,6 +85,12 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
     M     = mach
     
+    weights=conditions.weights.total_mass
+    fuel_weights=weights-configuration.mass_properties.max_zero_fuel
+    cg=compute_mission_center_of_gravity(configuration,fuel_weights)
+    #x_cg  = configuration.mass_properties.center_of_gravity[0]
+    x_cg=cg[:,0] #get cg location at every point in the mission
+
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
     for surf in geometry.wings:

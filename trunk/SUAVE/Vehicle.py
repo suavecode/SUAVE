@@ -1,5 +1,7 @@
 """ Vehicle.py: SUAVE Vehicle container class with database + input / output functionality """
 
+#Modified: M. Vegh
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -10,7 +12,7 @@ from SUAVE.Components import Component_Exception
 from SUAVE.Methods.Utilities import switch
 
 from copy import deepcopy
-
+import numpy as np
 # ----------------------------------------------------------------------
 #  Vehicle Data Class
 # ----------------------------------------------------------------------
@@ -134,6 +136,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_fuel        = 0.0
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
+        self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
 
         # ambiguous in this context
         del self.mass
