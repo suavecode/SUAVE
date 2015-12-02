@@ -81,7 +81,7 @@ def main():
     #segment            = SUAVE.Analyses.Mission.Segments.Base_Segment()
     segment            = SUAVE.Analyses.Mission.Segments.Segment()
     segment.freestream = Data()
-    segment.freestream.mach_number = Mach[0]
+    segment.freestream.mach_number = Mach
     segment.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     altitude           = 0.0 * Units.feet
     
@@ -93,7 +93,7 @@ def main():
 
     #Method Test
     cn_b = taw_cnbeta(vehicle,segment,configuration)
-    expected = 0.10045 # Should be 0.184
+    expected = 0.08122837 # Should be 0.184
     error = Data()
     error.cn_b_747 = (cn_b-expected)/expected
 

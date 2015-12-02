@@ -9,13 +9,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from scipy.interpolate import griddata
-#from warnings import warn
-
 # package imports
 import numpy as np
 import pylab as plt

@@ -14,7 +14,7 @@ from warnings import warn
 
 # SUAVE imports
 from SUAVE.Core import Data
-import SUAVE.Plugins.VyPy.tools.redirect as redirect
+from SUAVE.Core import redirect
 
 from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics import Aerodynamics
 from SUAVE.Analyses.Mission.Segments.Conditions.Conditions   import Conditions

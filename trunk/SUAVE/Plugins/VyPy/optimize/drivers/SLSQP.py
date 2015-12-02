@@ -1,1 +1,0 @@
-from .scipy import SLSQP

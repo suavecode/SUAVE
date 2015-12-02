@@ -18,13 +18,15 @@ from SUAVE.Core import (
 # ----------------------------------------------------------------------
 
 
-def air_cooled_motor(max_power):
+def air_cooled_motor(max_power, kwt2=1.96, xwt=.8897):
     """ weight = SUAVE.Methods.Correlations.Propulsion.air_cooled_motor(max_power)
         Calculate the weight of an air-cooled motor    
-    
+        weight correlation; weight=kwt2*(max_power**xwt)
         Inputs:
                 max_power- maximum power the motor can deliver safely [Watts]
-        
+                kwt2
+                xwt
+                
         Outputs:
                 weight- weight of the motor [kilograms]
             
@@ -39,6 +41,6 @@ def air_cooled_motor(max_power):
     
     
     # process
-    weight = ((1./2.2)*1.96*((max_power/1000.)**.8897))   #weight in kg
-    
-    return weight
+    weight = kwt2*((max_power/Units.kW)**xwt)   #weight in lbs.
+    mass   =weight/Units.kg
+    return mass

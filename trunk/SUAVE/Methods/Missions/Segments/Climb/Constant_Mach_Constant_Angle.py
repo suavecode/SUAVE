@@ -9,8 +9,8 @@ def initialize_conditions(segment,state):
     
     # unpack
     # unpack user inputs
-    climb_angle = self.climb_angle
-    mach_number = self.mach
+    climb_angle = segment.climb_angle
+    mach_number = segment.mach
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
@@ -20,7 +20,6 @@ def initialize_conditions(segment,state):
     if alt0 is None:
         if not state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude_start = alt0
 
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0

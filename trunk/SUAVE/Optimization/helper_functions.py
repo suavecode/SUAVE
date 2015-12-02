@@ -121,7 +121,14 @@ def get_values(dictionary,outputs,aliases):
 def scale_obj_values(inputs,x):
     
     provided_scale = inputs[:,1]
+<<<<<<< HEAD
     scaled =  x/provided_scale
+=======
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
+    
+    scaled =  x/(provided_scale*provided_units)
+>>>>>>> upstream/develop
     
     return scaled
 

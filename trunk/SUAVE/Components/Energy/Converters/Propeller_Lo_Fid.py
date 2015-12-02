@@ -28,12 +28,9 @@ class Propeller_Lo_Fid(Energy_Component):
     
     def __defaults__(self):
         
-        self.prop_attributes = Data
-        self.prop_attributes.number_blades      = 0.0
-        self.prop_attributes.tip_radius         = 0.0
-        self.prop_attributes.hub_radius         = 0.0
-        self.prop_attributes.twist_distribution = 0.0
-        self.prop_attributes.chord_distribution = 0.0
+        self.tip_radius            = 0.0
+        self.propulsive_efficiency = 0.0
+
         
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
@@ -59,11 +56,7 @@ class Propeller_Lo_Fid(Energy_Component):
            """
            
         # Unpack    
-        B     = self.prop_attributes.number_blades
-        R     = self.prop_attributes.tip_radius
-        Rh    = self.prop_attributes.hub_radius
-        beta  = self.prop_attributes.twist_distribution
-        c     = self.prop_attributes.chord_distribution
+        R     = self.tip_radius
         etap  = self.propulsive_efficiency
         omega = self.inputs.omega
         Qm    = self.inputs.torque

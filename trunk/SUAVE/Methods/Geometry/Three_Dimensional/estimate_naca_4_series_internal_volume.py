@@ -26,7 +26,11 @@ def estimate_naca_4_series_internal_volume(wing, m, p): #m is %camber, p is loca
     tc=wing.chords.tip
     span=wing.spans.projected
 
+<<<<<<< HEAD
     yc_front_spar_root=m*(.1*rc/p**2.)*(2*p-.1) #front spar is 10%chords
+=======
+    yc_front_spar_root=m*(.1*rc/p**2.)*(2*p-.1) #front spar is 10%chord
+>>>>>>> upstream/develop
     yc_rear_spar_root=m*((rc-.6*rc)/(1-p)**2.)*(1+.6-2*p)
     yc_front_spar_tip=m*(.1*tc/p**2.)*(2*p-.1) 
     yc_rear_spar_tip=m*((tc-.6*tc)/(1-p)**2.)*(1+.6-2*p)

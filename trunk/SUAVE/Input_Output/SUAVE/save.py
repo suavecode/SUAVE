@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Plugins.VyPy.data import save as vypy_save
+from SUAVE.Core.Input_Output import save_data
 
 # ----------------------------------------------------------------------
 #  Method
@@ -17,5 +17,5 @@ from SUAVE.Plugins.VyPy.data import save as vypy_save
 def save(data,filename):
     """ save data to file """
     
-    vypy_save(data,filename,file_format='pickle')
+    save_data(data,filename,file_format='pickle')
     

@@ -2,7 +2,7 @@
 """ SUAVE Data Base Classes
 """
 
-from SUAVE.Plugins.VyPy.data import DataBunch
+from Deep_Core import DataBunch
 
 # for enforcing attribute style access names
 import string

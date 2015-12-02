@@ -531,8 +531,13 @@ def vehicle_setup():
 
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
-
-
+    
+    fuel                    =SUAVE.Components.Physical_Component()
+    vehicle.fuel            =fuel
+    
+    fuel.mass_properties.mass=vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    fuel.origin                           =vehicle.wings.main_wing.mass_properties.center_of_gravity     
+    fuel.mass_properties.center_of_gravity=vehicle.wings.main_wing.aerodynamic_center
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
@@ -1005,7 +1010,7 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.stability.static.cm_alpha',
+        #'segments.cruise.conditions.stability.static.cm_alpha',
         'segments.cruise.conditions.stability.static.cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',

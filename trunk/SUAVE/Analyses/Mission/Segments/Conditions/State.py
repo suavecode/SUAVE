@@ -17,7 +17,7 @@ from Residuals  import Residuals
 from Numerics   import Numerics
 
 import SUAVE
-array_type = SUAVE.Plugins.VyPy.tools.arrays.array_type
+from SUAVE.Core.Arrays import array_type
 
 # ----------------------------------------------------------------------
 #  State

@@ -3,11 +3,6 @@
 """ Calculates mass flow of fuel cell based solely on specific energy
 end base efficiency factor """
 
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
 
 # ----------------------------------------------------------------------
 #  Methods

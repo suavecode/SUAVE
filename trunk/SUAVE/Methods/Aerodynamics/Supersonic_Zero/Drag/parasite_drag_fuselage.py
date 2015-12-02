@@ -95,6 +95,7 @@ def parasite_drag_fuselage(state,settings,geometry):
     du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
     
     k_fus = (1 + form_factor*du_max_u)**2
+    #k_fus = 1.
     
     #for i in range(len(Mc)):
         #if Mc[i] < 0.95:
