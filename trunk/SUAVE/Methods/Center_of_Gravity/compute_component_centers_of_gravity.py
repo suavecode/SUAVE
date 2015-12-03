@@ -16,6 +16,8 @@ def compute_component_centers_of_gravity(vehicle):
     control_systems   =vehicle.control_systems
     fuselage          =vehicle.fuselages['fuselage']
     landing_gear      =vehicle.landing_gear
+    #main_landing_gear =vehicle.main_landing_gear
+    #nose_landing_gear =vehicle.nose_landing_gear
     turbo_fan         =vehicle.propulsors['turbo_fan']
     electrical_systems=vehicle.electrical_systems
     avionics          =vehicle.avionics

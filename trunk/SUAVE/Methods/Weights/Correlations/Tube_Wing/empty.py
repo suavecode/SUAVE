@@ -180,8 +180,11 @@ def empty(vehicle):
     vehicle.fuselages['fuselage'].mass_properties.mass = wt_fuselage
 
  #add these as weight objects now for potential cg calculation
-    landing_gear_component=SUAVE.Components.Physical_Component()
-    vehicle.landing_gear=landing_gear_component
+    try: 
+        landing_gear_component=vehicle.landing_gear #landing gear previously defined
+    except AttributeError: # landing gear not defined
+        landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
+        vehicle.landing_gear=landing_gear_component
 
     control_systems=SUAVE.Components.Physical_Component()
     vehicle.control_systems=control_systems
