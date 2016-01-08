@@ -37,6 +37,7 @@ class Battery_Propeller(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.voltage           = None
+        self.thrust_angle      = 0.0
         self.tag               = 'network'
     
     # manage process with a driver function
@@ -65,6 +66,7 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         # link
         propeller.inputs.omega =  motor.outputs.omega
+        propeller.thrust_angle = self.thrust_angle
         # step 4
         F, Q, P, Cplast = propeller.spin(conditions)
        
@@ -125,7 +127,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_energy = battery_energy
         
         #Create the outputs
-        F    = self.number_of_engines * F * [1,0,0]      
+        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
         results = Data()

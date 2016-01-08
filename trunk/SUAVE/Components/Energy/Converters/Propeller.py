@@ -18,6 +18,10 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
+
+from SUAVE.Methods.Geometry.Three_Dimensional \
+     import angles_to_dcms, orientation_product, orientation_transpose
+
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -34,6 +38,7 @@ class Propeller(Energy_Component):
         self.prop_attributes.hub_radius         = 0.0
         self.prop_attributes.twist_distribution = 0.0
         self.prop_attributes.chord_distribution = 0.0
+        self.thrust_angle                       = 0.0
         
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
@@ -59,17 +64,21 @@ class Propeller(Energy_Component):
            """
            
         #Unpack    
-        B     = self.prop_attributes.number_blades
-        R     = self.prop_attributes.tip_radius
-        Rh    = self.prop_attributes.hub_radius
-        beta  = self.prop_attributes.twist_distribution
-        c     = self.prop_attributes.chord_distribution
+        B      = self.prop_attributes.number_blades
+        R      = self.prop_attributes.tip_radius
+        Rh     = self.prop_attributes.hub_radius
+        beta   = self.prop_attributes.twist_distribution
+        c      = self.prop_attributes.chord_distribution
         omega1 = self.inputs.omega
-        rho   = conditions.freestream.density[:,0,None]
-        mu    = conditions.freestream.dynamic_viscosity[:,0,None]
-        V     = conditions.freestream.velocity[:,0,None]
-        a     = conditions.freestream.speed_of_sound[:,0,None]
-        T     = conditions.freestream.temperature[:,0,None]
+        rho    = conditions.freestream.density[:,0,None]
+        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
+        V      = conditions.frames.inertial.velocity_vector
+        a      = conditions.freestream.speed_of_sound[:,0,None]
+        T      = conditions.freestream.temperature[:,0,None]
+            
+        # Local V
+        body2inertial = conditions.frames.body.transform_to_inertial
+        V = orientation_product(body2inertial,V)[:,0,None]*np.cos(self.thrust_angle)
         
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
