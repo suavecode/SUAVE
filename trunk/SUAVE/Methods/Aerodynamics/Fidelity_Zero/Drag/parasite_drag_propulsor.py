@@ -67,13 +67,13 @@ def parasite_drag_propulsor(state,settings,geometry):
     #for propulsor in propulsors.values():
     
     
-    Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
+    Sref        = propulsor.nacelle_diameter**2. / 4. * np.pi
     try:
         Swet        = propulsor.areas.wetted
     except:
-        propulsor.areas = Data()
+        propulsor.areas        = Data()
         propulsor.areas.wetted = 1.1 * propulsor.nacelle_diameter * np.pi * propulsor.engine_length
-        Swet        = propulsor.areas.wetted
+        Swet                   = propulsor.areas.wetted
     
     l_prop  = propulsor.engine_length
     d_prop  = propulsor.nacelle_diameter
@@ -94,18 +94,26 @@ def parasite_drag_propulsor(state,settings,geometry):
     
     # form factor for cylindrical bodies
     try: # Check if propulsor has an intake
-        A_max = propulsor.nacelle_diameter
+        #A_max = propulsor.nacelle_diameter
+        A_max = np.pi*(propulsor.nacelle_diameter**2.)/4.
         A_exit = propulsor.A7
         A_inflow = propulsor.Ao
-        d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))
+        
+        #d_d = 1./((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2.)))
+        d_d = 1./((propulsor.engine_length + propulsor.nacelle_diameter) / np.sqrt((4./np.pi)*(A_max - (A_exit+A_inflow)/2.)))
+      
+        
         D = np.sqrt(1 - (1-Mc**2) * d_d**2)
-        a        = 2 * (1-Mc**2) * (d_d**2) *(np.arctanh(D)-D) / (D**3)
+        a        = 2. * (1-Mc**2) * (d_d**2) *(np.arctanh(D)-D) / (D**3)
         du_max_u = a / ( (2-a) * (1-Mc**2)**0.5 )
-        k_prop    = (1 + form_factor*du_max_u)**2
+        k_prop    = (1 + form_factor*du_max_u)**2.
+        
+  
+        
     except:
-        # form factor according to Raymer equation
+        # form factor according to Raymer equation (useful if there is a singularity in normal drag equation
         k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))
-    
+        
     # --------------------------------------------------------
     # find the final result    
     propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
