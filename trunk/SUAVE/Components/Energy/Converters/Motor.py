@@ -124,3 +124,6 @@ class Motor(Energy_Component):
         #print etam
         
         return i
+
+        
+    

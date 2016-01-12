@@ -13,3 +13,4 @@ from fm_id import fm_id
 from initialize import initialize
 from propeller_design import propeller_design
 from turbofan_nox_emission_index import turbofan_nox_emission_index
+from electric_motor_sizing import size_from_kv, size_from_mass
