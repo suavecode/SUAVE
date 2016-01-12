@@ -20,7 +20,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Climb(Hover):
+class Descent(Hover):
     
     def __defaults__(self):
         
@@ -29,7 +29,7 @@ class Climb(Hover):
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
         self.altitude_end   = 1. * Units.km
-        self.climb_rate     = 1.  * Units.m / Units.s
+        self.descent_rate   = 1.  * Units.m / Units.s
         
         # --------------------------------------------------------------
         #   The Solving Process
@@ -37,7 +37,7 @@ class Climb(Hover):
         initialize = self.process.initialize
         iterate    = self.process.iterate
         
-        initialize.conditions = Methods.Hover.Climb.initialize_conditions
+        initialize.conditions = Methods.Hover.Descent.initialize_conditions
     
         return
        

@@ -127,7 +127,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_energy = battery_energy
         
         #Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,np.sin(self.thrust_angle)]      
+        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
         results = Data()

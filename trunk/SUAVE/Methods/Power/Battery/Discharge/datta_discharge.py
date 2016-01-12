@@ -44,7 +44,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Calculate resistive losses
     Ploss = (Ibat**2.)*R
     # Power going into the battery accounting for resistance losses
-    P = pbat - Ploss*np.sign(pbat)
+    P = pbat - np.abs(Ploss)
     
     # Possible Energy going into the battery:
     energy_unmodified = np.dot(I,P)
@@ -71,5 +71,9 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
         
     battery.current_energy   = ebat + battery.current_energy[0]
     battery.resistive_losses = Ploss
+    
+    
+    # DEBUGGING STATEMENT REMOVE THIS
+    #delta = battery.current_energy[] - battery.current_energy[]
     
     return

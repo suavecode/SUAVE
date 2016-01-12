@@ -8,7 +8,7 @@ import numpy as np
 def initialize_conditions(segment,state):
     
     # unpack
-    climb_rate = segment.climb_rate
+    descent_rate = segment.descent_rate
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
@@ -24,8 +24,8 @@ def initialize_conditions(segment,state):
     alt = t_nondim * (altf-alt0) + alt0
     
     # process velocity vector
-    v_z   = -climb_rate # z points down    
-    dt = (altf - alt0)/climb_rate
+    v_z = descent_rate # z points down    
+    dt  = (alt0 - altf)/descent_rate
 
     # rescale operators
     t = t_nondim * dt

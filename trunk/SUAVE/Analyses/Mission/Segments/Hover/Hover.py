@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Speed_Constant_Altitude(Aerodynamic):
+class Hover(Aerodynamic):
     
     def __defaults__(self):
         
@@ -41,8 +41,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
-        self.state.residuals.forces    = ones_row(2) * 0.0
+        self.state.residuals.forces    = ones_row(1) * 0.0
         
         
         # --------------------------------------------------------------
@@ -57,7 +56,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Cruise.Constant_Speed_Constant_Altitude.initialize_conditions
+        initialize.conditions              = Methods.Hover.Hover.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -81,7 +80,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
+        iterate.unpack_unknowns            = Methods.Hover.Common.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()
@@ -91,8 +90,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
@@ -100,7 +97,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
 
         # Solve Residuals
         iterate.residuals = Process()     
-        iterate.residuals.total_forces     = Methods.Cruise.Common.residual_total_forces
+        iterate.residuals.total_forces     = Methods.Hover.Common.residual_total_forces
         
         # --------------------------------------------------------------
         #   Finalize - after iteration

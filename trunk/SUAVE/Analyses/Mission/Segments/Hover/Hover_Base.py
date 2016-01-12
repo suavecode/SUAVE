@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Speed_Constant_Altitude(Aerodynamic):
+class Hover_Base(Aerodynamic):
     
     def __defaults__(self):
         
@@ -41,7 +41,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         
@@ -57,7 +56,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Cruise.Constant_Speed_Constant_Altitude.initialize_conditions
+        initialize.conditions              = Methods.Hover.Hover.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
