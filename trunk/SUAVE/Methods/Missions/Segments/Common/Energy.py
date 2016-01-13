@@ -12,13 +12,16 @@ import numpy as np
 def initialize_battery(segment,state):
     
     if state.initials:
-        energy_initial = state.initials.conditions.propulsion.battery_energy[-1,0]
+        energy_initial  = state.initials.conditions.propulsion.battery_energy[-1,0]
+        voltage_initial = state.initials.conditions.propulsion.battery_voltage[-1,0]
     elif segment.has_key('battery_energy'):
-        energy_initial = segment.battery_energy
+        energy_initial  = segment.battery_energy
+        voltage_initial = segment.battery_voltage
     else:
         energy_initial = 0.0
     
     state.conditions.propulsion.battery_energy[:,0] = energy_initial
+    state.conditions.propulsion.battery_voltage[:,0] = voltage_initial
 
     return
 

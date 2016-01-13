@@ -139,14 +139,21 @@ class Propeller(Energy_Component):
                 warn('Propeller blade tips are supersonic.', Warning)
             
             lamdaw = r*Wa/(R*Wt)
+            
+            # Limiter to keep from Nan-ing
+            lamdaw[lamdaw<0.] = 0.
+            
+            
             f      = (B/2.)*(1.-r/R)/lamdaw
             piece  = np.exp(-f)
-            #piece[piece>1] = 1.0
             F      = 2.*np.arccos(piece)/np.pi
             Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))**2.)
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Clvals = 2.*np.pi*alpha
+            
+            # By 90 deg, it's totally stalled.
+            Clvals[alpha>=np.pi/2] = 0.
             
             Cl     = np.zeros_like(Clvals)
             # Scale for Mach, this is Karmen_Tsien
@@ -180,6 +187,7 @@ class Propeller(Energy_Component):
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
         Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval[alpha>=np.pi/2] = (0.108*(np.pi**4)-0.2612*(np.pi**3)+0.181*(np.pi**2)-0.0139*np.pi+0.0278)*((50000./Re[alpha>=np.pi/2])**0.2)
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma**2)
@@ -189,7 +197,9 @@ class Propeller(Energy_Component):
         
         Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
+        
         epsilon  = Cd/Cl
+        epsilon[epsilon==np.inf] = 10. 
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]

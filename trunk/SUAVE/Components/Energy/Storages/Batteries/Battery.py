@@ -29,6 +29,7 @@ class Battery(Energy_Component):
         self.resistance           = 0.07446 #base internal resistance of battery in ohms
         self.max_energy           = 0.0
         self.max_power            = 0.0
+        self.max_voltage          = 0.0
         self.discharge_model      = datta_discharge
         self.ragone               = Data()
         self.ragone.const_1       = 0.0 #used for ragone functions; 

@@ -18,15 +18,17 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
     Rbat  = battery.resistance
+    v_max = battery.max_voltage
     I     = numerics.time.integrate
     D     = numerics.time.differentiate
+
     
     # Maximum energy
     max_energy = battery.max_energy
     
     #state of charge of the battery
-   
-    x = np.divide(battery.current_energy,battery.max_energy)
+    initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
+    x = np.divide(initial_discharge_state,battery.max_energy)
 
     # C rate
     C = np.abs(3600.*pbat/battery.max_energy)
@@ -68,12 +70,17 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
         ebat=np.ones_like(ebat)*np.max(ebat)
         if np.isnan(ebat.any()): #all nans; handle this instance
             ebat=np.zeros_like(ebat)
+            
+    current_energy = ebat + battery.current_energy[0]
+            
+    # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
+    # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
+    v_normalized = (-1.031*np.exp(-35.*x) + 3.685 + 0.2156*x - 0.1178*(x**2.) + 0.3201*(x**3.))/4.1
+    voltage      = v_normalized * v_max
         
-    battery.current_energy   = ebat + battery.current_energy[0]
+    # Pack outputs
+    battery.current_energy   = current_energy
     battery.resistive_losses = Ploss
-    
-    
-    # DEBUGGING STATEMENT REMOVE THIS
-    #delta = battery.current_energy[] - battery.current_energy[]
+    battery.voltage          = voltage
     
     return
