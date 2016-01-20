@@ -197,7 +197,6 @@ class Propeller(Energy_Component):
         
         Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
-        
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
         deltar   = (r[1]-r[0])
