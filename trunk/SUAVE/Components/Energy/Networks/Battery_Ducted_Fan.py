@@ -60,7 +60,7 @@ class Battery_Ducted_Fan(Propulsor):
         battery_logic     = Data()
         battery_logic.power_in = pbat
         battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-        
+      
         battery.inputs    =battery_logic
         tol = 1e-6
         

@@ -16,6 +16,8 @@ def compute_component_centers_of_gravity(vehicle):
     control_systems   =vehicle.control_systems
     fuselage          =vehicle.fuselages['fuselage']
     landing_gear      =vehicle.landing_gear
+    #main_landing_gear =vehicle.main_landing_gear
+    #nose_landing_gear =vehicle.nose_landing_gear
     turbo_fan         =vehicle.propulsors['turbo_fan']
     electrical_systems=vehicle.electrical_systems
     avionics          =vehicle.avionics
@@ -40,20 +42,13 @@ def compute_component_centers_of_gravity(vehicle):
     #h_tail.mass_properties.center_of_gravity[1]=.35*h_tail.spans.projected
     v_tail.mass_properties.center_of_gravity[0]=.3*chord_length_v_tail_35_percent_semi_span+v_tail_35_percent_semi_span_offset
     
- 
-    
-    
-    control_systems.origin                                 =wing.origin
-    control_systems.mass_properties.center_of_gravity[0]   =.4*wing.chords.mean_aerodynamic+mac_le_offset
-    fuselage.mass_properties.center_of_gravity[0]          =.45*fuselage.lengths.total
-<<<<<<< HEAD
-    turbo_fan.origin                                       =wing.origin+mac_le_offset/2.-(3./4.)*turbo_fan.engine_length
-=======
+
+    control_systems.origin                                 = wing.origin
+    control_systems.mass_properties.center_of_gravity[0]   = .4*wing.chords.mean_aerodynamic+mac_le_offset
+    fuselage.mass_properties.center_of_gravity[0]          = .45*fuselage.lengths.total
     turbo_fan.origin[0]                                    =wing.origin[0]+mac_le_offset/2.-(3./4.)*turbo_fan.engine_length
-    
->>>>>>> upstream/develop
-    turbo_fan.mass_properties.center_of_gravity[0]         =turbo_fan.engine_length*.5
-    electrical_systems.mass_properties.center_of_gravity[0]=.75*(fuselage.origin[0]+\
+    turbo_fan.mass_properties.center_of_gravity[0]         = turbo_fan.engine_length*.5
+    electrical_systems.mass_properties.center_of_gravity[0]= .75*(fuselage.origin[0]+\
                 .5*fuselage.lengths.total)+.25*(turbo_fan.origin[0]+turbo_fan.mass_properties.center_of_gravity[0])
     
     
@@ -76,19 +71,4 @@ def compute_component_centers_of_gravity(vehicle):
     optionals_origin                                      =fuselage.origin
     optionals.mass_properties.center_of_gravity[0]        =.51*fuselage.lengths.total
     
-<<<<<<< HEAD
-    
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-=======
-
->>>>>>> upstream/develop
     return 0

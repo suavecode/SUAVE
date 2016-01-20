@@ -10,3 +10,4 @@ from Constant_Throttle_Constant_Dynamic_Pressure import Constant_Throttle_Consta
 from Unknown_Throttle import Unknown_Throttle
 from Constant_Throttle_Constant_EAS import Constant_Throttle_Constant_EAS
 from Constant_Speed_Constant_Angle import   Constant_Speed_Constant_Angle
+from Constant_Speed_Constant_Angle_Noise import   Constant_Speed_Constant_Angle_Noise

@@ -1,3 +1,4 @@
+
 #computes the CG for the vehicle based on the mzfw cg of the vehicle, and an assigned fuel
 #Created:M. Vegh Nov. 2015
 

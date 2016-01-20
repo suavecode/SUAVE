@@ -78,15 +78,15 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
 
 
     #unpack
-    Velocity_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_velocity  
+    Velocity_primary_1        =     np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.core.exit_velocity  
     Temperature_primary     =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_temperature
     Pressure_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_pressure
     
-    Velocity_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_velocity
+    Velocity_secondary_1      =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_velocity
     Temperature_secondary   =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_temperature
     Pressure_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_pressure 
     
-    N1                      =       np.float(turbofan.fan.rotation)
+    N1                      =       np.float(turbofan.fan.rotation * 0.92*(turbofan.design_thrust/52700.))
     Diameter_primary        =       turbofan.core_nozzle_diameter
     Diameter_secondary      =       turbofan.fan_nozzle_diameter
     engine_height           =       turbofan.engine_height
@@ -119,6 +119,9 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     pressure_amb        = np.zeros(nsteps)
     Mach_aircraft       = np.zeros(nsteps)
     
+    Velocity_primary = np.ones(nsteps)*Velocity_primary_1
+    Velocity_secondary = np.ones(nsteps)*Velocity_secondary_1
+
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================

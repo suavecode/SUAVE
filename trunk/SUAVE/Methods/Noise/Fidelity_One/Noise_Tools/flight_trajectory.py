@@ -6,6 +6,16 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
+# jet_installation_effect.py
+# 
+# Created:  20th Jul 2015, Carlos
+# Modified: 
+
+# ----------------------------------------------------------------------        
+#   Imports
+# ---------------------------------------------------------------------- 
+
 import SUAVE
 
 import numpy as np
@@ -46,9 +56,6 @@ def flight_trajectory(configs,turbofan,analyses):
     flyover= configs.flight.flyover
     sideline= configs.flight.sideline
     constant_flight=configs.flight.constant_flight
-    
- #   mics_array = analyses.microphone_array
- #   n_mics=np.size(mics_array)
        
     #Necessary input for determination of noise trajectory    
     dt=0.5*Units.s  #time step for noise calculation - Certification requirement
@@ -60,7 +67,7 @@ def flight_trajectory(configs,turbofan,analyses):
         
     if constant_flight==1:
         
-        x0=0 #mics_array[id]  #0 #microphone reference position
+        x0=0 #microphone reference position
         total_time = 60*Units.s #total time for noise calculation  
         n_steps = np.int(total_time/dt +1)  #number of time steps (space discretization)
         
@@ -270,45 +277,24 @@ def engine_performnace(altitude,velocity,turbofan,analyses):
 
     for i in range (0,n_steps):
         
-      #  atmo_data = analyses.atmosphere.compute_values(altitude[i])
+        atmo_data = analyses.atmosphere.compute_values(altitude[i])
          
          #call the atmospheric model to get the conditions at the specified altitude
-    #    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    #    conditions = atmosphere.compute_values(altitude[i])
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        conditions = atmosphere.compute_values(altitude[i])
         
-            # setup conditions
-       # conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+        #setup conditions
+        conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
         
-    #    turbofan(conditions)
+        turbofan(conditions)
       
-      #Flight iddle CF34_10
-            
-   #     velocity_primary[i]        = 87.1 #343.3       #np.float(turbofan.core_nozzle.outputs.velocity)
-   #     temperature_primary[i]     = 651.2 #649.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-   #     pressure_primary[i]        = 101916.9     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
+        velocity_primary[i]        = np.float(turbofan.core_nozzle.outputs.velocity)
+        temperature_primary[i]     = np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
+        pressure_primary[i]        = np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
     
-   #     velocity_secondary[i]      = 104.1 #281.877     # np.float(turbofan.fan_nozzle.outputs.velocity)
-   #     temperature_secondary[i]   = 293.7 #294.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-   #     pressure_secondary[i]      = 106550.3 #105282      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
-        
-        
-    #Normal takeoff - CF34-10E5 - 166kts
-    
-        velocity_primary[i]        = 376.0 #412.0 #376.0 #400       #np.float(turbofan.core_nozzle.outputs.velocity)
-        temperature_primary[i]     = 653.15 #838.5 #653.15      #np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-        pressure_primary[i]        = 103076 #141298.3 #103076     # np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
-    
-        velocity_secondary[i]      = 296 #322.1 #296     # np.float(turbofan.fan_nozzle.outputs.velocity)
-        temperature_secondary[i]   = 296.15 #344.1 #296.15      #np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-        pressure_secondary[i]      = 110178 #172486.8 #110178      #np.float(turbofan.fan_nozzle.outputs.stagnation_pressure)
-    
-  #      velocity_primary[i]        = np.float(turbofan.core_nozzle.outputs.velocity)
-  #      temperature_primary[i]     = np.float(turbofan.core_nozzle.outputs.stagnation_temperature)
-  #      pressure_primary[i]        = np.float(turbofan.core_nozzle.outputs.stagnation_pressure)
-  #  
-  #      velocity_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.velocity)
-   #     temperature_secondary[i]   = np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
-   #     pressure_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.stagnation_pressure) 
+        velocity_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.velocity)
+        temperature_secondary[i]   = np.float(turbofan.fan_nozzle.outputs.stagnation_temperature)
+        pressure_secondary[i]      = np.float(turbofan.fan_nozzle.outputs.stagnation_pressure) 
         
     return (velocity_primary,temperature_primary,pressure_primary,velocity_secondary,temperature_secondary,pressure_secondary)
 
