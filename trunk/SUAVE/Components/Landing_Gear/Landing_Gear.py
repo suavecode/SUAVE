@@ -33,15 +33,10 @@ class Landing_Gear(Physical_Component):
        
         self.tag = 'landing_gear'
 
-        #self.position  = [0.0,0.0,0.0]        
-        self.main_tire_diameter = 0.
-        self.nose_tire_diameter = 0.
-        self.main_strut_length  = 0.
-        self.nose_strut_length  = 0.
-        self.main_units         = 0.   #number of main landing gear units
-        self.nose_units         = 0.   #number of nose landing gear
-        self.main_wheels        = 0.  #number of wheels on the main landing gear
-        self.nose_wheels        = 0.  #number of wheels on the nose landing gear
+
+
+        
+
         
         
         

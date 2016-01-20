@@ -26,13 +26,12 @@ class Nose_Landing_Gear(Landing_Gear):
 
     """
 
-    def __defaults__(self):
-        
-        self.nose_tire_diameter = 2.2000    #nose gear tire diameter
-        self.nose_strut_length = 4.5        #nose landing gear strut length
-        self.nose_units = 1                 #number of nose landing gear
-        self.nose_wheels = 2                #number of wheels on the nose landing gear           
-
+    def __defaults__(self):        
+          
+        self.tire_diameter = 0.    
+        self.strut_length  = 0.    
+        self.units         = 0.   #number of nose landing gear    
+        self.wheels        = 0.  #number of wheels on the nose landing gear
 
 # ----------------------------------------------------------------------
 #   Unit Tests
