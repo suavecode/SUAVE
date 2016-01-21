@@ -129,7 +129,7 @@ def update_aerodynamics(segment,state):
         gets aerodynamics conditions
 
         Inputs -
-            segment.analyses.aerodynamics_model - a callable that will recieve ...
+            segment.analyses.aerodynamics_model - a callable that will receive ...
             state.conditions - passed directly to the aerodynamics model
 
         Outputs -
@@ -155,6 +155,8 @@ def update_aerodynamics(segment,state):
     CL = results.lift.total
     CD = results.drag.total
     
+    CL[CL>1.5] = 1.5
+        
     # dimensionalize
     L = state.ones_row(3) * 0.0
     D = state.ones_row(3) * 0.0

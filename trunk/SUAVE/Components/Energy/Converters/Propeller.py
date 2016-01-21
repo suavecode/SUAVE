@@ -75,13 +75,20 @@ class Propeller(Energy_Component):
         Vv     = conditions.frames.inertial.velocity_vector
         a      = conditions.freestream.speed_of_sound[:,0,None]
         T      = conditions.freestream.temperature[:,0,None]
-        theta  = -self.thrust_angle
+        theta  = self.thrust_angle
             
-        # Local V
-        body2inertial = conditions.frames.body.transform_to_inertial
-        thrust2body   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        thrust2body   = np.ones_like(body2inertial[:])*thrust2body
-        V             = np.reshape(orientation_product(thrust2body,orientation_product(body2inertial,Vv))[:,0],np.shape(a))
+        # Velocity in the Body frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T_inertial2body = orientation_transpose(T_body2inertial)
+        V_body = orientation_product(T_inertial2body,Vv)
+        
+        # Velocity transformed to the propulsor frame
+        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        V_thrust      = orientation_product(T_body2thrust,V_body)
+        
+        # Now just use the aligned velocity
+        V = V_thrust[:,0,None]
         
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance

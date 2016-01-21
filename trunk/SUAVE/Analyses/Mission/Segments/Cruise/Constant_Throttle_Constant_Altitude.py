@@ -30,9 +30,10 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.throttle             = None
-        self.velocity_start       = 0.0
-        self.velocity_end         = 0.0 
+        self.throttle        = None
+        self.altitude        = None
+        self.air_speed_start = 0.0
+        self.air_speed_end   = 0.0 
         
         # --------------------------------------------------------------
         #   State
