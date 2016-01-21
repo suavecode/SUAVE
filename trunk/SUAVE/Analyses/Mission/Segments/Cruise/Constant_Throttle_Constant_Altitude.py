@@ -46,7 +46,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.state.unknowns.body_angle            = ones_row(1) * 0.0
         self.state.unknowns.velocity_x            = ones_row(1) * 0.0
         self.state.unknowns.time                  = 0.1
-        self.state.residuals.final_velocity_error = ones_row(1) * 0.0
+        self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0
     
         # --------------------------------------------------------------
@@ -76,17 +76,17 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         iterate = self.process.iterate
         iterate.clear()
-    
+                
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
-    
-    
+        
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns
+        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
+
     
         # Update Conditions
         iterate.conditions = Process()
@@ -103,8 +103,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
     
-    
-        ## NEW STUFF TO UPDATE   
         
         # Solve Residuals
         iterate.residuals = Process()     
