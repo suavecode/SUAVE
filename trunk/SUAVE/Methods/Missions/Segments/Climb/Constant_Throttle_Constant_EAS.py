@@ -56,11 +56,15 @@ def update_velocity_vector_from_wind_angle(segment,state):
     # unpack
     conditions = state.conditions 
     v_mag      = segment.air_speed 
-    theta      = state.unknowns.wind_angle[:,0][:,None]
+    alpha      = state.unknowns.wind_angle[:,0][:,None]
+    theta      = state.unknowns.body_angle[:,0] 
+    
+    # Flight path angle
+    gamma = theta-alpha
 
     # process
-    v_x =  v_mag * np.cos(theta[:,0])
-    v_z = -v_mag * np.sin(theta[:,0]) # z points down
+    v_x =  v_mag * np.cos(gamma)
+    v_z = -v_mag * np.sin(gamma) # z points down
 
     # pack
     conditions.frames.inertial.velocity_vector[:,0] = v_x

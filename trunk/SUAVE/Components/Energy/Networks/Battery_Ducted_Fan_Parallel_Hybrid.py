@@ -46,12 +46,12 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         auxiliary_battery  = self.auxiliary_battery
         conditions = state.conditions
         numerics   = state.numerics
-  
-        results=propulsor.evaluate_thrust(state)
-        #print 'thrust=', results.thrust_force_vector[:,0]
-        #print 'velocity=', conditions.freestream.velocity[0]
-        Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         
+        results=propulsor.evaluate_thrust(state)
+     
+        #Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
+        #print 'Power_ratio=', np.divide(Pe,results.power)
+        Pe=results.power
         try:
             initial_energy=conditions.propulsion.primary_battery_energy
             initial_energy_auxiliary=conditions.propulsion.auxiliary_battery_energy
