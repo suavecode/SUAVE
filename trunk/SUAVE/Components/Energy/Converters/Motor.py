@@ -55,6 +55,7 @@ class Motor(Energy_Component):
         #Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
+        Cp    = conditions.propulsion.propeller_power_coefficient[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -62,21 +63,26 @@ class Motor(Energy_Component):
         G     = self.gear_ratio
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
-        Cp    = self.propeller_Cp 
         v     = self.inputs.voltage
     
         #Omega
         #This is solved by setting the torque of the motor equal to the torque of the prop
         #It assumes that the Cp is constant
-        omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
-                    16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))**(0.5) - 
-                    np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
+        inside_piece = (- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
+                    16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))
+        
+        omega1 = ((np.pi**(3./2.))*(inside_piece**(0.5)-np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
+        
+
+        omega1[np.isnan(omega1)] = 0.0
         
         # store to outputs
         self.outputs.omega = omega1
         
-        #Q = ((v-omega1/Kv)/Res -io)/Kv
+        Q = ((v-omega1/Kv)/Res -io)/Kv
         #P = Q*omega1
+        
+        self.outputs.torque = Q
         
         return omega1
     

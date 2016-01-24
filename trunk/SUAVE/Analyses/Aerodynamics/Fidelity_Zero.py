@@ -7,6 +7,7 @@ import SUAVE
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Markup import Markup
 from SUAVE.Analyses import Process
+import numpy as np
 
 # default Aero Results
 from Results import Results
@@ -43,7 +44,8 @@ class Fidelity_Zero(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.wing_span_efficiency               = 0.90
-        settings.spoiler_drag_increment             = 0.00       
+        settings.spoiler_drag_increment             = 0.00 
+        settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
         settings.number_panels_spanwise  = 5

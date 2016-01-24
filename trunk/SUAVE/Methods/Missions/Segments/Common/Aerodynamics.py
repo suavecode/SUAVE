@@ -143,10 +143,11 @@ def update_aerodynamics(segment,state):
     """
     
     # unpack
-    conditions = state.conditions
+    conditions         = state.conditions
     aerodynamics_model = segment.analyses.aerodynamics
-    q = state.conditions.freestream.dynamic_pressure
-    Sref = aerodynamics_model.geometry.reference_area
+    q                  = state.conditions.freestream.dynamic_pressure
+    Sref               = aerodynamics_model.geometry.reference_area
+    CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
     results = aerodynamics_model( state )    
@@ -154,8 +155,12 @@ def update_aerodynamics(segment,state):
     # unpack results
     CL = results.lift.total
     CD = results.drag.total
+
+    CL[q<=0.0] = 0.0
+    CD[q<=0.0] = 0.0
     
-    CL[CL>1.5] = 1.5
+    # CL limit
+    CL[CL>CLmax] = CLmax
         
     # dimensionalize
     L = state.ones_row(3) * 0.0

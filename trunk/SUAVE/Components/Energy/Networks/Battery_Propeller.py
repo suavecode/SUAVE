@@ -56,13 +56,7 @@ class Battery_Propeller(Propulsor):
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
         battery.voltage        = conditions.propulsion.battery_voltage
-        
-        diff_v = battery.voltage * 1.
-        v_last = battery.voltage * 1.
-        tol_v  = 1e-4
-        
-        #while (np.any(diff_v>tol_v)):
-       
+    
         # Step 1 battery power
         esc.inputs.voltagein = battery.voltage
         # Step 2
@@ -75,22 +69,7 @@ class Battery_Propeller(Propulsor):
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
         # step 4
-        F, Q, P, Cplast = propeller.spin(conditions)
-       
-        # iterate the Cp here
-        diff = abs(Cplast-motor.propeller_Cp)
-        tol = 1e-6
-        ii = 0 
-        while (np.any(diff>tol)):
-            motor.propeller_Cp  = Cplast #Change the Cp
-            motor.omega(conditions) #Rerun the motor
-            propeller.inputs.omega =  motor.outputs.omega #Relink the motor
-            F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
-            diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
-            ii += 1
-            #if ii>100:
-                #break            
-        
+        F, Q, P, Cp = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -120,27 +99,22 @@ class Battery_Propeller(Propulsor):
         # link
         battery.inputs.current = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
-        battery.energy_calc(numerics)
-        
-        diff_v = np.abs(v_last-battery.voltage)
-        v_last = battery.voltage * 1.            
+        battery.energy_calc(numerics)        
     
-        
-        
-        
-        
         #Pack the conditions for outputs
-        rpm                                   = motor.outputs.omega*60./(2.*np.pi)
-        current                               = esc.outputs.currentin
-        battery_draw                          = battery.inputs.power_in 
-        battery_energy                        = battery.current_energy
-        battery_voltage                       = battery.voltage
+        rpm                                    = motor.outputs.omega*60./(2.*np.pi)
+        current                                = esc.outputs.currentin
+        battery_draw                           = battery.inputs.power_in 
+        battery_energy                         = battery.current_energy
+        battery_voltage                        = battery.voltage
          
-        conditions.propulsion.rpm             = rpm
-        conditions.propulsion.current         = current
-        conditions.propulsion.battery_draw    = battery_draw
-        conditions.propulsion.battery_energy  = battery_energy
-        conditions.propulsion.battery_voltage = battery_voltage
+        conditions.propulsion.rpm              = rpm
+        conditions.propulsion.current          = current
+        conditions.propulsion.battery_draw     = battery_draw
+        conditions.propulsion.battery_energy   = battery_energy
+        conditions.propulsion.battery_voltage  = battery_voltage
+        conditions.propulsion.motor_torque     = motor.outputs.torque
+        conditions.propulsion.propeller_torque = Q
         
         #Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
@@ -152,5 +126,30 @@ class Battery_Propeller(Propulsor):
         
         
         return results
+    
+    
+    def unpack_unknowns(self,segment,state):
+        """"""        
+        
+        # Here we are going to unpack the unknowns (Cp) provided for this network
+        
+        state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        
+        
+        
+        return
+    
+    def residuals(self,segment,state):
+        """"""        
+        
+        # Here we are going to pack the residuals (torque) from the network
+        
+        # unpack the torques
+        q_motor = state.conditions.propulsion.motor_torque
+        q_prop  = state.conditions.propulsion.propeller_torque
+        
+        state.residuals.network = q_motor[:,0] - q_prop[:,0]
+        
+        return    
             
     __call__ = evaluate_thrust

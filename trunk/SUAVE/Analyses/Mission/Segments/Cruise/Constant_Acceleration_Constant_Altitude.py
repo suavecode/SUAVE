@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Hover(Aerodynamic):
+class Constant_Acceleration_Constant_Altitude(Aerodynamic):
     
     def __defaults__(self):
         
@@ -27,8 +27,9 @@ class Hover(Aerodynamic):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude  = None
-        self.air_speed = 10. * Units['km/hr']
-        self.distance  = 10. * Units.km
+        self.acceleration      = 1.  * Units['m/s/s']
+        self.air_speed_final   = 0.0 * Units['m/s']
+        self.air_speed_initial = 1.0 * Units['m/s']
         
         
         # --------------------------------------------------------------
@@ -41,7 +42,8 @@ class Hover(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.residuals.forces    = ones_row(1) * 0.0
+        self.state.unknowns.body_angle = ones_row(1) * 0.0
+        self.state.residuals.forces    = ones_row(2) * 0.0
         
         
         # --------------------------------------------------------------
@@ -56,7 +58,7 @@ class Hover(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Hover.Hover.initialize_conditions
+        initialize.conditions              = Methods.Cruise.Constant_Acceleration_Constant_Altitude.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -80,8 +82,7 @@ class Hover(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unknowns = Process()
-        iterate.unknowns.mission           = Methods.Hover.Common.unpack_unknowns
+        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()
@@ -91,6 +92,8 @@ class Hover(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
+        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
@@ -98,7 +101,7 @@ class Hover(Aerodynamic):
 
         # Solve Residuals
         iterate.residuals = Process()     
-        iterate.residuals.total_forces     = Methods.Hover.Common.residual_total_forces
+        iterate.residuals.total_forces     = Methods.Cruise.Constant_Acceleration_Constant_Altitude.residual_total_forces
         
         # --------------------------------------------------------------
         #   Finalize - after iteration
