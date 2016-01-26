@@ -214,12 +214,13 @@ class Turbofan(Propulsor):
         F_vec[:,0]   = F[:,0]
         F            = F_vec
 
-        results = Results
+        results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
         
         # store data
-        conditions.propulsion.acoustic_outputs.core = results(
+        results_conditions = Results
+        conditions.propulsion.acoustic_outputs.core = results_conditions(
         exit_static_temperature             = core_nozzle.outputs.static_temperature,
         exit_static_pressure                = core_nozzle.outputs.static_pressure,
         exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
@@ -227,7 +228,7 @@ class Turbofan(Propulsor):
         exit_velocity                       = core_nozzle.outputs.velocity
         )
         
-        conditions.propulsion.acoustic_outputs.fan = results(
+        conditions.propulsion.acoustic_outputs.fan = results_conditions(
         exit_static_temperature             = fan_nozzle.outputs.static_temperature,
         exit_static_pressure                = fan_nozzle.outputs.static_pressure,
         exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
