@@ -1,13 +1,11 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:     
+# outer_stream_shock_noise.py
 #
-# Author:      CARIDSIL
-#
-# Created:     11/08/2015
-# Copyright:   (c) CARIDSIL 2015
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+# Created:  Carlos, August 2015
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 def outer_stream_shock_noise ():
 #Ao: fully expanded area of the outer stream

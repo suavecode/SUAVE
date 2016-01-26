@@ -80,10 +80,6 @@ def setup():
         [ 'design_range_fuel_margin' , '>', 0., 10, Units.less],
         [ 'short_field_fuel_margin' , '>' , 0. , 10, Units.less],
         [ 'max_range_fuel_margin' , '>' , 0. , 10, Units.less], #0.1
-##        [ 'MZFW consistency' , '<' , 10. , 10 , Units.less],
-##        [ 'design_range_fuel_margin' , '<', 10., 10, Units.less],
-##        [ 'short_field_fuel_margin' , '<' , 10. , 10, Units.less],
-##        [ 'max_range_fuel_margin' , '<' , 10. , 10, Units.less], #0.1
         [ 'wing_span' , '<', 35.9664, 35.9664, Units.less],
         [ 'noise_flyover_margin' , '>', 0. , 10., Units.less],
         [ 'noise_sideline_margin' , '>', 0. , 10. , Units.less],
@@ -101,7 +97,6 @@ def setup():
     #  Aliases
     # -------------------------------------------------------------------
 
-    # [ 'alias' , ['data.path1.name','data.path2.name'] ]
 
     problem.aliases = [
         [ 'wing_area'                        ,   ['vehicle_configurations.*.wings.main_wing.areas.reference',
@@ -122,17 +117,14 @@ def setup():
                                                   'vehicle_configurations.*.mass_properties.max_takeoff'               ]],
         [ 'design_TOW'                       ,    'vehicle_configurations.base.mass_properties.takeoff'                 ],
         [ 'short_field_TOW'                  ,    'vehicle_configurations.short_field_takeoff.mass_properties.takeoff'  ],
-        #[ 'MZFW'                             ,    'vehicle_configurations.*.mass_properties.max_zero_fuel'              ],
         [ 'flap_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.flaps.angle',
                                                    'vehicle_configurations.short_field_takeoff.wings.main_wing.flaps.angle']],
-        #[ 'flap_short_field_angle'           ,    'vehicle_configurations.short_field_takeoff.wings.main_wing.flaps.angle'],
         [ 'flap_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.flaps.angle'          ],
         [ 'slat_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.slats.angle',
                                                'vehicle_configurations.short_field_takeoff.wings.main_wing.slats.angle']],
         [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.slats.angle'          ],
         [ 'fuel_burn'                        ,    'summary.base_mission_fuelburn'                                                   ],
         [ 'wing_span'                        ,    'vehicle_configurations.base.wings.main_wing.spans.projected'         ],
-        #[ 'engine_fan_diameter'              ,    'vehicle_configurations.base.turbofan.nacelle_diameter'               ],
         [ 'noise_approach_margin'            ,    'summary.noise_approach_margin'                                       ],
         [ 'noise_sideline_margin'            ,    'summary.noise_sideline_margin'                                       ],
         [ 'noise_flyover_margin'             ,    'summary.noise_flyover_margin'                                        ],
@@ -198,48 +190,7 @@ if __name__ == '__main__':
 
     var = np.zeros(n_des_var)
 
-##    var = [128.4,10.0746256149533,35,0.114,51860,70000,0.75,10.2,46,70000,70000,11.5,299]
-##    var = [134,9.60532850235224,31,0.155,57220,70000,0.75,19.6,36.6,70000,70000,10.5,400]
-##    var = [133.6,9.68249946826347,35,0.131,57220,70000,0.75,19.8,18,70000,70000,10,377]
-##    var = [134.4,9.62486554285714,35,0.155,56020,70000,0.75,19.8,21.6,70000,70000,11.5,393]
-    #var = [131.6,	9.8296499161,	35.0,	0.118,	50400.0,	70000.0,	0.75,	12.0,	41.8,	70000.0,	70000.0,	10.0,	359.0]
-    #var = [133.8,	9.6680263749,	35.0,	0.113,	51160.0,	70000.0,	0.75,	8.8,	50.0,	70000.0,	70000.0,	10.5,	347.0]
-    #var = [132.6,	9.7555198262,	35.0,	0.124,	50180.0,	70000.0,	0.75,	8.2,	50.0,	70000.0,	70000.0,	11.5,	400.0]
-    #var = [128.4,	10.074625615,	35.0,	0.114,	51860.0,	70000.0,	0.75,	10.2,	46.0,	70000.0,	70000.0,	11.5,	299.0]
-    var = [134.6,	9.6105641082,	35.0,	0.123,	49200.0,	70000.0,	0.75,	6.6,	30.0,	70000.0,	70000.0,	11.5,	283.0]
-    #var = [132.8,	9.7408277783,	34.8,	0.135,	49140.0,	70000.0,	0.75,	11.4,	17.2,	70000.0,	70000.0,	10.0,	400.0]
-    #var =  [133.8,	9.6680263749,	34.8,	0.133,	49140.0,	70000.0,	0.75,	18.8,	32.2,	70000.0,	70000.0,	10.5,	399.0]
-    #var = [136.0,	9.5116318306,	35.0,	0.141,	49960.0,	70000.0,	0.75,	19.8,	22.6,	70000.0,	70000.0,	11.5,	393.0]
-
-##    AR = 35.9664*35.9664 / var[0] * var[1]
-
-##    var[ 0] = 		SW			#                 'wing_area'
-##    var[ 1] =  		AR           #                 'wing_aspect_ratio'
-##    var[ 2] =  		SWEEP          #                 'wing_sweep'
-##    var[ 3] =  	 	wing_tc           #                 'wing_thickness'
-##    var[ 4] =	    THRUST              #                 'design_thrust'
-##    var[ 5] =	    MTOW              #                 'MTOW'
-##    var[ 6] =	 	MZFW_ratio            #                 'MZFW_ratio'
-##    var[ 7] =	    FLAP_TO              #                 'flap_takeoff_angle'
-##    var[ 8] =	    FLAP_LND              #                 'flap_landing_angle'
-##    var[ 9] =	    SF_TOW              #                 'short_field_TOW'
-##    var[10] =	    DESIGN_TOW              #                 'design_TOW'
-##    var[11] =	    NOISE_dV2              #                 'noise_takeoff_speed_increase'
-##    var[12] =	    HP_cutback            #                 'noise_cutback_altitude'
-
-##    var[ 0] = 		134.47 #SW			#                 'wing_area'
-##    var[ 1] =  		35.9664*35.9664 / var[ 0]  #AR           #                 'wing_aspect_ratio'
-##    var[ 2] =  		35. #SWEEP          #                 'wing_sweep'
-##    var[ 3] =  	 	0.155 #wing_tc           #                 'wing_thickness'
-##    var[ 4] =	    56020. #THRUST              #                 'design_thrust'
-##    var[ 5] =	    70000. #MTOW              #                 'MTOW'
-##    var[ 6] =	 	0.75 #MZFW_ratio            #                 'MZFW_ratio'
-##    var[ 7] =	    19.8 #FLAP_TO              #                 'flap_takeoff_angle'
-##    var[ 8] =	    21.6 #FLAP_LND              #                 'flap_landing_angle'
-##    var[ 9] =	    70000. #SF_TOW              #                 'short_field_TOW'
-##    var[10] =	    70000. #DESIGN_TOW              #                 'design_TOW'
-##    var[11] =	    11.5 #NOISE_dV2              #                 'noise_takeoff_speed_increase'
-##    var[12] =	    393. #HP_cutback            #                 'noise_cutback_altitude'
+    var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
 
     input_vec = var / problem.optimization_problem.inputs[:,3]
 
@@ -251,25 +202,21 @@ if __name__ == '__main__':
     fuel_burn               = objectives[0]
     noise_cumulative_margin = objectives[1]
 
-##    MZFW_consistency                =	constraints[0]
-##    design_range_fuel_margin        =	constraints[1]
-##    short_field_fuel_margin         =	constraints[2]
-##    max_range_fuel_margin           =	constraints[3]
-##    wing_span                       =	constraints[4]
-##    noise_flyover_margin            =	constraints[5]
-##    noise_sideline_margin           =	constraints[6]
-##    noise_approach_margin           =	constraints[7]
-##    takeoff_field_length            =	constraints[8]
-##    landing_field_length            =	constraints[9]
-##    sec_segment_climb_max_range	    =	constraints[10]
-##    sec_segment_climb_short_field	=	constraints[11]
-##    max_throttle	                =	constraints[12]
-##    short_takeoff_field_length	    =	constraints[13]
-##    noise_cumulative_margin	        =	constraints[14]
-
     print constraints
     print objectives
     
     print "Fuel Burn = ", fuel_burn
     print "Noise Margin = ", noise_cumulative_margin
+    
+    actual = Data()
+    actual.fuel_burn = 8352.13998746
+    actual.noise_cumulative_margin = 17.941159576
+    
+    error = Data()
+    error.fuel_burn = (actual.fuel_burn - fuel_burn)/actual.fuel_burn
+    error.noise_cumulative_margin = (actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
+        
+
+    
+    	
     
