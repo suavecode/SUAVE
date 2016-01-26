@@ -41,7 +41,6 @@ def setup():
     procedure.estimate_clmax = estimate_clmax
     
     # find the weights
-##    procedure.weights = weight
     # finalizes the data dependencies
     procedure.finalize = finalize   
     
@@ -56,7 +55,6 @@ def setup():
     # performance studies
     procedure.missions                   = Process()
     procedure.missions.design_mission    = design_mission
-##    procedure.missions.max_range_mission = max_range_mission
     procedure.missions.short_field       = short_field_mission 
     
     # calculate field lengths
@@ -96,8 +94,6 @@ def initial_sizing(nexus):
         mach_number = air_speed/a
 
         turbofan_sizing(config.propulsors['turbo_fan'], mach_number, altitude)
-        
-        #vehicle_configurations.short_field_takeoff.wings.main_wing.flaps.angle
         
         # diff the new data
         config.store_diff()  
@@ -149,7 +145,6 @@ def weights_sizing(nexus):
         final_weight_expected    = operating_empty + payload
         max_range_fuel_margin    = (max_range_landing_weight - final_weight_expected)
         residual = - max_range_fuel_margin 
-##        print 'residual max rng' , residual
 
     for config in nexus.vehicle_configurations:        
         config.mass_properties.max_takeoff = nexus.vehicle_configurations.base.mass_properties.max_takeoff
@@ -192,7 +187,6 @@ def design_mission(nexus):
         landing_weight = results.base.segments[-1].conditions.weights.total_mass[-1]          
         fuel_margin    = (landing_weight - final_weight_expected)
         residual = - fuel_margin 
-##        print 'residual design mision' , residual
 
     return nexus
 
@@ -329,19 +323,6 @@ def find_target_range(nexus,mission):
     
     return nexus
 
-### ----------------------------------------------------------------------        
-###   Design Mission
-### ----------------------------------------------------------------------    
-##def design_mission(nexus):
-##    
-##    mission = nexus.missions.base
-##    mission.design_range = 1500.*Units.nautical_miles
-##    find_target_range(nexus,mission)
-##    results = nexus.results
-##    results.base = mission.evaluate()
-##    
-##    return nexus
-
 # ----------------------------------------------------------------------        
 #   Max Range Mission
 # ----------------------------------------------------------------------    
@@ -355,20 +336,6 @@ def max_range_mission(nexus):
     results.max_range = mission.evaluate()
     
     return nexus
-
-### ----------------------------------------------------------------------        
-###   Max Range Mission
-### ----------------------------------------------------------------------    
-##    
-##def short_field_mission(nexus):
-##    
-##    mission = nexus.missions.short_field
-##    mission.design_range = 750.*Units.nautical_miles
-##    find_target_range(nexus,mission)
-##    results = nexus.results
-##    results.short_field = mission.evaluate()
-##    
-##    return nexus    
     
 # ----------------------------------------------------------------------        
 #   Sideline noise
@@ -391,8 +358,6 @@ def noise_sideline(nexus):
         x0 += coef * 304.8 ** (degree-idx)
 
     nexus.analyses.takeoff.noise.settings.mic_x_position = x0 
-    
-    #print "sideline mic = ", x0    
     
     noise_segment = results.sideline.segments.climb
     noise_config  = nexus.vehicle_configurations.takeoff
@@ -444,7 +409,7 @@ def noise_flyover(nexus):
 
     noise_segment = results.flyover.segments.cutback
     noise_config  = nexus.vehicle_configurations.cutback
-    noise_config.print_output = 1
+    noise_config.print_output = 0
     noise_config.engine_flag = 1
     noise_config.output_file  = 'Noise_Flyover_cutback.dat'
     noise_config.output_file_engine = 'Noise_Flyover_cutback_Engine.dat'
@@ -506,9 +471,6 @@ def compute_noise(config,analyses,noise_segment):
 
     noise_sum = 10. * np.log10(10**(airframe_noise[0]/10)+ (engine_flag)*10**(engine_noise[0]/10))
 
-    #print 'Airframe Noise: ' , airframe_noise[0] , ' [EPNdB] \n' , \
-          #'Engine Noise:   ' , engine_noise[0]   , ' [EPNdB] \n' , \
-          #'Total Noise:    ' , noise_sum         , ' [EPNdB] \n'    
 
     return noise_sum
 
@@ -541,7 +503,7 @@ def noise_sideline_init(nexus):
     results.sideline_initialization = mission.evaluate()
     
     n_points   = np.ceil(results.sideline_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
-  #  print "Sideline n_points = ", n_points, "  Velocities: ", results.sideline_initialization.conditions.climb.frames.inertial.velocity_vector[-1], "time= ",results.sideline_initialization.conditions.climb.frames.inertial.time[-1]
+
     nexus.npoints_sideline_sign=np.sign(n_points)
     nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))  
 
@@ -558,21 +520,9 @@ def noise_takeoff_init(nexus):
     
     n_points   = np.ceil(results.takeoff_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
     nexus.npoints_takeoff_sign=np.sign(n_points)
-  #  print "Takeoff n_points = ", n_points, "  Velocities: ", results.takeoff_initialization.conditions.climb.frames.inertial.velocity_vector[-1], "time= ",results.takeoff_initialization.conditions.climb.frames.inertial.time[-1]
+
     nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))
     
-    #x0 = 0.
-    #for segment in results.takeoff_initialization.segments:
-        #if segment.conditions.frames.inertial.position_vector[-1,2] <= - 304.8 and \
-        #segment.conditions.frames.inertial.position_vector[0,2] >= - 304.8:            
-            #position_vector = segment.conditions.frames.inertial.position_vector
-            #degree = 3
-            #coefs = np.polyfit(-position_vector[:,2],position_vector[:,0],degree)
-            #for idx,coef in enumerate(coefs):
-                #x0 += coef * 304.8 ** (degree-idx)
-            #break
-        
-    #nexus.analyses.takeoff.noise.settings.mic_x_position = x0   
 
     return nexus
 
@@ -678,19 +628,16 @@ def post_process(nexus):
         max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
         if max_segment_throttle > max_throttle:
             max_throttle = max_segment_throttle
-            #print 'max_throttle :' ,max_throttle , 'segment-: ' , segment.keys()
     
     #throttle in noise missions
     max_throttle=0
     for mission in results.values():
-##        seg = 0
-##        max_throttle=0
+
         for segment in mission.segments.values():
-##            seg += 1
+
             max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
             if max_segment_throttle > max_throttle:
                 max_throttle = max_segment_throttle  
-                #print 'seg_num', seg ,'max_throttle :' ,max_throttle , 'segment: ' , mission.segments.keys() 
     
     summary.max_throttle = max_throttle
     
@@ -707,12 +654,6 @@ def post_process(nexus):
     
     final_weight_expected    = operating_empty + payload
         
-    #summary.base_fuel = design_takeoff_weight - design_landing_weight     
-    #summary.design_range_fuel_margin = (design_landing_weight - final_weight_expected)/final_weight_expected
-    #summary.short_field_fuel_margin  = (short_landing_weight - final_weight_expected)/final_weight_expected
-    #summary.max_range_fuel_margin    = (max_range_landing_weight - final_weight_expected)/final_weight_expected
-    #summary.MZFW_consistency         = (max_zero_fuel_weight - (operating_empty + max_payload))/ max_zero_fuel_weight
-    
     summary.design_range_fuel_margin = (design_landing_weight - final_weight_expected)
     summary.short_field_fuel_margin  = (short_landing_weight - final_weight_expected)
     summary.max_range_fuel_margin    = (max_range_landing_weight - final_weight_expected)
@@ -720,7 +661,6 @@ def post_process(nexus):
 
     #addition of mission and reserves fuelburn
     #base
-    #summary.base_mission_fuelburn   = results.base.segments[0].conditions.weights.total_mass[0] - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
     summary.base_mission_fuelburn   = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
     summary.base_reserve_fuelburn   = results.base.segments['descent_3'].conditions.weights.total_mass[-1] - results.base.segments[-1].conditions.weights.total_mass[-1]
 
@@ -735,21 +675,12 @@ def post_process(nexus):
     summary.noise_sideline_margin = noise_limits[2] - summary.noise.sideline 
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
-    #summary.noise_margin = -1.0*summary.noise_margin #missao para minimizar
-    
-    #print "Approach_weight = ",results.approach.segments.descent.conditions.weights.total_mass[-1]
-    #print "Takeoff_weight = ",results.flyover.segments.climb.conditions.weights.total_mass[-1]
-    #print "Flyover limit = ", noise_limits[1], "Flyover noise = ", summary.noise.flyover 
-    #print "Sideline limit = ", noise_limits[2], "Sideline noise = ", summary.noise.sideline
-    #print "Approach limit = ", noise_limits[0], "Approch noise = ", summary.noise.approach
-    #print "Cumulative margin = ", summary.noise_margin
-    
+
     beta_fuel = 0.
     beta_noise = (1. - beta_fuel)    
     weighted_sum_objective = (summary.base_mission_fuelburn * beta_fuel)/10000. + (-summary.noise_margin * beta_noise)/10.    
     
     summary.weighted_sum_objective = weighted_sum_objective
     
-##    print "Fuel Burn = ", summary.base_mission_fuelburn
   
     return nexus    

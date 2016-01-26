@@ -23,8 +23,41 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------
 def main():
+    
+    problem = setup()
 
-    pass
+    n_des_var = 13
+
+    var = np.zeros(n_des_var)
+
+    var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
+
+    input_vec = var / problem.optimization_problem.inputs[:,3]
+
+    problem.objective(input_vec)
+
+    constraints = problem.all_constraints() * problem.optimization_problem.constraints[:,3]
+    objectives  = problem.objective()       * problem.optimization_problem.objective[:,1]
+
+    fuel_burn               = objectives[0]
+    noise_cumulative_margin = objectives[1]
+    
+    actual = Data()
+    actual.fuel_burn = 8352.13998746
+    actual.noise_cumulative_margin = 17.7738867559
+    
+    error = Data()
+    error.fuel_burn = (actual.fuel_burn - fuel_burn)/actual.fuel_burn
+    error.noise_cumulative_margin = (actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
+    
+    print error.fuel_burn
+    print error.noise_cumulative_margin
+    
+    for k,v in error.items():
+        assert(np.abs(v)<0.001) 
+        
+    return
+        
 
 # ----------------------------------------------------------------------
 #   Inputs, Objective, & Constraints
@@ -182,41 +215,4 @@ def setup():
 
 
 if __name__ == '__main__':
-
-
-    problem = setup()
-
-    n_des_var = 13
-
-    var = np.zeros(n_des_var)
-
-    var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
-
-    input_vec = var / problem.optimization_problem.inputs[:,3]
-
-    problem.objective(input_vec)
-
-    constraints = problem.all_constraints() * problem.optimization_problem.constraints[:,3]
-    objectives  = problem.objective()       * problem.optimization_problem.objective[:,1]
-
-    fuel_burn               = objectives[0]
-    noise_cumulative_margin = objectives[1]
-
-    print constraints
-    print objectives
-    
-    print "Fuel Burn = ", fuel_burn
-    print "Noise Margin = ", noise_cumulative_margin
-    
-    actual = Data()
-    actual.fuel_burn = 8352.13998746
-    actual.noise_cumulative_margin = 17.941159576
-    
-    error = Data()
-    error.fuel_burn = (actual.fuel_burn - fuel_burn)/actual.fuel_burn
-    error.noise_cumulative_margin = (actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
-        
-
-    
-    	
-    
+    main()
