@@ -1,7 +1,7 @@
-# Geoemtry.py
+# Geometry.py
 #
 
-""" SUAVE Methods for Geoemtry Generation
+""" SUAVE Methods for Geometry Generation
 """
 
 

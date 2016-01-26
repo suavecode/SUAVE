@@ -1,0 +1,18 @@
+# angle_of_attack_effect.py
+# 
+# Created:  Jul 2015, Carlos
+# Modified: 
+
+# ----------------------------------------------------------------------        
+#   Imports
+# ---------------------------------------------------------------------- 
+import numpy as np
+
+def angle_of_attack_effect (AOA,Mach_aircraft,theta_m):
+    """This function calculates the angle of attack effect, in decibels, to be added to the predicted mixed jet noise level."""
+#AOA = angle of attack
+
+    #Angle of attack effect
+    ATK_m=0.5*AOA*Mach_aircraft*((1.8*theta_m/np.pi)-0.6)**2
+
+    return(ATK_m)

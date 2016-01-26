@@ -1,4 +1,4 @@
-# Geoemtry.py
+# Geometry.py
 #
 
 """ SUAVE Methods for Geometry Generation

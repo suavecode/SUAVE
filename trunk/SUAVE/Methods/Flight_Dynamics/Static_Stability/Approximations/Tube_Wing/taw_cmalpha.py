@@ -81,6 +81,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     C_Law = conditions.lift_curve_slope
     w_f   = geometry.fuselages['fuselage'].width
     l_f   = geometry.fuselages['fuselage'].lengths.total
+    x_cg  = configuration.mass_properties.center_of_gravity[0]
     x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
     M     = mach
     
@@ -89,7 +90,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     cg=compute_mission_center_of_gravity(configuration,fuel_weights)
     #x_cg  = configuration.mass_properties.center_of_gravity[0]
     x_cg=cg[:,0] #get cg location at every point in the mission
- 
+
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
     for surf in geometry.wings:

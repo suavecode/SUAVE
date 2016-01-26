@@ -63,4 +63,4 @@ def update_velocity_vector_from_wind_angle(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
     conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
 
-    return conditions    
+    return conditions

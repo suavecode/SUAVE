@@ -15,6 +15,8 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     control_systems    =vehicle.control_systems
     fuselage           =vehicle.fuselages['fuselage']
     landing_gear       =vehicle.landing_gear
+    #main_landing_gear =vehicle.main_landing_gear
+    #nose_landing_gear =vehicle.nose_landing_gear    
     turbo_fan          =vehicle.propulsors['turbo_fan']
     electrical_systems=vehicle.electrical_systems
     avionics           =vehicle.avionics
@@ -75,12 +77,10 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     #optionals_moment         =np.array([fuselage.lengths.total*.51,0,0])*optionals.mass_properties.mass 
     
-    
-    
     landing_gear.origin      =1*(fuselage.origin)#front gear location
     landing_gear.origin[0]   =fuselage.origin[0]+fuselage.lengths.nose
-
-   
+    
+    
     #find moment of every object other than landing gear to find aft gear location, then cg
     sum_moments              =(wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
         fuselage_moment+turbo_fan_moment+electrical_systems_moment+\
@@ -95,13 +95,14 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     landing_gear.mass_properties.center_of_gravity=landing_gear_cg      
     
     landing_gear_moment                           =(landing_gear.origin+landing_gear_cg)*landing_gear.mass_properties.mass
-    
-    
+   
     vehicle.mass_properties.center_of_gravity     =(sum_moments+landing_gear_moment)/vehicle.mass_properties.max_takeoff
-    
+
     vehicle.mass_properties.center_of_gravity[1]  =0 #symmetric aircraft
 
-    sum_moments_less_fuel   =sum_moments-fuel_moment
+
+    sum_moments_less_fuel   = sum_moments-fuel_moment
     vehicle.mass_properties.zero_fuel_center_of_gravity=(sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
     
     return vehicle.mass_properties.center_of_gravity
+
