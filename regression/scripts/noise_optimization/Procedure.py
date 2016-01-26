@@ -266,8 +266,9 @@ def estimate_clmax(nexus):
     speed_for_noise = V2_speed + nexus.noise_V2_increase
     
     #nexus.missions.takeoff_initialization.segments.climb.air_speed   = speed_for_noise    
-    nexus.missions.takeoff.segments.climb.air_speed   = speed_for_noise
-    nexus.missions.takeoff.segments.cutback.air_speed = speed_for_noise       
+    nexus.missions.takeoff.segments.climb.air_speed          = speed_for_noise
+    nexus.missions.takeoff.segments.cutback.air_speed        = speed_for_noise
+    nexus.missions.sideline_takeoff.segments.climb.air_speed = speed_for_noise
     
     # ------------------------------------------------------------------
     #   Landing Configuration
@@ -443,7 +444,7 @@ def noise_flyover(nexus):
 
     noise_segment = results.flyover.segments.cutback
     noise_config  = nexus.vehicle_configurations.cutback
-    noise_config.print_output = 0
+    noise_config.print_output = 1
     noise_config.engine_flag = 1
     noise_config.output_file  = 'Noise_Flyover_cutback.dat'
     noise_config.output_file_engine = 'Noise_Flyover_cutback_Engine.dat'

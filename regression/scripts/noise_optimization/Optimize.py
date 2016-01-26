@@ -79,7 +79,7 @@ def setup():
         [ 'MZFW consistency' , '>' , 0. , 10 , Units.less],
         [ 'design_range_fuel_margin' , '>', 0., 10, Units.less],
         [ 'short_field_fuel_margin' , '>' , 0. , 10, Units.less],
-        [ 'max_range_fuel_margin' , '>' , 0. , 10, Units.less], #0.1
+        [ 'max_range_fuel_margin' , '>' , 0. , 10, Units.less], 
         [ 'wing_span' , '<', 35.9664, 35.9664, Units.less],
         [ 'noise_flyover_margin' , '>', 0. , 10., Units.less],
         [ 'noise_sideline_margin' , '>', 0. , 10. , Units.less],

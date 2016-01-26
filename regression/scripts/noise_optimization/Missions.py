@@ -1,7 +1,7 @@
 # Missions.py
 # 
 # Created:  May 2015, T. Lukaczyk
-# Modified: 
+# Modified: Jan 2016, Carlos/Tarik
 
 
 # ----------------------------------------------------------------------        
@@ -77,9 +77,9 @@ def base(analyses):
 
     #airport
     airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.altitude   = 0.0  
+    airport.delta_isa  = 0.0
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
@@ -382,7 +382,7 @@ def max_range_setup(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
@@ -684,7 +684,7 @@ def short_field_setup(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
 
     mission.airport = airport    
 
@@ -986,7 +986,7 @@ def takeoff_mission_setup(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
@@ -1030,9 +1030,9 @@ def sideline_mission_setup(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    mission.airport = airport    
-
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    mission.airport = airport
+    
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments
 
@@ -1065,7 +1065,7 @@ def takeoff_mission_initialization(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
@@ -1100,7 +1100,7 @@ def landing_mission_setup(analyses):
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     mission.airport = airport    
 
     # unpack Segments module
