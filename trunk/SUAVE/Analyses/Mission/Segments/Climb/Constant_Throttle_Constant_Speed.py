@@ -83,7 +83,8 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Climb.Constant_Throttle_Constant_Speed.unpack_body_angle 
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Climb.Constant_Throttle_Constant_Speed.unpack_body_angle 
         
         # Update Conditions
         iterate.conditions = Process()

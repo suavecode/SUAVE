@@ -36,8 +36,10 @@ class Segment(Analysis):
         self.process.initialize         = Process()
         self.process.converge           = Process()
         self.process.iterate            = Process()
+        self.process.iterate.unknowns   = Process()
         self.process.iterate.initials   = Process()
         self.process.iterate.conditions = Process()
+        self.process.iterate.residuals  = Process()
         self.process.finalize           = Process()
         
 

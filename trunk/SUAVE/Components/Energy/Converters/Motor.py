@@ -72,7 +72,6 @@ class Motor(Energy_Component):
                     16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))
         
         omega1 = ((np.pi**(3./2.))*(inside_piece**(0.5)-np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
-        
 
         omega1[np.isnan(omega1)] = 0.0
         
@@ -105,12 +104,12 @@ class Motor(Energy_Component):
         """    
         
         # Unpack
-        G    = self.gear_ratio
-        Kv   = self.speed_constant
-        Res  = self.resistance
-        v    = self.inputs.voltage
-        omeg = self.omega(conditions)*G
-        etaG = self.gearbox_efficiency
+        G     = self.gear_ratio
+        Kv    = self.speed_constant
+        Res   = self.resistance
+        v     = self.inputs.voltage
+        omeg  = self.outputs.omega*G
+        etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         

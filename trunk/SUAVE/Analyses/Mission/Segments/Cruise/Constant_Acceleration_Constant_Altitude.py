@@ -82,7 +82,8 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Common.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()

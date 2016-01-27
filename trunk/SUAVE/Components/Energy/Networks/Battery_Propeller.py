@@ -44,21 +44,20 @@ class Battery_Propeller(Propulsor):
     def evaluate_thrust(self,state):
     
         # unpack
-        conditions  = state.conditions
-        numerics    = state.numerics
-        motor       = self.motor
-        propeller   = self.propeller
-        esc         = self.esc
-        avionics    = self.avionics
-        payload     = self.payload
-        battery     = self.battery
+        conditions = state.conditions
+        numerics   = state.numerics
+        motor      = self.motor
+        propeller  = self.propeller
+        esc        = self.esc
+        avionics   = self.avionics
+        payload    = self.payload
+        battery    = self.battery
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
-        battery.voltage        = conditions.propulsion.battery_voltage
-    
+
         # Step 1 battery power
-        esc.inputs.voltagein = battery.voltage
+        esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
         # Step 2
         esc.voltageout(conditions)
         # link
@@ -101,22 +100,24 @@ class Battery_Propeller(Propulsor):
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
     
-        #Pack the conditions for outputs
-        rpm                                    = motor.outputs.omega*60./(2.*np.pi)
-        current                                = esc.outputs.currentin
-        battery_draw                           = battery.inputs.power_in 
-        battery_energy                         = battery.current_energy
-        battery_voltage                        = battery.voltage
-         
-        conditions.propulsion.rpm              = rpm
-        conditions.propulsion.current          = current
-        conditions.propulsion.battery_draw     = battery_draw
-        conditions.propulsion.battery_energy   = battery_energy
-        conditions.propulsion.battery_voltage  = battery_voltage
-        conditions.propulsion.motor_torque     = motor.outputs.torque
-        conditions.propulsion.propeller_torque = Q
+        # Pack the conditions for outputs
+        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        current              = esc.outputs.currentin
+        battery_draw         = battery.inputs.power_in 
+        battery_energy       = battery.current_energy
+        voltage_open_circuit = battery.voltage_open_circuit
+        voltage_under_load   = battery.voltage_under_load    
+          
+        conditions.propulsion.rpm                  = rpm
+        conditions.propulsion.current              = current
+        conditions.propulsion.battery_draw         = battery_draw
+        conditions.propulsion.battery_energy       = battery_energy
+        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
+        conditions.propulsion.voltage_under_load   = voltage_under_load  
+        conditions.propulsion.motor_torque         = motor.outputs.torque
+        conditions.propulsion.propeller_torque     = Q
         
-        #Create the outputs
+        # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
@@ -132,23 +133,26 @@ class Battery_Propeller(Propulsor):
         """"""        
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        
         state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
-        
-        
+        state.conditions.propulsion.battery_voltage_under_load  = state.unknowns.battery_voltage_under_load
         
         return
     
     def residuals(self,segment,state):
         """"""        
         
-        # Here we are going to pack the residuals (torque) from the network
+        # Here we are going to pack the residuals (torque,voltage) from the network
         
-        # unpack the torques
-        q_motor = state.conditions.propulsion.motor_torque
-        q_prop  = state.conditions.propulsion.propeller_torque
+        # Unpack
+        q_motor   = state.conditions.propulsion.motor_torque
+        q_prop    = state.conditions.propulsion.propeller_torque
+        v_actual  = state.conditions.propulsion.voltage_under_load
+        v_predict = state.unknowns.battery_voltage_under_load
+        v_max     = self.voltage
         
-        state.residuals.network = q_motor[:,0] - q_prop[:,0]
+        # Return the residuals
+        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
         
         return    
             

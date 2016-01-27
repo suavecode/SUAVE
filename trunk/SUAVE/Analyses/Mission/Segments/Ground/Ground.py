@@ -106,9 +106,9 @@ class Ground(Aerodynamic):
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
     
-    
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Ground.Common.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Ground.Common.unpack_unknowns
     
         # Update Conditions
         iterate.conditions = Process()

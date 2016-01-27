@@ -18,8 +18,11 @@ def initialize_conditions(segment,state):
     if alt is None:
         if not state.initials: raise AttributeError('altitude not set')
         alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        T0  =  state.initials.conditions.frames.body.inertial_rotations[-1,1]
         segment.altitude = alt
+        
+    # check for initial pitch
+    if T0 is None:
+        T0  =  state.initials.conditions.frames.body.inertial_rotations[-1,1]
         segment.pitch_initial = T0
     
     # dimensionalize time

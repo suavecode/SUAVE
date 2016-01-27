@@ -80,7 +80,8 @@ class Aerodynamic(Simple):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None  
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None  
         
         # Update Conditions
         iterate.conditions = Process()

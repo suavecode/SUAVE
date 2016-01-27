@@ -72,7 +72,8 @@ class Simple(Segment):
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None
         
         # Update Conditions
         iterate.conditions = Process()
