@@ -1,11 +1,17 @@
-# Tim Momose, March 2015
+# translate_data.py
+# 
+# Created:  Mar 2015, T. Momose
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 import numpy as np
 
 import SUAVE
 from SUAVE.Core import Data, Units
 from .Data.Cases import Run_Case
-
 
 def translate_conditions_to_cases(avl,conditions):
     """ Takes SUAVE Conditions() data structure and translates to a Container of

@@ -1,4 +1,7 @@
-# Tim Momose, October 2014
+# initialize_inputs.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

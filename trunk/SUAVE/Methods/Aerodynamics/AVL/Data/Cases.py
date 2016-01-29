@@ -1,4 +1,7 @@
-# Tim Momose, October 2014
+# Cases.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -6,33 +9,6 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as Container_Base
-
-# ------------------------------------------------------------
-#   Configuration
-# ------------------------------------------------------------
-
-#class Cases(Data):
-
-    #def __defaults__(self):
-
-        #self.num_cases = 0
-        #self.cases = Data()
-
-
-    #def append_case(self,case):
-        #""" adds a case to the set of run cases """
-
-        ## assert database type
-        #if not isinstance(case,Data):
-            #raise Component_Exception, 'input component must be of type Data()'
-
-        ## store data with the appropriate case index
-        ## AVL uses indices starting from 1, not 0!
-        #self.num_cases += 1
-        #case.index = self.num_cases
-        #self.cases.append(case)
-
-        #return
 
 # ------------------------------------------------------------
 #  AVL Case

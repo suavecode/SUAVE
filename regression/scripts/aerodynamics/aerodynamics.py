@@ -18,6 +18,7 @@ import pylab as plt
 import copy, time
 from copy import deepcopy
 import random
+from SUAVE.Attributes.Gases.Air import Air
 
 def main():
     
@@ -72,6 +73,11 @@ def main():
     mu = mu[:,None]
     T = T[:,None]
     pressure = pressure[:,None]
+    
+    air = Air()
+    a = air.compute_speed_of_sound(T,pressure)
+    
+    re = rho*a*Mc/mu
 
     
     state.conditions.freestream.mach_number = Mc
@@ -79,6 +85,7 @@ def main():
     state.conditions.freestream.dynamic_viscosity = mu
     state.conditions.freestream.temperature = T
     state.conditions.freestream.pressure = pressure
+    state.conditions.freestream.reynolds_number = re
     
     state.conditions.aerodynamics.angle_of_attack = angle_of_attacks   
     
@@ -268,7 +275,7 @@ if __name__ == '__main__':
     state.conditions.freestream.dynamic_viscosity = np.array([1.43408227e-05]*test_num)
     state.conditions.freestream.temperature = np.array([218.92391647]*test_num)
     state.conditions.freestream.pressure = np.array([23908.73408391]*test_num)
-            
+
     #call the aero model        
     results = aerodynamics.evaluate(state)
     

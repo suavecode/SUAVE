@@ -1,13 +1,14 @@
 # compressibility_drag_wing.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Dec 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
+#        
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
+# SUAVE imports
 from SUAVE.Core import Results
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
@@ -29,7 +30,6 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 def compressibility_drag_wing(state,settings,geometry):
-#def compressibility_drag_wing(conditions,configuration,geometry):
     """ SUAVE.Methods.compressibility_drag_wing(conditions,configuration,geometry)
         computes the induced drag associated with a wing 
         
@@ -41,12 +41,12 @@ def compressibility_drag_wing(state,settings,geometry):
             based on a set of fits
             
     """
-
+    
     # unpack
-    conditions = state.conditions
+    conditions    = state.conditions
     configuration = settings    
     
-    wing       = geometry
+    wing = geometry
     if isinstance(wing,Wings.Main_Wing):
         wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     elif wing.vertical:
@@ -54,15 +54,11 @@ def compressibility_drag_wing(state,settings,geometry):
     else:
         wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
         
-    mach       = conditions.freestream.mach_number
+    mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
-
     # start result
     total_compressibility_drag = 0.0
-    #drag_breakdown.compressible = Results()
-
-    
         
     # unpack wing
     t_c_w   = wing.thickness_to_chord
@@ -113,11 +109,5 @@ def compressibility_drag_wing(state,settings,geometry):
         divergence_mach           = MDiv    ,
     )
     drag_breakdown.compressible[wing.tag] = wing_results
-
-
-    # dump total comp drag
-    #drag_breakdown.compressible.total = total_compressibility_drag
-    #conditions.aerodynamics.drag_breakdown.compressible[wing.tag] = wing_results
-    #conditions.aerodynamics.drag_breakdown.compressible.total = total_compressibility_drag
     
     return total_compressibility_drag
