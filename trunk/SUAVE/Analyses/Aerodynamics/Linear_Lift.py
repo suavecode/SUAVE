@@ -1,4 +1,4 @@
-# Fidelity_Zero.py
+# Linear_Lift.py
 #
 # Created:  Trent, Nov 2013
 # Modified: Trent, Anil, Tarik, Feb 2014
@@ -13,23 +13,13 @@
 import SUAVE
 
 from SUAVE.Core import Data
-from SUAVE.Core import Units
-
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 
 # local imports
 from Aerodynamics import Aerodynamics
-from Results      import Results
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
 
 # package imports
 import numpy as np
-import scipy as sp
 from numpy import pi
 
 # ----------------------------------------------------------------------

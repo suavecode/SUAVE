@@ -1,4 +1,4 @@
-# Default Aerodynamics Results
+# Results
 # Created:   Trent, Jan 2014
 # Modified:  
 

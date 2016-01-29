@@ -1,13 +1,11 @@
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from Aerodynamics import Aerodynamics
 from SUAVE.Analyses import Process
-
-# default Aero Results
-from Results import Results
 
 # ----------------------------------------------------------------------
 #  Analysis
