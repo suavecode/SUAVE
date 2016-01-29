@@ -1,8 +1,7 @@
-""" US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
-#
-#
-# Modified by Tim MacDonald 2/16/15
-# Converted to vector form and changed output structure
+#US_Standard_1976.py
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Feb, 2015, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,7 +19,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 class US_Standard_1976(Atmosphere):
-
+    
     """ Implements the U.S. Standard Atmosphere (1976 version)
     """
     
