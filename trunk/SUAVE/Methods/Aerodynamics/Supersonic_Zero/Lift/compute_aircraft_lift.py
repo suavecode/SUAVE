@@ -1,36 +1,19 @@
 # compute_aircraft_lift.py
 # 
-# Created:  Anil V., Dec 2013
-# Modified: Anil, Trent, Tarik, Feb 2014 
-# Modified: Anil  April 2014 
+# Created:  Dec 2013, A. Variyar,
+# Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra 
+#           Apr 2014, A. Variyar  
+#           Aug 2014, T. Macdonald
+#           Jan 2016, E. Botero     
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
-# suave imports
-
-from SUAVE.Core import Data
-from SUAVE.Core import Units
 
 from SUAVE.Core import Results
-
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
-
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import weissinger_vortex_lattice
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift.vortex_lift import vortex_lift
 
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from copy import copy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
 #  The Function
@@ -74,34 +57,30 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     # pack for interpolate
     X_interp = AoA
     
-    
-    wings_lift = np.array([[0.0]] * len(Mc))
-    wings_lift_comp = np.array([[0.0]] * len(Mc))
-    compress_corr = np.array([[0.0]] * len(Mc))
+    wings_lift          = np.array([[0.0]] * len(Mc))
+    wings_lift_comp     = np.array([[0.0]] * len(Mc))
+    compress_corr       = np.array([[0.0]] * len(Mc))
     aircraft_lift_total = np.array([[0.0]] * len(Mc))
-    vortex_cl = np.array([[0.0]] * len(Mc))
-    #print aircraft_lift_total
+    vortex_cl           = np.array([[0.0]] * len(Mc))
+
     wing = geometry.wings[0]
     
-        
-        
     # Subsonic setup
     wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
     compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
     compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment
-    # wings_lift[Mc <= 1.05] = wings_lift_model(X_interp[Mc <= 1.05])
+
     if wing.vortex_lift is True:
         vortex_cl[Mc < 1.0] = vortex_lift(X_interp[Mc < 1.0],configuration,wing) # This was initialized at 0.0
     wings_lift[Mc <= 1.05] = wings_lift[Mc <= 1.05] + vortex_cl[Mc <= 1.05]
     
     # Supersonic setup
-    # wings_lift_model = configuration.surrogate_models_sup.lift_coefficient
     compress_corr[Mc > 1.05] = 1./(np.sqrt(Mc[Mc > 1.05]**2.-1.))
-    # wings_lift[Mc > 1.05] = wings_lift_model(X_interp[Mc > 1.05])
-    
+
     wings_lift_comp = wings_lift * compress_corr    
         
     aircraft_lift_total = wings_lift_comp * fus_correction
+    
     # store results
     lift_results = Results(
         total                = aircraft_lift_total ,
@@ -113,15 +92,6 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     )
     conditions.aerodynamics.lift_breakdown.update( lift_results )    #update
         
-    conditions.aerodynamics.lift_coefficient= aircraft_lift_total
+    conditions.aerodynamics.lift_coefficient = aircraft_lift_total
 
     return aircraft_lift_total
-
-
-if __name__ == '__main__':   
-    #test()
-    raise RuntimeError , 'module test failed, not implemented'
-
-
-#-------runn this caase  - have a local test case---------------------
-
