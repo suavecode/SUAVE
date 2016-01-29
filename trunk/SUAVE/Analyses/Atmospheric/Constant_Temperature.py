@@ -1,7 +1,7 @@
-#Constant_Temperature.py
-#
-#
-# Created: M. Vegh (Jan 2016
+# Constant_Temperature.py: 
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
