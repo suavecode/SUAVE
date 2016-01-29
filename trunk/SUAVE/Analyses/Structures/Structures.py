@@ -3,7 +3,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis, Results
 
 
@@ -20,7 +20,7 @@ class Structures(Analysis):
         self.settings = Data()
         
         
-    def evaluate(self,condtitions):
+    def evaluate(self,conditions):
         return Results()
     
     __call__ = evaluate

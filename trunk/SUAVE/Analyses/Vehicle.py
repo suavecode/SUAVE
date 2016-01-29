@@ -5,9 +5,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Analysis import Analysis
-from Results import Results
 
 
 # ----------------------------------------------------------------------

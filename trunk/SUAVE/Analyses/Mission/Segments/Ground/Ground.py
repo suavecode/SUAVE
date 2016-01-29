@@ -12,7 +12,7 @@ from SUAVE.Methods.Missions import Segments as Methods
 from SUAVE.Analyses import Process
 
 # Units
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------

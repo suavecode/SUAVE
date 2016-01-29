@@ -3,8 +3,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-import numpy as np
 
 # SUAVE imports
 from Ground import Ground
