@@ -14,15 +14,13 @@ from SUAVE.Core import Units
 from SUAVE.Components import Wings
 from SUAVE.Core  import Data
 
-# package imports
-import numpy as np
-import scipy as sp
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_slat_lift import compute_slat_lift
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import compute_flap_lift
 
 # ----------------------------------------------------------------------
 #  compute_max_lift_coeff
 # ----------------------------------------------------------------------
+
 def compute_max_lift_coeff(vehicle,conditions=None):
     """ SUAVE.Methods.Aerodynamics.compute_max_lift_coeff(vehicle):
         Computes the maximum lift coefficient associated with an aircraft high lift system
