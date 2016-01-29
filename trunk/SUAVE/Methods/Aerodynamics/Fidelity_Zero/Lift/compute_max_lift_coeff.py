@@ -1,22 +1,18 @@
 # compute_max_lift_coeff.py
 #
-# Created:  Anil V., Dec 2013
-# Modified: Tarik, Feb 2014
+# Created:  Dec 2013, A. Variyar
+# Modified: Feb 2014, T. Orra
+#           Jan 2016, E. Botero         
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-#SUave Imports
+#SUAVE Imports
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Components import Wings
 from SUAVE.Core  import Data
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
 
 # package imports
 import numpy as np

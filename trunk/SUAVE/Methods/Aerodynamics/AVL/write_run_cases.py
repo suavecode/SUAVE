@@ -1,16 +1,17 @@
-# Tim Momose, December 2014
+# write_runcases.py
+# 
+# Created:  Dec 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-#from SUAVE.Core import Data, Data_Exception, Data_Warning
 from purge_files import purge_files
+#from SUAVE.Methods.Aerodynamics.AVL.write_run_cases import make_controls_case_text
 
 def write_run_cases(avl_object):
 
-    # imports
-    from SUAVE.Methods.Aerodynamics.AVL.write_run_cases import make_controls_case_text
 
     # unpack avl_inputs
     batch_filename = avl_object.current_status.batch_file

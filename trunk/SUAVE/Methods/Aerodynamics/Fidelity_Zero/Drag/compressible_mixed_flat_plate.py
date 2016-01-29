@@ -1,8 +1,7 @@
 # compressible_mixed_flat_plate.py
 # 
-# Created:  Tim MacDonald, 8/1/14
-# Modified:         
-# Adapted from compressible_mixed_flat_plate.py
+# Created:  Aug 2014, T. MacDonald
+# Modified: Jan 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
@@ -15,7 +14,7 @@ import pylab as plt
 
 
 # ----------------------------------------------------------------------
-#  Simple Method
+#  Compressible Mixed Flat Plate
 # ----------------------------------------------------------------------
 
 
@@ -53,11 +52,12 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     Rex[Rex==0.0] = 0.0001
 
     theta = 0.671*xt/np.sqrt(Rex)
-    xeff = (27.78*theta*Re**0.2)**1.25
-    Rext = Re*(1-xt+xeff)
+    xeff  = (27.78*theta*Re**0.2)**1.25
+    Rext  = Re*(1-xt+xeff)
     
     cf_turb  = 0.455/(np.log10(Rext)**2.58)
     cf_lam   = 1.328/np.sqrt(Rex)
+    
     if xt > 0.0:
         cf_start = 0.455/(np.log10(Re*xeff)**2.58)
     else:

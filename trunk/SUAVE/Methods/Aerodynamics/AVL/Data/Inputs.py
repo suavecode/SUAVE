@@ -1,4 +1,8 @@
-# Tim Momose, December 2014
+# Inputs.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -6,7 +10,6 @@
 
 import SUAVE
 from SUAVE.Core import Data
-
 
 # ------------------------------------------------------------
 #   Configuration

@@ -1,13 +1,14 @@
 # windmilling_drag_coefficient.py
 #
-# Created:  Tarik, Carlos, Jul 2014
-# Modified: Tarik, Oct. 2015
+# Created:  Jul 2014, T. Orra, C. Ilario, 
+# Modified: Oct 2015, T. Orra
+#           Jan 2016, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
+# SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
 from SUAVE.Core import Units, Data, Results
@@ -83,8 +84,3 @@ def windmilling_drag(geometry,state):
     state.conditions.aerodynamics.drag_breakdown.windmilling_drag = windmilling_result
 
     return windmilling_drag_coefficient
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here

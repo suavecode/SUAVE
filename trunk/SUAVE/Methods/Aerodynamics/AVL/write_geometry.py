@@ -1,4 +1,8 @@
-# Tim Momose, October 2014
+# translate_data.py
+# 
+# Created:  Oct 2015, T. Momose
+# Modified: Jan 2016, E. Botero
+
 
 
 # ----------------------------------------------------------------------
