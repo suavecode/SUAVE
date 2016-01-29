@@ -66,12 +66,12 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     cf_inc = cf_lam*xt + cf_turb*(1-xt+xeff) - cf_start*xeff
     
     # compressibility correction
-    Tw = Tc * (1. + 0.178*Ma**2.)
-    Td = Tc * (1. + 0.035*Ma**2. + 0.45*(Tw/Tc - 1.))
+    Tw = Tc * (1. + 0.178*Ma*Ma)
+    Td = Tc * (1. + 0.035*Ma*Ma + 0.45*(Tw/Tc - 1.))
     k_comp = (Tc/Td) 
     
     # reynolds correction
-    Rd_w = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
+    Rd_w   = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
     k_reyn = (Re/Rd_w)**0.2
     
     # apply corrections

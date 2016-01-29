@@ -1,8 +1,9 @@
 # taw_cnbeta.py
 #
-# Created:  Tim Momose, March 2014
-# Modified: Andrew Wendorff, July 2014
-# 
+# Created:  Mar 2014, T. Momose
+# Modified: Jul 2014, A. Wendorff
+#           Jan 2016, E. Botero
+
 # TO DO:
 #    - Add capability for multiple vertical tails
 #    - Smooth out k_v factor (line 143)
@@ -11,16 +12,11 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
 import copy
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Method
@@ -56,12 +52,6 @@ def taw_cnbeta(geometry,conditions,configuration):
                     origin - the position of the vertical tail root in the aircraft body frame [meters]
                     exposed_root_chord_offset - the displacement from the fuselage
                      centerline to the exposed area's physical root chordline [meters]
-                     
-                     
-
-    x_v    = vert.origin[0]
-    b_v    = vert.spans.projected
-    ac_vLE = vert.aerodynamic_center[0]
     
                 fuselages.Fuselage - a data dictionary with the fields:
                     areas.side_projected - fuselage body side area [meters**2]
@@ -205,15 +195,13 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     #Compute vertical tail contribution
     l_v    = x_v + ac_vLE - x_cg
-    #try:
-    #    CLa_v  = geometry.wings['Vertical Stabilizer'].CL_alpha
-    #except AttributeError:
-    #    CLa_v  = datcom(geometry.wings['Vertical Stabilizer'], [M])
+
     try:
         iter(M)
     except TypeError:
         M = [M]
     CLa_v = datcom(vert,M)
+    
     #k_v correlated from Roskam Fig. 10.12. NOT SMOOTH.
     bf     = b_v/d_i
     if bf < 2.0:
@@ -222,7 +210,9 @@ def taw_cnbeta(geometry,conditions,configuration):
         k_v = 0.76 + 0.24*(bf-2.0)/1.5
     else:
         k_v = 1.0
+        
     quarter_chord_sweep = convert_sweep(geometry.wings['main_wing'])
+    
     k_sweep  = (1.0+np.cos(quarter_chord_sweep))
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
     Cy_bv    = -k_v*CLa_v*dsdb_e*(S_v/S)  #ASSUMING SINGLE VERTICAL TAIL
@@ -230,7 +220,5 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_v = -Cy_bv*l_v/b
     
     CnBeta   = CnBeta_w + CnBeta_f + CnBeta_v + sum(CnBeta_other)
-    
-    ##print "Wing: {}  Fuse: {}   Vert: {}   Othr: {}".format(CnBeta_w,CnBeta_f,CnBeta_v,sum(CnBeta_other))
     
     return CnBeta
