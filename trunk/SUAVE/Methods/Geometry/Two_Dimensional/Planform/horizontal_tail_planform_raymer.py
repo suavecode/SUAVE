@@ -1,19 +1,7 @@
-# Geometry.py
+# horizontal_tail_planform_raymer.py
 #
-
-""" SUAVE Methods for Geometry Generation
-"""
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy
-from math import pi, sqrt
-from SUAVE.Core  import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform  import wing_planform
-#from SUAVE.Attributes import Constants
+# Created:  ### ####, M. Vegh
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -33,6 +21,7 @@ def horizontal_tail_planform_raymer(horizontal_stabilizer, wing,  l_ht,c_ht):
     1.= military cargo/bomber, 1.= jet transport
     """
     
-    horizontal_stabilizer.areas.reference=wing.chords.mean_aerodynamic*c_ht*wing.areas.reference/l_ht
+    horizontal_stabilizer.areas.reference = wing.chords.mean_aerodynamic*c_ht*wing.areas.reference/l_ht
     wing_planform(horizontal_stabilizer)
+    
     return 0    

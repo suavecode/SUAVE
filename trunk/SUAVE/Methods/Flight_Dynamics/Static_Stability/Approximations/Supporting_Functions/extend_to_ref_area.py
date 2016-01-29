@@ -1,19 +1,13 @@
 # extend_to_ref_area.py
 #
-# Created: March 2014, Tim Momose
-# IN PROGRESS
+# Created:  Mar 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
 from copy import deepcopy
-from SUAVE.Components.Wings.Wing import Wing
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Method
@@ -68,7 +62,6 @@ def extend_to_ref_area(surface):
     c_r1      = surface.chords.root
     Lambda    = surface.sweep
     dh_center = surface.exposed_root_chord_offset
-#    print 'b: {}; dh: {}'.format(b1,dh_center)
 
     #Compute reference area dimensions
     b      = b1+dh_center
