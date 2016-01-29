@@ -1,4 +1,4 @@
-# Fidelity_Zero.py
+# Vortex_Lattice.py
 #
 # Created:  Trent, Nov 2013
 # Modified: Trent, Anil, Tarik, Feb 2014
@@ -20,16 +20,10 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_latt
 
 # local imports
 from Aerodynamics import Aerodynamics
-from Results      import Results
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
 
 # package imports
 import numpy as np
-import scipy as sp
 
 
 # ----------------------------------------------------------------------
@@ -117,9 +111,9 @@ class Vortex_Lattice(Aerodynamics):
         wings_lift_model = surrogates.lift_coefficient
         
         # inviscid lift of wings only
-        inviscid_wings_lift = wings_lift_model(AoA)
+        inviscid_wings_lift                                        = wings_lift_model(AoA)
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
-        state.conditions.aerodynamics.lift_coefficient = inviscid_wings_lift
+        state.conditions.aerodynamics.lift_coefficient             = inviscid_wings_lift
 
 
         return inviscid_wings_lift

@@ -2,7 +2,6 @@
 #
 #
 # Modified by Tim MacDonald 2/16/15
-# Converted to vector form and changed output structure
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +12,6 @@ from warnings import warn
 
 import SUAVE
 
-from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Analyses.Atmospheric import Atmospheric
 
 from SUAVE.Attributes.Gases import Air
@@ -21,7 +19,6 @@ from SUAVE.Attributes.Planets import Earth
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
-from SUAVE.Core import Data
 from SUAVE.Core import Units
 from SUAVE.Methods.Utilities import atleast_2d_col
 
@@ -64,12 +61,12 @@ class US_Standard_1976(Atmospheric):
         """
 
         # unpack
-        zs   = altitude
-        gas    = self.fluid_properties
-        planet = self.planet
-        grav   = self.planet.sea_level_gravity        
-        Rad    = self.planet.mean_radius
-        gamma  = gas.gas_specific_constant
+        zs        = altitude
+        gas       = self.fluid_properties
+        planet    = self.planet
+        grav      = self.planet.sea_level_gravity        
+        Rad       = self.planet.mean_radius
+        gamma     = gas.gas_specific_constant
         delta_isa = temperature_deviation
         
         # check properties
@@ -164,29 +161,3 @@ if __name__ == '__main__':
     
     print data
     
-    #plt.figure(1)
-    #plt.plot(p,h)
-    #plt.xlabel('Pressure (Pa)')
-    #plt.ylabel('Altitude (km)')
-    
-    #plt.figure(2)
-    #plt.plot(T,h)
-    #plt.xlabel('Temperature (K)')
-    #plt.ylabel('Altitude (km)')    
-    
-    #plt.figure(3)
-    #plt.plot(rho,h)
-    #plt.xlabel('Density (kg/m^3)')
-    #plt.ylabel('Altitude (km)')       
-    
-    #plt.figure(4)
-    #plt.plot(a,h)
-    #plt.xlabel('Speed of Sound (m/s)')
-    #plt.ylabel('Altitude (km)') 
-    
-    #plt.figure(6)
-    #plt.plot(mew,h)
-    #plt.xlabel('Viscosity (kg/m-s)')
-    #plt.ylabel('Altitude (km)')   
-
-    #plt.show(block=True)
