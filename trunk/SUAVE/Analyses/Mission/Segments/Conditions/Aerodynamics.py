@@ -5,7 +5,6 @@
 
 # python imports
 import numpy as np
-import time
 
 # SUAVE imports
 from Basic import Basic
@@ -64,13 +63,13 @@ class Aerodynamics(Basic):
         self.aerodynamics.roll_angle       = ones_1col * 0
         self.aerodynamics.lift_coefficient = ones_1col * 0
         self.aerodynamics.drag_coefficient = ones_1col * 0
-        self.aerodynamics.lift_breakdown   = Conditions()
-        self.aerodynamics.drag_breakdown   = Conditions()
-        self.aerodynamics.drag_breakdown.parasite = Conditions()
+        self.aerodynamics.lift_breakdown              = Conditions()
+        self.aerodynamics.drag_breakdown              = Conditions()
+        self.aerodynamics.drag_breakdown.parasite     = Conditions()
         self.aerodynamics.drag_breakdown.compressible = Conditions()
 
         # stability conditions
-        self.stability = Conditions()        
+        self.stability         = Conditions()        
         self.stability.static  = Conditions()
         self.stability.dynamic = Conditions()
 
@@ -78,7 +77,10 @@ class Aerodynamics(Basic):
         self.propulsion = Conditions()
         self.propulsion.throttle           = ones_1col * 0
         self.propulsion.battery_energy     = ones_1col * 0
-        self.propulsion.thrust_breakdown   = Conditions()
+        self.propulsion.thrust_breakdown       = Conditions()
+        self.propulsion.acoustic_outputs       = Conditions()
+        self.propulsion.acoustic_outputs.fan   = Conditions()
+        self.propulsion.acoustic_outputs.core  = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0

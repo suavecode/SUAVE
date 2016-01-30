@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy #as np
+import numpy as np
 from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
 
@@ -27,7 +27,7 @@ def Cp(T):
     #gamma=1.4
     Thetav=3354
     R=287
-    Cpt=R*(7/2+((Thetav/(2*T))/(numpy.sinh(Thetav/(2*T))))**2)
+    Cpt=R*(7/2+((Thetav/(2*T))/(np.sinh(Thetav/(2*T))))**2)
     
     #Cpt = 1.9327e-10*T**4 - 7.9999e-7*T**3 + 1.1407e-3*T**2 - 4.4890e-1*T + 1.0575e+3
     return Cpt   
@@ -77,9 +77,10 @@ class Ducted_Fan(Propulsor):
         self.df = 0.0
         self.A7 = 0.0
         self.Ao = 0.0
-        self.mdf = 0.0
-        self.mdot_core = 0.0
-        
+        self.mdf         = 0.0
+        self.mdot_core   = 0.0
+        self.areas       =Data()
+        self.areas.wetted=0.0
         
     def engine_sizing_ducted_fan(self,State):    
         Minf=State.M
@@ -161,7 +162,7 @@ class Ducted_Fan(Propulsor):
         #freestream properties
         
         Cpo=Cpp
-        ao=numpy.sqrt(Cpo/(Cpo-Ro)*Ro*To)
+        ao=np.sqrt(Cpo/(Cpo-Ro)*Ro*To)
         uo=Mo*ao
         rhoo=po/(Ro*To)
         #freestream stagnation properties
@@ -219,10 +220,10 @@ class Ducted_Fan(Propulsor):
         Tt8=Tt7
         ht8=Cpp*Tt8#h(Tt8)
         
-        M8=numpy.sqrt((((pt8/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+        M8=np.sqrt((((pt8/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
         T8=Tt8/(1+(gamma-1)/2*M8**2)
         h8=Cpp*T8#h(T8)
-        u8=numpy.sqrt(2*(ht8-h8))
+        u8=np.sqrt(2*(ht8-h8))
     
         
         if M8 < 1.0:
@@ -230,7 +231,7 @@ class Ducted_Fan(Propulsor):
       
             p7=po
             
-            M7=numpy.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+            M7=np.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
             T7=Tt7/(1+(gamma-1)/2*M7**2)
             h7=Cpp*T7
       
@@ -242,14 +243,14 @@ class Ducted_Fan(Propulsor):
             h7=Cpp*T7
         
     
-        u7=numpy.sqrt(2*(ht7-h7))
+        u7=np.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
   
       # #-------------------------
       # #Thrust calculation
  
      
-        A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*numpy.sqrt(Tt7/Tto)
+        A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*np.sqrt(Tt7/Tto)
          
         Thrust_nd=gamma*Mo**2*((u7/uo-1))+A1e_b_A1o*(p7/po-1)
         
@@ -284,19 +285,19 @@ class Ducted_Fan(Propulsor):
         
         #[p2,T2,h2]=FM(alpha,po,To,Mo,M2,etapold)  #non ideal case
         rho2=p2/(R*T2)
-        u2=M2*numpy.sqrt(gamma*R*T2)
+        u2=M2*np.sqrt(gamma*R*T2)
         A2=mdot_df/(rho2*u2)
-        df=numpy.sqrt(4*A2/(numpy.pi*(1-HTRf**2))) #if HTRf- hub to tip ratio is specified
+        df=np.sqrt(4*A2/(np.pi*(1-HTRf**2))) #if HTRf- hub to tip ratio is specified
    
         
         #fan nozzle area
         
-        M8=u8/numpy.sqrt(Cp(T8)*R/(Cp(8)-R)*T8)
+        M8=u8/np.sqrt(Cp(T8)*R/(Cp(8)-R)*T8)
       
         if M8<1: # nozzle unchoked
         
             p7=po
-            M7=numpy.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+            M7=np.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
             T7=Tt7/(1+(gamma-1)/2*M7**2)
             h7=Cpp*T7
       
@@ -309,7 +310,7 @@ class Ducted_Fan(Propulsor):
           
       #end
       
-        u7=numpy.sqrt(2*(ht7-h7))
+        u7=np.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
         A7=mdot_df/(rho7*u7)
 
@@ -317,7 +318,7 @@ class Ducted_Fan(Propulsor):
         Ao=mdot_df/(rhoo*uo)  
         
  
-        mdfD=mdot_df*numpy.sqrt(Tt2/Tref)/(pt2/Pref)
+        mdfD=mdot_df*np.sqrt(Tt2/Tref)/(pt2/Pref)
         
       
       
@@ -326,9 +327,11 @@ class Ducted_Fan(Propulsor):
         self.Ao= Ao
         self.A2= A2
         self.A7= A7
-        self.nacelle_diameter=numpy.sqrt(A2/(numpy.pi/4))
+        #self.nacelle_diameter=np.sqrt(A2/(np.pi/4))[0][0]
+        self.nacelle_diameter=1.1*np.sqrt(A2/(np.pi/4))[0][0]
         self.engine_length=self.nacelle_diameter/1.5
-      
+        #self.areas.wetted = 1.1 * self.nacelle_diameter * np.pi * self.engine_length
+        self.areas.wetted = 1.0 * self.nacelle_diameter * np.pi * self.engine_length
      
     
 
@@ -384,7 +387,7 @@ class Ducted_Fan(Propulsor):
         beta=1
         gammaa=1
         alphac=0
-     
+        '''
         etapold=0.98
         etapolf=0.93
         etapollc=0.91
@@ -393,10 +396,23 @@ class Ducted_Fan(Propulsor):
         etapoltn=0.95
         etapolfn=0.95
         eta_b=0.99
+        '''
+        etapold =1.
+        etapolf =1.
+        etapollc=1.
+        etapolhc=1.
+        etapolt =1.
+        etapoltn=1.
+        etapolfn=1.
+        eta_b   =1.
+        
+        
+        
+        
         #-----------------------------------------
         
         #stagnation pressures
-        htf=4.3*10**7#J/Kg
+        htf=4.3*10**7.#J/Kg
         #Tt4=1380#K
         #Cppp=1005
         tau_f=htf/(Cpp*To)
@@ -416,15 +432,15 @@ class Ducted_Fan(Propulsor):
         #freestream properties
         
         Cpo=Cpp
-        ao=numpy.sqrt(Cpo/(Cpo-Ro)*Ro*To)
+        ao=np.sqrt(Cpo/(Cpo-Ro)*Ro*To)
         uo=Mo*ao
         rhoo=po/(Ro*To)
         #freestream stagnation properties
         
         #delh=0.5*uo**2
        
-        pto=po*(1+(gamma-1)/2*Mo**2)**(gamma/(gamma-1))
-        Tto=To*(1+(gamma-1)/2*Mo**2)
+        pto=po*(1+(gamma-1)/2.*Mo**2)**(gamma/(gamma-1))
+        Tto=To*(1+(gamma-1)/2.*Mo**2)
         hto=Cpp*Tto#h(Tto)
         tau_r=Tto/To
         #fan and compressor quantities
@@ -456,7 +472,7 @@ class Ducted_Fan(Propulsor):
         #fan exit conditions
         
         #etapolf=Feta(pif,pif,1,1)  
-        #etapolf=1  #if available for engine use that
+        #
         
         pt2_1=pt2*pif
         Tt2_1=Tt2*pif**((gamma-1)/(gamma*etapolf))
@@ -476,73 +492,80 @@ class Ducted_Fan(Propulsor):
         Tt8=Tt7
         ht8=Cpp*Tt8#h(Tt8)
         
-        M8=numpy.sqrt((((pt8/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-        T8=Tt8/(1+(gamma-1)/2*M8**2)
+        M8=np.sqrt((((pt8/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
+        T8=Tt8/(1+(gamma-1)/2.*M8**2)
         h8=Cpp*T8#h(T8)
-        u8=numpy.sqrt(2*(ht8-h8))
+        u8=np.sqrt(2*(ht8-h8))
     
     
-        if numpy.linalg.norm(M8) < 1.0:        
+        if np.linalg.norm(M8) < 1.0:        
             p7=po
             
-            M7=numpy.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            T7=Tt7/(1+(gamma-1)/2*M7**2)
+            M7=np.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2./(gamma-1))
+            T7=Tt7/(1+(gamma-1)/2.*M7**2)
             h7=Cpp*T7
         
         else:
             M7=1
-            T7=Tt7/(1+(gamma-1)/2*M7**2)
-            p7=pt7/(1+(gamma-1)/2*M7**2)**(gamma/(gamma-1))
+            T7=Tt7/(1+(gamma-1)/2.*M7**2)
+            p7=pt7/(1+(gamma-1)/2.*M7**2)**(gamma/(gamma-1))
             h7=Cpp*T7
           
         # 
-        u7=numpy.sqrt(2*(ht7-h7))
+        u7=np.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
         
-        A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*numpy.sqrt(Tt7/Tto)
+        A1e_b_A1o=(fm_id(Mo)/fm_id(M7))*(1/(pt7/pto))*np.sqrt(Tt7/Tto)
          
-        Thrust_nd=gamma*Mo**2*((u7/uo-1))+A1e_b_A1o*(p7/po-1)
+        Thrust_nd=gamma*Mo**2.*((u7/uo-1))+A1e_b_A1o*(p7/po-1)
         
         #calculate actual value of thrust 
         
-        Fsp=1/(gamma*Mo)*Thrust_nd
+        Fsp=1./(gamma*Mo)*Thrust_nd
     
      
       
         #fan nozzle area
            
-        M8=u8/numpy.sqrt(Cp(T8)*R/(Cp(8)-R)*T8)
+        M8=u8/np.sqrt(Cp(T8)*R/(Cp(8)-R)*T8)
       
-        if numpy.linalg.norm(M8)<1: # nozzle unchoked
+        if np.linalg.norm(M8)<1: # nozzle unchoked
         
             p7=po
-            M7=numpy.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-            T7=Tt7/(1+(gamma-1)/2*M7**2)
+            M7=np.sqrt((((pt7/po)**((gamma-1)/gamma))-1)*2./(gamma-1))
+            T7=Tt7/(1+(gamma-1)/2.*M7**2)
             h7=Cpp*T7
       
         else:
           
             M7=1
-            T7=Tt7/(1+(gamma-1)/2*M7**2)
-            p7=pt7/(1+(gamma-1)/2*M7**2)**(gamma/(gamma-1))
+            T7=Tt7/(1+(gamma-1)/2.*M7**2)
+            p7=pt7/(1+(gamma-1)/2.*M7**2)**(gamma/(gamma-1))
             h7=Cpp*T7
          
       
-        u7=numpy.sqrt(2*(ht7-h7))
+        u7=np.sqrt(2*(ht7-h7))
         rho7=p7/(R*T7)
  ###############################################################################################################################       
         mdot_df=Ao*rhoo*uo
         FD=Fsp*ao*mdot_df*no_eng*throttle
+
+        #power_added=no_eng*np.multiply(mdot_df[:,0],ht2_1[:,0]-ht1_9[:,0])
+        propulsive_efficiency=2./(1+u8/uo)
+        
         thrust=FD*[1,0,0]
         P=uo*FD
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = thrust[:,0]
         F            =F_vec          
- 
+        
         CF = FD/(conditions.freestream.dynamic_pressure*self.A2)
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = 0.0
-
+        
+        power_added  =np.divide(np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0]),propulsive_efficiency[:,0])
+        results.power=power_added
+ 
       
         return results 

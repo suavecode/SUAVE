@@ -1,7 +1,7 @@
-# compressibility_drag_total_supersonic.py
+# compressibility_drag_total.py
 # 
-# Created:  
-# Modified: 8/2014  Tim MacDonald        
+# Created:  Aug 2014, T. MacDonald
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,21 +18,13 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
 from wave_drag_lift import wave_drag_lift
 from wave_drag_volume import wave_drag_volume
 
-# python imports
-import os, sys, shutil
-import copy
-from warnings import warn
-
 # package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
-#  The Function
+#  Compressibility Drag Total
 # ----------------------------------------------------------------------
 def compressibility_drag_total(state,settings,geometry):
-#def compressibility_drag_total(conditions,configuration,geometry):
     """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
         computes the compressibility drag on a full aircraft
 
@@ -53,7 +45,7 @@ def compressibility_drag_total(state,settings,geometry):
     """
 
     # Unpack
-    conditions = state.conditions
+    conditions    = state.conditions
     configuration = settings
     
     wings       = geometry.wings
@@ -79,7 +71,7 @@ def compressibility_drag_total(state,settings,geometry):
             Sref_main = wing.areas.reference
 
         # Get main fuselage data - note that name of fuselage is important here
-        # This should be changed to be general # ----------------------------------------------------------------
+        # This should be changed to be general 
         main_fuselage = fuselages['fuselage']
 
         # Get number of engines data

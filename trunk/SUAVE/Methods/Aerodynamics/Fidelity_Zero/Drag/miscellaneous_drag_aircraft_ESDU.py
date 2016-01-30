@@ -1,19 +1,19 @@
 # miscellaneous_drag_aircraft_ESDU.py
-#
-# Created:  Tarik, Jan 2014
-# Modified:
+# 
+# Created:  Jan 2014, T. Orra
+# Modified: Jan 2016, E. Botero    
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-# Suave imports
+# SUAVE imports
 from SUAVE.Core import Results
 
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
+
 def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
-#def miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
     """ SUAVE.Methods.miscellaneous_drag_aircraft_ESDU(conditions,configuration,geometry):
         computes the miscellaneous drag based in ESDU 94044, figure 1
 
@@ -32,11 +32,11 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
 
     # unpack inputs
     
-    conditions = state.conditions
+    conditions    = state.conditions
     configuration = settings
     
-    Sref        = geometry.reference_area
-    ones_1col   = conditions.freestream.mach_number *0.+1
+    Sref      = geometry.reference_area
+    ones_1col = conditions.freestream.mach_number *0.+1
 
     # Estimating total wetted area
     swet_tot        = 0.

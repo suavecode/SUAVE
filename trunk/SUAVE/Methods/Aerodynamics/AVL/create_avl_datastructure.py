@@ -1,4 +1,7 @@
-# Tim Momose, October 2014
+# create_avl_datastructure.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -6,9 +9,10 @@
 import scipy
 import numpy as np
 from copy import deepcopy
+
 # SUAVE Imports
 from SUAVE.Core import Data, Data_Exception, Data_Warning
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.parasite_drag_aircraft import parasite_drag_aircraft
+
 # SUAVE-AVL Imports
 from .Data.Inputs   import Inputs
 from .Data.Wing     import Wing, Section, Control_Surface

@@ -1,4 +1,5 @@
 
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -19,11 +20,6 @@ class Simple(Segment):
     
     def __defaults__(self):
         
-        # --------------------------------------------------------------
-        #   User inputs
-        # --------------------------------------------------------------
-        # self.example = 1.0
-        
         
         # --------------------------------------------------------------
         #   State
@@ -31,12 +27,6 @@ class Simple(Segment):
         
         # conditions
         self.state.conditions.update( Conditions.Basic() )
-        
-        # initials and unknowns, Example...
-        ##ones_row = self.state.ones_row
-        ##self.state.unknowns.throttle   = ones_row(1) * 0.5
-        ##self.state.unknowns.body_angle = ones_row(1) * 0.0
-        ##self.state.residuals.forces    = ones_row(2) * 0.0
         
         
         # --------------------------------------------------------------

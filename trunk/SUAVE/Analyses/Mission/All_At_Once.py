@@ -4,10 +4,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Data, Data_Exception
-from SUAVE.Core import Container as ContainerBase
-
 from SUAVE.Methods import Missions as Methods
 
 from Mission import Mission

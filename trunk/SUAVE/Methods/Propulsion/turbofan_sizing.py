@@ -1,7 +1,7 @@
-# test_gasturbine_network.py
+# turbofan_sizing.py
 # 
 # Created:  Anil Variyar, March 2015
-# Modified: 
+# Modified: M. Vegh, January 2016
 #        
 
 """ create and evaluate a gas turbine network

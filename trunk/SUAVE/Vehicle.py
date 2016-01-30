@@ -121,22 +121,23 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
     """
 
     def __defaults__(self):
-        self.operating_empty            = 0.0
-        self.max_takeoff                = 0.0
-        self.takeoff                    = 0.0
-        self.max_landing                = 0.0
-        self.landing                    = 0.0
-        self.max_cargo                  = 0.0
-        self.cargo                      = 0.0
-        self.max_payload                = 0.0
-        self.payload                    = 0.0
-        self.passenger                  = 0.0
-        self.crew                       = 0.0
-        self.max_fuel                   = 0.0
-        self.fuel                       = 0.0
-        self.max_zero_fuel              = 0.0
+
+        self.operating_empty = 0.0
+        self.max_takeoff     = 0.0
+        self.takeoff         = 0.0
+        self.max_landing     = 0.0
+        self.landing         = 0.0
+        self.max_cargo       = 0.0
+        self.cargo           = 0.0
+        self.max_payload     = 0.0
+        self.payload         = 0.0
+        self.passenger       = 0.0
+        self.crew            = 0.0
+        self.max_fuel        = 0.0
+        self.fuel            = 0.0
+        self.max_zero_fuel   = 0.0
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
-        
+
         # ambiguous in this context
         del self.mass
         del self.volume

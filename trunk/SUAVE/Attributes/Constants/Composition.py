@@ -1,10 +1,9 @@
-# Constants.py: Physical constants and helepr functions
+# Composition.py:
 # 
-# Created By:       J. Sinsay
-# Updated:          M. Colonno   04/09/2013
-#                   T. Lukaczyk  06/23/2013
+# Created: Mar 2014,     J. Sinsay
+# Modified: Jan, 2016,  M. Vegh
 
-""" SUAVE Data Class for Constants """
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,7 +21,7 @@ from warnings import warn
 # ----------------------------------------------------------------------
 
 class Composition(Constant):
-    """ Constant Base Class """
+    """ Composition base class for gas mixtures """
     def __defaults__(self):
         pass
     

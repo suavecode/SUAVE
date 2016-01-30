@@ -165,7 +165,8 @@ def empty_custom_eng(vehicle):
     wt_empty           = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
                           wt_tail_horizontal + output_3.wt_tail_vertical + output_3.wt_rudder) 
     vehicle.fuselages['fuselage'].mass_properties.mass = wt_fuselage
-    
+
+ 
      #add these as weight objects now for potential cg calculation
     landing_gear_component=SUAVE.Components.Physical_Component()
     vehicle.landing_gear=landing_gear_component
@@ -203,11 +204,8 @@ def empty_custom_eng(vehicle):
     
     rudder=SUAVE.Components.Physical_Component()
     vehicle.wings['vertical_stabilizer'].rudder=rudder
-    
 
-    
-    
-    
+
     # packup outputs
     output             = payload(TOW, wt_empty, num_pax,wt_cargo)
     output.wing              = wt_wing
@@ -243,10 +241,7 @@ def empty_custom_eng(vehicle):
     vehicle.apu.mass_properties.mass=output.systems_breakdown.apu
     vehicle.hydraulics.mass_properties.mass=output.systems_breakdown.hydraulics
     vehicle.optionals.mass_properties.mass=output.systems_breakdown.optionals
-    
-    
 
-    
     return output
     
     

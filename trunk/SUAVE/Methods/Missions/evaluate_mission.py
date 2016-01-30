@@ -27,19 +27,7 @@ def evaluate_mission(mission):
         else:
             segment.initials = None
             
-        ## unpack mission wide data
-        #for k in ['planet','atmosphere','start_time']:
-            #if not mission[k] is None:
-                #if not segment[k] is None:
-                    #warn('segment.%s will be overwritten by mission.%s'%(k,k),Warning)
-                #segment[k] = mission[k]
-            
         # run segment
         evaluate_segment(segment)
         
     return mission
-
-
-# ----------------------------------------------------------------------
-#  Helper Methods
-# ----------------------------------------------------------------------

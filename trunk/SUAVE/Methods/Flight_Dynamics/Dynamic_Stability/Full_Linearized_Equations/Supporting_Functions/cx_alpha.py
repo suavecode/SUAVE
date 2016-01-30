@@ -1,16 +1,7 @@
 # cx_alpha.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-import numpy as np
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Method
@@ -30,7 +21,6 @@ def cx_alpha(cL, cL_alpha):
     """
 
     # Generating Stability derivative
-
     cx_alpha  = cL - cL_alpha
     
     return cx_alpha

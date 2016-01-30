@@ -8,9 +8,8 @@
 # ----------------------------------------------------------------------
 
 # imports
-import numpy as np
 
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data
 from Analysis import Analysis
 
 
