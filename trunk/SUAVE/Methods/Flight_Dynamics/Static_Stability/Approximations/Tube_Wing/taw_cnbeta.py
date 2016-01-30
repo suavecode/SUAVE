@@ -155,14 +155,14 @@ def taw_cnbeta(geometry,conditions,configuration):
     #Compute fuselage contribution to Cn_beta
     Re_fuse  = rho*v_inf*l_f/mu
     x1       = x_cg/l_f
-    x2       = l_f*l_f/S_bs
+    x2       = l_f**2.0/S_bs
     x3       = np.sqrt(h1/h2)
     x4       = h_max/w_max
     kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-    kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
-    kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
+    kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3**2)*kN_1
+    kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4**2 - 2.811*np.exp(-4.0*x4))
     K_N      = (-0.47899 + kN_3*kN_2)*0.001
-    K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.)  
+    K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.) 
         #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
     CnBeta_f = -57.3*K_N*K_Rel*S_bs*l_f/S/b
     
@@ -181,12 +181,12 @@ def taw_cnbeta(geometry,conditions,configuration):
             x_cg_on_body = (x_cg-x_le)/l_b
             Re_body  = rho*v_inf*l_b/mew
             x1       = x_cg_on_body/l_b
-            x2       = l_b*l_b/S_bs
+            x2       = l_b**2.0/S_bs
             x3       = np.sqrt(h1/h2)
             x4       = h_max/w_max
             kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-            kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
-            kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
+            kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3**2)*kN_1
+            kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4**2 - 2.811*np.exp(-4.0*x4))
             K_N      = (-0.47899 + kN_3*kN_2)*0.001
             #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
             K_Rel    = 1.0+0.8*np.log(Re_body/1.0E6)/np.log(50.)
