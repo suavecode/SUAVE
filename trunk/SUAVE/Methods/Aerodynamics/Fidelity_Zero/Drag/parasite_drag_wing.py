@@ -94,14 +94,11 @@ def parasite_drag_wing(state,settings,geometry):
     cf_w_l, k_comp_l, k_reyn_l = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtl)    
 
     # correction for airfoils
-    #cos_sweep = np.cos(sweep_w)
-    #k_w = 1. + ( 2.* C * (t_c_w * cos_sweep*cos_sweep) ) / ( np.sqrt(1.- Mc*Mc*cos_sweep*cos_sweep))  \
-             #+ ( C*C * cos_sweep*cos_sweep * t_c_w*t_c_w * (1. + 5.*cos_sweep*cos_sweep) ) \
-                #/ (2.*(1.-(Mc*cos_sweep*cos_sweep)))       
+    cos_sweep = np.cos(sweep_w)
     
-    k_w = 1. + ( 2.* C * (t_c_w * (np.cos(sweep_w))**2.) ) / ( np.sqrt(1.- Mc**2. * ( np.cos(sweep_w))**2.) )  \
-        + ( C**2. * (np.cos(sweep_w))**2. * t_c_w**2. * (1. + 5.*(np.cos(sweep_w)**2.)) ) \
-        / (2.*(1.-(Mc*np.cos(sweep_w))**2.))                  
+    k_w = 1. + ( 2.* C * (t_c_w * cos_sweep*cos_sweep) ) / ( np.sqrt(1.- Mc*Mc * cos_sweep*cos_sweep) )  \
+        + ( C**2. * cos_sweep*cos_sweep * t_c_w*t_c_w * (1. + 5.*(cos_sweep*cos_sweep)) ) \
+        / (2.*(1.-(Mc*cos_sweep)**2.))                       
 
     # find the final result
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.

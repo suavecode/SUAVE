@@ -75,7 +75,7 @@ def datcom(wing,mach):
     k              = cla_M/(2.0*np.pi/Beta)
     
     #Compute aerodynamic surface 3D lift curve slope using the DATCOM formula
-    cL_alpha =([2.0*np.pi*ar/(2.0+((ar**2.0*Beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/Beta**2.0)+4.0)**0.5)])
+    cL_alpha =([2.0*np.pi*ar/(2.0+((ar**2.0*(Beta*Beta)/(k*k))*(1.0+(np.tan(half_chord_sweep))**2.0/(Beta*Beta))+4.0)**0.5)])
     
     
     return np.array(cL_alpha)
