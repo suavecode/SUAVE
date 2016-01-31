@@ -1,14 +1,13 @@
-#Water.py: Physical description of water
+# Water.py: Physical description of water
+
 # Created:  Dec 2013, SUAVE TEAM
-# Modified: Apr 2015, SUAVE TEAM
+# Modified: Jan, 2016, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
 from Liquid import Liquid
-from SUAVE.Attributes.Constants import Composition
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------
@@ -22,7 +21,6 @@ class Water(Liquid):
     def __defaults__(self):
 
         self.molecular_mass         = 18.             # kg/kmol
-        self.composition            = Data()
         self.composition.H2O        = 1.0
         self.heat_of_vaporization   =2260.*1000                #heat of vaporization of water [J/kg]
         self.density                =1000.                       #density of water

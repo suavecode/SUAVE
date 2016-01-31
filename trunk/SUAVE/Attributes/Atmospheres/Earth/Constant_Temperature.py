@@ -16,7 +16,7 @@ from SUAVE.Attributes.Atmospheres import Atmosphere
 
 # ----------------------------------------------------------------------
 #  Classes
-# ------------------------------------
+# ----------------------------------------------------------------------
 
 class Constant_Temperature(Atmosphere):
     """ SUAVE.Attributes.Atmospheres.Constant_Temp

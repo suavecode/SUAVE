@@ -1,19 +1,18 @@
 # Earth.py
 # 
-# Created:  Unk 2013, J. Sinsay
-# Modified: Apr 2015, E. Botero
+# Created:  Unk, 2013, J. Sinsay
+# Modified: Apr, 2015, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
 from Planet import Planet
      
 # ----------------------------------------------------------------------
-#  Earth
+#  Classes
 # ----------------------------------------------------------------------
-     
+ 
 class Earth(Planet):
     """ Physical constants specific to Earth"""
     def __defaults__(self):
