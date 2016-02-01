@@ -1,4 +1,4 @@
-""" Mission.py: Top-level mission class """
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +10,7 @@ from SUAVE.Core import Container as ContainerBase
 from SUAVE.Methods import Missions as Methods
 
 from Mission import Mission
-
+""" Mission.py: Top-level mission class """
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------

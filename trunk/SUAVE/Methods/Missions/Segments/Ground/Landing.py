@@ -1,13 +1,22 @@
+# Landing.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import Common
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
+# ----------------------------------------------------------------------   
 
 def initialize_conditions(segment,state):
     
     Common.initialize_conditions(segment,state)
     
-    ## process initials
-    #if initials:
-        #m_initial = initials.weights.total_mass[0,0]
-    #else:
     m_initial = segment.analyses.weights.vehicle.mass_properties.landing
           
     # apply initials
@@ -16,6 +25,5 @@ def initialize_conditions(segment,state):
 
     throttle = segment.throttle	
     conditions.propulsion.throttle[:,0] = throttle        
-
 
     return conditions

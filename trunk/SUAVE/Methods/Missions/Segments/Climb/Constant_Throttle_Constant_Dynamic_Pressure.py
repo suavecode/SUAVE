@@ -1,3 +1,11 @@
+# Constant_Throttle_Constant_Dynamic_Pressure.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import numpy as np
 import SUAVE
 
@@ -13,11 +21,9 @@ def unpack_body_angle(segment,state):
     # apply unknowns
     state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      
 
-
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
 
 def initialize_conditions(segment,state):
     
@@ -49,6 +55,10 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
     
+    
+# ----------------------------------------------------------------------
+#  Update Velocity Vector from Wind Angle
+# ----------------------------------------------------------------------
     
 def update_velocity_vector_from_wind_angle(segment,state):
     

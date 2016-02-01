@@ -1,7 +1,16 @@
+# Constant_Mach_Constant_Altitude.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -11,10 +20,6 @@ def initialize_conditions(segment,state):
     xf         = segment.distance
     mach       = segment.mach
     conditions = state.conditions   
-    
-    # Update freestream to get speed of sound
-    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
-    a          = conditions.freestream.speed_of_sound    
     
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
@@ -39,5 +44,5 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
+    state.conditions.frames.inertial.time[:,0]            = time[:,0]
     

@@ -1,14 +1,22 @@
+# Linear_Mach_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
 import SUAVE
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
     
     # unpack
-    # unpack user inputs
     descent_rate = segment.descent_rate
     Mo           = segment.mach_start
     Mf           = segment.mach_end
@@ -31,9 +39,9 @@ def initialize_conditions(segment,state):
     
     # process velocity vector
     mach_number = (Mf-Mo)*t_nondim + Mo
-    v_mag = mach_number * a
-    v_z   = descent_rate # z points down
-    v_x   = np.sqrt( v_mag**2 - v_z**2 )
+    v_mag       = mach_number * a
+    v_z         = descent_rate # z points down
+    v_x         = np.sqrt( v_mag**2 - v_z**2 )
     
     # pack conditions    
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
