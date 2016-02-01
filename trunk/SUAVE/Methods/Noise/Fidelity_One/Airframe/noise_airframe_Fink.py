@@ -1,17 +1,15 @@
 # noise_fidelity_one.py
 # 
 # Created:  Jun 2015, Carlos Ilario
-
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-import SUAVE
+# SUAVE Imports
 from SUAVE.Core            import Data
 from SUAVE.Core            import Units
-
 
 from noise_clean_wing import noise_clean_wing
 from noise_landing_gear import noise_landing_gear
@@ -23,11 +21,13 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
-# package imports
 import numpy as np
+
+# ----------------------------------------------------------------------
+#  Noise Fidelity One
+# ----------------------------------------------------------------------
 
 def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
@@ -78,9 +78,9 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     # ==============================================
     wing = config.wings
 
-    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2                  #wing area, sq.ft
+    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
     bw      =       wing.main_wing.spans.projected / Units.ft                    #wing span, ft
-    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2           #horizontal tail area, sq.ft
+    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
     bht     =       wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
     Svt     =       wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
     bvt     =       wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
@@ -91,10 +91,11 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     Hp      =       config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
     Dn      =       config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
     Hn      =       config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
-    gear    =       config.landing_gear.gear_condition                #Gear up or gear down
-    nose_wheels    =   config.landing_gear.nose_wheels               #Number of wheels   
-    main_wheels    =   config.landing_gear.main_wheels               #Number of wheels   
-    main_units     =   config.landing_gear.main_units                #Number of main units   
+    gear    =       config.landing_gear.gear_condition                           #Gear up or gear down
+    
+    nose_wheels    =   config.landing_gear.nose_wheels                           #Number of wheels   
+    main_wheels    =   config.landing_gear.main_wheels                           #Number of wheels   
+    main_units     =   config.landing_gear.main_units                            #Number of main units   
     velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) 
     altitude       =   noise_segment.conditions.freestream.altitude[:,0] 
     time           =   noise_segment.conditions.frames.inertial.time     

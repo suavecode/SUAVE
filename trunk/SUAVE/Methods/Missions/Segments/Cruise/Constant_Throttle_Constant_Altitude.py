@@ -1,12 +1,20 @@
+# Constant_Throttle_Constant_Altitude.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
-import SUAVE
-
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
+
 def unpack_unknowns(segment,state):
     
     # unpack unknowns
@@ -18,18 +26,23 @@ def unpack_unknowns(segment,state):
     # unpack givens
     v0         = segment.air_speed_start  
     vf         = segment.air_speed_end  
-    N          = segment.state.numerics.number_control_points 
+    t_initial  = state.conditions.frames.inertial.time[0,0]
+    t_nondim   = state.numerics.dimensionless.control_points
+    
+    # time
+    t_final    = t_initial + time  
+    time       = t_nondim * (t_final-t_initial) + t_initial     
 
     #apply unknowns
     conditions = state.conditions
-    conditions.frames.inertial.velocity_vector[:,0]  = velocity_x
-    conditions.frames.inertial.velocity_vector[0,0]  = v0
-    conditions.frames.body.inertial_rotations[:,1]   = theta[:,0]  
-        
-    t_initial = state.conditions.frames.inertial.time[0,0]
-    t_final   = t_initial + time  
-    state.conditions.frames.inertial.time[:,0] = np.linspace(t_initial,t_final,N)     
+    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
+    conditions.frames.inertial.velocity_vector[0,0] = v0
+    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]  
+    conditions.frames.inertial.time[:,0]            = time[:,0]
     
+# ----------------------------------------------------------------------
+#  Initialize Conditions
+# ----------------------------------------------------------------------    
 
 def initialize_conditions(segment,state):
     """ Segment.initialize_conditions(conditions,numerics,initials=None)
@@ -82,7 +95,10 @@ def initialize_conditions(segment,state):
     state.conditions.propulsion.throttle[:,0] = throttle  
     state.conditions.freestream.altitude[:,0] = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down    
-    
+
+# ----------------------------------------------------------------------
+#  Solve Residuals
+# ----------------------------------------------------------------------    
 
 def solve_residuals(segment,state):
     """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
@@ -108,7 +124,6 @@ def solve_residuals(segment,state):
     state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
     state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
     state.residuals.final_velocity_error = (v[-1,0] - vf)
-    #state.residuals.initial_velocity_error = (v[0,0] - v0)
 
     return
     

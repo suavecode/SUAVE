@@ -1,7 +1,17 @@
+# Linear_Mach_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
 import SUAVE
+
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):

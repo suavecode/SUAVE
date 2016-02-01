@@ -1,7 +1,8 @@
 # noise_SAE.py
 # 
-# Created:  May 2015, Carlos Ilario
-# Modified: Nov 2015, Carlos Ilario
+# Created:  May 2015, C. Ilario
+# Modified: Nov 2015, C. Ilario
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -19,15 +20,16 @@ from noise_source_location import noise_source_location
 from primary_noise_component import primary_noise_component
 from secondary_noise_component import secondary_noise_component
 
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
+
+# ----------------------------------------------------------------------        
+#   Noise SAE
+# ----------------------------------------------------------------------    
 
 def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0): 
 
@@ -78,11 +80,12 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
 
 
     #unpack
-    Velocity_primary_1        =     np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.core.exit_velocity  
+    
+    Velocity_primary_1      =       np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.))   
     Temperature_primary     =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_temperature
     Pressure_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_pressure
     
-    Velocity_secondary_1      =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_velocity
+    Velocity_secondary_1    =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) 
     Temperature_secondary   =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_temperature
     Pressure_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_pressure 
     
@@ -104,12 +107,13 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
     geometric = noise_geometric(noise_segment,analyses,config)
+    
     #unpack
     angles              = geometric[:][1]
     distance_microphone = geometric[:][0]    
     phi                 = geometric[:][2]    
     
-    nsteps=len(time)        
+    nsteps = len(time)        
     
     #Preparing matrix for noise calculation
     sound_ambient       = np.zeros(nsteps)
@@ -368,13 +372,11 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
      #Sum of the Total Noise
         SPL_total = 10 * np.log10(10**(0.1*SPL_p)+10**(0.1*SPL_s)+10**(0.1*SPL_m))
         
-        
      #Store the SPL history     
         SPL_total_history[id][:]     = SPL_total[:]
         SPL_primary_history[id][:]   = SPL_p[:]
         SPL_secondary_history[id][:] = SPL_s[:]
         SPL_mixed_history[id][:]     = SPL_m[:]
-        
      
     #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =  pnl_noise(SPL_total_history)    
@@ -400,7 +402,6 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     EPNL_secondary = epnl_noise(PNLT_secondary)
     EPNL_mixed     = epnl_noise(PNLT_mixed)
     
-   
     if ioprint:
        # print EPNL_total
         
@@ -463,8 +464,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
                     fid.write(str('%3.2f' % SPL_mixed_history[id][ijd]) + '       ')
                     fid.write(str('%3.2f' % SPL_total_history[id][ijd]) + '       ')
                     fid.write('\n')
-            
-               
+              
         fid.close
     
     return(EPNL_total,SPL_total_history)

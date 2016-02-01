@@ -1,10 +1,13 @@
+# Numerics.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Methods.Utilities import atleast_2d_col 
-
 
 # ----------------------------------------------------------------------
 #  Initialize Differentials
@@ -27,7 +30,6 @@ def initialize_differentials_dimensionless(segment,state):
     numerics.dimensionless.integrate      = I    
     
     return
-    
 
 # ----------------------------------------------------------------------
 #  Update Differentials
