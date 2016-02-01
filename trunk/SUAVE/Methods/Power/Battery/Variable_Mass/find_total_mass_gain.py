@@ -1,7 +1,7 @@
 # find_total_mass_gain.py
 # 
 # Created:  ### 2104, M. Vegh
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Find Total Mass Gain

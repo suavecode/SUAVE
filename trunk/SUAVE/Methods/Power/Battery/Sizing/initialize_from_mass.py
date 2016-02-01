@@ -1,7 +1,7 @@
 # initialize_from_mass.py
 # 
 # Created:  ### ####, M. Vegh
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

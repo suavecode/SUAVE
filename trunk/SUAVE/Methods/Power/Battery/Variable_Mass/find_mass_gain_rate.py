@@ -1,7 +1,7 @@
 # find_mass_gain_rate.py
 # 
 # Created:  ### 2104, M. Vegh
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Find Mass Gain Rate

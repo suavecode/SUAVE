@@ -2,7 +2,7 @@
 #
 # Created : Apr 2015, M. Vegh 
 # Modified: Sep 2015, M. Vegh
-#           Jan 2016, E. Botero
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

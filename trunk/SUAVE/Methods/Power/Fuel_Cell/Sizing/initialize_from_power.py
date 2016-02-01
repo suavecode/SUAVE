@@ -1,7 +1,7 @@
 # initialize_from_power.py
 #
 # Created : Apr 2015, M. Vegh 
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
            
 # ----------------------------------------------------------------------
 #  Initialize from Power

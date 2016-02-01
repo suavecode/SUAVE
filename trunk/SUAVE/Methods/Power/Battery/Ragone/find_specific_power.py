@@ -2,7 +2,7 @@
 # 
 # Created:  ### 2104, M. Vegh
 # Modified: Sep 2105, M. Vegh
-#           Jan 2016, E. Botero
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Find Specific Power
