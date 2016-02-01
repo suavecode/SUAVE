@@ -1,5 +1,13 @@
-import numpy as np
+# Constant_Throttle_Constant_Speed.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -17,7 +25,6 @@ def unpack_body_angle(segment,state):
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
 
 def initialize_conditions(segment,state):
     
@@ -42,8 +49,11 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
-    
-    
+
+# ----------------------------------------------------------------------
+#  Update Velocity Vector from Wind Angle
+# ----------------------------------------------------------------------
+
 def update_velocity_vector_from_wind_angle(segment,state):
     
     # unpack

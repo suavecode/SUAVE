@@ -1,8 +1,17 @@
+# Constant_Dynamic_Pressure_Constant_Altitude_Loiter.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -36,5 +45,4 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
-    
+    state.conditions.frames.inertial.time[:,0]            = time[:,0]

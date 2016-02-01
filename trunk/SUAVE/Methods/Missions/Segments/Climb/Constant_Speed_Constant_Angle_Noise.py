@@ -1,8 +1,15 @@
-import numpy as np
-
+# Constant_Speed_Constant_Angle_Noise.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Expand State
 # ----------------------------------------------------------------------
 def expand_state(segment,state):
     
@@ -28,6 +35,9 @@ def expand_state(segment,state):
     
     return
 
+# ----------------------------------------------------------------------
+#  Initialize Conditions
+# ----------------------------------------------------------------------
 def initialize_conditions(segment,state):
     
     dt=0.5  #time step in seconds for noise calculation
