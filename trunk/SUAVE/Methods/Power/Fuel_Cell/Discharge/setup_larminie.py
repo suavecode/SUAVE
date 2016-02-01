@@ -1,7 +1,8 @@
-#Created: M. Vegh 4/27/15
-#Modified:M. Vegh, September 2015
-""" sets up additional values of fuel cell to run method from Larminie and 
-Dicks (Fuel Cell Systems Explained) """
+# setup_larminie.py
+#
+# Created : Apr 2015, M. Vegh 
+# Modified: Sep 2015, M. Vegh
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,11 +11,16 @@ Dicks (Fuel Cell Systems Explained) """
 import SUAVE
 from SUAVE.Core import Units
 from larminie import larminie
+
 # ----------------------------------------------------------------------
-#  Methods
+#  Setup Larminie
 # ----------------------------------------------------------------------
 
-def setup_larminie(fuel_cell):                        #default values representative of a hydrogen fuel cell
+#default values representative of a hydrogen fuel cell
+def setup_larminie(fuel_cell):                     
+   """ sets up additional values of fuel cell to run method from Larminie and 
+   Dicks (Fuel Cell Systems Explained) """   
+   
    fuel_cell.number_of_cells       = 0.0                                  #number of fuel cells in the stack
    fuel_cell.interface_area        = 875.*(Units.cm**2.)                  # area of the fuel cell interface
    fuel_cell.r                     = (2.45E-4) *(Units.kohm*(Units.cm**2))# area specific resistance [k-Ohm-cm^2]
@@ -27,4 +33,5 @@ def setup_larminie(fuel_cell):                        #default values representa
    fuel_cell.cell_density          =1988.                                 # cell density in kg/m^3
    fuel_cell.porosity_coefficient  =.6                                    # porosity coefficient
    fuel_cell.discharge_model       = larminie
+   
    return

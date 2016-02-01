@@ -1,17 +1,16 @@
-"""finds the mass gain rate of the battery from the ambient air"""
-#by M. Vegh
-
-""" SUAVE Methods for Energy Systems """
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
+# find_mass_gain_rate.py
+# 
+# Created:  ### 2104, M. Vegh
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Methods
+#  Find Mass Gain Rate
 # ----------------------------------------------------------------------
 
-def find_mass_gain_rate(battery,power): #adds a battery that is optimized based on power and energy requirements and technology
-    mdot=-(power) *(battery.mass_gain_factor)  #weight gain of battery (positive means mass loss)
+def find_mass_gain_rate(battery,power):
+    """finds the mass gain rate of the battery from the ambient air"""
+    
+    #weight gain of battery (positive means mass loss)
+    mdot = -(power) *(battery.mass_gain_factor)  
                 
     return mdot

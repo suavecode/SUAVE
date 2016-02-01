@@ -1,23 +1,23 @@
-#Created : M. Vegh 4/23/15
-#Modified:M. Vegh, September 2015
-""" Calculates mass flow of fuel cell based on method from Larminie and 
-Dicks (Fuel Cell Systems Explained) """
+# find_power_diff_larminie.py
+#
+# Created : Apr 2015, M. Vegh 
+# Modified: Sep 2015, M. Vegh
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-
-import SUAVE
-from SUAVE.Core import Units
 from find_power_larminie import find_power_larminie
+
 # ----------------------------------------------------------------------
-#  Methods
+#  Find Power Difference Larminie
 # ----------------------------------------------------------------------
 
-def find_power_diff_larminie(current_density, fuel_cell, power_desired): #adds a battery that is optimized based on power and energy requirements and technology 
+def find_power_diff_larminie(current_density, fuel_cell, power_desired):
                                     
-    power_out     = find_power_larminie(current_density, fuel_cell)              #obtain power output in W
+    #obtain power output in W
+    power_out     = find_power_larminie(current_density, fuel_cell)              
     
     #want to minimize
     return abs(power_desired-power_out)
