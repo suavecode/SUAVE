@@ -1,17 +1,11 @@
-""" climb_gradient.py: ... """
+# climb_gradient.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
 
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
-import math
-import copy
-
-from SUAVE.Core            import Data
-
-# ----------------------------------------------------------------------
-#  Methods
+#  Climb Gradient
 # ----------------------------------------------------------------------
 
 def climb_gradient(vehicle,mission,maxto,sfc_sfcref,sls_thrust,eng_type):
