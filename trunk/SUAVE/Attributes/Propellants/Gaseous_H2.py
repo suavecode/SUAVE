@@ -1,11 +1,10 @@
 #Gaseous_H2.py: Physical properties of gaseous H2 for propulsion use
 #
 # Created:  Unk 2013, SUAVE TEAM
-# Modified: Jan 2016, SUAVE TEAM
+# Modified: Feb 2016, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
 from Propellant import Propellant
 from SUAVE.Attributes.Constants import Composition
 # ----------------------------------------------------------------------
@@ -23,11 +22,7 @@ class Gaseous_H2(Propellant):
         self.specific_energy           = 141.86e6                           # J/kg
         self.energy_density            = 5591.13e6                          # J/m^3
         self.max_mass_fraction         = {'Air' : 0.013197, 'O2' : 0.0630}  # kg propellant / kg oxidizer
-        self.temperatures              = Data()
-        self.temperatures.flash        = 0.0                               # K
-        self.temperatures.autoignition = 0.0                               # K
-        self.temperatures.freeze       = 0.0                               # K
-        self.temperatures.boiling      = 0.0                               # K
+    
 
         # gas properties
         self.composition               = Composition( H2 = 1.0 )
