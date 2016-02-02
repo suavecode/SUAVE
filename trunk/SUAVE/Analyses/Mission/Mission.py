@@ -1,3 +1,8 @@
+# Mission.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
+
 """ Mission.py: Top-level mission class """
 
 # ----------------------------------------------------------------------

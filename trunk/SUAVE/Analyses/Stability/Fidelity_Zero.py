@@ -1,8 +1,8 @@
 # Fidelity_Zero.py
 # 
 # Created:  Andrew, July 2014
-# Modified: M. Vegh, November 2015        
-
+# Modified: M. Vegh, November 2015         
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports

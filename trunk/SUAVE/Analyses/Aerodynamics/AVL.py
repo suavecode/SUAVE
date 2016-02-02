@@ -1,6 +1,7 @@
 # AVL.py
 #
-# Created:  Tim Momose, Dec 2014
+# Created:  Tim Momose, Dec 2014 
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------

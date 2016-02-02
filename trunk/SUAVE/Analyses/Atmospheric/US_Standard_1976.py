@@ -1,7 +1,8 @@
 """ US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
 #
 #
-# Modified by Tim MacDonald 2/16/15
+# Modified by Tim MacDonald 2/16/15  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
