@@ -1,6 +1,5 @@
 import numpy
 from fm_id import fm_id
-from Cp import Cp
 
 #-----------------------turbofan---------------------------------------------------------
 
