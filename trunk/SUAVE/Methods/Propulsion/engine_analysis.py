@@ -1,7 +1,6 @@
 
 def engine_analysis(Turbofan,State):  
 
-#def engine_analysis(mach,a,sfc_sfcref,sls_thrust,eng_type):
     ''' outputs = sfc, th (thrust)  - both cruise values 
         inputs  engine related : sfc_sfcref - basic pass input
                                  sls_thrust - basic pass input
@@ -21,9 +20,7 @@ def engine_analysis(Turbofan,State):
                                  a (altitude)
                 
     '''
-    
-    #unpack
-    
+
     
     if Turbofan.analysis_type == 'pass' :
         engine_analysis_pass(Turbofan,State)

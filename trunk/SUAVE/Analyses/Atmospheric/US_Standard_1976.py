@@ -21,7 +21,7 @@ from SUAVE.Attributes.Planets import Earth
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
 from SUAVE.Core import Units
-from SUAVE.Methods.Utilities import atleast_2d_col
+from SUAVE.Core.Arrays import atleast_2d_col
 
 
 # ----------------------------------------------------------------------

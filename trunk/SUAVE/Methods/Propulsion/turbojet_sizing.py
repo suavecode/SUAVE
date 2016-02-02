@@ -245,4 +245,3 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     state_sls.conditions = conditions_sls   
     results_sls = turbojet.evaluate_thrust(state_sls)
     turbojet.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-    #return
