@@ -1,7 +1,7 @@
 # empty.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Michael Vegh, September 2015 
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
