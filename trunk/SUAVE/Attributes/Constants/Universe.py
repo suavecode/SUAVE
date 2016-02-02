@@ -1,4 +1,4 @@
-# Constants.py: Physical constants and helepr functions
+# Constants.py
 # 
 # Created:  Mar, 2014, J. Sinsay
 # Modified: Jan, 2016, M. Vegh
@@ -11,7 +11,7 @@
 from Constant import Constant
 
 # ----------------------------------------------------------------------
-#  Constants 
+#  Universe Constant Data Class
 # ----------------------------------------------------------------------
 
 class Universe(Constant):

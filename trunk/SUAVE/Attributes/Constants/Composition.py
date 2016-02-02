@@ -1,4 +1,4 @@
-# Composition.py:
+# Composition.py
 # 
 # Created: Mar 2014,     J. Sinsay
 # Modified: Jan, 2016,  M. Vegh
@@ -17,7 +17,7 @@ from SUAVE.Core import Data_Warning
 from warnings import warn
 
 # ----------------------------------------------------------------------
-#  Constants 
+#  Composition Constant Class
 # ----------------------------------------------------------------------
 
 class Composition(Constant):

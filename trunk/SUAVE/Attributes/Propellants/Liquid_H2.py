@@ -1,7 +1,8 @@
-# Liquid_H2.py: Physical properties of liquid H2 for propulsion use
+# Liquid_H2.py:
 #
 # Created:  Unk 2013, SUAVE TEAM
 # Modified: Apr 2015, SUAVE TEAM
+#           Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +11,7 @@
 from Propellant import Propellant
 
 # ----------------------------------------------------------------------
-#  Class
+#  Liquid_H2 Propellant Class
 # ----------------------------------------------------------------------
 
 class Liquid_H2(Propellant):

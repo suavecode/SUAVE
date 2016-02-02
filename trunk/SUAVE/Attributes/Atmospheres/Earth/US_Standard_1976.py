@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
-#  Classes
+#  US_Standard_1976 Atmosphere Class
 # ----------------------------------------------------------------------
 
 class US_Standard_1976(Atmosphere):

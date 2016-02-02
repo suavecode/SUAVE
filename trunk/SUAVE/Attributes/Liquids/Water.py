@@ -1,4 +1,4 @@
-# Water.py: Physical description of water
+# Water.py
 
 # Created:  Dec 2013, SUAVE TEAM
 # Modified: Jan, 2016, M. Vegh
@@ -11,7 +11,7 @@ from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------
-#  Class
+#  Water Liquid Class
 # ----------------------------------------------------------------------
 
 class Water(Liquid):

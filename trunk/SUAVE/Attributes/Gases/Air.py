@@ -1,4 +1,4 @@
-# Air.py: 
+# Air.py
 
 # Created:  Mar, 2014, SUAVE Team
 # Modified: Jan, 2016, M. Vegh
@@ -12,7 +12,7 @@ from SUAVE.Core import Data
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Classes
+#  Air Gas Class
 # ----------------------------------------------------------------------
 
 class Air(Gas):

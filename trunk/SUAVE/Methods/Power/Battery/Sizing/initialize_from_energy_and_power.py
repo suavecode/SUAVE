@@ -21,7 +21,7 @@ def initialize_from_energy_and_power(battery, energy, power, max='hard'):
     mass        = np.maximum(energy_mass, power_mass)
     
     if max=='soft': #use softmax function (makes it differentiable)
-        #make it so the exponentials are taking ~10 (closer numerically, while still differentiable)
+        #make it so the exponentials are taken ~10 (closer numerically, while still differentiable)
         scaling = 10.**(np.floor(np.log10(mass))-1) 
         
         #write it this way to prevent overflow
