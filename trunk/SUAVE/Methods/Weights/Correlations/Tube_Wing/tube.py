@@ -1,22 +1,19 @@
 # tube.py
-# 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014       
-
+#
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+import numpy as np
 
 # ----------------------------------------------------------------------
-#   Method
+#   Tube
 # ----------------------------------------------------------------------
-
 
 def tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r):
     """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r)

@@ -1,21 +1,17 @@
 # payload.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014        
-
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
-#   Method
+#   Payload
 # ----------------------------------------------------------------------
 
 def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195.,wt_baggage = 30.):
