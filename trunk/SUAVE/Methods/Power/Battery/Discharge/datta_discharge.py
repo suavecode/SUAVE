@@ -29,12 +29,8 @@ def datta_discharge(battery,numerics):
     max_energy = battery.max_energy
     
     #state of charge of the battery
-<<<<<<< HEAD
     initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
     x = np.divide(initial_discharge_state,battery.max_energy)
-=======
-    x = np.divide(battery.current_energy,battery.max_energy)
->>>>>>> develop
 
     # C rate
     C = np.abs(3600.*pbat/battery.max_energy)
@@ -48,14 +44,8 @@ def datta_discharge(battery,numerics):
     f = np.reshape(f, np.shape(C))
     
     # Model discharge characteristics based on changing resistance
-<<<<<<< HEAD
-    R = Rbat*(1.+np.multiply(C,f)) 
-    R[R==Rbat]=0. #when battery isn't being called
-    #R = Rbat
-=======
     R          = Rbat*(1.+np.multiply(C,f)) #have to transpose to prevent large matrices
     R[R==Rbat] = 0.  #when battery isn't being called
->>>>>>> develop
     
     # Calculate resistive losses
     Ploss = (Ibat**2.)*R
@@ -86,7 +76,6 @@ def datta_discharge(battery,numerics):
         ebat=np.ones_like(ebat)*np.max(ebat)
         if np.isnan(ebat.any()): #all nans; handle this instance
             ebat=np.zeros_like(ebat)
-<<<<<<< HEAD
             
     current_energy = ebat + battery.current_energy[0]
     
@@ -105,10 +94,5 @@ def datta_discharge(battery,numerics):
     battery.resistive_losses     = Ploss
     battery.voltage_open_circuit = voltage_open_circuit
     battery.voltage_under_load   = voltage_under_load
-=======
-
-    battery.current_energy   = ebat + battery.current_energy[0]
-    battery.resistive_losses = Ploss
->>>>>>> develop
     
     return

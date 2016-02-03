@@ -149,10 +149,7 @@ def update_aerodynamics(segment,state):
     aerodynamics_model = segment.analyses.aerodynamics
     q                  = state.conditions.freestream.dynamic_pressure
     Sref               = aerodynamics_model.geometry.reference_area
-<<<<<<< HEAD
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
-=======
->>>>>>> develop
     
     # call aerodynamics model
     results = aerodynamics_model( state )    
