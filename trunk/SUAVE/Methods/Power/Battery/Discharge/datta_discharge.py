@@ -1,8 +1,7 @@
-"""models discharge losses based on an empirical correlation"""
-#by M. Vegh
-#Based on method taken from Datta and Johnson: 
-#"Requirements for a Hydrogen Powered All-Electric Manned Helicopter"
-""" SUAVE Methods for Energy Systems """
+# datta_discharge.py
+# 
+# Created:  ### ####, M. Vegh
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,10 +10,14 @@
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Methods
+#  Datta Discharge
 # ----------------------------------------------------------------------
 
-def datta_discharge(battery,numerics): #adds a battery that is optimized based on power and energy requirements and technology
+def datta_discharge(battery,numerics): 
+    """models discharge losses based on an empirical correlation
+       Based on method taken from Datta and Johnson: 
+       "Requirements for a Hydrogen Powered All-Electric Manned Helicopter"""""
+    
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
     Rbat  = battery.resistance
@@ -26,8 +29,12 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     max_energy = battery.max_energy
     
     #state of charge of the battery
+<<<<<<< HEAD
     initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
     x = np.divide(initial_discharge_state,battery.max_energy)
+=======
+    x = np.divide(battery.current_energy,battery.max_energy)
+>>>>>>> develop
 
     # C rate
     C = np.abs(3600.*pbat/battery.max_energy)
@@ -41,9 +48,14 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     f = np.reshape(f, np.shape(C))
     
     # Model discharge characteristics based on changing resistance
+<<<<<<< HEAD
     R = Rbat*(1.+np.multiply(C,f)) 
     R[R==Rbat]=0. #when battery isn't being called
     #R = Rbat
+=======
+    R          = Rbat*(1.+np.multiply(C,f)) #have to transpose to prevent large matrices
+    R[R==Rbat] = 0.  #when battery isn't being called
+>>>>>>> develop
     
     # Calculate resistive losses
     Ploss = (Ibat**2.)*R
@@ -58,7 +70,7 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     capacity_available = max_energy - battery.current_energy[0]
    
     # How much energy the battery could be overcharged by
-    delta = energy_unmodified -capacity_available
+    delta           = energy_unmodified -capacity_available
     delta[delta<0.] = 0.
     
     # Power that shouldn't go in
@@ -67,12 +79,14 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     # Power actually going into the battery
     P[P>0.] = P[P>0.] - ddelta[P>0.]
     ebat = np.dot(I,P)
-    ebat =np.reshape(ebat,np.shape(battery.current_energy)) #make sure it's consistent
+    ebat = np.reshape(ebat,np.shape(battery.current_energy)) #make sure it's consistent
+    
     # Add this to the current state
     if np.isnan(ebat).any():
         ebat=np.ones_like(ebat)*np.max(ebat)
         if np.isnan(ebat.any()): #all nans; handle this instance
             ebat=np.zeros_like(ebat)
+<<<<<<< HEAD
             
     current_energy = ebat + battery.current_energy[0]
     
@@ -91,5 +105,10 @@ def datta_discharge(battery,numerics): #adds a battery that is optimized based o
     battery.resistive_losses     = Ploss
     battery.voltage_open_circuit = voltage_open_circuit
     battery.voltage_under_load   = voltage_under_load
+=======
+
+    battery.current_energy   = ebat + battery.current_energy[0]
+    battery.resistive_losses = Ploss
+>>>>>>> develop
     
     return

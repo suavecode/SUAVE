@@ -1,14 +1,17 @@
-""" Constant.py: Physical constants class """
+#Constant.py
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
 
 # ----------------------------------------------------------------------
-#  Constants 
+#  Constant Data Class
 # ----------------------------------------------------------------------
 
 class Constant(Data):

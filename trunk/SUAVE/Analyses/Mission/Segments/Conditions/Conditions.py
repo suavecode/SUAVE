@@ -1,3 +1,7 @@
+# Conditions.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -5,11 +9,9 @@
 
 # python imports
 import numpy as np
-from copy import deepcopy
 
 # SUAVE imports
-from SUAVE.Core                    import Data, Data_Exception
-from SUAVE.Methods.Utilities            import atleast_2d_col
+from SUAVE.Core                    import Data
 
 
 # ----------------------------------------------------------------------

@@ -1,35 +1,31 @@
-""" Steam.py: Physical description of steam """
+# Steam.py
 
-# Created by:     M. Vegh 12/12/13
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
 from Gas import Gas
-from SUAVE.Attributes.Constants import Universe, Composition
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 # modules
-#import numpy as np
 from math import sqrt
 
-# initialize local constants
-Universe = Universe()
 
 # ----------------------------------------------------------------------
-#  Air
+#  Steam Gas Class
 # ----------------------------------------------------------------------
 
 class Steam(Gas):
 
-    """ Physical constants specific to Air """
+    """ Physical constants specific to STEAM """
 
     def __defaults__(self):
 
-        self.molecular_mass = 18.             # kg/kmol
-        self.gas_specific_constant = 461.889                     # m^2/s^2-K, specific gas constant
-        self.composition = Data()
+        self.molecular_mass = 18.                  # kg/kmol
+        self.gas_specific_constant = 461.889       # m^2/s^2-K, specific gas constant
         self.composition.H2O = 1.0
 
     def compute_density(self,T=300,p=101325):

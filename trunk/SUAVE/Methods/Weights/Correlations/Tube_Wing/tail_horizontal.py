@@ -1,8 +1,7 @@
 # tail_horizontal.py
-# 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified:         
-
+#
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2016, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,12 +9,9 @@
 
 from SUAVE.Core import Units
 import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
-#   Method
+#   Tail Horizontal
 # ----------------------------------------------------------------------
 
 def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):      
@@ -49,9 +45,7 @@ def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):
     l_w        = mac_w / Units.ft # Convert from meters to ft
     l_h        = mac_h / Units.ft # Convert from meters to ft
     length_w_h = l_w2h / Units.ft # Distance from mean aerodynamic center of wing to mean aerodynamic center of horizontal tail (Convert meters to ft)
-    
-    # process
-    
+
     #Calculate weight of wing for traditional aircraft horizontal tail
     weight_English = (5.25*area+0.8*10.**(-6.)*Nult*span**3.*mtow*l_w*(exposed*area)**(1./2.)/(t_c_h*(np.cos(sweep)**2.)*length_w_h*area**1.5))
 

@@ -1,7 +1,8 @@
 # Supersonic_Zero.py
 # 
 # Created:  Tim MacDonald, based on Fidelity_Zero
-# Modified: Tim MacDonald, 1/29/15
+# Modified: Tim MacDonald, 1/29/15 
+# Modified: Feb 2016, Andrew Wendorff
 #
 # Updated for new optimization structure
 
@@ -11,12 +12,9 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
-
-# default Aero Results
-from Results import Results
 
 from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
@@ -42,11 +40,6 @@ class Supersonic_Zero(Markup):
         
         self.tag = 'Fidelity_Zero_Supersonic'
         
-        #self.geometry      = Geometry()
-        #self.configuration = Configuration()
-        #self.geometry = Data()
-        #self.settings = Data()
-
         # correction factors
         settings =  self.settings
         settings.fuselage_lift_correction           = 1.14
@@ -64,26 +57,9 @@ class Supersonic_Zero(Markup):
         # build the evaluation process
         compute = self.process.compute
         
-        ##self.conditions_table = Conditions(
-            ##angle_of_attack = np.array([-10,-5,0,5,10.0]) * Units.deg ,
-        ##)
-        #self.training = Data()        
-        #self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        #self.training.lift_coefficient = None
-        
-        ##self.models = Data()
-        ## surrogoate models
-        #self.surrogates = Data()
-        #self.surrogates.lift_coefficient = None    
-        
         compute.lift = Process()
-
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        
-        #compute.lift.parasite.wings                = Process_Geometry('wings')
-        #compute.drag.parasite.wings.wing           = Methods.Lift.vortex_lift
         compute.lift.vortex                        = Methods.Lift.vortex_lift
-        
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
         compute.lift.fuselage                      = Methods.Lift.fuselage_correction
         compute.lift.total                         = Methods.Lift.aircraft_total

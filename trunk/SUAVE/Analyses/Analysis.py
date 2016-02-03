@@ -1,10 +1,13 @@
-
+# Analysis.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
 from Results import Results
 

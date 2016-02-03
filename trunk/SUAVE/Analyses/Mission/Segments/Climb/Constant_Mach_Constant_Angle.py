@@ -1,15 +1,13 @@
-
+# Constant_Mach_Constant_Angle.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions
-
 from SUAVE.Methods.Missions import Segments as Methods
-
-from SUAVE.Analyses import Process
 
 from Unknown_Throttle import Unknown_Throttle
 

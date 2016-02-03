@@ -1,17 +1,11 @@
 # wing.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Imports
+#  Wing
 # ----------------------------------------------------------------------
-
-from SUAVE.Core import Units
-import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 def wing(Sw,bw,cw,Nwr,t_cw,Nwer,nult,GW):
     """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.wing(Sw,bw,cw,deltaw,nwr,t_cw,Nwer,nult,Gw)     

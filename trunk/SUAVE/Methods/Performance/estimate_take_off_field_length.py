@@ -1,7 +1,8 @@
 # estimate_take_off_field_length.py
 #
-# Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified: Tarik, Oct 2015
+# Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
+# Modified: Apr 2015, M. Vegh 
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,8 +62,6 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
             Second segment climb gradient:
                 - Considers ONE engine inoperative, for any number of engines.
                 - Valid for twin engine airplane - NOT VALIDATED/VERIFICATED WITH 3 OR MORE ENGINES.
-            
-
     """
 
     # ==============================================
@@ -88,7 +87,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     T   = atmo_values.temperature
     rho = atmo_values.density
     a   = atmo_values.speed_of_sound
-    mu  =atmo_values.dynamic_viscosity
+    mu  = atmo_values.dynamic_viscosity
     sea_level_gravity = atmo.planet.sea_level_gravity
     
     # ==============================================
@@ -134,8 +133,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     state = Data()
     state.conditions = Aerodynamics() 
     state.numerics   = Numerics()
-    
     conditions = state.conditions    
+
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity         = np.array(np.atleast_1d(speed_for_thrust))
@@ -143,6 +142,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.temperature      = np.array(np.atleast_1d(T))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
     conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))
+    
     results = vehicle.propulsors.evaluate_thrust(state) # total thrust
     
     thrust = results.thrust_force_vector
@@ -195,9 +195,6 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         state.conditions.freestream.mach_number      = np.array(np.atleast_1d(V2_speed/ a))
         results = vehicle.propulsors[0].engine_out(state)
         thrust = results.thrust_force_vector[0][0]
-#        results = vehicle.propulsors.evaluate_thrust(state)
-#        thrust_per_engine = results.thrust_force_vector[0][0] / propulsor.number_of_engines
-#        thrust = thrust_per_engine * (propulsor.number_of_engines - 1)
 
         # Compute windmilling drag
         windmilling_drag_coefficient = windmilling_drag(vehicle,state)

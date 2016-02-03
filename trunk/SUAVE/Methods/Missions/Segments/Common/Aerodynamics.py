@@ -1,10 +1,13 @@
+# Aerodynamics.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import numpy as np
-
 
 
 # ----------------------------------------------------------------------
@@ -50,11 +53,10 @@ def update_atmosphere(segment,state):
     """
     
     # unpack
-    conditions = state.conditions
-    h = conditions.freestream.altitude
+    conditions            = state.conditions
+    h                     = conditions.freestream.altitude
     temperature_deviation = segment.temperature_deviation
-    
-    atmosphere = segment.analyses.atmosphere
+    atmosphere            = segment.analyses.atmosphere
     
     # compute
     atmo_data = atmosphere.compute_values(h,temperature_deviation)
@@ -147,7 +149,10 @@ def update_aerodynamics(segment,state):
     aerodynamics_model = segment.analyses.aerodynamics
     q                  = state.conditions.freestream.dynamic_pressure
     Sref               = aerodynamics_model.geometry.reference_area
+<<<<<<< HEAD
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
+=======
+>>>>>>> develop
     
     # call aerodynamics model
     results = aerodynamics_model( state )    

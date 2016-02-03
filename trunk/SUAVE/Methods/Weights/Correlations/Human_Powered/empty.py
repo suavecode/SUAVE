@@ -1,26 +1,22 @@
 # empty.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave imports
-import SUAVE
-
-# package imports
-import numpy as np
 import tail as tail
 import wing as wing
 import fuselage as fuselage
 import warnings
 
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-    )
+from SUAVE.Core import Data
+
+# ----------------------------------------------------------------------
+#  Empty
+# ----------------------------------------------------------------------
 
 def empty(vehicle):
     """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.empty(wing,aircraft,horizontal,vertical): 
@@ -142,12 +138,3 @@ def empty(vehicle):
     weight.empty = wt_ht + wt_tb + wt_vt + wt_wing
     
     return weight
-    
-    
-    
-    
-    
-    
-    
-    
-    

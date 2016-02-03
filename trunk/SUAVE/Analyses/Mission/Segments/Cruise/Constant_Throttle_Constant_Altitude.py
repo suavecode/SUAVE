@@ -1,3 +1,7 @@
+# Constant_Throttle_Constant_Altitude.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,10 +14,6 @@ from SUAVE.Analyses.Mission.Segments import Conditions
 from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
-
-# Units
-from SUAVE.Core import Units
-
 
 # ----------------------------------------------------------------------
 #  Segment

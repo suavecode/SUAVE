@@ -1,17 +1,11 @@
 # tail.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Imports
+#  Tail
 # ----------------------------------------------------------------------
-
-from SUAVE.Core import Units
-import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 def tail(Sts,bts,cts,Ntsr,t_cts,qm):      
     
@@ -46,8 +40,8 @@ def tail(Sts,bts,cts,Ntsr,t_cts,qm):
     
     #Rudder & Elevator Secondary Structure:
     Wtsr = Ntsr * (cts**2 * t_cts * 1.16e-1 + cts * 4.01e-3)
-    Wts=0.174*((Sts**2)*(deltats**(4./3.))/bts)
-    Wtsc=Sts * 1.93e-2
+    Wts  = 0.174*((Sts**2)*(deltats**(4./3.))/bts)
+    Wtsc = Sts * 1.93e-2
     
     weight = Wtss + Wtsr + Wts + Wtsc
     

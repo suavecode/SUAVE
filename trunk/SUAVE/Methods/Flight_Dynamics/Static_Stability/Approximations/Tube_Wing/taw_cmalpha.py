@@ -1,22 +1,14 @@
 # taw_cmalpha.py
 #
-# Created:  Tim Momose, April 2014
-# Modified: Michael Vegh, November 2015
+# Created:  Apr 2014, T. Momose
+# Modified: Nov 2015, M. Vegh
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Center_of_Gravity.compute_mission_center_of_gravity import compute_mission_center_of_gravity
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-
 
 # ----------------------------------------------------------------------
 #  Method
@@ -81,15 +73,15 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     C_Law = conditions.lift_curve_slope
     w_f   = geometry.fuselages['fuselage'].width
     l_f   = geometry.fuselages['fuselage'].lengths.total
+    x_cg  = configuration.mass_properties.center_of_gravity[0]
     x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
     M     = mach
     
-    weights=conditions.weights.total_mass
-    fuel_weights=weights-configuration.mass_properties.max_zero_fuel
-    cg=compute_mission_center_of_gravity(configuration,fuel_weights)
-    #x_cg  = configuration.mass_properties.center_of_gravity[0]
-    x_cg=cg[:,0] #get cg location at every point in the mission
- 
+    weights      = conditions.weights.total_mass
+    fuel_weights = weights-configuration.mass_properties.max_zero_fuel
+    cg           = compute_mission_center_of_gravity(configuration,fuel_weights)
+    x_cg         = cg[:,0] #get cg location at every point in the mission
+
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
     for surf in geometry.wings:
@@ -101,17 +93,16 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
         vertical  = surf.vertical
+        
         #Calculate Cm_alpha contributions
         l_surf    = x_surf + x_ac_surf - x_cg
         Cma       = -l_surf*s/(mac*Sref)*(CL_alpha*eta*downw)*(1. - vertical)
         CmAlpha_surf.append(Cma)
-        ##For debugging
-        ##print "Cmalpha_surf: {:.4f}".format(Cma[len(Cma)-1])
     
     #Evaluate the effect of the fuselage on the stability derivative
     p  = x_rqc/l_f
     Kf = 1.5012*p**2. + 0.538*p + 0.0331
-    CmAlpha_body = Kf*w_f**2*l_f/Sref/mac   #NEGLECTS TAIL EFFECT ON CL_ALPHA
+    CmAlpha_body = Kf*w_f*w_f*l_f/Sref/mac   #NEGLECTS TAIL EFFECT ON CL_ALPHA
     
     cm_alpha = sum(CmAlpha_surf) + CmAlpha_body
     
@@ -122,6 +113,13 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
+    from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
+    from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
+    from SUAVE.Core import Units
+    from SUAVE.Core import (
+        Data, Container, Data_Exception, Data_Warning,
+    )    
+    
     #Parameters Required
     #Using values for a Boeing 747-200  
     vehicle = SUAVE.Vehicle()

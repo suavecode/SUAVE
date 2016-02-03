@@ -1,4 +1,14 @@
+# Common.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
+
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
@@ -13,7 +23,6 @@ def unpack_unknowns(segment,state):
     state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
     state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]   
     
-
 # ----------------------------------------------------------------------
 #  Residual Total Forces
 # ----------------------------------------------------------------------
@@ -72,5 +81,3 @@ def update_differentials_altitude(segment,state):
     state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
 
     return
-
-

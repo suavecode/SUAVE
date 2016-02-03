@@ -1,8 +1,16 @@
-import numpy as np
-
+# Constant_Speed_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -25,7 +33,7 @@ def initialize_conditions(segment,state):
     
     # process velocity vector
     v_mag = air_speed
-    v_z   =descent_rate # z points down
+    v_z   = descent_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     
     # pack conditions    

@@ -55,6 +55,7 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
+    'scripts/noise_optimization/Optimize.py'
 ]
 
 

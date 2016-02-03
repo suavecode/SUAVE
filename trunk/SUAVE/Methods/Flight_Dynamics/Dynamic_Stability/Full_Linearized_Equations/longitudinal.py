@@ -1,15 +1,13 @@
 # longitudinal.py
 # 
-# Created:  Andrew Wendorff, April 2014
-# Modified:
+# Created:  Apr 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 import numpy as np
 import numpy.polynomial.polynomial as P
 
@@ -62,9 +60,7 @@ def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 26-41.
     """ 
-    
-    #process
-    
+
     # constructing matrix of coefficients
     A = (- Cx_u, mass * velocity / S_gross_w / (0.5*density*velocity**2.))  # X force U term
     B = (-Cx_alpha) # X force alpha term
@@ -77,14 +73,14 @@ def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
     I = (0., - mac*0.5/velocity*Cm_q, Iy/S_gross_w/(0.5*density*velocity**2)/mac) # M moment theta term
     
     # Taking the determinant of the matrix ([A, B, C],[D, E, F],[G, H, I])
-    EI = P.polymul(E,I)
-    FH = P.polymul(F,H)
+    EI    = P.polymul(E,I)
+    FH    = P.polymul(F,H)
     part1 = P.polymul(A,P.polysub(EI,FH))
-    DI = P.polymul(D,I)
-    FG = P.polymul(F,G)
+    DI    = P.polymul(D,I)
+    FG    = P.polymul(F,G)
     part2 = P.polymul(B,P.polysub(FG,DI))    
-    DH = P.polymul(D,H)
-    GE = P.polymul(G,E)
+    DH    = P.polymul(D,H)
+    GE    = P.polymul(G,E)
     part3 = P.polymul(C,P.polysub(DH,GE))
     total = P.polyadd(part1,P.polyadd(part2,part3))
     
@@ -111,15 +107,15 @@ def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
     poly4[1] = poly3[1] - poly2[0]*poly3[3]/poly2[2]
      
     # Generate natural frequency and damping for Short Period and Phugoid modes
-    short_w_n = (poly4[2])**0.5
-    short_zeta = poly3[3]*0.5/short_w_n
-    phugoid_w_n = (poly2[0]/poly2[2])**0.5
+    short_w_n    = (poly4[2])**0.5
+    short_zeta   = poly3[3]*0.5/short_w_n
+    phugoid_w_n  = (poly2[0]/poly2[2])**0.5
     phugoid_zeta = poly2[1]/poly2[2]*0.5/phugoid_w_n
     
     output = Data()
-    output.short_natural_frequency = short_w_n
-    output.short_damping_ratio = short_zeta
+    output.short_natural_frequency   = short_w_n
+    output.short_damping_ratio       = short_zeta
     output.phugoid_natural_frequency = phugoid_w_n
-    output.phugoid_damping_ratio = phugoid_zeta    
+    output.phugoid_damping_ratio     = phugoid_zeta    
     
     return output
