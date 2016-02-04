@@ -7,7 +7,7 @@ from DataBunch import DataBunch
 
 from copy import deepcopy
 
-from arrays import matrix_type, array_type
+from arrays import array_type, matrix_type
 
 import autograd.numpy as np 
 

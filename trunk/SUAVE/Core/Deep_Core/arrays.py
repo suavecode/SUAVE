@@ -15,7 +15,8 @@ except ImportError:
 
 if numpy_isloaded:
     array_type  = np.ndarray
-    matrix_type = np.matrixlib.defmatrix.matrix
+    #matrix_type = np.matrixlib.defmatrix.matrix
+    matrix_type  = np.ndarray
 else:
     array_type  = None
     matrix_type = None

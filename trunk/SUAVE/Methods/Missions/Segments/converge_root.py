@@ -14,6 +14,7 @@ import scipy.optimize
 from SUAVE.Core.Arrays import array_type
 from autograd.numpy import np
 from autograd import grad
+from autograd.numpy.numpy_extra import ArrayNode
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -43,9 +44,13 @@ def converge_root(segment,state):
 # ----------------------------------------------------------------------
     
 def iterate(unknowns,(segment,state)):
+    
+    autograd_array = ArrayNode
 
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
+    elif isinstance(unknowns,ArrayNode):
+        state.unknowns.unpack_array(unknowns)        
     else:
         state.unknowns = unknowns
         
