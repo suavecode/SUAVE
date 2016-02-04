@@ -1,15 +1,13 @@
 # lateral_directional.py
 # 
-# Created:  Andrew Wendorff, April 2014
-# Modified:
+# Created:  Apr 2014, A. Wendorff 
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 import numpy as np
 import numpy.polynomial.polynomial as P
 
@@ -61,8 +59,6 @@ def lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, 
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 118-124.
     """ 
     
-    #process
-    
     # constructing matrix of coefficients
     A = (0, -span * 0.5 / velocity * Cl_p, I_x/S_gross_w/(0.5*density*velocity**2)/span )  # L moment phi term
     B = (0, -span * 0.5 / velocity * Cl_r, -J_xz / S_gross_w / (0.5 * density * velocity ** 2.) / span) # L moment psi term
@@ -75,30 +71,30 @@ def lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, 
     I = (-Cy_Beta, mass * velocity / S_gross_w / (0.5 * density * velocity ** 2.))
     
     # Taking the determinant of the matrix ([A, B, C],[D, E, F],[G, H, I])
-    EI = P.polymul(E,I)
-    FH = P.polymul(F,H)
+    EI    = P.polymul(E,I)
+    FH    = P.polymul(F,H)
     part1 = P.polymul(A,P.polysub(EI,FH))
-    DI = P.polymul(D,I)
-    FG = P.polymul(F,G)
+    DI    = P.polymul(D,I)
+    FG    = P.polymul(F,G)
     part2 = P.polymul(B,P.polysub(FG,DI))    
-    DH = P.polymul(D,H)
-    GE = P.polymul(G,E)
+    DH    = P.polymul(D,H)
+    GE    = P.polymul(G,E)
     part3 = P.polymul(C,P.polysub(DH,GE))
     total = P.polyadd(part1,P.polyadd(part2,part3))
-    poly = total / total[5]
+    poly  = total / total[5]
     
     # Generate the time constant for the spiral and roll modes along with the damping and natural frequency for the dutch roll mode
-    root = np.roots(poly)
-    root = sorted(root,reverse=True)
+    root       = np.roots(poly)
+    root       = sorted(root,reverse=True)
     spiral_tau = 1 * root[0].real
-    w_n = (root[1].imag**2 + root[1].real**2)**(-0.5)
-    zeta = -2*root[1].real/w_n
-    roll_tau = 1 * root [3].real
+    w_n        = (root[1].imag**2 + root[1].real**2)**(-0.5)
+    zeta       = -2*root[1].real/w_n
+    roll_tau   = 1 * root [3].real
     
     output = Data()
     output.dutch_natural_frequency = w_n
-    output.dutch_damping_ratio = zeta
-    output.spiral_tau = spiral_tau
-    output.roll_tau = roll_tau    
+    output.dutch_damping_ratio     = zeta
+    output.spiral_tau              = spiral_tau
+    output.roll_tau                = roll_tau    
     
     return output

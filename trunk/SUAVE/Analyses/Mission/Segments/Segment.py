@@ -1,21 +1,20 @@
+# Segment.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # python imports
-import numpy as np
 from copy import deepcopy
 
 # SUAVE imports
-from SUAVE.Core import Data, Data_Exception
 
 from SUAVE.Analyses import Analysis, Settings, Process
 
-from Conditions import State, Conditions
-
-from SUAVE.Plugins.VyPy.tools import array_type
-
+from Conditions import State
 
 
 # ----------------------------------------------------------------------

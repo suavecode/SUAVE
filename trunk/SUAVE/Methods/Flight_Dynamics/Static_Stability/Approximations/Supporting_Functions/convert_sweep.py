@@ -1,17 +1,12 @@
 # convert_sweep.py
 #
-# Created: Feb 2014, Tim Momose
-# IN PROGRESS
+# Created:  Feb 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Method

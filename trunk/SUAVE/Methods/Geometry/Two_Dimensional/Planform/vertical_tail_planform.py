@@ -1,18 +1,13 @@
-# Geoemtry.py
+# vertical_tail_planform.py
 #
-
-""" SUAVE Methods for Geoemtry Generation
-"""
-
+# Created:  Mar 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
-from SUAVE.Core  import Data
-#from SUAVE.Attributes import Constants
+from wing_planform import wing_planform
 
 # ----------------------------------------------------------------------
 #  Methods

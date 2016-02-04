@@ -1,26 +1,33 @@
-import numpy as np
-
+# Constant_Mach_Constant_Angle.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
     
     # unpack
     # unpack user inputs
-    climb_angle = self.climb_angle
-    mach_number = self.mach
-    alt0       = segment.altitude_start 
-    altf       = segment.altitude_end
-    t_nondim   = state.numerics.dimensionless.control_points
-    conditions = state.conditions  
+    climb_angle = segment.climb_angle
+    mach_number = segment.mach
+    alt0        = segment.altitude_start 
+    altf        = segment.altitude_end
+    t_nondim    = state.numerics.dimensionless.control_points
+    conditions  = state.conditions  
 
     # check for initial altitude
     if alt0 is None:
         if not state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude_start = alt0
 
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0

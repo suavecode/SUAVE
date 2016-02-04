@@ -13,6 +13,9 @@ from SUAVE.Core            import Data
 from SUAVE.Core import Units
 from SUAVE.Core import Units
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform as size_planform
+
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 # package imports
 import numpy as np
@@ -25,9 +28,7 @@ def main():
 
     # ----------------------------------------------------------------------
     #   Main
-    # ----------------------------------------------------------------------
-
-    
+    # ----------------------------------------------------------------------    
     vehicle = vehicle_setup()
     configs=configs_setup(vehicle)
     # --- Takeoff Configuration ---
@@ -53,6 +54,9 @@ def main():
     w_vec = np.linspace(40000.,52000.,10)
     engines = (2,3,4)
     takeoff_field_length = np.zeros((len(w_vec),len(engines)))
+    second_seg_clb_grad  = np.zeros((len(w_vec),len(engines)))
+    
+    compute_clb_grad = 1 # flag for Second segment climb estimation
     
     for id_eng,engine_number in enumerate(engines):
         
@@ -60,23 +64,48 @@ def main():
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
-            takeoff_field_length[id_w,id_eng] = estimate_take_off_field_length(configuration,analyses,airport)
+            takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
+                    estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
   
-    truth_TOFL = np.array([[  850.19992906,   567.03906016,   411.69975426],
-                           [  893.11528215,   592.95224563,   430.3183183 ],
-                           [  937.78501446,   619.84892797,   449.62233042],
-                           [  984.23928481,   647.73943813,   469.61701137],
-                           [ 1032.50914159,   676.63434352,   490.30766781],
-                           [ 1082.62653274,   706.54445208,   511.69969462],
-                           [ 1134.62431541,   737.48081617,   533.79857721],
-                           [ 1188.53626527,   769.45473631,   556.60989361],
-                           [ 1244.39708554,   802.47776475,   580.13931657],
-                           [ 1302.24241572,   836.56170886,   604.39261547]])
-    
-    TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))
+    truth_TOFL = np.array([[ 1106.1894316 ,   720.57532937,   521.72582498],
+                           [ 1169.44251482,   758.14235055,   548.54256171],
+                           [ 1235.49201944,   797.22058262,   576.39554512],
+                           [ 1304.40380631,   837.83307113,   605.29666019],
+                           [ 1376.24593627,   880.00348867,   635.25804638],
+                           [ 1451.08870497,   923.75614652,   666.29210347],
+                           [ 1529.00467733,   969.11600619,   698.41149721],
+                           [ 1610.06872186,  1016.10869073,   731.6291648 ],
+                           [ 1694.3580448 ,  1064.76049592,   765.95832037],
+                           [ 1781.95222403,  1115.09840143,   801.41246029]])
+                             
+    truth_clb_grad = np.array([[ 0.0655736 ,  0.24371443,  0.42185526],
+                               [ 0.05989364,  0.23186809,  0.40384255],
+                               [ 0.0545621 ,  0.22076517,  0.38696824],
+                               [ 0.04954833,  0.21033864,  0.37112895],
+                               [ 0.04482514,  0.20052927,  0.3562334 ],
+                               [ 0.04036833,  0.19128451,  0.3422007 ],
+                               [ 0.03615629,  0.18255758,  0.32895888],
+                               [ 0.03216969,  0.17430671,  0.31644372],
+                               [ 0.02839116,  0.16649446,  0.30459777],
+                               [ 0.02480506,  0.15908723,  0.2933694 ]])
+                               
+                               
+#    truth_clb_grad =  np.array([[ 0.07209448,  0.25023531,  0.42837614],
+#                                [ 0.06597428,  0.23794874,  0.40992319],
+#                                [ 0.06024464,  0.22644771,  0.39265077],
+#                                [ 0.05486975,  0.21566006,  0.37645037],
+#                                [ 0.04981803,  0.20552216,  0.3612263 ],
+#                                [ 0.04506152,  0.1959777 ,  0.34689389],
+#                                [ 0.04057537,  0.18697666,  0.33337796],
+#                                [ 0.03633745,  0.17847447,  0.32061148],
+#                                [ 0.03232796,  0.17043126,  0.30853456],
+#                                [ 0.02852914,  0.16281131,  0.29709347]])           used the wrong aerodynamic center reference                   
+
+    TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))                           
+    GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad))
     
     print 'Maximum Take OFF Field Length Error= %.4e' % TOFL_error
-    
+    print 'Second Segment Climb Gradient Error= %.4e' % GRAD_error    
     
     import pylab as plt
     title = "TOFL vs W"
@@ -85,18 +114,31 @@ def main():
     plt.plot(w_vec,takeoff_field_length[:,1], 'r-', label = '3 Engines')
     plt.plot(w_vec,takeoff_field_length[:,2], 'b-', label = '4 Engines')
 
-
     plt.title(title); plt.grid(True)
-    plt.figure(2); plt.hold
-    plt.plot(w_vec,truth_TOFL[:,0], 'k-', label = '2 Engines')
-    plt.plot(w_vec,truth_TOFL[:,1], 'r-', label = '3 Engines')
-    plt.plot(w_vec,truth_TOFL[:,2], 'b-', label = '4 Engines')
+    plt.plot(w_vec,truth_TOFL[:,0], 'k--o', label = '2 Engines [truth]')
+    plt.plot(w_vec,truth_TOFL[:,1], 'r--o', label = '3 Engines [truth]')
+    plt.plot(w_vec,truth_TOFL[:,2], 'b--o', label = '4 Engines [truth]')
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
     plt.ylabel('Takeoff field length (m)')    
+        
     
-    #currently running again,but need to review results
-    #assert( TOFL_error   < 1e-5 )
+    title = "2nd Segment Climb Gradient vs W"
+    plt.figure(2); plt.hold
+    plt.plot(w_vec,second_seg_clb_grad[:,0], 'k-', label = '2 Engines')
+    plt.plot(w_vec,second_seg_clb_grad[:,1], 'r-', label = '3 Engines')
+    plt.plot(w_vec,second_seg_clb_grad[:,2], 'b-', label = '4 Engines')
+
+    plt.title(title); plt.grid(True)
+    plt.plot(w_vec,truth_clb_grad[:,0], 'k--o', label = '2 Engines [truth]')
+    plt.plot(w_vec,truth_clb_grad[:,1], 'r--o', label = '3 Engines [truth]')
+    plt.plot(w_vec,truth_clb_grad[:,2], 'b--o', label = '4 Engines [truth]')
+    legend = plt.legend(loc='lower right', shadow = 'true')
+    plt.xlabel('Weight (kg)')
+    plt.ylabel('Second Segment Climb Gradient (%)')    
+    
+    assert( TOFL_error   < 1e-5 )
+    assert( GRAD_error   < 1e-5 )
 
     return 
     
@@ -120,9 +162,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise'
     
-    configs.append(config)
-    
-    
+    configs.append(config)    
+
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------
@@ -134,7 +175,8 @@ def configs_setup(vehicle):
     config.wings['main_wing'].slats.angle = 25. * Units.deg
     
     config.V2_VS_ratio = 1.21
-    config.maximum_lift_coefficient = 2.
+    config.max_lift_coefficient_factor = 0.95
+##    config.maximum_lift_coefficient = 2.
     
     configs.append(config)
     return configs   
@@ -173,279 +215,288 @@ def vehicle_setup():
     vehicle.systems.accessories    = "medium range"
     
     
-    # ------------------------------------------------------------------        
+    # ------------------------------------------------------------------
     #   Main Wing
-    # ------------------------------------------------------------------        
-    
-    wing = SUAVE.Components.Wings.Wing()
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
-    
+
     wing.aspect_ratio            = 8.4
-    wing.sweep                   = 22.0 * Units.deg
+    wing.sweep                   = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
-    wing.taper                   = 0.16
+    wing.taper                   = 0.28
     wing.span_efficiency         = 1.0
-    
-    wing.spans.projected         = 27.8    
-    
-    wing.chords.root             = 5.7057
-    wing.chords.tip              = 0.9129
-    wing.chords.mean_aerodynamic = 3.8878
-                                   
-    wing.areas.reference         = 92.0 
+
+##    wing.spans.projected         = 27.8
+##
+##    wing.chords.root             = 5.203
+##    wing.chords.tip              = 1.460
+##    wing.chords.mean_aerodynamic = 3.680
+
+    wing.areas.reference         = 92.0
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
-    wing.areas.affected          = 0.6 * wing.areas.wetted
-    
+    wing.areas.affected          = 0.6 * wing.areas.reference
+
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    
-    wing.origin                  = [20,0,0]
-    wing.aerodynamic_center      = [3,0,0] 
-    
+
+    wing.origin                  = [13.2,0,0] # Need to fix
+##    wing.aerodynamic_center      = [3,0,0]
+
     wing.vertical                = False
     wing.symmetric               = True
+
     wing.high_lift               = True
+    wing.flaps.type              = "double_slotted"
+    wing.flaps.chord             = 0.280
+
     wing.dynamic_pressure_ratio  = 1.0
-    
+
     # add to vehicle
+    size_planform(wing)
     vehicle.append_component(wing)
 
-
-    # ------------------------------------------------------------------        
+    # ------------------------------------------------------------------
     #  Horizontal Stabilizer
-    # ------------------------------------------------------------------        
-    
+    # ------------------------------------------------------------------
+
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
-    
+
     wing.aspect_ratio            = 5.5
     wing.sweep                   = 34.5 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
     wing.span_efficiency         = 0.9
-    
-    wing.spans.projected         = 11.958     #
-                                   
-    wing.chords.root             = 3.9175
-    wing.chords.tip              = 0.4309 
-    wing.chords.mean_aerodynamic = 2.6401
 
-    wing.areas.reference         =  26.0  #
+##    wing.spans.projected         = 11.958
+##
+##    wing.chords.root             = 3.030
+##    wing.chords.tip              = 0.883
+##    wing.chords.mean_aerodynamic = 2.3840
+
+    wing.areas.reference         = 26.0
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
-    wing.areas.affected          = 0.6 * wing.areas.wetted
-    
+    wing.areas.affected          = 0.6 * wing.areas.reference
+
     wing.twists.root             = 2.0 * Units.degrees
-    wing.twists.tip              = 2.0 * Units.degrees  
-    
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]
-    
-    wing.vertical                = False 
+    wing.twists.tip              = 2.0 * Units.degrees
+
+    wing.origin                  = [31.,0,0] # need to fix
+##    wing.aerodynamic_center      = [2,0,0]
+
+    wing.vertical                = False
     wing.symmetric               = True
-    wing.high_lift               = True
-    wing.dynamic_pressure_ratio  = 0.9  
-    
+
+    wing.dynamic_pressure_ratio  = 0.9
+
     # add to vehicle
+    size_planform(wing)
     vehicle.append_component(wing)
-    
 
     # ------------------------------------------------------------------
-    #   Turbofan Network
-    # ------------------------------------------------------------------    
-    
-    #instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
-    
-    # setup
-    turbofan.number_of_engines = 2.0
-    turbofan.design_thrust     = 20300.0
-    turbofan.engine_length     = 3.0
-    turbofan.nacelle_diameter  = 1.0
-    turbofan.bypass_ratio      = 5.4
-    
-    # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
-    
-    
+    #   Vertical Stabilizer
     # ------------------------------------------------------------------
-    #   Component 1 - Ram
-    
-    # to convert freestream static to stagnation quantities
-    
-    # instantiate
+
+    wing = SUAVE.Components.Wings.Wing()
+    wing.tag = 'vertical_stabilizer'
+
+    wing.aspect_ratio            = 1.7      #
+    wing.sweep                   = 35 * Units.deg
+    wing.thickness_to_chord      = 0.11
+    wing.taper                   = 0.31
+    wing.span_efficiency         = 0.9
+
+##    wing.spans.projected         = 5.270     #
+##
+##    wing.chords.root             = 4.70
+##    wing.chords.tip              = 1.45
+##    wing.chords.mean_aerodynamic = 3.36
+
+    wing.areas.reference         = 16.0    #
+    wing.areas.wetted            = 2.0 * wing.areas.reference
+    wing.areas.exposed           = 0.8 * wing.areas.wetted
+    wing.areas.affected          = 0.6 * wing.areas.reference
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+
+    wing.origin                  = [29.5,0,0]
+##    wing.aerodynamic_center      = [2,0,0]
+
+    wing.vertical                = True
+    wing.symmetric               = False
+
+    wing.dynamic_pressure_ratio  = 1.0
+
+    # add to vehicle
+    size_planform(wing)
+    vehicle.append_component(wing)
+    # ------------------------------------------------------------------
+    #  Turbofan Network
+    # ------------------------------------------------------------------
+
+
+    #initialize the gas turbine network
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
+    gt_engine.tag               = 'turbo_fan'
+
+    gt_engine.number_of_engines = 2.0
+    gt_engine.bypass_ratio      = 5.4
+    gt_engine.engine_length     = 2.71
+    gt_engine.nacelle_diameter  = 2.05
+    gt_engine.position[1]       = 4.50
+
+    #set the working fluid for the network
+    working_fluid               = SUAVE.Attributes.Gases.Air
+
+    #add working fluid to the network
+    gt_engine.working_fluid = working_fluid
+
+
+    #Component 1 : ram,  to convert freestream static to stagnation quantities
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
-    
-    # add to the network
-    turbofan.append(ram)
+
+    #add ram to the network
+    gt_engine.ram = ram
 
 
-    # ------------------------------------------------------------------
-    #  Component 2 - Inlet Nozzle
-    
-    # instantiate
+    #Component 2 : inlet nozzle
     inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
-    inlet_nozzle.tag = 'inlet_nozzle'
-    
-    # setup
+    inlet_nozzle.tag = 'inlet nozzle'
+
     inlet_nozzle.polytropic_efficiency = 0.98
-    inlet_nozzle.pressure_ratio        = 0.98
-    
-    # add to network
-    turbofan.append(inlet_nozzle)
-    
-    
-    # ------------------------------------------------------------------
-    #  Component 3 - Low Pressure Compressor
-    
-    # instantiate 
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
-    compressor.tag = 'low_pressure_compressor'
+    inlet_nozzle.pressure_ratio        = 0.98 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
 
-    # setup
-    compressor.polytropic_efficiency = 0.91
-    compressor.pressure_ratio        = 1.9     
-    
-    # add to network
-    turbofan.append(compressor)
-
-    
-    # ------------------------------------------------------------------
-    #  Component 4 - High Pressure Compressor
-    
-    # instantiate
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
-    compressor.tag = 'high_pressure_compressor'
-    
-    # setup
-    compressor.polytropic_efficiency =  0.91
-    compressor.pressure_ratio        =  10.0    
-    
-    # add to network
-    turbofan.append(compressor)
+    #add inlet nozzle to the network
+    gt_engine.inlet_nozzle = inlet_nozzle
 
 
-    # ------------------------------------------------------------------
-    #  Component 5 - Low Pressure Turbine
-    
-    # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
-    turbine.tag='low_pressure_turbine'
-    
-    # setup
-    turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.99     
-    
-    # add to network
-    turbofan.append(turbine)
-    
-      
-    # ------------------------------------------------------------------
-    #  Component 6 - High Pressure Turbine
-    
-    # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
-    turbine.tag='high_pressure_turbine'
+    #Component 3 :low pressure compressor
+    low_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()
+    low_pressure_compressor.tag = 'lpc'
 
-    # setup
-    turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.99     
-    
-    # add to network
-    turbofan.append(turbine)
-      
-    
-    # ------------------------------------------------------------------
-    #  Component 7 - Combustor
-    
-    # instantiate    
-    combustor = SUAVE.Components.Energy.Converters.Combustor()   
-    combustor.tag = 'combustor'
-    
-    # setup
-    combustor.efficiency                = 0.99 
-    combustor.alphac                    = 1.0     
+    low_pressure_compressor.polytropic_efficiency = 0.91
+    low_pressure_compressor.pressure_ratio        = 1.9
+
+    #add low pressure compressor to the network
+    gt_engine.low_pressure_compressor = low_pressure_compressor
+
+
+
+    #Component 4 :high pressure compressor
+    high_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()
+    high_pressure_compressor.tag = 'hpc'
+
+    high_pressure_compressor.polytropic_efficiency = 0.91
+    high_pressure_compressor.pressure_ratio        = 10.0
+
+    #add the high pressure compressor to the network
+    gt_engine.high_pressure_compressor = high_pressure_compressor
+
+
+    #Component 5 :low pressure turbine
+    low_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()
+    low_pressure_turbine.tag='lpt'
+
+    low_pressure_turbine.mechanical_efficiency = 0.99
+    low_pressure_turbine.polytropic_efficiency = 0.93
+
+    #add low pressure turbine to the network
+    gt_engine.low_pressure_turbine = low_pressure_turbine
+
+
+
+    #Component 5 :high pressure turbine
+    high_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()
+    high_pressure_turbine.tag='hpt'
+
+    high_pressure_turbine.mechanical_efficiency = 0.99
+    high_pressure_turbine.polytropic_efficiency = 0.93
+
+    #add the high pressure turbine to the network
+    gt_engine.high_pressure_turbine = high_pressure_turbine
+
+
+    #Component 6 :combustor
+    combustor = SUAVE.Components.Energy.Converters.Combustor()
+    combustor.tag = 'Comb'
+
+    combustor.efficiency                = 0.99
+    combustor.alphac                    = 1.0
     combustor.turbine_inlet_temperature = 1500
     combustor.pressure_ratio            = 0.95
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
-    
-    # add to network
-    turbofan.append(combustor)
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()
 
-    
-    # ------------------------------------------------------------------
-    #  Component 8 - Core Nozzle
-    
-    # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
-    nozzle.tag = 'core_nozzle'
-    
-    # setup
-    nozzle.polytropic_efficiency = 0.95
-    nozzle.pressure_ratio        = 0.99    
-    
-    # add to network
-    turbofan.append(nozzle)
+    #add the combustor to the network
+    gt_engine.combustor = combustor
 
 
-    # ------------------------------------------------------------------
-    #  Component 9 - Fan Nozzle
-    
-    # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
-    nozzle.tag = 'fan_nozzle'
 
-    # setup
-    nozzle.polytropic_efficiency = 0.95
-    nozzle.pressure_ratio        = 0.98    
-    
-    # add to network
-    turbofan.append(nozzle)
-    
-    
-    # ------------------------------------------------------------------
-    #  Component 10 - Fan
-    
-    # instantiate
-    fan = SUAVE.Components.Energy.Converters.Fan()   
+    #Component 7 :core nozzle
+    core_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
+    core_nozzle.tag = 'core nozzle'
+
+    core_nozzle.polytropic_efficiency = 0.95
+    core_nozzle.pressure_ratio        = 0.99
+
+    #add the core nozzle to the network
+    gt_engine.core_nozzle = core_nozzle
+
+
+    #Component 8 :fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
+    fan_nozzle.tag = 'fan nozzle'
+
+    fan_nozzle.polytropic_efficiency = 0.95
+    fan_nozzle.pressure_ratio        = 0.99
+
+    #add the fan nozzle to the network
+    gt_engine.fan_nozzle = fan_nozzle
+
+
+
+    #Component 9 : fan
+    fan = SUAVE.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
 
-    # setup
     fan.polytropic_efficiency = 0.93
-    fan.pressure_ratio        = 1.7    
-    
-    # add to network
-    turbofan.append(fan)
-    
-    
+    fan.pressure_ratio        = 1.7
+
+    #add the fan to the network
+    gt_engine.fan = fan
+
+    #Component 10 : thrust (to compute the thrust)
+    thrust = SUAVE.Components.Energy.Processes.Thrust()
+    thrust.tag ='compute_thrust'
+
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 37278.0* Units.N #Newtons
+
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78
+    isa_deviation = 0.
+
+    # add thrust to the network
+    gt_engine.thrust = thrust
+
+    #size the turbofan
+    turbofan_sizing(gt_engine,mach_number,altitude)
+
+    # add  gas turbine network gt_engine to the vehicle
+    vehicle.append_component(gt_engine)
+
+
     # ------------------------------------------------------------------
-    #  Component 10 - Thrust
-    
-    # to compute thrust
-    
-    # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
-    thrust.tag ='thrust'
-    
-    # setup
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 40.0
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
-    
-    # add to network
-    turbofan.thrust = thrust
-    
-    
-    # add turbofan to vehicle
-    vehicle.propulsors.append(turbofan)
-    
-    # done!!
-    return vehicle    
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+
+    return vehicle
 
 def base_analysis(vehicle):
     # ------------------------------------------------------------------

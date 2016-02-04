@@ -17,3 +17,6 @@ from trim import trim
 from total_aircraft import total_aircraft
 from compressibility_drag_wing_total import compressibility_drag_wing_total
 from spoiler_drag import spoiler_drag
+from windmilling_drag import windmilling_drag
+from asymmetry_drag import asymmetry_drag
+from estimate_2ndseg_lift_drag_ratio import estimate_2ndseg_lift_drag_ratio

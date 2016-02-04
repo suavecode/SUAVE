@@ -1,17 +1,13 @@
 # payload_range.py
 #
-# Created:  Tarik, Apr. 2014
-# Modified:
+# Created:  Apr 2014, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
 from SUAVE.Core import Units
-
-# other imports
 import time
 import numpy as np
 
@@ -225,10 +221,3 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
         plt.show(True)
 
     return payload_range
-
-
-# ----------------------------------------------------------------------
-#   Module Test
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    print(' Error: No test defined ! ')

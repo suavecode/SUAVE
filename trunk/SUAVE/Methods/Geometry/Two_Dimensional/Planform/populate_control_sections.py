@@ -1,12 +1,18 @@
-# Tim Momose, January 2015
+# populate_control_sections.
+#
+# Created:  Jan 2015, T. Momose
+# Modified: Jan 2016, E. Botero
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
-# imports
 import numpy as np
-from SUAVE.Core import Data
-from SUAVE.Components.Wings.Control_Surface import Control_Surface, Control_Surface_Section
+from SUAVE.Components.Wings.Control_Surface import Control_Surface_Section
 
-
+# ----------------------------------------------------------------------
+#  Methods
+# ----------------------------------------------------------------------
 def populate_control_sections(control_surface,span_fractions,chord_fractions,relative_twists,wing):
     """
     Creates Control_Surface_Sections defining a control surface such that:

@@ -1,7 +1,7 @@
 #Basic_Battery_Network.py
 # 
 # Created:  Michael Vegh, September 2014
-# Modified:  
+# Modified:  September 2015
 '''
 Simply connects a battery to a ducted fan, with an assumed motor efficiency
 '''
@@ -14,8 +14,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
@@ -47,15 +45,16 @@ class Battery_Ducted_Fan(Propulsor):
         numerics   = state.numerics
   
         results=propulsor.evaluate_thrust(state)
-        Pe     =results.thrust_force_vector[:,0]*conditions.freestream.velocity
+        Pe     =np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         
         try:
             initial_energy=conditions.propulsion.battery_energy
             if initial_energy[0][0]==0: #beginning of segment; initialize battery
-                battery.current_energy=battery.current_energy[-1]*np.ones_like(initial_energy)
+                battery.current_energy  =battery.current_energy[-1]*np.ones_like(initial_energy)
+           
+                
         except AttributeError: #battery energy not initialized, e.g. in takeoff
-            battery.current_energy=battery.current_energy[-1]*np.ones_like(F)
-        
+            battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
         pbat=-Pe/self.motor_efficiency
         
         battery_logic     = Data()
@@ -63,32 +62,22 @@ class Battery_Ducted_Fan(Propulsor):
         battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
       
         battery.inputs    =battery_logic
-        battery.inputs.power_in=pbat
         tol = 1e-6
+        
         battery.energy_calc(numerics)
         #allow for mass gaining batteries
        
         try:
-            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses))
+            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses)) #put in transpose for solver
         except AttributeError:
-            mdot=np.zeros_like(F)
-           
-       
-        
-        
+            mdot=np.zeros_like(results.thrust_force_vector[:,0])
+        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
         #Pack the conditions for outputs
         battery_draw                         = battery.inputs.power_in
         battery_energy                       = battery.current_energy
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        
-        output_power= battery_draw
-        #number_of_engines
-        #Create the outputs
-        
-        
- 
         results.vehicle_mass_rate   = mdot
         return results
             

@@ -1,19 +1,18 @@
-# magicfunctions.py
+# helper_functions.py
 # 
 # Created:  May 2015, E. Botero
-# Modified: 
+# Modified: Feb 2015, M. Vegh
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
-from SUAVE.Core import Data, Units
-from SUAVE.Plugins.VyPy.data.DataBunch import DataBunch
+#from SUAVE.Core import Data, Units
 import numpy as np
-from copy import deepcopy
+#from copy import deepcopy
 
 # ----------------------------------------------------------------------        
-#   Set
+#   Set_values
 # ----------------------------------------------------------------------    
 
 def set_values(dictionary,input_dictionary,converted_values,aliases):
@@ -35,40 +34,38 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
                 newstrings = find_a_star(dictionary,pointer[ii])
                 for jj in xrange(0,len(newstrings)):
                     localstrs = newstrings[jj].split('.')
-                    correctname = '.'.join(localstrs[1:])
+                    correctname = '.'.join(localstrs[0:])
                     dictionary.deep_set(correctname,converted_values[ii])
                     
             elif '*' not in pointers:
-                for jj in xrange(0,length):
-                    localstrs = pointers[jj].split('.')
-                    correctname = '.'.join(localstrs[1:])
-                    dictionary.deep_set(correctname,converted_values[ii])              
+                localstrs = pointers.split('.')
+                correctname = '.'.join(localstrs[0:])
+                dictionary.deep_set(correctname,converted_values[ii])              
         else:
-            for zz in xrange(1,len(pointers)):
+            for zz in xrange(1,len(pointers)+1):
                 if '*' in pointers[zz-1]:
                     newstrings = find_a_star(dictionary,pointer[ii][zz-1])
                     for jj in xrange(0,len(newstrings)):
                         localstrs = newstrings[jj].split('.')
-                        correctname = '.'.join(localstrs[1:])
+                        correctname = '.'.join(localstrs[0:])
                         dictionary.deep_set(correctname,converted_values[ii])
                         
                 elif '*' not in pointers[zz-1]:
-                    for jj in xrange(0,length):
-                        localstrs = pointers[jj].split('.')
-                        correctname = '.'.join(localstrs[1:])
-                        dictionary.deep_set(correctname,converted_values[ii])            
-                
+                    localstrs = pointers[zz-1].split('.')
+                    correctname = '.'.join(localstrs[0:])
+                    dictionary.deep_set(correctname,converted_values[ii])            
+            
     return dictionary
         
 
 def find_a_star(dictionary,string):
     splitstring = string.split('.')
-    for ii in xrange(1,len(splitstring)):
+    for ii in xrange(0,len(splitstring)):
         if '*' in splitstring[ii]:
-            if ii==1:
+            if ii==0:
                 newkeys = dictionary.keys()
-            elif ii !=1:
-                strtoeval = 'dictionary.'+'.'.join(splitstring[1:ii])+'.keys()'
+            elif ii !=0:
+                strtoeval = 'dictionary.'+'.'.join(splitstring[0:ii])+'.keys()'
                 newkeys = eval(strtoeval)
             lastindex   = ii
             
@@ -90,8 +87,8 @@ def convert_values(inputs):
     provided_values  = inputs[:,1] 
     
     # Most important 2 lines of these functions
-    provided_units   = inputs[:,4]*1.0
-    inputs[:,4] = provided_units
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
     
     converted_values = provided_values*provided_units
     
@@ -114,23 +111,46 @@ def get_values(dictionary,outputs,aliases):
             if output_names[ii] == aliases[jj][0]:
                 pointer.append(aliases[jj][1])    
                 
-    values = []
+    values = np.zeros(len(outputs))
     for ii in xrange(0,len(outputs)):
         splitstring = pointer[ii].split('.')
-        values.append(eval('dictionary.'+'.'.join(splitstring[1:])))
+        values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
     
     return values
 
 def scale_obj_values(inputs,x):
     
     provided_scale = inputs[:,1]
-    scaled =  x/provided_scale
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
+    
+    scaled =  x/(provided_scale*provided_units)
     
     return scaled
 
 def scale_const_values(inputs,x):
     
-    provided_scale = inputs[:,3]
+    provided_scale = np.array(inputs[:,3],dtype = float)
     scaled =  x/provided_scale
+    
+    return scaled
+
+def scale_const_bnds(inputs):
+    
+    provided_bounds = np.array(inputs[:,2],dtype = float)
+    
+    # Most important 2 lines of these functions
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
+    
+    converted_values = provided_bounds*provided_units
+    
+    return converted_values
+
+def unscale_const_values(inputs,x):
+    
+    provided_units   = inputs[:,-1]*1.0
+    provided_scale = np.array(inputs[:,3],dtype = float)
+    scaled =  x*provided_scale/provided_units
     
     return scaled

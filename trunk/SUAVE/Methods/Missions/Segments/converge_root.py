@@ -1,3 +1,7 @@
+# converge_root.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -7,7 +11,7 @@
 import scipy
 import scipy.optimize
 
-from SUAVE.Plugins.VyPy.tools import array_type
+from SUAVE.Core.Arrays import array_type
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -28,7 +32,6 @@ def converge_root(segment,state):
                             xtol = state.numerics.tolerance_solution)
     
     return
-
     
 # ----------------------------------------------------------------------
 #  Helper Functions

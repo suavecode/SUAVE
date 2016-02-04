@@ -54,7 +54,7 @@ def main():
     # Create and attach this propeller
     prop                 = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes = prop_attributes    
-    prop.inputs.omega    = prop_attributes.angular_velocity
+    prop.inputs.omega    = np.array(prop_attributes.angular_velocity,ndmin=2)
     
     F, Q, P, Cplast = prop.spin(conditions)
     

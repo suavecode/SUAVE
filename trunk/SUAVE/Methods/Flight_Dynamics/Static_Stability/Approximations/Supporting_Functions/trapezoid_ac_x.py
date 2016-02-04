@@ -1,18 +1,17 @@
 # trapezoid_ac_x.py
-
-# Created: Tim Momose, March 2014
+#
+# Created:  Mar 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac import trapezoid_mac
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
+# ----------------------------------------------------------------------
+#  Method
+# ----------------------------------------------------------------------
 
 def trapezoid_ac_x(wing):
     """ dx_ac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x(wing)

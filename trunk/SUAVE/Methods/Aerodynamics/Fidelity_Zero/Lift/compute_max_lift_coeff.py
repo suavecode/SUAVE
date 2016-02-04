@@ -1,32 +1,26 @@
 # compute_max_lift_coeff.py
 #
-# Created:  Anil V., Dec 2013
-# Modified: Tarik, Feb 2014
+# Created:  Dec 2013, A. Variyar
+# Modified: Feb 2014, T. Orra
+#           Jan 2016, E. Botero         
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-#SUave Imports
+#SUAVE Imports
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Components import Wings
 from SUAVE.Core  import Data
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
-import numpy as np
-import scipy as sp
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_slat_lift import compute_slat_lift
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import compute_flap_lift
 
 # ----------------------------------------------------------------------
 #  compute_max_lift_coeff
 # ----------------------------------------------------------------------
+
 def compute_max_lift_coeff(vehicle,conditions=None):
     """ SUAVE.Methods.Aerodynamics.compute_max_lift_coeff(vehicle):
         Computes the maximum lift coefficient associated with an aircraft high lift system

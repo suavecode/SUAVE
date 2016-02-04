@@ -1,18 +1,12 @@
-#Created by M. Vegh 4/23/15
-
-""" Calculates mass flow of fuel cell based solely on specific energy
-end base efficiency factor """
-
+# initialize_from_power.py
+#
+# Created : Apr 2015, M. Vegh 
+# Modified: Feb 2016, E. Botero
+           
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
-
-# ----------------------------------------------------------------------
-#  Methods
+#  Initialize from Power
 # ----------------------------------------------------------------------
 
-def initialize_from_power(fuel_cell,power): #adds a fuel cell that is sized based on the specific power of the fuel cell
+def initialize_from_power(fuel_cell,power):
+    
     fuel_cell.mass_properties.mass=power/fuel_cell.specific_power
-    return

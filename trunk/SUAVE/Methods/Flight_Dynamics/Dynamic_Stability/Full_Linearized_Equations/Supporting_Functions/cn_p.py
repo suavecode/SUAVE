@@ -1,16 +1,7 @@
-# longitudinal.py
+# cn_p.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-import numpy as np
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Method
@@ -30,7 +21,6 @@ def cn_p(cLw,depdalpha):
     """
 
     # Generating Stability derivative
-    
     cn_p = -cLw/8. * (1. - depdalpha)
     
     return cn_p

@@ -1,17 +1,12 @@
 # size_mission_range_given_weights.py
 #
-# Created:  Tarik, Carlos, Sept 2014
-# Modified:
+# Created:  Sep 2014, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
-from SUAVE.Core import Units
-
-# other imports
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -46,22 +41,6 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         print "Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined"
         return True
 
-##    MZFW = vehicle.mass_properties.max_zero_fuel
-##    if not MZFW:
-##        print "Error calculating Range for a Given TOW and Payload: Vehicle MZFW not defined"
-##        return True
-
-##    MaxPLD = vehicle.mass_properties.max_payload
-##    if not MaxPLD:
-##        MaxPLD = MZFW - OEW  # If payload max not defined, calculate based in design weights
-
-##    MaxFuel = vehicle.mass_properties.max_fuel
-##    if not MaxFuel:
-##        MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
-##        if MaxFuel < 0. :
-##            print "Error calculating Range for a Given TOW and Payload: Vehicle MTOW not defined"
-##            return True
-
     # Defining arrays for input and output
     mission_payload = np.atleast_1d(mission_payload)
     takeoff_weight  = np.atleast_1d(takeoff_weight)
@@ -82,7 +61,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         reserve_fuel = np.multiply(np.ones_like(takeoff_weight),reserve_fuel[0])
 
     # Allocating results
-    fuel = np.zeros_like(mission_payload)
+    fuel     = np.zeros_like(mission_payload)
     distance = np.zeros_like(mission_payload)
 
     # Locate cruise segment to be variated
@@ -99,9 +78,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         FUEL    =  TOW - OEW - PLD - reserve_fuel[id]
 
         # Update mission takeoff weight
-##        mission.segments[0].config.mass_properties.takeoff = TOW
         vehicle.mass_properties.takeoff = TOW
-##        analyses.weights.mass_properties.takeoff
         mission.segments[0].analyses.weights.mass_properties.takeoff = TOW
 
         # Evaluate mission with current TOW
@@ -113,10 +90,10 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         # User don't have the option of run a mission for a given fuel. So, we
         # have to iterate distance in order to have total fuel equal to target fuel
 
-        maxIter = 10     # maximum iteration limit
-        tol = 1.         # fuel convergency tolerance
+        maxIter  = 10    # maximum iteration limit
+        tol      = 1.    # fuel convergency tolerance
         residual = 9999. # residual to be minimized
-        iter = 0         # iteration count
+        iter     = 0     # iteration count
 
         while abs(residual) > tol and iter < maxIter:
             iter = iter + 1
@@ -149,11 +126,5 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         fuel[id] = FUEL
 
     mission.segments[0].analyses.weights.mass_properties.takeoff = TOW_ref
-    # packing results
-    return distance,fuel
 
-# ----------------------------------------------------------------------
-#   Module Test
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    print(' Error: No test defined ! ')
+    return distance,fuel

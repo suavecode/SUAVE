@@ -1,20 +1,11 @@
 # hts_motor.py
 # 
-# Created:  Michael Vegh, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014         
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+# Created:  Jan 2014, M. Vegh, 
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero     
 
 # ----------------------------------------------------------------------
-#   Method
+#   HTS Motor
 # ----------------------------------------------------------------------
 
 def hts_motor(max_power):
@@ -35,7 +26,6 @@ def hts_motor(max_power):
                 NASA Glenn,  2009.012
     """   
 
-    # process
-    weight=(1./2.2)*2.28*((max_power/1000.)**.6616)  #weight in kg
+    weight = (1./2.2)*2.28*((max_power/1000.)**.6616)  #weight in kg
     
     return weight

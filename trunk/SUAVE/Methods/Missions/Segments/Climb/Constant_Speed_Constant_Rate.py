@@ -1,10 +1,16 @@
+# Constant_Speed_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import numpy as np
 
-
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
-
 def initialize_conditions(segment,state):
     
     # unpack
@@ -19,7 +25,6 @@ def initialize_conditions(segment,state):
     if alt0 is None:
         if not state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude_start = alt0
 
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0

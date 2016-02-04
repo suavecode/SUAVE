@@ -1,4 +1,7 @@
-
+# Variable_Cruise_Distance.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # --------------------------------------------------------------
 #   Initialize - for cruise distance

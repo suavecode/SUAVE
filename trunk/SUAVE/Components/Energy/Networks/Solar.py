@@ -93,6 +93,9 @@ class Solar(Propulsor):
             propeller.inputs.omega =  motor.outputs.omega #Relink the motor
             F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
             diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
+            #if np.any(np.isnan(F)):
+                #print 'hi'
+                #print F
             ii += 1
             #if ii>100:
                 #break            
@@ -148,7 +151,7 @@ class Solar(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
+
         return results
             
     __call__ = evaluate_thrust
