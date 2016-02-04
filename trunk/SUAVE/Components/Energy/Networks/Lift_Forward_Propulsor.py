@@ -123,10 +123,10 @@ class Lift_Forward(Propulsor):
         konditions                     = Data()
         konditions.propulsion          = Data()
         konditions.freestream          = Data()
-        konditions.propulsion.throttle                    = conditions.propulsion.lift_throttle
-        konditions.propulsion.propeller_power_coefficient = conditions.propulsion.propeller_power_coefficient_lift
-        konditions.freestream.density                     = conditions.freestream.density
-        konditions.freestream.velocity                    = conditions.freestream.velocity
+        konditions.propulsion.throttle                    = conditions.propulsion.lift_throttle * 1.
+        konditions.propulsion.propeller_power_coefficient = conditions.propulsion.propeller_power_coefficient_lift * 1.
+        konditions.freestream.density                     = conditions.freestream.density * 1.
+        konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
 
         
         # Throttle the voltage
