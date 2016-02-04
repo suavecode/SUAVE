@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import estimate_2ndseg_lift_d
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import asymmetry_drag
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Compute field length required for takeoff

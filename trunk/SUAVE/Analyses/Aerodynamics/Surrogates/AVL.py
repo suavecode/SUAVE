@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 
 from SUAVE.Core import Data, Units
 from SUAVE.Analyses.Aerodynamics.Aerodynamics import Aerodynamics

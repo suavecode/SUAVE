@@ -9,7 +9,7 @@
 
 from Gas import Gas
 from SUAVE.Core import Data
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Air Gas Class

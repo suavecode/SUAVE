@@ -8,7 +8,7 @@
 
 from SUAVE.Methods.Performance.size_mission_range_given_weights import size_mission_range_given_weights
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Calculate vehicle Payload Range Diagram

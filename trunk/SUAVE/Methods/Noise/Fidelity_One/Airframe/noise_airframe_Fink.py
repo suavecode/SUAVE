@@ -23,7 +23,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Noise Fidelity One

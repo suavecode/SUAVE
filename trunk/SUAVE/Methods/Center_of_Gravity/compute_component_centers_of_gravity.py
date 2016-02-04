@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
 

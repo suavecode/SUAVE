@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Attributes.Gases import Air

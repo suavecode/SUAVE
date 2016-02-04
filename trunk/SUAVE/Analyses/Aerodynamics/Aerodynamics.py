@@ -12,7 +12,7 @@ from SUAVE.Analyses import Analysis
 # default Aero Results
 from Results import Results
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Analysis

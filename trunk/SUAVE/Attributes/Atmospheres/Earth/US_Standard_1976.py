@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Attributes.Gases import Air
 from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Attributes.Planets import Earth

@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
-import numpy as np
+import autograd.numpy as np 
 
 from noise_clean_wing import noise_clean_wing
 

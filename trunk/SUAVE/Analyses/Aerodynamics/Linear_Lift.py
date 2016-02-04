@@ -20,7 +20,7 @@ from SUAVE.Core import Data
 from Aerodynamics import Aerodynamics
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 from numpy import pi
 
 # ----------------------------------------------------------------------

@@ -10,7 +10,7 @@ import types
 from copy            import deepcopy
 from warnings        import warn
 
-import numpy as np
+import autograd.numpy as np 
 from arrays import atleast_2d_col, array_type, matrix_type
 
 

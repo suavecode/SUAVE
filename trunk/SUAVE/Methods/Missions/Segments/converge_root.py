@@ -12,6 +12,8 @@ import scipy
 import scipy.optimize
 
 from SUAVE.Core.Arrays import array_type
+from autograd.numpy import np
+from autograd import grad
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -25,11 +27,14 @@ def converge_root(segment,state):
         root_finder = segment.settings.root_finder
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
+        
+    prime = grad(iterate)
     
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
-                            xtol = state.numerics.tolerance_solution)
+                            xtol = state.numerics.tolerance_solution,
+                            fprime = prime)
     
     return
     

@@ -8,7 +8,7 @@ import logging
 import unittest
 
 try:
-    import numpy as np
+    import autograd.numpy as np 
     HAS_NUMPY = True
     ndarray = np.ndarray
     NUMPY_VER = np.__version__

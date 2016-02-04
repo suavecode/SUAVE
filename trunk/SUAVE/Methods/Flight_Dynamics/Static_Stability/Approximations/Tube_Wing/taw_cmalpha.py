@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Methods.Center_of_Gravity.compute_mission_center_of_gravity import compute_mission_center_of_gravity
 
 # ----------------------------------------------------------------------

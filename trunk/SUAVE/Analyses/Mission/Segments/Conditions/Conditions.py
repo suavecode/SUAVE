@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # python imports
-import numpy as np
+import autograd.numpy as np 
 
 # SUAVE imports
 from SUAVE.Core                    import Data

@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  compute_slat_lift

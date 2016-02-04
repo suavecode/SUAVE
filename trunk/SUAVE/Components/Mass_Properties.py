@@ -6,7 +6,7 @@
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Mass Properties

@@ -1,5 +1,5 @@
 
-import numpy as np
+import autograd.numpy as np 
 from numpy import cos, sin
 
 def angle_to_dcm(rotation,sequence=(2,1,0),units='radians'):

@@ -11,7 +11,7 @@
 from SUAVE.Core import Results
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Miscellaneous Drag Aircraft

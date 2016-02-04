@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 

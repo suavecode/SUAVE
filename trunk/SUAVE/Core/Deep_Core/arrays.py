@@ -1,7 +1,7 @@
 
 
 try:
-    import numpy as np
+    import autograd.numpy as np 
     numpy_isloaded = True
 except ImportError:
     numpy_isloaded = False

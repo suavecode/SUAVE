@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import os
-import numpy as np
+import autograd.numpy as np 
 from shutil import rmtree
 from warnings import warn
 

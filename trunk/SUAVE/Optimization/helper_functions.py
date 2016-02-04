@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------    
 
 #from SUAVE.Core import Data, Units
-import numpy as np
+import autograd.numpy as np 
 #from copy import deepcopy
 
 # ----------------------------------------------------------------------        

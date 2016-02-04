@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 
 def linear_supersonic_lift(conditions,configuration,wing):
     """ Computes lift using linear supersonic theory

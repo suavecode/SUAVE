@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Methods.Utilities.soft_max import soft_max
 # ----------------------------------------------------------------------
 #  Initialize from Energy and Power

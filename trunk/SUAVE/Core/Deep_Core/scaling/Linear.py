@@ -35,7 +35,7 @@ class Linear(ScalingFunction):
 
 if __name__ == '__main__':
     
-    import numpy as np
+    import autograd.numpy as np 
     
     s = Linear(10.0,0.0)
     

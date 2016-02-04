@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 # SUAVE imports
 from SUAVE.Core import Results
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Computes the compressibility drag of the wings

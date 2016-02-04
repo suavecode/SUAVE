@@ -82,7 +82,7 @@ More doc: https://denis-bz.github.com/docs/intergrid.html
 from __future__ import division
 from time import time
 # warnings
-import numpy as np
+import autograd.numpy as np 
 from scipy.ndimage import map_coordinates, spline_filter
 
 __version__ = "2013-07-01 jul denis"

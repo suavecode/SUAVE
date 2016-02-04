@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Core import Data, Container
 from Propulsor import Propulsor
 

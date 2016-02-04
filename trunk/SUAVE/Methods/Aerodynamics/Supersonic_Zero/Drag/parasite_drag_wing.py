@@ -9,7 +9,7 @@
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing

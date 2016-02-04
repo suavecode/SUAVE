@@ -4,7 +4,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 #import ad
 ##from scipy.optimize import root   #, fsolve, newton_krylov
 from SUAVE.Core import Data

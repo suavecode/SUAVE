@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Results
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Parasite Total

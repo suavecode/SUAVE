@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data, Data_Exception
-import numpy as np
+import autograd.numpy as np 
 
 
 # ----------------------------------------------------------------------

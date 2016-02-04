@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Adapted from vortex lattice code to strip theory

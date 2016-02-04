@@ -43,7 +43,7 @@ if __name__ == '__main__':
     d.options.half  = 0.5
     print d
     
-    import numpy as np
+    import autograd.numpy as np 
     ones = np.ones([10,1])
         
     m = Data()

@@ -13,7 +13,7 @@ Simply connects a battery to a ducted fan, with an assumed motor efficiency
 import SUAVE
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 #import time
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate

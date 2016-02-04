@@ -5,7 +5,7 @@ from ScalingFunction import ScalingFunction
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import autograd.numpy as np 
 
 
 # ----------------------------------------------------------------------
@@ -36,7 +36,7 @@ class Logarithmic(ScalingFunction):
     
 if __name__ == '__main__':    
     
-    import numpy as np
+    import autograd.numpy as np 
     
     s = Logarithmic(2.0,10.0)
     

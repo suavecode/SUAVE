@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Analyses import Results as Base_Results
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Default Aerodynamic Results

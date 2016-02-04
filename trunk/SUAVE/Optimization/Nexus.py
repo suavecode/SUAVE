@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Core import Data
 from copy import deepcopy
 import helper_functions as help_fun
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Nexus Class

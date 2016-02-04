@@ -295,7 +295,7 @@ class OrderedDict(Dict):
         """
         
         # dont require dict to have numpy
-        import numpy as np
+        import autograd.numpy as np 
         from arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
@@ -372,7 +372,7 @@ class OrderedDict(Dict):
         """
         
         # dont require dict to have numpy
-        import numpy as np
+        import autograd.numpy as np 
         from arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
@@ -536,7 +536,7 @@ if __name__ == '__main__':
     print ''
     print p
     
-    import numpy as np
+    import autograd.numpy as np 
     a = OrderedDict()
     a['f'] = 1
     a['g'] = 2

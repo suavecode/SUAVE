@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Optimization import helper_functions as help_fun
 
 

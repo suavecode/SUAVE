@@ -1,5 +1,5 @@
 
-import numpy as np
+import autograd.numpy as np 
 from numpy import cos, sin
 from orientation_product import orientation_product
 
@@ -107,7 +107,7 @@ def new_tensor(a):
 # ------------------------------------------------------------
 if __name__ == '__main__':
     
-    import numpy as np
+    import autograd.numpy as np 
     from orientation_transpose import orientation_transpose
     
     n_t = 5

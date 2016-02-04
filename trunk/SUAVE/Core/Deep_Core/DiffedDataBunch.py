@@ -9,7 +9,7 @@ from copy import deepcopy
 
 from arrays import matrix_type, array_type
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  DiffedDataBunch

@@ -13,7 +13,7 @@ from SUAVE.Core import Results
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Propulsor

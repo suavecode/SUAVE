@@ -19,7 +19,7 @@ Copyright 2013: Abraham Lee
 """
 
 from __future__ import division
-import numpy as np
+import autograd.numpy as np 
 from math import factorial
 import copy
 

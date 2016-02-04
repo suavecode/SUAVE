@@ -11,7 +11,7 @@ from Conditions import Conditions
 
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Numerics

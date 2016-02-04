@@ -110,7 +110,7 @@ def column_echelon_form(matrix, ntype=Fraction, transpose_result=False):
     return _transpose(M), _transpose(I), swapped
 
 try:
-    import numpy as np
+    import autograd.numpy as np 
     from numpy import ndarray
 
     HAS_NUMPY = True

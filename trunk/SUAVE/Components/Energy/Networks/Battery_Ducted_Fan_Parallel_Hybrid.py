@@ -14,7 +14,7 @@ while the auxiliary_battery meets additional power needs
 import SUAVE
 
 # package imports
-import numpy as np
+import autograd.numpy as np 
 import copy
 #import time
 from SUAVE.Core import Units

@@ -8,7 +8,7 @@
 # ---------------------------------------------------------------------- 
 
 import SUAVE
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Core import Units
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing

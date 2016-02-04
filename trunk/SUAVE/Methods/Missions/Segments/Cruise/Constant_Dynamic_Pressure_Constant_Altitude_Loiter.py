@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions

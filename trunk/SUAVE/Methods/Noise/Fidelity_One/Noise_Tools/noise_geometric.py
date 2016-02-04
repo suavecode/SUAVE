@@ -9,7 +9,7 @@
 
 import SUAVE
 from SUAVE.Core import Data
-import numpy as np
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #   Noise Geometric

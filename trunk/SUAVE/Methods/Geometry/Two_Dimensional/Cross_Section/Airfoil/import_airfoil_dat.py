@@ -1,6 +1,6 @@
 
 from math import sqrt, sin, cos, atan
-import numpy as np
+import autograd.numpy as np 
 
 def import_airfoil_dat(filename):
     
