@@ -1,10 +1,13 @@
-
+# Mass_Properties.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 import numpy as np
 

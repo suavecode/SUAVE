@@ -1,34 +1,19 @@
 # Thrust.py
-#
-# Created:  Anil, July 2014
-
-#--put in a folder
+# 
+# Created:  Jul 2014, A. Variyar
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+import numpy as np
+
 # SUAVE imports
 
 import SUAVE
 
-from SUAVE.Core import Units
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
-import numpy as np
-import scipy as sp
-
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components import Component_Exception
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
 # ----------------------------------------------------------------------
@@ -106,7 +91,7 @@ class Thrust(Energy_Component):
         A1e_b_A1o        = bypass_ratio/(1+bypass_ratio)*fan_area_ratio
 
         #computing the non dimensional thrust
-        Thrust_nd        = gamma*M0**2*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
+        Thrust_nd        = gamma*M0*M0*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
         Fsp              = 1/(gamma*M0)*Thrust_nd
         
         #Computing the sepcific impulse
@@ -180,7 +165,7 @@ class Thrust(Energy_Component):
         A1e_b_A1o        = bypass_ratio/(1+bypass_ratio)*fan_area_ratio
 
         #computing the non dimensional thrust
-        Thrust_nd        = gamma*M0**2*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
+        Thrust_nd        = gamma*M0*M0*(1/(1+bypass_ratio)*(core_nozzle.velocity/u0-1)+(bypass_ratio/(1+bypass_ratio))*(fan_nozzle.velocity/u0-1))+Ae_b_Ao*(core_nozzle.static_pressure/p0-1)+A1e_b_A1o*(fan_nozzle.static_pressure/p0-1)
         Fsp              = 1/(gamma*M0)*Thrust_nd
         
         #Computing the sepcific impulse

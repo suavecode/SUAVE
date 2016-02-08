@@ -1,3 +1,8 @@
+# Ducted_Fan.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
+
 """ Ducted_Fan.py: Ducted Fan 1D gasdynamic model powered"""
 
 # ----------------------------------------------------------------------
@@ -5,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Data, Container
+from SUAVE.Core import Data
 from Propulsor import Propulsor
 
 # ----------------------------------------------------------------------

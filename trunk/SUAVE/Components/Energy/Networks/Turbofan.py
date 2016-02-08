@@ -1,7 +1,7 @@
-#Turbofan_Network.py
+# Turbofan.py
 # 
-# Created:  Anil Variyar, Oct 2014
-# Modified:  
+# Created:  Oct 2014, A. Variyar
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,20 +12,8 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning, Results
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components import Component_Exception
+from SUAVE.Core import Data, Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
@@ -80,17 +68,13 @@ class Turbofan(Propulsor):
         #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
         ram(conditions)
         
-        
-        
         #link inlet nozzle to ram 
         inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
         inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
         
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
-        
-                
-                        
+                   
         #--link low pressure compressor to the inlet nozzle
         low_pressure_compressor.inputs.stagnation_temperature  = inlet_nozzle.outputs.stagnation_temperature
         low_pressure_compressor.inputs.stagnation_pressure     = inlet_nozzle.outputs.stagnation_pressure
@@ -98,8 +82,6 @@ class Turbofan(Propulsor):
         #Flow through the low pressure compressor
         low_pressure_compressor(conditions)
         
-
-
         #link the high pressure compressor to the low pressure compressor
         high_pressure_compressor.inputs.stagnation_temperature = low_pressure_compressor.outputs.stagnation_temperature
         high_pressure_compressor.inputs.stagnation_pressure    = low_pressure_compressor.outputs.stagnation_pressure
@@ -107,16 +89,12 @@ class Turbofan(Propulsor):
         #Flow through the high pressure compressor
         high_pressure_compressor(conditions)
         
-        
-        
         #Link the fan to the inlet nozzle
         fan.inputs.stagnation_temperature                      = inlet_nozzle.outputs.stagnation_temperature
         fan.inputs.stagnation_pressure                         = inlet_nozzle.outputs.stagnation_pressure
         
         #flow through the fan
         fan(conditions)
-        
-        
         
         #link the combustor to the high pressure compressor
         combustor.inputs.stagnation_temperature                = high_pressure_compressor.outputs.stagnation_temperature
@@ -126,8 +104,6 @@ class Turbofan(Propulsor):
         #flow through the high pressor comprresor
         combustor(conditions)
         
-        
-
         #link the high pressure turbione to the combustor
         high_pressure_turbine.inputs.stagnation_temperature    = combustor.outputs.stagnation_temperature
         high_pressure_turbine.inputs.stagnation_pressure       = combustor.outputs.stagnation_pressure
@@ -141,7 +117,6 @@ class Turbofan(Propulsor):
         #flow through the high pressure turbine
         high_pressure_turbine(conditions)
                 
-        
         
         #link the low pressure turbine to the high pressure turbine
         low_pressure_turbine.inputs.stagnation_temperature     = high_pressure_turbine.outputs.stagnation_temperature
@@ -158,8 +133,6 @@ class Turbofan(Propulsor):
         #flow through the low pressure turbine
         low_pressure_turbine(conditions)
         
-        
-        
         #link the core nozzle to the low pressure turbine
         core_nozzle.inputs.stagnation_temperature              = low_pressure_turbine.outputs.stagnation_temperature
         core_nozzle.inputs.stagnation_pressure                 = low_pressure_turbine.outputs.stagnation_pressure
@@ -167,8 +140,6 @@ class Turbofan(Propulsor):
         #flow through the core nozzle
         core_nozzle(conditions)
         
-        
-
         #link the dan nozzle to the fan
         fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
         fan_nozzle.inputs.stagnation_pressure                  = fan.outputs.stagnation_pressure
@@ -176,8 +147,6 @@ class Turbofan(Propulsor):
          # flow through the fan nozzle
         fan_nozzle(conditions)
         
-
-
         # compute the thrust using the thrust component
         
         #link the thrust component to the fan nozzle
@@ -195,15 +164,10 @@ class Turbofan(Propulsor):
         thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
         thrust.inputs.number_of_engines                        = number_of_engines
         thrust.inputs.bypass_ratio                             = bypass_ratio
-
         
-
         #compute the trust
         thrust(conditions)
  
-        
-        
-        
         #getting the network outputs from the thrust outputs
         
         F            = thrust.outputs.thrust*[1,0,0]

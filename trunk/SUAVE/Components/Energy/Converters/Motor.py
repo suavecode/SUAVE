@@ -1,7 +1,7 @@
-#motor.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Motor.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,8 +12,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -52,7 +50,7 @@ class Motor(Energy_Component):
                 Cp is not a function of rpm or RE
                
         """
-        #Unpack
+        # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
         Res   = self.resistance
@@ -65,18 +63,15 @@ class Motor(Energy_Component):
         Cp    = self.propeller_Cp 
         v     = self.inputs.voltage
     
-        #Omega
-        #This is solved by setting the torque of the motor equal to the torque of the prop
-        #It assumes that the Cp is constant
-        omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
-                    16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))**(0.5) - 
-                    np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
+        # Omega
+        # This is solved by setting the torque of the motor equal to the torque of the prop
+        # It assumes that the Cp is constant
+        omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
+                    16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
+                    np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
         
         # store to outputs
         self.outputs.omega = omega1
-        
-        #Q = ((v-omega1/Kv)/Res -io)/Kv
-        #P = Q*omega1
         
         return omega1
     
@@ -115,12 +110,8 @@ class Motor(Energy_Component):
 
         # Pack
         self.outputs.current = i
-        
-        #Q = (i-io)/Kv
-        #print(i*v)
-        #pshaft= (i-io)*(v-i*Res)   
+          
         etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
-        #print etam
         
         return i

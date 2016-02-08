@@ -3,11 +3,11 @@
 # Created:  Aug 2014, T. Macdonald
 # Modified: Jan 2016, E. Botero
 
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Simple Method
 # ----------------------------------------------------------------------
-
 
 def compressible_turbulent_flat_plate(Re,Ma,Tc):
 

@@ -1,13 +1,13 @@
-
+# Config.py
+#
+# Created:  Oct 2014, T. Lukacyzk
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Core import Diffed_Data
-
-from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #  Config

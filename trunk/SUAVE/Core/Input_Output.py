@@ -1,11 +1,13 @@
+# Input_Output.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import os, sys, shutil, copy
-import cPickle as pickle
-from filelock import filelock
+import os, copy
 
 # TODO: don't overwrite other core_names
 
@@ -186,11 +188,9 @@ def load_pickle(file_name):
         returns dictionary of data
     """
     pkl_file = open(file_name,'rb')
-    #names = safe_unpickle.loadf(pkl_file)
     names = pickle.load(pkl_file)
     data_dict = dict.fromkeys(names,[])
     for key in names:
-        #data_dict[key] = safe_unpickle.loadf(pkl_file)
         data_dict[key] = pickle.load(pkl_file)
     pkl_file.close()
     return data_dict
@@ -216,65 +216,6 @@ def save_pickle(file_name,data_dict):
     pkl_file.close()
 
 #: def save_pickle()
-
-
-
-# -------------------------------------------------------------------
-#  Safe UnPickle
-# -------------------------------------------------------------------
-
-#class safe_unpickle(pickle.Unpickler):
-    #''' adds some safety to unpickling
-        #checks that only supported classes are loaded 
-        #original source from http://nadiana.com/python-pickle-insecure#comment-144 
-    #'''
-        
-    ## modules : classes considered safe
-    #PICKLE_SAFE = {
-        #'copy_reg'        : ['_reconstructor']  , 
-        #'__builtin__'     : ['object']          ,
-        #'numpy'           : ['dtype','ndarray'] ,
-        #'numpy.core.multiarray' : ['scalar','_reconstruct'] ,
-        #'collections'     : ['OrderedDict']     ,
-        #'SU2.io.state'    : ['State']           , # SU2 Specific
-        #'SU2.io.config'   : ['Config']          ,
-        #'SU2.eval.design' : ['Design']          ,
-        #'SU2.opt.project' : ['Project']         ,
-        #'SU2.util.ordered_bunch' : ['OrderedBunch'] ,
-        #'SU2.util.bunch'  : ['Bunch']           ,
-        #'tasks_general'   : ['General_Task']    , 
-        #'tasks_project'   : ['Project','Job']   , 
-        #'tasks_su2'       : ['Decomp','Deform','Direct','Cont_Adjoint',
-                             #'Multiple_Cont_Adjoint','Finite_Diff','Adapt'] ,        
-    #}
-    
-    ## make sets
-    #for key in PICKLE_SAFE.keys():
-        #PICKLE_SAFE[key] = set(PICKLE_SAFE[key])
-    
-    ## check for save module/class
-    #def find_class(self, module, name):
-        #if not module in self.PICKLE_SAFE:
-            #raise pickle.UnpicklingError(
-                #'Attempting to unpickle unsafe module %s' % module
-            #)
-        #__import__(module)
-        #mod = sys.modules[module]
-        #if not name in self.PICKLE_SAFE[module]:
-            #raise pickle.UnpicklingError(
-                #'Attempting to unpickle unsafe class %s' % name
-            #)
-        #klass = getattr(mod, name)
-        #return klass
- 
-    ## extend the load() and loads() methods
-    #@classmethod
-    #def loadf(self, pickle_file): # loads a file like pickle.load()
-        #return self(pickle_file).load()
-    #@classmethod
-    #def loads(self, pickle_string): #loads a string like pickle.loads()
-        #return self(StringIO.StringIO(pickle_string)).load()    
-
 
     
 # -------------------------------------------------------------------

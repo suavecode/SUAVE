@@ -18,6 +18,8 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
 from wave_drag_lift import wave_drag_lift
 from wave_drag_volume import wave_drag_volume
 
+import copy
+
 # package imports
 import numpy as np
 

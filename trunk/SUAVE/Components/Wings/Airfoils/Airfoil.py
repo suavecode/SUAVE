@@ -1,3 +1,7 @@
+# Airfoil.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

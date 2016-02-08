@@ -1,7 +1,7 @@
-#Solar_Network.py
+# Solar_Low_Fidelity.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,15 +12,9 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Network

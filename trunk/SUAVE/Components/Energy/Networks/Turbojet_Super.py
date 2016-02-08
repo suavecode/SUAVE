@@ -1,7 +1,7 @@
 # Turbojet_Super.py
 # 
-# Created:  May 2015, Tim MacDonald
-# Modified:  
+# Created:  May 2015, T. MacDonald
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,20 +12,8 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components import Component_Exception
+from SUAVE.Core import Data
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 

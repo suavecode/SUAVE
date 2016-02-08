@@ -1,9 +1,11 @@
+# Units.py
+#
+# Created:  Feb 2014, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
+
 """ Implements base unit conversion style programming
     by monkey patching Pint
 """
-
-# Created: T. Lukaczyk, Feb 2014
-# Modified:
 
 
 # ------------------------------------------------------------
