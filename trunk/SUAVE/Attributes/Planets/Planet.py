@@ -10,7 +10,7 @@
 from SUAVE.Attributes.Constants import Constant
 
 # ----------------------------------------------------------------------
-#  Planet
+#  Planet Constant Class
 # ----------------------------------------------------------------------
      
 class Planet(Constant):

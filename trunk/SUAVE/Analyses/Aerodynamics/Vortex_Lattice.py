@@ -2,7 +2,8 @@
 #
 # Created:  Trent, Nov 2013
 # Modified: Trent, Anil, Tarik, Feb 2014
-# Modified: Trent, Jan 2014
+# Modified: Trent, Jan 2014  
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------

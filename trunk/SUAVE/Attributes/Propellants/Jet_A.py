@@ -10,7 +10,7 @@
 from Propellant import Propellant
 
 # ----------------------------------------------------------------------
-#  Class
+#  Jet_A Propellant Class
 # ----------------------------------------------------------------------
 
 class Jet_A(Propellant):

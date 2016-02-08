@@ -1,4 +1,4 @@
-#Gaseous_H2.py: Physical properties of gaseous H2 for propulsion use
+#Gaseous_H2.py
 #
 # Created:  Unk 2013, SUAVE TEAM
 # Modified: Feb 2016, M. Vegh
@@ -8,7 +8,7 @@
 from Propellant import Propellant
 from SUAVE.Attributes.Constants import Composition
 # ----------------------------------------------------------------------
-#  Class
+#  Gaseous_H2 Propellant Class
 # ----------------------------------------------------------------------
 
 class Gaseous_H2(Propellant):

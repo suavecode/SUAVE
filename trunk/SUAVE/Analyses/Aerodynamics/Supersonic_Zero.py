@@ -1,7 +1,8 @@
 # Supersonic_Zero.py
 # 
 # Created:  Tim MacDonald, based on Fidelity_Zero
-# Modified: Tim MacDonald, 1/29/15
+# Modified: Tim MacDonald, 1/29/15 
+# Modified: Feb 2016, Andrew Wendorff
 #
 # Updated for new optimization structure
 

@@ -1,19 +1,10 @@
 # landing_gear.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified:         
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#   Method
+#   Landing Gear
 # ----------------------------------------------------------------------
 
 def landing_gear(TOW, landing_gear_wt_factor = 0.04):

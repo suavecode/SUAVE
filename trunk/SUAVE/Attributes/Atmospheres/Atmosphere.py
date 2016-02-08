@@ -12,7 +12,7 @@ from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------
-#  Atmosphere Data Class
+#  Atmosphere Class
 # ----------------------------------------------------------------------
 
 class Atmosphere(Constant):

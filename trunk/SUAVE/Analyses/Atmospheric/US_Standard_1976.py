@@ -1,7 +1,8 @@
 """ US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
 #
 #
-# Modified by Tim MacDonald 2/16/15
+# Modified by Tim MacDonald 2/16/15  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,7 +21,7 @@ from SUAVE.Attributes.Planets import Earth
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
 from SUAVE.Core import Units
-from SUAVE.Methods.Utilities import atleast_2d_col
+from SUAVE.Core.Arrays import atleast_2d_col
 
 
 # ----------------------------------------------------------------------

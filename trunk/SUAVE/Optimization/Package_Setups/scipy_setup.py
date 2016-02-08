@@ -1,15 +1,13 @@
 # scipy_setup.py
 # 
 # Created:  Aug 2015, E. Botero 
-# Modified:  
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
 import numpy as np
 import scipy as sp
 

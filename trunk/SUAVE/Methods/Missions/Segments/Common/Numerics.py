@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Methods.Utilities import atleast_2d_col 
+from SUAVE.Core.Arrays import atleast_2d_col 
 
 # ----------------------------------------------------------------------
 #  Initialize Differentials

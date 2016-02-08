@@ -1,19 +1,17 @@
 # ipopt_setup.py
 # 
 # Created:  Sep 2015, E. Botero 
-# Modified:  
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Solve Setup
+#  Ipopt_Solve
 # ----------------------------------------------------------------------
 
 def Ipopt_Solve(problem):
@@ -65,7 +63,7 @@ def Ipopt_Solve(problem):
             g_U[ii] = edge
 
     # Instantiate the problem and set objective
-    import pyipopt
+    import pyipopt   #import down here to allow SUAVE to run without the user having Ipopt
     
     flbd = flbd.astype(float)
     fubd = fubd.astype(float)

@@ -1,23 +1,19 @@
 # find_takeoff_weight_given_tofl.py
 #
-# Created:  Carlos and Tarik, Sept 2014
-# Modified:
+# Created:  Sep 2014, C. Ilario, T. Orra 
+# Modified: Jan 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 
-# package imports
 import numpy as np
 
-
-
 # ----------------------------------------------------------------------
-#  Simple Method
+#  Find Takeoff Weight Given TOFL
 # ----------------------------------------------------------------------
 
 def find_takeoff_weight_given_tofl(vehicle,analyses,airport,target_tofl):
@@ -43,16 +39,15 @@ def find_takeoff_weight_given_tofl(vehicle,analyses,airport,target_tofl):
 
     """
 
-#unpack
-
+    #unpack
     tow_lower = vehicle.mass_properties.operating_empty
     tow_upper = 1.10 * vehicle.mass_properties.max_takeoff
 
-#saving initial reference takeoff weight
+    #saving initial reference takeoff weight
     tow_ref = vehicle.mass_properties.max_takeoff
 
     tow_vec = np.linspace(tow_lower,tow_upper,50.)
-    tofl = np.zeros_like(tow_vec)
+    tofl    = np.zeros_like(tow_vec)
 
     for id,tow in enumerate(tow_vec):
         vehicle.mass_properties.takeoff = tow
@@ -64,7 +59,7 @@ def find_takeoff_weight_given_tofl(vehicle,analyses,airport,target_tofl):
     for id,toflid in enumerate(target_tofl):
         max_tow[id] = np.interp(toflid,tofl,tow_vec)
 
-#reset the initial takeoff weight
+    #reset the initial takeoff weight
     vehicle.mass_properties.max_takeoff = tow_ref
 
     return max_tow

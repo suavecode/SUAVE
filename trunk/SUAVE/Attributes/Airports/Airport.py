@@ -12,7 +12,7 @@ from SUAVE.Attributes.Atmospheres import Earth
 from Runway import Runway
 
 # ----------------------------------------------------------------------
-#  Airport
+#  Airport Data Class
 # ----------------------------------------------------------------------
 
 class Airport(Data):

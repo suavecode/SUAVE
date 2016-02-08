@@ -1,7 +1,7 @@
 # primary_noise_component.py
 # 
-# Created:  Jul 2015
-# Modified: 
+# Created:  Jul 2015, C. Ilario
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -9,20 +9,23 @@
 
 import numpy as np
 
+# ----------------------------------------------------------------------        
+#   Primary Noise Component
+# ----------------------------------------------------------------------   
+
 def primary_noise_component (SPL_p,Velocity_primary,Temperature_primary,R_gas,theta_p,DVPS,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_p,EX_p,Str_p):
     """This function calculates the noise contribution of the primary jet component"""
 
     #Flow parameters of the primary jet
-    sound_primary= np.float(np.sqrt(1.4*R_gas*Temperature_primary))
-    Mach_primary_jet=np.float(Velocity_primary/sound_primary)
+    sound_primary    = np.float(np.sqrt(1.4*R_gas*Temperature_primary))
+    Mach_primary_jet = np.float(Velocity_primary/sound_primary)
 
     #Calculation of the velocity exponent
     for i in range (0,23):
         if theta_p[i] <= 2.2:
-            velocity_exponent=1.56
+            velocity_exponent = 1.56
         elif theta_p[i] > 2.2:
-            velocity_exponent=1.5*np.exp(-10*(theta_p[i] - 2.2)**2)
-
+            velocity_exponent = 1.5*np.exp(-10*(theta_p[i] - 2.2)**2)
 
         #Calculation of the Source Strengh Function (FV)
         FV = Mach_primary_jet*(np.float(DVPS)/sound_ambient)**0.6*(np.float((Velocity_primary+Velocity_secondary))/sound_ambient)**0.4* \

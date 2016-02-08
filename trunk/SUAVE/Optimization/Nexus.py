@@ -1,14 +1,14 @@
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
-# Modified:  
+# Modified: Feb 2015, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
+import SUAVE 
 from SUAVE.Core import Data
 from copy import deepcopy
 import helper_functions as help_fun

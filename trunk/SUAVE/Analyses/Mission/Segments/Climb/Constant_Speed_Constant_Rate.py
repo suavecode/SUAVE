@@ -1,3 +1,7 @@
+# Constant_Speed_Constant_Rate.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports

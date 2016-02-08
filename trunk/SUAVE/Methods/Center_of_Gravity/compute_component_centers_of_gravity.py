@@ -88,7 +88,7 @@ def compute_component_centers_of_gravity(vehicle):
     hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity)\
         +.25*(turbo_fan.origin+turbo_fan.mass_properties.center_of_gravity)
     
-    optionals_origin                                        = fuselage.origin
+    optionals.origin                                        = fuselage.origin
     optionals.mass_properties.center_of_gravity[0]          = .51*fuselage.lengths.total
     
     return 0

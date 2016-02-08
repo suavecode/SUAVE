@@ -1,18 +1,18 @@
-# magicfunctions.py
+# helper_functions.py
 # 
 # Created:  May 2015, E. Botero
-# Modified: 
+# Modified: Feb 2015, M. Vegh
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
-from SUAVE.Core import Data, Units
+#from SUAVE.Core import Data, Units
 import numpy as np
-from copy import deepcopy
+#from copy import deepcopy
 
 # ----------------------------------------------------------------------        
-#   Set
+#   Set_values
 # ----------------------------------------------------------------------    
 
 def set_values(dictionary,input_dictionary,converted_values,aliases):

@@ -1,6 +1,7 @@
 # Atmospheric.py
 #
 # Modified  2/16/15, Tim MacDonald
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------

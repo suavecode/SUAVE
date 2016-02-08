@@ -1,21 +1,19 @@
 # pyopt_setup.py
 #
 # Created:  Jul 2015, E. Botero
-# Modified:  
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
-# pyopt imports
+
 
 # ----------------------------------------------------------------------
-#  Solve Setup
+#  Pyopt_Solve
 # ----------------------------------------------------------------------
 
 def Pyopt_Solve(problem,solver='SNOPT',FD='single'):

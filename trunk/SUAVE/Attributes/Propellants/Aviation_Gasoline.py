@@ -10,7 +10,7 @@
 from Propellant import Propellant
 
 # ----------------------------------------------------------------------
-#  Class
+#  Aviation_Gasoline Propellant Class
 # ----------------------------------------------------------------------
 
 class Aviation_Gasoline(Propellant):

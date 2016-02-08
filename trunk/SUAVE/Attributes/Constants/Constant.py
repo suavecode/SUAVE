@@ -11,7 +11,7 @@ from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
 
 # ----------------------------------------------------------------------
-#  Constants 
+#  Constant Data Class
 # ----------------------------------------------------------------------
 
 class Constant(Data):

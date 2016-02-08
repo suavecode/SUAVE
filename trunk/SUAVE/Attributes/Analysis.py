@@ -1,6 +1,6 @@
 # Analysis.py
 # 
-# Created:       T. Lukaczyk
+# Created:  Unk,     , T. Lukaczyk
 # Modified: Jan, 2016, M. Vegh
 
 
@@ -12,7 +12,7 @@
 from SUAVE.Core import Data#, Container, Data_Exception, Data_Warning
 
 # ----------------------------------------------------------------------
-#  Analysis
+#  Analysis Data Class
 # ----------------------------------------------------------------------
 
 class Analysis(Data):
