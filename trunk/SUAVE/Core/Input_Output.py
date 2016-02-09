@@ -8,6 +8,8 @@
 # ----------------------------------------------------------------------
 
 import os, copy
+import cPickle as pickle		
+from filelock import filelock
 
 # TODO: don't overwrite other core_names
 
