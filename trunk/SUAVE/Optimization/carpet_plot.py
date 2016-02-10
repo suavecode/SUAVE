@@ -43,11 +43,11 @@ def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0):
             opt_prob.inputs[:,1][idx1]= inputs[1,j]
    
             obj[i,j]             = problem.objective()*obj_scaling
-            constraint_val[:,i,j]= problem.all_constraints().tolist()*constraint_scale
+            constraint_val[:,i,j]= problem.all_constraints().tolist()
   
     if plot_obj==1:
         plt.figure(0)
-        CS = plt.contour(inputs[0,:],inputs[1,:], obj)
+        CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2)
         cbar = plt.colorbar(CS)
         cbar.ax.set_ylabel(obj_name)
         plt.xlabel(names[idx0])
@@ -56,7 +56,7 @@ def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0):
        
     if plot_const==1:
         
-        for i in range(0, constraint_num):
+        for i in range(0, constraint_num): #constraint_num):
             plt.figure(i+1)
             CS_const=plt.contour(inputs[0,:],inputs[1,:], constraint_val[i,:,:])
             cbar = plt.colorbar(CS_const)
