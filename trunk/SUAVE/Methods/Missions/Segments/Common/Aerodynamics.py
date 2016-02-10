@@ -164,7 +164,7 @@ def update_aerodynamics(segment,state):
     # CL limit
     CL[CL>CLmax] = CLmax
     
-    CL[CL< 0.] = 0.
+    CL[CL< -CLmax] = -CLmax
         
     # dimensionalize
     L = state.ones_row(3) * 0.0
