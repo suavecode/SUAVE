@@ -42,8 +42,8 @@ def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0):
             opt_prob.inputs[:,1][idx0]= inputs[0,i]
             opt_prob.inputs[:,1][idx1]= inputs[1,j]
    
-            obj[i,j]             = problem.objective()*obj_scaling
-            constraint_val[:,i,j]= problem.all_constraints().tolist()
+            obj[j,i]             = problem.objective()*obj_scaling
+            constraint_val[:,j,i]= problem.all_constraints().tolist()
   
     if plot_obj==1:
         plt.figure(0)
