@@ -81,19 +81,19 @@ class Thrust(Energy_Component):
         throttle             = conditions.propulsion.throttle        
         
         #unpacking from inputs
-        f                    = self.inputs.fuel_to_air_ratio
-        total_temperature_reference   = self.inputs.total_temperature_reference
-        total_pressure_reference  = self.inputs.total_pressure_reference
-        core_nozzle          = self.inputs.core_nozzle
-        fan_nozzle           = self.inputs.fan_nozzle
-        fan_exit_velocity    = self.inputs.fan_nozzle.velocity
-        core_exit_velocity   = self.inputs.core_nozzle.velocity
-        fan_area_ratio       = self.inputs.fan_nozzle.area_ratio
-        core_area_ratio      = self.inputs.core_nozzle.area_ratio
-        no_eng               = self.inputs.number_of_engines                      
-        bypass_ratio         = self.inputs.bypass_ratio  
-        flow_through_core    = self.inputs.flow_through_core #scaled constant to turn on core thrust computation
-        flow_through_fan     = self.inputs.flow_through_fan #scaled constant to turn on fan thrust computation
+        f                           = self.inputs.fuel_to_air_ratio
+        total_temperature_reference = self.inputs.total_temperature_reference
+        total_pressure_reference    = self.inputs.total_pressure_reference
+        core_nozzle                 = self.inputs.core_nozzle
+        fan_nozzle                  = self.inputs.fan_nozzle
+        fan_exit_velocity           = self.inputs.fan_nozzle.velocity
+        core_exit_velocity          = self.inputs.core_nozzle.velocity
+        fan_area_ratio              = self.inputs.fan_nozzle.area_ratio
+        core_area_ratio             = self.inputs.core_nozzle.area_ratio
+        no_eng                      = self.inputs.number_of_engines                      
+        bypass_ratio                = self.inputs.bypass_ratio  
+        flow_through_core           = self.inputs.flow_through_core #scaled constant to turn on core thrust computation
+        flow_through_fan            = self.inputs.flow_through_fan #scaled constant to turn on fan thrust computation
         
         #unpacking from self
         Tref                 = self.reference_temperature
@@ -165,13 +165,13 @@ class Thrust(Energy_Component):
         #compute nondimensional thrust
         self.compute(conditions)
         
-        #unpack results
-        Fsp                  = self.outputs.non_dimensional_thrust
+        #unpack results 
+        Fsp                         = self.outputs.non_dimensional_thrust
 
                 
         #compute dimensional mass flow rates
-        mdot_core            = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
-        mdhc                 = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
+        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
+        mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
    
         #pack outputs
         self.mass_flow_rate_design               = mdot_core
