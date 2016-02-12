@@ -150,8 +150,6 @@ class Thrust(Energy_Component):
     def size(self,conditions):
         
         #unpack inputs
-        gamma                = conditions.freestream.isentropic_expansion_factor
-        M0                   = conditions.freestream.mach_number
         a0                   = conditions.freestream.speed_of_sound
         throttle             = 1.0
         
