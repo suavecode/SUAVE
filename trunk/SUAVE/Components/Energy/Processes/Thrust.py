@@ -82,8 +82,8 @@ class Thrust(Energy_Component):
         
         #unpacking from inputs
         f                    = self.inputs.fuel_to_air_ratio
-        stag_temp_lpt_exit   = self.inputs.stag_temp_lpt_exit
-        stag_press_lpt_exit  = self.inputs.stag_press_lpt_exit
+        total_temperature_reference   = self.inputs.total_temperature_reference
+        total_pressure_reference  = self.inputs.total_pressure_reference
         core_nozzle          = self.inputs.core_nozzle
         fan_nozzle           = self.inputs.fan_nozzle
         fan_exit_velocity    = self.inputs.fan_nozzle.velocity
@@ -122,7 +122,7 @@ class Thrust(Energy_Component):
        
      
         #computing the core mass flow
-        mdot_core        = mdhc*np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref)
+        mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
         
 
         #computing the dimensional thrust
@@ -156,13 +156,13 @@ class Thrust(Energy_Component):
         throttle             = 1.0
         
         #unpack from self
-        bypass_ratio         = self.inputs.bypass_ratio
-        Tref                 = self.reference_temperature
-        Pref                 = self.reference_pressure
-        design_thrust        = self.total_design
-        stag_temp_lpt_exit   = self.inputs.stag_temp_lpt_exit
-        stag_press_lpt_exit  = self.inputs.stag_press_lpt_exit
-        no_eng               = self.inputs.number_of_engines
+        bypass_ratio                = self.inputs.bypass_ratio
+        Tref                        = self.reference_temperature
+        Pref                        = self.reference_pressure
+        design_thrust               = self.total_design
+        total_temperature_reference = self.inputs.total_temperature_reference  # low pressure compressor output for turbofan
+        total_pressure_reference    = self.inputs.total_pressure_reference
+        no_eng                      = self.inputs.number_of_engines
         
         #compute nondimensional thrust
         self.compute(conditions)
@@ -173,7 +173,7 @@ class Thrust(Energy_Component):
                 
         #compute dimensional mass flow rates
         mdot_core            = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
-        mdhc                 = mdot_core/ (np.sqrt(Tref/stag_temp_lpt_exit)*(stag_press_lpt_exit/Pref))
+        mdhc                 = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
    
         #pack outputs
         self.mass_flow_rate_design               = mdot_core

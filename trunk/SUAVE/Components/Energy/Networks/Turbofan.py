@@ -1,4 +1,4 @@
-#Turbofan_Network.py
+#Turbofan.py
 # 
 # Created:  Anil Variyar, Oct 2014
 # Modified:  
@@ -179,12 +179,12 @@ class Turbofan(Propulsor):
         #link the thrust component to the combustor
         thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
         #link the thrust component to the low pressure compressor 
-        thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
-        thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
+        thrust.inputs.total_temperature_reference              = low_pressure_compressor.outputs.stagnation_temperature
+        thrust.inputs.total_pressure_reference                 = low_pressure_compressor.outputs.stagnation_pressure
         thrust.inputs.number_of_engines                        = number_of_engines
         thrust.inputs.bypass_ratio                             = bypass_ratio
-        thrust.inputs.flow_through_core                        =  1./(1.+bypass_ratio) #scaled constant to turn on core thrust computation
-        thrust.inputs.flow_through_fan                         =  bypass_ratio/(1.+bypass_ratio) #scaled constant to turn on fan thrust computation        
+        thrust.inputs.flow_through_core                        = 1./(1.+bypass_ratio) #scaled constant to turn on core thrust computation
+        thrust.inputs.flow_through_fan                         = bypass_ratio/(1.+bypass_ratio) #scaled constant to turn on fan thrust computation        
 
         
 

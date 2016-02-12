@@ -15,6 +15,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+from SUAVE.Core import Data
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
