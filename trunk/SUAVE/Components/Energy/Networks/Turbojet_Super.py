@@ -1,7 +1,7 @@
 # Turbojet_Super.py
 # 
-# Created:  May 2015, T. MacDonald
-# Modified: Feb 2016, T. MacDonald
+# Created:  May 2015, Tim MacDonald
+# Modified:  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,8 +12,20 @@ import SUAVE
 
 # package imports
 import numpy as np
+import scipy as sp
+import datetime
+import time
+from SUAVE.Core import Units
 
-from SUAVE.Core import Data
+# python imports
+import os, sys, shutil
+from copy import deepcopy
+from warnings import warn
+
+
+from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Components import Component, Physical_Component, Lofted_Body
+from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
@@ -159,6 +171,8 @@ class Turbojet_Super(Propulsor):
         thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
         thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
         thrust.inputs.number_of_engines                        = number_of_engines
+	thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
+	thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation        
 
         
 
