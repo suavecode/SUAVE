@@ -16,6 +16,8 @@ try:
 except ImportError:
     pass
 
+from warnings import warn
+
 
 # ----------------------------------------------------------------------
 #   Ordered Dictionary

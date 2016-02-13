@@ -220,7 +220,7 @@ def update_forces(segment,state):
     # like a boss
 
     # pack
-    conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
+    conditions.frames.inertial.total_force_vector = F
 
     return
 

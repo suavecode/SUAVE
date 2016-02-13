@@ -24,7 +24,7 @@ def initialize_weights(segment,state):
 
     m_current = state.conditions.weights.total_mass
     
-    state.conditions.weights.total_mass[:,:] = m_current + (m_initial - m_current[0,0])
+    state.conditions.weights.total_mass = m_current + (m_initial - m_current[0,0])
         
     return
     
@@ -66,8 +66,11 @@ def update_weights(segment,state):
     # weight
     W = m*g
 
+    grav = conditions.frames.inertial.gravity_force_vector
+
     # pack
-    conditions.weights.total_mass[1:,0]                  = m[1:,0] # don't mess with m0
-    conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
+    conditions.weights.total_mass                        = m # don't mess with m0
+    #conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
+    grav = np.stack((grav[:,0],grav[:,1],W[:,0]))
 
     return
