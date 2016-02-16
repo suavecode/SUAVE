@@ -34,11 +34,12 @@ def residual_total_forces(segment,state):
     a  = state.conditions.frames.inertial.acceleration_vector
     m  = state.conditions.weights.total_mass    
     
-    forc  = state.residuals.forces
     res_1 = FT[:,0]/m[:,0] - a[:,0]
     res_2 = FT[:,2]/m[:,0] - a[:,2]   
     
-    forc = np.stack((res_1,res_2),axis=1)
+    forc = np.stack((res_1,res_1),axis=1)
+    
+    state.residuals.forces = forc
     
     #state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
     #state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]       

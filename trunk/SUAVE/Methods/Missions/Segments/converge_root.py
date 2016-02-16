@@ -31,11 +31,20 @@ def converge_root(segment,state):
         
     prime = grad(iterate)
     
-    unknowns = root_finder( iterate,
-                            unknowns,
-                            args = [segment,state],
-                            xtol = state.numerics.tolerance_solution,
-                            fprime = prime)
+    x0 = unknowns*1.0
+    x1 = x0+1e-8
+    
+    #diff_prime = (iterate(x1, (segment,state)) - iterate(x0, (segment,state)))/(x1-x0)
+    
+    vals = prime(x0, (segment,state))
+    print vals
+    #print diff_prime
+    
+    #unknowns = root_finder( iterate,
+                            #unknowns,
+                            #args = [segment,state],
+                            #xtol = state.numerics.tolerance_solution,
+                            #fprime = prime)
     
     return
     
