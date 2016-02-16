@@ -68,8 +68,10 @@ def parasite_drag_propulsor(state,settings,geometry):
     
     # form factor for cylindrical bodies
     try: # Check if propulsor has an intake
-        A_max = np.pi*(propulsor.nacelle_diameter**2.)/4.
+        
+        A_max = np.pi*(d_prop**2.)/4.
         A_exit = propulsor.A7
+       
         A_inflow = propulsor.Ao
         d_d = 1./((propulsor.engine_length + propulsor.nacelle_diameter) / np.sqrt((4./np.pi)*(A_max - (A_exit+A_inflow)/2.)))
       
@@ -78,7 +80,7 @@ def parasite_drag_propulsor(state,settings,geometry):
         a        = 2. * (1-Mc**2) * (d_d**2) *(np.arctanh(D)-D) / (D**3)
         du_max_u = a / ( (2-a) * (1-Mc**2)**0.5 )
         k_prop    = (1 + form_factor*du_max_u)**2.
-              
+        
     except:
         # form factor according to Raymer equation (useful if there is a singularity in normal drag equation
         k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))

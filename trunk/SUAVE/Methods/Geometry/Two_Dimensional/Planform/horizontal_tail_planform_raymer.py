@@ -1,8 +1,10 @@
 # horizontal_tail_planform_raymer.py
 #
 # Created:  ### ####, M. Vegh
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
+#           Jan 2016, E. Botero
 
+from wing_planform import wing_planform
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------

@@ -47,22 +47,22 @@ class Thrust(Energy_Component):
         
         #setting the default values
         self.tag ='Thrust'
-        self.bypass_ratio                             = 1.0
-        self.compressor_nondimensional_massflow       = 1.0
+        self.bypass_ratio                             = 0.0
+        self.compressor_nondimensional_massflow       = 0.0
         self.reference_temperature                    = 288.15
         self.reference_pressure                       = 1.01325*10**5
-        self.number_of_engines                        = 1.0
-        self.inputs.fuel_to_air_ratio                 = 1.0
-        self.outputs.thrust                           = 1.0
-        self.outputs.thrust_specific_fuel_consumption = 1.0
-        self.outputs.specific_impulse                 = 1.0
-        self.outputs.non_dimensional_thrust           = 1.0
-        self.outputs.core_mass_flow_rate              = 1.0
-        self.outputs.fuel_flow_rate                   = 1.0
-        self.outputs.fuel_mass                        = 1.0
-        self.outputs.power                            = 1.0
-        self.design_thrust                            = 1.0
-        self.mass_flow_rate_design                    = 1.0
+        self.number_of_engines                        = 0.0
+        self.inputs.fuel_to_air_ratio                 = 0.0  #changed
+        self.outputs.thrust                           = 0.0 
+        self.outputs.thrust_specific_fuel_consumption = 0.0
+        self.outputs.specific_impulse                 = 0.0
+        self.outputs.non_dimensional_thrust           = 0.0
+        self.outputs.core_mass_flow_rate              = 0.0
+        self.outputs.fuel_flow_rate                   = 0.0
+        self.outputs.fuel_mass                        = 0.0 #changed
+        self.outputs.power                            = 0.0
+        self.design_thrust                            = 0.0
+        self.mass_flow_rate_design                    = 0.0
 
 	
  
@@ -113,7 +113,7 @@ class Thrust(Energy_Component):
       
      
         Fsp              = 1./(gamma*M0)*Thrust_nd
-	
+        
         #Computing the specific impulse
         #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
@@ -158,7 +158,8 @@ class Thrust(Energy_Component):
         Tref                        = self.reference_temperature
         Pref                        = self.reference_pressure
         design_thrust               = self.total_design
-        total_temperature_reference = self.inputs.total_temperature_reference  # low pressure compressor output for turbofan
+        
+        total_temperature_reference = self.inputs.total_temperature_reference  # low pressure turbine output for turbofan
         total_pressure_reference    = self.inputs.total_pressure_reference
         no_eng                      = self.inputs.number_of_engines
         
@@ -172,7 +173,7 @@ class Thrust(Energy_Component):
         #compute dimensional mass flow rates
         mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
-   
+    
         #pack outputs
         self.mass_flow_rate_design               = mdot_core
         self.compressor_nondimensional_massflow  = mdhc
