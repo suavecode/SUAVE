@@ -30,7 +30,8 @@ class Ducted_Fan(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 0.0
-    
+        self.areas             = Data()
+        
     _component_root_map = None
         
     
@@ -123,9 +124,6 @@ class Ducted_Fan(Propulsor):
         #results.power               = np.divide(output_power,propulsive_efficiency)  #offset by propulsive_efficiency
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
-        #np.divide(np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0]),propulsive_efficiency[:,0])
-      
         
         results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
         

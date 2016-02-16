@@ -1,7 +1,7 @@
 #Turbofan.py
 # 
-# Created:  Anil Variyar, Oct 2014
-# Modified:  
+# Created:  Oct 2014, A. Variyar, 
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -31,6 +31,7 @@ class Turbofan(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 1.0
+        self.areas             = Data()
     
     _component_root_map = None
         
@@ -232,7 +233,6 @@ class Turbofan(Propulsor):
     def size(self,state):  
         
         #Unpack components
-        
         conditions = state.conditions
         thrust     = self.thrust
         thrust.size(conditions)

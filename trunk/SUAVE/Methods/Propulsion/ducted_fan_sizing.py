@@ -186,12 +186,16 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     T8       = fan_nozzle.outputs.static_temperature
     rho8     = fan_nozzle.outputs.static_pressure/( conditions_sls.freestream.R*T8)
     
-    A8       = mdot_df[0]/(rho8*u8) #ducted nozzle exit area
+    A8       = mdot_df[0][0]/(rho8[0][0]*u8[0][0]) #ducted fan nozzle exit area
     d8       = (A8**.5)*4/np.pi
     
     
     ducted_fan.nacelle_diameter = d8*1.1  #assume 1.1 nacelle/nozzle ratio for now
     ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
-    #ducted_fan.areas.wetted     = 1.0*ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
+    
+    #used for calculating nacelle drag
+    ducted_fan.A0               = A8 
+    ducted_fan.A7               = A8 
+    ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
 
     

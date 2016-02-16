@@ -186,6 +186,8 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
 
     #compute the thrust
     thrust.size(conditions)
+    mass_flow=thrust.mass_flow_rate_design
+    
     
     #update the design thrust value
     turbofan.design_thrust = thrust.total_design
@@ -215,8 +217,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
+    #size the turbofan
+    
+    
     state_sls = Data()
     state_sls.numerics = Data()
     state_sls.conditions = conditions_sls   
     results_sls = turbofan.evaluate_thrust(state_sls)
+    
     turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+    
