@@ -24,6 +24,8 @@ def unpack_unknowns(segment,state):
     state.conditions.propulsion.throttle = throttle
     rots = np.stack((rots[:,0],np.transpose(theta[:,0]),rots[:,2]),axis=1)
     
+    state.conditions.frames.body.inertial_rotations = rots
+    
 # ----------------------------------------------------------------------
 #  Residual Total Forces
 # ----------------------------------------------------------------------
