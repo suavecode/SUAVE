@@ -37,7 +37,7 @@ def residual_total_forces(segment,state):
     res_1 = FT[:,0]/m[:,0] - a[:,0]
     res_2 = FT[:,2]/m[:,0] - a[:,2]   
     
-    forc = np.stack((res_1,res_1),axis=1)
+    forc = np.stack((res_1,res_2),axis=1)
     
     state.residuals.forces = forc
     

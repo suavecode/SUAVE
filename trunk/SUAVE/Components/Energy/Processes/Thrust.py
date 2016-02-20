@@ -126,7 +126,7 @@ class Thrust(Energy_Component):
         
         #fuel flow rate
 	a = np.array([0.])        
-	fuel_flow_rate   = np.fmax(0.1019715*FD2*TSFC/3600,a)
+	fuel_flow_rate   = np.maximum(0.1019715*FD2*TSFC/3600,a)
         
         #computing the power 
         power            = FD2*u0

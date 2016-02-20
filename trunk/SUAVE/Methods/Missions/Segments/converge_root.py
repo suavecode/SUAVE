@@ -13,7 +13,7 @@ import scipy.optimize
 
 from SUAVE.Core.Arrays import array_type
 from autograd.numpy import np
-from autograd import grad
+from autograd.convenience_wrappers import elementwise_grad, multigrad
 from autograd.numpy.numpy_extra import ArrayNode
 
 # ----------------------------------------------------------------------
@@ -29,29 +29,27 @@ def converge_root(segment,state):
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
         
-    prime = grad(iterate)
+    prime = make_into_jacobian(elementwise_grad(iterate))
     
-    x0 = unknowns*1.0
-    x1 = x0+1e-8
-    
-    #diff_prime = (iterate(x1, (segment,state)) - iterate(x0, (segment,state)))/(x1-x0)
-    
-    vals = prime(x0, (segment,state))
-    print vals
-    #print diff_prime
-    
-    #unknowns = root_finder( iterate,
-                            #unknowns,
-                            #args = [segment,state],
-                            #xtol = state.numerics.tolerance_solution,
-                            #fprime = prime)
-    
+    unknowns = root_finder( iterate,
+                            unknowns,
+                            args = [segment,state],
+                            xtol = state.numerics.tolerance_solution,
+                            fprime = prime)
+
     return
     
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
+
+def make_into_jacobian(fun):
     
+    def output(*args, **kwargs):
+        return np.diagflat(fun(*args, **kwargs))
+    
+    return output
+
 def iterate(unknowns,(segment,state)):
     
     autograd_array = ArrayNode
