@@ -1,3 +1,7 @@
+# load_airfoils.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 import os, glob
 from Airfoil import Airfoil

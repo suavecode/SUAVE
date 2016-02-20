@@ -1,7 +1,7 @@
-#motor.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Motor_Lo_Fid.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,9 +11,12 @@
 import SUAVE
 
 # package imports
+<<<<<<< HEAD
 import autograd.numpy as np 
 import scipy as sp
 from SUAVE.Core import Units
+=======
+>>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -51,7 +54,7 @@ class Motor_Lo_Fid(Energy_Component):
                 The motor operates at a given efficiency
                
         """
-        #Unpack
+        # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
         Res   = self.resistance
@@ -64,8 +67,8 @@ class Motor_Lo_Fid(Energy_Component):
         v     = self.inputs.voltage
         
 
-        #Omega
-        omega1 = (Kv*v)/2 + (Kv*(Res**2*io**2 - 2*Res*etam*io*v - 2*Res*io*v + etam**2*v**2 - 2*etam*v**2 + v**2)**(1/2))/2 - (Kv*Res*io)/2 + (Kv*etam*v)/2
+        # Omega
+        omega1 = (Kv*v)/2 + (Kv*(Res*Res*io*io - 2*Res*etam*io*v - 2*Res*io*v + etam*etam*v*v - 2*etam*v*v + v*v)**(1/2))/2 - (Kv*Res*io)/2 + (Kv*etam*v)/2
         Q = ((v-omega1/Kv)/Res -io)/Kv
 
         # store to outputs
@@ -109,12 +112,8 @@ class Motor_Lo_Fid(Energy_Component):
 
         # Pack
         self.outputs.current = i
-        
-        #Q = (i-io)/Kv
-        #print(i*v)
-        #pshaft= (i-io)*(v-i*Res)   
+         
         etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
-        #print etam
         
         return i

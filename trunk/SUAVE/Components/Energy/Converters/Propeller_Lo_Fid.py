@@ -1,7 +1,7 @@
-#propeller.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Propeller_Lo_Fid.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,13 +11,14 @@
 import SUAVE
 
 # package imports
+<<<<<<< HEAD
 import autograd.numpy as np 
 import scipy as sp
 from SUAVE.Core import Units
+=======
+import numpy as np
+>>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -73,7 +74,7 @@ class Propeller_Lo_Fid(Energy_Component):
         
         thrust = etap*power/V
         
-        Cp     = power/(rho*(n**3)*(D**5))
+        Cp     = power/(rho*(n*n*n)*(D*D*D*D*D))
         conditions.propulsion.etap = etap
         
         return thrust, Qm, power, Cp

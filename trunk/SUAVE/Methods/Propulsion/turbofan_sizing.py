@@ -177,13 +177,17 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
     
     #link the thrust component to the low pressure compressor 
-    thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
-    thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
+    thrust.inputs.total_temperature_reference              = low_pressure_compressor.outputs.stagnation_temperature
+    thrust.inputs.total_pressure_reference                 = low_pressure_compressor.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines
     thrust.inputs.bypass_ratio                             = bypass_ratio
+    thrust.inputs.flow_through_core                        =  1./(1.+bypass_ratio) #scaled constant to turn on core thrust computation
+    thrust.inputs.flow_through_fan                         =  bypass_ratio/(1.+bypass_ratio) #scaled constant to turn on fan thrust computation     
 
     #compute the thrust
     thrust.size(conditions)
+    mass_flow=thrust.mass_flow_rate_design
+    
     
     #update the design thrust value
     turbofan.design_thrust = thrust.total_design
@@ -213,8 +217,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
+    #size the turbofan
+    
+    
     state_sls = Data()
     state_sls.numerics = Data()
     state_sls.conditions = conditions_sls   
     results_sls = turbofan.evaluate_thrust(state_sls)
+    
     turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+    

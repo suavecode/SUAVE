@@ -1,7 +1,7 @@
-#Solar_Flux.py
+# Solar_Radiation.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,16 +11,16 @@
 import SUAVE
 
 # package imports
+<<<<<<< HEAD
 import autograd.numpy as np 
 import scipy as sp
 import datetime
 import time
 from SUAVE.Core import Units
+=======
+import numpy as np
+>>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Solar Class
@@ -115,7 +115,7 @@ class Solar_Radiation(Energy_Component):
         
         # Air mass
         AM = np.zeros_like(psi)
-        AM[altitude<9000.] = (((r+c[altitude<9000.])**2)*(np.cos(psi[altitude<9000.])**2)+2.*r*(1.-c[altitude<9000.])-c[altitude<9000.]**2 +1.)**(0.5)-(r+c[altitude<9000.])*np.cos(psi[altitude<9000.])
+        AM[altitude<9000.] = (((r+c[altitude<9000.])*(r+c[altitude<9000.]))*(np.cos(psi[altitude<9000.])*np.cos(psi[altitude<9000.]))+2.*r*(1.-c[altitude<9000.])-c[altitude<9000.]*c[altitude<9000.] +1.)**(0.5)-(r+c[altitude<9000.])*np.cos(psi[altitude<9000.])
         
         # Direct component 
         Id = Ind*Io*(0.7**(AM**0.678))

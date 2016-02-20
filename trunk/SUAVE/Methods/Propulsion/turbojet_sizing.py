@@ -160,6 +160,8 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.fan_nozzle.area_ratio = 0.0
     thrust.inputs.fan_nozzle.static_pressure = 0.0
     thrust.inputs.bypass_ratio = 0.0
+    thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
+    thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation     
     thrust.size(conditions)
     
     #update the design thrust value

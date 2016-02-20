@@ -1,17 +1,21 @@
- # Main_Landing_Gear.py
-#
-# Created:  Carlos, Aug 2015
-# Modified:
+# Landing_Gear.py
+# 
+# Created:  Aug 2015, C. R. I. da Silva
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 # SUave imports
 import autograd.numpy as np 
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
+=======
+from SUAVE.Components import Physical_Component
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  A ttribute

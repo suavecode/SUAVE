@@ -1,16 +1,14 @@
 # Combustor.py
 #
-# Created:  Anil, October 2014
-
-#--put in a folder
+# Created:  Oct 2014, A. Variyar
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-
 import SUAVE
+<<<<<<< HEAD
 
 from SUAVE.Core import Units
 
@@ -26,8 +24,10 @@ import scipy as sp
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
+=======
+from SUAVE.Core import Data
+>>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components import Component_Exception
 
 
 # ----------------------------------------------------------------------
@@ -63,40 +63,39 @@ class Combustor(Energy_Component):
     
     def compute(self,conditions):
         
-        #unpack the values
+        # unpack the values
         
-        #unpacking the values from conditions
+        # unpacking the values from conditions
         gamma  = conditions.freestream.isentropic_expansion_factor 
         Cp     = conditions.freestream.specific_heat_at_constant_pressure
         To     = conditions.freestream.temperature
         Tto    = conditions.freestream.stagnation_temperature
         
-        #unpacking the values form inputs
+        # unpacking the values form inputs
         Tt_in  = self.inputs.stagnation_temperature
         Pt_in  = self.inputs.stagnation_pressure
-        #Tt_n   = self.inputs.nozzle_exit_stagnation_temperature
         Tt4    = self.turbine_inlet_temperature
         pib    = self.pressure_ratio
         eta_b  = self.efficiency
         
-        #unpacking values from self
+        # unpacking values from self
         htf    = self.fuel_data.specific_energy        
 
-        #method to compute combustor properties
+        # method to compute combustor properties
 
-        #method - computing the stagnation enthalpies from stagnation temperatures
+        # method - computing the stagnation enthalpies from stagnation temperatures
         ht4     = Cp*Tt4
         ho      = Cp*To
         ht_in   = Cp*Tt_in
 
-        #Using the Turbine exit temperature, the fuel properties and freestream temperature to compute the fuel to air ratio f
+        # Using the Turbine exit temperature, the fuel properties and freestream temperature to compute the fuel to air ratio f
         f       = (ht4 - ht_in)/(eta_b*htf-ht4)
 
-        #Computing the exit static and stagnation conditions
+        # Computing the exit static and stagnation conditions
         ht_out  = Cp*Tt4
         Pt_out  = Pt_in*pib
         
-        #pack computed quantities into outputs
+        # pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt4
         self.outputs.stagnation_pressure     = Pt_out
         self.outputs.stagnation_enthalpy     = ht_out

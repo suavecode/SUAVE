@@ -1,3 +1,7 @@
+# DiffedDataBunch.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -7,9 +11,13 @@ from DataBunch import DataBunch
 
 from copy import deepcopy
 
+<<<<<<< HEAD
 from arrays import array_type, matrix_type
 
 import autograd.numpy as np 
+=======
+import numpy as np
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  DiffedDataBunch
@@ -27,7 +35,7 @@ class DiffedDataBunch(DataBunch):
     def __init__(self,base=None):
         if base is None: base = DataBunch()
         self._base = base
-        this = deepcopy(base)
+        this = deepcopy(base) # deepcopy is needed here to build configs - Feb 2016, T. MacDonald
         DataBunch.__init__(self,this)
         
     def store_diff(self):

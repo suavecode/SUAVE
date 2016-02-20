@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from SUAVE.Core import Results
 
 import autograd.numpy as np 
 

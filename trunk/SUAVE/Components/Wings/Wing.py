@@ -1,13 +1,21 @@
-
+# Wing.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 import autograd.numpy as np 
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
+=======
+from SUAVE.Core import Data
+from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+>>>>>>> develop
 from Airfoils import Airfoil
 
 # ------------------------------------------------------------
@@ -17,20 +25,20 @@ from Airfoils import Airfoil
 class Wing(Lofted_Body):
     def __defaults__(self):
 
-        self.tag = 'wing'
+        self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
-        self.position  = [0.0,0.0,0.0]
+        self.position        = [0.0,0.0,0.0]
 
-        self.symmetric = True
-        self.vertical  = False
-        self.t_tail    = False
-        self.sweep        = 0.0
-        self.taper        = 0.0
-        self.dihedral     = 0.0
-        self.aspect_ratio = 0.0
-        self.thickness_to_chord = 0.0
-        self.span_efficiency = 0.9
-        self.aerodynamic_center = [0.0,0.0,0.0]
+        self.symmetric                 = True
+        self.vertical                  = False
+        self.t_tail                    = False
+        self.sweep                     = 0.0
+        self.taper                     = 0.0
+        self.dihedral                  = 0.0
+        self.aspect_ratio              = 0.0
+        self.thickness_to_chord        = 0.0
+        self.span_efficiency           = 0.9
+        self.aerodynamic_center        = [0.0,0.0,0.0]
         self.exposed_root_chord_offset = 0.0
 
         self.spans = Data()
@@ -38,36 +46,36 @@ class Wing(Lofted_Body):
 
         self.areas = Data()
         self.areas.reference = 0.0
-        self.areas.exposed = 0.0
-        self.areas.affected = 0.0
-        self.areas.wetted = 0.0
+        self.areas.exposed   = 0.0
+        self.areas.affected  = 0.0
+        self.areas.wetted    = 0.0
 
         self.chords = Data()
         self.chords.mean_aerodynamic = 0.0
-        self.chords.mean_geometric = 0.0
-        self.chords.root = 0.0
-        self.chords.tip = 0.0
+        self.chords.mean_geometric   = 0.0
+        self.chords.root             = 0.0
+        self.chords.tip              = 0.0
 
         self.twists = Data()
         self.twists.root = 0.0
-        self.twists.tip = 0.0
+        self.twists.tip  = 0.0
 
         self.control_surfaces = Data()
 
         self.flaps = Data()
-        self.flaps.chord = 0.0
-        self.flaps.angle = 0.0
+        self.flaps.chord      = 0.0
+        self.flaps.angle      = 0.0
         self.flaps.span_start = 0.0
-        self.flaps.span_end = 0.0
-        self.flaps.type = None
-        self.flaps.area = 0.0
+        self.flaps.span_end   = 0.0
+        self.flaps.type       = None
+        self.flaps.area       = 0.0
 
         self.slats = Data()
-        self.slats.chord = 0.0
-        self.slats.angle = 0.0
+        self.slats.chord      = 0.0
+        self.slats.angle      = 0.0
         self.slats.span_start = 0.0
-        self.slats.span_end = 0.0
-        self.slats.type = None
+        self.slats.span_end   = 0.0
+        self.slats.type       = None
 
         self.high_lift     = False
         self.high_mach     = False
@@ -113,10 +121,10 @@ class Container(Component.Container):
 
 class Section(Lofted_Body.Section):
     def __defaults__(self):
-        self.tag    = 'section'
-        self.twist  = 0.0
-        self.chord  = 0.0
-        self.origin = [0.0,0.0,0.0]
+        self.tag                   = 'section'
+        self.twist                 = 0.0
+        self.chord                 = 0.0
+        self.origin                = [0.0,0.0,0.0]
         self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]
         self.airfoil = None
 

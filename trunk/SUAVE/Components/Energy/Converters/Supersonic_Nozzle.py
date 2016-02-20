@@ -1,7 +1,7 @@
-# Expansion Nozzle.py
+# Supersonic_Nozzle.py
 #
-# Created:  Anil, July 2014
-
+# Created:  May 2015, T. MacDonald
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,20 +13,16 @@ import SUAVE
 
 from SUAVE.Core import Units
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
 # package imports
+<<<<<<< HEAD
 import autograd.numpy as np 
 import scipy as sp
 
+=======
+import numpy as np
+>>>>>>> develop
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components import Component_Exception
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 
 # ----------------------------------------------------------------------
@@ -99,7 +95,7 @@ class Supersonic_Nozzle(Energy_Component):
         Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))
         
         #Computing the output temperature,enthalpy, velocity and density
-        T_out         = Tt_out/(1+(gamma-1)/2*Mach**2)
+        T_out         = Tt_out/(1+(gamma-1)/2*Mach*Mach)
         h_out         = Cp*T_out
         u_out         = np.sqrt(2*(ht_out-h_out))
         rho_out       = P_out/(R*T_out)

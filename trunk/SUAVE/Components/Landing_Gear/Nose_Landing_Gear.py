@@ -1,14 +1,13 @@
-# Main_Wing.py
-#
-# Created:  Carlos, Aug 2015
-# Modified:
+# Nose_Landing_Gear.py
+# 
+# Created:  Aug 2015, C. R. I. da Silva
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave imports
-from Wing import Wing
+from Landing_Gear import Landing_Gear
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -30,8 +29,8 @@ class Nose_Landing_Gear(Landing_Gear):
           
         self.tire_diameter = 0.    
         self.strut_length  = 0.    
-        self.units         = 0.   #number of nose landing gear    
-        self.wheels        = 0.  #number of wheels on the nose landing gear
+        self.units         = 0. # number of nose landing gear    
+        self.wheels        = 0. # number of wheels on the nose landing gear
 
 # ----------------------------------------------------------------------
 #   Unit Tests

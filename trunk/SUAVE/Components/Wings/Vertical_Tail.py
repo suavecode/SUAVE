@@ -1,7 +1,7 @@
 # Vertical_Tail.py
 #
-# Created:  Trent, Tarik, Feb 2014
-# Modified:
+# Created:  Feb 2014, T. Lukacyzk, T. Orra
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

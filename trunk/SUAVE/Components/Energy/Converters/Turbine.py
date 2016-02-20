@@ -1,8 +1,7 @@
 # Turbine.py
 #
-# Created:  Anil, July 2014
-
-#--put in a folder
+# Created:  Jul 2014, A. Variyar
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,22 +11,11 @@
 
 import SUAVE
 
-from SUAVE.Core import Units
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
 # package imports
 import autograd.numpy as np 
 import scipy as sp
 
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components import Component_Exception
 
 # ----------------------------------------------------------------------
 #  Turbine Component

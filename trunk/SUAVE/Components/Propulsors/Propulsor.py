@@ -1,13 +1,22 @@
+# Propulsor.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
+
 """ Propulsor.py: parent class for propulsion systems """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 import autograd.numpy as np 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Attributes.Gases import Air
+=======
+from SUAVE.Components import Physical_Component
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Propulsor
