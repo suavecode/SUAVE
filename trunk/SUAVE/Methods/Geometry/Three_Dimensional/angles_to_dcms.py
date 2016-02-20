@@ -48,6 +48,12 @@ def T0(a):
     T[:,2,1] = -sin
     T[:,2,2] = cos
     
+    #Ta = np.array([[1, 0, 0],[0, cos[0], sin[0]],[0, -sin[0], cos[0]]])
+    #Tb = np.array([[1, 0, 0],[0, cos[1], sin[1]],[0, -sin[1], cos[1]]])
+    #Tc = np.array([[1, 0, 0],[0, cos[2], sin[2]],[0, -sin[2], cos[2]]])
+    
+    #T  = np.array([Ta, Tb, Tc])
+
     return T
         
 
@@ -67,6 +73,12 @@ def T1(a):
     T[:,2,0] = sin
     T[:,2,2] = cos
     
+    #Ta = np.array([[cos[0], 0, -sin[0]],[0, 1, 0],[sin[0], 0, cos[0]]])    
+    #Tb = np.array([[cos[1], 0, -sin[1]],[0, 1, 0],[sin[1], 0, cos[1]]])    
+    #Tc = np.array([[cos[2], 0, -sin[2]],[0, 1, 0],[sin[2], 0, cos[2]]])    
+    
+    #T  = np.array([Ta, Tb, Tc])
+    
     return T
 
 def T2(a):
@@ -84,6 +96,12 @@ def T2(a):
     T[:,0,1] = sin
     T[:,1,0] = -sin
     T[:,1,1] = cos
+    
+    #Ta = np.array([[cos[0], sin[0], 0],[-sin[0], cos[0], 0],[0, 0, 1]])
+    #Tb = np.array([[cos[1], sin[1], 0],[-sin[1], cos[1], 0],[0, 0, 1]])
+    #Tc = np.array([[cos[2], sin[2], 0],[-sin[2], cos[2], 0],[0, 0, 1]])
+    
+    #T  = np.array([Ta, Tb, Tc])
         
     return T
 

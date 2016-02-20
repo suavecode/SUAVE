@@ -29,13 +29,15 @@ def converge_root(segment,state):
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
         
-    prime = make_into_jacobian(elementwise_grad(iterate))
+    #prime = make_into_jacobian(elementwise_grad(iterate))
+    
+    #print prime(unknowns,(segment,state))
     
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
                             xtol = state.numerics.tolerance_solution,
-                            fprime = prime)
+                            )#fprime = prime)
 
     return
     

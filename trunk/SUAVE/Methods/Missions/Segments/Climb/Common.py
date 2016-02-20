@@ -21,10 +21,12 @@ def unpack_unknowns(segment,state):
     rots     = state.conditions.frames.body.inertial_rotations
     
     # apply unknowns
-    state.conditions.propulsion.throttle = throttle
-    rots = np.stack((rots[:,0],np.transpose(theta[:,0]),rots[:,2]),axis=1)
+    rotated = np.array([rots[:,0],np.transpose(theta[:,0]),rots[:,2]])
     
-    state.conditions.frames.body.inertial_rotations = rots
+    state.conditions.propulsion.throttle = throttle
+    state.conditions.frames.body.inertial_rotations = rotated
+    
+    return
     
 # ----------------------------------------------------------------------
 #  Residual Total Forces
@@ -39,7 +41,7 @@ def residual_total_forces(segment,state):
     res_1 = FT[:,0]/m[:,0] - a[:,0]
     res_2 = FT[:,2]/m[:,0] - a[:,2]   
     
-    state.residuals.forces = np.stack((res_1,res_2),axis=1)
+    state.residuals.forces = np.array([res_1,res_2])
 
     return
        

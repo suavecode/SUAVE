@@ -69,8 +69,9 @@ def update_weights(segment,state):
     grav = conditions.frames.inertial.gravity_force_vector
 
     # pack
-    conditions.weights.total_mass                        = m # don't mess with m0
-    #conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
-    grav = np.stack((grav[:,0],grav[:,1],W[:,0]))
+    conditions.weights.total_mass = m
+    grav = np.array((grav[:,0],grav[:,1],W[:,0]))
+    
+    conditions.frames.inertial.gravity_force_vector = grav
 
     return
