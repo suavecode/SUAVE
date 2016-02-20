@@ -11,16 +11,7 @@
 import SUAVE
 
 # package imports
-<<<<<<< HEAD
 import autograd.numpy as np 
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
-=======
-import numpy as np
->>>>>>> develop
-
 from SUAVE.Core import Data, Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 

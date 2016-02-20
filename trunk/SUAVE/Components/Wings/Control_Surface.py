@@ -7,11 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
 import autograd.numpy as np 
-=======
->>>>>>> develop
-
 from SUAVE.Core import Data
 from SUAVE.Components import Lofted_Body
 

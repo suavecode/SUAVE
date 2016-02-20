@@ -10,13 +10,6 @@
 # suave imports
 import SUAVE
 
-<<<<<<< HEAD
-# package imports
-import autograd.numpy as np 
-import scipy as sp
-from SUAVE.Core import Units
-=======
->>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------

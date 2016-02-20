@@ -7,15 +7,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
-# SUave imports
-import autograd.numpy as np 
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
-=======
 from SUAVE.Components import Physical_Component
->>>>>>> develop
+
 
 # ----------------------------------------------------------------------
 #  A ttribute

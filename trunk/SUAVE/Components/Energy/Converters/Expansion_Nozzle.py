@@ -14,14 +14,7 @@ import SUAVE
 from SUAVE.Core import Units
 
 # package imports
-<<<<<<< HEAD
 import autograd.numpy as np 
-import scipy as sp
-
-=======
-import numpy as np
->>>>>>> develop
-
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 

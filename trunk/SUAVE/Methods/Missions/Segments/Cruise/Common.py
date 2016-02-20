@@ -16,13 +16,13 @@ import autograd.numpy as np
 def unpack_unknowns(segment,state):
     
     # unpack unknowns
-    throttle   = state.unknowns.throttle
-    body_angle = state.unknowns.body_angle
+    throttle = state.unknowns.throttle
+    theta    = state.unknowns.body_angle
+    rots     = state.conditions.frames.body.inertial_rotations
     
     # apply unknowns
-    state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
-    state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]   
-    
+    state.conditions.propulsion.throttle = throttle
+    rots = np.stack((rots[:,0],np.transpose(theta[:,0]),rots[:,2]),axis=1)
 
 # ----------------------------------------------------------------------
 #  Residual Total Forces
@@ -33,9 +33,11 @@ def residual_total_forces(segment,state):
     FT = state.conditions.frames.inertial.total_force_vector
     
     # horizontal
-    state.residuals.forces[:,0] = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )
+    res_1 = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )
     # vertical
-    state.residuals.forces[:,1] = FT[:,2]
+    res_2 = FT[:,2]
+    
+    state.residuals.forces = np.stack((res_1,res_2),axis=1)
 
     return
     

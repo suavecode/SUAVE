@@ -10,14 +10,8 @@
 from DataBunch import DataBunch
 
 from copy import deepcopy
-
-<<<<<<< HEAD
 from arrays import array_type, matrix_type
-
 import autograd.numpy as np 
-=======
-import numpy as np
->>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  DiffedDataBunch

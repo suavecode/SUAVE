@@ -11,13 +11,7 @@
 
 import SUAVE
 
-# package imports
-<<<<<<< HEAD
 import autograd.numpy as np 
-import scipy as sp
-=======
-import numpy as np
->>>>>>> develop
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component

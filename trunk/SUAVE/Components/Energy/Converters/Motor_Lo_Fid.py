@@ -11,12 +11,6 @@
 import SUAVE
 
 # package imports
-<<<<<<< HEAD
-import autograd.numpy as np 
-import scipy as sp
-from SUAVE.Core import Units
-=======
->>>>>>> develop
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
