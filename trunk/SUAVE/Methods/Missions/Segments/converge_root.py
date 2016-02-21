@@ -15,7 +15,6 @@ from SUAVE.Core.Arrays import array_type
 from autograd.numpy import np
 from autograd.numpy.numpy_extra import ArrayNode
 from autograd import jacobian
-from autograd.util import check_grads
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -50,15 +49,14 @@ def iterate(unknowns,(segment,state)):
 
     if isinstance(unknowns,ArrayNode):
         state.unknowns = unpack_autograd(state.unknowns, unknowns)  
-        segment.process.iterate(segment,state)
-        residuals = np.reshape(state.residuals.forces[:,:],(len(unknowns)))
     elif isinstance(unknowns,array_type):
+        #state.unknowns.unpack_array(unknowns)  
         state.unknowns = unpack_autograd(state.unknowns, unknowns)
-        segment.process.iterate(segment,state)
-        residuals = state.residuals.pack_array()    
         
-    print residuals
-    print state.residuals
+    segment.process.iterate(segment,state)
+    residuals = np.reshape(state.residuals.forces[:,:],(len(unknowns)))
+        
+    print state.unknowns
     
     return residuals 
 
