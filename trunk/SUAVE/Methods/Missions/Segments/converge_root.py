@@ -13,9 +13,9 @@ import scipy.optimize
 
 from SUAVE.Core.Arrays import array_type
 from autograd.numpy import np
-from autograd.convenience_wrappers import elementwise_grad, multigrad
 from autograd.numpy.numpy_extra import ArrayNode
-from autograd.util import quick_grad_check
+from autograd import jacobian
+from autograd.util import check_grads
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -29,27 +29,22 @@ def converge_root(segment,state):
         root_finder = segment.settings.root_finder
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
-        
-    prime = make_into_jacobian(elementwise_grad(iterate))    
+    
+    prime = jacobian(iterate)
+    
+    #jac = prime(unknowns,(segment,state))
     
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
                             xtol = state.numerics.tolerance_solution,
-                            fprime = prime)
+                            )#fprime = prime)
 
     return
     
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
-
-def make_into_jacobian(fun):
-    
-    def output(*args, **kwargs):
-        return np.diagflat(fun(*args, **kwargs))
-    
-    return output
 
 def iterate(unknowns,(segment,state)):
     
@@ -62,10 +57,10 @@ def iterate(unknowns,(segment,state)):
     elif isinstance(unknowns,ArrayNode):
         state.unknowns = unpack_autograd(state.unknowns, unknowns)  
         segment.process.iterate(segment,state)
-        residuals = np.reshape(state.residuals.forces[:,:],(len(unknowns)))
+        residuals = np.reshape(np.transpose(state.residuals.forces[:,:]),(len(unknowns)))
     else:
         state.unknowns = unknowns
-        
+    
     return residuals 
 
 

@@ -42,7 +42,7 @@ def residual_total_forces(segment,state):
     res_2 = FT[:,2]/m[:,0] - a[:,2]   
     
     state.residuals.forces = np.array([res_1,res_2])
-
+    
     return
        
 def update_differentials_altitude(segment,state):

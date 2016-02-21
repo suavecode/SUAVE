@@ -42,8 +42,3 @@ def residual_total_forces(segment,state):
     state.residuals.forces = np.array([res_1,res_2])
 
     return
-    
-    
- 
-    
-    
