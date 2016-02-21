@@ -39,6 +39,6 @@ def residual_total_forces(segment,state):
     # vertical
     res_2 = FT[:,2]
     
-    state.residuals.forces = np.array([res_1,res_2])
+    state.residuals.forces = np.transpose(np.array([res_1,res_2]))
 
     return

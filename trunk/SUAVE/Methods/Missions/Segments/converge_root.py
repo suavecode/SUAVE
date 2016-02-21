@@ -32,8 +32,6 @@ def converge_root(segment,state):
     
     prime = jacobian(iterate)
     
-    #jac = prime(unknowns,(segment,state))
-    
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
@@ -50,16 +48,17 @@ def iterate(unknowns,(segment,state)):
     
     autograd_array = ArrayNode
 
-    if isinstance(unknowns,array_type):
-        state.unknowns.unpack_array(unknowns)
-        segment.process.iterate(segment,state)
-        residuals = state.residuals.pack_array()
-    elif isinstance(unknowns,ArrayNode):
+    if isinstance(unknowns,ArrayNode):
         state.unknowns = unpack_autograd(state.unknowns, unknowns)  
         segment.process.iterate(segment,state)
-        residuals = np.reshape(np.transpose(state.residuals.forces[:,:]),(len(unknowns)))
-    else:
-        state.unknowns = unknowns
+        residuals = np.reshape(state.residuals.forces[:,:],(len(unknowns)))
+    elif isinstance(unknowns,array_type):
+        state.unknowns = unpack_autograd(state.unknowns, unknowns)
+        segment.process.iterate(segment,state)
+        residuals = state.residuals.pack_array()    
+        
+    print residuals
+    print state.residuals
     
     return residuals 
 
