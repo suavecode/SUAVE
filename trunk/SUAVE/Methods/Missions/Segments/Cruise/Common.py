@@ -23,7 +23,10 @@ def unpack_unknowns(segment,state):
     # apply unknowns
     rotated = np.transpose(np.array([rots[:,0],np.transpose(theta[:,0]),rots[:,2]]))
     
-    state.conditions.propulsion.throttle = throttle
+    ones_row = state.ones_row
+    ones = ones_row(1)
+    
+    state.conditions.propulsion.throttle = np.reshape(np.transpose(np.array([ones[:,0],np.transpose(throttle[:,0])]))[:,1],(len(ones),1))
     state.conditions.frames.body.inertial_rotations = rotated
 
 # ----------------------------------------------------------------------

@@ -44,20 +44,11 @@ def converge_root(segment,state):
 # ----------------------------------------------------------------------
 
 def iterate(unknowns,(segment,state)):
-    
-    autograd_array = ArrayNode
-
-    if isinstance(unknowns,ArrayNode):
-        state.unknowns = unpack_autograd(state.unknowns, unknowns)  
-    elif isinstance(unknowns,array_type):
-        #state.unknowns.unpack_array(unknowns)  
-        state.unknowns = unpack_autograd(state.unknowns, unknowns)
         
+    state.unknowns = unpack_autograd(state.unknowns, unknowns)
     segment.process.iterate(segment,state)
     residuals = np.reshape(state.residuals.forces[:,:],(len(unknowns)))
         
-    print state.unknowns
-    
     return residuals 
 
 
@@ -73,7 +64,7 @@ def unpack_autograd(s_unkowns,unknowns):
     for key in s_unkowns.keys():
 
         if key is not 'tag':
-            s_unkowns[key] = np.reshape(unknowns[count*size_vec:(count+1)*size_vec],(size_vec,1))
+            s_unkowns[key] = np.array(np.reshape(unknowns[count*size_vec:(count+1)*size_vec],(size_vec,1)))
             count = count + 1
         
     return s_unkowns
