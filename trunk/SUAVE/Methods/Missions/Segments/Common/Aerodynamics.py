@@ -157,12 +157,11 @@ def update_aerodynamics(segment,state):
     CL = results.lift.total
     CD = results.drag.total
     
-    # dimensionalize
-    L = state.ones_row(3) * 0.0
-    D = state.ones_row(3) * 0.0
-
-    L[:,2] = ( -CL * q * Sref )[:,0]
-    D[:,0] = ( -CD * q * Sref )[:,0]
+    # dimensionalize    
+    zeros = state.ones_row(1) * 0.0
+    
+    L = np.transpose(np.array((zeros[:,0],zeros[:,0],( -CL * q * Sref )[:,0])))
+    D = np.transpose(np.array((( -CD * q * Sref )[:,0],zeros[:,0],zeros[:,0])))
 
     results.lift_force_vector = L
     results.drag_force_vector = D    
@@ -170,8 +169,8 @@ def update_aerodynamics(segment,state):
     # pack conditions
     conditions.aerodynamics.lift_coefficient = CL
     conditions.aerodynamics.drag_coefficient = CD
-    conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
-    conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
+    conditions.frames.wind.lift_force_vector = L # z-axis
+    conditions.frames.wind.drag_force_vector = D # x-axis
 
 
 # ----------------------------------------------------------------------

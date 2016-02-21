@@ -69,8 +69,8 @@ def initialize_planet_position(segment,state):
         latitude_initial  = 0.0
 
 
-    state.conditions.frames.planet.longitude[:,0] = longitude_initial
-    state.conditions.frames.planet.latitude[:,0]  = latitude_initial    
+    state.conditions.frames.planet.longitude = longitude_initial
+    state.conditions.frames.planet.latitude  = latitude_initial    
 
     return
     
@@ -100,9 +100,9 @@ def update_planet_position(segment,state):
 
     # Find the velocities and integrate the positions
     lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
-    lamda     = np.dot(I,lamdadot) / Units.deg # Latitude
+    lamda     = np.dot(I,lamdadot) * 180./np.pi # Latitude
     mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
-    mu        = np.dot(I,mudot) / Units.deg # Longitude
+    mu        = np.dot(I,mudot) * 180./np.pi # Longitude
 
     # Reshape the size of the vectorss
     shape     = np.shape(conditions.freestream.velocity)
@@ -110,8 +110,8 @@ def update_planet_position(segment,state):
     lamda     = np.reshape(lamda,shape)
 
     # Pack'r up
-    lat = conditions.frames.planet.latitude[0,0]
-    lon = conditions.frames.planet.longitude[0,0]
+    lat = conditions.frames.planet.latitude
+    lon = conditions.frames.planet.longitude
     conditions.frames.planet.latitude  = lat + lamda
     conditions.frames.planet.longitude = lon + mu
 
@@ -134,6 +134,7 @@ def update_orientations(segment,state):
     # ------------------------------------------------------------------
 
     # body frame rotations
+    zeros = state.ones_row(1) * 0.0
     phi   = body_inertial_rotations[:,0,None]
     theta = body_inertial_rotations[:,1,None]
     psi   = body_inertial_rotations[:,2,None]
@@ -146,21 +147,20 @@ def update_orientations(segment,state):
     V_body = orientation_product(T_inertial2body,V_inertial)
 
     # project inertial velocity into body x-z plane
-    V_stability = V_body
-    V_stability[:,1] = 0
+    V_stability = np.transpose(np.array((V_body[:,0],zeros[:,0],V_body[:,2])))
     V_stability_magnitude = np.sqrt( np.sum(V_stability**2,axis=1) )[:,None]
     #V_stability_direction = V_stability / V_stability_magnitude
 
     # calculate angle of attack
-    alpha = np.arctan2(V_stability[:,2],V_stability[:,0])[:,None]
+    alpha = np.arctan(V_stability[:,2]/V_stability[:,0])[:,None]
 
     # calculate side slip
-    beta = np.arctan2(V_body[:,1],V_stability_magnitude[:,0])[:,None]
+    beta = np.arctan(V_body[:,1]/V_stability_magnitude[:,0])[:,None]
 
     # pack aerodynamics angles
-    conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
-    conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
-    conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]
+    conditions.aerodynamics.angle_of_attack = alpha
+    conditions.aerodynamics.side_slip_angle = beta
+    conditions.aerodynamics.roll_angle      = phi
 
     # pack transformation tensor
     conditions.frames.body.transform_to_inertial = T_body2inertial
@@ -170,12 +170,9 @@ def update_orientations(segment,state):
     #  Wind Frame
     # ------------------------------------------------------------------
 
-    # back calculate wind frame rotations
-    wind_body_rotations = body_inertial_rotations * 0.
-    wind_body_rotations[:,0] = 0          # no roll in wind frame
-    wind_body_rotations[:,1] = alpha[:,0] # theta is angle of attack
-    wind_body_rotations[:,2] = beta[:,0]  # psi is side slip angle
-
+    # back calculate wind frame rotations    
+    wind_body_rotations = np.transpose(np.array((zeros[:,0],alpha[:,0],beta[:,0])))
+    
     # wind frame tranformation matricies
     T_wind2body = angles_to_dcms(wind_body_rotations,(2,1,0))
     T_body2wind = orientation_transpose(T_wind2body)

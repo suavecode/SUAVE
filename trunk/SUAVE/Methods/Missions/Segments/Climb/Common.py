@@ -21,7 +21,7 @@ def unpack_unknowns(segment,state):
     rots     = state.conditions.frames.body.inertial_rotations
     
     # apply unknowns
-    rotated = np.array([rots[:,0],np.transpose(theta[:,0]),rots[:,2]])
+    rotated = np.transpose(np.array([rots[:,0],np.transpose(theta[:,0]),rots[:,2]]))
     
     state.conditions.propulsion.throttle = throttle
     state.conditions.frames.body.inertial_rotations = rotated

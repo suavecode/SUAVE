@@ -1,4 +1,4 @@
-
+import autograd
 import autograd.numpy as np 
 from numpy import cos, sin
 from orientation_product import orientation_product
@@ -41,19 +41,22 @@ def T0(a):
     cos = np.cos(a)
     sin = np.sin(a)
                   
-    T = new_tensor(a)
+    #T = new_tensor(a)
     
-    T[:,1,1] = cos
-    T[:,1,2] = sin
-    T[:,2,1] = -sin
-    T[:,2,2] = cos
+    #T[:,1,1] = cos
+    #T[:,1,2] = sin
+    #T[:,2,1] = -sin
+    #T[:,2,2] = cos
     
-    #Ta = np.array([[1, 0, 0],[0, cos[0], sin[0]],[0, -sin[0], cos[0]]])
-    #Tb = np.array([[1, 0, 0],[0, cos[1], sin[1]],[0, -sin[1], cos[1]]])
-    #Tc = np.array([[1, 0, 0],[0, cos[2], sin[2]],[0, -sin[2], cos[2]]])
-    
-    #T  = np.array([Ta, Tb, Tc])
 
+    
+    T = np.array([[1, 0, 0],[0, cos[0], sin[0]],[0, -sin[0], cos[0]]])
+    for ii in xrange(1,len(a)):
+        Ta = np.array([[1, 0, 0],[0, cos[ii], sin[ii]],[0, -sin[ii], cos[ii]]])
+        T  = autograd.numpy.concatenate((T,Ta))
+    
+    T = np.reshape(T,(len(a),3,3))
+    
     return T
         
 
@@ -66,18 +69,19 @@ def T1(a):
     cos = np.cos(a)
     sin = np.sin(a)     
     
-    T = new_tensor(a)
+    #T = new_tensor(a)
     
-    T[:,0,0] = cos
-    T[:,0,2] = -sin
-    T[:,2,0] = sin
-    T[:,2,2] = cos
+    #T[:,0,0] = cos
+    #T[:,0,2] = -sin
+    #T[:,2,0] = sin
+    #T[:,2,2] = cos   
     
-    #Ta = np.array([[cos[0], 0, -sin[0]],[0, 1, 0],[sin[0], 0, cos[0]]])    
-    #Tb = np.array([[cos[1], 0, -sin[1]],[0, 1, 0],[sin[1], 0, cos[1]]])    
-    #Tc = np.array([[cos[2], 0, -sin[2]],[0, 1, 0],[sin[2], 0, cos[2]]])    
+    T = np.array([[cos[0], 0, -sin[0]],[0, 1, 0],[sin[0], 0, cos[0]]]) 
+    for ii in xrange(1,len(a)):
+        Ta = np.array([[cos[ii], 0, -sin[ii]],[0, 1, 0],[sin[ii], 0, cos[ii]]]) 
+        T  = autograd.numpy.concatenate((T,Ta))
     
-    #T  = np.array([Ta, Tb, Tc])
+    T = np.reshape(T,(len(a),3,3))
     
     return T
 
@@ -90,18 +94,20 @@ def T2(a):
     cos = np.cos(a)
     sin = np.sin(a)     
     
-    T = new_tensor(a)
+    #T = new_tensor(a)
     
-    T[:,0,0] = cos
-    T[:,0,1] = sin
-    T[:,1,0] = -sin
-    T[:,1,1] = cos
+    #T[:,0,0] = cos
+    #T[:,0,1] = sin
+    #T[:,1,0] = -sin
+    #T[:,1,1] = cos
     
-    #Ta = np.array([[cos[0], sin[0], 0],[-sin[0], cos[0], 0],[0, 0, 1]])
-    #Tb = np.array([[cos[1], sin[1], 0],[-sin[1], cos[1], 0],[0, 0, 1]])
-    #Tc = np.array([[cos[2], sin[2], 0],[-sin[2], cos[2], 0],[0, 0, 1]])
+    T = np.array([[cos[0], sin[0], 0],[-sin[0], cos[0], 0],[0, 0, 1]])
     
-    #T  = np.array([Ta, Tb, Tc])
+    for ii in xrange(1,len(a)):
+        Ta = np.array([[cos[ii], sin[ii], 0],[-sin[ii], cos[ii], 0],[0, 0, 1]]) 
+        T  = autograd.numpy.concatenate((T,Ta))
+    
+    T = np.reshape(T,(len(a),3,3))
         
     return T
 
