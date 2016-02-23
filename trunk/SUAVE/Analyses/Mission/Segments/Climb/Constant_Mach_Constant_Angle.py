@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Speed_Constant_Angle(Unknown_Throttle):
+class Constant_Mach_Constant_Angle(Unknown_Throttle):
     
     def __defaults__(self):
         
