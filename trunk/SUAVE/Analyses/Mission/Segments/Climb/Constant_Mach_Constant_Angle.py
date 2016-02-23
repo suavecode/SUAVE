@@ -37,7 +37,7 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
     
         # only need to change one setup step from constant_speed_constant_ate
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Speed_Constant_Angle.initialize_conditions
+        initialize.conditions = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions
         
        
         return
