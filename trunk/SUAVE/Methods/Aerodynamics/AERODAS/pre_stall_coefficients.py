@@ -33,6 +33,7 @@ def pre_stall_coefficients(state,settings,geometry):
         
     # Equation 6c
     RCL1          = S1*(ACL1-A0)-CL1max
+    RCL1[RCL1<=0] = 0.0
     
     # Equation 6d
     N1            = 1 + CL1max/RCL1

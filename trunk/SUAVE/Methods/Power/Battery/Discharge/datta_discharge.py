@@ -44,7 +44,7 @@ def datta_discharge(battery,numerics):
     f = np.reshape(f, np.shape(C))
     
     # Model discharge characteristics based on changing resistance
-    R          = Rbat*(1.+np.multiply(C,f)) #have to transpose to prevent large matrices
+    R          = Rbat*(1.+np.multiply(C,f))
     R[R==Rbat] = 0.  #when battery isn't being called
     
     # Calculate resistive losses

@@ -26,10 +26,8 @@ class Hover(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = None
-        self.air_speed = 10. * Units['km/hr']
-        self.distance  = 10. * Units.km
-        
+        self.altitude = None
+        self.time     = 1.0 * Units.seconds
         
         # --------------------------------------------------------------
         #   State

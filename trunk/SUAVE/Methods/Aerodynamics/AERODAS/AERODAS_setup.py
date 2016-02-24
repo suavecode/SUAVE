@@ -20,7 +20,7 @@ def setup_data(state,settings,geometry):
      
      Setup"""
     
-    state.conditions.aerodynamics.pre_stall_coefficients = Data()
+    state.conditions.aerodynamics.pre_stall_coefficients  = Data()
     state.conditions.aerodynamics.post_stall_coefficients = Data()
     
     
@@ -57,10 +57,10 @@ def lift_drag_total(state,settings,geometry):
         CD2  = wing_aero.post_stall_coefficients[wing.tag].drag_coefficient
         
         # Equation 3a
-        CL            = np.fmax(CL1,CL2)
+        CL = np.fmax(CL1,CL2)
         
         # Equation 3b
-        CL[alpha<=A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
+        CL[alpha<A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
         
         # Equation 3c
         CD            = np.fmax(CD1,CD2)
