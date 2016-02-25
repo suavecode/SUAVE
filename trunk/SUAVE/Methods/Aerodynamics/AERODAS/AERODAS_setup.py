@@ -60,7 +60,7 @@ def lift_drag_total(state,settings,geometry):
         CL = np.fmax(CL1,CL2)
         
         # Equation 3b
-        CL[alpha<A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
+        CL[alpha<=A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
         
         # Equation 3c
         CD            = np.fmax(CD1,CD2)
