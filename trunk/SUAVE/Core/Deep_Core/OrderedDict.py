@@ -1,9 +1,12 @@
+# OrderedDict.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
-import re
 from Dict import Dict
 
 try:
@@ -39,9 +42,6 @@ class OrderedDict(Dict):
     def __new__(klass,*args,**kwarg):
 
         self = super(OrderedDict,klass).__new__(klass)
-        
-        #if len(args) > 1:
-            #raise TypeError('expected at most 1 arguments, got %d' % len(args))
             
         if self.__root is None:
             root = [] # sentinel node
@@ -63,15 +63,8 @@ class OrderedDict(Dict):
         # Or if E is an iterable of items, does:   for k, v in E: od[k] = v
         # In either case, this is followed by:     for k, v in F.items(): od[k] = v        
         
-        ## result data structure
-        #klass = self.__class__
-        #from DataBunch import DataBunch
-        #if isinstance(klass,DataBunch):
-            #klass = DataBunch
             
-        def append_value(key,value):
-            #if isinstance(value,dict):
-                #value = klass(value)                
+        def append_value(key,value):               
             self[key] = value            
         
         # a dictionary
@@ -337,7 +330,6 @@ class OrderedDict(Dict):
                 # dump to list
                 M.append(v)
             #: for each value
-        #: def do_pack()
         
         # do the packing
         do_pack(self)
@@ -440,7 +432,6 @@ class OrderedDict(Dict):
                 _index[0] = index
 
             #: for each itme
-        #: def do_unpack()
         
         # do the unpack
         do_unpack(self)
@@ -485,7 +476,6 @@ class OrderedDict(Dict):
                         C[k] = c
                 #: if type
             #: for each key,value
-        #: def do_operation()
         
         # do the update!
         do_operation(self,other,result)    

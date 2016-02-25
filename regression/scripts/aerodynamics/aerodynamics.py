@@ -1,9 +1,9 @@
-# test_aerodynamics
+# aerodynamics.py
+# 
+# Created:  Sep 2014, T. MacDonald
+# Modified: Feb 2016, T. MacDonald
 #
-# Created:  Tim MacDonald - 09/09/14
-# Modified: Tim MacDonald - 03/10/15
-#
-# Changed to use new structures and drag functions from Tarik
+# Modified to match compressibility drag updates
 
 import SUAVE
 from SUAVE.Core import Units
@@ -207,8 +207,8 @@ def reg_values():
                                   0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
                                  0.00583051])
     
-    cd_tot_r        = np.array([ 0.26090442 ,  0.05226559,  0.04064861,  0.02131244,  0.01959821,
-                                 0.01924375,  0.02958776,  0.048638 ,  0.08073381, 0.16192744,
+    cd_tot_r        = np.array([ 0.2595146 ,  0.05226547,  0.04064861,  0.02131243,  0.01927301,
+                                 0.01923316,  0.02958776,  0.048638 ,  0.08073247, 0.16186261,
                                  0.11868474])
     
     return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \

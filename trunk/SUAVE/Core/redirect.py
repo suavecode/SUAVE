@@ -1,14 +1,13 @@
-## \file redirect.py
-#  \brief python package for file redirection 
-#  \author Trent Lukaczyk, Aerospace Design Laboratory (Stanford University)
-#  \version 0.0.0
+# redirect.py
 #
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import os, sys, shutil, copy, glob
+import os, sys, shutil, copy
 
 # -------------------------------------------------------------------
 #  Output Redirection 
@@ -146,9 +145,6 @@ class folder(object):
         # check for no folder change
         if folder == origin:
             return []
-        
-        # relative folder path
-        #relative = os.path.relpath(folder,origin)
         
         # check, make folder
         if not os.path.exists(folder):

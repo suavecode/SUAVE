@@ -1,7 +1,7 @@
-#Solar_Panel.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Solar_Panel.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,10 +10,6 @@
 # suave imports
 import SUAVE
 
-# package imports
-import numpy as np
-import scipy as sp
-from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------

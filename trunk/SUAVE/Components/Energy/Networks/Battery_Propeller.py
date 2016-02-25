@@ -1,7 +1,7 @@
-#Battery_Propeller.py
+# Battery_Propeller.py
 # 
-# Created: Jul 2015, E. Botero
-# Modified: Jul 2015, M. Kruger
+# Created:  Jul 2015, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,15 +12,9 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Network
@@ -68,10 +62,25 @@ class Battery_Propeller(Propulsor):
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
         # step 4
+<<<<<<< HEAD
         F, Q, P, Cp = propeller.spin(conditions)
+=======
+        F, Q, P, Cplast = propeller.spin(conditions)
+       
+        # iterate the Cp here
+        diff = abs(Cplast-motor.propeller_Cp)
+        tol = 1e-6
+        while (np.any(diff>tol)):
+            motor.propeller_Cp  = Cplast # Change the Cp
+            motor.omega(conditions) # Rerun the motor
+            propeller.inputs.omega =  motor.outputs.omega # Relink the motor
+            F, Q, P, Cplast        = propeller.spin(conditions) # Run the motor again
+            diff                   = abs(Cplast-motor.propeller_Cp) # Check to see if it converged          
+        
+>>>>>>> develop
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta = conditions.propulsion.throttle[:,0,None]
+        eta        = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
 
@@ -96,7 +105,7 @@ class Battery_Propeller(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
+        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
     

@@ -1,13 +1,14 @@
 # parasite_drag_wing.py
 # 
 # Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
+from SUAVE.Core import Results
 
 import numpy as np
 

@@ -1,7 +1,7 @@
 # Optimize.py
 #
 # Created:  Nov 2015, Carlos / Tarik
-# Modified:
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -43,8 +43,8 @@ def main():
     noise_cumulative_margin = objectives[1]
     
     actual = Data()
-    actual.fuel_burn = 8352.13998746
-    actual.noise_cumulative_margin = 17.7738867559
+    actual.fuel_burn = 8302.479051322021
+    actual.noise_cumulative_margin = 17.88988345539039
     
     error = Data()
     error.fuel_burn = (actual.fuel_burn - fuel_burn)/actual.fuel_burn

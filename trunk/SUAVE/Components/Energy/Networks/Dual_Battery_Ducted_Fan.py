@@ -1,8 +1,8 @@
 # Battery_Ducted_Fan_Parallel_Hybrid.py
 #
 # Created:  Sep 2015, M. Vegh
-# Modified: Jan 2016, T. MacDonald
-
+# Modified: Feb 2016, M. Vegh
+#           Jan 2016, T. MacDonald
 '''
 Uses two batteries to run a motor connected to a ducted fan; the primary_battery always runs,
 while the auxiliary_battery meets additional power needs
@@ -13,17 +13,20 @@ while the auxiliary_battery meets additional power needs
 
 # suave imports
 import SUAVE
+from SUAVE.Core import Data
+from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
+
 
 # package imports
 import numpy as np
 import copy
-from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
+class Dual_Battery_Ducted_Fan(Propulsor):
     def __defaults__(self):
         self.propulsor            = None
         self.primary_battery      = None # main battery (generally high esp)
@@ -44,7 +47,7 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         
         results=propulsor.evaluate_thrust(state)
      
-        Pe=results.power
+        Pe     =results.power
         
         try:
             initial_energy           = conditions.propulsion.primary_battery_energy
@@ -60,7 +63,9 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         pbat=-Pe/self.motor_efficiency
         pbat_primary=copy.copy(pbat) #prevent deep copy nonsense
         pbat_auxiliary=np.zeros_like(pbat)
-
+        #print 'pbat=', pbat/10**6.
+        #print 'max_power prim=', primary_battery.max_power/10**6. 
+        #print 'max_power aux=', auxiliary_battery.max_power/10**6. 
         for i in range(len(pbat)):
             if  pbat[i]<-primary_battery.max_power:   #limit power output of primary_battery
                 pbat_primary[i]   = -primary_battery.max_power #-power means discharge
@@ -71,7 +76,7 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
             if pbat_primary[i]>0: #don't allow non-rechargable battery to charge
                 pbat_primary[i]   = 0
                 pbat_auxiliary[i] = pbat[i]
-                
+     
         primary_battery_logic            = Data()
         primary_battery_logic.power_in   = pbat_primary
         primary_battery_logic.current    = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
@@ -83,7 +88,7 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         primary_battery.energy_calc(numerics)
         auxiliary_battery.energy_calc(numerics)
         #allow for mass gaining batteries
-       
+        
         try:
             mdot_primary = find_mass_gain_rate(primary_battery,-(pbat_primary-primary_battery.resistive_losses))
         except AttributeError:
@@ -109,7 +114,9 @@ class Battery_Ducted_Fan_Parallel_Hybrid(Propulsor):
         
     
         results.vehicle_mass_rate = mdot
-        
+        #from SUAVE.Core import Units
+        #print 'primary power=',primary_battery_draw/Units.MJ
+        #print 'aux power=',auxiliary_battery_draw/Units.MJ
         return results
             
     __call__ = evaluate_thrust

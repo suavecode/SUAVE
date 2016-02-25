@@ -1,3 +1,7 @@
+# Linear.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports

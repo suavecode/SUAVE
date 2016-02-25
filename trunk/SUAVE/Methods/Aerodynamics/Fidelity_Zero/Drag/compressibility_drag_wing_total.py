@@ -1,7 +1,7 @@
 # compressibility_drag_wing_total.py
 # 
 # Created:  Jan 2014, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Feb 2016, T. MacDonald
 #        
 
 # ----------------------------------------------------------------------
@@ -44,7 +44,9 @@ def compressibility_drag_wing_total(state,settings,geometry):
     
     # from wings
     for wing in wings.values():
-        compressibility_drag = conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag
+        # scaled by reference area
+        compressibility_drag = conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag * wing.areas.reference / vehicle_reference_area
+        conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag = compressibility_drag * 1. # avoid linking variables
         total_compressibility_drag += compressibility_drag 
 
     conditions.aerodynamics.drag_breakdown.compressible.total  = total_compressibility_drag

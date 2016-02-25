@@ -1,3 +1,7 @@
+# filelock.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -96,5 +100,3 @@ class filelock(object):
         
 class FileLockException(Exception):
     pass
-
-#: class filelock

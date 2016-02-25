@@ -1,7 +1,7 @@
-#motor.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Motor.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,8 +12,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -52,7 +50,7 @@ class Motor(Energy_Component):
                 Cp is not a function of rpm or RE
                
         """
-        #Unpack
+        # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
         Cp    = conditions.propulsion.propeller_power_coefficient[:,0,None]
@@ -65,6 +63,7 @@ class Motor(Energy_Component):
         R     = self.propeller_radius
         v     = self.inputs.voltage
     
+<<<<<<< HEAD
         #Omega
         #This is solved by setting the torque of the motor equal to the torque of the prop
         #It assumes that the Cp is constant
@@ -74,15 +73,26 @@ class Motor(Energy_Component):
         omega1 = ((np.pi**(3./2.))*(inside_piece**(0.5)-np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
 
         omega1[np.isnan(omega1)] = 0.0
+=======
+        # Omega
+        # This is solved by setting the torque of the motor equal to the torque of the prop
+        # It assumes that the Cp is constant
+        omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
+                    16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
+                    np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
+>>>>>>> develop
         
         # store to outputs
         self.outputs.omega = omega1
         
+<<<<<<< HEAD
         Q = ((v-omega1/Kv)/Res -io)/Kv
         #P = Q*omega1
         
         self.outputs.torque = Q
         
+=======
+>>>>>>> develop
         return omega1
     
     def current(self,conditions):
@@ -120,13 +130,9 @@ class Motor(Energy_Component):
 
         # Pack
         self.outputs.current = i
-        
-        #Q = (i-io)/Kv
-        #print(i*v)
-        #pshaft= (i-io)*(v-i*Res)   
+          
         etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
-        #print etam
         
         return i
 
