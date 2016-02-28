@@ -13,7 +13,6 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-<<<<<<< HEAD
 from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
@@ -21,9 +20,6 @@ Data, Container, Data_Exception, Data_Warning,
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
-=======
-from SUAVE.Core import Data
->>>>>>> develop
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -195,12 +191,8 @@ class Propeller(Energy_Component):
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
-<<<<<<< HEAD
-        Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval[alpha>=np.pi/2] = (0.108*(np.pi**4)-0.2612*(np.pi**3)+0.181*(np.pi**2)-0.0139*np.pi+0.0278)*((50000./Re[alpha>=np.pi/2])**0.2)
-=======
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
->>>>>>> develop
+        Cdval[alpha>=np.pi/2] = (0.108*(np.pi**4)-0.2612*(np.pi**3)+0.181*(np.pi**2)-0.0139*np.pi+0.0278)*((50000./Re[alpha>=np.pi/2])**0.2)
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma*Ma)

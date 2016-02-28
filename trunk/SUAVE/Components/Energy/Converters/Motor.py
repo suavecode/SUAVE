@@ -63,36 +63,22 @@ class Motor(Energy_Component):
         R     = self.propeller_radius
         v     = self.inputs.voltage
     
-<<<<<<< HEAD
-        #Omega
-        #This is solved by setting the torque of the motor equal to the torque of the prop
-        #It assumes that the Cp is constant
-        inside_piece = (- 16.*Cp*io*rho*(Kv**3.)*(R**5.)*(Res**2.) +
-                    16.*Cp*rho*v*(Kv**3.)*(R**5.)*Res + (np.pi**3.))
-        
-        omega1 = ((np.pi**(3./2.))*(inside_piece**(0.5)-np.pi**(3./2.)))/(8.*Cp*(Kv**2.)*(R**5.)*Res*rho)
-
-        omega1[np.isnan(omega1)] = 0.0
-=======
         # Omega
         # This is solved by setting the torque of the motor equal to the torque of the prop
         # It assumes that the Cp is constant
         omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
->>>>>>> develop
+        omega1[np.isnan(omega1)] = 0.0
         
-        # store to outputs
-        self.outputs.omega = omega1
-        
-<<<<<<< HEAD
         Q = ((v-omega1/Kv)/Res -io)/Kv
+        # store to outputs
+       
         #P = Q*omega1
         
         self.outputs.torque = Q
-        
-=======
->>>>>>> develop
+        self.outputs.omega = omega1
+
         return omega1
     
     def current(self,conditions):

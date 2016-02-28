@@ -80,9 +80,12 @@ class Lift_Forward(Propulsor):
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
         
+        volts = state.unknowns.battery_voltage_under_load   
+        volts[volts>self.voltage] = self.voltage
+        
         # ESC Voltage
-        esc_lift.inputs.voltagein    = state.unknowns.battery_voltage_under_load        
-        esc_forward.inputs.voltagein = state.unknowns.battery_voltage_under_load  
+        esc_lift.inputs.voltagein    = volts      
+        esc_forward.inputs.voltagein = volts 
         
         ###
         # Evaluate thrust from the forward propulsors
@@ -135,8 +138,6 @@ class Lift_Forward(Propulsor):
         konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
         konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
         konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
-        
-
         
         # Throttle the voltage
         esc_lift.voltageout(konditions)       
