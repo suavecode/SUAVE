@@ -98,6 +98,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
         try:
             windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag
         except: pass
+   
     windmilling_drag = windmilling_drag_coefficient * dyn_press * reference_area
     
     # calculating Drag force due to trim     

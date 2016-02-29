@@ -119,7 +119,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     high_pressure_turbine.inputs.stagnation_pressure       = combustor.outputs.stagnation_pressure
     high_pressure_turbine.inputs.fuel_to_air_ratio         = combustor.outputs.fuel_to_air_ratio
     
-    #link the high pressuer turbine to the high pressure compressor
+    #link the high pressure turbine to the high pressure compressor
     high_pressure_turbine.inputs.compressor                = high_pressure_compressor.outputs
     
     #link the high pressure turbine to the fan
@@ -154,12 +154,12 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     
     #flow through the core nozzle
     core_nozzle(conditions)
-
-    #link the dan nozzle to the fan
+   
+    #link the fan nozzle to the fan
     fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
     fan_nozzle.inputs.stagnation_pressure                  = fan.outputs.stagnation_pressure
     
-     # flow through the fan nozzle
+    #flow through the fan nozzle
     fan_nozzle(conditions)
     
     # compute the thrust using the thrust component
@@ -186,7 +186,37 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
 
     #compute the thrust
     thrust.size(conditions)
-    mass_flow=thrust.mass_flow_rate_design
+    
+    #determine geometry; 
+    mass_flow         = thrust.mass_flow_rate_design
+    mass_flow_fan     = mass_flow*bypass_ratio
+    
+ 
+ 
+    U0                = conditions.freestream.velocity
+    gamma             = ram.outputs.isentropic_expansion_factor
+    R                 = ram.outputs.universal_gas_constant
+    rho0              = conditions.freestream.density
+    
+    rho5_fan          = fan_nozzle.outputs.density
+    U5_fan            = fan_nozzle.outputs.velocity
+    
+    rho5_core         = core_nozzle.outputs.density
+    U5_core           = core_nozzle.outputs.velocity
+    
+    A0                = (mass_flow/(rho0*U0))[0][0]
+    Ae_fan            = mass_flow_fan/(rho5_fan*U5_fan)
+    Ae_core           = mass_flow/(rho5_core*U5_core)
+    exit_area_ratio   = thrust.inputs.core_nozzle.area_ratio[0][0]
+    fan_area_ratio    = thrust.inputs.fan_nozzle.area_ratio[0][0]
+    
+    
+    #output areas
+    turbofan.areas.inflow  = A0
+    turbofan.areas.maximum = 1.2*(Ae_fan+Ae_core)/fan_area_ratio  #1.2 accounts for nacelle
+    turbofan.areas.exit    = 1.2*(Ae_fan+Ae_core)
+    turbofan.nacelle_diameter = 2.1*((turbofan.areas.maximum/np.pi)**.5)
+    
     
     
     #update the design thrust value
@@ -225,5 +255,12 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     state_sls.conditions = conditions_sls   
     results_sls = turbofan.evaluate_thrust(state_sls)
     
-    turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
     
+    turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+    sls_thrust                      = turbofan.sealevel_static_thrust*.224809 #convert to lbs.
+    turbofan.engine_length          = 2.4077*(sls_thrust**.3876)*.0254  #convert from inches to meters
+    turbofan.areas.wetted           = np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+    
+    
+    
+   

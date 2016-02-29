@@ -185,7 +185,7 @@ def empty(vehicle):
 
     
     # packup outputs
-    output             = payload(TOW, wt_empty, num_pax,wt_cargo)
+    output                   = payload(TOW, wt_empty, num_pax,wt_cargo)
     output.wing              = wt_wing
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion

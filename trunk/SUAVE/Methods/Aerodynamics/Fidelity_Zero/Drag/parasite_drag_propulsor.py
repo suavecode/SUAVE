@@ -69,10 +69,11 @@ def parasite_drag_propulsor(state,settings,geometry):
     # form factor for cylindrical bodies
     try: # Check if propulsor has an intake
         
-        A_max = np.pi*(d_prop**2.)/4.
-        A_exit = propulsor.A71
+        A_max = propulsor.areas.maximum
+        
+        A_exit = propulsor.areas.exit
        
-        A_inflow = propulsor.A0
+        A_inflow = propulsor.areas.inflow
         d_d = 1./((propulsor.engine_length + propulsor.nacelle_diameter) / np.sqrt((4./np.pi)*(A_max - (A_exit+A_inflow)/2.)))
       
         
