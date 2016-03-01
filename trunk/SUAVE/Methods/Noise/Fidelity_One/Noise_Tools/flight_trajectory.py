@@ -1,4 +1,4 @@
-# jet_installation_effect.py
+# flight_trajectory.py
 # 
 # Created:  20th Jul 2015, Carlos
 # Modified: 
