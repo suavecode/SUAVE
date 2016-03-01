@@ -1,17 +1,13 @@
- # Main_Landing_Gear.py
-#
-# Created:  Carlos, Aug 2015
-# Modified:
+# Landing_Gear.py
+# 
+# Created:  Aug 2015, C. R. I. da Silva
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave imports
-import numpy as np
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body, Mass_Properties
+from SUAVE.Components import Physical_Component
 
 # ----------------------------------------------------------------------
 #  A ttribute
@@ -33,15 +29,10 @@ class Landing_Gear(Physical_Component):
        
         self.tag = 'landing_gear'
 
-        #self.position  = [0.0,0.0,0.0]        
-        self.main_tire_diameter = 0.
-        self.nose_tire_diameter = 0.
-        self.main_strut_length  = 0.
-        self.nose_strut_length  = 0.
-        self.main_units         = 0.   #number of main landing gear units
-        self.nose_units         = 0.   #number of nose landing gear
-        self.main_wheels        = 0.  #number of wheels on the main landing gear
-        self.nose_wheels        = 0.  #number of wheels on the nose landing gear
+
+
+        
+
         
         
         

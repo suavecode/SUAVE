@@ -1,18 +1,18 @@
-# magicfunctions.py
+# helper_functions.py
 # 
 # Created:  May 2015, E. Botero
-# Modified: 
+# Modified: Feb 2015, M. Vegh
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
-from SUAVE.Core import Data, Units
+#from SUAVE.Core import Data, Units
 import numpy as np
-from copy import deepcopy
+#from copy import deepcopy
 
 # ----------------------------------------------------------------------        
-#   Set
+#   Set_values
 # ----------------------------------------------------------------------    
 
 def set_values(dictionary,input_dictionary,converted_values,aliases):
@@ -121,7 +121,10 @@ def get_values(dictionary,outputs,aliases):
 def scale_obj_values(inputs,x):
     
     provided_scale = inputs[:,1]
-    scaled =  x/provided_scale
+    provided_units   = inputs[:,-1]*1.0
+    inputs[:,-1] = provided_units
+    
+    scaled =  x/(provided_scale*provided_units)
     
     return scaled
 

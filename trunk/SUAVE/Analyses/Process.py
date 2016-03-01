@@ -1,4 +1,7 @@
-
+# Process.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,12 +49,4 @@ class Process(Container):
         
     def __call__(self,*args,**kwarg):
         return self.evaluate(*args,**kwarg) 
-    
-    
-#import inspect
-#def get_args(obj):
-    #if hasattr(obj,'__call__'):
-        #return inspect.getargspec(obj.__call__).args
-    #else:
-        #return inspect.getargspec(obj).args
     

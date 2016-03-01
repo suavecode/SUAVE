@@ -1,5 +1,13 @@
-import numpy as np
+# Constant_Throttle_Constant_Speed.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -17,7 +25,6 @@ def unpack_body_angle(segment,state):
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
 
 def initialize_conditions(segment,state):
     
@@ -42,21 +49,28 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
-    
-    
+
+# ----------------------------------------------------------------------
+#  Update Velocity Vector from Wind Angle
+# ----------------------------------------------------------------------
+
 def update_velocity_vector_from_wind_angle(segment,state):
     
     # unpack
     conditions = state.conditions 
     v_mag      = segment.air_speed 
-    theta      = state.unknowns.wind_angle[:,0][:,None]
+    alpha      = state.unknowns.wind_angle[:,0][:,None]
+    theta      = state.unknowns.body_angle[:,0] 
+    
+    # Flight path angle
+    gamma = theta-alpha
 
     # process
-    v_x =  v_mag * np.cos(theta)
-    v_z = -v_mag * np.sin(theta) # z points down
+    v_x =  v_mag * np.cos(gamma)
+    v_z = -v_mag * np.sin(gamma) # z points down
 
     # pack
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
     conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
 
-    return conditions    
+    return conditions

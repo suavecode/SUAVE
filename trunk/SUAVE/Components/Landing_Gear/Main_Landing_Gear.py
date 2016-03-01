@@ -1,14 +1,13 @@
-# Main_Wing.py
-#
-# Created:  Carlos, Aug 2015
-# Modified:
+# Main_Landing_Gear.py
+# 
+# Created:  Aug 2015, C. R. I. da Silva
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave imports
-from Wing import Wing
+from Landing_Gear import Landing_Gear
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -27,12 +26,11 @@ class Main_Landing_Gear(Landing_Gear):
     """
 
     def __defaults__(self):
-        self.main_units = 2     #number of main landing gear units
-        
-        self.main_tire_diameter = 3.5000 #main gear tire diameter
-        self.main_strut_length = 5.66 #main landing gear strut length
-        self.main_wheels = 2    #number of wheels on the main landing gear
-
+        self.units         = 0. # number of main landing gear units        
+        self.strut_length  = 0.
+        self.tire_diameter = 0.
+        self.units         = 0. # number of main landing gear units
+        self.wheels        = 0. # number of wheels on the main landing gear
 
 
 # ----------------------------------------------------------------------

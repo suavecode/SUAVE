@@ -1,7 +1,7 @@
-#propeller.py
-# 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Propeller.py
+#
+# Created:  Jun 2014, E. Botero
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,12 +12,8 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-from SUAVE.Core import Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -103,7 +99,7 @@ class Propeller(Energy_Component):
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
-        U  = np.sqrt(Ua**2. + Ut**2.)
+        U  = np.sqrt(Ua*Ua + Ut*Ut)
         
         #Things that will change with iteration
     
@@ -119,7 +115,7 @@ class Propeller(Energy_Component):
             #va    = Wa - Ua
             vt    = Ut - Wt
             alpha = beta - np.arctan2(Wa,Wt)
-            W     = np.sqrt(Wa**2. + Wt**2.)
+            W     = np.sqrt(Wa*Wa + Wt*Wt)
             Re    = (W*c)/nu
             Ma    = (W)/a #a is the speed of sound
             
@@ -131,14 +127,14 @@ class Propeller(Energy_Component):
             piece  = np.exp(-f)
             #piece[piece>1] = 1.0
             F      = 2.*np.arccos(piece)/np.pi
-            Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))**2.)
+            Gamma  = vt*(4.*np.pi*r/B)*F*np.sqrt(1.+(4.*lamdaw*R/(np.pi*B*r))*(4.*lamdaw*R/(np.pi*B*r)))
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Clvals = 2.*np.pi*alpha
             
             Cl     = np.zeros_like(Clvals)
             # Scale for Mach, this is Karmen_Tsien
-            Cl[Ma[:,:]<1.] = Clvals[Ma[:,:]<1.]/(np.sqrt(1-Ma[Ma[:,:]<1.]**2)+((Ma[Ma[:,:]<1.]**2)/(1+np.sqrt(1-Ma[Ma[:,:]<1.]**2)))*Clvals[Ma<1.]/2)
+            Cl[Ma[:,:]<1.] = Clvals[Ma[:,:]<1.]/(np.sqrt(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+np.sqrt(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])))*Clvals[Ma<1.]/2)
             
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Clvals[Ma[:,:]>=1.] 
@@ -147,14 +143,14 @@ class Propeller(Energy_Component):
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
             #This was solved symbolically in Matlab and exported        
-            dR_dpsi = ((4.*U*r*np.arccos(piece)*np.sin(psi)*((16.*(Ua + U*np.sin(psi))**2.)/(B**2.*np.pi**2.*(2*Wt)**2.) + 
-                      1.)**(0.5))/B - (np.pi*U*(Ua*np.cos(psi) - Ut*np.sin(psi))*(beta - np.arctan((2*Wa)/(2*Wt))))/(2.*((2*Wt)**2. +
-                      (2*Wa)**2.)**(0.5)) + (np.pi*U*((2*Wt)**2. +(2*Wa)**2.)**(0.5)*(U + Ut*np.cos(psi) + 
-                      Ua*np.sin(psi)))/(2.*((2*Wa)**2./(2*Wt)**2. + 1.)*(Ut + U*np.cos(psi))**2.) - (4.*U*piece*((16.*(Ua +
-                      U*np.sin(psi))**2.)/(B**2.*np.pi**2.*(2*Wt)**2.) + 1.)**(0.5)*(R - r)*(Ut/2. - (U*np.cos(psi))/2.)*(U + 
-                      Ut*np.cos(psi) + Ua*np.sin(psi)))/((2*Wa)**2.*(1. - np.exp(-(B*(2*Wt)*(R - r))/(r*(Ua + U*np.sin(psi)))))**(0.5)) + 
+            dR_dpsi = ((4.*U*r*np.arccos(piece)*np.sin(psi)*((16.*(Ua + U*np.sin(psi))*(Ua + U*np.sin(psi)))/(B*B*np.pi*np.pi*(2*Wt)*(2*Wt)) + 
+                      1.)**(0.5))/B - (np.pi*U*(Ua*np.cos(psi) - Ut*np.sin(psi))*(beta - np.arctan((2*Wa)/(2*Wt))))/(2.*((2*Wt)*(2*Wt) +
+                      (2*Wa)*(2*Wa))**(0.5)) + (np.pi*U*((2*Wt)*(2*Wt) +(2*Wa)*(2*Wa))**(0.5)*(U + Ut*np.cos(psi) + 
+                      Ua*np.sin(psi)))/(2.*((2*Wa)*(2*Wa)/((2*Wt)*(2*Wt)) + 1.)*(Ut + U*np.cos(psi))*(Ut + U*np.cos(psi))) - (4.*U*piece*((16.*(Ua +
+                      U*np.sin(psi))*(Ua + U*np.sin(psi)))/(B*B*np.pi*np.pi*(2*Wt)*(2*Wt)) + 1.)**(0.5)*(R - r)*(Ut/2. - (U*np.cos(psi))/2.)*(U + 
+                      Ut*np.cos(psi) + Ua*np.sin(psi)))/((2*Wa)*(2*Wa)*(1. - np.exp(-(B*(2*Wt)*(R - r))/(r*(Ua + U*np.sin(psi)))))**(0.5)) + 
                       (128.*U*r*np.arccos(piece)*(Ua + U*np.sin(psi))*(Ut/2. - (U*np.cos(psi))/2.)*(U + Ut*np.cos(psi) + 
-                      Ua*np.sin(psi)))/(B**3.*np.pi**2.*(Ut + U*np.cos(psi))**3.*((16.*(2*Wa)**2.)/(B**2.*np.pi**2.*(2*Wt)**2.) + 1.)**(0.5))) 
+                      Ua*np.sin(psi)))/(B*B*B*np.pi*np.pi*(Ut + U*np.cos(psi))*(Ut + U*np.cos(psi))*(Ut + U*np.cos(psi))*((16.*(2*Wa)*(2*Wa))/(B*B*np.pi*np.pi*(2*Wt)*(2*Wt)) + 1.)**(0.5))) 
             dR_dpsi[np.isnan(dR_dpsi)] = 0.1
                       
             dpsi   = -Rsquiggly/dR_dpsi
@@ -167,11 +163,11 @@ class Propeller(Energy_Component):
     
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
-        Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-        Tw_Tinf = 1. + 1.78*(Ma**2)
-        Tp_Tinf = 1. + 0.035*(Ma**2) + 0.45*(Tw_Tinf-1.)
+        Tw_Tinf = 1. + 1.78*(Ma*Ma)
+        Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
         Tp      = (Tp_Tinf)*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
@@ -184,7 +180,7 @@ class Propeller(Energy_Component):
         power    = torque*omega       
        
         D        = 2*R
-        Cp       = power/(rho*(n**3)*(D**5))
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
 
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0

@@ -70,6 +70,9 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     # compute atmosphere
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     p , T , rho , a , mew  = atmosphere.compute_values(altitude,0)
+    
+    # Find the dimensional RE, ie. Reynolds number/length
+    re = rho*Mc*a/mew
 
     # Define variables needed in the aerodynamic method
     state = Data()
@@ -78,6 +81,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     state.conditions.freestream.mach_number       = np.atleast_1d(Mc)
     state.conditions.freestream.density           = np.atleast_1d(rho)
     state.conditions.freestream.dynamic_viscosity = np.atleast_1d(mew)
+    state.conditions.freestream.reynolds_number   = np.atleast_1d(re)
     state.conditions.freestream.temperature       = np.atleast_1d(T)
     state.conditions.freestream.pressure          = np.atleast_1d(p)
     state.conditions.aerodynamics = Data()

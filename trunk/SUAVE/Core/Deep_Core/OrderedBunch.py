@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+# OrderedBunch.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -23,8 +26,6 @@ class OrderedBunch(Bunch,OrderedDict):
 
         self = Bunch.__new__(klass)
         
-        #if len(args) > 1:
-            #raise TypeError('expected at most 1 arguments, got %d' % len(args))
         try:
             self._root
         except:

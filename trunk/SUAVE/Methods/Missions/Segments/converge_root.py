@@ -1,3 +1,7 @@
+# converge_root.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -28,7 +32,6 @@ def converge_root(segment,state):
                             xtol = state.numerics.tolerance_solution)
     
     return
-
     
 # ----------------------------------------------------------------------
 #  Helper Functions

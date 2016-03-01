@@ -1,8 +1,16 @@
-import numpy as np
-
+# Constant_Mach_Constant_Angle.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
+import SUAVE
+# ----------------------------------------------------------------------
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -11,11 +19,14 @@ def initialize_conditions(segment,state):
     # unpack user inputs
     climb_angle = segment.climb_angle
     mach_number = segment.mach
-    alt0       = segment.altitude_start 
-    altf       = segment.altitude_end
-    t_nondim   = state.numerics.dimensionless.control_points
-    conditions = state.conditions  
-
+    alt0        = segment.altitude_start 
+    altf        = segment.altitude_end
+    t_nondim    = state.numerics.dimensionless.control_points
+    conditions  = state.conditions 
+ 
+    # Update freestream to get speed of sound
+    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
+    a = conditions.freestream.speed_of_sound
     # check for initial altitude
     if alt0 is None:
         if not state.initials: raise AttributeError('initial altitude not set')
@@ -30,7 +41,7 @@ def initialize_conditions(segment,state):
     v_z   = -v_mag * np.sin(climb_angle)
     
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = v_x
-    conditions.frames.inertial.velocity_vector[:,2] = v_z
+    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context

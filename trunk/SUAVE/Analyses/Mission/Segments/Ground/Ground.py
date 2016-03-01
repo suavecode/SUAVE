@@ -1,3 +1,8 @@
+# Ground.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -12,7 +17,7 @@ from SUAVE.Methods.Missions import Segments as Methods
 from SUAVE.Analyses import Process
 
 # Units
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------

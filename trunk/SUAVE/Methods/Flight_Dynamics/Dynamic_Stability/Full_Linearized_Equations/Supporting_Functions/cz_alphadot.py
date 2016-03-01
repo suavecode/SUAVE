@@ -1,23 +1,14 @@
 # cz_alphadot.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-import numpy as np
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Method
 # ----------------------------------------------------------------------
 
 def cz_alphadot(cm_i, ep_alpha):
-    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cm_alphadot(cm_i, ep_alpha, l_t, mac) 
+    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cz_alphadot(cm_i, ep_alpha, l_t, mac) 
         Calculating the coefficient of force in the z direction with respect to the rate of change of the alpha of attack of the aircraft        
         Inputs:
                  

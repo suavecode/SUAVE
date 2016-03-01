@@ -1,21 +1,19 @@
 # pyopt_setup.py
 #
 # Created:  Jul 2015, E. Botero
-# Modified:  
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
-# pyopt imports
+
 
 # ----------------------------------------------------------------------
-#  Solve Setup
+#  Pyopt_Solve
 # ----------------------------------------------------------------------
 
 def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
@@ -38,7 +36,6 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     for ii in xrange(len(obj)):
         opt_prob.addObj(obj[ii,0])    
        
-   
     # Set inputs
     nam = inp[:,0] # Names
     ini = inp[:,1] # Initials
@@ -81,12 +78,13 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()
+        opt.setOption('MAXIT', 200)
     elif solver == 'KSOPT':
         import pyOpt.pyKSOPT
         opt = pyOpt.pyKSOPT.KSOPT()
     elif solver == 'ALHSO':
         import pyOpt.pyALHSO
-        opt = pyOpt.pyALHSO.ALHSO()  
+        opt = pyOpt.pyALHSO.ALHSO()   
     elif solver == 'FSQP':
         import pyOpt.pyFSQP
         opt = pyOpt.pyFSQP.FSQP()
@@ -98,8 +96,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
         opt = pyOpt.pyNLPQL.NLPQL()    
     elif solver == 'NSGA2':
         import pyOpt.pyNSGA2
-        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')    
-   
+        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')     
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
     else:

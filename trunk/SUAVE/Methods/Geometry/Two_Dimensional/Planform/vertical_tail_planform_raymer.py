@@ -1,19 +1,14 @@
-# Geometry.py
+# vertical_tail_planform_raymer.py
 #
-
-""" SUAVE Methods for Geometry Generation
-"""
+# Created:  ### ####, M. Vegh
+# Modified: Jan 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
-from math import pi, sqrt
-from SUAVE.Core  import Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform  import wing_planform
-#from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -33,8 +28,9 @@ def vertical_tail_planform_raymer(vertical_stabilizer, wing,  l_vt,c_vt):
     .04=agricultural, .08=twin turboprop, .06=flying boat, .06=jet trainer, .07=jet fighter
     .08= military cargo/bomber, .09= jet transport
     """
-    vertical_stabilizer.areas.reference=wing.spans.projected*c_vt*wing.areas.reference/l_vt
+    vertical_stabilizer.areas.reference = wing.spans.projected*c_vt*wing.areas.reference/l_vt
   
     wing_planform(vertical_stabilizer)
+    
     return 0
     

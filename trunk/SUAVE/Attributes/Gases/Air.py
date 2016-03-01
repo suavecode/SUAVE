@@ -1,23 +1,18 @@
-""" Air.py: Physical description of air """
+# Air.py
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
 from Gas import Gas
-from SUAVE.Attributes.Constants import Universe, Composition
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-
-# modules
-#import numpy as np
+from SUAVE.Core import Data
 import numpy as np
 
-# initialize local constants
-Universe = Universe()
-
 # ----------------------------------------------------------------------
-#  Air
+#  Air Gas Class
 # ----------------------------------------------------------------------
 
 class Air(Gas):
@@ -28,7 +23,6 @@ class Air(Gas):
 
         self.molecular_mass = 28.96442        # kg/kmol
         self.gas_specific_constant = 287.0528742                 # m^2/s^2-K, specific gas constant
-        self.composition = Data()
         self.composition.O2 = 0.20946
         self.composition.Ar = 0.00934
         self.composition.CO2 = 0.00036

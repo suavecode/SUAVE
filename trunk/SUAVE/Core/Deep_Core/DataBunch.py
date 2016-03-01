@@ -1,17 +1,15 @@
+# DataBunch.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
 from IndexableBunch import IndexableBunch 
-#from OrderedBunch import OrderedBunch 
-
-import types
-from copy            import deepcopy
-from warnings        import warn
 
 import numpy as np
-from arrays import atleast_2d_col, array_type, matrix_type
 
 
 # ----------------------------------------------------------------------
@@ -67,8 +65,6 @@ class DataBunch(IndexableBunch):
         
         # call over-ridable post-initialition setup
         self.__check__()
-        
-    #: def __init__()
     
     def __check__(self):
         """ 

@@ -1,15 +1,12 @@
 # ep_alpha.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -30,7 +27,6 @@ def ep_alpha(cL_w_alpha, Sref, span):
     """
 
     # Generating Stability derivative
-
     ep_alpha = 2 * cL_w_alpha/ np.pi / (span ** 2. / Sref )
     
     return ep_alpha

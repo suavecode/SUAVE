@@ -1,3 +1,7 @@
+# IndexableBunch.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -15,7 +19,6 @@ class IndexableBunch(IndexableDict,OrderedBunch):
     """ An ordered indexable dictionary that provides attribute-style access.
     """
     pass
-    # ballin
 
 # ----------------------------------------------------------------------
 #   Module Tests

@@ -1,20 +1,11 @@
 # integrated_propulsion.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014       
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+# Created:  Jan 2014, M. A. Wendorff 
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#   Method
+#   Integrated Propulsion
 # ----------------------------------------------------------------------
 
 def integrated_propulsion(engine_jet,num_eng, engine_wt_factor = 1.6):
@@ -35,8 +26,6 @@ def integrated_propulsion(engine_jet,num_eng, engine_wt_factor = 1.6):
                 controls, lubricating, and fuel systems. The nacelle and pylon weight are also
                 part of this calculation.
     """     
-    
-    #process
     
     weight = engine_jet * num_eng * engine_wt_factor
     

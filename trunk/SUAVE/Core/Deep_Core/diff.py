@@ -1,9 +1,11 @@
+# diff.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-import os, time, errno
 
 from DataBunch import DataBunch as dbunch
 

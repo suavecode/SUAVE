@@ -1,5 +1,8 @@
+# Cost.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
-from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
 from Component import Component
 
 class Cost(Component):

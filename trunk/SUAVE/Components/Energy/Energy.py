@@ -1,27 +1,19 @@
+# __init__.py
+# 
+# Created:  Aug 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ------------------------------------------------------------
 #  Imports
 # ------------------------------------------------------------
 
 from SUAVE.Components import Physical_Component
-#from Connections import Connections
 
 # ------------------------------------------------------------
 #  The Home Energy Container Class
 # ------------------------------------------------------------
 class Energy(Physical_Component):
     def __defaults__(self):
-        
-        #from Storages     import Storage
-        #from Distributors import Distributor
-        #from Converters   import Converter
-        #from Networks     import Network
-
-        #self.tag = 'Energy'
-        #self.Storages      = Storage.Container()
-        #self.Distributors  = Distributor.Container()
-        #self.Converters    = Converter.Container()
-        #self.Networks      = Network.Container()
         pass
 
 
@@ -32,7 +24,6 @@ class Energy(Physical_Component):
 class Component(Physical_Component):
     def __defaults__(self):
         self.tag = 'Energy Component'
-        #self.Connections = Connections()
     
     def provide_power():
         pass

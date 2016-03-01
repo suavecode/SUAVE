@@ -1,5 +1,7 @@
 # Results.py
-# Tim Momose, January 2015
+# 
+# Created:  Jan 2015, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

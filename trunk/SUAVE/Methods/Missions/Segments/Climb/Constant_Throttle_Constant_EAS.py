@@ -1,6 +1,13 @@
+# Constant_Throttle_Constant_EAS.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import numpy as np
 import SUAVE
-
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -50,17 +57,24 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     
-    
+# ----------------------------------------------------------------------
+#  Update Velocity Vector from Wind Angle
+# ----------------------------------------------------------------------
+            
 def update_velocity_vector_from_wind_angle(segment,state):
     
     # unpack
     conditions = state.conditions 
     v_mag      = segment.air_speed 
-    theta      = state.unknowns.wind_angle[:,0][:,None]
+    alpha      = state.unknowns.wind_angle[:,0][:,None]
+    theta      = state.unknowns.body_angle[:,0] 
+    
+    # Flight path angle
+    gamma = theta-alpha
 
     # process
-    v_x =  v_mag * np.cos(theta[:,0])
-    v_z = -v_mag * np.sin(theta[:,0]) # z points down
+    v_x =  v_mag * np.cos(gamma)
+    v_z = -v_mag * np.sin(gamma) # z points down
 
     # pack
     conditions.frames.inertial.velocity_vector[:,0] = v_x

@@ -1,3 +1,7 @@
+# __init__.py
+#
+# Created:  Jan 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 # subpackages
 import Deep_Core

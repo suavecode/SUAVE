@@ -1,13 +1,12 @@
 # compressibility_drag_wing.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Dec 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
 from SUAVE.Core import Results
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
@@ -18,18 +17,11 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
 from wave_drag_lift import wave_drag_lift
 from wave_drag_volume import wave_drag_volume
 
-# python imports
-import os, sys, shutil
-import copy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
 
 
 # ----------------------------------------------------------------------
-#  The Function
+#  Compressibility Drag Wing
 # ----------------------------------------------------------------------
 
 def compressibility_drag_wing(conditions,configuration,geometry):

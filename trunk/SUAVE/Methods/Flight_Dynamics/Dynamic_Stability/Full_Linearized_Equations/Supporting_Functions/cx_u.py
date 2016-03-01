@@ -1,16 +1,8 @@
 # cx_u.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-import numpy as np
 
 # ----------------------------------------------------------------------
 #   Method
@@ -30,7 +22,6 @@ def cx_u(cD):
     """
 
     # Generating Stability derivative
-
     cx_u  = -2. * cD
     
     return cx_u

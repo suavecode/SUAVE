@@ -1,12 +1,13 @@
 # asymmetry_drag.py
-#
-# Created:  Tarik, Oct 2015
+# 
+# Created:  Oct 2015, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
+# SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
 from SUAVE.Core import Units, Data, Results
@@ -97,6 +98,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
         try:
             windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag
         except: pass
+   
     windmilling_drag = windmilling_drag_coefficient * dyn_press * reference_area
     
     # calculating Drag force due to trim     
@@ -110,8 +112,3 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     state.conditions.aerodynamics.drag_breakdown.asymmetry_trim_coefficient = asymm_trim_drag_coefficient
 
     return asymm_trim_drag_coefficient
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here

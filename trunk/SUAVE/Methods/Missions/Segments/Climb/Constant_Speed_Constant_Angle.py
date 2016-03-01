@@ -1,8 +1,15 @@
-import numpy as np
-
+# Constant_Speed_Constant_Angle.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):

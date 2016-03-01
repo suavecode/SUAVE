@@ -1,15 +1,15 @@
+# Given_Weight.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
+
 """ Mission.py: Top-level mission class """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Data, Data_Exception
-from SUAVE.Core import Container as ContainerBase
-
 from SUAVE.Methods import Missions as Methods
-from SUAVE.Analyses import Process
 
 from SUAVE.Analyses.Mission import All_At_Once
 
@@ -37,7 +37,7 @@ class Given_Weight(All_At_Once):
         
         # initials and unknowns, on top of segment initials and unknowns
         self.state.unknowns.cruise_distance  = 1000.0
-        self.state.residuals.landing_weight = 0.0
+        self.state.residuals.landing_weight  = 0.0
         
         
         # --------------------------------------------------------------
@@ -63,10 +63,10 @@ class Given_Weight(All_At_Once):
         iterate.clear()        
         
         # unpack the unknown
-        iterate.unpack_distance = Methods.Segments.Cruise.Variable_Cruise_Distance.unknown_cruise_distance
+        iterate.unpack_distance              = Methods.Segments.Cruise.Variable_Cruise_Distance.unknown_cruise_distance
         
         # Run the Segments
-        iterate.sub_segments           = Methods.Segments.Common.Sub_Segments.update_sub_segments
+        iterate.sub_segments                 = Methods.Segments.Common.Sub_Segments.update_sub_segments
         
         # Solve Residuals
         self.process.iterate.residual_weight = Methods.Segments.Cruise.Variable_Cruise_Distance.residual_landing_weight

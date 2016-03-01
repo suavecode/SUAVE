@@ -1,4 +1,11 @@
-# Tim Momose, March 2015
+# read_results.py
+# 
+# Created:  Mar 2015, T. Momose
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from .Data.Results import Results

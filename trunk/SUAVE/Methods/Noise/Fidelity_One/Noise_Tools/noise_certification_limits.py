@@ -1,15 +1,18 @@
 # noise_certification_limits.py
 # 
-# Created:  Nov 2015, Carlos Ilario
+# Created:  Jul 2015, C. Ilario
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units
 import numpy as np
 
+# ----------------------------------------------------------------------
+#   Noise Certification Limits
+# ----------------------------------------------------------------------
 
 def noise_certification_limits(results,vehicle):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits(results,vehicle):
@@ -31,7 +34,6 @@ def noise_certification_limits(results,vehicle):
     weight_approach     = np.float(results.approach.segments.descent.conditions.weights.total_mass[-1]) / Units.lbs
     weight_tow_mission  = np.float(results.flyover.segments.climb.conditions.weights.total_mass[-1])     / Units.lbs
     n_engines           = np.int(vehicle.propulsors.turbo_fan.number_of_engines)
-
     
     #Determination of the number of engines
     if n_engines > 3:

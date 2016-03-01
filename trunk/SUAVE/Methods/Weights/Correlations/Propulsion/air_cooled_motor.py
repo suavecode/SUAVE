@@ -1,22 +1,18 @@
 # air_cooled_motor.py
 # 
-# Created:  Michael Vegh, Jan 2014
-# Modified: Andrew Wendorff, Jan 2014        
-
+# Created:  Jan 2014, M. Vegh, 
+# Modified: Jan 2014, A. Wendorff
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
-#   Method
+#   Air Cooled Motor
 # ----------------------------------------------------------------------
-
 
 def air_cooled_motor(max_power, kwt2=1.96, xwt=.8897):
     """ weight = SUAVE.Methods.Correlations.Propulsion.air_cooled_motor(max_power)
@@ -39,8 +35,6 @@ def air_cooled_motor(max_power, kwt2=1.96, xwt=.8897):
                 Analysis and Optimization Conference, Indianapolis, IN, Sept.2012
     """    
     
+    mass = kwt2*((max_power/Units.kW)**xwt) * Units.pounds #weight in lbs.
     
-    # process
-    weight = kwt2*((max_power/Units.kW)**xwt)   #weight in lbs.
-    mass   =weight/Units.kg
     return mass

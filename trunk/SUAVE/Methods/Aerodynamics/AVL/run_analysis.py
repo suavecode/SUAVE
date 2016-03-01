@@ -1,4 +1,11 @@
-# Tim Momose, October 2014
+# run_analysis.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 import os
 from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results

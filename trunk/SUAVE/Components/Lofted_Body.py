@@ -1,11 +1,13 @@
-
+# Lofted_Body.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from Component         import Component
+from Component          import Component
 from Physical_Component import Physical_Component
 
 
@@ -60,8 +62,10 @@ class Curve(Component):
 
 class SegmentContainer(Component.Container):
     pass
+
 class SectionContainer(Component.Container):
     pass
+
 class CurveContainer(Component.Container):
     pass
 

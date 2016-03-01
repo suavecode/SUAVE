@@ -1,3 +1,7 @@
+# __init__.py
+#
+# Created:  Aug 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 from make_hashable import make_hashable
 

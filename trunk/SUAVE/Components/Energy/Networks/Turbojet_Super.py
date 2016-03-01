@@ -171,6 +171,8 @@ class Turbojet_Super(Propulsor):
         thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
         thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
         thrust.inputs.number_of_engines                        = number_of_engines
+	thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
+	thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation        
 
         
 

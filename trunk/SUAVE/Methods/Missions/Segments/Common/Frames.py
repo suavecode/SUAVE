@@ -1,3 +1,7 @@
+# Frames.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,9 +24,6 @@ def initialize_inertial_position(segment,state):
         r_current = state.conditions.frames.inertial.position_vector
         
         state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
-        
-    #else:
-        #r_initial = state.conditions.frames.inertial.position_vector[0,:][None,:]
     
     return
     
@@ -244,6 +245,9 @@ def integrate_inertial_horizontal_position(segment,state):
     
     return
 
+# ----------------------------------------------------------------------
+#  Update Acceleration
+# ----------------------------------------------------------------------
 
 def update_acceleration(segment,state):
     

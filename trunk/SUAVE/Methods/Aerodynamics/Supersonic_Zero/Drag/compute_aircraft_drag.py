@@ -1,28 +1,16 @@
 # compute_aircraft_drag.py
 # 
-# Created:  Anil V., Dec 2013
-# Modified: T. MacDonald, Aug 2014
+# Created:  Dec 2013, A. Variyar
+# Modified: Aug 2014, T. MacDonald
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-from SUAVE.Core import Results
-
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
-     parasite_drag_aircraft, induced_drag_aircraft, compressibility_drag_total, \
-     miscellaneous_drag_aircraft, induced_drag_aircraft, compressibility_drag_wing
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
-import numpy as np
-import scipy as sp
-
+     parasite_drag_aircraft, compressibility_drag_total, \
+     miscellaneous_drag_aircraft
 
 # ----------------------------------------------------------------------
 #  The Function
@@ -82,15 +70,3 @@ def compute_aircraft_drag(conditions,configuration,geometry=None):
     drag_breakdown.untrimmed = aircraft_untrimmed       
     
     return aircraft_total_drag
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':    
-    raise RuntimeError , 'module test failed, not implemented'
-
-
-
-#--------------test this case as well--------------

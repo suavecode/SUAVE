@@ -1,21 +1,24 @@
 # Analysis.py
 # 
-# Created By:       T. Lukaczyk
+# Created:  Unk,     , T. Lukaczyk
+# Modified: Jan, 2016, M. Vegh
 
-""" SUAVE Data Class for Analysis
-"""
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data#, Container, Data_Exception, Data_Warning
 
 # ----------------------------------------------------------------------
-#  Analysis
+#  Analysis Data Class
 # ----------------------------------------------------------------------
 
 class Analysis(Data):
+    """ SUAVE Data Class for Analysis
+        used for 
+    """
     def __defaults__(self):
         self.Vehicle = None
         self.Mission = None

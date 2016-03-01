@@ -1,6 +1,7 @@
 # noise_geometric.py
 # 
-# Created:  Nov 2015, Carlos Ilario
+# Created:  Jul 2015, C. Ilario
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -9,6 +10,10 @@
 import SUAVE
 from SUAVE.Core import Data
 import numpy as np
+
+# ----------------------------------------------------------------------
+#   Noise Geometric
+# ----------------------------------------------------------------------
 
 def noise_geometric(noise_segment,analyses,config):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric(noise_segment,analyses,config):
@@ -28,7 +33,6 @@ def noise_geometric(noise_segment,analyses,config):
                 For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground."""
     
     #unpack
-    #Certification point flag
     sideline = analyses.noise.settings.sideline
     flyover  = analyses.noise.settings.flyover
     approach = analyses.noise.settings.approach
@@ -36,9 +40,8 @@ def noise_geometric(noise_segment,analyses,config):
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
-
     
-    s = position_vector[:,0]
+    s       = position_vector[:,0]
     n_steps = len(altitude)  #number of time steps (space discretization)
        
     if approach==1:

@@ -1,7 +1,7 @@
 # noise_clean_wing.py
 # 
 # Created:  Jun 2015, Carlos
-# Modified: 
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -46,26 +46,26 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
                 Correlation based."""
 
     #Unit conversion required for the method
-    kt2fts=1.6878098571
-
-    delta=0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
+    kt2fts = 1.6878098571
+    
+    delta  = 0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
 
     if IsHorz==1:
-        DIR=np.cos(phi)
+        DIR = np.cos(phi)
     elif IsHorz==0:
-        DIR=np.sin(phi)
+        DIR = np.sin(phi)
 
 
     if DIR==0:
-        SPL=np.zeros(24)
+        SPL = np.zeros(24)
     else:
 
-        fmax=0.1*(velocity/Units.ft)/(delta*(1-M*np.cos(theta)))
-        fmaxw=0.1*(velocity/Units.ft)/deltaw
+        fmax  = 0.1*(velocity/Units.ft)/(delta*(1-M*np.cos(theta)))
+        fmaxw = 0.1*(velocity/Units.ft)/deltaw
 
-        OASPL=50*np.log10((velocity/Units.kts)/100.0)+10*np.log10(delta*b/(distance**2.0))+8*ND+ \
+        OASPL = 50*np.log10((velocity/Units.kts)/100.0)+10*np.log10(delta*b/(distance**2.0))+8*ND+ \
             20*np.log10(DIR*np.sin(theta)*np.cos(theta/2.0))+104.3
 
-        SPL=OASPL+10.0*np.log10(0.613*(frequency/fmax)**4*((frequency/fmax)**1.5+0.5)**(-4))-0.03*np.abs(((frequency/fmaxw)-1))**1.5
+        SPL   = OASPL+10.0*np.log10(0.613*(frequency/fmax)**4*((frequency/fmax)**1.5+0.5)**(-4))-0.03*np.abs(((frequency/fmaxw)-1))**1.5
 
     return(SPL);

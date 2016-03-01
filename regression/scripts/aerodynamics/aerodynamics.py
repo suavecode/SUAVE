@@ -1,9 +1,9 @@
-# test_aerodynamics
+# aerodynamics.py
+# 
+# Created:  Sep 2014, T. MacDonald
+# Modified: Feb 2016, M. Vegh, T. MacDonald
 #
-# Created:  Tim MacDonald - 09/09/14
-# Modified: Tim MacDonald - 03/10/15
-#
-# Changed to use new structures and drag functions from Tarik
+# Modified to match compressibility drag updates
 
 import SUAVE
 from SUAVE.Core import Units
@@ -18,6 +18,7 @@ import pylab as plt
 import copy, time
 from copy import deepcopy
 import random
+from SUAVE.Attributes.Gases.Air import Air
 
 def main():
     
@@ -72,6 +73,11 @@ def main():
     mu = mu[:,None]
     T = T[:,None]
     pressure = pressure[:,None]
+    
+    air = Air()
+    a = air.compute_speed_of_sound(T,pressure)
+    
+    re = rho*a*Mc/mu
 
     
     state.conditions.freestream.mach_number = Mc
@@ -79,6 +85,7 @@ def main():
     state.conditions.freestream.dynamic_viscosity = mu
     state.conditions.freestream.temperature = T
     state.conditions.freestream.pressure = pressure
+    state.conditions.freestream.reynolds_number = re
     
     state.conditions.aerodynamics.angle_of_attack = angle_of_attacks   
     
@@ -159,10 +166,10 @@ def main():
     
     print '\nCompute Drag Test Results\n'
     #print drag_tests
-    
     for i, tests in drag_tests.items():
-        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
     
+        assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
+        
     #return conditions, configuration, geometry, test_num
       
 
@@ -171,12 +178,14 @@ def reg_values():
                          3.71806409e-04,   6.07658788e-05,   2.38156998e-09,   4.35875057e-11,
                          7.93890380e-05,   2.19714380e-03,   6.81119259e-14])
     
-    cd_i_r = np.array([ 2.37792323e-01,  3.36989611e-02, 1.29763962e-02,  3.78292450e-03, 5.68310476e-05,
-                        3.85710691e-03,  1.11551856e-02,   2.55851168e-02,  6.14241594e-02,  1.40294860e-01,
-                        9.83364067e-02])
-    cd_m_r = np.array([ 0.00116061,  0.00116061, 0.00116061,  0.00116061,  0.00116061,
-                        0.00116061,  0.00116061,  0.00116061, 0.00116061,  0.00116061,
-                        0.00116061])
+    cd_i_r = np.array([  2.37346258e-01,    3.36565402e-02, 1.29542895e-02,    3.77850337e-03,   5.67265374e-05,
+                         3.85244394e-03,   1.11420455e-02, 2.55484257e-02,    6.13416174e-02,   1.40092793e-01,
+                         9.82247050e-02])
+                        
+                        
+    cd_m_r = np.array([  0.00115409,  0.00115409,  0.00115409, 0.00115409,  0.00115409,  
+                         0.00115409,   0.00115409,  0.00115409, 0.00115409,  0.00115409,
+                         0.00115409])
     
     cd_m_fuse_base_r = np.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
     
@@ -186,23 +195,25 @@ def reg_values():
                                    4.80530506e-05,   4.80530506e-05])
     
     cd_m_nac_base_r = np.array([ 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                0.00033128])
+                                 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
+                                 0.00033128])
     
     cd_m_ctrl_r     = np.array([ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
                                  0.0001,  0.0001,  0.0001,  0.0001])
     
-    cd_p_fuse_r     = np.array([0.00581516 ,  0.00688254,  0.01062775,  0.00675354,  0.00682628,
+    cd_p_fuse_r     = np.array([ 0.00581516 ,  0.00688254,  0.01062775,  0.00675354,  0.00682628,
                                  0.00574868,  0.00707676, 0.00876415,  0.00686934,  0.00614271,
-                                  0.00718073])
+                                 0.00718073])
     
     cd_p_wing_r     = np.array([ 0.00568318,  0.00574321,  0.00911242,  0.00555159,  0.00636405,
-                                  0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
+                                 0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
                                  0.00583051])
     
-    cd_tot_r        = np.array([ 0.26090442 ,  0.05226559,  0.04064861,  0.02131244,  0.01959821,
-                                 0.01924375,  0.02958776,  0.048638 ,  0.08073381, 0.16192744,
-                                 0.11868474])
+    cd_tot_r        = np.array([ 0.25884934,  0.05207712,  0.04041585,  0.02117327,  0.0190625 ,
+                                 0.01909203,  0.0294378 ,  0.04842955,  0.08049371,  0.16149347,
+                                 0.11843868,])
+    
+    
     
     return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
            cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
@@ -268,7 +279,7 @@ if __name__ == '__main__':
     state.conditions.freestream.dynamic_viscosity = np.array([1.43408227e-05]*test_num)
     state.conditions.freestream.temperature = np.array([218.92391647]*test_num)
     state.conditions.freestream.pressure = np.array([23908.73408391]*test_num)
-            
+
     #call the aero model        
     results = aerodynamics.evaluate(state)
     
@@ -293,6 +304,6 @@ if __name__ == '__main__':
     axes.set_xlabel('$C_D$')
     axes.set_ylabel('$C_L$')
     
-    
+
     plt.show(block=True) # here so as to not block the regression test
       

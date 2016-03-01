@@ -1,8 +1,16 @@
-import numpy as np
-
+# Linear_Mach_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):

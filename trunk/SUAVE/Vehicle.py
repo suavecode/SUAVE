@@ -1,18 +1,18 @@
-""" Vehicle.py: SUAVE Vehicle container class with database + input / output functionality """
-
-#Modified: M. Vegh
+# Vehicle.py
+# 
+# Created:  ### 2013, SUAVE Team
+# Modified: ### ####, M. Vegh
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container, Data_Exception, Data_Warning
+from SUAVE.Core import Data, Container
 from SUAVE import Components
 from SUAVE.Components import Component_Exception
-from SUAVE.Methods.Utilities import switch
-
-from copy import deepcopy
 import numpy as np
+
 # ----------------------------------------------------------------------
 #  Vehicle Data Class
 # ----------------------------------------------------------------------
@@ -20,6 +20,7 @@ import numpy as np
 class Vehicle(Data):
     ''' SUAVE.Vehicle(**kwarg)
         Arbitrary Vehicle Initialization
+        Vehicle.py: SUAVE Vehicle container class with database + input / output functionality
 
         Inputs:
             optional, dictionary of data for initialization
@@ -53,10 +54,6 @@ class Vehicle(Data):
             Components.Systems.System                  : self['systems']                ,
             Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
-            #Components.Energy.Storages.Storage         : self['energy']['Storages']     ,
-            #Components.Energy.Distributors.Distributor : self['energy']['Distributors'] ,
-            #Components.Energy.Converters.Converter     : self['energy']['Converters']   ,
-            #Components.Energy.Networks.Network         : self['energy']['Networks']     ,
             Components.Envelope                        : self['envelope']               ,
         }
 
@@ -77,7 +74,6 @@ class Vehicle(Data):
 
         return component_root
 
-    #: get_component_root()
 
     def append_component(self,component):
         """ adds a component to vehicle """
@@ -137,10 +133,3 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
-
-        # ambiguous in this context
-        del self.mass
-        del self.volume
-
-
-
