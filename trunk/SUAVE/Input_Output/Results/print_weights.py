@@ -1,5 +1,8 @@
 """ print_weights.py """
 
+# Created: SUAVE team
+# Updated: Carlos Ilario, Feb 2016
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -26,7 +29,6 @@ def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
 		"""
     
     # Imports
-    import time                     # importing library
     import datetime                 # importing library
 
     #unpack

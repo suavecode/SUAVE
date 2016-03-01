@@ -1,8 +1,7 @@
-
-# D3JS.save_tree.py
+# Tree_Element.py
 #
 # Created: T. Lukaczyk Feb 2015
-# Updated:  
+# Updated: Carlos Ilario, Feb 2016
 
 """ SUAVE Methods for IO """
 

@@ -1,6 +1,7 @@
-# Input_Output.SUAVE.load.py
+#load.py
 #
 # Created By:   Trent Jan 2015
+# Updated: Carlos Ilario, Feb 2016
 
 """ Load a native SUAVE file """
 

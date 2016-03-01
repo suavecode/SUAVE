@@ -1,4 +1,7 @@
-""" print_engine_data.py """
+# print_engine_data.py
+
+# Created: SUAVE team
+# Updated: Carlos Ilario, Feb 2016
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -86,7 +89,7 @@ def print_engine_data(vehicle,filename = 'engine_data.dat'):
                 a_delta_ISA = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
                 
                 # Getting engine thrust
-                state.conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho_delta_ISA * speed**2))
+                state.conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho_delta_ISA * speed*speed))
                 state.conditions.freestream.gravity          = np.array(np.atleast_1d(sea_level_gravity))
                 state.conditions.freestream.velocity         = np.array(np.atleast_1d(speed))
                 state.conditions.freestream.mach_number      = np.array(np.atleast_1d(speed / a_delta_ISA))
