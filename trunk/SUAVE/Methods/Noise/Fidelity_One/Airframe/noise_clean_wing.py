@@ -45,7 +45,7 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
             Assumptions:
                 Correlation based."""
 
-    #Process
+    #Unit conversion required for the method
     kt2fts=1.6878098571
 
     delta=0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
