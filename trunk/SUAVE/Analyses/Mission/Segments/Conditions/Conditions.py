@@ -40,7 +40,7 @@ class Conditions(Data):
                 v.expand_rows(rows)
             # need arrays here
             elif np.rank(v) == 2:
-                self[k] = np.resize(v,[rows,v.shape[1]])
+                self[k] = np.multiply(np.ones([rows,v.shape[1]]),v)
             #: if type
         #: for each key,value
         
