@@ -1,7 +1,8 @@
 # aerodynamics.py
 # 
 # Created:  Sep 2014, T. MacDonald
-# Modified: Feb 2016, M. Vegh, T. MacDonald
+# Modified: Mar 2016, M. Vegh
+#           Feb 2016, M. Vegh, T. MacDonald
 #
 # Modified to match compressibility drag updates
 
@@ -135,7 +136,6 @@ def main():
     
     # Pull calculated values
     drag_breakdown = state.conditions.aerodynamics.drag_breakdown
-    
     # Only one wing is evaluated since they rely on the same function
     cd_c           = drag_breakdown.compressible['main_wing'].compressibility_drag
     cd_i           = drag_breakdown.induced.total
@@ -165,9 +165,10 @@ def main():
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
     print '\nCompute Drag Test Results\n'
-    #print drag_tests
-    for i, tests in drag_tests.items():
+
+ 
     
+    for i, tests in drag_tests.items(): 
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
         
     #return conditions, configuration, geometry, test_num
@@ -178,14 +179,14 @@ def reg_values():
                          3.71806409e-04,   6.07658788e-05,   2.38156998e-09,   4.35875057e-11,
                          7.93890380e-05,   2.19714380e-03,   6.81119259e-14])
     
-    cd_i_r = np.array([  2.37346258e-01,    3.36565402e-02, 1.29542895e-02,    3.77850337e-03,   5.67265374e-05,
-                         3.85244394e-03,   1.11420455e-02, 2.55484257e-02,    6.13416174e-02,   1.40092793e-01,
-                         9.82247050e-02])
+    cd_i_r = np.array([  2.37654680e-01,  3.37214301e-02,    1.29943295e-02,  3.78571730e-03,
+                         5.68230630e-05,  3.85838192e-03,    1.11645373e-02,  2.56130549e-02,
+                         6.14579869e-02,  1.40317319e-01,    9.84275825e-02])
                         
                         
-    cd_m_r = np.array([  0.00115409,  0.00115409,  0.00115409, 0.00115409,  0.00115409,  
-                         0.00115409,   0.00115409,  0.00115409, 0.00115409,  0.00115409,
-                         0.00115409])
+    cd_m_r = np.array([  0.00115434,      0.00115434,        0.00115434,      0.00115434,
+                         0.00115434,      0.00115434,        0.00115434,      0.00115434,
+                         0.00115434,      0.00115434,        0.00115434])
     
     cd_m_fuse_base_r = np.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
     
@@ -209,9 +210,9 @@ def reg_values():
                                  0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
                                  0.00583051])
     
-    cd_tot_r        = np.array([ 0.25884934,  0.05207712,  0.04041585,  0.02117327,  0.0190625 ,
-                                 0.01909203,  0.0294378 ,  0.04842955,  0.08049371,  0.16149347,
-                                 0.11843868,])
+    cd_tot_r        = np.array([ 0.25930498, 0.05235531, 0.04082563, 0.02138975,
+                                 0.01925104, 0.01926354, 0.02968335, 0.04878525,
+                                 0.0808212,  0.1618965 , 0.11887375])
     
     
     

@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 from SUAVE.Core import Units
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform as size_planform
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 # package imports
@@ -67,8 +67,7 @@ def main():
             takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
                     estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
     
-    print 'TOFL=', takeoff_field_length
-    
+   
     truth_TOFL = np.array([[ 1106.1894316 ,   720.57532937,   521.72582498],
                            [ 1169.44251482,   758.14235055,   548.54256171],
                            [ 1235.49201944,   797.22058262,   576.39554512],
@@ -80,18 +79,20 @@ def main():
                            [ 1694.3580448 ,  1064.76049592,   765.95832037],
                            [ 1781.95222403,  1115.09840143,   801.41246029]])
                              
-    truth_clb_grad = np.array([[ 0.06649541 , 0.24463624 , 0.42277707],
-                      [ 0.06081309 , 0.23278755 , 0.40476201],
-                      [ 0.05547936 , 0.22168242 , 0.38788549],
-                      [ 0.05046352 , 0.21125383 , 0.37204414],
-                      [ 0.04573839 , 0.20144252 , 0.35714665],
-                      [ 0.04127975 , 0.19219594 , 0.34311212],
-                      [ 0.03706599 , 0.18346728 , 0.32986858],
-                      [ 0.03307777 , 0.17521478 , 0.3173518 ],
-                      [ 0.0292977  , 0.167401   , 0.3055043 ],
-                      [ 0.02571014 , 0.15999231 , 0.29427448]])
+    truth_clb_grad = np.array([[ 0.06646224 , 0.24460307 , 0.4227439 ],
+                               [ 0.06078001 , 0.23275446 , 0.40472892],
+                               [ 0.05544635 , 0.22164942 , 0.38785248],
+                               [ 0.05043059 , 0.2112209  , 0.37201121],
+                               [ 0.04570553 , 0.20140966 , 0.35711379],
+                               [ 0.04124695 , 0.19216314 , 0.34307933],
+                               [ 0.03703326 , 0.18343455 , 0.32983584],
+                               [ 0.03304509 , 0.17518211 , 0.31731912],
+                               [ 0.02926508 , 0.16736838 , 0.30547168],
+                               [ 0.02567757 , 0.15995974 , 0.29424191]]   )
                                
-
+                       
+                               
+    print 'second_seg_clb_grad=', second_seg_clb_grad
     TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))                           
     GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad))
     
@@ -477,8 +478,14 @@ def vehicle_setup():
     gt_engine.thrust = thrust
 
     #size the turbofan
+    #create conditions object for sizing the turbofan
+    atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+  
+    conditions             = atmosphere.compute_values(altitude)
+    
     turbofan_sizing(gt_engine,mach_number,altitude)
-
+    compute_turbofan_geometry(gt_engine, conditions)
+    
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)
 

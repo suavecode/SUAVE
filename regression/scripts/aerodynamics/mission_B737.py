@@ -407,6 +407,21 @@ def vehicle_setup():
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
     
+    #compute engine areas
+    Amax    = (np.pi/4.)*turbofan.nacelle_diameter**2.
+    Ainlet  = .7*Amax
+    Ainflow = .8*Ainlet
+    Aexit   = .15*Amax
+    Awet    = .9*np.pi*turbofan.nacelle_diameter*turbofan.engine_length # .9 is simple coefficient
+    
+    #Assign engine areas
+    turbofan.areas.maximum = Amax
+    turbofan.areas.inflow  = Ainflow
+    turbofan.areas.exit    = Aexit
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
     
@@ -581,7 +596,7 @@ def vehicle_setup():
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
     
-    # add  gas turbine network gt_engine to the vehicle 
+    # add  gas turbine network turbofan to the vehicle 
     vehicle.append_component(turbofan)      
     
     

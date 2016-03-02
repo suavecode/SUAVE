@@ -13,6 +13,7 @@ import numpy as np
 import copy
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 
 from SUAVE.Methods.Noise.Fidelity_One.Airframe import noise_fidelity_one
 from SUAVE.Methods.Noise.Fidelity_One.Engine import noise_SAE
@@ -84,17 +85,26 @@ def initial_sizing(nexus):
             
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
-            
+        
+        #compute atmosphere conditions for turbo_fan sizing
+        
         air_speed   = nexus.missions.base.segments['cruise'].air_speed 
         altitude    = nexus.missions.base.segments['climb_5'].altitude_end
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+       
         
-        p, T, rho, a, mu = atmosphere.compute_values(altitude)
+        freestream             = atmosphere.compute_values(altitude) #freestream conditions
+        mach_number            = air_speed/freestream.speed_of_sound
+        freestream.mach_number = mach_number
+        freestream.velocity    = air_speed
+        freestream.gravity     = 9.81
         
-        mach_number = air_speed/a
-
+        conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+        conditions.freestream = freestream
+        
+        
         turbofan_sizing(config.propulsors['turbo_fan'], mach_number, altitude)
-        
+        compute_turbofan_geometry(config.propulsors['turbo_fan'], conditions)
         # diff the new data
         config.store_diff()  
         
