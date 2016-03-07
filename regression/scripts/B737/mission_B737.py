@@ -51,13 +51,13 @@ def main():
     results = mission.evaluate()
 
     # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
+    print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
 
     # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
+    print_engine_data(configs.base,filename = 'B737_engine_data.dat')
 
     # print parasite drag data into file
-        # define reference condition for parasite drag
+    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 12e6     
@@ -67,18 +67,18 @@ def main():
     #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
 
     # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
+    print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
     #save_results(results)
-    #old_results = load_results()   
+    old_results = load_results()   
 
     # plt the old results
     plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
-    #check_results(results,old_results)
+    check_results(results,old_results)
 
     return
 
@@ -384,7 +384,22 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
-
+    
+    #compute engine areas
+    Amax    = (np.pi/4.)*turbofan.nacelle_diameter**2.
+    Ainlet  = .7*Amax
+    Ainflow = .8*Ainlet
+    Aexit   = .15*Amax
+    Awet    = .9*np.pi*turbofan.nacelle_diameter*turbofan.engine_length # .9 is simple coefficient
+    
+    #Assign engine areas
+    turbofan.areas.maximum = Amax
+    turbofan.areas.inflow  = Ainflow
+    turbofan.areas.exit    = Aexit
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
