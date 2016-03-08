@@ -16,7 +16,6 @@ import numpy as np
 import pylab as plt
 
 import copy, time
-from copy import deepcopy
 import random
 from SUAVE.Attributes.Gases.Air import Air
 

@@ -105,7 +105,7 @@ def chebyshev_data(N = 16, integration = True, **options):
     # more math
     D = D - np.diag( np.sum( D.T, axis=0 ) );
 
-    # --- Integratin operator
+    # --- Integration operator
     
     if integration:
         # invert D except first row and column

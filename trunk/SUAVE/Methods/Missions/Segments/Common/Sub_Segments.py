@@ -2,12 +2,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from copy import deepcopy
+#           Mar 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Expand Sub Segments
@@ -24,7 +19,7 @@ def expand_sub_segments(segment,state):
         if Process.verbose:
             print 'segment start :' , tag
         
-        sub_state = deepcopy( sub_segment.state )
+        sub_state = sub_segment.state
         
         if last_tag:
             sub_state.initials = state.segments[last_tag]

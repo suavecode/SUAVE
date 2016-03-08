@@ -7,15 +7,11 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-from copy import deepcopy
-
 # SUAVE imports
 
 from SUAVE.Analyses import Analysis, Settings, Process
 
 from Conditions import State
-
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -62,10 +58,8 @@ class Segment(Analysis):
     
                         
     def evaluate(self,state=None):
-        if state is None:
-            state = deepcopy(self.state)
-        self.process(self,state)
-        return state
+        self.process(self,self.state)
+        return self.state
     
     
 # ----------------------------------------------------------------------

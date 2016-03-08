@@ -46,12 +46,12 @@ def main():
     vertical.symmetric     = False
     vertical.exposed_root_chord_offset = 13.3   * Units.feet
     ref_vertical           = extend_to_ref_area(vertical)
-    wing.areas.reference   = ref_vertical.areas.reference
-    wing.spans.projected   = ref_vertical.spans.projected
-    wing.chords.root       = ref_vertical.chords.root
-    dx_LE_vert             = ref_vertical.root_LE_change
+    wing.areas.reference   = ref_vertical.extended.areas.reference
+    wing.spans.projected   = ref_vertical.extended.spans.projected
+    wing.chords.root       = ref_vertical.extended.chords.root
+    dx_LE_vert             = ref_vertical.extended.root_LE_change
     wing.chords.tip        = vertical.chords.tip
-    wing.aspect_ratio      = ref_vertical.aspect_ratio
+    wing.aspect_ratio      = ref_vertical.extended.aspect_ratio
     wing.sweep             = vertical.sweep
     wing.taper             = wing.chords.tip/wing.chords.root
     wing.origin            = np.array([vertical.x_root_LE1 + dx_LE_vert,0.,0.])

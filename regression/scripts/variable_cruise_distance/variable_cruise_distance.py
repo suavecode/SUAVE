@@ -9,8 +9,6 @@ import mission_B737
 import SUAVE
 from SUAVE.Core import Units
 
-from copy import deepcopy
-
 from time import time
 
 import pylab as plt

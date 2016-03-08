@@ -40,7 +40,7 @@ class Simple(Segment):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
+        #initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -50,7 +50,7 @@ class Simple(Segment):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
+        #converge.clear()
         
         converge.converge_root             = Methods.converge_root
 
@@ -58,7 +58,7 @@ class Simple(Segment):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
+        #iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -79,7 +79,7 @@ class Simple(Segment):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
+        #finalize.clear()
         
         finalize.post_process = Process()
         

@@ -46,10 +46,6 @@ class DataBunch(IndexableBunch):
         # fill in defaults trunk to leaf
         for klass in klasses[::-1]:
             klass.__defaults__(self)
-        
-        ## ensure local copies
-        #for k,v in self.iteritems():
-            #self[k] = deepcopy(v)
             
         return self
     

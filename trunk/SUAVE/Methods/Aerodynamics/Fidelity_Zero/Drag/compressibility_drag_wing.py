@@ -15,11 +15,6 @@ from SUAVE.Core import (
 )
 from SUAVE.Components import Wings
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
 # package imports
 import numpy as np
 import scipy as sp

@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
-from copy import deepcopy
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Method
@@ -70,12 +70,17 @@ def extend_to_ref_area(surface):
     dx_LE  = -dh_center*np.tan(Lambda)
     AR     = b**2/S
 
-    ref_surface = deepcopy(surface)
-    ref_surface.spans.projected   = b * (1 + symm)
-    ref_surface.areas.reference   = S * (1 + symm)
-    ref_surface.aspect_ratio      = AR * (1 + symm)
-    ref_surface.chords.root       = c_root
-    ref_surface.root_LE_change    = dx_LE
-    ref_surface.origin[0]         = ref_surface.origin[0] + dx_LE
+    ref_surface = surface
+    surface.extended =  Data()
+    surface.extended.spans = Data()
+    surface.extended.areas = Data()
+    surface.extended.chords = Data()
+    ref_surface.extended.origin = np.array(surface.origin)*1.
+    ref_surface.extended.spans.projected   = b * (1 + symm)
+    ref_surface.extended.areas.reference   = S * (1 + symm)
+    ref_surface.extended.aspect_ratio      = AR * (1 + symm)
+    ref_surface.extended.chords.root       = c_root
+    ref_surface.extended.root_LE_change    = dx_LE
+    ref_surface.extended.origin[0]         = ref_surface.origin[0] + dx_LE
 
     return ref_surface

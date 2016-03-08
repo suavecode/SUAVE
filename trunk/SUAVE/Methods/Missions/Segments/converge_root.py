@@ -27,11 +27,13 @@ def converge_root(segment,state):
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
     
-    unknowns = root_finder( iterate,
+    unknowns,infodict,ier,msg = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
-                            xtol = state.numerics.tolerance_solution)
-    
+                            xtol = state.numerics.tolerance_solution,
+                            full_output=1)                         
+
+
     return
     
 # ----------------------------------------------------------------------
