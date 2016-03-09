@@ -84,7 +84,6 @@ class Ground(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
     
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -94,7 +93,6 @@ class Ground(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
     
         converge.converge_root             = Methods.converge_root    
        
@@ -102,7 +100,6 @@ class Ground(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
     
         # Update Initials
         iterate.initials = Process()
@@ -130,9 +127,6 @@ class Ground(Aerodynamic):
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
-    
-    
-        ## NEW STUFF TO UPDATE   
         
         # Solve Residuals
         iterate.residuals = Process()     
@@ -142,7 +136,6 @@ class Ground(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
     
         # Post Processing
         finalize.post_process = Process()        

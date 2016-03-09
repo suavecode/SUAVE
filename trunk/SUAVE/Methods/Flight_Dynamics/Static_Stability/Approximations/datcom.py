@@ -48,12 +48,8 @@ def datcom(wing,mach):
     """         
     
     #Unpack inputs
-    try:
-        ar = wing.effective_aspect_ratio
-    except AttributeError:   
-        ar = wing.aspect_ratio
-        
-    sweep  = wing.sweep # Value is at the leading edge
+    ar    = wing.aspect_ratio
+    sweep = wing.sweep # Value is at the leading edge
     
     #Compute relevent parameters
     cL_alpha = []

@@ -59,8 +59,7 @@ class Given_Weight(All_At_Once):
         # --------------------------------------------------------------
         #   Iterate
         # --------------------------------------------------------------        
-        iterate = self.process.iterate
-        iterate.clear()        
+        iterate = self.process.iterate    
         
         # unpack the unknown
         iterate.unpack_distance              = Methods.Segments.Cruise.Variable_Cruise_Distance.unknown_cruise_distance
