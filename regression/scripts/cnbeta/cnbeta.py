@@ -51,7 +51,7 @@ def main():
     dx_LE_vert             = wing.extended.root_LE_change
     wing.taper             = wing.chords.tip/wing.chords.root
     wing.origin            = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
-    wing.aspect_ratio      = 2.2
+    wing.aspect_ratio      = wing.extended.aspect_ratio*1.0
     wing.symmetric              = False
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])
     Mach                        = np.array([0.198])
