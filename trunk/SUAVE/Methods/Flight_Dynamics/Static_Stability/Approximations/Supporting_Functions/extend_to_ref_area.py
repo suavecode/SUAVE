@@ -72,10 +72,10 @@ def extend_to_ref_area(surface):
 
     ref_surface = surface
     surface.extended =  Data()
-    surface.extended.spans = Data()
-    surface.extended.areas = Data()
+    surface.extended.spans  = Data()
+    surface.extended.areas  = Data()
     surface.extended.chords = Data()
-    ref_surface.extended.origin = np.array(surface.origin)*1.
+    ref_surface.extended.origin            = np.array(surface.origin) * 1.
     ref_surface.extended.spans.projected   = b * (1 + symm)
     ref_surface.extended.areas.reference   = S * (1 + symm)
     ref_surface.extended.aspect_ratio      = AR * (1 + symm)

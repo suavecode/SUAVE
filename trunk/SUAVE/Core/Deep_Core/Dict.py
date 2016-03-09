@@ -23,6 +23,7 @@ class Dict(dict):
             # recurse only if self's value is a Dict()
             if k.startswith('_'):
                 continue
+        
             try:
                 self[k].update(v)
             except:

@@ -49,7 +49,10 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
     # Unpack inputs
     sweep = wing.sweep
     taper = wing.taper
-    ar    = wing.aspect_ratio
+    try:
+        ar = wing.extended.aspect_ratio
+    except:
+        ar = wing.aspect_ratio    
     
     #Convert sweep to leading edge sweep if it was not already so
     if old_ref_chord_fraction == 0.0:
