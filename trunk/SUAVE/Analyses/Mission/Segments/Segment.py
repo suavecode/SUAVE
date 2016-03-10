@@ -58,8 +58,10 @@ class Segment(Analysis):
     
                         
     def evaluate(self,state=None):
-        self.process(self,self.state)
-        return self.state
+        if state is None:
+            state = self.state
+        self.process(self,state)
+        return state
     
     
 # ----------------------------------------------------------------------

@@ -49,9 +49,13 @@ def datcom(wing,mach):
     
     #Unpack inputs
     try:
-        ar = wing.extended.aspect_ratio
+        ar = wing.effective_aspect_ratio
+        
     except:
-        ar = wing.aspect_ratio
+        try:
+            ar = wing.extended.aspect_ratio
+        except:
+            ar = wing.aspect_ratio
     
     #Compute relevent parameters
     cL_alpha = []

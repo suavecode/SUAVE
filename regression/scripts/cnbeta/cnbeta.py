@@ -36,11 +36,11 @@ def main():
     vehicle.append_component(wing)
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.spans.exposed = 32.4   * Units.feet
-    wing.chords.root   = 38.7 * Units.feet      # vertical.chords.fuselage_intersect
-    wing.chords.tip    = 13.4   * Units.feet
-    wing.sweep         = 50.0   * Units.deg # Leading Edge
-    wing.x_root_LE1    = 180.0  * Units.feet
+    wing.spans.exposed = 32.4  * Units.feet
+    wing.chords.root   = 38.7  * Units.feet      # vertical.chords.fuselage_intersect
+    wing.chords.tip    = 13.4  * Units.feet
+    wing.sweep         = 50.0  * Units.deg # Leading Edge
+    wing.x_root_LE1    = 180.0 * Units.feet
     wing.symmetric     = False
     wing.exposed_root_chord_offset = 13.3   * Units.feet
     wing                   = extend_to_ref_area(wing)
@@ -51,7 +51,8 @@ def main():
     dx_LE_vert             = wing.extended.root_LE_change
     wing.taper             = wing.chords.tip/wing.chords.root
     wing.origin            = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
-    wing.aspect_ratio      = wing.extended.aspect_ratio*1.0
+    wing.aspect_ratio      = 2.2
+    wing.effective_aspect_ratio = 2.2
     wing.symmetric              = False
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])
     Mach                        = np.array([0.198])
@@ -89,7 +90,7 @@ def main():
 
     #Method Test
     cn_b = taw_cnbeta(vehicle,segment,configuration)
-    expected = 0.08122837 # Should be 0.184
+    expected = 0.10817575 # Should be 0.184
     error = Data()
     error.cn_b_747 = (cn_b-expected)/expected
 
