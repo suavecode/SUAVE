@@ -26,9 +26,9 @@ class OrderedBunch(Bunch,OrderedDict):
 
         self = Bunch.__new__(klass)
         
-        try:
+        if hasattr(self,'_root'):
             self._root
-        except:
+        else:
             root = [] # sentinel node
             root[:] = [root, root, None]
             dict.__setitem__(self,'_root',root)
@@ -41,6 +41,7 @@ class OrderedBunch(Bunch,OrderedDict):
         # Setting a new item creates a new link which goes at the end of the linked
         # list, and the inherited dictionary is updated with the new key/value pair.
         if not hasattr(self,key) and not hasattr(self.__class__,key):
+        #if not self.has_key(key) and not hasattr(self.__class__,key):
             root = dict.__getitem__(self,'_root')
             last = root[0]
             map  = dict.__getitem__(self,'_map')

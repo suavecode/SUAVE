@@ -48,15 +48,16 @@ def datcom(wing,mach):
     """         
     
     #Unpack inputs
-    try:
+    if wing.has_key('effective_aspect_ratio'):
         ar = wing.effective_aspect_ratio
-        
-    except:
-        try:
+    elif wing.has_key('extended'):
+        if wing.extended.has_key('aspect_ratio'):
             ar = wing.extended.aspect_ratio
-        except:
+        else:
             ar = wing.aspect_ratio
-    
+    else:
+        ar = wing.aspect_ratio    
+        
     #Compute relevent parameters
     cL_alpha = []
     half_chord_sweep = convert_sweep(wing,0.25,0.5)  #Assumes original sweep is that of LE

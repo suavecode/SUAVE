@@ -10,7 +10,6 @@
 
 # package imports
 import numpy as np
-import pylab as plt
 
 
 # ----------------------------------------------------------------------
@@ -51,12 +50,12 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     Rex = Re*xt
     Rex[Rex==0.0] = 0.0001
 
-    theta = 0.671*xt/np.sqrt(Rex)
+    theta = 0.671*xt/(Rex**0.5)
     xeff  = (27.78*theta*Re**0.2)**1.25
     Rext  = Re*(1-xt+xeff)
     
     cf_turb  = 0.455/(np.log10(Rext)**2.58)
-    cf_lam   = 1.328/np.sqrt(Rex)
+    cf_lam   = 1.328/(Rex**0.5)
     
     if xt > 0.0:
         cf_start = 0.455/(np.log10(Re*xeff)**2.58)
@@ -87,6 +86,7 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
 if __name__ == '__main__':    
     
     validation_test = 0
+    import pylab as plt
     
     if validation_test:
     
