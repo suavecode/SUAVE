@@ -12,7 +12,7 @@ import scipy
 import scipy.optimize
 
 from SUAVE.Core.Arrays import array_type
-
+from SUAVE.Core import Multi
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -36,9 +36,8 @@ def converge_root(segment,state):
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
-                            xtol = state.numerics.tolerance_solution)                                   
-
-
+                            xtol = state.numerics.tolerance_solution)      
+                            
     return
     
 # ----------------------------------------------------------------------
@@ -57,4 +56,13 @@ def iterate(unknowns,(segment,state)):
     residuals = state.residuals.pack_array()
         
     return residuals 
+
+def jacobian(unknowns,(segment,state)):
+    
+    
+    
+    
+    return jacobian
+    
+    
 
