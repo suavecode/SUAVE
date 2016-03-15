@@ -21,8 +21,7 @@ class Propulsor(Physical_Component):
 
     def __defaults__(self):
         self.tag = 'Propulsor'
-        self.parasite_drag_form_factor = 2.3 #used for drag module
-
+        
 class Container(Physical_Component.Container):
     """ Contains many SUAVE.Components.Propulsor()
     
