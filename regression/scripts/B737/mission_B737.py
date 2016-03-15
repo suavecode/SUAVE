@@ -386,16 +386,9 @@ def vehicle_setup():
     turbofan.nacelle_diameter  = 2.05
     
     #compute engine areas
-    Amax    = (np.pi/4.)*turbofan.nacelle_diameter**2.
-    Ainlet  = .7*Amax
-    Ainflow = .8*Ainlet
-    Aexit   = .15*Amax
-    Awet    = .9*np.pi*turbofan.nacelle_diameter*turbofan.engine_length # .9 is simple coefficient
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
     
     #Assign engine areas
-    turbofan.areas.maximum = Amax
-    turbofan.areas.inflow  = Ainflow
-    turbofan.areas.exit    = Aexit
     turbofan.areas.wetted  = Awet
     
     
@@ -1155,5 +1148,5 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    plt.show()
+    #plt.show()
 

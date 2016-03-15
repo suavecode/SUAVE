@@ -390,18 +390,19 @@ def vehicle_setup():
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
+    #gt_engine.nacelle_length  =
+    
+    
+    #gt_engine.nacelle_diameter  = 1.1*1.5 #CFM 56
+    #gt_engine.engine_length     = 2.5
+    
     
     #compute engine areas)
     Amax    = (np.pi/4.)*gt_engine.nacelle_diameter**2.
-    Ainlet  = .7*Amax
-    Ainflow = .8*Ainlet
-    Aexit   = .15*Amax
-    Awet    = .9*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # .9 is simple coefficient
+    Awet    = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
     
     #Assign engine areas
-    gt_engine.areas.maximum = Amax
-    gt_engine.areas.inflow  = Ainflow
-    gt_engine.areas.exit    = Aexit
+
     gt_engine.areas.wetted  = Awet
     
     #set the working fluid for the network
@@ -1076,4 +1077,4 @@ def save_results(results):
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    #plt.show()

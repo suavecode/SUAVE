@@ -390,7 +390,15 @@ def vehicle_setup():
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
-
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
     

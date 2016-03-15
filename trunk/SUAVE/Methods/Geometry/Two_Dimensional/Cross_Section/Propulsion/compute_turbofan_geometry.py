@@ -37,35 +37,18 @@ def compute_turbofan_geometry(turbofan, conditions):
     #based on 241 notes
     nacelle_diameter_in  = 1.0827*slsthrust**0.4134
     nacelle_diameter     = 0.0254*nacelle_diameter_in
-    
-    #compute exit area
-    rho5_fan          = fan_nozzle.outputs.density
-    U5_fan            = fan_nozzle.outputs.velocity
-    rho5_core         = core_nozzle.outputs.density
-    U5_core           = core_nozzle.outputs.velocity
-    
-    mass_flow         = thrust.mass_flow_rate_design
-    mass_flow_fan     = mass_flow*bypass_ratio
-    
-    Ae_fan            = mass_flow_fan/(rho5_fan*U5_fan)
-    Ae_core           = mass_flow/(rho5_core*U5_core)
+
     
     #compute other dimensions based on AA241 notes
     L_eng_in          = 2.4077*slsthrust**0.3876
     L_eng_m           = 0.0254*L_eng_in          #engine length in metres
-    Amax              = (np.pi/4.)*(nacelle_diameter*nacelle_diameter)
-    Ainlet            = .7*Amax
-    Ainflow           = .8*Ainlet
-    Aexit             = (Ae_fan+Ae_core)[0][0]
    
 
     # pack
     turbofan.engine_length    = L_eng_m
     turbofan.nacelle_diameter = nacelle_diameter
-    turbofan.areas.maximum    = Amax 
-    turbofan.areas.inflow     = Ainflow
-    turbofan.areas.exit       = Aexit
-    turbofan.areas.wetted     = .9*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+  
+    turbofan.areas.wetted     = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
     
     
 # ----------------------------------------------------------------------

@@ -43,8 +43,8 @@ def main():
     noise_cumulative_margin = objectives[1]
     
     actual = Data()
-    actual.fuel_burn = 8297.19177512
-    actual.noise_cumulative_margin = 17.8951445922
+    actual.fuel_burn = 8308.4932412
+    actual.noise_cumulative_margin = 17.8854323837
 
     
     
