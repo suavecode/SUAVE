@@ -29,7 +29,7 @@ def compute_ducted_fan_geometry(ducted_fan, conditions):
     # unpack
     thrust            = ducted_fan.thrust
     fan_nozzle        = ducted_fan.fan_nozzle
-    mass_flow  = thrust.mass_flow_rate_design
+    mass_flow         = thrust.mass_flow_rate_design
 
     #evaluate engine at these conditions
     state=Data()
@@ -45,14 +45,14 @@ def compute_ducted_fan_geometry(ducted_fan, conditions):
     Ae       = mass_flow[0][0]/(rhoe[0][0]*Ue[0][0]) #ducted fan nozzle exit area
     A0       = (mass_flow/(rho0*U0))[0][0]
     
-    ducted_fan.areas.inflow  = A0
-    ducted_fan.areas.maximum = 1.2*Ae/fan_nozzle.outputs.area_ratio
-    ducted_fan.areas.exit    = 1.2*Ae
+
+   
+    ducted_fan.areas.maximum = 1.2*Ae/fan_nozzle.outputs.area_ratio[0][0]
     ducted_fan.nacelle_diameter = 2.1*((ducted_fan.areas.maximum/np.pi)**.5)
 
     ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
     ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
-    
+
     
 # ----------------------------------------------------------------------
 #   Module Tests

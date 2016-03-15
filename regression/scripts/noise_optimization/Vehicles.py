@@ -1,15 +1,17 @@
 # Vehicles.py
 # 
 # Created:  Nov 2015, Carlos / Tarik
-# Modified: 
+# Modified: Mar 2016, M. Vegh
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
 import SUAVE
+import numpy as np
 from SUAVE.Core import Units,Data
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -268,7 +270,12 @@ def base_setup():
     turbofan.geometry_ye          = 1. # Geometry information for the installation effects function   
     turbofan.geometry_Ce          = 2. # Geometry information for the installation effects function
     
-
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #assign engine areas
+    turbofan.areas.wetted  = Awet
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
