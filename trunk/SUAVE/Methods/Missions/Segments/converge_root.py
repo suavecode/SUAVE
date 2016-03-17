@@ -29,8 +29,6 @@ def converge_root(segment,state):
         root_finder = segment.settings.root_finder
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
-        
-    arguments = (segment,state)
     
     #unknowns,infodict,ier,msg = root_finder( iterate,
                             #unknowns,
@@ -41,8 +39,7 @@ def converge_root(segment,state):
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
-                            xtol = state.numerics.tolerance_solution,
-                            fprime=jacobian)      
+                            xtol = state.numerics.tolerance_solution)      
                             
     return
     
@@ -86,7 +83,7 @@ def jacobian2(unknowns,(segment,state)):
 def jacobian(unknowns,(segment,state)):
     
     # number of processes
-    n = 8
+    n = 4
     h = 1e-8
     
     # number of unknowns
@@ -114,6 +111,8 @@ def jacobian(unknowns,(segment,state)):
     
     # run in parallel
     p.map(e, x)
+    
+    #map(e,x)
 
     # cleanup multiprocessing stuff
     p.close()    
@@ -128,7 +127,3 @@ def jacobian(unknowns,(segment,state)):
     jac = (y-base_jac)/h
 
     return jac
-    
-        
-
-
