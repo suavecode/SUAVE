@@ -16,7 +16,7 @@ from SUAVE.Optimization import helper_functions as help_fun
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
-def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
+def Pyopt_Solve(problem,solver='SNOPT',FD='single', nonderivative_line_search=False):
    
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
@@ -96,10 +96,14 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
         opt = pyOpt.pyNLPQL.NLPQL()    
     elif solver == 'NSGA2':
         import pyOpt.pyNSGA2
-        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')     
+        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA') 
+    if nonderivative_line_search==True:
+        opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
     else:
+        
+        
         outputs = opt(opt_prob, sens_type='FD')        
    
     return outputs
