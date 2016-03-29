@@ -126,7 +126,7 @@ def update_velocity_vector_from_wind_angle(segment,state):
     conditions = state.conditions 
     q          = segment.dynamic_pressure
     alpha      = state.unknowns.wind_angle[:,0][:,None]
-    theta      = state.unknowns.body_angle[:,0] 
+    theta      = state.unknowns.body_angle[:,0][:,None]
     
     # Update freestream to get density
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
@@ -138,8 +138,8 @@ def update_velocity_vector_from_wind_angle(segment,state):
     gamma = theta-alpha    
 
     # process
-    v_x =  v_mag * np.cos(gamma)
-    v_z = -v_mag * np.sin(gamma) # z points down
+    v_x =  v_mag[:,None] * np.cos(gamma)
+    v_z = -v_mag[:,None] * np.sin(gamma) # z points down
 
     # pack
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
