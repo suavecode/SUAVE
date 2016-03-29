@@ -39,7 +39,8 @@ def converge_root(segment,state):
     unknowns = root_finder( iterate,
                             unknowns,
                             args = [segment,state],
-                            xtol = state.numerics.tolerance_solution)      
+                            xtol = state.numerics.tolerance_solution,
+                            fprime = jacobian)      
                             
     return
     
@@ -102,7 +103,7 @@ def jacobian(unknowns,(segment,state)):
     # setup multiprocessing stuff
     m = mp.Manager()
     results_queue = m.JoinableQueue()
-    p = mp.Pool(n)  
+    p = mp.Pool(n)
     
     args = (segment,state)
     
@@ -110,18 +111,24 @@ def jacobian(unknowns,(segment,state)):
     e = Evaluator(iterate,args,results_queue)   
     
     # run in parallel
-    p.map(e, x)
-    
-    #map(e,x)
+    #results_queue2 = p.map_async(e, x)
+    p.map(e,x)
 
     # cleanup multiprocessing stuff
     p.close()    
     
-    # sort outputs by index
+    #sort outputs by index
     y = {}
     while not results_queue.empty():
         i,g = results_queue.get()
         y[i] = g
+    
+    #results = results_queue2.get()
+    #y = np.zeros_like(base_jac)
+    #for i in xrange(len(results)):
+        #tup   = results[i]
+        #y[tup[0],:] = tup[1]
+    
     y = [y[k] for k in sorted(y.keys())]    
     
     jac = (y-base_jac)/h

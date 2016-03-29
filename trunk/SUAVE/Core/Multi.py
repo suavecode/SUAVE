@@ -1,8 +1,4 @@
 
-import multiprocessing as mp
-import numpy as np
-import time
-import sys
 
 
 class Evaluator(object):
@@ -15,5 +11,5 @@ class Evaluator(object):
         index,inputs = inputs
         output = self.function(inputs,self.args)
         self.outbox.put([index,output])
-        return
+        return index,output
         
