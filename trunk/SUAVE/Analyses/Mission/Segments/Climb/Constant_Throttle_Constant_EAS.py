@@ -106,6 +106,7 @@ class Constant_Throttle_Constant_EAS(Aerodynamic):
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
+        iterate.conditions.velocities_b    = Methods.Climb.Constant_Throttle_Constant_EAS.update_velocity_vector_from_wind_angle
         
         # Solve Residuals
         iterate.residuals = Process()
