@@ -60,7 +60,7 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        configuration.propulsors.turbo_fan.number_of_engines = engine_number
+        configuration.propulsors.turbofan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
@@ -334,7 +334,7 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbo_fan'
+    gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
