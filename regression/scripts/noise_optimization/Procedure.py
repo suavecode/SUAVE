@@ -86,7 +86,7 @@ def initial_sizing(nexus):
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
         
-        #compute atmosphere conditions for turbo_fan sizing
+        #compute atmosphere conditions for turbofan sizing
         
         air_speed   = nexus.missions.base.segments['cruise'].air_speed 
         altitude    = nexus.missions.base.segments['climb_5'].altitude_end
@@ -103,8 +103,8 @@ def initial_sizing(nexus):
         conditions.freestream = freestream
         
         
-        turbofan_sizing(config.propulsors['turbo_fan'], mach_number, altitude)
-        compute_turbofan_geometry(config.propulsors['turbo_fan'], conditions)
+        turbofan_sizing(config.propulsors['turbofan'], mach_number, altitude)
+        compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
         # diff the new data
         config.store_diff()  
         
