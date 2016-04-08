@@ -21,7 +21,7 @@ def main():
     
     #Build an dsize the turbofan to get sls sthrust
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
     
     # setup
     turbofan.number_of_engines = 2.0

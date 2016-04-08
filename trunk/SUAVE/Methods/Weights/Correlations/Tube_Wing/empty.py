@@ -100,20 +100,21 @@ def empty(vehicle):
     
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    
     propulsors     = vehicle.propulsors[propulsor_name]
-    if propulsor_name=='turbo_fan':
-        num_eng    = propulsors.number_of_engines
-                # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
-                # weight estimation. Engine sizing should return this value.
-                # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
+    num_eng    = propulsors.number_of_engines
+    if propulsor_name=='turbofan' or propulsor_name=='Turbofan':
+        # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
+        # weight estimation. Engine sizing should return this value.
+        # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
         thrust_sls                       = propulsors.sealevel_static_thrust
         wt_engine_jet                    = Propulsion.engine_jet(thrust_sls)
         wt_propulsion                    = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 
         
-    else : #propulsor used is not a turbo_fan; assume mass_properties defined outside model
+    else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
         wt_propulsion                   = propulsors.mass_properties.mass
-        
+
         if wt_propulsion==0:
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     
