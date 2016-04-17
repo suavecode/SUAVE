@@ -218,7 +218,6 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
         plt.plot(R,PLD,'r')
         plt.xlabel('Range (nm)'); plt.ylabel('Payload (kg)'); plt.title(title)
         plt.grid(True)
-        plt.savefig('pld_range.pdf')
         plt.show(True)
 
     return payload_range
