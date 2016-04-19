@@ -156,7 +156,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
-                  + str('%8.0F' % (err+FUEL[i]+reserves))+' (kg) | Error : '+str('%8.0F' % err))
+                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Residual : '+str('%8.0F' % err))
 
         # Allocating resulting range in ouput array.
         R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
