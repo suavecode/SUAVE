@@ -930,6 +930,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
