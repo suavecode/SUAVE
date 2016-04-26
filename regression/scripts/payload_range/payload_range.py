@@ -26,7 +26,7 @@ Data, Container, Data_Exception, Data_Warning,
 # the analysis functions
 from plot_mission import plot_mission
 
-from mission_Embraer_E190_constThr import full_setup
+from mission_Embraer_E190_constThr_payload_range import full_setup
 
 from SUAVE.Methods.Performance  import payload_range
 

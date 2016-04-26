@@ -39,6 +39,7 @@ modules = [
     'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/B737/mission_B737.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
+    'scripts/concorde/concorde.py',
     #'regression/test_mission_AS2.py',
     'scripts/landing_field_length/landing_field_length.py',
     'scripts/take_off_field_length/take_off_field_length.py',
