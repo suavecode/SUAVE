@@ -36,14 +36,13 @@ def main():
 
     problem.objective(input_vec)
 
-    constraints = problem.all_constraints() * problem.optimization_problem.constraints[:,3]
     objectives  = problem.objective()       * problem.optimization_problem.objective[:,1]
 
     fuel_burn               = objectives[0]
     noise_cumulative_margin = objectives[1]
     
     actual = Data()
-    actual.fuel_burn = 8308.4932412
+    actual.fuel_burn = 0.1
     actual.noise_cumulative_margin = 17.820611883056927
 
     

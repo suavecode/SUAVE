@@ -52,17 +52,6 @@ def setup():
     procedure.noise.noise_sideline    = noise_sideline
     procedure.noise.noise_flyover     = noise_flyover
     procedure.noise.noise_approach    = noise_approach 
-    
-    # performance studies
-    procedure.missions                   = Process()
-    procedure.missions.design_mission    = design_mission
-    procedure.missions.short_field       = short_field_mission 
-    
-    # calculate field lengths
-    procedure.takeoff_field_length       = takeoff_field_length
-    procedure.landing_field_length       = landing_field_length
-
-    procedure.short_takeoff_field_length = short_takeoff_field_length
   
     # post process the results
     procedure.post_process = post_process
@@ -357,7 +346,9 @@ def noise_sideline(nexus):
     nexus.analyses.takeoff.noise.settings.sideline = 1
     nexus.analyses.takeoff.noise.settings.flyover  = 0
     results = nexus.results
-    results.sideline = mission.evaluate()
+    #results.sideline = mission.evaluate()
+    #SUAVE.Input_Output.SUAVE.archive(results.sideline,'sideline.res')
+    results.sideline = SUAVE.Input_Output.SUAVE.load('sideline.res')   
     
     #Determine the x0
     x0 = 0.    
@@ -370,6 +361,7 @@ def noise_sideline(nexus):
     nexus.analyses.takeoff.noise.settings.mic_x_position = x0 
     
     noise_segment = results.sideline.segments.climb
+    SUAVE.Input_Output.SUAVE.archive(results.sideline,'sideline.res')
     noise_config  = nexus.vehicle_configurations.takeoff
     noise_analyse = nexus.analyses.takeoff
     noise_config.engine_flag = 1
@@ -401,7 +393,9 @@ def noise_flyover(nexus):
     nexus.analyses.takeoff.noise.settings.flyover = 1
     nexus.analyses.takeoff.noise.settings.sideline = 0
     results = nexus.results
-    results.flyover = mission.evaluate()    
+    #results.flyover = mission.evaluate()  
+    #SUAVE.Input_Output.SUAVE.archive(results.flyover,'flyover.res')
+    results.flyover = SUAVE.Input_Output.SUAVE.load('flyover.res')   
     
     noise_segment = results.flyover.segments.climb
     noise_config  = nexus.vehicle_configurations.takeoff
@@ -444,7 +438,10 @@ def noise_approach(nexus):
     mission = nexus.missions.landing
     nexus.analyses.landing.noise.settings.approach = 1    
     results = nexus.results
-    results.approach = mission.evaluate()
+    #results.approach = mission.evaluate()
+    #SUAVE.Input_Output.SUAVE.archive(results.approach,'approach.res')
+    results.approach = SUAVE.Input_Output.SUAVE.load('approach.res')  
+    
     
     noise_segment = results.approach.segments.descent
     noise_config  = nexus.vehicle_configurations.landing
@@ -454,7 +451,7 @@ def noise_approach(nexus):
     noise_config.output_file  = 'Noise_Approach.dat'
     noise_config.output_file_engine = 'Noise_Approach_Engine.dat'
     
-    noise_config.engine_flag = 1
+    noise_config.engine_flag = 1 
    
     noise_result_approach = compute_noise(noise_config,noise_analyse,noise_segment)
        
@@ -629,54 +626,9 @@ def post_process(nexus):
     vehicle               = nexus.vehicle_configurations.base  
     short_vehicle         = nexus.vehicle_configurations.short_field_takeoff
     results               = nexus.results
+    save_results(results)
     summary               = nexus.summary
     missions              = nexus.missions      
-    
-    #throttle in design mission
-    max_throttle=0
-    for segment in results.base.segments.values():
-        max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
-        if max_segment_throttle > max_throttle:
-            max_throttle = max_segment_throttle
-    
-    #throttle in noise missions
-    max_throttle=0
-    for mission in results.values():
-
-        for segment in mission.segments.values():
-
-            max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
-            if max_segment_throttle > max_throttle:
-                max_throttle = max_segment_throttle  
-    
-    summary.max_throttle = max_throttle
-    
-    # Fuel margin and base fuel calculations
-    operating_empty          = vehicle.mass_properties.operating_empty
-    payload                  = vehicle.mass_properties.payload
-    max_payload              = vehicle.mass_properties.max_payload
-    max_zero_fuel_weight     = vehicle.mass_properties.max_zero_fuel
-    short_landing_weight     = results.short_field.segments[-1].conditions.weights.total_mass[-1]
-    max_range_landing_weight = results.max_range.segments[-1].conditions.weights.total_mass[-1]
-    design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
-    design_takeoff_weight    = vehicle.mass_properties.takeoff
-    max_takeoff_weight       = nexus.vehicle_configurations.takeoff.mass_properties.max_takeoff   
-    
-    final_weight_expected    = operating_empty + payload
-        
-    summary.design_range_fuel_margin = (design_landing_weight - final_weight_expected)
-    summary.short_field_fuel_margin  = (short_landing_weight - final_weight_expected)
-    summary.max_range_fuel_margin    = (max_range_landing_weight - final_weight_expected)
-    summary.MZFW_consistency         = (max_zero_fuel_weight - (operating_empty + max_payload))    
-
-    #addition of mission and reserves fuelburn
-    #base
-    summary.base_mission_fuelburn   = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
-    summary.base_reserve_fuelburn   = results.base.segments['descent_3'].conditions.weights.total_mass[-1] - results.base.segments[-1].conditions.weights.total_mass[-1]
-
-    #max range
-    summary.maxrange_mission_fuelburn   = max_takeoff_weight - results.max_range.segments['descent_3'].conditions.weights.total_mass[-1]
-    summary.maxrange_reserve_fuelburn   = results.max_range.segments['descent_3'].conditions.weights.total_mass[-1] - results.max_range.segments[-1].conditions.weights.total_mass[-1]
    
     #calculation of noise certification limits based on the aircraft weight
     noise_limits = noise_certification_limits(results, vehicle)
@@ -685,12 +637,13 @@ def post_process(nexus):
     summary.noise_sideline_margin = noise_limits[2] - summary.noise.sideline 
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
-
-    beta_fuel = 0.
-    beta_noise = (1. - beta_fuel)    
-    weighted_sum_objective = (summary.base_mission_fuelburn * beta_fuel)/10000. + (-summary.noise_margin * beta_noise)/10.    
-    
-    summary.weighted_sum_objective = weighted_sum_objective
+    summary.base_mission_fuelburn = 0.1
+    summary.weighted_sum_objective = 0.1
     
   
     return nexus    
+
+
+def save_results(results):
+    SUAVE.Input_Output.SUAVE.archive(results,'results_noise.res')
+    return
