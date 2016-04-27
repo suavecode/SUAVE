@@ -25,7 +25,8 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     landing_gear       = vehicle.landing_gear
     #main_landing_gear  = vehicle.main_landing_gear
     #nose_landing_gear  = vehicle.nose_landing_gear    
-    turbo_fan          = vehicle.propulsors['turbo_fan']
+    propulsor_name     = vehicle.propulsors.keys()[0]
+    propulsor          = vehicle.propulsors[propulsor_name]
     electrical_systems = vehicle.electrical_systems
     avionics           = vehicle.avionics
     furnishings        = vehicle.furnishings
@@ -59,8 +60,8 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     fuselage_moment           = (fuselage.origin+fuselage_cg)*fuselage.mass_properties.mass 
     
     # Turbofan
-    turbo_fan_cg              = turbo_fan.mass_properties.center_of_gravity
-    turbo_fan_moment          = (turbo_fan.origin+turbo_fan_cg)*turbo_fan.mass_properties.mass
+    propulsor_cg              = propulsor.mass_properties.center_of_gravity
+    propulsor_moment          = (propulsor.origin+propulsor_cg)*propulsor.mass_properties.mass
     
     # Electrical system
     electrical_systems_cg     = electrical_systems.mass_properties.center_of_gravity
@@ -106,7 +107,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     #find moment of every object other than landing gear to find aft gear location, then cg
     sum_moments              = (wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
-        fuselage_moment+turbo_fan_moment+electrical_systems_moment+\
+        fuselage_moment+propulsor_moment+electrical_systems_moment+\
         avionics_moment+furnishings_moment+passengers_moment+ac_moment+\
         fuel_moment+apu_moment+ hydraulics_moment+optionals_moment  )
             
