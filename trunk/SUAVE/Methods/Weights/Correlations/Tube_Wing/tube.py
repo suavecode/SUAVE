@@ -51,7 +51,7 @@ def tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propul
     
     #process
     
-    # Calculate fuselage indeces
+    # Calculate fuselage indices
     I_p = 1.5 *10**-3. * diff_p * width
     I_b = 1.91 *10 **-4. * Nlim * weight * length / height**2.
    

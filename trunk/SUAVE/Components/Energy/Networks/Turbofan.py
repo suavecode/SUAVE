@@ -26,7 +26,7 @@ class Turbofan(Propulsor):
     def __defaults__(self):
         
         #setting the default values
-        self.tag = 'Turbo_Fan'
+        self.tag = 'Turbofan'
         self.number_of_engines = 1.0
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
