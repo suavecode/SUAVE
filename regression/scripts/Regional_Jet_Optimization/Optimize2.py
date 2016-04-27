@@ -9,11 +9,11 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 import numpy as np
-import Vehicles
-import Analyses
-import Missions
-import Procedure
-import Plot_Mission
+import Vehicles2
+import Analyses2
+import Missions2
+import Procedure2
+import Plot_Mission2
 import matplotlib.pyplot as plt
 from SUAVE.Optimization import Nexus, carpet_plot
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
@@ -101,25 +101,25 @@ def setup():
     # -------------------------------------------------------------------
     #  Vehicles
     # -------------------------------------------------------------------
-    nexus.vehicle_configurations = Vehicles.setup()
+    nexus.vehicle_configurations = Vehicles2.setup()
     
     
     # -------------------------------------------------------------------
     #  Analyses
     # -------------------------------------------------------------------
-    nexus.analyses = Analyses.setup(nexus.vehicle_configurations)
+    nexus.analyses = Analyses2.setup(nexus.vehicle_configurations)
     
     
     # -------------------------------------------------------------------
     #  Missions
     # -------------------------------------------------------------------
-    nexus.missions = Missions.setup(nexus.analyses)
+    nexus.missions = Missions2.setup(nexus.analyses)
     
     
     # -------------------------------------------------------------------
     #  Procedure
     # -------------------------------------------------------------------    
-    nexus.procedure = Procedure.setup()
+    nexus.procedure = Procedure2.setup()
     
     # -------------------------------------------------------------------
     #  Summary
