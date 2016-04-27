@@ -153,6 +153,8 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.stag_temp_lpt_exit                       = low_pressure_compressor.outputs.stagnation_temperature
     thrust.inputs.stag_press_lpt_exit                      = low_pressure_compressor.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines
+    thrust.inputs.total_temperature_reference              = low_pressure_compressor.outputs.stagnation_temperature
+    thrust.inputs.total_pressure_reference                 = low_pressure_compressor.outputs.stagnation_pressure
 
     #compute the thrust
     thrust.inputs.fan_nozzle = Data()
