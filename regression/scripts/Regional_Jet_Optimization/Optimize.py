@@ -27,8 +27,8 @@ def main():
     con = problem.all_constraints([1.,1.])
     
     actual = Data()
-    actual.obj = None
-    actual.con = None
+    actual.obj = 0.6883660224407133
+    actual.con = 0.56581479
     
     print 'Fuel Burn   =', obj
     print 'Fuel Margin =', con    
