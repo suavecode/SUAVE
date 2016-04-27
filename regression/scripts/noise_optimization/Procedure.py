@@ -15,7 +15,7 @@ from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 
-from SUAVE.Methods.Noise.Fidelity_One.Airframe import noise_fidelity_one
+from SUAVE.Methods.Noise.Fidelity_One.Airframe import noise_airframe_Fink
 from SUAVE.Methods.Noise.Fidelity_One.Engine import noise_SAE
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
@@ -472,7 +472,7 @@ def compute_noise(config,analyses,noise_segment):
     engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
     
     
-    airframe_noise = noise_fidelity_one(config,analyses,noise_segment,print_output,outputfile)  
+    airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,print_output,outputfile)  
 
     engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses,print_output,outputfile_engine)
 
