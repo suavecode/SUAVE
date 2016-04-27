@@ -626,7 +626,6 @@ def post_process(nexus):
     vehicle               = nexus.vehicle_configurations.base  
     short_vehicle         = nexus.vehicle_configurations.short_field_takeoff
     results               = nexus.results
-    save_results(results)
     summary               = nexus.summary
     missions              = nexus.missions      
    
@@ -637,8 +636,6 @@ def post_process(nexus):
     summary.noise_sideline_margin = noise_limits[2] - summary.noise.sideline 
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
-    summary.base_mission_fuelburn = 0.1
-    summary.weighted_sum_objective = 0.1
     
   
     return nexus    
