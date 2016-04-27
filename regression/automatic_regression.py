@@ -57,7 +57,7 @@ modules = [
     'scripts/test_input_output/test_freemind_write.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
     'scripts/noise_optimization/Noise_Test.py',
-    'scripts/Regional_Jet_Optimization/Optimize.py'
+    'scripts/Regional_Jet_Optimization/Optimize2.py',
 ]
 
 
