@@ -142,7 +142,7 @@ def main():
     cd_m           = drag_breakdown.miscellaneous.total
     # cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
     # cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep
-    # cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['turbo_fan']
+    # cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['turbofan']
     # cd_m_ctrl      = drag_breakdown.miscellaneous.control_gaps
     cd_p_fuse      = drag_breakdown.parasite['fuselage'].parasite_drag_coefficient
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
