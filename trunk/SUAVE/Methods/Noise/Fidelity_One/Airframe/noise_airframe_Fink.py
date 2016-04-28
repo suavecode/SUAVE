@@ -1,4 +1,4 @@
-# noise_fidelity_one.py
+# noise_airframce_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
 # Modified: Jan 2016, E. Botero
@@ -26,10 +26,10 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Noise Fidelity One
+#  Noise Airframce Fink
 # ----------------------------------------------------------------------
 
-def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0): 
+def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
     """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
             Computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight.

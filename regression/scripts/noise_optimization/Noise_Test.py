@@ -38,11 +38,9 @@ def main():
 
     objectives  = problem.objective()       * problem.optimization_problem.objective[:,1]
 
-    fuel_burn               = objectives[0]
-    noise_cumulative_margin = objectives[1]
+    noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.fuel_burn = 0.1
     actual.noise_cumulative_margin = 17.820611883056927
 
     
@@ -50,13 +48,10 @@ def main():
     
     
     error = Data()
-    error.fuel_burn = (actual.fuel_burn - fuel_burn)/actual.fuel_burn
     error.noise_cumulative_margin = (actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
     
-    print 'fuel_burn=', fuel_burn
     print 'noise_cumulative_margin=', noise_cumulative_margin
     
-    print error.fuel_burn
     print error.noise_cumulative_margin
     
     for k,v in error.items():
@@ -101,8 +96,6 @@ def setup():
     # -------------------------------------------------------------------
 
     problem.objective = np.array([
-
-        [ 'fuel_burn', 10000, Units.kg ],
 
         [ 'noise_cumulative_margin', 17, Units.less ],
 
@@ -162,7 +155,6 @@ def setup():
         [ 'slat_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.slats.angle',
                                                'vehicle_configurations.short_field_takeoff.wings.main_wing.slats.angle']],
         [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.slats.angle'          ],
-        [ 'fuel_burn'                        ,    'summary.base_mission_fuelburn'                                                   ],
         [ 'wing_span'                        ,    'vehicle_configurations.base.wings.main_wing.spans.projected'         ],
         [ 'noise_approach_margin'            ,    'summary.noise_approach_margin'                                       ],
         [ 'noise_sideline_margin'            ,    'summary.noise_sideline_margin'                                       ],
