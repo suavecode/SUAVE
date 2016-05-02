@@ -39,6 +39,7 @@ modules = [
     'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/B737/mission_B737.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
+    'scripts/concorde/concorde.py',
     #'regression/test_mission_AS2.py',
     'scripts/landing_field_length/landing_field_length.py',
     'scripts/take_off_field_length/take_off_field_length.py',
@@ -55,7 +56,8 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
-    'scripts/noise_optimization/Optimize.py'
+    'scripts/noise_optimization/Noise_Test.py',
+    'scripts/Regional_Jet_Optimization/Optimize2.py',
 ]
 
 

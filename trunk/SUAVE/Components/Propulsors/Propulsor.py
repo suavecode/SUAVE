@@ -21,8 +21,7 @@ class Propulsor(Physical_Component):
 
     def __defaults__(self):
         self.tag = 'Propulsor'
-
-
+        
 class Container(Physical_Component.Container):
     """ Contains many SUAVE.Components.Propulsor()
     

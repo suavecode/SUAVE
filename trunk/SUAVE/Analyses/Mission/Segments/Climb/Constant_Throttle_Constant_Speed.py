@@ -44,8 +44,8 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
-        self.state.unknowns.wind_angle = ones_row(1) * 5.0 * Units.deg
+        self.state.unknowns.body_angle = ones_row(1) * 5.0 * Units.deg
+        self.state.unknowns.wind_angle = ones_row(1) * 0.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         
@@ -62,7 +62,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = Methods.Climb.Constant_Throttle_Constant_Speed.initialize_conditions
         initialize.velocities              = Methods.Climb.Constant_Throttle_Constant_Speed.update_velocity_vector_from_wind_angle
-        initialize.differentials_altitude  = Methods.Climb.Common.update_differentials_altitude        
+        initialize.differentials_altitude  = Methods.Climb.Constant_Throttle_Constant_Speed.update_differentials_altitude      
         
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -90,7 +90,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         # Update Conditions
         iterate.conditions = Process()
         iterate.conditions.velocities      = Methods.Climb.Constant_Throttle_Constant_Speed.update_velocity_vector_from_wind_angle
-        iterate.conditions.differentials_a = Methods.Climb.Common.update_differentials_altitude
+        iterate.conditions.differentials_a = Methods.Climb.Constant_Throttle_Constant_Speed.update_differentials_altitude
         iterate.conditions.differentials_b = Methods.Common.Numerics.update_differentials_time
         iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude

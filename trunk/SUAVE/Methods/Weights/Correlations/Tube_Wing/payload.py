@@ -14,7 +14,7 @@ from SUAVE.Core import Units, Data
 #   Payload
 # ----------------------------------------------------------------------
 
-def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195.,wt_baggage = 30.):
+def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_baggage = 30*Units.lbs):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.payload(TOW, empty, num_pax, wt_cargo)
         Calculate the weight of the payload and the resulting fuel mass
     
@@ -23,8 +23,8 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195.,wt_baggage = 30.)
             wt_empty - Operating empty weight of the aircraft [kilograms]
             num_pax - number of passengers on the aircraft [dimensionless]
             wt_cargo - weight of cargo being carried on the aircraft [kilogram]
-            wt_passenger - weight of each passenger on the aircraft [dimensionless]
-            wt_baggage - weight of the baggage for each passenger [dimensionless]
+            wt_passenger - weight of each passenger on the aircraft [kilogram]
+            wt_baggage - weight of the baggage for each passenger [kilogram]
         
         Outputs:
             output - a data dictionary with fields:
@@ -39,8 +39,8 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195.,wt_baggage = 30.)
     """
     
     # process
-    wt_pax     = wt_passenger * num_pax * Units.lb
-    wt_bag     = wt_baggage * num_pax *Units.lb
+    wt_pax     = wt_passenger * num_pax
+    wt_bag     = wt_baggage * num_pax 
     wt_payload = wt_pax + wt_bag + wt_cargo
     wt_fuel    = TOW - wt_payload - empty
     

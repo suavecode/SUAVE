@@ -51,13 +51,13 @@ def main():
     results = mission.evaluate()
 
     # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
+    print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
 
     # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
+    print_engine_data(configs.base,filename = 'B737_engine_data.dat')
 
     # print parasite drag data into file
-        # define reference condition for parasite drag
+    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 12e6     
@@ -67,18 +67,18 @@ def main():
     #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
 
     # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
+    print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
     #save_results(results)
-    #old_results = load_results()   
+    old_results = load_results()   
 
     # plt the old results
     plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
-    #check_results(results,old_results)
+    check_results(results,old_results)
 
     return
 
@@ -377,14 +377,22 @@ def vehicle_setup():
 
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
 
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
-
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #Assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
@@ -922,6 +930,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
@@ -1140,5 +1150,5 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    plt.show()
+    #plt.show()
 

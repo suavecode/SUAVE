@@ -23,7 +23,11 @@ def size_from_kv(motor,kv):
     # Gur, O., Rosen, A, AIAA 2008-5916. 
     
     B_KV = 50.   * Units['rpm*kg/volt']
+<<<<<<< HEAD
     B_RA = 60000.* Units['(rpm**2)*ohm/(V**2)']
+=======
+    B_RA = 60000.* Units['(rpm**2)*ohm/(volt**2)']
+>>>>>>> develop
     B_i0 = 0.2   * Units['amp*(ohm**0.6)']
     
     # Do the calculations from the regressions
@@ -61,6 +65,10 @@ def size_from_mass(motor,mass):
     res  = B_RA/(kv**2.)
     i0   =  B_i0/(res^0.6)
     
+<<<<<<< HEAD
     return motor
     
     
+=======
+    return motor
+>>>>>>> develop

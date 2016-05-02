@@ -24,6 +24,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     #Unpack components
     
     #check if altitude is passed or conditions is passed
+    
     if(conditions):
         #use conditions
         pass
@@ -137,7 +138,9 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #compute the trust
     thrust.size(conditions)
+    mass_flow  = thrust.mass_flow_rate_design
     
+
     #update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
     
@@ -178,24 +181,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
     ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+   
     
-    mdot_df  = thrust.mass_flow_rate_design
+    #determine geometry
     
-    u8       = fan_nozzle.outputs.velocity
-    p8       = fan_nozzle.outputs.static_pressure
-    T8       = fan_nozzle.outputs.static_temperature
-    rho8     = fan_nozzle.outputs.static_pressure/( conditions_sls.freestream.R*T8)
-    
-    A8       = mdot_df[0][0]/(rho8[0][0]*u8[0][0]) #ducted fan nozzle exit area
-    d8       = (A8**.5)*4/np.pi
-    
-    
-    ducted_fan.nacelle_diameter = d8*1.1  #assume 1.1 nacelle/nozzle ratio for now
-    ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
-    
-    #used for calculating nacelle drag
-    ducted_fan.A0               = A8 
-    ducted_fan.A7               = A8 
-    ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
-
     

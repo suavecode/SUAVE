@@ -384,13 +384,27 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbo_fan'
+    gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
+    #gt_engine.nacelle_length  =
+    
+    
+    #gt_engine.nacelle_diameter  = 1.1*1.5 #CFM 56
+    #gt_engine.engine_length     = 2.5
+    
+    
+    #compute engine areas)
+    Amax    = (np.pi/4.)*gt_engine.nacelle_diameter**2.
+    Awet    = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
+    
+    #Assign engine areas
 
+    gt_engine.areas.wetted  = Awet
+    
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
 
@@ -1063,4 +1077,4 @@ def save_results(results):
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    #plt.show()

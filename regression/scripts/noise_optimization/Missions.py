@@ -516,6 +516,8 @@ def max_range_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
@@ -1004,6 +1006,50 @@ def takeoff_mission_setup(analyses):
     segment.altitude_end   = 304.8 *  Units.meter
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
+    segment.state.numerics.number_control_points = 10
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    mission.append_segment(segment)
+
+    # Cutback Segment: Constant speed, constant segment angle
+    segment = Segments.Climb.Constant_Speed_Constant_Angle_Noise(base_segment)
+    segment.tag = "cutback"    
+    segment.analyses.extend( analyses.takeoff )
+    segment.air_speed    = 85.4 * Units['m/s']
+    segment.climb_angle   = 2.86  * Units.degrees
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    mission.append_segment(segment)  
+    
+    return mission
+
+def sideline_mission_setup(analyses):
+    # ------------------------------------------------------------------
+    #   Initialize the Mission segment for takeoff
+    # ------------------------------------------------------------------
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag = 'sideline_takeoff'
+
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    mission.airport = airport
+    
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+
+    # base segment
+    base_segment = Segments.Segment()
+    
+    # Climb Segment: Constant throttle, constant speed
+    segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
+    segment.tag = "climb"    
+    segment.analyses.extend( analyses.takeoff )
+    segment.altitude_start =  35. *  Units.fts
+    segment.altitude_end   = 1600 *  Units.fts
+    segment.air_speed      = 85.4 * Units['m/s']
+<<<<<<< HEAD
+    segment.throttle       = 1. 
     segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     mission.append_segment(segment)
 
@@ -1121,3 +1167,81 @@ def landing_mission_setup(analyses):
         
     return mission
 
+=======
+    segment.throttle       = 1. 
+    segment.state.numerics.number_control_points = 10
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    mission.append_segment(segment)
+    
+    return mission    
+
+def takeoff_mission_initialization(analyses):
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Mission segment for takeoff
+    # ------------------------------------------------------------------
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag = 'takeoff_initialization'
+
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    mission.airport = airport    
+
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+
+    # base segment
+    base_segment = Segments.Segment()
+
+    # Climb Segment: Constant speed, constant segment angle
+    segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
+    segment.tag = "climb"    
+    segment.analyses.extend( analyses.takeoff )
+    segment.altitude_start =  35. *  Units.fts 
+    segment.altitude_end   = 300. * Units.meter
+    segment.air_speed      =  85.4 * Units['m/s']
+    segment.throttle       = 1. 
+    segment.state.numerics.number_control_points = 5
+    mission.append_segment(segment)    
+    
+    return mission
+
+
+def landing_mission_setup(analyses):
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Mission segment for landing
+    # ------------------------------------------------------------------
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag = 'landing'
+
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    mission.airport = airport    
+
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+
+    # base segment
+    base_segment = Segments.Segment()    
+    # ------------------------------------------------------------------
+    #   Descent Segment: Constant speed, constant segment angle
+    # ------------------------------------------------------------------
+    segment = Segments.Descent.Constant_Speed_Constant_Angle_Noise(base_segment)
+    segment.tag = "descent"
+    segment.analyses.extend( analyses.landing )
+
+    segment.air_speed    = 67. * Units['m/s']
+    segment.descent_angle = 3.0   * Units.degrees 
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    mission.append_segment(segment)
+        
+    return mission
+
+>>>>>>> develop
