@@ -31,13 +31,6 @@ def converge_root(segment,state):
         root_finder = scipy.optimize.fsolve 
     
     unknowns,infodict,ier,msg = root_finder( iterate,
-<<<<<<< HEAD
-                            unknowns,
-                            args = [segment,state],
-                            xtol = state.numerics.tolerance_solution,
-                            full_output=1,
-                            fprime = jacobian3) 
-=======
                                          unknowns,
                                          args = [segment,state],
                                          xtol = state.numerics.tolerance_solution,
@@ -49,7 +42,6 @@ def converge_root(segment,state):
         segment.state.numerics.converged = False
     else:
         segment.state.numerics.converged = True
->>>>>>> develop
     
     print 'Calls'
     print infodict[ 'nfev']
