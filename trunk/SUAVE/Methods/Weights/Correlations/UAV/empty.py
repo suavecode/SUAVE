@@ -14,7 +14,7 @@ from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
     )
 
-def empty(vehicle):
+def Empty(vehicle):
     
     """
     Structural Weight correlation from all 415 samples of fixed-wing UAVs and sailplanes
@@ -32,8 +32,8 @@ def empty(vehicle):
     
     
     # Airframe weight
-    Waf = (5.58*np.power(S,1.59)*np.power(AR,0.71))/g # All Samples
-    #Waf = (0.44*np.power(S,1.55)*np.power(AR,1.30))/g  # Top 19
+    Waf = (5.58*(S**1.59)*(AR**0.71))/g # All Samples
+    #Waf = (0.44*(S**1.55)*(AR**1.30))/g  # Top 19
     
     # Pack
     weight = Data()
