@@ -1,10 +1,13 @@
+# Aerodynamics.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import numpy as np
-
 
 
 # ----------------------------------------------------------------------
@@ -50,20 +53,20 @@ def update_atmosphere(segment,state):
     """
     
     # unpack
-    conditions = state.conditions
-    h = conditions.freestream.altitude
-    
-    atmosphere = segment.analyses.atmosphere
+    conditions            = state.conditions
+    h                     = conditions.freestream.altitude
+    temperature_deviation = segment.temperature_deviation
+    atmosphere            = segment.analyses.atmosphere
     
     # compute
-    atmo_data = atmosphere.compute_values(h)
+    atmo_data = atmosphere.compute_values(h,temperature_deviation)
     
     # pack
-    conditions.freestream.pressure       = atmo_data.pressure
-    conditions.freestream.temperature    = atmo_data.temperature
-    conditions.freestream.density        = atmo_data.density
-    conditions.freestream.speed_of_sound = atmo_data.speed_of_sound
-    conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
+    conditions.freestream.pressure          = atmo_data.pressure
+    conditions.freestream.temperature       = atmo_data.temperature
+    conditions.freestream.density           = atmo_data.density
+    conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
+    conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
     
     return
     
@@ -142,15 +145,14 @@ def update_aerodynamics(segment,state):
     """
     
     # unpack
-    conditions = state.conditions
+    conditions         = state.conditions
     aerodynamics_model = segment.analyses.aerodynamics
-    q = state.conditions.freestream.dynamic_pressure
-    Sref = aerodynamics_model.geometry.reference_area
+    q                  = state.conditions.freestream.dynamic_pressure
+    Sref               = aerodynamics_model.geometry.reference_area
     
     # call aerodynamics model
     results = aerodynamics_model( state )    
-    #results = aerodynamics_model( state.conditions )
-
+    
     # unpack results
     CL = results.lift.total
     CD = results.drag.total
@@ -170,8 +172,6 @@ def update_aerodynamics(segment,state):
     conditions.aerodynamics.drag_coefficient = CD
     conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
     conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
-
-    return
 
 
 # ----------------------------------------------------------------------

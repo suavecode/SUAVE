@@ -1,15 +1,16 @@
 # aft_centerbody.py
 # 
-# Created:  Tim Momose, June 2014
-
+# Created:  Jun 2014, T. Momose
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
 from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
-#  Method
+#  Aft Centerbody
 # ----------------------------------------------------------------------
 
 def aft_centerbody(no_of_engines, aft_centerbody_area, aft_centerbody_taper, TOGW):

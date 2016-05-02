@@ -1,2 +1,6 @@
+# Ordered_Bunch.py
+#
+# Created:  Jan 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
-from SUAVE.Plugins.VyPy.data import OrderedBunch as Ordered_Bunch
+from Deep_Core import OrderedBunch as Ordered_Bunch

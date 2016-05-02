@@ -1,20 +1,12 @@
 # compressible_mixed_flat_plate.py
 # 
-# Created:  Tim MacDonald, 8/1/14
-# Modified:         
-# Adapted from compressible_turbulent_flat_plate.py
+# Created:  Aug 2014, T. MacDonald
+# Modified: Jan 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from scipy.interpolate import griddata
-#from warnings import warn
 
 # package imports
 import numpy as np
@@ -22,7 +14,7 @@ import pylab as plt
 
 
 # ----------------------------------------------------------------------
-#  Simple Method
+#  Compressible Mixed Flat Plate
 # ----------------------------------------------------------------------
 
 
@@ -52,37 +44,34 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     if xt < 0.0 or xt > 1.0:
         raise ValueError("Turbulent transition must be between 0 and 1")
     
-    if np.any(Re > 10**9) or np.any(Re < 10**5):
-        #print 'Warning: Reynolds number outside expected range - in file compressible_mixed_flat_plate.py'
-        pass
+    #if np.any(Re > 10**9) or np.any(Re < 10**5):
+        ##print 'Warning: Reynolds number outside expected range - in file compressible_mixed_flat_plate.py'
+        #pass
     
     Rex = Re*xt
-    if xt == 0.0:
-        if type(Rex) is float:
-            Rex = 0.0001
-        else:
-            Rex[:] = 0.0001
+    Rex[Rex==0.0] = 0.0001
 
     theta = 0.671*xt/np.sqrt(Rex)
-    xeff = (27.78*theta*Re**0.2)**1.25
-    Rext = Re*(1-xt+xeff)
+    xeff  = (27.78*theta*Re**0.2)**1.25
+    Rext  = Re*(1-xt+xeff)
     
-    cf_turb  = 0.455/np.power(np.log10(Rext),2.58)
+    cf_turb  = 0.455/(np.log10(Rext)**2.58)
     cf_lam   = 1.328/np.sqrt(Rex)
+    
     if xt > 0.0:
-        cf_start = 0.455/np.power(np.log10(Re*xeff),2.58)
+        cf_start = 0.455/(np.log10(Re*xeff)**2.58)
     else:
         cf_start = 0.0
     
     cf_inc = cf_lam*xt + cf_turb*(1-xt+xeff) - cf_start*xeff
     
     # compressibility correction
-    Tw = Tc * (1. + 0.178*Ma**2.)
-    Td = Tc * (1. + 0.035*Ma**2. + 0.45*(Tw/Tc - 1.))
+    Tw = Tc * (1. + 0.178*Ma*Ma)
+    Td = Tc * (1. + 0.035*Ma*Ma + 0.45*(Tw/Tc - 1.))
     k_comp = (Tc/Td) 
     
     # reynolds correction
-    Rd_w = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
+    Rd_w   = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
     k_reyn = (Re/Rd_w)**0.2
     
     # apply corrections

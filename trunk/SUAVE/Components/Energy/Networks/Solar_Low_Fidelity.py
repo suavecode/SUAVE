@@ -1,7 +1,7 @@
-#Solar_Network.py
+# Solar_Low_Fidelity.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,19 +12,14 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Solar_Low_Fidelity(Data):
+class Solar_Low_Fidelity(Propulsor):
     def __defaults__(self):
         self.solar_flux        = None
         self.solar_panel       = None
@@ -41,7 +36,7 @@ class Solar_Low_Fidelity(Data):
         self.tag         = 'Network'
     
     # manage process with a driver function
-    def evaluate(self,state):
+    def evaluate_thrust(self,state):
     
         # unpack
         conditions  = state.conditions
@@ -81,7 +76,7 @@ class Solar_Low_Fidelity(Data):
         propeller.inputs.omega  = motor.outputs.omega
         propeller.inputs.torque = motor.outputs.torque
         # step 6
-        F, Q, P, Cplast = propeller.spin(conditions)
+        F, Q, P, Cplast = propeller.spin(conditions)       
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -106,31 +101,31 @@ class Solar_Low_Fidelity(Data):
         # Run the esc
         esc.currentin()
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_motors
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
+        
+        # Adjust power usage for magic thrust
+        solar_logic.inputs.currentesc[eta>1.0] = solar_logic.inputs.currentesc[eta>1.0]*eta[eta>1.0]
         #
         solar_logic.logic(conditions,numerics)
         # link
-        battery.inputs.batlogic = solar_logic.outputs.batlogic
+        battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)
         current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.batlogic.pbat
+        battery_draw                         = battery.inputs.power_in 
         battery_energy                       = battery.current_energy
-        
+    
         conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
         conditions.propulsion.rpm            = rpm
         conditions.propulsion.current        = current
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
-        
+    
         #Create the outputs
-        F    = self.number_motors * F * [1,0,0]
-        F_vec        = conditions.ones_row(3) * 0.0
-        F_vec[:,0]   = F[:,0]
-        F            = F_vec        
+        F    = self.number_of_engines * F * [1,0,0]      
         mdot = np.zeros_like(F)
     
         results = Data()
@@ -139,4 +134,4 @@ class Solar_Low_Fidelity(Data):
     
         return results
             
-    __call__ = evaluate
+    __call__ = evaluate_thrust

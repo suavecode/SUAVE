@@ -1,18 +1,13 @@
 # size_weights_given_mission_range.py
 #
-# Created:  Carlos, Tarik, Sept. 2014
-# Modified:
-
+# Created:  Sep 2014, T. Orra and C. Ilario
+# Modified: Jan 2016, E. Botero
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
-from SUAVE.Core import Units
 from SUAVE.Methods.Performance.size_mission_range_given_weights import size_mission_range_given_weights
 
-# other imports
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -108,11 +103,4 @@ def size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_
         fuel[id]     = fuel_id
         tow[id]      = takeoff_weight
 
-    # packing results
     return distance,fuel,tow
-
-# ----------------------------------------------------------------------
-#   Module Test
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    print(' Error: No test defined ! ')

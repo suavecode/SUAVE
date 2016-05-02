@@ -1,24 +1,14 @@
-# Geoemtry.py
+# horizontal_tail_planform_raymer.py
 #
+# Created:  ### ####, M. Vegh
+# Modified: Feb 2016, E. Botero
+#           Jan 2016, E. Botero
 
-""" SUAVE Methods for Geometry Generation
-"""
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy
-from math import pi, sqrt
-from SUAVE.Core  import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform  import wing_planform
-#from SUAVE.Attributes import Constants
-
+from wing_planform import wing_planform
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def horizontal_tail_planform_raymer(Htail, Wing,  l_ht,c_ht):
+def horizontal_tail_planform_raymer(horizontal_stabilizer, wing,  l_ht,c_ht):
     """
     by M. Vegh
     Based on a tail sizing correlation from Raymer
@@ -33,6 +23,7 @@ def horizontal_tail_planform_raymer(Htail, Wing,  l_ht,c_ht):
     1.= military cargo/bomber, 1.= jet transport
     """
     
-    Htail.areas.reference=Wing.chords.mean_aerodynamic*c_ht*Wing.areas.reference/l_ht
-    #wing_planform(Htail)
+    horizontal_stabilizer.areas.reference = wing.chords.mean_aerodynamic*c_ht*wing.areas.reference/l_ht
+    wing_planform(horizontal_stabilizer)
+    
     return 0    

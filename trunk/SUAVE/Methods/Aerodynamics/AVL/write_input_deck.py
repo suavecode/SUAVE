@@ -1,6 +1,12 @@
-# Tim Momose, October 2014
+# write_input_deck.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
-#from SUAVE.Core import Data, Data_Exception, Data_Warning
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 from purge_files import purge_files
 
 

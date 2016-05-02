@@ -57,14 +57,14 @@ def main():
     print_engine_data(configs.base,filename = 'B737_engine_data.dat')
 
     # print parasite drag data into file
-        # define reference condition for parasite drag
+    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 12e6     
-    print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
+    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
 
     # print compressibility drag data into file
-    print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
+    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
 
     # print mission breakdown
     print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
@@ -75,7 +75,7 @@ def main():
 
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results)
@@ -377,14 +377,22 @@ def vehicle_setup():
 
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
 
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
-
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #Assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
@@ -668,9 +676,9 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(2,1,2)
-        axes.plot( time , sfc , line_style )
+        axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
         axes.grid(True)	
 
         #plt.savefig("B737_engine.pdf")
@@ -922,6 +930,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
@@ -1140,5 +1150,5 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    plt.show()
+    #plt.show()
 

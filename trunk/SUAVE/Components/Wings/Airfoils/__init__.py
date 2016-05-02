@@ -1,9 +1,10 @@
+# __init__.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # classes
 from Airfoil import Airfoil
-
-# packages
-# ...
 
 # functions
 from load_airfoils import load_airfoils

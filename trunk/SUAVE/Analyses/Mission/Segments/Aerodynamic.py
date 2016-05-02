@@ -1,3 +1,7 @@
+# Aerodynamic.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,12 +39,7 @@ class Aerodynamic(Simple):
         
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
-        
-        # initials and unknowns, Example...
-        ##ones_row = self.state.ones_row
-        ##self.state.unknowns.throttle   = ones_row(1) * 0.5
-        ##self.state.unknowns.body_angle = ones_row(1) * 0.0
-        ##self.state.residuals.forces    = ones_row(2) * 0.0
+        self.temperature_deviation = 0.0
         
         
         # --------------------------------------------------------------

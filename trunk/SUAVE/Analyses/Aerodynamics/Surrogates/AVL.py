@@ -1,6 +1,7 @@
 # AVL_Surrogate.py
 #
-# Created:  Tim Momose, March 2015
+# Created:  Tim Momose, March 2015 
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------

@@ -1,15 +1,13 @@
 # dutch_roll.py
 # 
-# Created:  Andrew Wendorff, April 2014
-# Modified: 
+# Created:  Apr 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #   Method
@@ -59,6 +57,5 @@ def dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r):
     output = Data() 
     output.natural_frequency = w_n
     output.damping_ratio = zeta
-    
     
     return output

@@ -1,13 +1,15 @@
+# Propulsor.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
+
 """ Propulsor.py: parent class for propulsion systems """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Attributes.Gases import Air
+from SUAVE.Components import Physical_Component
 
 # ----------------------------------------------------------------------
 #  Propulsor
@@ -19,8 +21,7 @@ class Propulsor(Physical_Component):
 
     def __defaults__(self):
         self.tag = 'Propulsor'
-
-
+        
 class Container(Physical_Component.Container):
     """ Contains many SUAVE.Components.Propulsor()
     

@@ -1,41 +1,21 @@
 # parasite_drag_fuselage.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# local imports
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-
-# suave imports
-
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-
-from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
 from SUAVE.Core import Results
-air = Air()
-compute_speed_of_sound = air.compute_speed_of_sound
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
-#   The Function
+#   Parasite Drag Fuselage
 # ----------------------------------------------------------------------
 
-
-
-#def parasite_drag_fuselage(conditions,configuration,fuselage):
 def parasite_drag_fuselage(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
         computes the parasite drag associated with a fuselage 
@@ -50,31 +30,27 @@ def parasite_drag_fuselage(state,settings,geometry):
     """
 
     # unpack inputs
-    configuration =settings
-    form_factor = configuration.fuselage_parasite_drag_form_factor
-    fuselage = geometry
+    configuration = settings
+    form_factor   = configuration.fuselage_parasite_drag_form_factor
+    fuselage      = geometry
     
-    freestream = state.conditions.freestream
-    
+    freestream  = state.conditions.freestream
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
     
     #l_fus  = fuselage.lengths.cabin
-    l_fus = fuselage.lengths.total
+    l_fus  = fuselage.lengths.total
     d_fus  = fuselage.width
     l_nose = fuselage.lengths.nose
     l_tail = fuselage.lengths.tail
     
     # conditions
     Mc  = freestream.mach_number
-    roc = freestream.density
-    muc = freestream.dynamic_viscosity
     Tc  = freestream.temperature    
-    pc  = freestream.pressure
+    re  = freestream.reynolds_number
 
     # reynolds number
-    V = Mc * compute_speed_of_sound(Tc, pc) 
-    Re_fus = roc * V * l_fus/muc
+    Re_fus = re*(l_fus + l_nose + l_tail)
     
     # skin friction coefficient
     cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)
@@ -95,23 +71,8 @@ def parasite_drag_fuselage(state,settings,geometry):
     du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
     
     k_fus = (1 + form_factor*du_max_u)**2
-    
-    #for i in range(len(Mc)):
-        #if Mc[i] < 0.95:
-            #D[i] = np.sqrt(1 - (1-Mc[i]**2) * d_d**2)
-            #a[i]        = 2 * (1-Mc[i]**2) * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            #du_max_u[i] = a[i] / ( (2-a[i]) * (1-Mc[i]**2)**0.5 )
-        #else:
-            #D[i] = np.sqrt(1 - d_d**2)
-            #a[i]        = 2  * (d_d**2) *(np.arctanh(D[i])-D[i]) / (D[i]**3)
-            #du_max_u[i] = a[i] / ( (2-a[i]) )            
-        #k_fus[i]    = (1 + cf_fus[i]*du_max_u[i])**2
-    
-    # --------------------------------------------------------
-    # find the final result    
 
     fuselage_parasite_drag = k_fus * cf_fus * Swet / Sref  
-    # --------------------------------------------------------
     
     # dump data to conditions
     fuselage_result = Results(
@@ -129,11 +90,3 @@ def parasite_drag_fuselage(state,settings,geometry):
         print("Drag Polar Mode fuse parasite")
     
     return fuselage_parasite_drag
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__': 
-    raise NotImplementedError

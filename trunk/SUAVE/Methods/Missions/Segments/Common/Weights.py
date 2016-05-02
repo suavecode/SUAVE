@@ -1,3 +1,7 @@
+# Weights.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -24,7 +28,6 @@ def initialize_weights(segment,state):
         
     return
     
-
 # ----------------------------------------------------------------------
 #  Update Gravity
 # ----------------------------------------------------------------------
@@ -43,7 +46,6 @@ def update_gravity(segment,state):
 
     return
 
-
 # ----------------------------------------------------------------------
 #  Update Weights
 # ----------------------------------------------------------------------
@@ -58,7 +60,6 @@ def update_weights(segment,state):
     I         = state.numerics.time.integrate
     g         = conditions.freestream.gravity
 
-
     # calculate
     m = m0 + np.dot(I, -mdot_fuel )
 
@@ -70,5 +71,3 @@ def update_weights(segment,state):
     conditions.frames.inertial.gravity_force_vector[:,2] = W[:,0]
 
     return
-
-

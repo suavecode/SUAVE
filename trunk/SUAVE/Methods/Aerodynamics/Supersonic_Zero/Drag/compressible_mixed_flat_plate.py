@@ -1,30 +1,21 @@
 # compressible_mixed_flat_plate.py
 # 
-# Created:  Tim MacDonald, 8/1/14
-# Modified:         
-# Adapted from compressible_turbulent_flat_plate.py
-
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from scipy.interpolate import griddata
-#from warnings import warn
-
 # package imports
 import numpy as np
 import pylab as plt
-
 
 # ----------------------------------------------------------------------
 #  Simple Method
 # ----------------------------------------------------------------------
 
+# Adapted from compressible_turbulent_flat_plate.py
 
 def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     """ SUAVE.Methods.Aerodyanmics.Drag.Correlations.compressibile_mixed_flat_plate(Re,Ma,Tc,xt)

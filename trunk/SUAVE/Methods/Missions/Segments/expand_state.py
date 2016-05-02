@@ -1,4 +1,7 @@
-
+# expand_state.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Expand State

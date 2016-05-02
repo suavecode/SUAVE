@@ -1,17 +1,16 @@
 #Jet A
 #
 # Created:  Unk 2013, SUAVE TEAM
-# Modified: Apr 2015, SUAVE TEAM
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from Propellant import Propellant
-from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
-#  Class
+#  Jet_A Propellant Class
 # ----------------------------------------------------------------------
 
 class Jet_A(Propellant):
@@ -28,8 +27,7 @@ class Jet_A(Propellant):
         self.max_mass_fraction         = {'Air' : 0.0633, \
                                           'O2' : 0.3022}                # kg propellant / kg oxidizer
 
-        # ciritical temperatures
-        self.temperatures              = Data()
+        # critical temperatures
         self.temperatures.flash        = 311.15                 # K
         self.temperatures.autoignition = 483.15                 # K
         self.temperatures.freeze       = 233.15                 # K

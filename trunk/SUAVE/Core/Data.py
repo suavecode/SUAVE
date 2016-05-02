@@ -1,8 +1,12 @@
+# Data.py
+#
+# Created:  Jan 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
 """ SUAVE Data Base Classes
 """
 
-from SUAVE.Plugins.VyPy.data import DataBunch
+from Deep_Core import DataBunch
 
 # for enforcing attribute style access names
 import string

@@ -1,26 +1,13 @@
 # compressible_turbulent_flat_plate.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
 
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-
 
 # ----------------------------------------------------------------------
 #  Simple Method
 # ----------------------------------------------------------------------
-
 
 def compressible_turbulent_flat_plate(Re,Ma,Tc):
 

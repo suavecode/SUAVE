@@ -1,31 +1,22 @@
 # miscellaneous_drag_aircraft.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
-
-""" miscellaneous_drag_aircraft(wing,segment)
-
-    Computes the miscellaneous drag based on a set of fits
-    """
+# Created:  Dec 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero       
 
 # ----------------------------------------------------------------------
 #  Imports
-#
+# ----------------------------------------------------------------------
 
 # suave imports
 from SUAVE.Core import Results
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
 # package imports
 import numpy as np
-import scipy as sp
-#-------------------compressiblity drag----------------------------------------------------------
 
-#def cdp_misc(sweep_w, sweep_h, sweep_v, d_engexit,Sref,Mc,roc,muc ,Tc,S_affected_w,S_affected_h,S_affected_v):
+# ----------------------------------------------------------------------
+#  Miscellaneous Drag Aircraft
+# ----------------------------------------------------------------------
+
 def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     """ SUAVE.Methods.miscellaneous_drag_aircraft(Wing,segment)
         computes the miscellaneous drag associated with an aircraft

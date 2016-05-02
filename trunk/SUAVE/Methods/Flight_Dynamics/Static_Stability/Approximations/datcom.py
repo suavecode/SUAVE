@@ -1,7 +1,7 @@
 # datcom.py
 #
-# Created: Feb 2014, Tim Momose
-# Modified: July 2014, Andrew Wendorff
+# Created:  Feb 2014, T. Momose
+# Modified: Jul 2014, A. Wendorff
 
 # NOTES/QUESTIONS
 # - May need to bring in Roskam Figure 8.47 data (Airplane Design Part VI) for supersonic
@@ -13,13 +13,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Method
@@ -62,25 +57,25 @@ def datcom(wing,mach):
     
     #Compute relevent parameters
     cL_alpha = []
-    half_chord_sweep = convert_sweep(wing,0.0,0.5)  #Assumes original sweep is that of LE
+    half_chord_sweep = convert_sweep(wing,0.25,0.5)  #Assumes original sweep is that of LE
     
     #Compute k correction factor for Mach number    
     #First, compute corrected 2D section lift curve slope (C_la) for the given Mach number
     cla = 6.13          #Section C_la at M = 0; Roskam Airplane Design Part VI, Table 8.1  
     
-    for M in mach:
-        if M < 1:
-            Beta = np.sqrt(1.0-M**2.0)
-            cla_M = cla/Beta
-            k = cla_M/(2.0*np.pi/Beta)
-            cL_alpha.extend([2.0*np.pi*ar/(2.0+((ar**2.0*Beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/Beta**2.0)+4.0)**0.5)])
+    cL_alpha = np.ones_like(mach)
+    Beta     = np.ones_like(mach)
+    k        = np.ones_like(mach)
+    cla_M    = np.ones_like(mach)
     
-        else:
-            Beta = np.sqrt(M**2.0-1.0)
-            cla_M = 4.0/Beta
-            k = cla_M/(2.0*np.pi/Beta) 
-            cL_alpha.extend([2.0*np.pi*ar/(2.0+((ar**2.0*Beta**2.0/k**2.0)*(1.0+(np.tan(half_chord_sweep))**2.0/Beta**2.0)+4.0)**0.5)])
+    Beta[mach<1.]  = np.sqrt(1.0-mach[mach<1.]**2.0)
+    Beta[mach>1.]  = np.sqrt(mach[mach>1.]**2.0-1.0)
+    cla_M[mach<1.] = cla/Beta[mach<1.]
+    cla_M[mach>1.] = 4.0/Beta[mach>1.]
+    k              = cla_M/(2.0*np.pi/Beta)
     
     #Compute aerodynamic surface 3D lift curve slope using the DATCOM formula
+    cL_alpha =([2.0*np.pi*ar/(2.0+((ar**2.0*(Beta*Beta)/(k*k))*(1.0+(np.tan(half_chord_sweep))**2.0/(Beta*Beta))+4.0)**0.5)])
+    
     
     return np.array(cL_alpha)

@@ -1,11 +1,15 @@
+# Weights.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Analyses import Analysis, Results
+from SUAVE.Core import Data
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------

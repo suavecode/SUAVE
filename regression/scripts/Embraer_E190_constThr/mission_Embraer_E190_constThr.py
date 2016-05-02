@@ -384,13 +384,27 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbo_fan'
+    gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
+    #gt_engine.nacelle_length  =
+    
+    
+    #gt_engine.nacelle_diameter  = 1.1*1.5 #CFM 56
+    #gt_engine.engine_length     = 2.5
+    
+    
+    #compute engine areas)
+    Amax    = (np.pi/4.)*gt_engine.nacelle_diameter**2.
+    Awet    = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
+    
+    #Assign engine areas
 
+    gt_engine.areas.wetted  = Awet
+    
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
 
@@ -531,8 +545,13 @@ def vehicle_setup():
 
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
-
-
+    
+    fuel                    =SUAVE.Components.Physical_Component()
+    vehicle.fuel            =fuel
+    
+    fuel.mass_properties.mass=vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    fuel.origin                           =vehicle.wings.main_wing.mass_properties.center_of_gravity     
+    fuel.mass_properties.center_of_gravity=vehicle.wings.main_wing.aerodynamic_center
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
@@ -1005,7 +1024,7 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.stability.static.cm_alpha',
+        #'segments.cruise.conditions.stability.static.cm_alpha',
         'segments.cruise.conditions.stability.static.cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
@@ -1058,4 +1077,4 @@ def save_results(results):
 
 if __name__ == '__main__':
     main()
-    plt.show()
+    #plt.show()

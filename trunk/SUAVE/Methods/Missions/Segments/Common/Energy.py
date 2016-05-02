@@ -1,9 +1,13 @@
+# Energy.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np
 
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Initialize Battery
@@ -56,5 +60,5 @@ def update_thrust(segment,state):
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
     
-    return
+
     

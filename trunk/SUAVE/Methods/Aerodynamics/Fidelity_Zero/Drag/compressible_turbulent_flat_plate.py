@@ -1,24 +1,15 @@
 # compressible_turbulent_flat_plate.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
-
+# Created:  Dec 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
 
-
 # ----------------------------------------------------------------------
-#  Simple Method
+#  Compressible Turbulent Flat Plate
 # ----------------------------------------------------------------------
 
 
@@ -33,7 +24,7 @@ def compressible_turbulent_flat_plate(Re,Ma,Tc):
     k_comp = (Tc/Td) 
     
     # reynolds correction
-    Rd_w = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
+    Rd_w   = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
     k_reyn = (Re/Rd_w)**0.2
     
     # apply corrections

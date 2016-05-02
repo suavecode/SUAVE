@@ -5,8 +5,7 @@ from Surrogate import Surrogate
 from Results   import Results
 from Process   import Process
 from Settings  import Settings
-
-from Vehicle import Vehicle
+from Vehicle   import Vehicle
      
 import Aerodynamics
 import Stability
@@ -19,4 +18,5 @@ import Structures
 import Atmospheric
 import Planets
 import Sizing
+import Noise
 

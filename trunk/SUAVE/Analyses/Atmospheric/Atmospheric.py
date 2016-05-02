@@ -1,7 +1,7 @@
-#
+# Atmospheric.py
 #
 # Modified  2/16/15, Tim MacDonald
-# Changing atmospheric analysis format
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------
@@ -9,8 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Attributes.Atmospheres.Atmosphere import Atmosphere
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Analyses import Analysis, Results
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------

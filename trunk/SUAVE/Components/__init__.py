@@ -1,3 +1,7 @@
+# __init__.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # classes
 from Component import Component
@@ -18,3 +22,4 @@ import Payloads
 import Energy
 import Systems
 import Configs
+import Landing_Gear

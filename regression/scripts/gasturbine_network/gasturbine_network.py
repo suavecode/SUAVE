@@ -152,7 +152,7 @@ def energy_network():
     
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
     
     # setup
     turbofan.bypass_ratio      = 5.4

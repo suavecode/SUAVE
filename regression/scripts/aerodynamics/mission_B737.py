@@ -399,13 +399,21 @@ def vehicle_setup():
     
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
     
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #Assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -581,7 +589,7 @@ def vehicle_setup():
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
     
-    # add  gas turbine network gt_engine to the vehicle 
+    # add  gas turbine network turbofan to the vehicle 
     vehicle.append_component(turbofan)      
     
     

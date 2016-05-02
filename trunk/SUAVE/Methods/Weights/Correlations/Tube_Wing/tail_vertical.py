@@ -1,21 +1,17 @@
 # tail_vertical.py
-# 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified:  Andrew Wendorff, Jan 2014       
-
+#
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2016, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
-#   Method
+#   Tail Vertical
 # ----------------------------------------------------------------------
 
 def tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail,rudder_fraction = 0.25):      
@@ -47,9 +43,7 @@ def tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail,rudder_fractio
     sweep = sweep_v # Convert deg to radians
     area  = S_v / Units.ft**2 # Convert meters squared to ft squared
     mtow  = TOW / Units.lb # Convert kg to lbs
-    Sref  = S_gross_w / Units.ft**2 # Convert from meters squared to ft squared
-    
-    # process    
+    Sref  = S_gross_w / Units.ft**2 # Convert from meters squared to ft squared  
     
     # Determine weight of the vertical portion of the tail
     if t_tail == "yes": 

@@ -1,12 +1,13 @@
+# All_At_Once.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
+
 """ Mission.py: Top-level mission class """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-import SUAVE
-from SUAVE.Core import Data, Data_Exception
-from SUAVE.Core import Container as ContainerBase
 
 from SUAVE.Methods import Missions as Methods
 

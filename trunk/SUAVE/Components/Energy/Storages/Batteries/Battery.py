@@ -1,7 +1,7 @@
-#Battery.py
+# Battery.py
 # 
-# Created:  M Vegh, November 2014
-# Modified:  
+# Created:  Nov 2014, M. Vegh
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,12 +11,10 @@
 import SUAVE
 
 # package imports
-import numpy as np
-import scipy as sp
-from SUAVE.Core import Units
+
+from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Power.Battery.Discharge.datta_discharge import datta_discharge
-from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Battery Class

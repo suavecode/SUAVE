@@ -1,7 +1,7 @@
-# Vehicle.py
-#
-# Created By:       T. Lukaczyk
-# Updated:          M. Colonno  4/20/13
+# Person.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 """ SUAVE Vehicle container class 
     with database + input / output functionality 

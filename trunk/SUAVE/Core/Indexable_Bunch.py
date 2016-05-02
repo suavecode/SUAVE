@@ -1,2 +1,6 @@
+# Indexable_Bunch.py
+#
+# Created:  Jan 2015, T. Lukacyzk
+# Modified: Feb 2016, T. MacDonald
 
-from SUAVE.Plugins.VyPy.data import IndexableBunch as Indexable_Bunch
+from Deep_Core import IndexableBunch as Indexable_Bunch

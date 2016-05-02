@@ -13,6 +13,8 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 #from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approsimations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
+from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
+
 from SUAVE.Core import Units
 from SUAVE.Core import (
     Data, Container, Data_Exception, Data_Warning,
@@ -21,6 +23,9 @@ def main():
     #Parameters Required
     #Using values for a Boeing 747-200  
     vehicle = SUAVE.Vehicle()
+    #print vehicle
+    vehicle.mass_properties.max_zero_fuel=238780*Units.kg
+    vehicle.mass_properties.max_takeoff  =785000.*Units.lbs
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
     wing.areas.reference           = 5500.0 * Units.feet**2
@@ -37,11 +42,19 @@ def main():
     wing.dynamic_pressure_ratio = 1.0
     wing.ep_alpha               = 0.0
     
-    Mach                        = np.array([0.198])
-    conditions                  = Data()
-    conditions.lift_curve_slope = datcom(wing,Mach)
-    wing.CL_alpha               = conditions.lift_curve_slope
-    vehicle.reference_area      = wing.areas.reference
+    span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
+    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    
+    
+    Mach                         = np.array([0.198])
+    conditions                   = Data()
+    conditions.weights           = Data()
+    conditions.lift_curve_slope  = datcom(wing,Mach)
+    conditions.weights.total_mass=np.array([[vehicle.mass_properties.max_takeoff]]) 
+   
+    wing.CL_alpha                = conditions.lift_curve_slope
+    vehicle.reference_area       = wing.areas.reference
     vehicle.append_component(wing)
     
     main_wing_CLa = wing.CL_alpha
@@ -69,15 +82,41 @@ def main():
     fuselage.lengths.total     = 229.7  * Units.feet
     fuselage.width      = 20.9   * Units.feet 
     vehicle.append_component(fuselage)
+    vehicle.mass_properties.center_of_gravity=np.array([112.2,0,0]) * Units.feet  
     
+    
+    
+ 
+    #configuration.mass_properties.zero_fuel_center_of_gravity=np.array([76.5,0,0])*Units.feet #just put a number here that got the expected value output; may want to change
+    fuel                                                     =SUAVE.Components.Physical_Component()
+    fuel.origin                                              =wing.origin
+    fuel.mass_properties.center_of_gravity                   =wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                                =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+   
+    
+    #find zero_fuel_center_of_gravity
+    cg                   =vehicle.mass_properties.center_of_gravity
+    MTOW                 =vehicle.mass_properties.max_takeoff
+    fuel_cg              =fuel.origin+fuel.mass_properties.center_of_gravity
+    fuel_mass            =fuel.mass_properties.mass
+    
+    
+    sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
+    
+    
+    #now define configuration for calculation
     configuration = Data()
-    configuration.mass_properties = Data()
-    configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([112.2,0,0]) * Units.feet  
+    configuration.mass_properties                            = Data()
+    configuration.mass_properties.center_of_gravity          = vehicle.mass_properties.center_of_gravity
+    configuration.mass_properties.max_zero_fuel              =vehicle.mass_properties.max_zero_fuel
+    configuration.fuel                                       =fuel
     
+    configuration.mass_properties.zero_fuel_center_of_gravity=sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+  
+    
+    #print configuration
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
-        
-    expected = -1.627 #Should be -1.45
+    expected =-1.56222373 #Should be -1.45
     error = Data()
     error.cm_a_747 = (cm_a - expected)/expected
     
@@ -86,6 +125,10 @@ def main():
     #Using values for a Beech 99 
     
     vehicle = SUAVE.Vehicle()
+    vehicle.mass_properties.max_takeoff  =4727*Units.kg #from Wikipedia
+    vehicle.mass_properties.empty        =2515*Units.kg
+    vehicle.mass_properties.max_zero_fuel=vehicle.mass_properties.max_takeoff-vehicle.mass_properties.empty+15.*225*Units.lbs #15 passenger ac
+    
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
     wing.areas.reference           = 280.0 * Units.feet**2
@@ -101,11 +144,22 @@ def main():
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing), 0. , 0. ])
     wing.dynamic_pressure_ratio = 1.0
     wing.ep_alpha               = 0.0
+    span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
+    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    
+    
+    
+    
     
     Mach = np.array([0.152])
     reference = SUAVE.Core.Container()
     conditions = Data()
     conditions.lift_curve_slope = datcom(wing,Mach)
+    
+    conditions.weights=Data()
+    conditions.weights.total_mass=np.array([[vehicle.mass_properties.max_takeoff]]) 
+   
     wing.CL_alpha               = conditions.lift_curve_slope
     vehicle.reference_area      = wing.areas.reference
     vehicle.append_component(wing)
@@ -136,16 +190,39 @@ def main():
     fuselage.width                = 5.4   * Units.feet 
     vehicle.append_component(fuselage)
     
+    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet   
+    
+    
+    fuel.origin                                              =wing.origin
+    fuel.mass_properties.center_of_gravity                   =wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                                =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+   
+    
+    
+    #find zero_fuel_center_of_gravity
+    cg                   =vehicle.mass_properties.center_of_gravity
+    MTOW                 =vehicle.mass_properties.max_takeoff
+    fuel_cg              =fuel.origin+fuel.mass_properties.center_of_gravity
+    fuel_mass            =fuel.mass_properties.mass
+
+    
+    sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
+    
+    
+    #now define configuration for calculation
     configuration = Data()
-    configuration.mass_properties = Data()
-    configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet    
+    configuration.mass_properties                            = Data()
+    configuration.mass_properties.center_of_gravity          = vehicle.mass_properties.center_of_gravity
+    configuration.mass_properties.max_zero_fuel              = vehicle.mass_properties.max_zero_fuel
+    configuration.fuel                                       =fuel
+    
+    configuration.mass_properties.zero_fuel_center_of_gravity=sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+    
     
     #Method Test   
-    
+    #print configuration
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
-    
-    expected = -2.521 #Should be -2.08
+    expected = -2.48843437 #Should be -2.08
     error.cm_a_beech_99 = (cm_a - expected)/expected   
     
     
@@ -153,6 +230,10 @@ def main():
     #Using values for an SIAI Marchetti S-211
     
     vehicle = SUAVE.Vehicle()
+    vehicle.mass_properties.max_takeoff  =2750*Units.kg #from Wikipedia
+    vehicle.mass_properties.empty        =1850*Units.kg
+    vehicle.mass_properties.max_zero_fuel=vehicle.mass_properties.max_takeoff-vehicle.mass_properties.empty+2.*225*Units.lbs #2 passenger ac
+    
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
     wing.areas.reference           = 136.0 * Units.feet**2
@@ -170,9 +251,21 @@ def main():
     wing.dynamic_pressure_ratio = 1.0
     wing.ep_alpha       = 0.0
     
+    span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
+    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    
+       
+    
     Mach = np.array([0.111])
     conditions = Data()
     conditions.lift_curve_slope = datcom(wing,Mach)
+    conditions.weights=Data()
+    conditions.weights.total_mass=np.array([[vehicle.mass_properties.max_takeoff]]) 
+   
+    
+    
+    
     wing.CL_alpha               = conditions.lift_curve_slope
     vehicle.reference_area      = wing.areas.reference
     vehicle.append_component(wing)
@@ -194,6 +287,17 @@ def main():
     wing.ep_alpha            = 2.0*main_wing_CLa/np.pi/main_wing_ar
     wing.aerodynamic_center  = np.array([trapezoid_ac_x(wing), 0.0, 0.0])
     wing.CL_alpha            = datcom(wing,Mach)
+    
+    span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
+    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    
+    
+    
+    
+    
+    
+    
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
@@ -202,19 +306,44 @@ def main():
     fuselage.lengths.total        = 30.9  * Units.feet
     fuselage.width                = ((2.94+5.9)/2)   * Units.feet 
     vehicle.append_component(fuselage)
+    vehicle.mass_properties.center_of_gravity = np.array([16.6,0,0]) * Units.feet    
     
+    
+    
+    
+    fuel.origin                                              =wing.origin
+    fuel.mass_properties.center_of_gravity                   =wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                                =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+   
+    
+    
+    #find zero_fuel_center_of_gravity
+    cg                   =vehicle.mass_properties.center_of_gravity
+    MTOW                 =vehicle.mass_properties.max_takeoff
+    fuel_cg              =fuel.origin+fuel.mass_properties.center_of_gravity
+    fuel_mass            =fuel.mass_properties.mass
+
+    sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
+    
+    
+    #now define configuration for calculation
     configuration = Data()
-    configuration.mass_properties = Data()
-    configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([16.6,0,0]) * Units.feet    
+    configuration.mass_properties                            = Data()
+    configuration.mass_properties.center_of_gravity          = vehicle.mass_properties.center_of_gravity
+    configuration.mass_properties.max_zero_fuel              = vehicle.mass_properties.max_zero_fuel
+    configuration.fuel                                       =fuel
+    
+    configuration.mass_properties.zero_fuel_center_of_gravity=sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+    
+    
     
     #Method Test   
-    
+    #print configuration
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
-    
-    expected = -0.5409 #Should be -0.6
+   
+    expected = -0.54071741 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected
-
+    print error
     for k,v in error.items():
         assert(np.abs(v)<0.01)
         

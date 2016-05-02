@@ -1,23 +1,23 @@
 # estimate_landing_field_length.py
 #
-# Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified: M. Vegh Apr. 2015
+# Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
+# Modified: Apr 2015, M. Vegh 
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-#SUAVE Imports
 import SUAVE
 from   SUAVE.Core            import Data
 from   SUAVE.Core            import Units
 
-# package imports
 import numpy as np
 
 # ----------------------------------------------------------------------
 #  Compute field length required for landing
 # ----------------------------------------------------------------------
+
 def estimate_landing_field_length(vehicle,analyses,airport):
     """ SUAVE.Methods.Performance.estimate_landing_field_length(vehicle,config,airport):
         Computes the landing field length for a given vehicle condition in a given airport
@@ -50,7 +50,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     """
    
     # ==============================================
-        # Unpack
+    # Unpack
     # ==============================================
     atmo            = airport.atmosphere
     altitude        = airport.altitude * Units.ft
@@ -61,29 +61,18 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         Vref_VS_ratio = config.Vref_VS_ratio
     except:
         Vref_VS_ratio = 1.23
-
+        
     # ==============================================
     # Computing atmospheric conditions
     # ==============================================
-    conditions0       = atmo.compute_values(0.)
-    atmo_values       = atmo.compute_values(altitude)
-    conditions        =SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    p                 = atmo_values.pressure
-    T                 = atmo_values.temperature
-    rho               = atmo_values.density
-    a                 = atmo_values.speed_of_sound
-    mu                = atmo_values.dynamic_viscosity
-                      
-    p0                = conditions0.pressure
-    T0                = conditions0.temperature
-    rho0              = conditions0.density
-    a0                = conditions0.speed_of_sound
-    mu0               = conditions0.dynamic_viscosity
-    T_delta_ISA       = T + delta_isa
-    sigma_disa        = (p/p0) / (T_delta_ISA/T0)
-    rho               = rho0 * sigma_disa
-    a_delta_ISA       = atmo.fluid_properties.compute_speed_of_sound(T_delta_ISA)
-    mu                = 1.78938028e-05 * ((T0 + 120) / T0 ** 1.5) * ((T_delta_ISA ** 1.5) / (T_delta_ISA + 120))
+    atmo_values     = atmo.compute_values(altitude,delta_isa)
+    conditions      = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    
+    p   = atmo_values.pressure
+    T   = atmo_values.temperature
+    rho = atmo_values.density
+    a   = atmo_values.speed_of_sound
+    mu  = atmo_values.dynamic_viscosity
     sea_level_gravity = atmo.planet.sea_level_gravity
    
     # ==============================================
@@ -97,10 +86,10 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         
-        conditions.freestream=Data()
-        conditions.freestream.density   = rho
+        conditions.freestream = Data()
+        conditions.freestream.density           = rho
         conditions.freestream.dynamic_viscosity = mu
-        conditions.freestream.velocity  = 90. * Units.knots
+        conditions.freestream.velocity          = 90. * Units.knots
         
         try:
             maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
@@ -108,6 +97,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
             
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
+        
     # ==============================================
     # Computing speeds (Vs, Vref)
     # ==============================================
@@ -133,6 +123,6 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     landing_field_length = 0.
     for idx,constant in enumerate(landing_constants):
         landing_field_length += constant * Vref**idx
-
+    
     # return
     return landing_field_length

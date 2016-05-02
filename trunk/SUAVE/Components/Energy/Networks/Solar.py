@@ -1,7 +1,7 @@
-#Solar_Network.py
+# Solar.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:  
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,15 +12,9 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Network
@@ -86,16 +80,12 @@ class Solar(Propulsor):
         # iterate the Cp here
         diff = abs(Cplast-motor.propeller_Cp)
         tol = 1e-6
-        ii = 0 
         while (np.any(diff>tol)):
-            motor.propeller_Cp  = Cplast #Change the Cp
-            motor.omega(conditions) #Rerun the motor
-            propeller.inputs.omega =  motor.outputs.omega #Relink the motor
-            F, Q, P, Cplast = propeller.spin(conditions) #Run the motor again
-            diff = abs(Cplast-motor.propeller_Cp) #Check to see if it converged
-            ii += 1
-            #if ii>100:
-                #break            
+            motor.propeller_Cp  = Cplast # Change the Cp
+            motor.omega(conditions) # Rerun the motor
+            propeller.inputs.omega =  motor.outputs.omega # Relink the motor
+            F, Q, P, Cplast        = propeller.spin(conditions) # Run the motor again
+            diff                   = abs(Cplast-motor.propeller_Cp) # Check to see if it converged          
         
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
@@ -148,7 +138,7 @@ class Solar(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
+
         return results
             
     __call__ = evaluate_thrust
