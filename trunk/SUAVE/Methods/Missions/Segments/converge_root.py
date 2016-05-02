@@ -43,8 +43,8 @@ def converge_root(segment,state):
     else:
         segment.state.numerics.converged = True
     
-    print 'Calls'
-    print infodict[ 'nfev']
+    #print 'Calls'
+    #print infodict[ 'nfev']
                             
     #unknowns = root_finder( iterate,
                             #unknowns,
