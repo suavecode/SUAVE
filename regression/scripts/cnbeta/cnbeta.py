@@ -47,11 +47,11 @@ def main():
     wing.tag               = 'vertical_stabilizer'
     wing.areas.reference   = wing.extended.areas.reference
     wing.spans.projected   = wing.extended.spans.projected
-    wing.chords.root       = wing.extended.chords.root
+    #wing.chords.root       = wing.extended.chords.root
     dx_LE_vert             = wing.extended.root_LE_change
     wing.taper             = wing.chords.tip/wing.chords.root
     wing.origin            = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
-    wing.aspect_ratio      = 2.2
+    wing.aspect_ratio      = (wing.spans.projected**2)/wing.areas.reference
     wing.effective_aspect_ratio = 2.2
     wing.symmetric              = False
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])

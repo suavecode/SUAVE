@@ -71,7 +71,7 @@ def extend_to_ref_area(surface):
     AR     = b**2/S
 
     ref_surface = surface
-    surface.extended =  Data()
+    surface.extended = Data()
     surface.extended.spans  = Data()
     surface.extended.areas  = Data()
     surface.extended.chords = Data()
