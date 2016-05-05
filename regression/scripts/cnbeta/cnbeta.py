@@ -48,8 +48,10 @@ def main():
     wing.areas.reference   = wing.extended.areas.reference
     wing.spans.projected   = wing.extended.spans.projected
     #wing.chords.root       = wing.extended.chords.root
+    wing.chords.root       = 14.9612585185
     dx_LE_vert             = wing.extended.root_LE_change
-    wing.taper             = wing.chords.tip/wing.chords.root
+    #wing.taper             = wing.chords.tip/wing.chords.root
+    wing.taper             = 0.272993077083
     wing.origin            = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
     wing.aspect_ratio      = (wing.spans.projected**2)/wing.areas.reference
     wing.effective_aspect_ratio = 2.2
