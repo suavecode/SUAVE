@@ -42,6 +42,7 @@ def converge_root(segment,state):
         segment.state.numerics.converged = False
     else:
         segment.state.numerics.converged = True
+        
     
     #print 'Calls'
     #print infodict[ 'nfev']

@@ -36,7 +36,7 @@ def main():
     
     plot_results(results)
     
-    error = mission.target_landing_weight - results.conditions.weights.total_mass[-1,0]
+    error = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
     print 'landing weight error' , error
     assert error < 1.
     
