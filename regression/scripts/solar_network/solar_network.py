@@ -84,7 +84,7 @@ def main():
     motor.no_load_current      = 8.0
     motor.speed_constant       = 140.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
     motor.propeller_radius     = prop.prop_attributes.tip_radius
-    motor.propeller_Cp         = prop.prop_attributes.Cp
+    #motor.propeller_Cp         = prop.prop_attributes.Cp
     motor.gear_ratio           = 1.
     motor.gearbox_efficiency   = 1.
     motor.expected_current     = 260.
@@ -138,7 +138,7 @@ def main():
     conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
     conditions.freestream.velocity            = np.array([[1.0],[1.0]])
     conditions.freestream.density             = np.array([rho,rho])
-    conditions.freestream.dynamic_viscosity           = np.array([mu, mu])
+    conditions.freestream.dynamic_viscosity   = np.array([mu, mu])
     conditions.freestream.speed_of_sound      = np.array([a, a])
     conditions.freestream.altitude            = np.array([[design_altitude], [design_altitude]])
     conditions.propulsion.battery_energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
@@ -150,16 +150,23 @@ def main():
     conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
     conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
     conditions.freestream.temperature         = np.array([T, T])
+    conditions.frames.body.transform_to_inertial = np.array([[[ 1.,  0.,  0.],
+                                                              [ 0.,  1.,  0.],
+                                                              [ 0.,  0.,  1.]],
+                                                             [[ 1.,  0.,  0.],
+                                                              [ 0.,  1.,  0.],
+                                                              [ 0.,  0.,  1.]]])
+    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.prop_attributes.Cp
     
     # Run the network and print the results
     results = net(state)
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[ 522.40448791],[ 522.40448791]]
-    truth_i   = [[ 314.90485916],[ 314.90485916]]
-    truth_rpm = [[ 6581.17653732],[ 6581.17653732]]
-    truth_bat = [[ 36000000.    ],[ 35984254.75704217]]
+    truth_F   = [[ 545.35952329,  545.35952329]]
+    truth_i   = [[ 249.31622624], [ 249.31622624]]
+    truth_rpm = [[ 6668.4094191], [ 6668.4094191]]
+    truth_bat = [[ 36000000.   ], [ 35987534.18868808]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
