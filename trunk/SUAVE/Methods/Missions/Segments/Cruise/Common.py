@@ -31,11 +31,12 @@ def unpack_unknowns(segment,state):
 def residual_total_forces(segment,state):
     
     FT = state.conditions.frames.inertial.total_force_vector
+    m  = state.conditions.weights.total_mass[:,0] 
     
     # horizontal
-    state.residuals.forces[:,0] = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )
+    state.residuals.forces[:,0] = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )/m
     # vertical
-    state.residuals.forces[:,1] = FT[:,2]
+    state.residuals.forces[:,1] = FT[:,2]/m
 
     return
     
