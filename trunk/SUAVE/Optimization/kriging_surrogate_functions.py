@@ -1,3 +1,4 @@
+from SUAVE.Core import Data
 import pyKriging
 import pyOpt  
 from pyKriging.krige import kriging  
@@ -46,10 +47,10 @@ def build_kriging_models(filename, inputs):
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates
     
-    return obj_surrogate, constraints_surrogates    
+    return obj_surrogate, constraints_surrogates, surrogate_function    
     
     
-def setup_surrogate_problem(inputs, constraints):
+def setup_surrogate_problem(surrogate_function, inputs, constraints):
     #taken from initial optimization problem that you run
     names            = inputs[:,0] # Names
     bnd              = inputs[:,2] # Bounds
@@ -79,7 +80,24 @@ def setup_surrogate_problem(inputs, constraints):
     
     opt_prob.addObj('f')
     return opt_problem 
+ 
+class run_surrogate_problem(Data):
+    def __defaults__(self):
+        self.obj_surrogate = None
+        self.constraints_surrogates = None
     
+    def compute(self, x):
+        f = self.obj_surrogate.predict(x)
+        g = []
+        for j in range(len(self.constraints_surrogates)):
+            g.append(self.constraint_surrogates[i].predict(x))
+        
+        fail = 0
+        return f, g, fail
+        
+    __call__ = compute
+ 
+'''
 def run_surrogate_problem(self,x):
     f = self.obj_surrogate.predict(x)
     g = []
@@ -88,7 +106,7 @@ def run_surrogate_problem(self,x):
     
     fail = 0
     return f, g, fail
-    
+'''    
 def format_input_data(data):
 
     data_out=[]
