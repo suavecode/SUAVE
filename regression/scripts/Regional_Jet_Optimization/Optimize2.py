@@ -1,6 +1,6 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
-# Modified: 
+# Modified: May 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -25,10 +25,14 @@ def main():
     
     obj = problem.objective([1.,1.])
     con = problem.all_constraints([1.,1.])
+    obj2 = problem.objective([0.9,1.1])
+    con3 = problem.all_constraints([1.1,0.9])    
     
     actual = Data()
-    actual.obj = 0.6883660224407133
-    actual.con = 0.56581479
+    actual.obj  = 0.6883660224407133
+    actual.con  = 0.56581479
+    actual.obj2 = 0.7066622701538261
+    actual.con3 = 0.67963357
     
     print 'Fuel Burn   =', obj
     print 'Fuel Margin =', con    
@@ -36,6 +40,8 @@ def main():
     error = Data()
     error.obj = (actual.obj - obj)/actual.obj
     error.con = (actual.con - con)/actual.con
+    error.obj2 = (actual.obj2 - obj2)/actual.obj2
+    error.con3 = (actual.con3 - con3)/actual.con3 
 
     print 'Fuel Burn Error   =',  error.obj
     print 'Fuel Margin Error =',error.con
