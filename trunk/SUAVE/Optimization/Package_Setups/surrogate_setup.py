@@ -22,7 +22,6 @@ def setup_surrogate_problem(surrogate_function, inputs, constraints):
     bnd              = inputs[:,2] # Bounds
     scl              = inputs[:,3] # Scaling
     input_units      = inputs[:,-1] *1.0
-    print 'input_units=', input_units
     constraint_names = constraints[:,0]
     constraint_scale = constraints[:,3]
     constraint_units = constraints[:,-1]*1.0
