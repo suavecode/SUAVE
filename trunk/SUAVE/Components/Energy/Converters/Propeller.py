@@ -72,6 +72,7 @@ class Propeller(Energy_Component):
         theta  = self.thrust_angle
         
         BB     = B*B
+        BBB    = BB*B
             
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -97,18 +98,17 @@ class Propeller(Energy_Component):
         ######
 
         #Things that don't change with iteration
-        N       = len(c) #Number of stations
-        chi0    = Rh/R # Where the propeller blade actually starts
-        chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
+        N       = len(c) # Number of stations
+        chi0    = Rh/R   # Where the propeller blade actually starts
+        chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
         chi     = chi[0:N]
-        lamda   = V/(omega*R)           # Speed ratio
-        r       = chi*R                 # Radial coordinate
+        lamda   = V/(omega*R)              # Speed ratio
+        r       = chi*R                    # Radial coordinate
         pi      = np.pi
-
-        x       = r*np.multiply(omega,1/V)             # Nondimensional distance
-        n       = omega/(2.*pi)      # Cycles per second
+        pi2     = pi*pi
+        x       = r*np.multiply(omega,1/V) # Nondimensional distance
+        n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-    
         sigma   = np.multiply(B*c,1./(2.*pi*r))   
     
         #I make the assumption that externally-induced velocity at the disk is zero
@@ -173,17 +173,25 @@ class Propeller(Energy_Component):
             #This was solved symbolically in Matlab and exported        
             f_wt_2 = 4*Wt*Wt
             f_wa_2 = 4*Wa*Wa
-            Ucospsi = U*cos_psi
-            Usinpsi = U*sin_psi      
+            Ucospsi  = U*cos_psi
+            Usinpsi  = U*sin_psi
+            Utcospsi = Ut*cos_psi
+            Uasinpsi = Ua*sin_psi
             
-            dR_dpsi = ((4.*U*r*arccos_piece*sin_psi*((16.*(Ua + Usinpsi)*(Ua + Usinpsi))/(BB*pi*pi*f_wt_2) + 
-                      1.)**(0.5))/B - (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 +
-                      f_wa_2)**(0.5)) + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Ut*cos_psi + 
-                      Ua*sin_psi))/(2.*(f_wa_2/(f_wt_2) + 1.)*(Ut + Ucospsi)*(Ut + Ucospsi)) - (4.*U*piece*((16.*(Ua +
-                      Usinpsi)*(Ua + Usinpsi))/(BB*pi*pi*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                      Ut*cos_psi + Ua*sin_psi))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - r))/(r*(Ua + Usinpsi))))**(0.5)) + 
-                      (128.*U*r*arccos_piece*(Ua + Usinpsi)*(Ut/2. - (Ucospsi)/2.)*(U + Ut*cos_psi + 
-                      Ua*sin_psi))/(BB*B*pi*pi*(Ut + Ucospsi)*(Ut + Ucospsi)*(Ut + Ucospsi)*((16.*f_wa_2)/(BB*pi*pi*f_wt_2) + 1.)**(0.5))) 
+            UapUsinpsi = (Ua + Usinpsi)
+            utpUcospsi = (Ut + Ucospsi)
+            
+            utpUcospsi2 = utpUcospsi*utpUcospsi
+            UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+            
+            dR_dpsi = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
+                       (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                       + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                       - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
+                      (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
+                       r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
+                       Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
+            
             dR_dpsi[np.isnan(dR_dpsi)] = 0.1
                       
             dpsi   = -Rsquiggly/dR_dpsi
@@ -194,7 +202,6 @@ class Propeller(Energy_Component):
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
                 break
-
 
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
