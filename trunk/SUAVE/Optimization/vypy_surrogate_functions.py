@@ -1,3 +1,14 @@
+# vypy_surrogate_functions.py
+#
+# Created:  May 206, M. Vegh
+# Modified:
+
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+
 from SUAVE.Core import Data
 import helper_functions
 import VyPy
@@ -33,28 +44,8 @@ def build_gpr_models(filename, base_inputs, constraint_inputs):
     # start a training data object
     Model         = gpr.library.Gaussian(bounds, inputs, obj_values) #start training object
     obj_surrogate = Model.predict_YI
-    '''
-    print Train
-    # find scaling factors for normalizing data
-    Scaling              = gpr.scaling.Linear(Train)
-    
-    # scale the training data
-    Train_Scl = Scaling.set_scaling(Train)
-    
-    # choose a kernel 
-    Kernel = gpr.kernel.Gaussian(Train_Scl)
-    
-    # choose an inference model (only one for now)
-    Infer  = gpr.inference.Gaussian(Kernel)
-    
-    # choose a learning model (only one for now)
-    Learn  = gpr.learning.Likelihood(Infer)
-    
-    # now learn
-    obj_surrogate  = gpr.modeling.Regression(Learn)
-    obj_surrogate.learn()
    
-    '''
+   
     constraints_surrogates = []
    
     #now do this for every constraint

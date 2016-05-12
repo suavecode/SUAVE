@@ -1,4 +1,16 @@
-def write_optimization_outputs(nexus):
+# write_optimization_outputs.py
+#
+# Created:  May 206, M. Vegh
+# Modified:
+
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+from helper_functions import get_values, scale_obj_values, scale_const_values
+
+def write_optimization_outputs(nexus, filename):
  
     #unpack optimization problem values
     objective          = nexus.optimization_problem.objective
@@ -11,17 +23,16 @@ def write_optimization_outputs(nexus):
     scaled_inputs      = unscaled_inputs/input_scaling
     
     #objective
-    objective_value    = SUAVE.Optimization.helper_functions.get_values(nexus,objective,aliases)
-    scaled_objective   = SUAVE.Optimization.helper_functions.scale_obj_values(objective , objective_value)
+    objective_value    = get_values(nexus,objective,aliases)
+    scaled_objective   = scale_obj_values(objective , objective_value)
     
     #constraints
-    constraint_values  = SUAVE.Optimization.helper_functions.get_values(nexus,constraints,aliases) 
-    scaled_constraints = SUAVE.Optimization.helper_functions.scale_const_values(constraints,constraint_values)
+    constraint_values  = get_values(nexus,constraints,aliases) 
+    scaled_constraints = scale_const_values(constraints,constraint_values)
     
     
     
-    range              = nexus.target_range/Units.nautical_miles
-    
+   
     problem_inputs  = []
     problem_constraints = []
     for value in scaled_inputs:
@@ -29,7 +40,6 @@ def write_optimization_outputs(nexus):
     for value in scaled_constraints:
         problem_constraints.append(value)
     
-    filename = 'optimizer_sizing '+str(int(range))+'_nautical_mile_range.txt'
     
     file=open(filename, 'ab')
     file.write('iteration = ')
@@ -45,4 +55,4 @@ def write_optimization_outputs(nexus):
     file.write('\n') 
     file.close()
     
-    return nexus
+    return
