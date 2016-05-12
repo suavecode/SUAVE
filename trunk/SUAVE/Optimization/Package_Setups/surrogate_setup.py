@@ -39,7 +39,6 @@ def setup_surrogate_problem(surrogate_function, inputs, constraints):
     
     
     for j in range(len(inputs[:,1])):
-        name = names[j]
         lbd = bnd[j][0]*input_units[j]/(scl[j])
         ubd = bnd[j][1]*input_units[j]/(scl[j])
         opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
