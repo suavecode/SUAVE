@@ -42,13 +42,13 @@ def setup_surrogate_problem(surrogate_function, inputs, constraints):
         name = names[j]
         lbd = bnd[j][0]*input_units[j]/(scl[j])
         ubd = bnd[j][1]*input_units[j]/(scl[j])
-        opt_problem.addVar(name, 'c', lower = lbd, upper = ubd, value = x[j])
+        opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
     
     for j in range(len(constraints[:,0])):
         #only using inequality constraints, where we want everything >0
-        name = constraint_names[j]
+        #name = constraint_names[j]
         edge = constraints_out[j]
-        opt_problem.addCon(name, type ='i', lower=edge, upper=np.inf)
+        opt_problem.addCon('g%i' % j, type ='i', lower=edge, upper=np.inf)
     
     opt_problem.addObj('f')
     
@@ -60,14 +60,17 @@ class surrogate_problem(Data):
         self.constraints_surrogates = None
     
     def compute(self, x):
-        f = self.obj_surrogate.predict(x)
-        
+        f  = self.obj_surrogate(x)
+        #f = self.obj_surrogate.predict(x)
         g = []
         for j in range(len(self.constraints_surrogates)):
-            g.append(self.constraints_surrogates[j].predict(x))
-        
+            #g.append(self.constraints_surrogates[j].predict(x))
+            g.append(self.constraints_surrogates[j](x))
+        g = np.array(g)
         fail = 0
-       
+        
+        if np.isnan(f) or np.isnan(g.any()):
+            fail = 1
         return f, g, fail
         
     __call__ = compute
