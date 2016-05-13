@@ -1,10 +1,17 @@
-from SUAVE.Core import Data
-import helper_functions
-import pyKriging
-import pyOpt  
+# kriging_surrogate_functions.py
+#
+# Created:  May 206, M. Vegh
+# Modified:
+
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+
+from SUAVE.Core import Units, Data
+
 from pyKriging.krige import kriging  
-from read_optimization_outputs import read_optimization_outputs
-from Package_Setups.surrogate_setup import surrogate_problem
 
 import numpy as np
 import time
@@ -12,8 +19,6 @@ import time
 
 def build_kriging_models(obj_values, inputs, constraints):
 
-
-    
     #now build surrogates based on these
     t1=time.time()
   
@@ -24,14 +29,13 @@ def build_kriging_models(obj_values, inputs, constraints):
    
     
     
-    for j in range(len(constraints[0,:])):
-        print 'j=', j
+    for j in range(len(constraints[0,:])): 
         constraint_surrogate = kriging(inputs, constraints[:,j] , name='simple')
         constraint_surrogate.train()
         constraints_surrogates.append(constraint_surrogate)
     t2=time.time()
     print 'time to set up = ', t2-t1
-    surrogate_function    = surrogate_problem()
+    surrogate_function    = Surrogate_Problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates
     

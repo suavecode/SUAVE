@@ -12,7 +12,7 @@ import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as helper_functions
 
-def setup_pyopt_surrogate_problem(surrogate_function, inputs, constraints):
+def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     #sets up a surrogate problem so it can be run by pyOpt
     
 
@@ -34,21 +34,24 @@ def setup_pyopt_surrogate_problem(surrogate_function, inputs, constraints):
     scaled_inputs      = ini/scl
     x                  = scaled_inputs*input_units
     
-    
+    #bound the input variables
     for j in range(len(inputs[:,1])):
         lbd = bnd[j][0]*input_units[j]/(scl[j])
         ubd = bnd[j][1]*input_units[j]/(scl[j])
         opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
-    
+ 
+    #put in the constraints
     for j in range(len(constraints[:,0])):
         edge = constraints_out[j]
         if constraints[j][1]=='<':
             opt_problem.addCon('g%i' % j, type ='i', upper=edge)
         elif constraints[j][1]=='>':
-            opt_prob.addCon('g%i' % j, lower=edge,upper=np.inf)
+            opt_problem.addCon('g%i' % j, lower=edge,upper=np.inf)
       
         elif constraints[j][1]=='>':
-            opt_prob.addCon('g%i' % j, type='e', equal=edge)
+            opt_problem.addCon('g%i' % j, type='e', equal=edge)
+      
+    
     opt_problem.addObj('f')
     
     return opt_problem

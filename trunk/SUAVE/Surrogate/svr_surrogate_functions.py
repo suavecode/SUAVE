@@ -10,12 +10,8 @@
 
 
 from SUAVE.Core import Data
-import helper_functions
 from sklearn import svm
-
-import pyOpt  
-from read_optimization_outputs import read_optimization_outputs
-from surrogate_problem import surrogate_problem
+from Surrogate_Problem import Surrogate_Problem
 
 import numpy as np
 import time
@@ -39,7 +35,7 @@ def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E-4):
      
     t2=time.time()
     print 'time to set up = ', t2-t1
-    surrogate_function                        = surrogate_problem()
+    surrogate_function                        = Surrogate_Problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates
     
