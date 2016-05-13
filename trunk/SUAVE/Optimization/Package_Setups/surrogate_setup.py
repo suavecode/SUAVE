@@ -59,12 +59,12 @@ class surrogate_problem(Data):
         self.constraints_surrogates = None
     
     def compute(self, x):
-        f  = self.obj_surrogate(x)
-        #f = self.obj_surrogate.predict(x)
+        #f  = self.obj_surrogate(x)
+        f = self.obj_surrogate.predict(x)
         g = []
         for j in range(len(self.constraints_surrogates)):
-            #g.append(self.constraints_surrogates[j].predict(x))
-            g.append(self.constraints_surrogates[j](x))
+            g.append(self.constraints_surrogates[j].predict(x))
+            #g.append(self.constraints_surrogates[j](x))
         g = np.array(g)
         fail = 0
         
