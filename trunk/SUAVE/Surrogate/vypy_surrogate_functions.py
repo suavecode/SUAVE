@@ -16,7 +16,7 @@ from VyPy.regression import gpr
 
 import pyOpt  
 from read_optimization_outputs import read_optimization_outputs
-from Package_Setups.surrogate_setup import surrogate_problem
+from Surrogate_Problem import Surrogate_Problem
 
 import numpy as np
 import time
@@ -29,10 +29,6 @@ def build_gpr_models(filename, base_inputs, constraint_inputs):
     
     iterations, obj_values, inputs, constraints = read_optimization_outputs(filename, base_inputs, constraint_inputs)
 
-    print 'obj_values = ', obj_values
-    print 'inputs=', inputs
-    print 'constraints=', constraints
-    
     #now build surrogates based on these
     t1=time.time()
     bounds = []
@@ -42,8 +38,9 @@ def build_gpr_models(filename, base_inputs, constraint_inputs):
         bounds.append([lbd, ubd])
     bounds = np.array(bounds)
     # start a training data object
-    Model         = gpr.library.Gaussian(bounds, inputs, obj_values) #start training object
-    obj_surrogate = Model.predict_YI
+    Model                 = gpr.library.Gaussian(bounds, inputs, obj_values) #start training object
+    obj_surrogate         = Data()
+    obj_surrogate.predict = Model.predict_YI
    
    
     constraints_surrogates = []
@@ -52,17 +49,10 @@ def build_gpr_models(filename, base_inputs, constraint_inputs):
     
     for j in range(len(constraints[0,:])):
         print 'j=', j
-        Model                = gpr.library.Gaussian(bounds, inputs, constraints[:,j])
-        constraint_surrogate = Model.predict_YI
-        '''
-        Train                = gpr.library.Gaussian(bounds, inputs, constraint[:,j])
-        Scaling              = gpr.scaling.Linear(Train)
-        Train_Scl            = Scaling.set_scaling(Train)
-        Infer                = gpr.inference.Gaussian(Kernel)
-        Learn                = gpr.learning.Likelihood(Infer)
-        constraint_surrogate = gpr.modeling.Regression(Learn)
-        constraint_surrogate.learn()
-        '''
+        Model                        = gpr.library.Gaussian(bounds, inputs, constraints[:,j])
+        constraint_surrogate         = Data()
+        constraint_surrogate.predict = Model.predict_YI
+   
         constraints_surrogates.append(constraint_surrogate)
      
     t2=time.time()

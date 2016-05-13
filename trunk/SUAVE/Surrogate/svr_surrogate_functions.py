@@ -1,4 +1,4 @@
-# vypy_surrogate_functions.py
+# svr_surrogate_functions.py
 #
 # Created:  May 206, M. Vegh
 # Modified:
@@ -15,7 +15,7 @@ from sklearn import svm
 
 import pyOpt  
 from read_optimization_outputs import read_optimization_outputs
-from Optimization.Package_Setups.surrogate_setup import surrogate_problem
+from surrogate_problem import surrogate_problem
 
 import numpy as np
 import time
@@ -45,7 +45,7 @@ def build_svr_models(filename, base_inputs, constraint_inputs, kernel = 'rbf', C
      
     t2=time.time()
     print 'time to set up = ', t2-t1
-    surrogate_function    = surrogate_problem()
+    surrogate_function                        = surrogate_problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates
     
