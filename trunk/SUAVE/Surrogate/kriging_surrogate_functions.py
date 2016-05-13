@@ -10,13 +10,9 @@ import numpy as np
 import time
 
 
-def build_kriging_models(filename, base_inputs, constraint_inputs):
+def build_kriging_models(obj_values, inputs, constraints):
 
-    iterations, obj_values, inputs, constraints = read_optimization_outputs(filename, base_inputs, constraint_inputs)
 
-    print 'obj_values = ', obj_values
-    print 'inputs=', inputs
-    print 'constraints=', constraints
     
     #now build surrogates based on these
     t1=time.time()

@@ -21,13 +21,7 @@ import numpy as np
 import time
 
 
-def build_svr_models(filename, base_inputs, constraint_inputs, kernel = 'rbf', C = 1E-4):
-    bnd              = base_inputs[:,2] # Bounds
-    scl              = base_inputs[:,3] # Scaling
-    input_units      = base_inputs[:,-1] *1.0
-    
-    iterations, obj_values, inputs, constraints = read_optimization_outputs(filename, base_inputs, constraint_inputs)
-    
+def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E-4):
     #now build surrogates based on these
     t1=time.time()
 
