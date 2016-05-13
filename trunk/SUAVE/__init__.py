@@ -16,6 +16,7 @@ import Attributes
 import Components
 import Analyses
 import Optimization
+import Surrogate
 import Input_Output
 
 # the vehicle class

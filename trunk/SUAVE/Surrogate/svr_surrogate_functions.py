@@ -15,7 +15,7 @@ from sklearn import svm
 
 import pyOpt  
 from read_optimization_outputs import read_optimization_outputs
-from Package_Setups.surrogate_setup import surrogate_problem
+from Optimization.Package_Setups.surrogate_setup import surrogate_problem
 
 import numpy as np
 import time

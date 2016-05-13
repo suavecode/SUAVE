@@ -13,16 +13,14 @@ from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as helper_functions
 
 def setup_surrogate_problem(surrogate_function, inputs, constraints):
-    #inputs are inputs from a SUAVE Optimization case
-    #constraints are constraints from a SUAVE Optimization
+    #sets up a surrogate problem so it can be run by pyOpt
+    
 
     #taken from initial optimization problem that you run
-    names            = inputs[:,0] # Names
     ini              = inputs[:,1] # values
     bnd              = inputs[:,2] # Bounds
     scl              = inputs[:,3] # Scaling
     input_units      = inputs[:,-1] *1.0
-    constraint_names = constraints[:,0]
     constraint_scale = constraints[:,3]
     constraint_units = constraints[:,-1]*1.0
     opt_problem      = pyOpt.Optimization('surrogate', surrogate_function)
@@ -34,7 +32,6 @@ def setup_surrogate_problem(surrogate_function, inputs, constraints):
 
     
     scaled_inputs      = ini/scl
-    
     x                  = scaled_inputs*input_units
     
     
@@ -44,11 +41,14 @@ def setup_surrogate_problem(surrogate_function, inputs, constraints):
         opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
     
     for j in range(len(constraints[:,0])):
-        #only using inequality constraints, where we want everything >0
-        #name = constraint_names[j]
         edge = constraints_out[j]
-        opt_problem.addCon('g%i' % j, type ='i', lower=edge, upper=np.inf)
-    
+        if constraints[j][1]=='<':
+            opt_problem.addCon('g%i' % j, type ='i', upper=edge)
+        elif constraints[j][1]=='>':
+            opt_prob.addCon('g%i' % j, lower=edge,upper=np.inf)
+      
+        elif constraints[j][1]=='>':
+            opt_prob.addCon('g%i' % j, type='e', equal=edge)
     opt_problem.addObj('f')
     
     return opt_problem, surrogate_function
@@ -59,12 +59,11 @@ class surrogate_problem(Data):
         self.constraints_surrogates = None
     
     def compute(self, x):
-        #f  = self.obj_surrogate(x)
         f = self.obj_surrogate.predict(x)
         g = []
         for j in range(len(self.constraints_surrogates)):
             g.append(self.constraints_surrogates[j].predict(x))
-            #g.append(self.constraints_surrogates[j](x))
+          
         g = np.array(g)
         fail = 0
         
