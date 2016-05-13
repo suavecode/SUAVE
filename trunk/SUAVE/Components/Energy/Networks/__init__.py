@@ -10,3 +10,10 @@ from Turbofan import Turbofan
 from Turbojet_Super import Turbojet_Super
 from Solar_Low_Fidelity import Solar_Low_Fidelity
 from Dual_Battery_Ducted_Fan import Dual_Battery_Ducted_Fan
+
+from Turbofan_3 import Turbofan_3
+from Turbojet_Super_AB import Turbojet_Super_AB
+
+from Turbofan_TASOPT import Turbofan_TASOPT
+#from Turbofan_TASOPTc_wrap import Turbofan_TASOPTc_wrap
+from Turbofan_Deck_I import Turbofan_Deck_I
