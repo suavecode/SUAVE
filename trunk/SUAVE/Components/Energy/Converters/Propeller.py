@@ -10,7 +10,7 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Results
 import scipy.optimize as opt
 
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -235,6 +235,23 @@ class Propeller(Energy_Component):
         etap     = V*thrust/power     
         
         conditions.propulsion.etap = etap
+        
+        # store data
+        results_conditions = Results       
+        conditions.propulsion.acoustic_outputs = results_conditions(
+            number_sections = N,
+            r0 = r,
+            airfoil_chord = c,
+            blades_number = B,
+            propeller_diameter = D,
+            drag_coefficient = Cd,
+            lift_coefficient = Cl,
+            rpm = omega,
+            velocity = V,
+            thrust = thrust,
+            hp = power,
+        )
+        
         
         return thrust, torque, power, Cp
     
