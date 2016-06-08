@@ -17,19 +17,19 @@ import numpy as np
 import time
 
 
-def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E5):
+def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E5, epsilon =.01):
     #now build surrogates based on these
     t1=time.time()
 
     # start a training data object
-    clf             = svm.SVR(kernel=kernel, C=C)
+    clf             = svm.SVR(kernel=kernel, C=C, epsilon = epsilon)
     obj_surrogate   = clf.fit(inputs, obj_values) 
     constraints_surrogates = []
    
     #now do this for every constraint
     
     for j in range(len(constraints[0,:])):
-        clf                  = svm.SVR(kernel=kernel, C=C)
+        clf                  = svm.SVR(kernel=kernel, C=C, epsilon = epsilon)
         constraint_surrogate = clf.fit(inputs, constraints[:,j]) 
         constraints_surrogates.append(constraint_surrogate)
      

@@ -18,11 +18,10 @@ class Surrogate_Problem(Data):
         for j in range(len(self.constraints_surrogates)):
             g.append(self.constraints_surrogates[j].predict(x))
           
-        g = np.array(g)
-        fail = 0
-        
-        if np.isnan(f) or np.isnan(g.any()):
-            fail = 1
+        #g = np.array(g)
+        fail  = np.array(np.isnan(f.tolist()) or np.isnan(np.array(g).any())).astype(int)
+
+
         return f, g, fail
         
     __call__ = compute
