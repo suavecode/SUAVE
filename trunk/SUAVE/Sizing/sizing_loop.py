@@ -2,22 +2,22 @@
 #Created: Jun 2016, M. Vegh
 
 from SUAVE.Core import Data
+import numpy as np
 
 class Sizing_Loop(Data):
     def __defaults__(self):
-    self.tolerance          = None
-    self.update_method      = None
-    self.default_y          = None
-    self.default_scaling    = None
-    self.maximum_iterations = None
+    self.tolerance           = None
+    self.update_method       = None
+    self.default_y           = None
+    self.default_scaling     = None  #scaling value to make sizing parameters ~1
+    self.maximum_iterations  = None
+    self.output_filename     = None
+    self.write_threshhold    = 9     #number of iterations before it writes, regardless of how close it is to currently written values
+    self.iteration_options   = Data()
+    self.iteration_options.h = 1E-6  #finite difference step for Newton iteration
     
     def evaluate(nexus):
-        vehicle    = nexus.vehicle_configurations.base
-        configs    = nexus.vehicle_configurations
-        analyses   = nexus.analyses
-        mission    = nexus.missions.base
-        
-        
+
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
         scaled_inputs   = unscaled_inputs/input_scaling
@@ -29,50 +29,26 @@ class Sizing_Loop(Data):
         
         nexus.problem_inputs = problem_inputs
         print 'problem inputs=', problem_inputs
+        data_inputs, data_outputs, read_success = read_sizing_inputs(scaled_inputs)
         
-    
-    
+        if read_success:
+            
+        
         #converge numbers
         converged         = 0     #marker to tell if it's converged
         tol               = self.tolerance #percentage difference in mass and energy between iterations
-        #h                 = 1E-6
-        #nr_tol            = 5E-2 #threshold to start newton raphson
-        #osc_tol           = 1E-5 #tolerance to not use Newton Raphson when it's oscillating
-        #fixed_point_force = 0 #flag to force fixed point iteration in case of oscillation
-        err               = 1000 #initialize error
-        dm                = 10000. 
-        dE                = 10000.
-        dE_primary        = 1.
-        dE_auxiliary      = 1.
-        dE_total          = 1.
+        err               = [1000] #initialize error
         max_iter          = self.maximum_iterations
         
         if self.update_method = 'fixed_point':
             update_inputs = fixed_point_update
-    
-        #nexus.tol         = tol
-        '''
-        primary_battery   = configs.base.energy_network['primary_battery']
-        auxiliary_battery = configs.base.energy_network['auxiliary_battery']
-        ducted_fan        = configs.base.propulsors['ducted_fan']
-        
-        #make it so all configs handle the exact same battery object
-        configs.cruise.energy_network['primary_battery']   =primary_battery 
-        configs.takeoff.energy_network['primary_battery']  =primary_battery
-        configs.landing.energy_network['primary_battery']  =primary_battery
-        configs.cruise.energy_network['auxiliary_battery'] =auxiliary_battery
-        configs.takeoff.energy_network['auxiliary_battery']=auxiliary_battery
-        configs.landing.energy_network['auxiliary_battery']=auxiliary_battery
-        
-        nexus.mass_guess=[]
-        '''
+
         j=0  #major iterations
         i=0  #function evals
         
         #use interpolated data if you can
-        iteration_options   = Data()
-        iteration_options.i = i
-        iteration_options.h = h
+      
+        h = iteration_options.h 
         y = self.default_y
         scaling = self.default_scaling
         x = x/scaling
@@ -81,56 +57,14 @@ class Sizing_Loop(Data):
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a fixed point iteration
         err = 1.
         #handle input data
-        try:
-            unscaled_inputs= nexus.optimization_problem.inputs[:,1]
-            input_scaling  = nexus.optimization_problem.inputs[:,3]
-            opt_inputs     = unscaled_inputs/input_scaling
-            
-            file_in    = open('x_values_%(range)d_nautical_mile_range.txt' %{'range':nexus.target_range/Units.nautical_miles})
-            
-            #read data from previous iterations
-            data=file_in.readlines()
-            file_in.close()
-            data=format_input_data(data) #format data so we can work with it
-            
-            
-            data_inputs = data[:, 0:len(opt_inputs)]  #values from optimization problem
-            data_outputs= data[:,len(opt_inputs):16]  #variables we iterate on in sizing loop
-    
-            
-            diff=np.subtract(opt_inputs, data_inputs)#/input_scaling
-        
-            min_norm=1000.
-            for row in diff:
-                row_norm = np.linalg.norm(row)
-                min_norm = min(min_norm, row_norm)
-            print 'min_norm=', min_norm
-            x_out = interpolate_consistency_variables(opt_inputs, data_inputs, data_outputs, min_norm)
-            #see how close data is to current optimization variables
-            print 'x_out=', x_out
-        
-            x = x_out
-            '''
-            if min_norm<1:  #give a threshold to hopefully prevent divergence
-                x = x_out
-            else:
-                print 'tabulated values not close enough; use default iteration variables'
-            '''
-        except:
-            print 'no data to read; use default iteration variables'
-            min_norm=1.
-    
-            
-    
-            
+
         while np.any(abs(err))>tol:
             if self.update_method = 'fixed_point':
                 y, err, i   = fixed_point_update(y, function_eval, nexus, scaling, iteration_options)
             
             #do newton-raphson if within the specified tolerance to speed up convergence
         
-            soc_aux            = auxiliary_battery.current_energy[-1]/auxiliary_battery.max_energy
-            
+       
             dy  = y-y_save
             dy2 = y-y_save2
             norm_dy  = np.linalg.norm(dy)
@@ -155,22 +89,15 @@ class Sizing_Loop(Data):
     
         if i<max_iter and not np.isnan(err.any()):  #write converged values to file
             converged = 1
-            #check how close inputs are to what we already have
-            
+            #check how close inputs are to what we already have        
             print 'min_norm out=', min_norm
             
             
             if min_norm>.011 or i>9: #now output to file, writing when it's either not a FD step, or it takes a long time to converge
             #make sure they're in right format 
             
-                file=open('x_values_%(range)d_nautical_mile_range.txt' %{'range':nexus.target_range/Units.nautical_miles}, 'ab')
-            
-                file.write(str(problem_inputs))
-                file.write(' ')
-            
-                file.write(str(x_save.tolist()))
-                file.write('\n') 
-                file.close()
+                write_sizing_outputs(self, y_save, scaled_inputs)
+                
         elif np.linalg.norm(err)>1E-2:  #give a nan only when it's diverging, or looks like it won't converge
             results.segments[-1].conditions.weights.total_mass[-1,0] = float('nan')
         
@@ -183,14 +110,8 @@ class Sizing_Loop(Data):
     
         print 'number of function calls=', i
         print 'number of iterations total=', nexus.total_number_of_iterations
+
     
-        
-        
-        nexus.results=results
-        nexus.vehicle_configurations=configs
-        #now find operating costs
-        nexus=evaluate_cost(nexus)
-        nexus=compute_volumes(nexus)
         nexus.converged = converged
         nexus.sizing_variables = y
     
@@ -262,9 +183,36 @@ class Sizing_Loop(Data):
     
     
         return f, J, iter
-        
     
-    __call__ = evaluate
+    
+
+        
+    def interpolate_consistency_variables(self, nexus, data_inputs, data_outputs):
+        unscaled_inputs= nexus.optimization_problem.inputs[:,1]
+        input_scaling  = nexus.optimization_problem.inputs[:,3]
+        opt_inputs     = unscaled_inputs/input_scaling
+        diff=np.subtract(opt_inputs, data_inputs)#/input_scaling
+        in_norm=1000.
+            for row in diff:
+                row_norm = np.linalg.norm(row)
+                min_norm = min(min_norm, row_norm)    
+        if len(data_inputs[:,0])>4 and min_norm>.011:
+            print 'running surrogate'
+            x = []
+            for j in range(len(data_outputs[0,:])):
+                clf = svm.SVR(C=1E4)
+                y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
+                y.append(y_surrogate.predict(opt_inputs)[0])
+       
+            y = np.array(y)
+   
+        else:
+            print 'running table'
+            interp = interpolate.griddata(data_inputs , data_outputs, opt_inputs, method='nearest')
+            x = interp[0] #use correct data size
+     
+    
+        __call__ = evaluate
     
     
         
