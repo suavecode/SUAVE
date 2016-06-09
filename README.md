@@ -8,7 +8,7 @@ Its purpose is to credibly produce conceptual-level design conclusions
 for future aircraft incorporating advanced technologies.
 
 [![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.19734.svg)](http://dx.doi.org/10.5281/zenodo.19734)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.50810.svg)](http://dx.doi.org/10.5281/zenodo.50810)
 
 License: CC BY-NC-SA 4.0
 
