@@ -7,30 +7,30 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from DataBunch import DataBunch
+from Data import Data
 
 from copy import deepcopy
 
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  DiffedDataBunch
+#  DiffedData
 # ----------------------------------------------------------------------
 
-class DiffedDataBunch(DataBunch):
+class DiffedDataBunch(Data):
     """ DiffedDataBunch()
     """
     
     def __defaults__(self):
         self.tag    = 'config'
-        self._base  = DataBunch()
-        self._diff  = DataBunch()
+        self._base  = Data()
+        self._diff  = Data()
         
     def __init__(self,base=None):
-        if base is None: base = DataBunch()
+        if base is None: base = Data()
         self._base = base
         this = deepcopy(base) # deepcopy is needed here to build configs - Feb 2016, T. MacDonald
-        DataBunch.__init__(self,this)
+        Data.__init__(self,this)
         
     def store_diff(self):
         delta = diff(self,self._base)
@@ -49,7 +49,7 @@ class DiffedDataBunch(DataBunch):
             args += indent + '  tag : ' + self._base.tag + '\n'
             return args
         except AttributeError: 
-            return DataBunch.__str__(self,indent)
+            return Data.__str__(self,indent)
 
             
 # ------------------------------------------------------------
@@ -72,12 +72,12 @@ def diff(A,B):
     for key in keys:
         va = A.get(key,None)
         vb = B.get(key,None)
-        if isinstance(va,DataBunch) and isinstance(vb,DataBunch):
+        if isinstance(va,Data) and isinstance(vb,Data):
             sub_diff = diff(va,vb)
             if sub_diff:
                 result[key] = sub_diff
         
-        elif isinstance(va,DataBunch) or isinstance(vb,DataBunch):
+        elif isinstance(va,Data) or isinstance(vb,Data):
             result[key] = va
             
         elif not np.all(va == vb):
