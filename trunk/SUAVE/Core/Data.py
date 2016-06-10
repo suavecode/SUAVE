@@ -92,12 +92,7 @@ class Data(OrderedBunch):
         
     def __repr__(self):
         return self.dataname()
-    
-    #def append(self,value,key=None):
-        #if key is None: key = value.tag
-        #if key in self: raise KeyError, 'key "%s" already exists' % key
-        #self[key] = value    
-    
+
     def find_instances(self,data_type):
         """ DataBunch.find_instances(data_type)
             
