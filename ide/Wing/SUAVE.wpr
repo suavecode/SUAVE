@@ -43,4 +43,5 @@ proj.directory-list = [{'dirloc': loc('../../trunk/SUAVE'),
                         'include_hidden': False,
                         'recursive': False,
                         'watch_for_changes': True}]
+proj.file-list = [loc('../../../../../.Trash/DiffedDataBunch.py')]
 proj.file-type = 'shared'
