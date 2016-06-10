@@ -15,16 +15,45 @@ from Property import Property
 #   Ordered Bunch
 # ----------------------------------------------------------------------
 
-class OrderedBunch(Bunch,OrderedDict):
+class OrderedBunch(OrderedDict):
     """ An ordered dictionary that provides attribute-style access.
     """
     
     _root = Property('_root')
     _map  = Property('_map')
+
+    def __delattr__(self, key):
+        """od.__delitem__(y) <==> del od[y]"""
+        # Deleting an existing item uses self._map to find the link which is
+        # then removed by updating the links in the predecessor and successor nodes.
+        OrderedDict.__delattr__(self,key)
+        link_prev, link_next, key = self._map.pop(key)
+        link_prev[1] = link_next
+        link_next[0] = link_prev
+        
+    def __eq__(self, other):
+        '''od.__eq__(y) <==> od==y.  Comparison to another OD is order-sensitive
+        while comparison to a regular mapping is order-insensitive.
+
+        '''
+        if isinstance(other, (OrderedBunch,OrderedDict)):
+            return len(self)==len(other) and self.items() == other.items()
+        return dict.__eq__(self, other)
+        
+    def __len__(self):
+        return self.__dict__.__len__()   
+
+    def __iter__(self):
+        """od.__iter__() <==> iter(od)"""
+        root = self._root
+        curr = root[1]
+        while curr is not root:
+            yield curr[2]
+            curr = curr[1]
     
     def __new__(klass,*args,**kwarg):
 
-        self = Bunch.__new__(klass)
+        self = OrderedDict.__new__(klass)
         
         if hasattr(self,'_root'):
             self._root
@@ -36,6 +65,24 @@ class OrderedBunch(Bunch,OrderedDict):
         
         return self
 
+    def __reduce__(self):
+        """Return state information for pickling"""
+        items = [( k, OrderedBunch.__getitem__(self,k) ) for k in OrderedBunch.iterkeys(self)]
+        inst_dict = vars(self).copy()
+        for k in vars(OrderedBunch()):
+            inst_dict.pop(k, None)
+        return (_reconstructor, (self.__class__,items,), inst_dict)
+    
+    
+    # prettier printing
+    def __repr__(self):
+        """ Invertible* string-form of a Dict.
+        """
+        keys = self.keys()
+        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys if not key.startswith('_')])
+        return '%s(%s)' % (self.__class__.__name__, args)
+    
+
     def __setattr__(self, key, value):
         """od.__setitem__(i, y) <==> od[i]=y"""
         # Setting a new item creates a new link which goes at the end of the linked
@@ -46,27 +93,11 @@ class OrderedBunch(Bunch,OrderedDict):
             last = root[0]
             map  = dict.__getitem__(self,'_map')
             last[1] = root[0] = map[key] = [last, root, key]
-        Bunch.__setattr__(self,key, value)
+        OrderedDict.__setattr__(self,key, value)
 
-    def __delattr__(self, key):
-        """od.__delitem__(y) <==> del od[y]"""
-        # Deleting an existing item uses self._map to find the link which is
-        # then removed by updating the links in the predecessor and successor nodes.
-        Bunch.__delattr__(self,key)
-        link_prev, link_next, key = self._map.pop(key)
-        link_prev[1] = link_next
-        link_next[0] = link_prev
-        
+
     def __setitem__(self,k,v):
         self.__setattr__(k,v)
-
-    def __iter__(self):
-        """od.__iter__() <==> iter(od)"""
-        root = self._root
-        curr = root[1]
-        while curr is not root:
-            yield curr[2]
-            curr = curr[1]
 
     def clear(self):
         """od.clear() -> None.  Remove all items from od."""
@@ -78,28 +109,47 @@ class OrderedBunch(Bunch,OrderedDict):
             self._map.clear()
         except AttributeError:
             pass
-        Bunch.clear(self)
+        self.__dict__.clear()
         
-    def __reduce__(self):
-        """Return state information for pickling"""
-        items = [( k, OrderedBunch.__getitem__(self,k) ) for k in OrderedBunch.iterkeys(self)]
-        inst_dict = vars(self).copy()
-        for k in vars(OrderedBunch()):
-            inst_dict.pop(k, None)
-        return (_reconstructor, (self.__class__,items,), inst_dict)
+    def get(self,k,d=None):
+        return self.__dict__.get(k,d)
+        
+    def has_key(self,k):
+        return self.__dict__.has_key(k)
 
-    def __eq__(self, other):
-        '''od.__eq__(y) <==> od==y.  Comparison to another OD is order-sensitive
-        while comparison to a regular mapping is order-insensitive.
-
-        '''
-        if isinstance(other, (OrderedBunch,OrderedDict)):
-            return len(self)==len(other) and self.items() == other.items()
-        return dict.__eq__(self, other)
+    def to_dict(self):
+        r = {}
+        for k,v in self.items():
+            if isinstance(v,OrderedDict):
+                v = v.to_dict()
+            r[k] = v
+        return r
+        
+    def update(self,other):
+        """ Dict.update(other)
+            updates the dictionary in place, recursing into additional
+            dictionaries inside of other
+            
+            Assumptions:
+              skips keys that start with '_'
+        """
+        if not isinstance(other,dict):
+            raise TypeError , 'input is not a dictionary type'
+        for k,v in other.iteritems():
+            # recurse only if self's value is a Dict()
+            if k.startswith('_'):
+                continue
+        
+            try:
+                self[k].update(v)
+            except:
+                self[k] = v
+        return 
 
 
     # allow override of iterators
     __iter = __iter__
+    __getitem__ = OrderedDict.__getattribute__
     
     def keys(self):
         """OrderedDict.keys() -> list of keys in the dictionary"""

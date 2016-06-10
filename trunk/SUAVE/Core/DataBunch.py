@@ -59,13 +59,6 @@ class DataBunch(IndexableBunch):
         # update this data with inputs
         self.update(input_data)
         
-        # call over-ridable post-initialition setup
-        self.__check__()
-    
-    def __check__(self):
-        """ 
-        """
-        pass
             
     def __str__(self,indent=''):
         new_indent = '  '

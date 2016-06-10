@@ -7,24 +7,13 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from Dict import Dict
-
-try:
-    from thread import get_ident as _get_ident
-except ImportError:
-    from dummy_thread import get_ident as _get_ident
-
-try:
-    from _abcoll import KeysView, ValuesView, ItemsView
-except ImportError:
-    pass
-
+from collections import OrderedDict
 
 # ----------------------------------------------------------------------
 #   Ordered Dictionary
 # ----------------------------------------------------------------------
 
-class OrderedDict(Dict):
+class OrderedDict(OrderedDict):
 
 
     def __init__(self, items=None, **kwds):
@@ -60,7 +49,91 @@ class OrderedDict(Dict):
         # key words
         for key, value in kwds.iteritems():
             append_value(key,value) 
+            
+    # prettier printing
+    def __repr__(self):
+        """ Invertible* string-form of a Dict.
+        """
+        keys = self.keys()
+        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys if not key.startswith('_')])
+        return '%s(%s)' % (self.__class__.__name__, args)
 
+    def __str__(self,indent=''):
+        """ String-form of a Dict.
+        """
+        
+        new_indent = '  '
+        args = ''
+        
+        # trunk data name
+        if indent: args += '\n'
+        
+        # print values   
+        for key,value in self.iteritems():
+            
+            # skip 'hidden' items
+            if isinstance(key,str) and key.startswith('_'):
+                continue
+            
+            # recurse into other dict types
+            if isinstance(value,OrderedDict):
+                if not value:
+                    val = '\n'
+                else:
+                    try:
+                        val = value.__str__(indent+new_indent)
+                    except RuntimeError: # recursion limit
+                        val = ''
+                        
+            # everything else
+            else:
+                val = str(value) + '\n'
+                
+            # this key-value, indented
+            args+= indent + str(key) + ' : ' + val
+            
+        return args            
+    
+    def do_recursive(self,method,other=None,default=None):
+        
+        # result data structure
+        klass = self.__class__
+        from DataBunch import DataBunch
+        if isinstance(klass,DataBunch):
+            klass = DataBunch
+        result = klass()
+                
+        # the update function
+        def do_operation(A,B,C):
+            for k,a in A.iteritems():
+                if isinstance(B,OrderedDict):
+                    if B.has_key(k):
+                        b = B[k]
+                    else: 
+                        continue
+                else:
+                    b = B
+                # recursion
+                if isinstance(a,OrderedDict):
+                    c = klass()
+                    C[k] = c
+                    do_operation(a,b,c)
+                # method
+                else:
+                    if b is None:
+                        c = method(a)
+                    else:
+                        c = method(a,b)
+                    if not c is None:
+                        C[k] = c
+                #: if type
+            #: for each key,value
+        
+        # do the update!
+        do_operation(self,other,result)    
+        
+        return result
+    
     def pack_array(self,output='vector'):
         """ OrderedDict.pack_array(output='vector')
             maps the data dict to a 1D vector or 2D column array
@@ -232,44 +305,26 @@ class OrderedDict(Dict):
         if not M.shape[-1] == _index[0]: warn('did not unpack all values',RuntimeWarning)
          
         # done!
-        return self
+        return self    
     
-    def do_recursive(self,method,other=None,default=None):
+    
+    def update(self,other):
+        """ Dict.update(other)
+            updates the dictionary in place, recursing into additional
+            dictionaries inside of other
+            
+            Assumptions:
+              skips keys that start with '_'
+        """
+        if not isinstance(other,dict):
+            raise TypeError , 'input is not a dictionary type'
+        for k,v in other.iteritems():
+            # recurse only if self's value is a Dict()
+            if k.startswith('_'):
+                continue
         
-        # result data structure
-        klass = self.__class__
-        from DataBunch import DataBunch
-        if isinstance(klass,DataBunch):
-            klass = DataBunch
-        result = klass()
-                
-        # the update function
-        def do_operation(A,B,C):
-            for k,a in A.iteritems():
-                if isinstance(B,OrderedDict):
-                    if B.has_key(k):
-                        b = B[k]
-                    else: 
-                        continue
-                else:
-                    b = B
-                # recursion
-                if isinstance(a,OrderedDict):
-                    c = klass()
-                    C[k] = c
-                    do_operation(a,b,c)
-                # method
-                else:
-                    if b is None:
-                        c = method(a)
-                    else:
-                        c = method(a,b)
-                    if not c is None:
-                        C[k] = c
-                #: if type
-            #: for each key,value
-        
-        # do the update!
-        do_operation(self,other,result)    
-        
-        return result
+            try:
+                self[k].update(v)
+            except:
+                self[k] = v
+        return 
