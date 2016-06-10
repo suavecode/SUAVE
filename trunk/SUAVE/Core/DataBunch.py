@@ -7,7 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from IndexableBunch import IndexableBunch 
+from OrderedBunch import OrderedBunch
 
 import numpy as np
 
@@ -16,7 +16,7 @@ import numpy as np
 #   Data Dictionary
 # ----------------------------------------------------------------------
 
-class DataBunch(IndexableBunch):
+class DataBunch(OrderedBunch):
     """ DataBunch()
         
         a dict-type container with attribute and item style access
@@ -31,6 +31,13 @@ class DataBunch(IndexableBunch):
     
     def __defaults__(self):
         pass
+    
+    def __getitem__(self,k):
+        if not isinstance(k,int):
+            return super(DataBunch,self).__getitem__(k)
+        else:
+            return super(DataBunch,self).__getitem__(self.keys()[k])
+    
     
     def __new__(cls,*args,**kwarg):
         """ supress use of args or kwarg for defaulting
@@ -59,6 +66,9 @@ class DataBunch(IndexableBunch):
         # update this data with inputs
         self.update(input_data)
         
+    # iterate on values, not keys
+    def __iter__(self):
+        return super(DataBunch,self).itervalues()
             
     def __str__(self,indent=''):
         new_indent = '  '
