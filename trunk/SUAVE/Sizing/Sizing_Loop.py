@@ -8,19 +8,19 @@ import sklearn.svm as svm
 
 class Sizing_Loop(Data):
     def __defaults__(self):
-        self.tolerance           = None
-        self.update_method       = None
-        self.default_y           = None
-        self.default_scaling     = None  #scaling value to make sizing parameters ~1
-        self.maximum_iterations  = None
-        self.output_filename     = None
-        self.function_evaluation = None  #defined in the Procedure script
-        self.write_threshhold    = 9     #number of iterations before it writes, regardless of how close it is to currently written values
-        self.iteration_options   = Data()
-        self.iteration_options.h = 1E-6  #finite difference step for Newton iteration
+        self.tolerance             = None
+        self.update_method         = None
+        self.default_y             = None
+        self.default_scaling       = None  #scaling value to make sizing parameters ~1
+        self.maximum_iterations    = None
+        self.output_filename       = None
+        self.function_evaluation   = None  #defined in the Procedure script
+        self.write_threshhold      = 9     #number of iterations before it writes, regardless of how close it is to currently written values
+        self.iteration_options     = Data()
+        self.iteration_options.h   = 1E-6  #finite difference step for Newton iteration
+        self.number_of_evaluations = 0   # total number of SUAVE evaluations
     
     def evaluate(self, nexus):
-
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
         scaled_inputs   = unscaled_inputs/input_scaling
@@ -66,7 +66,7 @@ class Sizing_Loop(Data):
         
         while np.any(abs(err))>tol:
             if self.update_method == 'fixed_point':
-                y, err, i   = fixed_point_update(y, function_eval, nexus, scaling, iteration_options)
+                y, err, i   = fixed_point_update(y, function_eval, nexus, scaling, i, iteration_options)
             
             #do newton-raphson if within the specified tolerance to speed up convergence
         
@@ -125,24 +125,24 @@ class Sizing_Loop(Data):
         return nexus
     __call__ = evaluate
     
-def fixed_point_update(y, function_eval, nexus, scaling, iteration_options):
+def fixed_point_update(y, function_eval, nexus, scaling, iter, iteration_options):
     err, y_out = function_eval(y, nexus, scaling)
-    i = i+1
-    return err, y_out
+    iter += 1
+    return err, y_out, iter
     
-def newton_update(y, function_eval, nexus, scaling, iteration_options):
-    i = iteration_options.i
+def newton_update(y, function_eval, nexus, scaling, iter, iteration_options):
     h = iteration_options.h
     y_update, Jinv_out, i =  Finite_Difference_Gradient(y,  function_eval, inputs, scaling, iter, h)
-    iteration_options.i +=1
     err, y_out = function_eval(y_out, nexus, scaling)
-    return err, y_update
+    iter += 1 
+    return err, y_update, iter
     
 def newton_raphson_iter(y, my_function, nexus, scaling, iter, h=1E-6):
     #f is a vector of size m data points
     #x is a matrix of input variables
     #assumes you have enough data points to finite difference Hessian and gradient
     alpha0=1
+    
     print '############Begin Finite Difference############'
 
     f, J, iter =Finite_Difference_Gradient(y, my_function, nexus, scaling, iter, h)
