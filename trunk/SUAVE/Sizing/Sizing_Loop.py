@@ -5,7 +5,8 @@ from SUAVE.Core import Data
 import numpy as np
 import scipy.interpolate as interpolate
 import sklearn.svm as svm
-
+from write_sizing_outputs import write_sizing_outputs
+from read_sizing_inputs import read_sizing_inputs
 class Sizing_Loop(Data):
     def __defaults__(self):
         self.tolerance             = None
@@ -55,18 +56,24 @@ class Sizing_Loop(Data):
       
         #if read_success:
        
-      
+        
         y_save  = 2*y  #some value to prevent
         y_save2 = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a fixed point iteration
         err = 1.
+        min_norm =1000.
         #handle input data
         
         
         
-        while np.any(abs(err))>tol:
+        while np.max(np.abs(err))>tol: 
+            print ' np.max(np.abs(err))>tol=', np.max(np.abs(err))
+            print 'tol=', tol
+        
+            
+            
             if self.update_method == 'fixed_point':
-                y, err, i   = fixed_point_update(y, function_eval, nexus, scaling, i, iteration_options)
+                err,y, i   = fixed_point_update(y, function_eval, nexus, scaling, i, iteration_options)
             
             #do newton-raphson if within the specified tolerance to speed up convergence
         
@@ -132,7 +139,7 @@ def fixed_point_update(y, function_eval, nexus, scaling, iter, iteration_options
     
 def newton_update(y, function_eval, nexus, scaling, iter, iteration_options):
     h = iteration_options.h
-    y_update, Jinv_out, i =  Finite_Difference_Gradient(y,  function_eval, inputs, scaling, iter, h)
+    y_update, Jinv_out, iter =  Finite_Difference_Gradient(y,  function_eval, inputs, scaling, iter, h)
     err, y_out = function_eval(y_out, nexus, scaling)
     iter += 1 
     return err, y_update, iter
