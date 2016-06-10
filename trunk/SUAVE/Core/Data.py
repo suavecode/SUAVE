@@ -6,7 +6,8 @@
 """ SUAVE Data Base Classes
 """
 
-from Deep_Core import DataBunch
+from DataBunch import DataBunch
+
 
 # for enforcing attribute style access names
 import string
@@ -21,9 +22,6 @@ from warnings import warn
 # ----------------------------------------------------------------------        
 
 class Data(DataBunch):
-    
-    def __defaults__(self):
-        return 
     
     def append(self,value,key=None):
         if key is None: key = value.tag

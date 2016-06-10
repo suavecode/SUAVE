@@ -1,7 +1,7 @@
 (lp1
 S'python_data'
 p2
-a.cSUAVE.Core.Deep_Core.OrderedBunch
+a.cSUAVE.Core.OrderedBunch
 _reconstructor
 p1
 (cSUAVE.Core.Data

@@ -10,18 +10,18 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Ordered_Bunch
+from SUAVE.Core import OrderedBunch
 
 
-# ----------------------------------------------------------------------
-#  Tree Element
-# ----------------------------------------------------------------------
+## ----------------------------------------------------------------------
+##  Tree Element
+## ----------------------------------------------------------------------
 
-class Tree_Element(Ordered_Bunch):
-    def __init__(self,name):
-        self.name = name
+#class Tree_Element(OrderedBunch):
+    #def __init__(self,name):
+        #self.name = name
         
-    def append(self,element):
-        if not 'children' in self:
-            self.children = []
-        self.children.append(e)
+    #def append(self,element):
+        #if not 'children' in self:
+            #self.children = []
+        #self.children.append(e)

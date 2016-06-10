@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Deep_Core import DiffedDataBunch
+from DiffedDataBunch import DiffedDataBunch
 from Container import Container as ContainerBase
 from Data import Data
 
