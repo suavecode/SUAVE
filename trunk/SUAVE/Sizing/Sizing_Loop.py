@@ -27,8 +27,8 @@ class Sizing_Loop(Data):
         self.iteration_options.h                        = 1E-6   #finite difference step for Newton iteration
         self.iteration_options.max_initial_step         = 1.     #maximum distance at which interpolation is allowed
         self.iteration_options.min_fix_point_iterations = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_svr_step             = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
-        
+        self.iteration_options.min_svr_step             = .11   #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_svr_length           = 4      #minimum number data points needed before SVR is used
         
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
@@ -63,19 +63,18 @@ class Sizing_Loop(Data):
         
         
         #determine the initial step
-        
+        min_norm =1000.
         if self.initial_step == 'Table' or self.initial_step == 'SVR':
             data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
             if read_success:
                 #check how close inputs are to tabulated values             
                 diff=np.subtract(scaled_inputs, data_inputs)#/input_scaling
-                
-                min_norm=1000.
+
                 for row in diff:
                     row_norm = np.linalg.norm(row)
                     min_norm = min(min_norm, row_norm)
                     
-                if min_norm<self.iteration_options.max_initial_step:  #make sure data is close to 
+                if min_norm<self.iteration_options.max_initial_step and len(data_inputs[0,:])>self.iteration_options.min_svr_length:  #make sure data is close to current guess
                 
                     if self.initial_step == 'Table':
                         interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
@@ -86,9 +85,9 @@ class Sizing_Loop(Data):
                             print 'running surrogate'
                             y = []
                             for j in range (len(data_outputs[0,:])):
-                                clf = svm.SVR(C=1E4)
+                                clf = svm.SVR(C=1E4,  epsilon = .01)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
-                                y.append(y_surrogate.predict(scaled_inputs_inputs)[0])
+                                y.append(y_surrogate.predict(scaled_inputs)[0])
                             y = np.array(y)
                         else:
                             print 'running table'
@@ -98,7 +97,7 @@ class Sizing_Loop(Data):
         y_save2 = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a fixed point iteration
         err = 1.
-        min_norm =1000.
+        
         #handle input data
         
         
@@ -144,14 +143,11 @@ class Sizing_Loop(Data):
             print 'min_norm out=', min_norm
             
             
-            if min_norm>self.iteration_options.min_svr_step or i>9: #now output to file, writing when it's either not a FD step, or it takes a long time to converge
+            if min_norm>self.iteration_options.min_svr_step or i>self.write_threshhold: #now output to file, writing when it's either not a FD step, or it takes a long time to converge
             #make sure they're in right format 
-            
                 write_sizing_outputs(self, y_save, problem_inputs)
                 
-        elif np.linalg.norm(err)>1E-2:  #give a nan only when it's diverging, or looks like it won't converge
-            results.segments[-1].conditions.weights.total_mass[-1,0] = float('nan')
-        
+
         nexus.total_number_of_iterations += i
         nexus.number_of_iterations = i #function calls
         
@@ -177,6 +173,7 @@ def fixed_point_update(y, err, function_eval, nexus, scaling, iter, iteration_op
     
 def newton_raphson_update(y, err, function_eval, nexus, scaling, iter, iteration_options):
     h = iteration_options.h
+    print '###begin Finite Differencing###'
     J, iter = Finite_Difference_Gradient(y,err, function_eval, nexus, scaling, iter, h)
     Jinv =np.linalg.inv(J)
     p = -np.dot(Jinv,err)

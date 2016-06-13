@@ -28,11 +28,17 @@ def read_sizing_inputs(sizing_loop, opt_inputs):
         data=file_in.readlines()
         file_in.close()
         data=format_input_data(data) #format data so we can work with it
-        
-        
-        data_inputs = data[:, 0:len(opt_inputs)]  #values from optimization problem
-        data_outputs= data[:,len(opt_inputs):len(opt_inputs)+len(sizing_loop.default_y)]  #variables we iterate on in sizing loop
         file_in.close()
+        
+        if len(data)>0:
+            data_inputs = data[:, 0:len(opt_inputs)]  #values from optimization problem
+            data_outputs= data[:,len(opt_inputs):len(opt_inputs)+len(sizing_loop.default_y)]  #variables we iterate on in sizing loop
+        else:
+            print 'empty sizing variable file, use default inputs'
+            data_inputs  = 0
+            data_outputs = 0
+            read_success = 0
+        
     
     else:
   
