@@ -75,6 +75,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     if solver == 'SNOPT':
         import pyOpt.pySNOPT
         opt = pyOpt.pySNOPT.SNOPT()
+        CD_step = (sense_step**2.)**(1./3.)
+        opt.setOption('Function precision', sense_step**2.)
+        opt.setOption('Difference interval', sense_step)
+        opt.setOption('Central difference interval', CD_step)
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()

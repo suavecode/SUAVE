@@ -1,25 +1,41 @@
 #read_sizing_inputs.py
 # Created: Jun 2016, M. Vegh
 
+# ----------------------------------------------------------------------
+#  Imports
+# ---------------
 
 import numpy as np
 
+
+# ----------------------------------------------------------------------
+#  read_sizing_inputs
+# ----------------------------------------------------------------------
+
+
 def read_sizing_inputs(sizing_loop, opt_inputs):
-    file_in        = open(sizing_loop.output_filename)
-        
-    #read data from previous iterations
-    data=file_in.readlines()
+    try:
+        file_in        = open(sizing_loop.output_filename)
+        read_success   = 1
     
-    if np.length(data)>0:
+    except IOError:
+        print 'no data to read, use default values'
+        read_success   = 0
+    #read data from previous iterations
+    
+    
+    if  read_success==1:
+        data=file_in.readlines()
         file_in.close()
         data=format_input_data(data) #format data so we can work with it
         
         
         data_inputs = data[:, 0:len(opt_inputs)]  #values from optimization problem
-        data_outputs= data[:,len(opt_inputs):len(opt_inputs)+len(self.default_y)]  #variables we iterate on in sizing loop
-        read_success =1
+        data_outputs= data[:,len(opt_inputs):len(opt_inputs)+len(sizing_loop.default_y)]  #variables we iterate on in sizing loop
+        file_in.close()
+    
     else:
-        print 'no data to read'
+  
         data_inputs = 0
         data_outputs = 0
         
