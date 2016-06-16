@@ -1,7 +1,7 @@
 # concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Modified: Apr 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -14,7 +14,6 @@
 import SUAVE
 # Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
-import json
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
@@ -58,26 +57,16 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
     
-    check_list = [
-        'segments.cruise.conditions.aerodynamics.angle_of_attack',
-        'segments.cruise.conditions.aerodynamics.drag_coefficient',
-        'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.propulsion.throttle',
-        'segments.cruise.conditions.weights.vehicle_mass_rate',
-    ]    
-    
     # load older results
-    #save_results(check_list,results)
-    old_res_string = load_results()   
+    #save_results(results)
+    old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
-
-
+    plot_mission(results)
+    plot_mission(old_results,'k-')
 
     # check the results
-    check_results(results,old_res_string,check_list)    
+    check_results(results,old_results)    
     
     return
 
@@ -1045,22 +1034,28 @@ def missions_setup(base_mission):
     # done!
     return missions  
     
-def check_results(new_results,old_res_string,check_list):
+def check_results(new_results,old_results):
 
     # check segment values
-    old_res_dict = json.loads(old_res_string)
+    check_list = [
+        'segments.cruise.conditions.aerodynamics.angle_of_attack',
+        'segments.cruise.conditions.aerodynamics.drag_coefficient',
+        'segments.cruise.conditions.aerodynamics.lift_coefficient',
+        'segments.cruise.conditions.propulsion.throttle',
+        'segments.cruise.conditions.weights.vehicle_mass_rate',
+    ]
 
     # do the check
     for k in check_list:
         print k
 
-        old_val = np.max( old_res_dict[k] )
+        old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Max:' , err
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
-        old_val = np.min( old_res_dict[k] )
+        old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Min:' , err
@@ -1068,34 +1063,32 @@ def check_results(new_results,old_res_string,check_list):
 
         print ''
 
+    ## check high level outputs
+    #def check_vals(a,b):
+        #if isinstance(a,Data):
+            #for k in a.keys():
+                #err = check_vals(a[k],b[k])
+                #if err is None: continue
+                #print 'outputs' , k
+                #print 'Error:' , err
+                #print ''
+                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
+        #else:
+            #return (a-b)/a
+
+    ## do the check
+    #check_vals(old_results.output,new_results.output)
+
 
     return
 
 
 def load_results():
-    f = open('results_mission_concorde.res')
-    res_string = f.readline()
-    f.close()
-    
-    return res_string
+    return SUAVE.Input_Output.SUAVE.load('results_mission_concorde.res')
 
-def save_results(check_list,results):
-    
-    # Build JSON dictionary
-
-    res_dict = dict()
-    
-    for k in check_list:
-        val = results.deep_get(k)
-        res_dict[k] = val.tolist()
-    
-    res_string = json.dumps(res_dict)
-    
-    f = open('results_mission_concorde.res','w')   
-    f.write(res_string)
-    f.close()
-    
-    return
+def save_results(results):
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
+    return    
     
 if __name__ == '__main__': 
     main()    
