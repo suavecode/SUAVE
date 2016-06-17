@@ -12,7 +12,7 @@ class Sizing_Loop(Data):
     def __defaults__(self):
         #parameters common to all methods
         self.tolerance             = None
-        self.initial_step          = None  #None, 'Table', 'SVR'
+        self.initial_step          = None  #'Default', 'Table', 'SVR'
         self.update_method         = None  #'fixed_point', 'newton-raphson'
         self.default_y             = None
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
@@ -23,12 +23,13 @@ class Sizing_Loop(Data):
         
         #parameters that may only apply to certain methods
         self.iteration_options     = Data()
-        self.iteration_options.newton_raphson_tolerance = 5E-2   #threshhold of convergence when you start using newton raphson
-        self.iteration_options.h                        = 1E-6   #finite difference step for Newton iteration
-        self.iteration_options.max_initial_step         = 1.     #maximum distance at which interpolation is allowed
-        self.iteration_options.min_fix_point_iterations = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_svr_step             = .11   #minimum distance at which SVR is used (if closer, table lookup is used)
-        self.iteration_options.min_svr_length           = 4      #minimum number data points needed before SVR is used
+        self.iteration_options.newton_raphson_tolerance     = 5E-2   #threshhold of convergence when you start using newton raphson
+        self.iteration_options.max_newton_raphson_tolerance = 2E-4   #threshhold at which newton raphson is no longer used (to prevent overshoot and extra iterations)
+        self.iteration_options.h                            = 1E-6   #finite difference step for Newton iteration
+        self.iteration_options.max_initial_step             = 1.     #maximum distance at which interpolation is allowed
+        self.iteration_options.min_fix_point_iterations     = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
+        self.iteration_options.min_svr_step                 = .11   #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_svr_length               = 4      #minimum number data points needed before SVR is used
         
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
@@ -81,11 +82,11 @@ class Sizing_Loop(Data):
                         y = interp[0]
                 
                     elif self.initial_step == 'SVR':
-                        if min_norm>=self.iteration_options.min_svr_step:
+                        if min_norm>=self.iteration_options.min_svr_step and len(data_outputs[:,0]) > self.iteration_options.min_svr_length:
                             print 'running surrogate'
                             y = []
                             for j in range (len(data_outputs[0,:])):
-                                clf = svm.SVR(C=1E4,  epsilon = .01)
+                                clf         = svm.SVR(C=1E3,  epsilon = .01)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
                             y = np.array(y)
@@ -107,7 +108,7 @@ class Sizing_Loop(Data):
                 err,y, i   = fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
             
             elif self.update_method == 'newton-raphson':
-                if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
+                if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i   = fixed_point_update(y, err,function_eval, nexus, scaling, i, iteration_options)
                 
                 else:
@@ -179,6 +180,7 @@ def newton_raphson_update(y, err, function_eval, nexus, scaling, iter, iteration
     p = -np.dot(Jinv,err)
     y_update = y + p
     err, y_out = function_eval(y_update, nexus, scaling)
+    print 'err_out=', err
     iter += 1 
     return err, y_update, iter
     

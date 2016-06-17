@@ -79,6 +79,11 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt.setOption('Function precision', sense_step**2.)
         opt.setOption('Difference interval', sense_step)
         opt.setOption('Central difference interval', CD_step)
+
+    elif solver == 'COBYLA':
+        import pyOpt.pyCOBYLA
+        opt = pyOpt.pyCOBYLA.COBYLA() 
+        
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()
@@ -101,6 +106,12 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     elif solver == 'NSGA2':
         import pyOpt.pyNSGA2
         opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA') 
+    elif solver == 'MIDACO':
+        import pyOpt.pyMIDACO
+        opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
+    elif solver == 'ALPSO':
+        import pyOpt.pyALPSO
+        opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM')
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
@@ -110,7 +121,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)
   
     else:
-        outputs = opt(opt_prob, sens_type='FD')        
+        outputs = opt(opt_prob)        
    
     return outputs
 
