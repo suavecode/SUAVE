@@ -36,7 +36,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+            atmo_data = atmosphere.compute_values(altitude,delta_isa)
+            
+            p   = atmo_data.pressure          
+            T   = atmo_data.temperature       
+            rho = atmo_data.density          
+            a   = atmo_data.speed_of_sound    
+            mu  = atmo_data.dynamic_viscosity           
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -214,7 +220,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     #compute the sls_thrust
     #call the atmospheric model to get the conditions at the specified altitude
     atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
+    atmo_data = atmosphere_sls.compute_values(0.0,0.0)
+    
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity      
 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
