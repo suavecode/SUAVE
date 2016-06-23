@@ -17,9 +17,9 @@ import datetime
 import time
 from SUAVE.Core import Units
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components import Component_Exception
+#from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 

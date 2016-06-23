@@ -117,7 +117,7 @@ if __name__ == '__main__':
     from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
     from SUAVE.Core import Units
     from SUAVE.Core import (
-        Data, Container, Data_Exception, Data_Warning,
+        Data, Container,
     )    
     
     #Parameters Required

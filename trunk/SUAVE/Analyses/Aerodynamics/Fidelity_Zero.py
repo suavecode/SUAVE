@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np

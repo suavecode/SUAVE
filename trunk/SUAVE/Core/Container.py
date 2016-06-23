@@ -9,8 +9,8 @@
 # ----------------------------------------------------------------------        
 
 from Data            import Data
-from Data_Exception  import Data_Exception
-from Data_Warning    import Data_Warning
+#from Data_Exception  import Data_Exception
+#from Data_Warning    import Data_Warning
 from warnings        import warn
 
 
@@ -35,7 +35,7 @@ class Container(Data):
         self.__defaults__()
     
     def append(self,val):
-        val = self.check_new_val(val)
+        #val = self.check_new_val(val)
         Data.append(self,val)
         
     def extend(self,vals):

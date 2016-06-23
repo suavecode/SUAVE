@@ -20,7 +20,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container
 )
 
 # We have two inputs, the forward throttle and the lift throttle setting

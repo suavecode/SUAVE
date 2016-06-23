@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 from Wing import Wing
 from Body import Body

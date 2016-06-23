@@ -37,6 +37,8 @@ class Segment(Analysis):
         self.process.iterate.residuals  = Process()
         self.process.finalize           = Process()
         
+        return
+        
 
     def initialize(self,state):
         self.process.initialize(self,state)

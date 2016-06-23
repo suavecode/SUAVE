@@ -11,7 +11,7 @@
 # SUAVE imports
 from SUAVE.Core import Results
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 from SUAVE.Components import Wings
 

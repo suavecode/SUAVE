@@ -10,7 +10,7 @@
 # suave imports
 from SUAVE.Core import Results
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      wave_drag_lift, wave_drag_volume, wave_drag_body_of_rev

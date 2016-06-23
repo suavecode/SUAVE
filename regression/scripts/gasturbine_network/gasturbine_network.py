@@ -21,7 +21,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Components import Component, Physical_Component, Lofted_Body

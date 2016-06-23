@@ -77,13 +77,16 @@ class Data(dict):
    
 ##########    
     
+    def __defaults__(self):
+        pass      
+    
     def __new__(cls,*args,**kwarg):
         """ supress use of args or kwarg for defaulting
         """
         
         # initialize data, no inputs
         self = super(Data,cls).__new__(cls)
-        super(Data,self).__init__()
+        super(Data,self).__init__() 
         
         # get base class list
         klasses = self.get_bases()
@@ -94,6 +97,18 @@ class Data(dict):
             
         return self
     
+    def __init__(self,*args,**kwarg):
+        """ initializes after __new__
+        """        
+
+        # handle input data (ala class factory)
+        input_data = Data.__base__(*args,**kwarg)
+        
+        # update this data with inputs
+        self.update(input_data)    
+        
+
+
     def __iter__(self):
         return self.itervalues()
     
@@ -109,6 +124,27 @@ class Data(dict):
         """OrderedDict.values() -> list of values in the dictionary"""
         return [self[key] for key in super(Data,self).__iter__()]    
     
+    def update(self,other):
+        """ Dict.update(other)
+            updates the dictionary in place, recursing into additional
+            dictionaries inside of other
+            
+            Assumptions:
+              skips keys that start with '_'
+        """
+        if not isinstance(other,dict):
+            raise TypeError , 'input is not a dictionary type'
+        for k,v in other.iteritems():
+            # recurse only if self's value is a Dict()
+            if k.startswith('_'):
+                continue
+        
+            try:
+                self[k].update(v)
+            except:
+                self[k] = v
+        return         
+    
     def get_bases(self):
         """ find all Data() base classes, return in a list """
         klass = self.__class__
@@ -123,7 +159,6 @@ class Data(dict):
             raise TypeError , 'class %s is not of type Data()' % self.__class__
         return klasses    
     
-    
     def append(self,value,key=None):
         if key is None: key = value.tag
         key_in = key
@@ -132,25 +167,6 @@ class Data(dict):
         if key is None: key = value.tag
         if key in self: raise KeyError, 'key "%s" already exists' % key
         self[key] = value        
-    
-    
-    def __defaults__(self):
-        pass
-    
-    def __repr__(self):
-        return self.dataname()
-    
-    def dataname(self):
-        return "<data object '" + self.typestring() + "'>"    
-    
-    def typestring(self):
-        # build typestring
-        typestring = str(type(self)).split("'")[1]
-        typestring = typestring.split('.')
-        if typestring[-1] == typestring[-2]:
-            del typestring[-1]
-        typestring = '.'.join(typestring) 
-        return typestring
     
 
     def deep_set(self,keys,val):
