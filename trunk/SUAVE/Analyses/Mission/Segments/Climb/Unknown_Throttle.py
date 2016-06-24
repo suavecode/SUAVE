@@ -46,7 +46,6 @@ class Unknown_Throttle(Aerodynamic):
         self.state.unknowns.body_angle = ones_row(1) * 0.0
         self.state.residuals.forces    = ones_row(2) * 0.0
         
-        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------

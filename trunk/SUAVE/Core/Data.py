@@ -7,6 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
+from collections import OrderedDict
 
 # for enforcing attribute style access names
 import string
@@ -107,7 +108,6 @@ class Data(dict):
         # update this data with inputs
         self.update(input_data)    
         
-
 
     def __iter__(self):
         return self.itervalues()
@@ -240,7 +240,7 @@ class Data(dict):
         def do_pack(D):
             for v in D.itervalues():
                 # type checking
-                if isinstance( v, OrderedBunch ): 
+                if isinstance( v, dict ): 
                     do_pack(v) # recursion!
                     continue
                 elif not isinstance( v, valid_types ): continue
@@ -313,7 +313,7 @@ class Data(dict):
             for k,v in D.iteritems():
                 
                 # type checking
-                if isinstance(v, OrderedBunch ): 
+                if isinstance(v, dict): 
                     do_unpack(v) # recursion!
                     continue
                 elif not isinstance(v,valid_types): continue

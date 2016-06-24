@@ -34,7 +34,6 @@ class Data(OrderedBunch):
         if key in self: raise KeyError, 'key "%s" already exists' % key
         self[key] = value    
 
-    
     def __defaults__(self):
         pass
     
@@ -43,7 +42,6 @@ class Data(OrderedBunch):
             return super(Data,self).__getattribute__(k)
         else:
             return super(Data,self).__getattribute__(self.keys()[k])
-    
     
     def __new__(cls,*args,**kwarg):
         """ supress use of args or kwarg for defaulting
@@ -76,22 +74,22 @@ class Data(OrderedBunch):
     def __iter__(self):
         return super(Data,self).itervalues()
             
-    #def __str__(self,indent=''):
-        #new_indent = '  '
-        #args = ''
+    def __str__(self,indent=''):
+        new_indent = '  '
+        args = ''
         
-        ## trunk data name
-        #if not indent:
-            #args += self.dataname()  + '\n'
-        #else:
-            #args += ''
+        # trunk data name
+        if not indent:
+            args += self.dataname()  + '\n'
+        else:
+            args += ''
             
-        #args += super(Data,self).__str__(indent)
+        args += super(Data,self).__str__(indent)
         
-        #return args
+        return args
         
-    #def __repr__(self):
-        #return self.dataname()
+    def __repr__(self):
+        return self.dataname()
     
     def get_bases(self):
         """ find all DataBunch() base classes, return in a list """
@@ -116,8 +114,8 @@ class Data(OrderedBunch):
         typestring = '.'.join(typestring) 
         return typestring
     
-    #def dataname(self):
-        #return "<data object '" + self.typestring() + "'>"
+    def dataname(self):
+        return "<data object '" + self.typestring() + "'>"
 
     def deep_set(self,keys,val):
         
