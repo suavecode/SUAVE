@@ -31,19 +31,14 @@ class Data(dict):
     
     def __setattr__(self, k, v):
         try:
-            # Throws exception if not in prototype chain
             object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                self[k] = v
-            except:
-                raise AttributeError(k)
+        except:
+            self[k] = v
         else:
-            object.__setattr__(self, k, v)
+            object.__setattr__(self, k, v)        
             
     def __delattr__(self, k):
         try:
-            # Throws exception if not in prototype chain
             object.__getattribute__(self, k)
         except AttributeError:
             try:

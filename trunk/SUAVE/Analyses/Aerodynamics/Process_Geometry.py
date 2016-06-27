@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Analyses import Process
-from SUAVE.Analyses import Results
+from SUAVE.Core import Results
 
 # ----------------------------------------------------------------------
 #  Analysis

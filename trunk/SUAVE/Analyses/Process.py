@@ -7,9 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import ContainerOrdered
-from Results import Results
-
+from SUAVE.Core import ContainerOrdered, Results
 
 # ----------------------------------------------------------------------
 #  Process

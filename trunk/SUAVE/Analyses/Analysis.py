@@ -9,7 +9,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
-from Results import Results
+from SUAVE.Core import Results
 
 
 # ----------------------------------------------------------------------
