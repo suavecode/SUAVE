@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Container
+from SUAVE.Core import ContainerOrdered
 from Results import Results
 
 
@@ -15,7 +15,7 @@ from Results import Results
 #  Process
 # ----------------------------------------------------------------------
 
-class Process(Container):
+class Process(ContainerOrdered):
     
     verbose = False
     

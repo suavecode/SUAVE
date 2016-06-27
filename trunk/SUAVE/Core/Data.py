@@ -1,13 +1,13 @@
 # Data.py
 #
-# Created:  Jan 2015, T. Lukacyzk
-# Modified: Feb 2016, T. MacDonald
-#           Jun 2016, E. Botero
+# Created:  Jun 2016, E. Botero
+# Modified:
 
-""" SUAVE Data Base Classes
-"""
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
 
-from OrderedBunch import OrderedBunch
+from collections import OrderedDict
 
 # for enforcing attribute style access names
 import string
@@ -15,31 +15,71 @@ chars = string.punctuation + string.whitespace
 t_table = string.maketrans( chars          + string.uppercase , 
                             '_'*len(chars) + string.lowercase )
 
-from warnings import warn
-
 # ----------------------------------------------------------------------
 #   Data
 # ----------------------------------------------------------------------        
 
-class Data(OrderedBunch):
-    
-    def append(self,value,key=None):
-        if key is None: key = value.tag
-        key_in = key
-        key = key.translate(t_table)
-        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
-        if key is None: key = value.tag
-        if key in self: raise KeyError, 'key "%s" already exists' % key
-        self[key] = value    
 
-    def __defaults__(self):
-        pass
+class Data(dict):
+    """"""
     
-    def __getitem__(self,k):
-        if not isinstance(k,int):
-            return super(Data,self).__getattribute__(k)
+##############
+    
+    def __contains__(self, k):
+        try:
+            return dict.__contains__(self, k) or hasattr(self, k)
+        except:
+            return False
+    
+    # only called if k not found in normal places 
+    def __getattr__(self, k):
+        try:
+            # Throws exception if not in prototype chain
+            return object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                return self[k]
+            except KeyError:
+                raise AttributeError(k)
+    
+    def __setattr__(self, k, v):
+        try:
+            # Throws exception if not in prototype chain
+            object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                self[k] = v
+            except:
+                raise AttributeError(k)
         else:
-            return super(Data,self).__getattribute__(self.keys()[k])
+            object.__setattr__(self, k, v)
+    
+    def __delattr__(self, k):
+        try:
+            # Throws exception if not in prototype chain
+            object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                del self[k]
+            except KeyError:
+                raise AttributeError(k)
+        else:
+            object.__delattr__(self, k)
+    
+    def toDict(self):
+        return unbunchify(self)
+
+
+    @staticmethod
+    def fromDict(d):
+        return bunchify(d)
+   
+   
+   
+##########    
+    
+    def __defaults__(self):
+        pass      
     
     def __new__(cls,*args,**kwarg):
         """ supress use of args or kwarg for defaulting
@@ -47,7 +87,7 @@ class Data(OrderedBunch):
         
         # initialize data, no inputs
         self = super(Data,cls).__new__(cls)
-        super(Data,self).__init__()
+        super(Data,self).__init__() 
         
         # get base class list
         klasses = self.get_bases()
@@ -59,38 +99,54 @@ class Data(OrderedBunch):
         return self
     
     def __init__(self,*args,**kwarg):
-        """ initializes DataBunch()
-        """
-        
+        """ initializes after __new__
+        """        
+
         # handle input data (ala class factory)
         input_data = Data.__base__(*args,**kwarg)
         
         # update this data with inputs
-        self.update(input_data)
+        self.update(input_data)    
         
-    # iterate on values, not keys
+
     def __iter__(self):
-        return super(Data,self).itervalues()
+        return self.itervalues()
+    
+    def itervalues(self):
+        for k in super(Data,self).__iter__():
+            yield self[k]
             
-    def __str__(self,indent=''):
-        new_indent = '  '
-        args = ''
-        
-        # trunk data name
-        if not indent:
-            args += self.dataname()  + '\n'
-        else:
-            args += ''
+    def values(self):
+        """OrderedDict.values() -> list of values in the dictionary"""
+        return self.__values()          
             
-        args += super(Data,self).__str__(indent)
+    def __values(self):
+        """OrderedDict.values() -> list of values in the dictionary"""
+        return [self[key] for key in super(Data,self).__iter__()]    
+    
+    def update(self,other):
+        """ Dict.update(other)
+            updates the dictionary in place, recursing into additional
+            dictionaries inside of other
+            
+            Assumptions:
+              skips keys that start with '_'
+        """
+        if not isinstance(other,dict):
+            raise TypeError , 'input is not a dictionary type'
+        for k,v in other.iteritems():
+            # recurse only if self's value is a Dict()
+            if k.startswith('_'):
+                continue
         
-        return args
-        
-    def __repr__(self):
-        return self.dataname()
+            try:
+                self[k].update(v)
+            except:
+                self[k] = v
+        return         
     
     def get_bases(self):
-        """ find all DataBunch() base classes, return in a list """
+        """ find all Data() base classes, return in a list """
         klass = self.__class__
         klasses = []
         while klass:
@@ -100,20 +156,18 @@ class Data(OrderedBunch):
             else:
                 klass = None
         if not klasses: # empty list
-            raise TypeError , 'class %s is not of type DataBunch()' % self.__class__
-        return klasses
+            raise TypeError , 'class %s is not of type Data()' % self.__class__
+        return klasses    
     
-    def typestring(self):
-        # build typestring
-        typestring = str(type(self)).split("'")[1]
-        typestring = typestring.split('.')
-        if typestring[-1] == typestring[-2]:
-            del typestring[-1]
-        typestring = '.'.join(typestring) 
-        return typestring
+    def append(self,value,key=None):
+        if key is None: key = value.tag
+        key_in = key
+        key = key.translate(t_table)
+        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
+        if key is None: key = value.tag
+        if key in self: raise KeyError, 'key "%s" already exists' % key
+        self[key] = value        
     
-    def dataname(self):
-        return "<data object '" + self.typestring() + "'>"
 
     def deep_set(self,keys,val):
         
@@ -186,7 +240,7 @@ class Data(OrderedBunch):
         def do_pack(D):
             for v in D.itervalues():
                 # type checking
-                if isinstance( v, OrderedBunch ): 
+                if isinstance( v, dict ): 
                     do_pack(v) # recursion!
                     continue
                 elif not isinstance( v, valid_types ): continue
@@ -259,7 +313,7 @@ class Data(OrderedBunch):
             for k,v in D.iteritems():
                 
                 # type checking
-                if isinstance(v, OrderedBunch ): 
+                if isinstance(v, dict): 
                     do_unpack(v) # recursion!
                     continue
                 elif not isinstance(v,valid_types): continue
@@ -316,30 +370,24 @@ class Data(OrderedBunch):
         if not M.shape[-1] == _index[0]: warn('did not unpack all values',RuntimeWarning)
          
         # done!
-        return self    
-    
-    
-    def update(self,other):
-        """ Dict.update(other)
-            updates the dictionary in place, recursing into additional
-            dictionaries inside of other
-            
-            Assumptions:
-              skips keys that start with '_'
-        """
-        if not isinstance(other,dict):
-            raise TypeError , 'input is not a dictionary type'
-        for k,v in other.iteritems():
-            # recurse only if self's value is a Dict()
-            if k.startswith('_'):
-                continue
-        
-            try:
-                self[k].update(v)
-            except:
-                self[k] = v
-        return 
+        return self     
 
+def bunchify(x):
+    if isinstance(x, dict):
+        return Bunch( (k, bunchify(v)) for k,v in iteritems(x) )
+    elif isinstance(x, (list, tuple)):
+        return type(x)( bunchify(v) for v in x )
+    else:
+        return x
+
+def unbunchify(x):
+    if isinstance(x, dict):
+        return dict( (k, unbunchify(v)) for k,v in iteritems(x) )
+    elif isinstance(x, (list, tuple)):
+        return type(x)( unbunchify(v) for v in x )
+    else:
+        return x
+        
 
 # ----------------------------------------------------------------------
 #   Module Tests
@@ -360,7 +408,7 @@ if __name__ == '__main__':
         
     m = Data()
     m.tag = 'numerical data'
-    m.hieght = ones * 1.
+    m.height = ones * 1.
     m.rates = Data()
     m.rates.angle  = ones * 3.14
     m.rates.slope  = ones * 20.
@@ -368,16 +416,4 @@ if __name__ == '__main__':
     m.value = 1.0
     
     print m
-    
-    V = m.pack_array('vector')
-    M = m.pack_array('array')
-    
-    print V
-    print M
-    
-    V = V*10
-    M = M-10
-    
-    print m.unpack_array(V)
-    print m.unpack_array(M)
     
