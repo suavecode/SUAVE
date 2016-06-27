@@ -6,7 +6,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Results as Base_Results
+from SUAVE.Analyses import Results as Base_Results
 import numpy as np
 
 # ----------------------------------------------------------------------

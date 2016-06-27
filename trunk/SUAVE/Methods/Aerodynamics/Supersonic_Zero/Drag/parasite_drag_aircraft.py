@@ -11,7 +11,7 @@
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      parasite_drag_wing, parasite_drag_fuselage, parasite_drag_propulsor
 
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import numpy as np
 

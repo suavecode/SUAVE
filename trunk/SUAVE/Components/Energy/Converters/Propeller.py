@@ -10,7 +10,8 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data, Results
+from SUAVE.Core import Data
+from SUAVE.Analyses import Results
 import scipy.optimize as opt
 
 from SUAVE.Methods.Geometry.Three_Dimensional \

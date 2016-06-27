@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 from SUAVE.Core import (
     Data, Container,
 )

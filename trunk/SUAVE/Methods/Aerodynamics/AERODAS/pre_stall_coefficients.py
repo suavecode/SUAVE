@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Pre Stall Coefficients

@@ -11,8 +11,6 @@ from Diffed_Data      import Diffed_Data
 from Container        import Container
 from ContainerOrdered import ContainerOrdered
 
-from Results import Results
-
 from Units import Units
 
 from Multi import Evaluator

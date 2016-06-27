@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift.vortex_lift import vortex_lift
 
 import numpy as np

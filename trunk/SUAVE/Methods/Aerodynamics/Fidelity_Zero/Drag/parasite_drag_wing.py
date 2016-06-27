@@ -11,7 +11,7 @@
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # package imports
 import numpy as np

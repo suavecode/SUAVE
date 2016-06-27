@@ -8,7 +8,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Units, Results
+from SUAVE.Core import Units
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Post Stall Coefficients

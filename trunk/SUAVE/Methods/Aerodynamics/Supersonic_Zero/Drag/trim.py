@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 # Suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Computes the trim drag

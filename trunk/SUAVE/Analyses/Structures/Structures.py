@@ -7,8 +7,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Results
-from SUAVE.Analyses import Analysis
+from SUAVE.Core import Data
+from SUAVE.Analyses import Analysis, Results
 
 
 # ----------------------------------------------------------------------

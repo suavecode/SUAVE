@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import numpy as np
 

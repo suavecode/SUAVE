@@ -3,7 +3,7 @@
 # Created:  Jan 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
 
-from Data import Data
+from SUAVE.Core import Data
 
 class Results(Data):
     pass
