@@ -124,41 +124,41 @@ class OrderedBunch(OrderedDict):
     def __setitem__(self,k,v):
         self.__setattr__(k,v)
         
-    #def __str__(self,indent=''):
-        #""" String-form of a Dict.
-        #"""
+    def __str__(self,indent=''):
+        """ String-form of a Dict.
+        """
         
-        #new_indent = '  '
-        #args = ''
+        new_indent = '  '
+        args = ''
         
-        ## trunk data name
-        #if indent: args += '\n'
+        # trunk data name
+        if indent: args += '\n'
         
-        ## print values   
-        #for key,value in self.iteritems():
+        # print values   
+        for key,value in self.iteritems():
             
-            ## skip 'hidden' items
-            #if isinstance(key,str) and key.startswith('_'):
-                #continue
+            # skip 'hidden' items
+            if isinstance(key,str) and key.startswith('_'):
+                continue
             
-            ## recurse into other dict types
-            #if isinstance(value,OrderedDict):
-                #if not value:
-                    #val = '\n'
-                #else:
-                    #try:
-                        #val = value.__str__(indent+new_indent)
-                    #except RuntimeError: # recursion limit
-                        #val = ''
+            # recurse into other dict types
+            if isinstance(value,OrderedDict):
+                if not value:
+                    val = '\n'
+                else:
+                    try:
+                        val = value.__str__(indent+new_indent)
+                    except RuntimeError: # recursion limit
+                        val = ''
                         
-            ## everything else
-            #else:
-                #val = str(value) + '\n'
+            # everything else
+            else:
+                val = str(value) + '\n'
                 
-            ## this key-value, indented
-            #args+= indent + str(key) + ' : ' + val
+            # this key-value, indented
+            args+= indent + str(key) + ' : ' + val
             
-        #return args     
+        return args     
 
     def clear(self):
         """od.clear() -> None.  Remove all items from od."""

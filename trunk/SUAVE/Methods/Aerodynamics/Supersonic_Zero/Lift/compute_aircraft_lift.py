@@ -63,7 +63,7 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     aircraft_lift_total = np.array([[0.0]] * len(Mc))
     vortex_cl           = np.array([[0.0]] * len(Mc))
 
-    wing = geometry.wings[0]
+    wing = geometry.wings['main_wing']
     
     # Subsonic setup
     wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
