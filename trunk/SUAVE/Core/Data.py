@@ -17,17 +17,14 @@ t_table = string.maketrans( chars          + string.uppercase ,
 #   Data
 # ----------------------------------------------------------------------        
 
-
 class Data(dict):
     """"""
-    
-##############
     
     def __getattr__(self, k):
         try: 
             return self[k]
         except: 
-            object.__getattribute__(self, k)
+            object.__getattribute__(self, k)      
     
     def __setattr__(self, k, v):
         try:
@@ -35,27 +32,20 @@ class Data(dict):
         except:
             self[k] = v
         else:
-            object.__setattr__(self, k, v)        
+            object.__setattr__(self, k, v) 
             
     def __delattr__(self, k):
         try:
             object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                del self[k]
-            except KeyError:
-                raise AttributeError(k)
+        except:
+            del self[k]
         else:
             object.__delattr__(self, k)
-    
-##########    
     
     def __defaults__(self):
         pass      
     
     def __new__(cls,*args,**kwarg):
-        """ supress use of args or kwarg for defaulting
-        """
         
         # initialize data, no inputs
         self = super(Data,cls).__new__(cls)
@@ -71,15 +61,12 @@ class Data(dict):
         return self
     
     def __init__(self,*args,**kwarg):
-        """ initializes after __new__
-        """        
 
         # handle input data (ala class factory)
         input_data = Data.__base__(*args,**kwarg)
         
         # update this data with inputs
         self.update(input_data)    
-        
 
     def __iter__(self):
         return self.itervalues()
@@ -89,21 +76,12 @@ class Data(dict):
             yield self[k]
             
     def values(self):
-        """OrderedDict.values() -> list of values in the dictionary"""
         return self.__values()          
             
     def __values(self):
-        """OrderedDict.values() -> list of values in the dictionary"""
         return [self[key] for key in super(Data,self).__iter__()]    
     
     def update(self,other):
-        """ Dict.update(other)
-            updates the dictionary in place, recursing into additional
-            dictionaries inside of other
-            
-            Assumptions:
-              skips keys that start with '_'
-        """
         if not isinstance(other,dict):
             raise TypeError , 'input is not a dictionary type'
         for k,v in other.iteritems():
@@ -118,7 +96,6 @@ class Data(dict):
         return         
     
     def get_bases(self):
-        """ find all Data() base classes, return in a list """
         klass = self.__class__
         klasses = []
         while klass:
@@ -140,7 +117,6 @@ class Data(dict):
         if key in self: raise KeyError, 'key "%s" already exists' % key
         self[key] = value        
     
-
     def deep_set(self,keys,val):
         
         if isinstance(keys,str):
