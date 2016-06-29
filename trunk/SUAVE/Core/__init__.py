@@ -12,5 +12,3 @@ from Container        import Container
 from ContainerOrdered import ContainerOrdered
 
 from Units import Units
-
-from Multi import Evaluator

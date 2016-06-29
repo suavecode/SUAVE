@@ -7,15 +7,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# Scipy
-import scipy
 import scipy.optimize
 import numpy as np
 
 from SUAVE.Core.Arrays import array_type
-from SUAVE.Core.Multi import Evaluator
-import multiprocessing as mp
-from functools import partial
 
 # ----------------------------------------------------------------------
 #  Converge Root
