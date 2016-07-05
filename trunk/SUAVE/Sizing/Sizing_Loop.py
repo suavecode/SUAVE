@@ -28,7 +28,7 @@ class Sizing_Loop(Data):
         self.iteration_options.h                            = 1E-6   #finite difference step for Newton iteration
         self.iteration_options.max_initial_step             = 1.     #maximum distance at which interpolation is allowed
         self.iteration_options.min_fix_point_iterations     = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_svr_step                 = .11   #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_svr_step                 = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
         self.iteration_options.min_svr_length               = 4      #minimum number data points needed before SVR is used
         
     def evaluate(self, nexus):
@@ -125,7 +125,7 @@ class Sizing_Loop(Data):
     
         
             
-            #save the input values, in the hopes of detecting oscillation
+            #save the previous input values
             y_save2 = 1.*y_save
             y_save = 1. *y  
             
@@ -138,15 +138,15 @@ class Sizing_Loop(Data):
                 print "###########maximum number of iterations exceeded##########"
                 break
     
-        if i<max_iter and not np.isnan(err.any()):  #write converged values to file
+        if i<max_iter and not np.isnan(err).any():  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
             print 'min_norm out=', min_norm
             
-            
-            if min_norm>self.iteration_options.min_svr_step or i>self.write_threshhold: #now output to file, writing when it's either not a FD step, or it takes a long time to converge
-            #make sure they're in right format 
-                write_sizing_outputs(self, y_save, problem_inputs)
+            if converged and (min_norm>self.iteration_options.min_svr_step or i>self.write_threshhold): #now output to file, writing when it's either not a FD step, or it takes a long time to converge
+            #make sure they're in right format      
+            #use y_save2, as it makes derivatives more consistent
+                write_sizing_outputs(self, y_save2, problem_inputs)
                 
 
         nexus.total_number_of_iterations += i
@@ -161,7 +161,7 @@ class Sizing_Loop(Data):
 
     
         nexus.converged = converged
-        nexus.sizing_variables = y
+        nexus.sizing_variables = y_save2
     
         
         return nexus
