@@ -17,9 +17,6 @@ import datetime
 import time
 from SUAVE.Core import Units
 
-#import VyPy
-#from VyPy import *
-#from regression import gpr
 
 # python imports
 import os, sys, shutil
@@ -32,7 +29,6 @@ from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-from SUAVE.Plugins.VyPy.regression import gpr
 #from Turbofan_Jacobian import Turbofan_Jacobian
 
 

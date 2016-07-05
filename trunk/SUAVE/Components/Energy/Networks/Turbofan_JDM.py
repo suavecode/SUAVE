@@ -1,7 +1,11 @@
-#Turbofan_Network.py
+# Turbofan_JDM.py
 # 
-# Created:  Anil Variyar, Oct 2015
-# Modified:  
+# Created:  Oct 2015, A. Variyar
+# Modified: Jun 2016, T. MacDonald
+
+# Based on the turbofan analysis done in
+# Elements of Propulsion: Gas Turbines and Rockets
+# Jack D. Mattingly
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,7 +43,7 @@ class Turbofan_3(Propulsor):
     def __defaults__(self):
         
         #setting the default values
-        self.tag = 'Turbo_Fan'
+        self.tag = 'Turbofan'
         self.number_of_engines = 1.0
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
