@@ -93,55 +93,15 @@ class Turbofan_JDM(Propulsor):
     
     
     
-    def size(self,mach_number = None, altitude = None, delta_isa = 0, conditions = None):
+    def size(self,state):
     
-    
-        if(conditions):
-            #use conditions
-            pass
-            
-        else:
-            #check if mach number and temperature are passed
-            if(mach_number==None or altitude==None):
-                
-                #raise an error
-                raise NameError('The sizing conditions require an altitude and a Mach number')
-            
-            else:
-                #call the atmospheric model to get the conditions at the specified altitude
-                atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-                p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
-            
-                # setup conditions
-                conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-            
-            
-            
-                # freestream conditions
-                
-                conditions.freestream.altitude           = np.atleast_1d(altitude)
-                conditions.freestream.mach_number        = np.atleast_1d(mach_number)
-                
-                conditions.freestream.pressure           = np.atleast_1d(p)
-                conditions.freestream.temperature        = np.atleast_1d(T)
-                conditions.freestream.density            = np.atleast_1d(rho)
-                conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-                conditions.freestream.gravity            = np.atleast_1d(9.81)
-                conditions.freestream.gamma              = np.atleast_1d(1.4)
-                conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-                conditions.freestream.R                  = 287.87
-                conditions.freestream.speed_of_sound     = np.atleast_1d(a)
-                conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
-                
-                # propulsion conditions
-                conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+        conditions = state.conditions
+
     
     
         self.thrust.bypass_ratio = self.bypass_ratio    
     
-        state = Data()
         state.numerics = Data()
-        state.conditions = conditions
         number_of_engines         = self.number_of_engines
     
         # Get sizing thrust per engine
