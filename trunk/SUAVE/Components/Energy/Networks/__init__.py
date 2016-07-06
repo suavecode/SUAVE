@@ -17,3 +17,4 @@ from Turbojet_Super_AB import Turbojet_Super_AB
 from Turbofan_TASOPT import Turbofan_TASOPT
 #from Turbofan_TASOPTc_wrap import Turbofan_TASOPTc_wrap
 from Turbofan_Deck_I import Turbofan_Deck_I
+from Turbofan_JDM import Turbofan_JDM

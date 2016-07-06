@@ -528,37 +528,6 @@ class Turbofan_3(Propulsor):
         
         
         return results
-        
-    
-    def  evaluate_Tt4(self,state,delta_Tt4,engine_efficiency=None):
-        
-        #imports
-        conditions = state.conditions
-        numerics   = state.numerics
-        reference = self.reference
-        throttle = conditions.propulsion.throttle
-        Tt4 = self.combustor.turbine_inlet_temperature
-        
-        Tt4_loc = copy.deepcopy(Tt4)
-        del_Tt4 = 0.
-        for iloop in range(0,20): 
-            
-            
-            results = self.evaluate_thrustt(state,del_Tt4)
-            N_NR_HP = results.N_HP
-            #update the throttle equation
-            if( N_NR_HP/throttle < 0.98):
-                del_Tt4 = Tt4_loc*(1. - N_NR_HP/throttle)
-                Tt4_loc += del_Tt4
-            elif (N_NR_HP/throttle > 1.02):
-                del_Tt4 = Tt4_loc*(1. - N_NR_HP/throttle)
-                Tt4_loc +=del_Tt4
-            else:
-                break
-            
-            abc = 1
-    
-        return results
     
     
     def evaluate_thrustt(self,state,delta_Tt4,engine_efficiency=None):
