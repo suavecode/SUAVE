@@ -72,8 +72,8 @@ class Ram(Energy_Component):
         
         #pack the values into conditions
         self.outputs.pi_r            = pi_r
-        self.outputs.tau_r            = tau_r
-        self.outputs.pi_d            = pi_d
+        self.outputs.tau_r           = tau_r
+        self.outputs.eta_r           = eta_r
     
     
     

@@ -190,18 +190,16 @@ class Turbofan_JDM(Propulsor):
         c_pt = self.turbine_cp
         g_c  = 1.0
         
-        #freestream properties
+        # Freestream properties
         T0 = conditions.freestream.temperature
         p0 = conditions.freestream.pressure
         M0 = conditions.freestream.mach_number
         
-        #design run
+        # Design run
                             
         R_c = (gamma_c - 1.0)/gamma_c*c_pc
         
         R_t = (gamma_t - 1.0)/gamma_t*c_pt
-        
-        # Ram values
         
         a0 = np.sqrt(gamma_c*R_c*g_c*T0)
             
@@ -209,6 +207,8 @@ class Turbofan_JDM(Propulsor):
         
         tau_lamda = c_pt*Tt4/(c_pc*T0)
         
+        
+        # Ram 
         
         ram = self.ram
         ram.pi_d_max = pi_d_max
@@ -219,52 +219,109 @@ class Turbofan_JDM(Propulsor):
         ram(conditions)
 
         pi_r = ram.outputs.pi_r
-        pi_d = ram.outputs.pi_d
         tau_r = ram.outputs.tau_r
+        eta_r = ram.outputs.eta_r
 
-        #P0_P19 = 1.0
-        
-        #P0_P9 = P0_P19        
-        
-        
-        ##compressor
-        #tau_c = pi_c**((gamma_c-1.0)/(gamma_c*e_c))
-        #eta_c = (pi_c**((gamma_c-1.0)/gamma_c) - 1.0)/(tau_c -1.0)
 
-        #fan
-        tau_f = pi_f**((gamma_c-1.0)/(gamma_c*e_f))
-        eta_f = (pi_f**((gamma_c-1.0)/gamma_c) - 1.0)/(tau_f -1.0)        
+        # Diffusor
+        
+        inlet_nozzle = self.inlet_nozzle
+        inlet_nozzle.inputs.eta_r = eta_r
+        inlet_nozzle(conditions)
+        
+        pi_d = inlet_nozzle.outputs.pi_d
+
+
+        # Fan
+        
+        fan = self.fan
+        working_fluid = self.working_fluid
+        working_fluid.gamma = gamma_c
+        fan.inputs.working_fluid = working_fluid        
+        fan(conditions)
+        
+        tau_f = fan.outputs.tau_f
+        eta_f = fan.outputs.eta_f
         
         
-        #lpc
-        tau_cL = pi_cL**((gamma_c-1.0)/(gamma_c*e_cL))
-        eta_cL = (pi_cL**((gamma_c-1.0)/gamma_c) - 1.0)/(tau_cL -1.0)
+        # Low Pressure Compressor
         
-        #hpc
-        tau_cH = pi_cH**((gamma_c-1.0)/(gamma_c*e_cH))
-        eta_cH = (pi_cH**((gamma_c-1.0)/gamma_c) - 1.0)/(tau_cH -1.0)        
+        low_pressure_compressor = self.low_pressure_compressor
+        working_fluid = self.working_fluid
+        working_fluid.gamma = gamma_c
+        low_pressure_compressor.inputs.working_fluid = working_fluid        
         
+        low_pressure_compressor(conditions)
+        
+        tau_cL = low_pressure_compressor.outputs.tau
+        eta_cL = low_pressure_compressor.outputs.eta
+        
+        
+        # High Pressure Compressor
+        
+        high_pressure_compressor = self.high_pressure_compressor
+        working_fluid = self.working_fluid
+        working_fluid.gamma = gamma_c
+        high_pressure_compressor.inputs.working_fluid = working_fluid        
+        
+        high_pressure_compressor(conditions)
+        
+        tau_cH = high_pressure_compressor.outputs.tau
+        eta_cH = high_pressure_compressor.outputs.eta   
 
         
-        #combustor
-        tau_c = tau_cH
-        #f = (tau_lamda - tau_r*tau_cH*tau_cL)/((eta_b*h_pr/(c_pc*T0)) - tau_lamda)
-        f = (tau_lamda - tau_f*tau_r*tau_cH*tau_cL)/((eta_b*h_pr/(c_pc*T0)) - tau_lamda)
+        # Combustor
         
-        #turbine
-        #tau_t = 1.0 - tau_r/(eta_m*tau_lamda*(1.0+f))*(tau_c - 1.0 + aalpha*(tau_f -1.0))
-        #pi_t = tau_t **(gamma_t/(gamma_t - 1.0)*e_t)
-        #eta_t = (1.0-tau_t)/(1.0 - tau_t**(1/e_t))
+        combustor = self.combustor
+        combustor.inputs.tau_lambda = tau_lamda
+        combustor.inputs.tau_f      = tau_f
+        combustor.inputs.tau_r      = tau_r
+        combustor.inputs.tau_cL     = tau_cL
+        combustor.inputs.tau_cH     = tau_cH
+        combustor.inputs.c_pc       = c_pc
+        combustor(conditions)
         
-        #HPT
-        tau_tH = 1.0 - tau_r*tau_cL/(eta_m*tau_lamda*(1.0+f))*(tau_cH - 1.0)
-        pi_tH = tau_tH **(gamma_t/((gamma_t - 1.0)*e_tH))
-        eta_tH = (1.0-tau_tH)/(1.0 - tau_tH**(1/e_tH))        
+        f = combustor.outputs.fuel_to_air_ratio
         
-        #LPT
-        tau_tL = 1.0 - tau_r/(eta_m*tau_lamda*tau_tH*(1.0+f))*(tau_cL - 1.0 + aalpha*(tau_f -1.0))
-        pi_tL = tau_tL **(gamma_t/((gamma_t - 1.0)*e_tL))
-        eta_tL = (1.0-tau_tL)/(1.0 - tau_tL**(1/e_tL))        
+        
+        # High Pressure Turbine
+        
+        high_pressure_turbine = self.high_pressure_turbine
+        working_fluid       = self.working_fluid
+        working_fluid.gamma = gamma_t
+        high_pressure_turbine.inputs.working_fluid = working_fluid
+        high_pressure_turbine.inputs.tau_r = tau_r
+        high_pressure_turbine.inputs.tau_cL = tau_cL
+        high_pressure_turbine.inputs.tau_cH = tau_cH
+        high_pressure_turbine.inputs.tau_lambda = tau_lamda
+        high_pressure_turbine.inputs.f = f
+        high_pressure_turbine.inputs.aalpha = None
+        
+        high_pressure_turbine(conditions)
+        
+        tau_tH = high_pressure_turbine.outputs.tau_t
+        pi_tH  = high_pressure_turbine.outputs.pi_t
+        eta_tH = high_pressure_turbine.outputs.eta_t       
+        
+        # Low Pressure Turbine
+        
+        low_pressure_turbine = self.low_pressure_turbine
+        working_fluid       = self.working_fluid
+        working_fluid.gamma = gamma_t
+        low_pressure_turbine.inputs.working_fluid = working_fluid
+        low_pressure_turbine.inputs.tau_r = tau_r
+        low_pressure_turbine.inputs.tau_cL = tau_cL
+        low_pressure_turbine.inputs.tau_tH = tau_tH
+        low_pressure_turbine.inputs.tau_lambda = tau_lamda
+        low_pressure_turbine.inputs.f = f
+        low_pressure_turbine.inputs.aalpha = aalpha
+        low_pressure_turbine.inputs.tau_f  = tau_f
+        
+        low_pressure_turbine(conditions)
+        
+        tau_tL = low_pressure_turbine.outputs.tau_t
+        pi_tL  = low_pressure_turbine.outputs.pi_t
+        eta_tL = low_pressure_turbine.outputs.eta_t          
         
         
         
