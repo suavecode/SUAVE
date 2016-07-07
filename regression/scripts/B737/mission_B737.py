@@ -1,7 +1,7 @@
-# full_setup.py
+# mission_B737.py
 # 
-# Created:  SUave Team, Aug 2014
-# Modified: 
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with a 737
 """
@@ -74,11 +74,13 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
+    #plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results)
+    
+    #plt.show()
 
     return
 

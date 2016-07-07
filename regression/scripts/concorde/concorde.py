@@ -1,7 +1,7 @@
 # concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Apr 2016, T. MacDonald
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -62,11 +62,13 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(results)
+    #plot_mission(old_results,'k-')
 
     # check the results
-    check_results(results,old_results)    
+    check_results(results,old_results) 
+    
+    #plt.show()
     
     return
 
