@@ -34,6 +34,7 @@ class Ram(Energy_Component):
         
         #set the deafult values
         self.tag = 'Ram'
+        self.g_c = 1.0
         self.outputs.stagnation_temperature  = 1.0
         self.outputs.stagnation_pressure     = 1.0
         self.inputs.working_fluid = Data()
@@ -41,45 +42,38 @@ class Ram(Energy_Component):
     def compute(self,conditions):
         
         #unpack from conditions
-        Po = conditions.freestream.pressure
-        To = conditions.freestream.temperature
-        M = conditions.freestream.mach_number
+        T0 = conditions.freestream.temperature
+        M0 = conditions.freestream.mach_number
         
         #unpack from inputs
+        g_c = self.g_c
+        pi_d_max = self.pi_d_max
         working_fluid          = self.inputs.working_fluid
-
-
-        #method to compute the ram properties
+        gamma_c = working_fluid.gamma
+        R_c     = working_fluid.R
         
-        #computing the working fluid properties
-        gamma                  = 1.4
-        Cp                     = 1.4*287.87/(1.4-1)
-        R                      = 287.87
-        
-        ao                     =  np.sqrt(Cp/(Cp-R)*R*To)
-        
-        #Compute the stagnation quantities from the input static quantities
-        stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
-        stagnation_pressure    = Po* ((1+(gamma-1)/2 *M*M )**3.5 )
-        
-        
+    
+        tau_r = 1.0 + (gamma_c - 1.0)*0.5*(M0**2.0)
+    
+        pi_r = tau_r**(gamma_c/(gamma_c-1.0))
+    
+        eta_r = 1.0
+    
+        if(M0>1.0):
+            eta_r = 1.0 - 0.075*(M0 - 1.0)**1.35
+    
+    
+    
+        pi_d = pi_d_max*eta_r        
         
         #pack computed outputs
         
-        #pack the values into conditions
-        self.outputs.stagnation_temperature              = stagnation_temperature
-        self.outputs.stagnation_pressure                 = stagnation_pressure
-        self.outputs.isentropic_expansion_factor         = gamma
-        self.outputs.specific_heat_at_constant_pressure  = Cp
-        self.outputs.universal_gas_constant              = R
         
-        #pack the values into outputs
-        conditions.freestream.stagnation_temperature               = stagnation_temperature
-        conditions.freestream.stagnation_pressure                  = stagnation_pressure
-        conditions.freestream.isentropic_expansion_factor          = gamma
-        conditions.freestream.specific_heat_at_constant_pressure   = Cp
-        conditions.freestream.universal_gas_constant               = R
-        conditions.freestream.speed_of_sound                       = ao
+        
+        #pack the values into conditions
+        self.outputs.pi_r            = pi_r
+        self.outputs.tau_r            = tau_r
+        self.outputs.pi_d            = pi_d
     
     
     

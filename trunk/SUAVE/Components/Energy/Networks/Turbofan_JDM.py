@@ -100,8 +100,6 @@ class Turbofan_JDM(Propulsor):
     
     
         self.thrust.bypass_ratio = self.bypass_ratio    
-    
-        state.numerics = Data()
         number_of_engines         = self.number_of_engines
     
         # Get sizing thrust per engine
@@ -123,41 +121,11 @@ class Turbofan_JDM(Propulsor):
         results.sfc                 = S
         results.thrust_non_dim      = F_mdot0
         
-    
-    
-    
-        #compute sls conditions
-        #call the atmospheric model to get the conditions at the specified altitude
-        atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
-    
-        # setup conditions
-        conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-    
-    
-    
-        # freestream conditions
-        
-        conditions_sls.freestream.altitude           = np.atleast_1d(0.)
-        conditions_sls.freestream.mach_number        = np.atleast_1d(0.01)
-        
-        conditions_sls.freestream.pressure           = np.atleast_1d(p)
-        conditions_sls.freestream.temperature        = np.atleast_1d(T)
-        conditions_sls.freestream.density            = np.atleast_1d(rho)
-        conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-        conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-        conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
-        conditions_sls.freestream.Cp                 = 1.4*287.87/(1.4-1)
-        conditions_sls.freestream.R                  = 287.87
-        conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
-        conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
-        
-        # propulsion conditions
-        conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
         
         state_sls = Data()
-        state_sls.numerics = Data()
-        state_sls.conditions = conditions_sls   
+        state_sls.conditions = conditions   
+        state_sls.conditions.propulsion = Data()
+        state_sls.conditions.propulsion.throttle = np.atleast_1d(1.0)
         results_sls = self.evaluate_thrustt(state_sls,0.0)
         self.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / float(number_of_engines)
     
@@ -176,9 +144,12 @@ class Turbofan_JDM(Propulsor):
     
     def engine_design(self,state):
         
+        # Components
+        
+        ram = self.ram
+        
         #imports
-        conditions = state.conditions
-        numerics   = state.numerics        
+        conditions = state.conditions       
         
         #engine properties        
         pi_d_max = self.inlet_nozzle.pressure_ratio
@@ -186,7 +157,6 @@ class Turbofan_JDM(Propulsor):
         Tt4 = self.combustor.turbine_inlet_temperature
         pi_cL = self.low_pressure_compressor.pressure_ratio
         pi_cH = self.high_pressure_compressor.pressure_ratio
-        pi_c = pi_cL*pi_cH
         e_c = self.high_pressure_compressor.polytropic_efficiency
         
         e_cH = self.high_pressure_compressor.polytropic_efficiency
@@ -212,20 +182,18 @@ class Turbofan_JDM(Propulsor):
         
         pi_fn = self.fan_nozzle.pressure_ratio
         
-        sizing_thrust = self.thrust.total_design
         
         #gas properties
-        gamma_c = 1.4
-        gamma_t = 1.3
-        c_pc = 1004.5
-        c_pt = 1004.5
+        gamma_c = self.compressor_gamma
+        gamma_t = self.turbine_gamma
+        c_pc = self.compressor_cp
+        c_pt = self.turbine_cp
         g_c  = 1.0
         
         #freestream properties
         T0 = conditions.freestream.temperature
         p0 = conditions.freestream.pressure
         M0 = conditions.freestream.mach_number
-        a0 = conditions.freestream.speed_of_sound
         
         #design run
                             
@@ -233,27 +201,26 @@ class Turbofan_JDM(Propulsor):
         
         R_t = (gamma_t - 1.0)/gamma_t*c_pt
         
+        # Ram values
+        
         a0 = np.sqrt(gamma_c*R_c*g_c*T0)
-        
-        V0 = a0*M0
-        
-        tau_r = 1.0 + (gamma_c - 1.0)*0.5*(M0**2.0)
-        
-        pi_r = tau_r**(gamma_c/(gamma_c-1.0))
-                
-        eta_r = 1.0
-        
-        if(M0>1.0):
-            eta_r = 1.0 - 0.075*(M0 - 1.0)**1.35
             
-        pi_d = pi_d_max*eta_r
+        V0 = a0*M0        
         
         tau_lamda = c_pt*Tt4/(c_pc*T0)
         
         
-        
+        ram = self.ram
+        ram.pi_d_max = pi_d_max
+        working_fluid = self.working_fluid
+        working_fluid.R = R_c
+        working_fluid.gamma = gamma_c
+        ram.inputs.working_fluid = working_fluid
+        ram(conditions)
 
-            
+        pi_r = ram.outputs.pi_r
+        pi_d = ram.outputs.pi_d
+        tau_r = ram.outputs.tau_r
 
         #P0_P19 = 1.0
         
@@ -432,7 +399,6 @@ class Turbofan_JDM(Propulsor):
 
         #imports
         conditions = state.conditions
-        numerics   = state.numerics
         reference = self.reference
         throttle = conditions.propulsion.throttle
         
@@ -450,8 +416,7 @@ class Turbofan_JDM(Propulsor):
         # setup conditions
         conditions_eval = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
     
-        state_eval = Data()
-        state_eval.numerics = Data()    
+        state_eval = Data() 
         
         for ieval in range(0,len(M0)):
     
@@ -462,14 +427,6 @@ class Turbofan_JDM(Propulsor):
             
             conditions_eval.freestream.pressure           = np.atleast_1d(p0[ieval][0])
             conditions_eval.freestream.temperature        = np.atleast_1d(T0[ieval][0])
-            #conditions_eval.freestream.density            = np.atleast_1d(rho)
-            #conditions_eval.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-            #conditions_eval.freestream.gravity            = np.atleast_1d(9.81)
-            #conditions_eval.freestream.gamma              = np.atleast_1d(1.4)
-            #conditions_eval.freestream.Cp                 = 1.4*287.87/(1.4-1)
-            #conditions_eval.freestream.R                  = 287.87
-            #conditions_eval.freestream.speed_of_sound     = np.atleast_1d(a)
-            #conditions_eval.freestream.velocity           = conditions_eval.freestream.mach_number * conditions_eval.freestream.speed_of_sound
             
             # propulsion conditions
             conditions_eval.propulsion.throttle           =  np.atleast_1d(throttle[ieval])    
@@ -501,7 +458,6 @@ class Turbofan_JDM(Propulsor):
 
         #imports
         conditions = state.conditions
-        numerics   = state.numerics
         reference = self.reference
         throttle = conditions.propulsion.throttle
         number_of_engines         = self.number_of_engines
@@ -537,8 +493,8 @@ class Turbofan_JDM(Propulsor):
         #eta_tH = reference.eta_tH        
         
         #gas properties
-        gamma_c = 1.4
-        gamma_t = 1.3 #1.4
+        gamma_c = self.compressor_gamma
+        gamma_t = self.turbine_gamma
         #c_pc = 0.24*778.16 #1004.5
         #c_pt = 0.276*778.16 #004.5
         #g_c  = 32.174   
@@ -603,8 +559,11 @@ class Turbofan_JDM(Propulsor):
         
         #Mattingly 8.52 a-j
         
+        # Compressor and turbine gas constant values
         R_c = (gamma_c - 1.0)*c_pc/gamma_c
         R_t = (gamma_t - 1.0)*c_pt/gamma_t
+        
+        # Ram values
         a0 = np.sqrt(gamma_c*R_c*g_c*T0)
         V0 = a0*M0
         tau_r = 1.0 + 0.5*(gamma_c-1.0)*(M0**2.)
