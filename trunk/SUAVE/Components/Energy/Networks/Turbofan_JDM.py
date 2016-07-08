@@ -324,64 +324,76 @@ class Turbofan_JDM(Propulsor):
         eta_tL = low_pressure_turbine.outputs.eta_t          
         
         
+        # Core Nozzle
         
-        #P0_P9 = ((0.5*(gamma_c + 1.0))**(gamma_c/(gamma_c-1.0)))/(pi_r*pi_d*pi_cL*pi_cH*pi_b*pi_tL*pi_tH*pi_n) #*pif
-        P0_P9 = ((0.5*(gamma_c + 1.0))**(gamma_c/(gamma_c-1.0)))/(pi_r*pi_d*pi_cL*pi_cH*pi_b*pi_tL*pi_tH*pi_n*pi_f) #*pif
-            
-        if(P0_P9>1.0):
-            P0_P9 = 1.0          
+        core_nozzle = self.core_nozzle
         
+        core_nozzle.inputs.gamma_c     = gamma_c
+        core_nozzle.inputs.gamma_t     = gamma_t
+        core_nozzle.inputs.pi_r        = pi_r
+        core_nozzle.inputs.pi_d        = pi_d
+        core_nozzle.inputs.pi_cL       = pi_cL
+        core_nozzle.inputs.pi_cH       = pi_cH
+        core_nozzle.inputs.pi_b        = pi_b
+        core_nozzle.inputs.pi_tL       = pi_tL
+        core_nozzle.inputs.pi_tH       = pi_tH
+        core_nozzle.inputs.pi_n        = pi_n
+        core_nozzle.inputs.pi_f        = pi_f
+        core_nozzle.inputs.tau_lambda  = tau_lamda
+        core_nozzle.inputs.tau_tH      = tau_tH
+        core_nozzle.inputs.tau_tL      = tau_tL
+        core_nozzle.inputs.R_c         = R_c
+        core_nozzle.inputs.R_t         = R_t
+        core_nozzle.inputs.c_pc        = c_pc
+        core_nozzle.inputs.c_pt        = c_pt
         
+        core_nozzle(conditions)
         
-        P0_P19 = ((0.5*(gamma_c + 1.0))**(gamma_c/(gamma_c-1.0)))/(pi_r*pi_d*pi_f*pi_fn)
-        
-        if(P0_P19>1.0):
-            P0_P19 = 1.0        
-        
-
-        #pt9_p9 = P0_P9*(pi_r*pi_d*pi_cL*pi_cH*pi_b*pi_tH*pi_tL*pi_n) #*pi_f
-        pt9_p9 = P0_P9*(pi_r*pi_d*pi_cL*pi_cH*pi_b*pi_tH*pi_tL*pi_n*pi_f) #*pi_f
-        
-        M9 = np.sqrt(2.0/(gamma_t-1.0)*((pt9_p9)**((gamma_t-1.0)/gamma_t)-1.0))
-        
-        #T9_T0 = tau_lamda*tau_tL*tau_tH*c_pc/(pt9_p9**((gamma_t-1.0)/gamma_t)*c_pt)
-        T9_T0 = tau_lamda*tau_tL*tau_tH*c_pc/(pt9_p9**((gamma_t-1.0)/gamma_t)*c_pt)
-        
-        V9_a0 = M9*np.sqrt(gamma_t*R_t*T9_T0/(gamma_c*R_c))
-        
-        pt19_p19 = P0_P19*pi_r*pi_d*pi_f*pi_fn
-
-        M19 = np.sqrt(2.0/(gamma_c-1.0)*((pt19_p19)**((gamma_c-1.0)/gamma_c)-1.0))
-        
-        T19_T0 = tau_r*tau_f/(pt19_p19**((gamma_c-1.0)/gamma_c))
-        
-        V19_a0 = M19*np.sqrt(T19_T0)
-        
-        F_mdot0 = 1.0/(1.0+aalpha)*a0/g_c*( (1.0+f)*V9_a0 - M0 + (1.0+f)*R_t*T9_T0*(1-P0_P9)/(R_c*V9_a0*gamma_c)) + aalpha/(1.0 + aalpha)*a0/g_c*(V19_a0 - M0 + T19_T0*(1-P0_P19)/(V19_a0*gamma_c))
-        
-        S = f/((1.0+aalpha)*F_mdot0)*3600.0*2.20462/0.224809
+        P0_P9 = core_nozzle.outputs.P0_P9
+        T9_T0 = core_nozzle.outputs.T9_T0
+        V9_a0 = core_nozzle.outputs.V9_a0
+        M9    = core_nozzle.outputs.M9
         
         
- 
-            
-            
-            
-            
-            
+        # Fan Nozzle
         
-        #thrust_ratio = 
+        fan_nozzle = self.fan_nozzle
         
-        #eta_P
+        fan_nozzle.inputs.gamma_c     = gamma_c
+        fan_nozzle.inputs.pi_r        = pi_r
+        fan_nozzle.inputs.pi_d        = pi_d
+        fan_nozzle.inputs.pi_f        = pi_f
+        fan_nozzle.inputs.pi_fn       = pi_fn
+        fan_nozzle.inputs.tau_r       = tau_r
+        fan_nozzle.inputs.tau_f       = tau_f
         
-        #eta_T
+        fan_nozzle(conditions)
         
-        #eta_o = eta_P *eta_T
+        P0_P19 = fan_nozzle.outputs.P0_P19
+        T19_T0 = fan_nozzle.outputs.T19_T0
+        V19_a0 = fan_nozzle.outputs.V19_a0
+        M19    = fan_nozzle.outputs.M19
         
-        #size to get mdot
+        # Thrust calculation
         
+        thrust = self.thrust
+        thrust.inputs.aalpha  = aalpha
+        thrust.inputs.f       = f
+        thrust.inputs.V9_a0   = V9_a0
+        thrust.inputs.T9_T0   = T9_T0
+        thrust.inputs.P0_P9   = P0_P9
+        thrust.inputs.R_t     = R_t
+        thrust.inputs.gamma_c = gamma_c
+        thrust.inputs.V19_a0  = V19_a0
+        thrust.inputs.T19_T0  = T19_T0
+        thrust.inputs.P0_P19  = P0_P19
+        thrust.inputs.R_c     = R_c        
+        thrust.inputs.a0      = a0 # consider changing this with other ram update
         
+        thrust(conditions)
         
-        #mdot0 = sizing_thrust/F_mdot0 #1.0
+        F_mdot0 = thrust.outputs.mass_specific_thrust
+        S       = thrust.outputs.specific_fuel_consumption
 
         
         #reference values store

@@ -5,3 +5,5 @@ from Compressor import Compressor
 from Combustor import Combustor
 from High_Pressure_Turbine import High_Pressure_Turbine
 from Low_Pressure_Turbine import Low_Pressure_Turbine
+from Expansion_Nozzle_Core import Expansion_Nozzle_Core
+from Expansion_Nozzle_Fan import Expansion_Nozzle_Fan
