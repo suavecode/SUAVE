@@ -31,7 +31,7 @@ class Data(dict):
             object.__getattribute__(self, k)
         except:
             self[k] = v
-        else:
+        else:          
             object.__setattr__(self, k, v) 
             
     def __delattr__(self, k):
