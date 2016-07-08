@@ -106,8 +106,8 @@ class US_Standard_1976(Atmospheric):
         p0    = zeros * 0.0
         alpha = zeros * 0.0
         
-        ## populate the altitude breaks
-        ## this uses >= and <= to capture both edges and because values should be the same at the edges
+        # populate the altitude breaks
+        # this uses >= and <= to capture both edges and because values should be the same at the edges
         for i in range( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
             z0[ i_inside ]    = self.breaks.altitude[i]
@@ -127,8 +127,6 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mew = gas.compute_absolute_viscosity(T)
-        
-
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
