@@ -65,7 +65,13 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 
     # compute atmosphere
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(altitude,0)
+    atmo_data = atmosphere.compute_values(altitude)
+    
+    p   = atmo_data.pressure
+    T   = atmo_data.temperature
+    rho = atmo_data.density
+    a   = atmo_data.speed_of_sound
+    mew = atmo_data.dynamic_viscosity
     
     # Find the dimensional RE, ie. Reynolds number/length
     re = rho*Mc*a/mew
@@ -188,7 +194,13 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 def solve_altitude(alt,alt_conditions):
 
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(alt,0)
+    atmo_data = atmosphere.compute_values(alt)
+    
+    p   = atmo_data.pressure
+    T   = atmo_data.temperature
+    rho = atmo_data.density
+    a   = atmo_data.speed_of_sound
+    mew = atmo_data.dynamic_viscosity
 
     # conditions
     Mc  = alt_conditions.Mc
