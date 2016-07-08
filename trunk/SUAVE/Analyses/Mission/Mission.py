@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import ContainerOrdered as ContainerBase
+from SUAVE.Core import Container as ContainerBase
 
 import Segments
 
@@ -38,8 +38,7 @@ class Mission(Segments.Simple.Container):
 class Container(ContainerBase):
     
     def evaluate(self,state=None):
-        #results = SUAVE.Analyses.Results()
-        result = SUAVE.Core.DataOrdered()
+        results = SUAVE.Analyses.Results()
         
         for key,mission in self.items():
             result = mission.evaluate(state)
