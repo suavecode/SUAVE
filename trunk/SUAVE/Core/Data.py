@@ -13,6 +13,9 @@ chars = string.punctuation + string.whitespace
 t_table = string.maketrans( chars          + string.uppercase , 
                             '_'*len(chars) + string.lowercase )
 
+dictgetitem = dict.__getitem__
+objgetattrib = object.__getattribute__
+
 # ----------------------------------------------------------------------
 #   Data
 # ----------------------------------------------------------------------        
@@ -20,12 +23,12 @@ t_table = string.maketrans( chars          + string.uppercase ,
 class Data(dict):
     """"""
     
-    def __getattr__(self, k):
-        try: 
-            return self[k]
-        except: 
-            object.__getattribute__(self, k)      
-    
+    def __getattribute__(self, k):
+        try:
+            return dictgetitem(self,k)
+        except:
+            return objgetattrib(self,k)
+
     def __setattr__(self, k, v):
         try:
             object.__getattribute__(self, k)
