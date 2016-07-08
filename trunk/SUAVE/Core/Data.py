@@ -60,6 +60,70 @@ class Data(dict):
             
         return self
     
+    def typestring(self):
+        # build typestring
+        typestring = str(type(self)).split("'")[1]
+        typestring = typestring.split('.')
+        if typestring[-1] == typestring[-2]:
+            del typestring[-1]
+        typestring = '.'.join(typestring) 
+        return typestring    
+    
+    def dataname(self):
+        return "<data object '" + self.typestring() + "'>"     
+    
+    
+    def __str__(self,indent=''):
+        new_indent = '  '
+        args = ''
+        
+        # trunk data name
+        if not indent:
+            args += self.dataname()  + '\n'
+        else:
+            args += ''
+            
+        args += self.__str2(indent)
+        
+        return args    
+    
+    
+    def __str2(self,indent=''):
+        """ String-form of a Dict.
+        """
+        
+        new_indent = '  '
+        args = ''
+        
+        # trunk data name
+        if indent: args += '\n'
+        
+        # print values   
+        for key,value in self.iteritems():
+            
+            # skip 'hidden' items
+            if isinstance(key,str) and key.startswith('_'):
+                continue
+            
+            # recurse into other dict types
+            if isinstance(value,dict):
+                if not value:
+                    val = '\n'
+                else:
+                    try:
+                        val = value.__str2(indent+new_indent)
+                    except RuntimeError: # recursion limit
+                        val = ''
+                        
+            # everything else
+            else:
+                val = str(value) + '\n'
+                
+            # this key-value, indented
+            args+= indent + str(key) + ' : ' + val
+            
+        return args        
+    
     def __init__(self,*args,**kwarg):
 
         # handle input data (ala class factory)

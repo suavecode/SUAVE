@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Container as ContainerBase
+from SUAVE.Core import ContainerOrdered as ContainerBase
 
 from SUAVE.Methods import Missions as Methods
 
@@ -54,6 +54,13 @@ class Sequential_Segments(Mission):
     
     def finalize(self):
         pass
+    
+    def evaluate(self,state=None):
+        if state is None:
+            state = self.state
+        self.process(self,state)
+        return state
+   
     
     
 

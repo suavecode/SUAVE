@@ -1,3 +1,4 @@
+
 # full_setup.py
 #
 # Created:  SUave Team, Aug 2014
@@ -46,7 +47,7 @@ def main():
     mission = analyses.missions
     
     # run payload diagram
-    cruise_segment_tag = "Cruise"
+    cruise_segment_tag = "cruise"
     reserves = 1750.
     payload_range_results = payload_range(vehicle,mission,cruise_segment_tag,reserves)    
     
