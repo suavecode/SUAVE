@@ -35,7 +35,7 @@ def setup():
     # ------------------------------------------------------------------ 
     
     # size the base config
-    procedure = Data()
+    procedure = Process()
     procedure.initial_sizing = initial_sizing
     procedure.weights = weight
     procedure.weights_sizing = weights_sizing
@@ -361,7 +361,7 @@ def noise_sideline(nexus):
     nexus.analyses.takeoff.noise.settings.mic_x_position = x0 
     
     noise_segment = results.sideline.segments.climb
-    SUAVE.Input_Output.SUAVE.archive(results.sideline,'sideline.res')
+    #SUAVE.Input_Output.SUAVE.archive(results.sideline,'sideline.res')
     noise_config  = nexus.vehicle_configurations.takeoff
     noise_analyse = nexus.analyses.takeoff
     noise_config.engine_flag = 1
@@ -464,7 +464,7 @@ def noise_approach(nexus):
 # ----------------------------------------------------------------------
 def compute_noise(config,analyses,noise_segment):
 
-    turbofan = config.propulsors[0]
+    turbofan = config.propulsors['turbofan']
     
     outputfile        = config.output_file
     outputfile_engine = config.output_file_engine
