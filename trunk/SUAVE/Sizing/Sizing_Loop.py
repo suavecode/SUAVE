@@ -15,6 +15,8 @@ class Sizing_Loop(Data):
         self.initial_step          = None  #'Default', 'Table', 'SVR'
         self.update_method         = None  #'fixed_point', 'newton-raphson'
         self.default_y             = None
+        self.max_y                 = None  #maximum values for y to take (can be useful when large jumps happen)
+        self.min_y                 = None  #minimum values for y to take
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
         self.maximum_iterations    = None
         self.output_filename       = None
@@ -105,15 +107,23 @@ class Sizing_Loop(Data):
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:        
             if self.update_method == 'fixed_point':
-                err,y, i   = fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
-            
+                err,y, i   = self.fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
+                
             elif self.update_method == 'newton-raphson':
+                if i==0:
+                    nr_start=0
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
-                    err,y, i   = fixed_point_update(y, err,function_eval, nexus, scaling, i, iteration_options)
+                    err,y, i   = self.fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
                 
+
                 else:
-                    err,y, i   = newton_raphson_update(y, err, function_eval, nexus, scaling, i, iteration_options)
+                    if nr_start==0:
+                        err,y, i   = self.newton_raphson_update(y_save2, err, function_eval, nexus, scaling, i, iteration_options)
+                        nr_start=1
+                    else:
+                        err,y, i   = self.newton_raphson_update(y, err, function_eval, nexus, scaling, i, iteration_options)
                 
+           
            
        
             dy  = y-y_save
@@ -165,24 +175,37 @@ class Sizing_Loop(Data):
     
         
         return nexus
+    def fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options):
+        err, y_out = function_eval(y, nexus, scaling)
+        iter += 1
+        print 'y_out=', y_out
+        print 'err_out=', err
+        
+        return err, y_out, iter
+    
+    def newton_raphson_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options):
+        h = iteration_options.h
+        print '###begin Finite Differencing###'
+        J, iter = Finite_Difference_Gradient(y,err, function_eval, nexus, scaling, iter, h)
+        Jinv =np.linalg.inv(J)  
+        p = -np.dot(Jinv,err)
+        print 'Jinv=', Jinv
+        print 'p=', p
+        y_update = y + p
+        '''
+        for i in range(len(y_update)):  #handle variable bounds
+            if y_update[i]<self.min_y[i]:
+                y_update[i] = self.min_y[i]*1.
+            elif y_update[i]>self.max_y[i]:
+                y_update[i] = self.max_y[i]*1.
+        '''
+        err, y_out = function_eval(y_update, nexus, scaling)
+        print 'err_out=', err
+        iter += 1 
+        return err, y_update, iter
     __call__ = evaluate
     
-def fixed_point_update(y, err, function_eval, nexus, scaling, iter, iteration_options):
-    err, y_out = function_eval(y, nexus, scaling)
-    iter += 1
-    return err, y_out, iter
-    
-def newton_raphson_update(y, err, function_eval, nexus, scaling, iter, iteration_options):
-    h = iteration_options.h
-    print '###begin Finite Differencing###'
-    J, iter = Finite_Difference_Gradient(y,err, function_eval, nexus, scaling, iter, h)
-    Jinv =np.linalg.inv(J)
-    p = -np.dot(Jinv,err)
-    y_update = y + p
-    err, y_out = function_eval(y_update, nexus, scaling)
-    print 'err_out=', err
-    iter += 1 
-    return err, y_update, iter
+
     
 
 
@@ -191,13 +214,15 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     #use forward difference
     #print 'type(x)= ', type(x)
 
-    
+    print 'h=', h
     #h=scaling[0]*.0001
     J=np.nan*np.ones([len(x), len(x)])
     for i in range(len(x)):
         xu=1.*x;
         xu[i]=x[i]+h *x[i]  #use FD step of H*x
         fu, y_out = my_function(xu, inputs,scaling)
+        print 'fu=', fu
+        print 'fbase=', f
         J[:,i] = (fu-f)/(xu[i]-x[i])
         iter=iter+1
         
