@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use('Agg') 
         
 import SUAVE
-from SUAVE.Core.OrderedBunch import OrderedBunch
+from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
 import matplotlib.pyplot as plt
 
@@ -68,7 +68,7 @@ modules = [
 def main():
     
     # preallocate test results
-    results = OrderedBunch()
+    results = DataOrdered()
     for module in modules:
         results[module] = 'Untested'
         

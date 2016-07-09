@@ -1,13 +1,14 @@
-# Data.py
+# DataOrdered.py
 #
-# Created:  Jan 2015, T. Lukacyzk
-# Modified: Feb 2016, T. MacDonald
-#           Jun 2016, E. Botero
+# Created:  Jul 2016, E. Botero
+# Modified: 
 
-""" SUAVE Data Base Classes
-"""
+   
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------  
 
-from OrderedBunch import OrderedBunch
+from collections import OrderedDict
 
 # for enforcing attribute style access names
 import string
@@ -18,10 +19,33 @@ t_table = string.maketrans( chars          + string.uppercase ,
 from warnings import warn
 
 # ----------------------------------------------------------------------
+#   Property Class
+# ----------------------------------------------------------------------   
+
+class Property(object):
+    
+    def __init__(self,key=None):
+        self._key = key
+        
+    def __get__(self,obj,kls=None):
+        if obj is None: return self
+        else          : return dict.__getitem__(obj,self._key)
+        
+    def __set__(self,obj,val):
+        dict.__setitem__(obj,self._key,val)
+        
+    def __delete__(self,obj):
+        dict.__delitem__(obj,self._key)
+
+    
+# ----------------------------------------------------------------------
 #   DataOrdered
 # ----------------------------------------------------------------------        
 
-class DataOrdered(OrderedBunch):
+class DataOrdered(OrderedDict):
+    
+    _root = Property('_root')
+    _map  = Property('_map')    
     
     def append(self,value,key=None):
         if key is None: key = value.tag
@@ -42,12 +66,19 @@ class DataOrdered(OrderedBunch):
             return super(DataOrdered,self).__getattribute__(self.keys()[k])
     
     def __new__(cls,*args,**kwarg):
-        """ supress use of args or kwarg for defaulting
-        """
+        # Make the new:
+        self = OrderedDict.__new__(cls)
         
-        # initialize data, no inputs
-        self = super(DataOrdered,cls).__new__(cls)
-        super(DataOrdered,self).__init__()
+        if hasattr(self,'_root'):
+            self._root
+        else:
+            root = [] # sentinel node
+            root[:] = [root, root, None]
+            dict.__setitem__(self,'_root',root)
+            dict.__setitem__(self,'_map' ,{})        
+        
+        # Use the base init
+        self.__init2()
         
         # get base class list
         klasses = self.get_bases()
@@ -59,18 +90,39 @@ class DataOrdered(OrderedBunch):
         return self
     
     def __init__(self,*args,**kwarg):
-        """ initializes DataBunch()
-        """
-        
+
         # handle input data (ala class factory)
         input_data = DataOrdered.__base__(*args,**kwarg)
         
         # update this data with inputs
         self.update(input_data)
         
+        
+    def __init2(self, items=None, **kwds):
+        def append_value(key,value):               
+            self[key] = value            
+        
+        # a dictionary
+        if hasattr(items, 'iterkeys'):
+            for key in items.iterkeys():
+                append_value(key,items[key])
+
+        elif hasattr(items, 'keys'):
+            for key in items.keys():
+                append_value(key,items[key])
+                
+        # items lists
+        elif items:
+            for key, value in items:
+                append_value(key,value)
+                
+        # key words
+        for key, value in kwds.iteritems():
+            append_value(key,value)     
+
     # iterate on values, not keys
     def __iter__(self):
-        return super(DataOrdered,self).itervalues()
+        return self.itervalues()
             
     def __str__(self,indent=''):
         new_indent = '  '
@@ -82,7 +134,7 @@ class DataOrdered(OrderedBunch):
         else:
             args += ''
             
-        args += super(DataOrdered,self).__str__(indent)
+        args += self.__str2(indent)
         
         return args
         
@@ -90,7 +142,6 @@ class DataOrdered(OrderedBunch):
         return self.dataname()
     
     def get_bases(self):
-        """ find all DataBunch() base classes, return in a list """
         klass = self.__class__
         klasses = []
         while klass:
@@ -104,7 +155,6 @@ class DataOrdered(OrderedBunch):
         return klasses
     
     def typestring(self):
-        # build typestring
         typestring = str(type(self)).split("'")[1]
         typestring = typestring.split('.')
         if typestring[-1] == typestring[-2]:
@@ -145,15 +195,7 @@ class DataOrdered(OrderedBunch):
         
         return value   
     
-    
     def update(self,other):
-        """ Dict.update(other)
-            updates the dictionary in place, recursing into additional
-            dictionaries inside of other
-            
-            Assumptions:
-              skips keys that start with '_'
-        """
         if not isinstance(other,dict):
             raise TypeError , 'input is not a dictionary type'
         for k,v in other.iteritems():
@@ -167,6 +209,132 @@ class DataOrdered(OrderedBunch):
                 self[k] = v
         return 
 
+    def __delattr__(self, key):
+        # Deleting an existing item uses self._map to find the link which is
+        # then removed by updating the links in the predecessor and successor nodes.
+        OrderedDict.__delattr__(self,key)
+        link_prev, link_next, key = self._map.pop(key)
+        link_prev[1] = link_next
+        link_next[0] = link_prev
+        
+    def __eq__(self, other):
+        if isinstance(other, (DataOrdered,OrderedDict)):
+            return len(self)==len(other) and self.items() == other.items()
+        return dict.__eq__(self, other)
+        
+    def __len__(self):
+        return self.__dict__.__len__()   
+
+    def __iter__(self):
+        root = self._root
+        curr = root[1]
+        while curr is not root:
+            yield curr[2]
+            curr = curr[1]
+
+    def __reduce__(self):
+        items = [( k, DataOrdered.__getitem2(self,k) ) for k in DataOrdered.iterkeys(self)]
+        inst_dict = vars(self).copy()
+        for k in vars(DataOrdered()):
+            inst_dict.pop(k, None)
+        return (_reconstructor, (self.__class__,items,), inst_dict)
+    
+    def __setattr__(self, key, value):
+        # Setting a new item creates a new link which goes at the end of the linked
+        # list, and the inherited dictionary is updated with the new key/value pair.
+        if not hasattr(self,key) and not hasattr(self.__class__,key):
+        #if not self.has_key(key) and not hasattr(self.__class__,key):
+            root = dict.__getitem__(self,'_root')
+            last = root[0]
+            map  = dict.__getitem__(self,'_map')
+            last[1] = root[0] = map[key] = [last, root, key]
+        OrderedDict.__setattr__(self,key, value)
+
+    def __setitem__(self,k,v):
+        self.__setattr__(k,v)
+        
+    def __str2(self,indent=''):
+        
+        new_indent = '  '
+        args = ''
+        
+        # trunk data name
+        if indent: args += '\n'
+        
+        # print values   
+        for key,value in self.iteritems():
+            
+            # skip 'hidden' items
+            if isinstance(key,str) and key.startswith('_'):
+                continue
+            
+            # recurse into other dict types
+            if isinstance(value,OrderedDict):
+                if not value:
+                    val = '\n'
+                else:
+                    try:
+                        val = value.__str__(indent+new_indent)
+                    except RuntimeError: # recursion limit
+                        val = ''
+                        
+            # everything else
+            else:
+                val = str(value) + '\n'
+                
+            # this key-value, indented
+            args+= indent + str(key) + ' : ' + val
+            
+        return args     
+
+    def clear(self):
+        try:
+            for node in self._map.itervalues():
+                del node[:]
+            root = self._root
+            root[:] = [root, root, None]
+            self._map.clear()
+        except AttributeError:
+            pass
+        self.__dict__.clear()
+        
+    def get(self,k,d=None):
+        return self.__dict__.get(k,d)
+        
+    def has_key(self,k):
+        return self.__dict__.has_key(k)
+
+    # allow override of iterators
+    __iter = __iter__
+    __getitem2 = OrderedDict.__getattribute__ 
+
+    def keys(self):
+        return list(self.__iter())
+    
+    def values(self):
+        return [self[key] for key in self.__iter()]
+    
+    def items(self):
+        return [(key, self[key]) for key in self.__iter()]
+    
+    def iterkeys(self):
+        return self.__iter()
+    
+    def itervalues(self):
+        for k in self.__iter():
+            yield self[k]
+    
+    def iteritems(self):
+        for k in self.__iter():
+            yield (k, self[k])   
+
+
+# for rebuilding dictionaries with attributes
+def _reconstructor(klass,items):
+    self = DataOrdered.__new__(klass)
+    DataOrdered.__init__(self,items)
+    return self
+            
 
 # ----------------------------------------------------------------------
 #   Module Tests
