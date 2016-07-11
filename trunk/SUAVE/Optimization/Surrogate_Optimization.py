@@ -9,6 +9,18 @@ from read_optimization_outputs import read_optimization_outputs
 import numpy as np
 import time
 
+# ----------------------------------------------------------------------
+#  Surrogate_Optimization
+# ----------------------------------------------------------------------
+
+'''
+Takes a SUAVE Optimization problem, builds a surrogate around it, 
+and iteratively optimizes the surrogate, sampling the SUAVE problem at
+the optimum determined by the surrogate
+
+(currently only uses SVR, plan to add other surrogate options later)
+
+'''
 class Surrogate_Optimization(Data):
     def defaults(self):
         self.sample_plan           = None #VyPy.sampling.lhc_uniform
