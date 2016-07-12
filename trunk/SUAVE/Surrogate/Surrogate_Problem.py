@@ -13,6 +13,7 @@ class Surrogate_Problem(Data):
         self.constraints_surrogates = None
     
     def compute(self, x):
+       
         f = self.obj_surrogate.predict(x)
         g = []
         for j in range(len(self.constraints_surrogates)):
@@ -20,8 +21,7 @@ class Surrogate_Problem(Data):
           
         #g = np.array(g)
         fail  = np.array(np.isnan(f.tolist()) or np.isnan(np.array(g).any())).astype(int)
-
-
+    
         return f, g, fail
         
     __call__ = compute
