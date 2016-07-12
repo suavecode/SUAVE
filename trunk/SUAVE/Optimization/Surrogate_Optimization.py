@@ -98,17 +98,18 @@ class Surrogate_Optimization(Data):
             t3 = time.time()
         
             surrogate_outputs = optimizer(surrogate_problem) 
+            print 'j=', j
             print 'surrogate_outputs[0]=',surrogate_outputs[0]
             print 'x_out=', surrogate_outputs[1]
             
             
-            if j>0:
+            if j>3:
                 x_diff = surrogate_outputs[1]-x_out
                 print 'x_diff=', x_diff 
                 if np.linalg.norm(x_diff)<.0001:  #exit for loop if surrogate optimization converges
                     print 'surrogate optimization terminated successfully'
                     break
-            x_out = surrogate_outputs[1]
+            x_out = surrogate_outputs[1]*1.
             t4 = time.time()
             print 'surrogate optimization time=', t4-t3
             print surrogate_outputs
@@ -122,7 +123,6 @@ class Surrogate_Optimization(Data):
             print 'g_out=', g_out
             print 'fail_out=', fail_out
             opt_prob.inputs[:,1] = surrogate_outputs[1]*scl/base_units
-            print 'opt_prob.inputs[:,1]=', opt_prob.inputs[:,1]
             
             output_real = problem.objective(surrogate_outputs[1])
             print 'opt_prob.inputs[:,1]=', opt_prob.inputs[:,1]
