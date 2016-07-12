@@ -187,21 +187,29 @@ class Sizing_Loop(Data):
         h = iteration_options.h
         print '###begin Finite Differencing###'
         J, iter = Finite_Difference_Gradient(y,err, function_eval, nexus, scaling, iter, h)
-        Jinv =np.linalg.inv(J)  
-        p = -np.dot(Jinv,err)
-        print 'Jinv=', Jinv
-        print 'p=', p
-        y_update = y + p
-        '''
-        for i in range(len(y_update)):  #handle variable bounds
-            if y_update[i]<self.min_y[i]:
-                y_update[i] = self.min_y[i]*1.
-            elif y_update[i]>self.max_y[i]:
-                y_update[i] = self.max_y[i]*1.
-        '''
-        err, y_out = function_eval(y_update, nexus, scaling)
-        print 'err_out=', err
-        iter += 1 
+        try:
+            Jinv =np.linalg.inv(J)  
+            p = -np.dot(Jinv,err)
+            print 'Jinv=', Jinv
+            print 'p=', p
+            y_update = y + p
+      
+            
+            '''
+            for i in range(len(y_update)):  #handle variable bounds
+                if y_update[i]<self.min_y[i]:
+                    y_update[i] = self.min_y[i]*1.
+                elif y_update[i]>self.max_y[i]:
+                    y_update[i] = self.max_y[i]*1.
+            '''
+            err, y_out = function_eval(y_update, nexus, scaling)
+            iter += 1 
+            print 'err_out=', err
+        except LinAlgError("Singular matrix"):
+            print 'singular Jacobian detected, use fixed point'
+            err, y_update, iter = fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options)
+        
+       
         return err, y_update, iter
     __call__ = evaluate
     
