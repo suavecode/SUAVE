@@ -29,15 +29,14 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     bnd_constraints    = helper_functions.scale_const_bnds(constraints)
     scaled_constraints = helper_functions.scale_const_values(constraints,bnd_constraints)
     constraints_out    = scaled_constraints*constraint_units
-
-    
     scaled_inputs      = ini/scl
-    x                  = scaled_inputs*input_units
+    x                  = scaled_inputs#*input_units
     
+    print 'x_setup=', x
     #bound the input variables
     for j in range(len(inputs[:,1])):
-        lbd = bnd[j][0]*input_units[j]/(scl[j])
-        ubd = bnd[j][1]*input_units[j]/(scl[j])
+        lbd = bnd[j][0]/(scl[j])#*input_units[j]
+        ubd = bnd[j][1]/(scl[j])#*input_units[j]
         opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
  
     #put in the constraints
