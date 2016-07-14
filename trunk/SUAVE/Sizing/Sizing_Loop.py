@@ -205,7 +205,7 @@ class Sizing_Loop(Data):
             err, y_out = function_eval(y_update, nexus, scaling)
             iter += 1 
             print 'err_out=', err
-        except LinAlgError("Singular matrix"):
+        except np.linalg.LinAlgError("Singular matrix"):
             print 'singular Jacobian detected, use fixed point'
             err, y_update, iter = fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options)
         
