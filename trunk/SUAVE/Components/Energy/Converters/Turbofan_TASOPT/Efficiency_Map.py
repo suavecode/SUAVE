@@ -18,14 +18,12 @@ class Efficiency_Map(Data):
     
     def __defaults__(self):
         self.polytropic_efficiency = .9
-        self.mo             = 0.75
         self.c              = 3.
         self.C              = 2.5
         
     def compute_speed(self):
 
         eta_0 = self.polytropic_efficiency
-        mo = self.mo
         c  = self.c
         C  = self.C
         pi = self.pressure_ratio

@@ -23,13 +23,13 @@ class Compressor(Pressure_Difference_Set):
         self.speed_change_by_pressure_ratio = 0.
         self.speed_change_by_mass_flow      = 0.
        
-    def compute_design(self):
+    def compute(self):
         
-        self.polytopic_efficiency = self.design_polytropic_efficiency
         self.compute_flow()
         
-    def compute_offdesign(self):
+    def compute_performance(self):
         
+        # This will change the efficiency
         pi = self.pessure_ratio
         mdotc = self.corrected_mass_flow
         self.polytopic_efficiency = self.efficiency_map(pi,mdotc)
@@ -37,5 +37,7 @@ class Compressor(Pressure_Difference_Set):
         self.corrected_speed      = N
         self.speed_change_by_pressure_ratio = dN_pi
         self.speed_change_by_mass_flow      = dN_mf
+
+    def set_design_condition(self):
         
-        self.compute_flow()
+        self.polytropic_efficiency = self.design_polytropic_efficiency

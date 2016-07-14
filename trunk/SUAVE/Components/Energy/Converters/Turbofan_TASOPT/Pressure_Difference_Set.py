@@ -29,11 +29,12 @@ class Pressure_Difference_Set(Energy_Component):
         Tti = self.inputs.total_temperature
         Pti = self.inputs.total_pressure
         Hti = self.inputs.total_enthalpy
+        eta = self.polytropic_efficiency
         
         cp  = self.inputs.working_fluid.specific_heat
         gamma = self.inputs.working_fluid.gamma
         
-        Ttf = Tti*pi**((gamma-1.)/(gamma*polytropic_efficiency))
+        Ttf = Tti*pi**((gamma-1.)/(gamma*eta))
         Ptf = Pti*pi
         Htf = cp*Ttf
         

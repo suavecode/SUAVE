@@ -27,7 +27,7 @@ class Pure_Loss_Set(Energy_Component):
         Tti = self.inputs.total_temperature
         Pti = self.inputs.total_pressure
         Hti = self.inputs.total_enthalpy
-        pi  = self.inputs.pressure_ratio
+        pi  = self.pressure_ratio
         
         Ptf = Pti*pi
         

@@ -155,15 +155,10 @@ class Turbofan_TASOPT_Net(Propulsor):
             Nfn,dp.eta_f,dNfn_pif,dNfn_mf = self.performance(dp.pi_f,dp.mf,2)                       
 
 
-
+        # Ram calculations
         a0 = np.sqrt(gamma*R*T0)
         u0 = M0*a0
         Dh = .5*u0*u0
-        
-        #freestream stagnation properties
-        #Tt0 = Tt(M0, T0, gamma)
-        #Pt0 = Pt(M0, P0, gamma)
-        #ht0 = Cp*Tt0
         h0  = Cp*T0
         
         ram = self.ram        
@@ -179,22 +174,48 @@ class Turbofan_TASOPT_Net(Propulsor):
         Pt0 = ram.outputs.total_pressure
         ht0 = ram.outputs.total_enthalpy
         
-        #inlet conditions
-        Pt1_8 = Pt0*dp.pi_d
-        Tt1_8 = Tt0
-        ht1_8 = ht0
         
-        Pt1_9 = Pt1_8
-        Tt1_9 = Tt1_8
-        ht1_9 = ht1_8        
+        # Inlet Nozzle (stages 1.8 and 1.9 are assumed to match)
+
+        inlet_nozzle = self.inlet_nozzle
+        inlet_nozzle.inputs.total_temperature = Tt0
+        inlet_nozzle.inputs.total_pressure    = Pt0
+        inlet_nozzle.inputs.total_enthalpy    = ht0
+        inlet_nozzle.compute_flow()
         
-        #fan and lpc inlet
-        Pt2 = Pt1_9
-        Tt2 = Tt1_9
-        ht2 = ht1_9
+        Tt2 = inlet_nozzle.outputs.total_temperature
+        Pt2 = inlet_nozzle.outputs.total_pressure
+        ht2 = inlet_nozzle.outputs.total_enthalpy
+        
+        Tt1_9 = Tt2 # These are needed for other calculations
+        Pt1_9 = Pt2 
+        ht1_9 = ht2 
         
         
-        #fan
+        # Fan
+        
+        #if flag == 0:
+            #design_run = True
+        #else:
+            #design_run = False
+        #fan = self.fan
+        
+        #if design_run:
+            #fan.set_design_condition()
+        #else:
+            #fan.polytropic_efficiency = dp.eta_f
+            #pass # add performance calculations here
+        #fan.inputs.working_fluid.specific_heat = Cp
+        #fan.inputs.working_fluid.gamma         = gamma
+        #fan.inputs.total_temperature           = Tt2
+        #fan.inputs.total_pressure              = Pt2
+        #fan.inputs.total_enthalpy              = ht2
+        #fan.compute()
+        
+        #Tt2_1 = fan.outputs.total_temperature
+        #Pt2_1 = fan.outputs.total_pressure
+        #ht2_1 = fan.outputs.total_enthalpy
+        
         Pt2_1 = Pt2*dp.pi_f
         Tt2_1 = Tt2*dp.pi_f**((gamma-1.)/(gamma*dp.eta_f))
         ht2_1 = Cp*Tt2_1
