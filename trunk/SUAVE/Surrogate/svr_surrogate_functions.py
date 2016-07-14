@@ -1,6 +1,6 @@
 # svr_surrogate_functions.py
 #
-# Created:  May 206, M. Vegh
+# Created:  May 2016, M. Vegh
 # Modified:
 
 

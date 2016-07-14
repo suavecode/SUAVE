@@ -1,6 +1,6 @@
 # vypy_surrogate_functions.py
 #
-# Created:  May 206, M. Vegh
+# Created:  May 2016, M. Vegh
 # Modified:
 
 
@@ -33,6 +33,7 @@ def build_gpr_models(obj_values, inputs, constraints, base_inputs):
         ubd = bnd[j][1]*input_units[j]/(scl[j])
         bounds.append([lbd, ubd])
     bounds = np.array(bounds)
+    print bounds
     # start a training data object
     Model                 = gpr.library.Gaussian(bounds, inputs, obj_values) #start training object
     obj_surrogate         = Data()
@@ -44,7 +45,6 @@ def build_gpr_models(obj_values, inputs, constraints, base_inputs):
     #now do this for every constraint
     
     for j in range(len(constraints[0,:])):
-        print 'j=', j
         Model                        = gpr.library.Gaussian(bounds, inputs, constraints[:,j])
         constraint_surrogate         = Data()
         constraint_surrogate.predict = Model.predict_YI

@@ -3,6 +3,9 @@
 
 from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
+from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
+from SUAVE.Surrogate.vypy_surrogate_functions import build_gpr_models
+
 from SUAVE.Optimization.Package_Setups.pyopt_surrogate_setup import pyopt_surrogate_setup
 from read_optimization_outputs import read_optimization_outputs
 import numpy as np
@@ -92,7 +95,15 @@ class Surrogate_Optimization(Data):
         for j in range(0,self.max_iterations):
       
             surr_iterations, surr_obj_values, surr_inputs, surr_constraints = read_optimization_outputs(filename, base_inputs, base_constraints)
-            obj_surrogate, constraints_surrogates ,surrogate_function = build_svr_models(surr_obj_values, surr_inputs ,surr_constraints, C = 1E5, epsilon=.01 )
+            if self.surrogate_model == 'SVR':
+                obj_surrogate, constraints_surrogates ,surrogate_function = build_svr_models(surr_obj_values, surr_inputs ,surr_constraints, C = 1E5, epsilon=.01 )
+            elif self.surrogate_model == 'Kriging':
+                obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
+            
+            elif self.surrogate_model == 'GPR':
+                obj_surrogate, constraints_surrogates ,surrogate_function = build_gpr_models(surr_obj_values, surr_inputs ,surr_constraints, base_inputs)
+            
+            
             surrogate_problem = pyopt_surrogate_setup(surrogate_function, base_inputs, base_constraints)
         
             t3 = time.time()
