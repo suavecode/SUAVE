@@ -1050,7 +1050,7 @@ class Turbofan_TASOPT(Propulsor):
                 #print "Residual : ",R,np.linalg.norm(R),np.linalg.norm(R2),self.offdesign_params.N_spec
 
 
-                print "Results : ", R.T , results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
+                #print "Results : ", R.T , results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
                 
                 
                 

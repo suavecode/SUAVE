@@ -35,7 +35,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
-class Turbofan_TASOPT(Propulsor):
+class Turbofan_TASOPT_Net(Propulsor):
     
     def __defaults__(self):
         
@@ -158,12 +158,26 @@ class Turbofan_TASOPT(Propulsor):
 
         a0 = np.sqrt(gamma*R*T0)
         u0 = M0*a0
+        Dh = .5*u0*u0
         
         #freestream stagnation properties
-        Tt0 = Tt(M0, T0, gamma)
-        Pt0 = Pt(M0, P0, gamma)
-        ht0 = Cp*Tt0
+        #Tt0 = Tt(M0, T0, gamma)
+        #Pt0 = Pt(M0, P0, gamma)
+        #ht0 = Cp*Tt0
         h0  = Cp*T0
+        
+        ram = self.ram        
+        ram.inputs.total_temperature = T0
+        ram.inputs.total_pressure    = P0
+        ram.inputs.total_enthalpy    = h0
+        ram.inputs.delta_enthalpy    = Dh
+        ram.inputs.working_fluid.specific_heat     = Cp
+        ram.inputs.working_fluid.gamma             = gamma
+        ram.compute_flow()
+        
+        Tt0 = ram.outputs.total_temperature
+        Pt0 = ram.outputs.total_pressure
+        ht0 = ram.outputs.total_enthalpy
         
         #inlet conditions
         Pt1_8 = Pt0*dp.pi_d
@@ -829,7 +843,7 @@ class Turbofan_TASOPT(Propulsor):
                 #print "Residual : ",R,np.linalg.norm(R),np.linalg.norm(R2),self.offdesign_params.N_spec
 
 
-                print "Results : ", R.T , results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
+                #print "Results : ", R.T , results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
                 
                 
                 

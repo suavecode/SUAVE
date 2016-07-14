@@ -45,7 +45,6 @@ import math
 
 class Turbofan_Deck_I(Propulsor):
     
-    "Works only with constant throttle segments as the throttle information is present in the data"
     
     def __defaults__(self):
         
