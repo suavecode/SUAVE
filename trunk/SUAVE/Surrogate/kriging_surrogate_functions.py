@@ -1,6 +1,6 @@
 # kriging_surrogate_functions.py
 #
-# Created:  May 206, M. Vegh
+# Created:  May 2016, M. Vegh
 # Modified:
 
 
@@ -12,7 +12,7 @@
 from SUAVE.Core import Units, Data
 
 from pyKriging.krige import kriging  
-
+from Surrogate_Problem import Surrogate_Problem
 import numpy as np
 import time
 
