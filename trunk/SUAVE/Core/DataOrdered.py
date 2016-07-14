@@ -342,10 +342,10 @@ def _reconstructor(klass,items):
 
 if __name__ == '__main__':
     
-    d = Data()
+    d = DataOrdered()
     d.tag = 'data name'
     d['value'] = 132
-    d.options = Data()
+    d.options = DataOrdered()
     d.options.field = 'of greens'
     d.options.half  = 0.5
     print d
@@ -353,10 +353,10 @@ if __name__ == '__main__':
     import numpy as np
     ones = np.ones([10,1])
         
-    m = Data()
+    m = DataOrdered()
     m.tag = 'numerical data'
     m.hieght = ones * 1.
-    m.rates = Data()
+    m.rates = DataOrdered()
     m.rates.angle  = ones * 3.14
     m.rates.slope  = ones * 20.
     m.rates.special = 'nope'
