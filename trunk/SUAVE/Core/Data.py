@@ -386,6 +386,45 @@ class Data(dict):
          
         # done!
         return self     
+    
+    def do_recursive(self,method,other=None,default=None):
+    
+        # result data structure
+        klass = self.__class__
+        if isinstance(klass,Data):
+            klass = Data
+        result = klass()
+    
+        # the update function
+        def do_operation(A,B,C):
+            for k,a in A.iteritems():
+                if isinstance(B,Data):
+                    if B.has_key(k):
+                        b = B[k]
+                    else: 
+                        continue
+                else:
+                    b = B
+                # recursion
+                if isinstance(a,Data):
+                    c = klass()
+                    C[k] = c
+                    do_operation(a,b,c)
+                # method
+                else:
+                    if b is None:
+                        c = method(a)
+                    else:
+                        c = method(a,b)
+                    if not c is None:
+                        C[k] = c
+                #: if type
+            #: for each key,value
+    
+        # do the update!
+        do_operation(self,other,result)    
+    
+        return result
 
 def bunchify(x):
     if isinstance(x, dict):
