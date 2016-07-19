@@ -33,7 +33,7 @@ def build_gpr_models(obj_values, inputs, constraints, base_inputs):
         ubd = bnd[j][1]*input_units[j]/(scl[j])
         bounds.append([lbd, ubd])
     bounds = np.array(bounds)
-    print bounds
+
     # start a training data object
     Model                 = gpr.library.Gaussian(bounds, inputs, obj_values) #start training object
     obj_surrogate         = Data()

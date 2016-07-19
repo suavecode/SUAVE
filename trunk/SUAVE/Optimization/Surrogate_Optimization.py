@@ -31,7 +31,7 @@ class Surrogate_Optimization(Data):
         self.surrogate_model       = None #Kriging, SVR, GPR  #used for different options for 
         self.optimization_filename = None  #where you keep track of results
         self.number_of_points      = 0.
-        self.max_iterations        = 50
+        self.max_iterations        = 100
         
     def build_surrogate(self):
         #unpack

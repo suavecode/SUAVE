@@ -117,12 +117,13 @@ class Sizing_Loop(Data):
                 
 
                 else:
+                    
                     if nr_start==0:
                         err,y, i   = self.newton_raphson_update(y_save2, err, function_eval, nexus, scaling, i, iteration_options)
-                        nr_start=1
+                        nr_start =1
                     else:
                         err,y, i   = self.newton_raphson_update(y, err, function_eval, nexus, scaling, i, iteration_options)
-                
+                        nr_start = 1
            
            
        
@@ -143,9 +144,10 @@ class Sizing_Loop(Data):
             print 'err=', err
             
             j+=1
-            if i>max_iter:
-                
-                print "###########maximum number of iterations exceeded##########"
+            
+            if i>max_iter: # or any(kk > 500 for kk in y):
+                err=float('nan')*np.ones(np.size(err))
+                print "###########sizing loop did not converge##########"
                 break
     
         if i<max_iter and not np.isnan(err).any():  #write converged values to file
@@ -205,9 +207,9 @@ class Sizing_Loop(Data):
             err, y_out = function_eval(y_update, nexus, scaling)
             iter += 1 
             print 'err_out=', err
-        except np.linalg.LinAlgError("Singular matrix"):
+        except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use fixed point'
-            err, y_update, iter = fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options)
+            err, y_update, iter = self.fixed_point_update(y, err, function_eval, nexus, scaling, iter, iteration_options)
         
        
         return err, y_update, iter
@@ -229,7 +231,7 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
         xu=1.*x;
         xu[i]=x[i]+h *x[i]  #use FD step of H*x
         fu, y_out = my_function(xu, inputs,scaling)
-        print 'fu=', fu
+        
         print 'fbase=', f
         J[:,i] = (fu-f)/(xu[i]-x[i])
         iter=iter+1
