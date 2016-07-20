@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag

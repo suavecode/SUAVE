@@ -50,8 +50,14 @@ def propeller_design(prop_attributes):
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = [ v[0] for v in atmosphere.compute_values(alt) ]
-    nu = mu/rho
+    atmo_data = atmosphere.compute_values(alt)
+    
+    p   = atmo_data.pressure[0]
+    T   = atmo_data.temperature[0]
+    rho = atmo_data.density[0]
+    a   = atmo_data.speed_of_sound[0]
+    mu  = atmo_data.dynamic_viscosity[0]
+    nu  = mu/rho
     
     # Nondimensional thrust
     Tc = 2.*Thrust/(rho*(V*V)*np.pi*(R*R))

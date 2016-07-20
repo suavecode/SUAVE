@@ -44,11 +44,11 @@ def print_engine_data(vehicle,filename = 'engine_data.dat'):
         raise ValueError, "No engine found in the vehicle"
 
     #        
-    engine_tag          = vehicle.propulsors[0].tag
-    design_thrust       = vehicle.propulsors[0].design_thrust
-    engine_length       = vehicle.propulsors[0].engine_length
-    nacelle_diameter    = vehicle.propulsors[0].nacelle_diameter
-    bypass_ratio        = vehicle.propulsors[0].thrust.bypass_ratio
+    engine_tag          = vehicle.propulsors.turbofan.tag
+    design_thrust       = vehicle.propulsors.turbofan.design_thrust
+    engine_length       = vehicle.propulsors.turbofan.engine_length
+    nacelle_diameter    = vehicle.propulsors.turbofan.nacelle_diameter
+    bypass_ratio        = vehicle.propulsors.turbofan.thrust.bypass_ratio
             
     # Considering planet and atmosphere of 1st mission segment
     sea_level_gravity   =  9.81 #mission.segments[0].planet.sea_level_gravity
@@ -94,7 +94,7 @@ def print_engine_data(vehicle,filename = 'engine_data.dat'):
                 state.conditions.freestream.pressure         = np.array(np.atleast_1d(p))
                 state.conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))   
             
-                results = vehicle.propulsors[0](state) # total thrust
+                results = vehicle.propulsors.turbofan(state) # total thrust
                 thrust[idx] = results.thrust_force_vector[0,0]
                 mdot[idx]   = results.vehicle_mass_rate[0,0]
             

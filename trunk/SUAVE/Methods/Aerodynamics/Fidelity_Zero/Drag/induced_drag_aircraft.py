@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # package imports
 import numpy as np
@@ -39,8 +39,8 @@ def induced_drag_aircraft(state,settings,geometry):
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings[0].span_efficiency
-    ar            = geometry.wings[0].aspect_ratio # TODO: get estimate from weissinger
+    wing_e        = geometry.wings['main_wing'].span_efficiency
+    ar            = geometry.wings['main_wing'].aspect_ratio # TODO: get estimate from weissinger
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     
     if e == None:

@@ -6,7 +6,7 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 

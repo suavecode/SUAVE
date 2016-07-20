@@ -7,9 +7,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# Scipy
-import scipy
 import scipy.optimize
+import numpy as np
 
 from SUAVE.Core.Arrays import array_type
 
@@ -38,7 +37,8 @@ def converge_root(segment,state):
         segment.state.numerics.converged = False
     else:
         segment.state.numerics.converged = True
-    
+         
+                            
     return
     
 # ----------------------------------------------------------------------
@@ -57,4 +57,3 @@ def iterate(unknowns,(segment,state)):
     residuals = state.residuals.pack_array()
         
     return residuals 
-

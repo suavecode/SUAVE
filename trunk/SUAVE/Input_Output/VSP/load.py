@@ -17,7 +17,7 @@ from warnings import warn
 # suave imports
 import SUAVE.Components
 from SUAVE.Input_Output.XML import load as import_from_xml
-from SUAVE.Core  import Data, Container, Data_Exception
+from SUAVE.Core  import Data, Container
 
 
 # ----------------------------------------------------------------------

@@ -35,8 +35,8 @@ class Constant_Speed_Constant_Angle_Noise(Unknown_Throttle):
         #   The Solving Process
         # --------------------------------------------------------------
         initialize = self.process.initialize
+        initialize.expand_state = Methods.Climb.Constant_Speed_Constant_Angle_Noise.expand_state        
         initialize.conditions = Methods.Climb.Constant_Speed_Constant_Angle_Noise.initialize_conditions
-        initialize.expand_state = Methods.Climb.Constant_Speed_Constant_Angle_Noise.expand_state
     
         return
        
