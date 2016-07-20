@@ -51,8 +51,8 @@ class Turbofan_TASOPT_Net(Propulsor):
         self.max_iters         = 80 #1
         self.newton_relaxation = 1.0 
         self.compressor_map_file = "Compressor_map.txt"
-        self.cooling_flow = 0
-        self.no_of_turbine_stages = 0
+        self.cooling_flow = 1
+        self.no_of_turbine_stages = 1
     
     
     _component_root_map = None
@@ -310,53 +310,6 @@ class Turbofan_TASOPT_Net(Propulsor):
         Tt4_1 = Tt4
         Pt4_1 = Pt4
         ht4_1 = ht4
-            
-        
-        if(self.cooling_flow == 1):
-            
-            theta_f = 0.4
-            St_A    = 0.035
-            eta_cf  = 0.7
-            dTemp_streak = 200.0
-            T_metal      = 1400.0
-            M4a          = 0.8
-            ruc          = 0.9
-            
-            Mexit = 0.8
-            Tg_c = np.zeros(self.no_of_turbine_stages) 
-            theta_n = np.zeros(self.no_of_turbine_stages)
-            cooling_massflow = np.zeros(self.no_of_turbine_stages) 
-            total_cooling_massflow = 0.
-            
-            
-            Tg_c[0] = dp.Tt4 + dTemp_streak
-            theta_n[0] = (Tg_c[0]-T_metal)/(Tg_c[0]-Tt3)
-            cooling_massflow[0] = 1./(1. + (eta_cf/St_A*(1.-theta_n[0]))/(theta_n[0]*(1.0 - eta_cf*theta_f) - theta_f*(1.0 - eta_cf)))
-            total_cooling_massflow = cooling_massflow[0]
-            
-
-            #combustor
-            ht4  = Cp*dp.Tt4
-            f    = (ht4 - ht3)*(1.-total_cooling_massflow)/(dp.eta_b*dp.htf-ht4)
-            Pt4  = Pt3*dp.pi_b
-            
-            #compute the 4_1 conditions
-            Tt4_1 = (dp.htf*f/Cp + Tt3)/(1. + f)
-            u4a = M4a*np.sqrt(1.4*287*dp.Tt4)/(np.sqrt(1. + 0.2*M4a*M4a))
-            uc = ruc*u4a
-            
-            u4_1 = ((1.0-total_cooling_massflow + f)*u4a + total_cooling_massflow*uc)/(1.0+f)
-            T4_1 = Tt4_1 - 0.5*u4_1*u4_1/Cp
-            
-            P4_1 = Pt4*((1.0 + 0.2*M4a*M4a)**(-1.4/(0.4)))
-            
-            Pt4_1 = P4_1*((Tt4_1/T4_1)**(1.4/0.4))
-            
-            ht4_1 = Cp*Tt4_1
-            
-            #print
-        
-        
         
         
         #update the bypass ratio

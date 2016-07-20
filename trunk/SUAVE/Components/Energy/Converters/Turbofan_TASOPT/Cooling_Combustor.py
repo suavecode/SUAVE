@@ -32,16 +32,18 @@ class Cooling_Combustor(Energy_Component):
         self.efficiency = 1.
         self.pressure_ratio = 1.
         
-    def compute_flow(self):
+    def compute(self):
          
         Tti = self.inputs.total_temperature
         Pti = self.inputs.total_pressure
         Hti = self.inputs.total_enthalpy
         pi  = self.pressure_ratio
         
-        cp    = self.inputs.working_fluid.cp
+        cp    = self.inputs.working_fluid.specific_heat
         gamma = self.inputs.working_fluid.gamma
         R     = self.inputs.working_fluid.R
+        
+        R = 287.
         
         theta_f = self.film_effectiveness_factor
         St_A    = self.weighted_stanton_number
@@ -58,7 +60,7 @@ class Cooling_Combustor(Energy_Component):
         # Simplifying assumption of only one cooling stage
         Tg_1 = Tt4 + dTemp_steak
         theta_1 = (Tg_1-T_m)/(Tg_1-Tti) # Tti should be Tt3
-        cooling_mass_flow_ratio = 1./(1.+1./St_a*(eta_cf*(1.-theta_1))/(theta_1*(1.-eta_cf*theta_f)-theta_f*(1.-eta_cf)))
+        cooling_mass_flow_ratio = 1./(1.+1./St_A*(eta_cf*(1.-theta_1))/(theta_1*(1.-eta_cf*theta_f)-theta_f*(1.-eta_cf)))
         
         hf  = self.fuel_data.specific_energy
         Ht4 = cp*Tt4
@@ -68,8 +70,10 @@ class Cooling_Combustor(Energy_Component):
         Tt4_1 = (hf*f/cp + Tti)/(1.+f)
         u4a   = M4a/np.sqrt(1.+(gamma-1.)/2.*M4a*M4a)*np.sqrt(gamma*R*Tt4)
         uc    = ruc*u4a
-        
-        u4_1 = u4a*((1.-cooling_mass_flow_ratio+f)*u4a + cooling_mass_flow_ratio*uc)/(1.+f)
+    
+        u4_1 = ((1.-cooling_mass_flow_ratio+f)*u4a + cooling_mass_flow_ratio*uc)/(1.+f)
+        # note that a u4a term appearing in the TASOPT manual has been removed and assumed
+        # to be an error. The units do not work out in the TASOPT equation
         T4_1 = Tt4_1 - .5*u4_1*u4_1/cp
         P4_1 = Pt4*((1.+(gamma-1.)/2.*M4a*M4a)**(-gamma/(gamma-1)))
         
