@@ -92,7 +92,7 @@ def compressibility_drag_wing(state,settings,geometry):
     dcdc_cos3g = 0.0019*mo_mc**14.641
     
     # compressibility drag
-    cd_c = dcdc_cos3g * (cos_sweep)**3
+    cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep
     
     # increment
     #total_compressibility_drag += cd_c
