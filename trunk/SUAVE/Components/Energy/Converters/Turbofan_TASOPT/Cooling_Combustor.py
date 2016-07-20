@@ -28,7 +28,7 @@ class Cooling_Combustor(Energy_Component):
         self.mixing_zone_start_mach_number = 0.8 # M4a
         self.cooling_flow_velocity_ratio = 0.9 # r_u_c
         self.blade_row_exit_mach_number = 0.8 # M_exit
-        self.flame_total_temperature  = 1400.
+        self.turbine_inlet_temperature  = 1400.
         self.efficiency = 1.
         self.pressure_ratio = 1.
         
@@ -39,9 +39,9 @@ class Cooling_Combustor(Energy_Component):
         Hti = self.inputs.total_enthalpy
         pi  = self.pressure_ratio
         
-        cp = self.inputs.working_fluid.cp
+        cp    = self.inputs.working_fluid.cp
         gamma = self.inputs.working_fluid.gamma
-        R  = self.inputs.working_fluid.R
+        R     = self.inputs.working_fluid.R
         
         theta_f = self.film_effectiveness_factor
         St_A    = self.weighted_stanton_number
@@ -53,7 +53,7 @@ class Cooling_Combustor(Energy_Component):
         Mexit   = self.blade_row_exit_mach_number
         ruc     = self.cooling_flow_velocity_ratio
         
-        Tt4     = self.total_flame_temperature
+        Tt4     = self.turbine_inlet_temperature
         
         # Simplifying assumption of only one cooling stage
         Tg_1 = Tt4 + dTemp_steak

@@ -199,7 +199,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             fan.pressure_ratio        = dp.pi_f
             fan.compute_performance()
             dp.eta_f = fan.polytropic_efficiency
-            eta_test = fan.polytropic_efficiency
             Nfn      = fan.corrected_speed
             dNfn_pif = fan.speed_change_by_pressure_ratio
             dNfn_mf  = fan.speed_change_by_mass_flow
@@ -246,7 +245,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             lpc.pressure_ratio        = dp.pi_lc
             lpc.compute_performance()
             dp.eta_lc = lpc.polytropic_efficiency
-            eta_test  = lpc.polytropic_efficiency
             Nln       = lpc.corrected_speed
             dNln_pilc = lpc.speed_change_by_pressure_ratio
             dNln_mlc  = lpc.speed_change_by_mass_flow
@@ -273,7 +271,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             hpc.pressure_ratio        = dp.pi_hc
             hpc.compute_performance()
             dp.eta_hc = hpc.polytropic_efficiency
-            eta_test  = hpc.polytropic_efficiency
             Nhn       = hpc.corrected_speed
             dNhn_pihc = hpc.speed_change_by_pressure_ratio
             dNhn_mhc  = hpc.speed_change_by_mass_flow
@@ -291,21 +288,31 @@ class Turbofan_TASOPT_Net(Propulsor):
    
    
         # Combustor
-            
-        if(self.cooling_flow == 0):
-            
-            
-            #combustor
-            ht4  = Cp*dp.Tt4
-            f    = (ht4 - ht3)/(dp.eta_b*dp.htf-ht4)
-            Pt4  = Pt3*dp.pi_b
-                
-            Tt4_1 = 1.0*dp.Tt4
-            Pt4_1 = Pt4
-            ht4_1 = Cp*Tt4_1
+        
+        # Some inputs are only used if a cooling combustor is used    
+        combustor = self.combustor
+        combustor.inputs.working_fluid.specific_heat = Cp
+        combustor.inputs.working_fluid.gamma         = gamma
+        combustor.inputs.working_fluid.R             = R
+        combustor.inputs.total_temperature           = Tt3
+        combustor.inputs.total_pressure              = Pt3
+        combustor.inputs.total_enthalpy              = ht3
+        
+        combustor.turbine_inlet_temperature = dp.Tt4
+        
+        combustor.compute()
+        
+        Tt4 = combustor.outputs.total_temperature
+        Pt4 = combustor.outputs.total_pressure
+        ht4 = combustor.outputs.total_enthalpy
+        f   = combustor.outputs.normalized_fuel_flow
+        
+        Tt4_1 = Tt4
+        Pt4_1 = Pt4
+        ht4_1 = ht4
             
         
-        elif(self.cooling_flow == 1):
+        if(self.cooling_flow == 1):
             
             theta_f = 0.4
             St_A    = 0.035

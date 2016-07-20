@@ -18,22 +18,22 @@ class Basic_Combustor(Energy_Component):
     
     def __defaults__(self):
         
-        self.tag = 'Combustor'
+        self.tag = 'Basic_Combustor'
         self.inputs.working_fluid = Data()
         self.pressure_ratio = 1.
         self.efficiency = 1.
         
-    def compute_flow(self):
+    def compute(self):
          
         Tti = self.inputs.total_temperature
         Pti = self.inputs.total_pressure
         Hti = self.inputs.total_enthalpy
         pi  = self.pressure_ratio
         
-        cp = self.inputs.working_fluid.cp
+        cp = self.inputs.working_fluid.specific_heat
         
         Ptf = Pti*pi
-        Ttf = self.flame_total_temperature
+        Ttf = self.turbine_inlet_temperature
         eta = self.efficiency
         hf  = self.fuel_data.specific_energy
         Htf = cp*Ttf
