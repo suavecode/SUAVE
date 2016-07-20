@@ -333,19 +333,14 @@ class Turbofan_TASOPT_Net(Propulsor):
         hpt.inputs.total_enthalpy              = ht4_1
         hpt.inputs.delta_enthalpy              = deltah_ht
         
-        #hpt.polytropic_efficiency = dp.eta_ht
-        
         hpt.compute()
         
         Tt4_5 = hpt.outputs.total_temperature
         Pt4_5 = hpt.outputs.total_pressure
         ht4_5 = hpt.outputs.total_enthalpy
         
-        #Tt4_5     = Tt4_1 + deltah_ht/Cp
-        #Pt4_5     = Pt4_1*(Tt4_5/Tt4_1)**(gamma/((gamma-1.)*dp.eta_ht))
-        #ht4_5     = ht4_1 + deltah_ht
         
-        
+        # Low Pressure Turbine
             
         if(flag == 0): #design iteration
             
