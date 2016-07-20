@@ -9,6 +9,7 @@
 
 # for enforcing attribute style access names
 import string
+from warnings import warn
 chars = string.punctuation + string.whitespace
 t_table = string.maketrans( chars          + string.uppercase , 
                             '_'*len(chars) + string.lowercase )
