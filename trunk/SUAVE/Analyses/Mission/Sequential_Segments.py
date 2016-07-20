@@ -54,15 +54,6 @@ class Sequential_Segments(Mission):
     
     def finalize(self):
         pass
-    
-    def evaluate(self,state=None):
-        if state is None:
-            state = self.state
-        self.process(self,state)
-        return state
-   
-    
-    
 
 # ----------------------------------------------------------------------
 #   Cotnainer Class
