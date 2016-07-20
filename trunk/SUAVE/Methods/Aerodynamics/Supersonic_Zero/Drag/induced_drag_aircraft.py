@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import numpy as np
 
@@ -35,7 +35,7 @@ def induced_drag_aircraft(state,settings,geometry):
     
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
-    ar            = geometry.wings[0].aspect_ratio # TODO: get estimate from weissinger
+    ar            = geometry.wings['main_wing'].aspect_ratio # TODO: get estimate from weissinger
     Mc            = conditions.freestream.mach_number
     
     # start the results

@@ -81,6 +81,7 @@ class Aerodynamics(Basic):
         self.propulsion = Conditions()
         self.propulsion.throttle           = ones_1col * 0
         self.propulsion.battery_energy     = ones_1col * 0
+        self.propulsion.battery_voltage    = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
         self.propulsion.acoustic_outputs       = Conditions()
         self.propulsion.acoustic_outputs.fan   = Conditions()

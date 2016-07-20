@@ -37,10 +37,10 @@ proj.directory-list = [{'dirloc': loc('../../trunk/SUAVE'),
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True},
-                       {'dirloc': loc('../../../../../Desktop/Attributes'),
+                       {'dirloc': loc('../../regression'),
                         'excludes': (),
                         'filter': u'*',
                         'include_hidden': False,
-                        'recursive': False,
+                        'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'

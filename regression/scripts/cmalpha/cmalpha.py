@@ -17,7 +17,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_l
 
 from SUAVE.Core import Units
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 def main():
     #Parameters Required

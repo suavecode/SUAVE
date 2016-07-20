@@ -83,7 +83,7 @@ class Wing(Lofted_Body):
 
         # assert database type
         if not isinstance(segment,Data):
-            raise Component_Exception, 'input component must be of type Data()'
+            raise Exception, 'input component must be of type Data()'
 
         # store data
         self.Segments.append(segment)
@@ -96,7 +96,7 @@ class Wing(Lofted_Body):
 
         # assert database type
         if not isinstance(control_surface,Data):
-            raise Component_Exception, 'input control surface must be of type Data()'
+            raise Exception, 'input control surface must be of type Data()'
 
         # store data
         self.control_surfaces.append(control_surface)

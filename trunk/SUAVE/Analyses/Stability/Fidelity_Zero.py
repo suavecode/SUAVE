@@ -112,8 +112,7 @@ class Fidelity_Zero(Stability):
         dynamic_stability = Data()
         
         # Calculate CL_alpha 
-        if not conditions.has_key('lift_curve_slope'):
-            conditions.lift_curve_slope = datcom(geometry.wings['main_wing'],mach)
+	conditions.lift_curve_slope = datcom(geometry.wings['main_wing'],mach)
         
         # Calculate change in downwash with respect to change in angle of attack
         for surf in geometry.wings:

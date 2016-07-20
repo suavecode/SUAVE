@@ -13,7 +13,6 @@
 from Constant import Constant
 
 # exceptions/warnings
-from SUAVE.Core import Data_Warning
 from warnings import warn
 
 # ----------------------------------------------------------------------

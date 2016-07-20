@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 import numpy as np
 
 # ----------------------------------------------------------------------

@@ -45,7 +45,7 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     cd_compress = Data()
     for idw,wing in enumerate(vehicle.wings):
         cd_compress[wing.tag] = np.zeros((len(mach_vec),len(cl_vec)))
-    cd_compress_tot = np.zeros_like(cd_compress[0])        
+    cd_compress_tot = np.zeros_like(cd_compress.main_wing)        
     
     # Alocatting array necessary for the drag estimation method
     state = Data()

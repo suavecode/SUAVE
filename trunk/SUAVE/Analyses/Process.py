@@ -7,15 +7,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Container
-from Results import Results
-
+from SUAVE.Core import ContainerOrdered, DataOrdered
+from SUAVE.Analyses.Results import Results
 
 # ----------------------------------------------------------------------
 #  Process
 # ----------------------------------------------------------------------
 
-class Process(Container):
+class Process(ContainerOrdered):
     
     verbose = False
     

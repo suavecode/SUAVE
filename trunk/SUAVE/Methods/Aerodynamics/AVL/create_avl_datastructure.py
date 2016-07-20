@@ -11,7 +11,7 @@ import numpy as np
 from copy import deepcopy
 
 # SUAVE Imports
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 # SUAVE-AVL Imports
 from .Data.Inputs   import Inputs

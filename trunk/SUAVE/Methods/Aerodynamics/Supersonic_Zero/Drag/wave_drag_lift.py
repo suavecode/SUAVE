@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #   Wave Drag Lift

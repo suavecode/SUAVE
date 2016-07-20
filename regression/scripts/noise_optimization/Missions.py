@@ -1123,4 +1123,3 @@ def landing_mission_setup(analyses):
     mission.append_segment(segment)
         
     return mission
-

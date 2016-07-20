@@ -97,14 +97,15 @@ def linear_data(N = 16, integration = True, **options):
     D = np.zeros( (N,N) );
     
     # math
-    for i in range(N):
-        for j in range(N):
-            D[i][j] = c[i]*cinv[j]/dA[i][j]
+    c    = np.array(c)
+    cinv = np.array([cinv])
+    cs   = np.multiply(c,cinv.T)
+    D    = np.divide(cs.T,dA)
 
     # more math
     D = D - np.diag( np.sum( D.T, axis=0 ) );
 
-    # --- Integratin operator
+    # --- Integration operator
     
     if integration:
         # invert D except first row and column
