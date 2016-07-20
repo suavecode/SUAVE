@@ -52,7 +52,7 @@ class Body(Data):
 
 		# assert database type
 		if not isinstance(section,Data):
-			raise Component_Exception, 'input component must be of type Data()'
+			raise Exception, 'input component must be of type Data()'
 
 		# store data
 		if orientation.lower() == 'horizontal':

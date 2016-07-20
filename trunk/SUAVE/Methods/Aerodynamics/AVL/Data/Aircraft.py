@@ -29,7 +29,7 @@ class Aircraft(Data):
 	def append_wing(self,wing):
 		# assert database type
 		if not isinstance(wing,Wing):
-			raise Component_Exception, 'input component must be of type AVL.Data.Wing()'
+			raise Exception, 'input component must be of type AVL.Data.Wing()'
 
 		# store data
 		self.wings.append(wing)
