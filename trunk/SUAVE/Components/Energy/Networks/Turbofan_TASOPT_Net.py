@@ -27,7 +27,6 @@ import copy
 
 from SUAVE.Core import Data, Data_Exception, Data_Warning
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components import Component_Exception
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
@@ -342,13 +341,24 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         # Low Pressure Turbine
             
-        if(flag == 0): #design iteration
+        if design_run == True:
             
-            #low pressure turbine 
-            deltah_lt =  -1./(1.+f)*1./dp.etam_lt*((ht2_5 - ht1_9)+ dp.aalpha*(ht2_1 - ht2))  
-            Tt4_9     = Tt4_5 + deltah_lt/Cp
-            Pt4_9     = Pt4_5*(Tt4_9/Tt4_5)**(gamma/((gamma-1.)*dp.eta_lt))
-            ht4_9     = ht4_5 + deltah_lt
+            deltah_lt =  -1./(1.+f)*1./dp.etam_lt*((ht2_5 - ht1_9)+ dp.aalpha*(ht2_1 - ht2)) 
+            
+            lpt = self.low_pressure_turbine
+            
+            lpt.inputs.working_fluid.specific_heat = Cp
+            lpt.inputs.working_fluid.gamma         = gamma
+            lpt.inputs.total_temperature           = Tt4_5
+            lpt.inputs.total_pressure              = Pt4_5
+            lpt.inputs.total_enthalpy              = ht4_5
+            lpt.inputs.delta_enthalpy              = deltah_lt
+            
+            lpt.compute()
+            
+            Tt4_9 = lpt.outputs.total_temperature
+            Pt4_9 = lpt.outputs.total_pressure
+            ht4_9 = lpt.outputs.total_enthalpy
             
             
         else:
