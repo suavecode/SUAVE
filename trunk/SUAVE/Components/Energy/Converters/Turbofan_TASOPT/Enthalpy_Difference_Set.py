@@ -19,9 +19,9 @@ class Enthalpy_Difference_Set(Energy_Component):
     def __defaults__(self):
         
         self.tag = 'Enthalpy_Different_Set'
-        self.P0  = 1.
-        self.T0  = 1.
-        self.Dh  = 1.
+        #self.P0  = 1.
+        #self.T0  = 1.
+        #self.Dh  = 1.
         self.polytropic_efficiency = 1.
         self.inputs.working_fluid = Data()
         

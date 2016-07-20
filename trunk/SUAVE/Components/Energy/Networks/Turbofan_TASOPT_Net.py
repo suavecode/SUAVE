@@ -312,17 +312,38 @@ class Turbofan_TASOPT_Net(Propulsor):
         ht4_1 = ht4
         
         
-        #update the bypass ratio
-        if (flag == 1):
+        # Update the bypass ratio
+        
+        if design_run == False:
             mcore = dp.mlc*(Pt2/dp.Pref)/np.sqrt(Tt2/dp.Tref)/(1.0 + f)
             mfan  = dp.mf*(Pt2/dp.Pref)/np.sqrt(Tt2/dp.Tref)/(1.0 + f)
             dp.aalpha = mfan/mcore
             
-        #high pressure turbine
+            
+        # High Pressure Turbine
+        
         deltah_ht = -1./(1.+f)*1./dp.etam_ht*(ht3-ht2_5)
-        Tt4_5     = Tt4_1 + deltah_ht/Cp
-        Pt4_5     = Pt4_1*(Tt4_5/Tt4_1)**(gamma/((gamma-1.)*dp.eta_ht))
-        ht4_5     = ht4_1 + deltah_ht
+        
+        hpt = self.high_pressure_turbine
+        
+        hpt.inputs.working_fluid.specific_heat = Cp
+        hpt.inputs.working_fluid.gamma         = gamma
+        hpt.inputs.total_temperature           = Tt4_1
+        hpt.inputs.total_pressure              = Pt4_1
+        hpt.inputs.total_enthalpy              = ht4_1
+        hpt.inputs.delta_enthalpy              = deltah_ht
+        
+        #hpt.polytropic_efficiency = dp.eta_ht
+        
+        hpt.compute()
+        
+        Tt4_5 = hpt.outputs.total_temperature
+        Pt4_5 = hpt.outputs.total_pressure
+        ht4_5 = hpt.outputs.total_enthalpy
+        
+        #Tt4_5     = Tt4_1 + deltah_ht/Cp
+        #Pt4_5     = Pt4_1*(Tt4_5/Tt4_1)**(gamma/((gamma-1.)*dp.eta_ht))
+        #ht4_5     = ht4_1 + deltah_ht
         
         
             

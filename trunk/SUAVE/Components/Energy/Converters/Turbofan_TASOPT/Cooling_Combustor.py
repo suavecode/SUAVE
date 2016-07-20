@@ -43,8 +43,6 @@ class Cooling_Combustor(Energy_Component):
         gamma = self.inputs.working_fluid.gamma
         R     = self.inputs.working_fluid.R
         
-        R = 287.
-        
         theta_f = self.film_effectiveness_factor
         St_A    = self.weighted_stanton_number
         eta_cf  = self.cooling_efficiency
