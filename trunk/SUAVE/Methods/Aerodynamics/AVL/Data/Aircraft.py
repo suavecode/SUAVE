@@ -39,7 +39,7 @@ class Aircraft(Data):
 	def append_body(self,body):
 		# assert database type
 		if not isinstance(body,Body):
-			raise Component_Exception, 'input component must be of type AVL.Data.Body()'
+			raise Exception, 'input component must be of type AVL.Data.Body()'
 
 		# store data
 		self.bodies.append(body)
