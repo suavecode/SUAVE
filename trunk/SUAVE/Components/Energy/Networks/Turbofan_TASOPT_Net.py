@@ -145,18 +145,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         throttle = conditions.propulsion.throttle
         N_spec  = throttle.T
         dp.N_spec = throttle.T
-        results = Data()      
-
-        if(flag == 1):
-            #lpc
-            Nln,dp.eta_lc,dNln_pilc,dNln_mlc = self.performance(dp.pi_lc,dp.mlc,0)
-            
-            #hpc
-            Nhn,dp.eta_hc,dNhn_pihc,dNhn_mhc = self.performance(dp.pi_hc,dp.mhc,1)
-            
-            #fpc
-            #Nfn,dp.eta_f,dNfn_pif,dNfn_mf = self.performance(dp.pi_f,dp.mf,2)                       
-
+        results = Data()                            
 
         # Ram calculations
         a0 = np.sqrt(gamma*R*T0)
@@ -209,16 +198,11 @@ class Turbofan_TASOPT_Net(Propulsor):
             fan.corrected_mass_flow   = dp.mf
             fan.pressure_ratio        = dp.pi_f
             fan.compute_performance()
-            #Nfn,dp.eta_f,dNfn_pif,dNfn_mf
             dp.eta_f = fan.polytropic_efficiency
             eta_test = fan.polytropic_efficiency
             Nfn      = fan.corrected_speed
             dNfn_pif = fan.speed_change_by_pressure_ratio
             dNfn_mf  = fan.speed_change_by_mass_flow
-            #fan.polytropic_efficiency = dp.eta_f
-            # add performance calculations here
-            #if dp.eta_f != eta_test:
-                #aaa = 0
             
         fan.inputs.working_fluid.specific_heat = Cp
         fan.inputs.working_fluid.gamma         = gamma
@@ -231,34 +215,82 @@ class Turbofan_TASOPT_Net(Propulsor):
         Pt2_1 = fan.outputs.total_pressure
         ht2_1 = fan.outputs.total_enthalpy
         
-        #Pt2_1 = Pt2*dp.pi_f
-        #Tt2_1 = Tt2*dp.pi_f**((gamma-1.)/(gamma*dp.eta_f))
-        #ht2_1 = Cp*Tt2_1
         
-        #if abs(Tt2_12-Tt2_1) > 1e-6:
-            #aaa = 0
+        # Fan Nozzle
         
-        #fan nozzle
+        fan_nozzle = self.fan_nozzle
+        fan_nozzle.inputs.pressure_ratio    = dp.pi_fn
+        fan_nozzle.inputs.total_temperature = Tt2_1
+        fan_nozzle.inputs.total_pressure    = Pt2_1
+        fan_nozzle.inputs.total_enthalpy    = ht2_1
+
+        fan_nozzle.compute()
+        
+        Tt7 = fan_nozzle.outputs.total_temperature
+        Pt7 = fan_nozzle.outputs.total_pressure
+        ht7 = fan_nozzle.outputs.total_enthalpy
+        
+        # Original code - differs from TASOPT manual
         Pt7 = Pt2_1*dp.pi_fn
         Tt7 = Tt2_1*dp.pi_fn**((gamma-1.)*dp.eta_fn/(gamma))
-        ht7 = Cp*Tt7        
+        ht7 = Cp*Tt7
 
-        #low pressure compressor
-        Pt2_5 = Pt2*dp.pi_lc
-        Tt2_5 = Tt2*dp.pi_lc**((gamma-1.)/(gamma*dp.eta_lc))        
-        ht2_5 = Cp*Tt2_5
-        
-        #high pressure compressor
-        Pt3 = Pt2_5*dp.pi_hc
-        Tt3 = Tt2_5*dp.pi_hc**((gamma-1.)/(gamma*dp.eta_hc))
-        ht3 = Cp*Tt3
+
+        # Low Pressure Compressor
+
+        lpc = self.low_pressure_compressor
+        if design_run:
+            lpc.set_design_condition()
+        else:
+            lpc.corrected_mass_flow   = dp.mlc
+            lpc.pressure_ratio        = dp.pi_lc
+            lpc.compute_performance()
+            dp.eta_lc = lpc.polytropic_efficiency
+            eta_test  = lpc.polytropic_efficiency
+            Nln       = lpc.corrected_speed
+            dNln_pilc = lpc.speed_change_by_pressure_ratio
+            dNln_mlc  = lpc.speed_change_by_mass_flow
             
-        #print " ",T0," ",P0," ",M0
-        #print " ",Pt2," ",Tt2," ",Pt2_1," ",Tt2_1," ",Pt7," ",Tt7," ",Pt2_5," ",Tt2_5," ",Tt3," ",Pt3
-        #print " ",dp.pi_lc," "," ",dp.pi_hc," "," ",dp.pi_f," "
-        #if(flag==1):
-            #print " ",dp.mlc," ",dp.mhc," ",dp.mf
-            #print " ",Nln," ",dp.eta_lc," ",Nhn," ",dp.eta_hc," ",Nfn," ",dp.eta_f           
+        lpc.inputs.working_fluid.specific_heat = Cp
+        lpc.inputs.working_fluid.gamma         = gamma
+        lpc.inputs.total_temperature           = Tt2
+        lpc.inputs.total_pressure              = Pt2
+        lpc.inputs.total_enthalpy              = ht2
+        lpc.compute()
+        
+        Tt2_5 = lpc.outputs.total_temperature
+        Pt2_5 = lpc.outputs.total_pressure
+        ht2_5 = lpc.outputs.total_enthalpy
+
+        
+        # High Pressure Compressor
+        
+        hpc = self.high_pressure_compressor
+        if design_run:
+            hpc.set_design_condition()
+        else:
+            hpc.corrected_mass_flow   = dp.mhc
+            hpc.pressure_ratio        = dp.pi_hc
+            hpc.compute_performance()
+            dp.eta_hc = hpc.polytropic_efficiency
+            eta_test  = hpc.polytropic_efficiency
+            Nhn       = hpc.corrected_speed
+            dNhn_pihc = hpc.speed_change_by_pressure_ratio
+            dNhn_mhc  = hpc.speed_change_by_mass_flow
+            
+        hpc.inputs.working_fluid.specific_heat = Cp
+        hpc.inputs.working_fluid.gamma         = gamma
+        hpc.inputs.total_temperature           = Tt2_5
+        hpc.inputs.total_pressure              = Pt2_5
+        hpc.inputs.total_enthalpy              = ht2_5
+        hpc.compute()
+        
+        Tt3 = hpc.outputs.total_temperature
+        Pt3 = hpc.outputs.total_pressure
+        ht3 = hpc.outputs.total_enthalpy        
+   
+   
+        # Combustor
             
         if(self.cooling_flow == 0):
             
@@ -505,13 +537,19 @@ class Turbofan_TASOPT_Net(Propulsor):
             dpp.mhcD = mhcD
             dpp.mlcD = mlcD
             dpp.mfD  = mfD
-            fan.speed_map.design_mass_flow = mfD
+            fan.speed_map.design_mass_flow      = mfD
             fan.efficiency_map.design_mass_flow = mfD
+            lpc.speed_map.design_mass_flow      = mlcD
+            lpc.efficiency_map.design_mass_flow = mlcD
+            hpc.speed_map.design_mass_flow      = mhcD
+            hpc.efficiency_map.design_mass_flow = mhcD
+            
             
             dpp.NlcD = NlcD
             dpp.NhcD = NhcD
             dpp.NlD  = NlD
             dpp.NhD  = NhD
+            
             
             dpp.mhtD = mhtD
             dpp.mltD = mltD
@@ -530,6 +568,8 @@ class Turbofan_TASOPT_Net(Propulsor):
             dpp.Nhn  = NhD  
             dpp.Nfn  = NlD
             fan.speed_map.Nd   = NlD
+            lpc.speed_map.Nd   = NlD
+            hpc.speed_map.Nd   = NhD
             
             dpp.Pt5  = Pt5
             dpp.Tt4_Tt2 = dp.Tt4/Tt2
@@ -1164,11 +1204,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         #fan
         elif(flag == 2):
             pb = (pid-1.)/(dp.pi_f-1.)
-            if dp.pi_f != 1.68:
-                aaa = 0
             mb = mdot/odp.mfD 
-            if mb != 1:
-                aaa = 0
             eng_paras.etapol0 = dp.eta_f
             eng_paras.mb0     = dp.mfD
             eng_paras.a       = 3.0
