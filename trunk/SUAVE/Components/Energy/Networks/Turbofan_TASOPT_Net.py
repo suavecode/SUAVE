@@ -132,6 +132,9 @@ class Turbofan_TASOPT_Net(Propulsor):
             dp = self.offdesign_params
         
         
+        #if abs(dp.pi_f-1.68)>.1:
+            #aaa = 0
+        
         P0 = conditions.freestream.pressure.T
         T0 = conditions.freestream.temperature.T
         M0  = conditions.freestream.mach_number.T
@@ -152,7 +155,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             Nhn,dp.eta_hc,dNhn_pihc,dNhn_mhc = self.performance(dp.pi_hc,dp.mhc,1)
             
             #fpc
-            Nfn,dp.eta_f,dNfn_pif,dNfn_mf = self.performance(dp.pi_f,dp.mf,2)                       
+            #Nfn,dp.eta_f,dNfn_pif,dNfn_mf = self.performance(dp.pi_f,dp.mf,2)                       
 
 
         # Ram calculations
@@ -194,31 +197,46 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         # Fan
         
-        #if flag == 0:
-            #design_run = True
-        #else:
-            #design_run = False
-        #fan = self.fan
+        if flag == 0:
+            design_run = True
+        else:
+            design_run = False
+        fan = self.fan
         
-        #if design_run:
-            #fan.set_design_condition()
-        #else:
+        if design_run:
+            fan.set_design_condition()
+        else:
+            fan.corrected_mass_flow   = dp.mf
+            fan.pressure_ratio        = dp.pi_f
+            fan.compute_performance()
+            #Nfn,dp.eta_f,dNfn_pif,dNfn_mf
+            dp.eta_f = fan.polytropic_efficiency
+            eta_test = fan.polytropic_efficiency
+            Nfn      = fan.corrected_speed
+            dNfn_pif = fan.speed_change_by_pressure_ratio
+            dNfn_mf  = fan.speed_change_by_mass_flow
             #fan.polytropic_efficiency = dp.eta_f
-            #pass # add performance calculations here
-        #fan.inputs.working_fluid.specific_heat = Cp
-        #fan.inputs.working_fluid.gamma         = gamma
-        #fan.inputs.total_temperature           = Tt2
-        #fan.inputs.total_pressure              = Pt2
-        #fan.inputs.total_enthalpy              = ht2
-        #fan.compute()
+            # add performance calculations here
+            #if dp.eta_f != eta_test:
+                #aaa = 0
+            
+        fan.inputs.working_fluid.specific_heat = Cp
+        fan.inputs.working_fluid.gamma         = gamma
+        fan.inputs.total_temperature           = Tt2
+        fan.inputs.total_pressure              = Pt2
+        fan.inputs.total_enthalpy              = ht2
+        fan.compute()
         
-        #Tt2_1 = fan.outputs.total_temperature
-        #Pt2_1 = fan.outputs.total_pressure
-        #ht2_1 = fan.outputs.total_enthalpy
+        Tt2_1 = fan.outputs.total_temperature
+        Pt2_1 = fan.outputs.total_pressure
+        ht2_1 = fan.outputs.total_enthalpy
         
-        Pt2_1 = Pt2*dp.pi_f
-        Tt2_1 = Tt2*dp.pi_f**((gamma-1.)/(gamma*dp.eta_f))
-        ht2_1 = Cp*Tt2_1
+        #Pt2_1 = Pt2*dp.pi_f
+        #Tt2_1 = Tt2*dp.pi_f**((gamma-1.)/(gamma*dp.eta_f))
+        #ht2_1 = Cp*Tt2_1
+        
+        #if abs(Tt2_12-Tt2_1) > 1e-6:
+            #aaa = 0
         
         #fan nozzle
         Pt7 = Pt2_1*dp.pi_fn
@@ -487,6 +505,8 @@ class Turbofan_TASOPT_Net(Propulsor):
             dpp.mhcD = mhcD
             dpp.mlcD = mlcD
             dpp.mfD  = mfD
+            fan.speed_map.design_mass_flow = mfD
+            fan.efficiency_map.design_mass_flow = mfD
             
             dpp.NlcD = NlcD
             dpp.NhcD = NhcD
@@ -509,6 +529,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             dpp.Nln  = NlD
             dpp.Nhn  = NhD  
             dpp.Nfn  = NlD
+            fan.speed_map.Nd   = NlD
             
             dpp.Pt5  = Pt5
             dpp.Tt4_Tt2 = dp.Tt4/Tt2
@@ -1143,9 +1164,13 @@ class Turbofan_TASOPT_Net(Propulsor):
         #fan
         elif(flag == 2):
             pb = (pid-1.)/(dp.pi_f-1.)
+            if dp.pi_f != 1.68:
+                aaa = 0
             mb = mdot/odp.mfD 
+            if mb != 1:
+                aaa = 0
             eng_paras.etapol0 = dp.eta_f
-            eng_paras.mb0     = odp.mfD
+            eng_paras.mb0     = dp.mfD
             eng_paras.a       = 3.0
             eng_paras.da      = -0.5
             eng_paras.c       = 3.0
@@ -1154,7 +1179,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             eng_paras.DD      = 15.0 
             eng_paras.k       = 0.03
             eng_paras.b       = 0.85
-            eng_paras.Nd      = odp.Nfn
+            eng_paras.Nd      = dp.Nfn
             eng_paras.CC2     = 0.1
             eng_paras.piD = dp.pi_f
                   
@@ -1251,6 +1276,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         etapol = etapol0*(1. - CC2*(np.abs(pb/mb-1.0))**c)
         
         #print etapol
+        
+        if flag == 2:
+            aaa = 0
         
         return etapol
         

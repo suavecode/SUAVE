@@ -19,20 +19,20 @@ class Efficiency_Map(Data):
     def __defaults__(self):
         self.polytropic_efficiency = .9
         self.c              = 3.
-        self.C              = 2.5
+        self.C              = 0.1
         
-    def compute_speed(self):
+    def compute_efficiency(self,pi,md):
 
-        eta_0 = self.polytropic_efficiency
+        eta_0 = self.design_polytropic_efficiency
         c  = self.c
         C  = self.C
-        pi = self.pressure_ratio
-        pD = self.design_pressure_ratio
-        mD = self.design_mass_flow
-        md = self.inputs.mass_flow
+        #pi  = self.pressure_ratio
+        piD = self.design_pressure_ratio
+        mD  = self.design_mass_flow
+        #md  = self.mass_flow
         
         mb = md/mD
-        pb = (pi-1.)/(pD-1.)
+        pb = (pi-1.)/(piD-1.)
 
         
         eta_offdesign = eta_0*(1. - C*(np.abs(pb/mb-1.)**c))

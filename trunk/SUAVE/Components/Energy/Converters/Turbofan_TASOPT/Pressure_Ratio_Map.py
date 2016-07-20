@@ -22,20 +22,21 @@ class Pressure_Ratio_Map(Data):
         self.b              = 0.85
         self.k              = 0.03
         
-    def compute_speed(self):
+    def compute_speed(self,pi,md):
         a = self.a
         b = self.b
         k = self.k
-        pi = self.pressure_ratio
-        pD = self.design_pressure_ratio
-        mD = self.design_mass_flow
-        md = self.inputs.mass_flow
+        #pi = self.pressure_ratio
+        piD = self.design_pressure_ratio
+        mD  = self.design_mass_flow
+        #md = self.inputs.mass_flow
         
         mb = md/mD
         
-        Nd = self.inputs.Nd
+        Nd = self.Nd
+        mb0 = mD
         
-        pb = (pi-1.)/(pD-1.)
+        pb = (pi-1.)/(piD-1.)
         R = 1.0 # base residual
         Nb = 0.5*np.ones(pb.shape)# N tilde
         dN = 1.e-8
@@ -67,3 +68,5 @@ class Pressure_Ratio_Map(Data):
         Nb = Nb*Nd
     
         return Nb,dN_dpi,dN_dm        
+    
+    
