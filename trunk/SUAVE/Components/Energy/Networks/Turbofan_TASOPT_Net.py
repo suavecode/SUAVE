@@ -217,7 +217,6 @@ class Turbofan_TASOPT_Net(Propulsor):
         # Fan Nozzle
         
         fan_nozzle = self.fan_nozzle
-        fan_nozzle.inputs.pressure_ratio    = dp.pi_fn
         fan_nozzle.inputs.total_temperature = Tt2_1
         fan_nozzle.inputs.total_pressure    = Pt2_1
         fan_nozzle.inputs.total_enthalpy    = ht2_1
@@ -360,7 +359,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             Pt4_9 = lpt.outputs.total_pressure
             ht4_9 = lpt.outputs.total_enthalpy
             
-            
         else:
             
             pi_lt = 1.0/dp.pi_tn*(dp.Pt5/Pt4_5)
@@ -369,34 +367,42 @@ class Turbofan_TASOPT_Net(Propulsor):
             ht4_9 = Cp*Tt4_9 
         
         
+        # Core Nozzle
+        # Sometimes tn is used for turbine nozzle
         
-        #print" aalpha : ",dp.Tt4," ",Tt4_1," ",f," ",dp.aalpha," ",Tt4_5," ",Pt4_5," ",Tt4_9," ",Pt4_9
-        
-        
-        #turbine nozzle
-        Pt5 = Pt4_9*dp.pi_tn
-        Tt5 = Tt4_9
-        ht5 = ht4_9        
+        core_nozzle = self.core_nozzle
+        core_nozzle.inputs.total_temperature = Tt4_9
+        core_nozzle.inputs.total_pressure    = Pt4_9
+        core_nozzle.inputs.total_enthalpy    = ht4_9
+    
+        core_nozzle.compute()
+    
+        Tt5 = core_nozzle.outputs.total_temperature
+        Pt5 = core_nozzle.outputs.total_pressure
+        ht5 = core_nozzle.outputs.total_enthalpy    
             
             
-        #core exhaust
-        Pt6 = Pt5
-        Tt6 = Tt5
-        ht6 = Cp*Tt6
+        # Core Exhaust
         
-        P6 = Pt6*(P0/Pt6)
-        T6 = Tt6*(P0/Pt6)**((gamma-1.)/(gamma))
-        h6 = Cp*T6        
+        # set pressure ratio to atmospheric
         
-        if(Tt6<T6):
-            M6 = 1.0
-            T6 = Tt6/(1+0.2*M6**2.0)
-            u6 = M6*np.sqrt(gamma*R*T6)
-        else:
-            u6 = np.sqrt(2.0*(ht6-h6))
+        core_exhaust = self.core_exhaust
+        core_exhaust.pressure_ratio = P0/Pt5
+        core_exhaust.inputs.working_fluid.specific_heat = Cp
+        core_exhaust.inputs.working_fluid.gamma         = gamma
+        core_exhaust.inputs.working_fluid.R             = R        
+        core_exhaust.inputs.total_temperature = Tt5
+        core_exhaust.inputs.total_pressure    = Pt5
+        core_exhaust.inputs.total_enthalpy    = ht5
+        
+        core_exhaust.compute()
+        
+        T6 = core_exhaust.outputs.static_temperature
+        u6 = core_exhaust.outputs.flow_speed
         
         
-        #fan exhaust
+        # Fan Exhaust
+        
         Pt8 = Pt7
         Tt8 = Tt7
         ht8 = Cp*Tt7
@@ -709,7 +715,13 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         #Unpack components
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+        atmo_data = atmosphere.compute_values(altitude,delta_isa)
+    
+        p   = atmo_data.pressure          
+        T   = atmo_data.temperature       
+        rho = atmo_data.density          
+        a   = atmo_data.speed_of_sound    
+        mu  = atmo_data.dynamic_viscosity  
         
         # setup conditions
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -750,7 +762,13 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         #call the atmospheric model to get the conditions at the specified altitude
         atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p,T,rho,a,mu = atmosphere_sls.compute_values(altitude,0.0)
+        atmo_data = atmosphere_sls.compute_values(altitude,0.0)
+    
+        p   = atmo_data.pressure          
+        T   = atmo_data.temperature       
+        rho = atmo_data.density          
+        a   = atmo_data.speed_of_sound    
+        mu  = atmo_data.dynamic_viscosity  
     
         # setup conditions
         conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
