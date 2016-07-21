@@ -32,7 +32,7 @@ class Mission(Segments.Simple.Container):
     
 
 # ----------------------------------------------------------------------
-#   Cotnainer Class
+#   Container Class
 # ----------------------------------------------------------------------
 
 class Container(ContainerBase):

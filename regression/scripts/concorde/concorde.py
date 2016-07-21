@@ -30,7 +30,7 @@ import copy, time
 
 # More basic SUAVE function
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 # This is a sizing function to fill turbojet parameters

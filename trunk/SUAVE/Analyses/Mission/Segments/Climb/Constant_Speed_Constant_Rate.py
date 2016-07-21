@@ -35,7 +35,10 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         #   The Solving Process
         # --------------------------------------------------------------
         initialize = self.process.initialize
+        
         initialize.conditions = Methods.Climb.Constant_Speed_Constant_Rate.initialize_conditions
     
+        self.process.initialize = initialize
+        
         return
        

@@ -53,6 +53,7 @@ class Motor(Energy_Component):
         # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
+        Cp    = conditions.propulsion.propeller_power_coefficient[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -60,7 +61,6 @@ class Motor(Energy_Component):
         G     = self.gear_ratio
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
-        Cp    = self.propeller_Cp 
         v     = self.inputs.voltage
     
         # Omega
@@ -69,10 +69,16 @@ class Motor(Energy_Component):
         omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
+        omega1[np.isnan(omega1)] = 0.0
         
+        Q = ((v-omega1/Kv)/Res -io)/Kv
         # store to outputs
-        self.outputs.omega = omega1
+       
+        #P = Q*omega1
         
+        self.outputs.torque = Q
+        self.outputs.omega = omega1
+
         return omega1
     
     def current(self,conditions):
@@ -94,12 +100,12 @@ class Motor(Energy_Component):
         """    
         
         # Unpack
-        G    = self.gear_ratio
-        Kv   = self.speed_constant
-        Res  = self.resistance
-        v    = self.inputs.voltage
-        omeg = self.omega(conditions)*G
-        etaG = self.gearbox_efficiency
+        G     = self.gear_ratio
+        Kv    = self.speed_constant
+        Res   = self.resistance
+        v     = self.inputs.voltage
+        omeg  = self.outputs.omega*G
+        etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
@@ -115,3 +121,6 @@ class Motor(Energy_Component):
         conditions.propulsion.etam = etam
         
         return i
+
+        
+    

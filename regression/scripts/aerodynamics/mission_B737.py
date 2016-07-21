@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing

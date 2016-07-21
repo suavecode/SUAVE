@@ -8,9 +8,9 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      wave_drag_lift, wave_drag_volume, wave_drag_body_of_rev
@@ -52,25 +52,28 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings       = geometry.wings
     fuselages   = geometry.fuselages
-    propulsor   = geometry.propulsors[0]
+    propulsor   = geometry.propulsors['turbojet']
 
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Initialize result
     drag_breakdown.compressible = Results()
+    
+    # Use main wing reference area for drag coefficients
+    Sref_main = wings.main_wing.areas.reference
+    
 
     # Iterate through wings
-    for i_wing, wing, in enumerate(wings.values()):
+    for k in wings.keys():
+        
+        wing = wings[k]
 
         # initialize array to correct length
         cd_c = np.array([[0.0]] * len(Mc))
         mcc = np.array([[0.0]] * len(Mc))
         MDiv = np.array([[0.0]] * len(Mc))     
 
-        # Use main wing reference area for drag coefficients
-        if i_wing == 0:
-            Sref_main = wing.areas.reference
 
         # Get main fuselage data - note that name of fuselage is important here
         # This should be changed to be general 
@@ -84,16 +87,16 @@ def compressibility_drag_total(state,settings,geometry):
         cl = conditions.aerodynamics.lift_breakdown.compressible_wings
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
-        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,i_wing,cl,Sref_main)
+        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
         (drag105,a,b) = wave_drag(conditions, 
                                   configuration, 
                                   main_fuselage, 
                                   propulsor, 
                                   wing, 
-                                  num_engines,i_wing,Sref_main,True)
+                                  num_engines,k,Sref_main,True)
 
         # For subsonic mach numbers, use drag divergence correlations to find the drag
-        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,i_wing,cl[Mc <= 0.99],Sref_main)
+        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
 
         # For mach numbers close to 1, use an interpolation to avoid intensive calculations
         cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
@@ -105,7 +108,7 @@ def compressibility_drag_total(state,settings,geometry):
                                                 main_fuselage, 
                                                 propulsor, 
                                                 wing, 
-                                                num_engines,i_wing,Sref_main,False)
+                                                num_engines,k,Sref_main,False)
 
         # Incorporate supersonic results into total compressibility drag coefficient
         (cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
@@ -116,7 +119,7 @@ def compressibility_drag_total(state,settings,geometry):
             crest_critical            = mcc     ,
             divergence_mach           = MDiv    ,
         )
-        drag_breakdown.compressible[wing.tag] = wing_results        
+        drag_breakdown.compressible[k] = wing_results        
     
     # Initialize arrays
     mach       = conditions.freestream.mach_number
@@ -140,9 +143,10 @@ def compressibility_drag_total(state,settings,geometry):
 
     # Dump total comp drag
     total_compressibility_drag = 0.0
-
-    for jj in range(0,i_wing+1):
-        total_compressibility_drag = drag_breakdown.compressible[jj].compressibility_drag + total_compressibility_drag
+        
+    for k in wings.keys():
+        total_compressibility_drag = drag_breakdown.compressible[k].compressibility_drag + total_compressibility_drag
+        
     total_compressibility_drag = total_compressibility_drag + fuse_drag
     total_compressibility_drag = total_compressibility_drag + prop_drag
     drag_breakdown.compressible.total = total_compressibility_drag
@@ -150,7 +154,7 @@ def compressibility_drag_total(state,settings,geometry):
     return total_compressibility_drag
 
 
-def drag_div(Mc_ii,wing,i_wing,cl,Sref_main):
+def drag_div(Mc_ii,wing,k,cl,Sref_main):
     # Use drag divergence mach number to determine drag for subsonic speeds
 
     # Check if the wing is designed for high subsonic cruise
@@ -167,7 +171,7 @@ def drag_div(Mc_ii,wing,i_wing,cl,Sref_main):
         sweep_w = wing.sweep
 
         # Check if this is the main wing, other wings are assumed to have no lift
-        if i_wing == 0:
+        if k == 'main_wing':
             cl_w = cl
         else:
             cl_w = 0
@@ -204,12 +208,12 @@ def drag_div(Mc_ii,wing,i_wing,cl,Sref_main):
     else:
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
-    if i_wing != 0:
+    if k != 'main_wing':
         cd_c = cd_c*wing.areas.reference/Sref_main    
 
     return (cd_c,mcc,MDiv)
 
-def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,i_wing,Sref_main,flag105):
+def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,k,Sref_main,flag105):
     # Use wave drag to determine compressibility drag for supersonic speeds
 
     # Unpack mach number
@@ -236,7 +240,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     cd_c[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
 
     # Convert coefficient to full aircraft value
-    if i_wing != 0:
+    if k != 'main_wing':
         cd_c = cd_c*wing.areas.reference/Sref_main
 
     # Include fuselage and propulsors for one iteration

@@ -11,10 +11,10 @@
 # packages
 import Plugins
 import Core
+import Analyses
 import Methods
 import Attributes
 import Components
-import Analyses
 import Optimization
 import Surrogate
 import Sizing

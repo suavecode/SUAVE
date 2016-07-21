@@ -21,11 +21,10 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components import Component_Exception
 #from SUAVE.Components.Energy.Gas_Turbine import Network
 from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing

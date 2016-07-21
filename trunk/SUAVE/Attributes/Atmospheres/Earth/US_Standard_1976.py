@@ -47,7 +47,13 @@ if __name__ == '__main__':
     
     atmosphere = US_Standard_1976()
     
-    p, T, rho, a, mew = atmosphere.compute_values(h)
+    atmo_data = atmosphere.compute_values(h)
+
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity   
     
     plt.figure(1)
     plt.plot(p,h)

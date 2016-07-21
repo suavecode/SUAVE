@@ -30,7 +30,7 @@ def setup():
     # ------------------------------------------------------------------ 
     
     # size the base config
-    procedure = Data()
+    procedure = Process()
     procedure.simple_sizing = simple_sizing
     
     # find the weights

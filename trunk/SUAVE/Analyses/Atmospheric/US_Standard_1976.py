@@ -127,8 +127,6 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mew = gas.compute_absolute_viscosity(T)
-        
-
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
