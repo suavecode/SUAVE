@@ -204,6 +204,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             
         fan.inputs.working_fluid.specific_heat = Cp
         fan.inputs.working_fluid.gamma         = gamma
+        fan.inputs.working_fluid.R             = R
         fan.inputs.total_temperature           = Tt2
         fan.inputs.total_pressure              = Pt2
         fan.inputs.total_enthalpy              = ht2
@@ -217,6 +218,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         # Fan Nozzle
         
         fan_nozzle = self.fan_nozzle
+        fan_nozzle.inputs.working_fluid.specific_heat = Cp
+        fan_nozzle.inputs.working_fluid.gamma         = gamma
+        fan_nozzle.inputs.working_fluid.R             = R        
         fan_nozzle.inputs.total_temperature = Tt2_1
         fan_nozzle.inputs.total_pressure    = Pt2_1
         fan_nozzle.inputs.total_enthalpy    = ht2_1
@@ -249,6 +253,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             
         lpc.inputs.working_fluid.specific_heat = Cp
         lpc.inputs.working_fluid.gamma         = gamma
+        lpc.inputs.working_fluid.R             = R
         lpc.inputs.total_temperature           = Tt2
         lpc.inputs.total_pressure              = Pt2
         lpc.inputs.total_enthalpy              = ht2
@@ -275,6 +280,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             
         hpc.inputs.working_fluid.specific_heat = Cp
         hpc.inputs.working_fluid.gamma         = gamma
+        hpc.inputs.working_fluid.R             = R
         hpc.inputs.total_temperature           = Tt2_5
         hpc.inputs.total_pressure              = Pt2_5
         hpc.inputs.total_enthalpy              = ht2_5
@@ -371,6 +377,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         # Sometimes tn is used for turbine nozzle
         
         core_nozzle = self.core_nozzle
+        core_nozzle.inputs.working_fluid.specific_heat = Cp
+        core_nozzle.inputs.working_fluid.gamma         = gamma
+        core_nozzle.inputs.working_fluid.R             = R        
         core_nozzle.inputs.total_temperature = Tt4_9
         core_nozzle.inputs.total_pressure    = Pt4_9
         core_nozzle.inputs.total_enthalpy    = ht4_9
@@ -415,100 +424,52 @@ class Turbofan_TASOPT_Net(Propulsor):
         fan_exhaust.compute()
     
         T8 = fan_exhaust.outputs.static_temperature
-        u8 = fan_exhaust.outputs.flow_speed        
+        u8 = fan_exhaust.outputs.flow_speed              
+            
+
+        # Calculate Specific Thrust
         
-        #Pt8 = Pt7
-        #Tt8 = Tt7
-        #ht8 = Cp*Tt7
-        
-        #P8 = Pt8*(P0/Pt8)
-        #T8 = Tt8*(P0/Pt8)**((gamma-1.)/(gamma))
-        #h8 = Cp*T8        
-        #u8 = np.sqrt(2.0*(ht8-h8))        
-            
-            
-            
-        #overall quantities
         Fsp = ((1.+f)*u6 - u0 + dp.aalpha*(u8-u0))/((1.+dp.aalpha)*a0)
         Isp = Fsp/f*a0/g*(1.0+dp.aalpha)
         
         sfc = 3600./Isp  #1./Isp
             
-        #print " Fsp : ",Fsp," ",u8," ",Pt8," ",Tt8," ",Pt6," ",Tt6," ",u6
+        if design_run == True:
             
-        if(flag==0):
-            
-            #run sizing analysis
+            # run sizing analysis
             FD = self.thrust.total_design/(self.number_of_engines)
-            F    = Fsp
-            mdot = 1.0
-            
 
-            #core mass flow computation
+            # Core Mass Flow Calculation
+            
             mdot_core = FD/(Fsp*a0*(1.+dp.aalpha))    
             
-            #fan area sizing
-            T2 = Tt_inv(dp.M2, Tt2, gamma)
-            P2 = Pt_inv(dp.M2, Pt2, gamma)
-            h2 = Cp*T2
-            rho2 = P2/(R*T2)
-            u2 = dp.M2*np.sqrt(gamma*R*T2)
-            A2 = (1.+dp.aalpha)*mdot_core/(rho2*u2)
             
-            df2 = np.sqrt(4.0/np.pi*A2/(1.0-dp.HTR_f**2.0))
+            # Fan Sizing
+            
+            fan.size(mdot_core,dp.M2,dp.aalpha,dp.HTR_f)
+            A2 = fan.entrance_area
             
             
+            # High Pressure Compressor Sizing
             
-            #HP compressor area
-            T2_5 = Tt_inv(dp.M2_5, Tt2_5, gamma)
-            P2_5 = Pt_inv(dp.M2_5, Pt2_5, gamma)
-            h2_5 = Cp*T2_5
-            rho2_5 = P2_5/(R*T2_5)
-            u2_5 = dp.M2_5*np.sqrt(gamma*R*T2_5)
-            A2_5 = (1.+dp.aalpha)*mdot_core/(rho2_5*u2_5)
-            
-            df2_5 = np.sqrt(4./np.pi*A2_5/(1.0-dp.HTR_hc**2.0))            
+            hpc.size(mdot_core,dp.M2,dp.aalpha,dp.HTR_hc)
+            A2_5 = hpc.entrance_area                      
             
             
-            #fan nozzle area
-            M8 = u8/np.sqrt(gamma*R*T8)
+            # Fan Nozzle Area
             
-            if(M8<1):
-                P7 = P0
-                M7 = np.sqrt((((Pt7/P7)**((gamma-1.)/gamma))-1.)*2./(gamma-1.))
+            # Remove after network is complete and above is changed to TASOPT standard
+            fan_nozzle.outputs.total_temperature = Tt7
+            fan_nozzle.outputs.total_enthalpy    = ht7
             
-            else:
-                M7 = 1.0
-                P7 = Pt7/(1.+(gamma-1.)/2.*M7**2.)**(gamma/(gamma-1.))
-                
+            fan_nozzle.size(mdot_core,u8,T8,P0,dp.aalpha)
+            A7 = fan_nozzle.exit_area
             
             
-            T7 = Tt7/(1.+(gamma-1.)/2.*M7**2.)
-            h7 = Cp*T7
-            u7 = np.sqrt(2.0*(ht7-h7))
-            rho7 = P7/(R*T7)
-            A7   = dp.aalpha*mdot_core/(rho7*u7)
+            # Core Nozzle Area
             
-            
-            #core nozzle area
-            M6 = u6/np.sqrt(gamma*R*T6)
-            
-            if(M6<1.):
-                P5 = P0
-                M5 = np.sqrt((((Pt5/P5)**((gamma-1.)/gamma))-1.)*2./(gamma-1.))
-            
-            else:
-                M5 = 1.0
-                P5 = Pt5/(1.+(gamma-1.)/2.*M5**2.)**(gamma/(gamma-1.))
-                
-            
-            
-            T5 = Tt5/(1.+(gamma-1.)/2.*M5**2.)
-            h5 = Cp*T5
-            u5 = np.sqrt(2.0*(ht5-h5))
-            rho5 = P5/(R*T5)
-            A5   = mdot_core/(rho5*u5)            
-            
+            core_nozzle.size(mdot_core,u6,T6,P0)
+            A5 = core_nozzle.exit_area        
             
             
             #spool speed
@@ -711,12 +672,12 @@ class Turbofan_TASOPT_Net(Propulsor):
              
             results.Res = Res
             results.F   = F
+            results.mdot = mdot
 
         
         results.Fsp  = Fsp
         results.Isp  = Isp
         results.sfc  = sfc
-        results.mdot = mdot
         
         
             
@@ -1172,169 +1133,12 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         
         
-    def performance(self,pid,mdot,flag):
-        
-        dp = self.design_params
-        odp = self.offdesign_params   
-        
-        eng_paras = Data() 
-        
-        
-        #low pressure compressure
-        if(flag == 0):
-            pb = (pid-1.)/(dp.pi_lc-1.)
-
-            mb                = mdot/odp.mlcD
-            eng_paras.etapol0 = dp.eta_lc
-            eng_paras.mb0     = odp.mlcD
-            eng_paras.CC2     = 0.1
-            
-            eng_paras.a       = 3.0
-            eng_paras.da      = 0.5
-            eng_paras.c       = 3.0
-            eng_paras.d       = 6.0
-            eng_paras.CC      = 2.5
-            eng_paras.DD      = 15.0 
-            eng_paras.k       = 0.03
-            eng_paras.b       = 0.85
-            eng_paras.Nd      = odp.Nln    
-            eng_paras.piD = dp.pi_lc
-
-        #high pressure compressor
-        elif(flag == 1):
-            pb = (pid-1.)/(dp.pi_hc-1.)
-            mb = mdot/odp.mhcD 
-            eng_paras.etapol0 = dp.eta_hc
-            eng_paras.mb0     = odp.mhcD
-            eng_paras.a       = 1.5
-            eng_paras.da      = 0.5
-            eng_paras.c       = 3.
-            eng_paras.d       = 4.
-            eng_paras.CC      = 15.0
-            eng_paras.DD      = 1.0 
-            eng_paras.k       = 0.03
-            eng_paras.b       = 5.0
-            eng_paras.Nd      = odp.Nhn
-            eng_paras.CC2     = 0.1
-            eng_paras.piD = dp.pi_hc
-                          
-            
-        #fan
-        elif(flag == 2):
-            pb = (pid-1.)/(dp.pi_f-1.)
-            mb = mdot/odp.mfD 
-            eng_paras.etapol0 = dp.eta_f
-            eng_paras.mb0     = dp.mfD
-            eng_paras.a       = 3.0
-            eng_paras.da      = -0.5
-            eng_paras.c       = 3.0
-            eng_paras.d       = 6.0
-            eng_paras.CC      = 2.5
-            eng_paras.DD      = 15.0 
-            eng_paras.k       = 0.03
-            eng_paras.b       = 0.85
-            eng_paras.Nd      = dp.Nfn
-            eng_paras.CC2     = 0.1
-            eng_paras.piD = dp.pi_f
-                  
-        
-        Nb,dN_dpi,dN_dm  = self.speed_map(flag,pb,mb,eng_paras)
-        etapol = self.efficiency_map(flag,pb,mb,eng_paras)
-
-        #print Nb
-        return Nb,etapol,dN_dpi,dN_dm
-
-
-
-
-
-
-    def speed_map(self,flag,pb,mb,eng_paras):
-        odp  = self.offdesign_params
-        dp = self.design_params
-        
-        #compute non dim params dp.Nfc,dp.Nlc,dp.Nhc
-        etapol0 = eng_paras.etapol0
-        mb0     = eng_paras.mb0
-        a       = eng_paras.a
-        da      = eng_paras.da
-        c       = eng_paras.c
-        d       = eng_paras.d
-        CC      = eng_paras.CC
-        DD      = eng_paras.DD 
-        b       = eng_paras.b
-        k       = eng_paras.k
-        Nd      = eng_paras.Nd
-        piD     = eng_paras.piD
-                 
-    
-        R = 1.0
-        Nb = 0.5*np.ones(pb.shape)#/eng_paras.Nd
-        dN = 1.e-8
-        
-        while (np.linalg.norm(R)>1e-8):
-            
-            ms = Nb**b
-            ps = ms**a  
-            
-            Nb_1 = Nb*(1.+dN)
-            ms_1 = Nb_1**b
-            ps_1 = ms_1**a
-            
-            R  = ms + k*(1. - np.exp((pb - ps)/(2.*Nb*k))) - mb
-            R1 = ms_1 + k*(1. - np.exp((pb - ps_1)/(2.*Nb_1*k))) - mb
-            dR = (R1-R)/(dN*Nb)            
-    
-            delN = -R/dR #-R/dR
-            Nb += delN
-            NNNN = 1
-    
-    
-        #print R,pb,mb**a,vvv
-        grad_n = 0.5/Nb*np.exp((pb - ps)/(2.*Nb*k)) 
-        grad_d = b*Nb**(b-1.0) + 0.5/Nb**2.0*np.exp((pb - ps)/(2.*Nb*k))*(a*b*Nb**(a*b) + pb - ps)
-        
-        dN_dpi = Nd*(grad_n/grad_d)/(piD-1.0)
-        dN_dm  = Nd/(mb0*grad_d)
-        
-        
-        
-        Nb = Nb*Nd
-               
-        return Nb,dN_dpi,dN_dm
-        
         
         
            
         
         
         
-    def efficiency_map(self,flag,pb,mb,eng_paras):
-        odp  = self.offdesign_params
-        dp = self.design_params
-        
-        #compute efficiencies dp.eta_lc,dp.eta_hc,dp.eta_f
-        
-        etapol0 = eng_paras.etapol0
-        mb0     = eng_paras.mb0
-        a       = eng_paras.a
-        da      = eng_paras.da
-        c       = eng_paras.c
-        d       = eng_paras.d
-        CC      = eng_paras.CC
-        DD      = eng_paras.DD    
-        b       = eng_paras.b
-        k       = eng_paras.k 
-        CC2     = eng_paras.CC2
-                
-        etapol = etapol0*(1. - CC2*(np.abs(pb/mb-1.0))**c)
-        
-        #print etapol
-        
-        if flag == 2:
-            aaa = 0
-        
-        return etapol
         
 
 
