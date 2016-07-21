@@ -403,14 +403,28 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         # Fan Exhaust
         
-        Pt8 = Pt7
-        Tt8 = Tt7
-        ht8 = Cp*Tt7
+        fan_exhaust = self.fan_exhaust
+        fan_exhaust.pressure_ratio = P0/Pt7
+        fan_exhaust.inputs.working_fluid.specific_heat = Cp
+        fan_exhaust.inputs.working_fluid.gamma         = gamma
+        fan_exhaust.inputs.working_fluid.R             = R        
+        fan_exhaust.inputs.total_temperature = Tt7
+        fan_exhaust.inputs.total_pressure    = Pt7
+        fan_exhaust.inputs.total_enthalpy    = ht7
+    
+        fan_exhaust.compute()
+    
+        T8 = fan_exhaust.outputs.static_temperature
+        u8 = fan_exhaust.outputs.flow_speed        
         
-        P8 = Pt8*(P0/Pt8)
-        T8 = Tt8*(P0/Pt8)**((gamma-1.)/(gamma))
-        h8 = Cp*T8        
-        u8 = np.sqrt(2.0*(ht8-h8))        
+        #Pt8 = Pt7
+        #Tt8 = Tt7
+        #ht8 = Cp*Tt7
+        
+        #P8 = Pt8*(P0/Pt8)
+        #T8 = Tt8*(P0/Pt8)**((gamma-1.)/(gamma))
+        #h8 = Cp*T8        
+        #u8 = np.sqrt(2.0*(ht8-h8))        
             
             
             

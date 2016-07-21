@@ -23,12 +23,31 @@ class Exhaust(Pressure_Difference_Set):
         self.speed_change_by_pressure_ratio = 0.
         self.speed_change_by_mass_flow      = 0.
        
-    def compute(self):
+    def compute(self): 
         
-        pi = self.pessure_ratio
         self.compute_flow()
         
+        # Assume that pressure difference gives static enthalpy
         Hti = self.inputs.total_enthalpy
-        Htf = self.outputs.total_enthalpy
+        Hf  = self.outputs.total_enthalpy   
+        self.outputs.static_enthalpy    = Hf
+        self.outputs.static_pressue     = self.outputs.total_pressure
+        self.outputs.static_temperature = self.outputs.total_temperature
         
-        self.outputs.flow_speed = np.sqrt(2.*(Hti-Htf))
+        self.outputs.total_temperature = self.inputs.total_temperature
+        self.outputs.total_pressure    = self.inputs.total_pressure
+        self.outputs.total_enthalpy    = self.inputs.total_enthalpy
+
+        Tti = self.inputs.total_temperature
+        
+        # If flow should be choked
+        if Hf > Hti:
+            gamma = self.inputs.working_fluid.gamma
+            R     = self.inputs.working_fluid.R
+            M = 1.0
+            Tf = Tti*(1.+(gamma-1.)/2.*M*M)
+            flow_speed = np.sqrt(gamma*R*Tf)
+        else:
+            flow_speed = np.sqrt(2.*(Hti-Hf))
+        
+        self.outputs.flow_speed = flow_speed
