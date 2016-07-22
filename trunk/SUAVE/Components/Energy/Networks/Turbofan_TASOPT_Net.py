@@ -121,7 +121,7 @@ class Turbofan_TASOPT_Net(Propulsor):
 
     
 
-    def evaluate(self,conditions,flag,dp_eval = None):
+    def evaluate(self,conditions,design_run,dp_eval = None):
 
         #Unpack
         
@@ -130,25 +130,21 @@ class Turbofan_TASOPT_Net(Propulsor):
         else:
             dp = self.offdesign_params
         
-        
-        #if abs(dp.pi_f-1.68)>.1:
-            #aaa = 0
-        
-        P0 = conditions.freestream.pressure.T
-        T0 = conditions.freestream.temperature.T
-        M0  = conditions.freestream.mach_number.T
-        gamma = 1.4
-        Cp    = 1.4*287.87/(1.4-1)
-        R     = 287.87
-        g     = 9.81
+        P0 = conditions.freestream.pressure
+        T0 = conditions.freestream.temperature
+        M0 = conditions.freestream.mach_number
+        a0 = conditions.freestream.speed_of_sound
+        u0 = conditions.freestream.velocity
+        gamma = conditions.freestream.gamma
+        Cp    = conditions.freestream.Cp
+        R     = conditions.freestream.R
+        g     = conditions.freestream.gravity
         throttle = conditions.propulsion.throttle
-        N_spec  = throttle.T
-        dp.N_spec = throttle.T
+        N_spec  = throttle
+        dp.N_spec = throttle
         results = Data()                            
 
         # Ram calculations
-        a0 = np.sqrt(gamma*R*T0)
-        u0 = M0*a0
         Dh = .5*u0*u0
         h0  = Cp*T0
         
@@ -184,11 +180,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         
         # Fan
-        
-        if flag == 0:
-            design_run = True
-        else:
-            design_run = False
+    
         fan = self.fan
         
         if design_run:
@@ -230,11 +222,6 @@ class Turbofan_TASOPT_Net(Propulsor):
         Tt7 = fan_nozzle.outputs.total_temperature
         Pt7 = fan_nozzle.outputs.total_pressure
         ht7 = fan_nozzle.outputs.total_enthalpy
-        
-        # Original code - differs from TASOPT manual
-        Pt7 = Pt2_1*dp.pi_fn
-        Tt7 = Tt2_1*dp.pi_fn**((gamma-1.)*dp.eta_fn/(gamma))
-        ht7 = Cp*Tt7
 
 
         # Low Pressure Compressor
@@ -470,10 +457,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             
             # Fan Nozzle Area
             
-            # Remove after network is complete and above is changed to TASOPT standard
-            fan_nozzle.outputs.total_temperature = Tt7
-            fan_nozzle.outputs.total_enthalpy    = ht7
-            
             fan_nozzle.size(mdot_core,u8,T8,P0,dp.aalpha)
             A7 = fan_nozzle.exit_area
             
@@ -679,7 +662,15 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         # setup conditions
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-    
+        freestream_gas = SUAVE.Attributes.Gases.Air()
+        
+        # Note that these calculations are not accounting for temperature, and 
+        # therefore vary slightly from those used to calculate atmosphere parameters.
+        # This means values such as speed of sound will vary slightly if computed with
+        # these outputs directly.
+        gamma = freestream_gas.compute_gamma()
+        Cp    = freestream_gas.compute_cp()
+        R     = freestream_gas.gas_specific_constant
     
     
         # freestream conditions
@@ -692,17 +683,17 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions.freestream.density            = np.atleast_1d(rho)
         conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
         conditions.freestream.gravity            = np.atleast_1d(9.81)
-        conditions.freestream.gamma              = np.atleast_1d(1.4)
-        conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-        conditions.freestream.R                  = 287.87
+        conditions.freestream.gamma              = gamma
+        conditions.freestream.Cp                 = Cp
+        conditions.freestream.R                  = R        
         conditions.freestream.speed_of_sound     = np.atleast_1d(a)
         conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
         
         # propulsion conditions
         conditions.propulsion.throttle           =  np.atleast_1d(1.0)
              
-                
-        results = self.evaluate(conditions, 0)
+        design_run = True
+        results = self.evaluate(conditions, design_run)
         
         self.offdesign_params = deepcopy(self.design_params)
         
@@ -726,7 +717,15 @@ class Turbofan_TASOPT_Net(Propulsor):
     
         # setup conditions
         conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-    
+        freestream_gas = SUAVE.Attributes.Gases.Air()
+        
+        # Note that these calculations are not accounting for temperature, and 
+        # therefore vary slightly from those used to calculate atmosphere parameters.
+        # This means values such as speed of sound will vary slightly if computed with
+        # these outputs directly.
+        gamma = freestream_gas.compute_gamma()
+        Cp    = freestream_gas.compute_cp()
+        R     = freestream_gas.gas_specific_constant
     
     
         # freestream conditions
@@ -739,9 +738,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions_sls.freestream.density            = np.atleast_1d(rho)
         conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
         conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-        conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
-        conditions_sls.freestream.Cp                 = 1.4*287.87/(1.4-1)
-        conditions_sls.freestream.R                  = 287.87
+        conditions_sls.freestream.gamma              = gamma
+        conditions_sls.freestream.Cp                 = Cp
+        conditions_sls.freestream.R                  = R 
         conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
         conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
         
@@ -833,21 +832,14 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         #print conditions.freestream.temperature,conditions.freestream.pressure
         
-        results = self.evaluate(conditions,1)
+        design_run = False
+        results = self.evaluate(conditions,design_run)
         R = results.Res
         bp = self.set_baseline_params(len(throttle))
-        #print "Residual : ",R,np.linalg.norm(R)
-        #print "Results : ", results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
-        #print "Updates  : ",bp
-        #print 
-        
-        #print "Results : ", results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
-        #print "Res : ",R
         
         
         d_bp = np.zeros([8,lvals])
-        
-        #print "T",throttle.T,results.F*self.number_of_engines
+    
         
         if(np.linalg.norm(R)>1e-8):
             
@@ -857,11 +849,6 @@ class Turbofan_TASOPT_Net(Propulsor):
             
                 
                 J = self.jacobian(conditions,bp,R)
-                #print "Jac : ",J
-                #print "Res : ",R
-                
-                #print J.shape,R.shape,d_bp.shape
-                #print J[:,:,0].shape,R[:,0].shape,d_bp[:,0].shape
                 
                 for iarr in range(0,lvals):
                     d_bp[:,iarr] = -np.linalg.solve(J[:,:,iarr], R[:,iarr])
@@ -870,28 +857,9 @@ class Turbofan_TASOPT_Net(Propulsor):
                 
                 bp = bp + self.newton_relaxation*d_bp
                 self.update_baseline_params(bp)
-                results = self.evaluate(conditions,1)
-                R = results.Res
-                 
-                #print R
-                
-                
-                
-                #R2 = np.copy(R)
-                #R2[4] = 0.0                
-                
-                #print "Residual : ",R,np.linalg.norm(R),np.linalg.norm(R2),self.offdesign_params.N_spec
-
-
-                #print "Results : ", R.T , results.Fsp,results.F,results.sfc,self.offdesign_params.Nf,self.offdesign_params.Nl,self.offdesign_params.Nh,self.offdesign_params.mf/self.offdesign_params.mfD,self.offdesign_params.mlc/self.offdesign_params.mlcD,self.offdesign_params.mhc/self.offdesign_params.mhcD
-                
-                
-                
-                #print "Updates  : ",bp        
-                
-                
-                
-                #print "T",throttle.T,results.F*self.number_of_engines                
+                design_run = False
+                results = self.evaluate(conditions,design_run)
+                R = results.Res              
                 
                 
                 if(np.linalg.norm(R)<1e-6):
@@ -1051,7 +1019,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         for i, network_param in enumerate(network_params):
                 network_param[0,:] = bp[i,:]*(1.+dd)
-                results            = self.evaluate(conditions, 1., dp_temp)
+                results            = self.evaluate(conditions, design_run, dp_temp)
                 network_param[0,:] = bp[i,:]
                 jacobian[i,:,:]    = (results.Res - R)/(bp[i,:]*dd) 
         
