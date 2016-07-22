@@ -367,6 +367,9 @@ class Turbofan_TASOPT_Net(Propulsor):
             
         else:
             
+            # Low pressure turbine off design case
+            # A different setup is used for convergence per the TASOPT manual
+            
             pi_lt = 1.0/dp.pi_tn*(dp.Pt5/Pt4_5)
             Pt4_9 = Pt4_5*pi_lt
             Tt4_9 = Tt4_5*pi_lt**((gamma-1.)*dp.eta_lt/(gamma))
@@ -429,10 +432,17 @@ class Turbofan_TASOPT_Net(Propulsor):
 
         # Calculate Specific Thrust
         
-        Fsp = ((1.+f)*u6 - u0 + dp.aalpha*(u8-u0))/((1.+dp.aalpha)*a0)
-        Isp = Fsp/f*a0/g*(1.0+dp.aalpha)
+        thrust = self.thrust
+        thrust.inputs.normalized_fuel_flow_rate = f
+        thrust.inputs.core_exhaust_flow_speed   = u6
+        thrust.inputs.fan_exhaust_flow_speed    = u8
+        thrust.inputs.bypass_ratio              = dp.aalpha
         
-        sfc = 3600./Isp  #1./Isp
+        thrust.compute(conditions)
+        
+        Fsp = thrust.outputs.specific_thrust
+        Isp = thrust.outputs.specific_impulse
+        sfc = thrust.outputs.specific_fuel_consumption
             
         if design_run == True:
             
@@ -563,81 +573,44 @@ class Turbofan_TASOPT_Net(Propulsor):
             dp.Nf = np.sqrt(Tt1_9/dp.Tref)*Nfn
             
                             
-            if(flag == 1):
-                dp.Tt4_spec = dp.Tt4_Tt2*Tt2*(throttle)     
-                #dp.Tt4_spec = 2000.     
+            dp.Tt4_spec = dp.Tt4_Tt2*Tt2*(throttle)        
             
 
             mdot_core = dp.mlc*Pt2/dp.Pref/np.sqrt(Tt2/dp.Tref)
-            Fsp = ((1.+f)*u6 - u0 + dp.aalpha*(u8-u0))/((1.+dp.aalpha)*a0)
             
-            Isp  = Fsp*a0*(1.+dp.aalpha)/(f*g)
-            TSFC = 3600.0/(Isp)
+            thrust.inputs.normalized_fuel_flow_rate = f
+            thrust.inputs.core_exhaust_flow_speed   = u6
+            thrust.inputs.fan_exhaust_flow_speed    = u8
+            thrust.inputs.bypass_ratio              = dp.aalpha
+        
+            thrust.compute(conditions)
+        
+            Fsp = thrust.outputs.specific_thrust
+            Isp = thrust.outputs.specific_impulse
+            sfc = thrust.outputs.specific_fuel_consumption
+            
             F    = Fsp*(1+dp.aalpha)*mdot_core*a0  
             mdot = mdot_core*f
             
             dp.mdot_core = mdot_core
-            #compute dp.M2
-            
-            #fan area sizing
-            T2 = Tt_inv(dp.M2, Tt2, gamma)
-            P2 = Pt_inv(dp.M2, Pt2, gamma)
-            h2 = Cp*T2
-            rho2 = P2/(R*T2)
-            u2 = dp.M2*np.sqrt(gamma*R*T2)
-            
-            #print P0.shape,T2.shape
-            
-            #HP compressor area
-            T2_5 = Tt_inv(dp.M2_5, Tt2_5, gamma)
-            P2_5 = Pt_inv(dp.M2_5, Pt2_5, gamma)
-            h2_5 = Cp*T2_5
-            rho2_5 = P2_5/(R*T2_5)
-            u2_5 = dp.M2_5*np.sqrt(gamma*R*T2_5)         
-            
-            #print " mdot : ",mdot_core," ",Fsp," ",Isp," ",F," ",mdot," ",u2," ",u2_5
-            
-            #fan nozzle area
-            M8 = u8/np.sqrt(gamma*R*T8)
-            
-            P7 = np.zeros(P0.shape)
-            M7 = np.zeros(M0.shape)
-
-            P7[M8<1.] = P0[M8<1] 
-            M7[M8<1.] = (np.sqrt((((Pt7/P7)**((gamma-1.)/gamma))-1.)*2./(gamma-1.)))[M8<1] 
-            
-            M7[M8>=1.] = 1.0
-            P7[M8>=1.]  = (Pt7/(1.+(gamma-1.)/2.*M7**2.)**(gamma/(gamma-1.)))[M8>=1] 
-                
             
             
-            T7 = Tt7/(1.+(gamma-1.)/2.*M7**2.)
-            h7 = Cp*T7
-            u7 = np.sqrt(2.0*(ht7-h7))
-            rho7 = P7/(R*T7)
+            # Fan nozzle flow properties
+            
+            # Remove after network is complete and above is changed to TASOPT standard
+            fan_nozzle.outputs.total_temperature = Tt7
+            fan_nozzle.outputs.total_enthalpy    = ht7            
+            
+            fan_nozzle.compute_static(u8,T8,P0)
+            u7   = fan_nozzle.outputs.flow_speed
+            rho7 = fan_nozzle.outputs.static_density
             
             
-            #core nozzle area
-            M6 = u6/np.sqrt(gamma*R*T6)
+            # Core nozzle flow properties
             
-            
-            P5 = np.zeros(P0.shape)
-            M5 = np.zeros(M0.shape)     
-            
-            #print "M6 : ",M6," M6<1.0 : ",M6<1.0," M5 : ",M5[M6<1.0]
-            
-            P5[M6<1.] = P0[M6<1]
-            M5[M6<1.] = (np.sqrt((((Pt5/P5)**((gamma-1.)/gamma))-1.)*2./(gamma-1.)))[M6<1]
-            
-            M5[M6>=1.] = 1.0
-            P5[M6>=1.] = (Pt5/(1.+(gamma-1.)/2.*M5**2.)**(gamma/(gamma-1.)))[M6>=1]
-                
-            
-            
-            T5 = Tt5/(1.+(gamma-1.)/2.*M5**2.)
-            h5 = Cp*T5
-            u5 = np.sqrt(2.0*(ht5-h5))
-            rho5 = P5/(R*T5)         
+            core_nozzle.compute_static(u6,T6,P0)
+            u5   = core_nozzle.outputs.flow_speed
+            rho5 = core_nozzle.outputs.static_density       
             
             
 
@@ -656,7 +629,9 @@ class Turbofan_TASOPT_Net(Propulsor):
             Res[6,:] = (dp.Nl - dp.N_spec)
             
             
-            #low pressure turbine 
+            # Low pressure turbine off design case
+            # A different setup is used for convergence per the TASOPT manual
+            
             deltah_lt =  -1./(1.+f)*1./dp.etam_lt*((ht2_5 - ht1_9)+ dp.aalpha*(ht2_1 - ht2))  
             Tt4_9     = Tt4_5 + deltah_lt/Cp
             Pt4_9     = Pt4_5*(Tt4_9/Tt4_5)**(gamma/((gamma-1.)*dp.eta_lt))

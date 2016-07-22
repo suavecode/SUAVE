@@ -21,9 +21,7 @@ class Nozzle(Pure_Loss_Set):
     def compute(self):
         self.compute_flow()
         
-    def size(self,mdot,exhaust_velocity,exhaust_temperature,ambient_pressure,flow_ratio = 1.):
-        
-        
+    def compute_static(self,exhaust_velocity,exhaust_temperature,ambient_pressure):
         
         gamma = self.inputs.working_fluid.gamma
         R     = self.inputs.working_fluid.R
@@ -45,6 +43,16 @@ class Nozzle(Pure_Loss_Set):
         h = ht*T/Tt
         u = np.sqrt(2.*(ht-h))
         rho = P/(R*T)
+        
+        self.outputs.static_density = rho
+        self.outputs.flow_speed     = u
+        
+        
+    def size(self,mdot,exhaust_velocity,exhaust_temperature,ambient_pressure,flow_ratio = 1.):
+        
+        self.compute_static(exhaust_velocity, exhaust_temperature, ambient_pressure)
+        rho = self.outputs.static_density
+        u   = self.outputs.flow_speed
         
         # the bypass ratio can be passed as flow_ratio for fan nozzles
         A   = flow_ratio*mdot/(rho*u)
