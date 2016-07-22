@@ -438,11 +438,13 @@ class Turbofan_TASOPT_Net(Propulsor):
         thrust.inputs.fan_exhaust_flow_speed    = u8
         thrust.inputs.bypass_ratio              = dp.aalpha
         
+        conditions.freestream.speed_of_sound = a0
+        conditions.freestream.velocity       = u0
         thrust.compute(conditions)
         
         Fsp = thrust.outputs.specific_thrust
         Isp = thrust.outputs.specific_impulse
-        sfc = thrust.outputs.specific_fuel_consumption
+        sfc = thrust.outputs.specific_fuel_consumption      
             
         if design_run == True:
             
@@ -583,11 +585,13 @@ class Turbofan_TASOPT_Net(Propulsor):
             thrust.inputs.fan_exhaust_flow_speed    = u8
             thrust.inputs.bypass_ratio              = dp.aalpha
         
+            conditions.freestream.speed_of_sound = a0
+            conditions.freestream.velocity       = u0
             thrust.compute(conditions)
         
             Fsp = thrust.outputs.specific_thrust
             Isp = thrust.outputs.specific_impulse
-            sfc = thrust.outputs.specific_fuel_consumption
+            sfc = thrust.outputs.specific_fuel_consumption            
             
             F    = Fsp*(1+dp.aalpha)*mdot_core*a0  
             mdot = mdot_core*f
@@ -1035,74 +1039,26 @@ class Turbofan_TASOPT_Net(Propulsor):
 
     
     def jacobian(self,conditions,bp,R):
+        
         dd = 1e-8
         dp_temp = deepcopy(self.offdesign_params) 
         lvals = len(conditions.propulsion.throttle)
-        #J = np.identity(8)
-        J = np.zeros([8,8,lvals])
+        jacobian = np.zeros([8,8,lvals])
         
-        dp_temp.pi_f[0,:]  = bp[0,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.pi_f[0,:] = bp[0,:]
-        J[0,:,:] = (results.Res - R)/(bp[0,:]*dd)
-        #J[:,0,:] = np.transpose((results.Res - R)/(bp[0,:]*dd))
-        #print results.Res - R,bp[0]*dd,(results.Res - R)/(bp[0]*dd)
+        network_params = [dp_temp.pi_f,dp_temp.pi_lc,dp_temp.pi_hc,dp_temp.mf,dp_temp.mlc,dp_temp.mhc,dp_temp.Tt4,dp_temp.Pt5]
         
+        design_run = False
         
+        for i, network_param in enumerate(network_params):
+                network_param[0,:] = bp[i,:]*(1.+dd)
+                results            = self.evaluate(conditions, 1., dp_temp)
+                network_param[0,:] = bp[i,:]
+                jacobian[i,:,:]    = (results.Res - R)/(bp[i,:]*dd) 
         
-        dp_temp.pi_lc[0,:] = bp[1,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.pi_lc[0,:] = bp[1,:]
-        J[1,:,:] = (results.Res - R)/(bp[1,:]*dd)
-        #J[:,1,:] = np.transpose((results.Res - R)/(bp[1,:]*dd))
-        
-        
-        dp_temp.pi_hc[0,:] = bp[2,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.pi_hc[0,:] = bp[2,:]        
-        J[2,:,:] = (results.Res - R)/(bp[2,:]*dd)
-        #J[:,2,:] = np.transpose((results.Res - R)/(bp[2,:]*dd))
-        
-        
-        dp_temp.mf[0,:]    = bp[3,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.mf[0,:] = bp[3,:] 
-        J[3,:,:] = (results.Res - R)/(bp[3,:]*dd)
-        #J[:,3,:] = np.transpose((results.Res - R)/(bp[3,:]*dd))
-        
-        
-        dp_temp.mlc[0,:]   = bp[4,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.mlc[0,:] = bp[4,:]         
-        J[4,:,:] = (results.Res - R)/(bp[4,:]*dd)
-        #J[:,4,:] = np.transpose((results.Res - R)/(bp[4,:]*dd))
-        
-        
-        dp_temp.mhc[0,:]   = bp[5,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.mhc[0,:] = bp[5,:]            
-        J[5,:,:] = (results.Res - R)/(bp[5,:]*dd)
-        #J[:,5,:] = np.transpose((results.Res - R)/(bp[5,:]*dd))
-        
-        
-        dp_temp.Tt4[0,:]   = bp[6,:]*(1.+dd)
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.Tt4[0,:] = bp[6,:]         
-        J[6,:,:] = (results.Res - R)/(bp[6,:]*dd)
-        #J[:,6,:] = np.transpose((results.Res - R)/(bp[6,:]*dd))
-        
-        
-        dp_temp.Pt5[0,:]   = bp[7,:]*(1.+dd)        
-        results = self.evaluate(conditions, 1., dp_temp)
-        dp_temp.Pt5[0,:] = bp[7,:]         
-        J[7,:,:] = (results.Res - R)/(bp[7,:]*dd)
-        #J[:,7,:] = np.transpose((results.Res - R)/(bp[7,:]*dd))
-        
-        J = np.swapaxes(J, 0, 1)
-        #J = J.T
+        jacobian = np.swapaxes(jacobian, 0, 1)
 
-        #print J
-        return J
+
+        return jacobian
         
         
         
@@ -1147,22 +1103,4 @@ class Turbofan_TASOPT_Net(Propulsor):
 
 
     __call__ = evaluate_thrust
-
-
-
-
-
-def Tt(M,T,gamma):
-    return T*(1.+((gamma-1.)/2. *M**2.))
-
-def Pt(M,P,gamma):
-    return P*((1.+(gamma-1.)/2. *M**2. )**3.5)
-
-
-def Tt_inv(M,Tt,gamma):
-    return Tt/(1.+((gamma-1.)/2. *M**2.))
-    
-
-def Pt_inv(M,Pt,gamma):
-    return Pt/((1.+(gamma-1.)/2. *M**2. )**3.5)
 
