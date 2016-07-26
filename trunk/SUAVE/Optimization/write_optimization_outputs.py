@@ -46,7 +46,7 @@ def write_optimization_outputs(nexus, filename):
     file.write(str(nexus.total_number_of_iterations))
     file.write(' , ')
     file.write('objective = ')
-    file.write(str(scaled_objective))
+    file.write(str(scaled_objective[0]))
     file.write(', inputs = ')
     file.write(str(problem_inputs))
     file.write(', constraints = ')

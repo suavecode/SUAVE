@@ -71,20 +71,20 @@ class Sizing_Loop(Data):
             data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
             if read_success:
                 #check how close inputs are to tabulated values             
-                diff=np.subtract(scaled_inputs, data_inputs)#/input_scaling
+                diff=np.subtract(scaled_inputs, data_inputs)
 
                 for row in diff:
                     row_norm = np.linalg.norm(row)
                     min_norm = min(min_norm, row_norm)
-                    
-                if min_norm<self.iteration_options.max_initial_step and len(data_inputs[0,:])>self.iteration_options.min_svr_length:  #make sure data is close to current guess
+
+                if min_norm<self.iteration_options.max_initial_step: #make sure data is close to current guess
                 
                     if self.initial_step == 'Table':
                         interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
                         y = interp[0]
                 
                     elif self.initial_step == 'SVR':
-                        if min_norm>=self.iteration_options.min_svr_step and len(data_outputs[:,0]) > self.iteration_options.min_svr_length:
+                        if min_norm>=self.iteration_options.min_svr_step and len(data_outputs[:,0]) >= self.iteration_options.min_svr_length:
                             print 'running surrogate'
                             y = []
                             for j in range (len(data_outputs[0,:])):
