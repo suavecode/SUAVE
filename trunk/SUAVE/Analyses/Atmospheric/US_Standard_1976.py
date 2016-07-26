@@ -108,7 +108,7 @@ class US_Standard_1976(Atmospheric):
         
         # populate the altitude breaks
         # this uses >= and <= to capture both edges and because values should be the same at the edges
-        for i in range( len(self.breaks.altitude)-1 ): 
+        for i in xrange( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
             z0[ i_inside ]    = self.breaks.altitude[i]
             T0[ i_inside ]    = self.breaks.temperature[i]

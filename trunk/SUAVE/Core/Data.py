@@ -32,7 +32,7 @@ class Data(dict):
 
     def __setattr__(self, k, v):
         try:
-            object.__getattribute__(self, k)
+            objgetattrib(self, k)
         except:
             self[k] = v
         else:          
@@ -40,7 +40,7 @@ class Data(dict):
             
     def __delattr__(self, k):
         try:
-            object.__getattribute__(self, k)
+            objgetattrib(self, k)
         except:
             del self[k]
         else:
