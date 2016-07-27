@@ -43,4 +43,4 @@ class Container(Data):
         elif isinstance(vals,dict):
             self.update(vals)
         else:
-            raise Data_Exception, 'unrecognized data type'
+            raise Exception, 'unrecognized data type'
