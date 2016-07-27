@@ -41,13 +41,19 @@ class Exhaust(Pressure_Difference_Set):
         Tti = self.inputs.total_temperature
         
         # If flow should be choked
-        if Hf > Hti:
-            gamma = self.inputs.working_fluid.gamma
-            R     = self.inputs.working_fluid.R
-            M = 1.0
-            Tf = Tti*(1.+(gamma-1.)/2.*M*M)
-            flow_speed = np.sqrt(gamma*R*Tf)
-        else:
-            flow_speed = np.sqrt(2.*(Hti-Hf))
+        
+        gamma = self.inputs.working_fluid.gamma
+        R     = self.inputs.working_fluid.R        
+        
+        flow_speed = np.zeros(np.shape(Hti))
+        Tf         = np.zeros(np.shape(Hti))
+        R          = np.ones(np.shape(Hti))*R
+        
+        M = 1.0
+        
+        Tf[Hf>Hti] = Tti[Hf>Hti]*(1.+(gamma[Hf>Hti]-1.)/2.*M*M)
+        flow_speed[Hf>Hti] = np.sqrt(gamma[Hf>Hti]*R[Hf>Hti]*Tf[Hf>Hti])
+        
+        flow_speed[Hf<=Hti] = np.sqrt(2.*(Hti[Hf<=Hti]-Hf[Hf<=Hti]))
         
         self.outputs.flow_speed = flow_speed

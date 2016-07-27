@@ -44,10 +44,10 @@ class Turbofan_TASOPT_Net(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 1.0   
-        
+        self.areas             = Data()
         self.design_params     = None
         self.offdesign_params  = None
-        self.max_iters         = 80 #1
+        self.max_iters         = 800 #1
         self.newton_relaxation = 1.0 
         self.compressor_map_file = "Compressor_map.txt"
         self.cooling_flow = 1
@@ -64,8 +64,7 @@ class Turbofan_TASOPT_Net(Propulsor):
 
         dp    = self.design_params       
         
-        
-        #design parameters---------------------------------------
+        # design parameters
         
         dp.aalpha  = self.bypass_ratio     
         
@@ -110,11 +109,11 @@ class Turbofan_TASOPT_Net(Propulsor):
         dp.Pref    = 101325.0
         
         dp.GF      = 1.0
-        dp.Tt4_spec = np.copy(dp.Tt4) #1680.
+        dp.Tt4_spec = np.copy(dp.Tt4)
         dp.N_spec   = 1.0
         dp.Tt4_Tt2  = 1.0
         
-        #offdesign parameters---------------------------------------
+        # offdesign parameters
         
         odp = copy.deepcopy(dp)
         self.offdesign_params = odp
@@ -122,8 +121,6 @@ class Turbofan_TASOPT_Net(Propulsor):
     
 
     def evaluate(self,conditions,design_run,ep_eval = None):
-
-        #Unpack
         
         if ep_eval:
             ep = ep_eval
@@ -132,14 +129,55 @@ class Turbofan_TASOPT_Net(Propulsor):
         else:
             ep = self.offdesign_params
         
+        # temporary adjustment for testing
+        try:
+            ep.aalpha  = ep.aalpha.T    
+            
+            ep.pi_d    = ep.pi_d.T 
+            ep.eta_d   = ep.eta_d.T 
+            
+            ep.pi_f    = ep.pi_f.T 
+            ep.eta_f   = ep.eta_f.T 
+            
+            ep.pi_fn   = ep.pi_fn.T 
+            ep.eta_fn  = ep.eta_fn.T 
+            
+            ep.pi_lc   = ep.pi_lc.T 
+            ep.eta_lc  = ep.eta_lc.T 
+            
+            ep.pi_hc   = ep.pi_hc.T 
+            ep.eta_hc  = ep.eta_hc.T 
+            
+            ep.Tt4     = ep.Tt4.T 
+            ep.pi_b    = ep.pi_b.T 
+            ep.eta_b   = ep.eta_b.T 
+            
+            ep.eta_lt  = ep.eta_lt.T 
+            ep.etam_lt = ep.etam_lt.T 
+            
+            ep.eta_ht  = ep.eta_ht.T 
+            ep.etam_ht = ep.etam_ht.T 
+            
+            ep.pi_tn   = ep.pi_tn.T 
+            ep.eta_tn  = ep.eta_tn.T        
+            
+            ep.mhc = ep.mhc.T 
+            ep.mlc = ep.mlc.T 
+            ep.mf  = ep.mf.T 
+            
+            ep.Pt5  = ep.Pt5.T 
+            ep.Tt4_Tt2 = ep.Tt4_Tt2.T   
+        except AttributeError:
+            pass
+        
         P0 = conditions.freestream.pressure
         T0 = conditions.freestream.temperature
         M0 = conditions.freestream.mach_number
         a0 = conditions.freestream.speed_of_sound
         u0 = conditions.freestream.velocity
         gamma = conditions.freestream.gamma
-        Cp    = conditions.freestream.Cp
-        R     = conditions.freestream.R
+        Cp    = conditions.freestream.specific_heat
+        R     = conditions.freestream.gas_specific_constant
         g     = conditions.freestream.gravity
         throttle = conditions.propulsion.throttle
         N_spec  = throttle
@@ -176,7 +214,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         Pt2 = inlet_nozzle.outputs.total_pressure
         ht2 = inlet_nozzle.outputs.total_enthalpy
         
-        Tt1_9 = Tt2 # These are needed for other calculations
+        Tt1_9 = Tt2 # These are needed for later calculations
         Pt1_9 = Pt2 
         ht1_9 = ht2 
         
@@ -437,11 +475,10 @@ class Turbofan_TASOPT_Net(Propulsor):
             
         if design_run == True:
             
-            # run sizing analysis
+            # Determine design thrust per engine
             FD = self.thrust.total_design/(self.number_of_engines)
 
             # Core Mass Flow Calculation
-            
             mdot_core = FD/(Fsp*a0*(1.+ep.aalpha))    
             
             
@@ -469,12 +506,12 @@ class Turbofan_TASOPT_Net(Propulsor):
             A5 = core_nozzle.exit_area        
             
             
-            #spool speed
+            # spool speed
             
             NlcD = 1.0
             NhcD = 1.0
             
-            #non dimensionalization
+            # non dimensionalization
             
             NlD = NlcD*1.0/np.sqrt(Tt1_9/ep.Tref)
             NhD = NhcD*1.0/np.sqrt(Tt2_5/ep.Tref)
@@ -536,12 +573,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             
             ep.Pt5  = Pt5
             ep.Tt4_Tt2 = ep.Tt4/Tt2
-            
-            #print
-            
-            
-            
-            
+
             
             
             
@@ -601,27 +633,70 @@ class Turbofan_TASOPT_Net(Propulsor):
             
             #compute offdesign residuals
             
-            
-            Res = np.zeros([8,M0.shape[1]])
-            
-            Res[0,:] = (ep.Nf*ep.GF - ep.Nl)
-            Res[1,:] = ((1.+f)*ep.mhc*np.sqrt(Tt4_1/Tt2_5)*Pt2_5/Pt4_1 - ep.mhtD)
-            Res[2,:] = ((1.+f)*ep.mhc*np.sqrt(Tt4_5/Tt2_5)*Pt2_5/Pt4_5 - ep.mltD)
-            Res[3,:] = (ep.mf*np.sqrt(ep.Tref/Tt2)*Pt2/ep.Pref - rho7*u7*ep.A7)
-            Res[4,:] = ((1.+f)*ep.mhc*np.sqrt(ep.Tref/Tt2_5)*Pt2_5/ep.Pref - rho5*u5*ep.A5)
-            Res[5,:] = (ep.mlc*np.sqrt(ep.Tref/Tt1_9)*Pt1_9/ep.Pref - ep.mhc*np.sqrt(ep.Tref/Tt2_5)*Pt2_5/ep.Pref)           
-            Res[6,:] = (ep.Nl - ep.N_spec)
-            
-            
             # Low pressure turbine off design case
             # A different setup is used for convergence per the TASOPT manual
-            
+        
             deltah_lt =  -1./(1.+f)*1./ep.etam_lt*((ht2_5 - ht1_9)+ ep.aalpha*(ht2_1 - ht2))  
             Tt4_9     = Tt4_5 + deltah_lt/Cp
             Pt4_9     = Pt4_5*(Tt4_9/Tt4_5)**(gamma/((gamma-1.)*ep.eta_lt))
-            ht4_9     = ht4_5 + deltah_lt                
+            ht4_9     = ht4_5 + deltah_lt                    
             
-            Res[7,:] = (ep.Pt5 - Pt4_9*ep.pi_tn)
+            # temporary adjustment for testing    
+            try:
+                ep.aalpha  = ep.aalpha.T    
+                
+                ep.pi_d    = ep.pi_d.T 
+                ep.eta_d   = ep.eta_d.T 
+                
+                ep.pi_f    = ep.pi_f.T 
+                ep.eta_f   = ep.eta_f.T 
+                
+                ep.pi_fn   = ep.pi_fn.T 
+                ep.eta_fn  = ep.eta_fn.T 
+                
+                ep.pi_lc   = ep.pi_lc.T 
+                ep.eta_lc  = ep.eta_lc.T 
+                
+                ep.pi_hc   = ep.pi_hc.T 
+                ep.eta_hc  = ep.eta_hc.T 
+                
+                ep.Tt4     = ep.Tt4.T 
+                ep.pi_b    = ep.pi_b.T 
+                ep.eta_b   = ep.eta_b.T 
+                
+                ep.eta_lt  = ep.eta_lt.T 
+                ep.etam_lt = ep.etam_lt.T 
+                
+                ep.eta_ht  = ep.eta_ht.T 
+                ep.etam_ht = ep.etam_ht.T 
+                
+                ep.pi_tn   = ep.pi_tn.T 
+                ep.eta_tn  = ep.eta_tn.T        
+                
+                ep.mhc = ep.mhc.T 
+                ep.mlc = ep.mlc.T 
+                ep.mf  = ep.mf.T 
+                
+                ep.Pt5  = ep.Pt5.T 
+                ep.Tt4_Tt2 = ep.Tt4_Tt2.T   
+            except AttributeError:
+                pass                
+            
+            
+            Res = np.zeros([8,M0.shape[0]])
+            
+            
+            # temporary transposes
+            Res[0,:] = (ep.Nf*ep.GF - ep.Nl).T
+            Res[1,:] = ((1.+f)*ep.mhc.T*np.sqrt(Tt4_1/Tt2_5)*Pt2_5/Pt4_1 - ep.mhtD).T
+            Res[2,:] = ((1.+f)*ep.mhc.T*np.sqrt(Tt4_5/Tt2_5)*Pt2_5/Pt4_5 - ep.mltD).T
+            Res[3,:] = (ep.mf.T*np.sqrt(ep.Tref/Tt2)*Pt2/ep.Pref - rho7*u7*ep.A7).T
+            Res[4,:] = ((1.+f)*ep.mhc.T*np.sqrt(ep.Tref/Tt2_5)*Pt2_5/ep.Pref - rho5*u5*ep.A5).T
+            Res[5,:] = (ep.mlc.T*np.sqrt(ep.Tref/Tt1_9)*Pt1_9/ep.Pref - ep.mhc.T*np.sqrt(ep.Tref/Tt2_5)*Pt2_5/ep.Pref).T         
+            Res[6,:] = (ep.Nl - ep.N_spec).T
+                    
+            
+            Res[7,:] = (ep.Pt5.T - Pt4_9*ep.pi_tn.T).T
              
             results.Res = Res
             results.F   = F
@@ -630,8 +705,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         
         results.Fsp  = Fsp
         results.Isp  = Isp
-        results.sfc  = sfc
-        
+        results.sfc  = sfc  
         
             
             
@@ -674,9 +748,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions.freestream.density            = np.atleast_1d(rho)
         conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
         conditions.freestream.gravity            = np.atleast_1d(9.81)
-        conditions.freestream.gamma              = gamma
-        conditions.freestream.Cp                 = Cp
-        conditions.freestream.R                  = R        
+        conditions.freestream.gamma              = np.atleast_2d(gamma)
+        conditions.freestream.specific_heat      = np.atleast_2d(Cp)
+        conditions.freestream.gas_specific_constant = np.atleast_2d(R)       
         conditions.freestream.speed_of_sound     = np.atleast_1d(a)
         conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
         
@@ -729,9 +803,9 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions_sls.freestream.density            = np.atleast_1d(rho)
         conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
         conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-        conditions_sls.freestream.gamma              = gamma
-        conditions_sls.freestream.Cp                 = Cp
-        conditions_sls.freestream.R                  = R 
+        conditions_sls.freestream.gamma              = np.atleast_2d(gamma)
+        conditions_sls.freestream.specific_heat      = np.atleast_2d(Cp)
+        conditions_sls.freestream.gas_specific_constant = np.atleast_2d(R)  
         conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
         conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
         
@@ -784,8 +858,8 @@ class Turbofan_TASOPT_Net(Propulsor):
         local_scale = throttle/local_throttle
         
         
-        F[:,0] = results_eval.F*local_scale.T
-        mdot0[:,0] = results_eval.mdot*local_scale.T
+        F[:,0] = (results_eval.F*local_scale)[:,0]
+        mdot0[:,0] = (results_eval.mdot*local_scale)[:,0]
         S = results_eval.TSFC        
         
         
@@ -846,6 +920,8 @@ class Turbofan_TASOPT_Net(Propulsor):
                 if(np.linalg.norm(R)<1e-6):
                     break                
                 
+                if iiter == (self.max_iters-1):
+                    aaa = 0
             
         
                 

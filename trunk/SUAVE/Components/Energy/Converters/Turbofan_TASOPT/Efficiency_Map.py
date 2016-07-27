@@ -37,4 +37,4 @@ class Efficiency_Map(Data):
         
         eta_offdesign = eta_0*(1. - C*(np.abs(pb/mb-1.)**c))
     
-        return eta_offdesign  
+        return eta_offdesign

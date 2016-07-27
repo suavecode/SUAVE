@@ -23,5 +23,5 @@ class Turbine(Enthalpy_Difference_Set):
        
     def compute(self):
         
-        self.polytopic_efficiency = self.design_polytropic_efficiency
+        #self.polytopic_efficiency = self.design_polytropic_efficiency
         self.compute_flow()

@@ -32,12 +32,15 @@ class Nozzle(Pure_Loss_Set):
         
         ex_M = exhaust_velocity/np.sqrt(gamma*R*exhaust_temperature)
         
-        if ex_M < 1.:
-            P = ambient_pressure
-            M = np.sqrt(((Pt/P)**((gamma-1.)/gamma) - 1.)*2./(gamma-1.))
-        else:
-            M = 1.
-            P = Pt/(1.+(gamma-1.)/2.*M*M)**(gamma/(gamma-1.))
+        R     = np.ones(np.shape(ht))*R
+        P     = np.ones(np.shape(ht))
+        M     = np.ones(np.shape(ht))
+        
+        P[ex_M<1.] = ambient_pressure[ex_M<1.]
+        M[ex_M<1.] = np.sqrt(((Pt[ex_M<1.]/P[ex_M<1.])**((gamma[ex_M<1.]-1.)/gamma[ex_M<1.]) - 1.)*2./(gamma[ex_M<1.]-1.))
+        
+        #M[ex_M>=1.] = 1. pre-set to 1.
+        P[ex_M>=1.] = Pt[ex_M>=1.]/(1.+(gamma[ex_M>=1.]-1.)/2.*M[ex_M>=1.]*M[ex_M>=1.])**(gamma[ex_M>=1.]/(gamma[ex_M>=1.]-1.))
             
         T = Tt/(1.+(gamma-1.)/2.*M*M)
         h = ht*T/Tt
