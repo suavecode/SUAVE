@@ -1065,22 +1065,6 @@ def check_results(new_results,old_results):
 
         print ''
 
-    ## check high level outputs
-    #def check_vals(a,b):
-        #if isinstance(a,Data):
-            #for k in a.keys():
-                #err = check_vals(a[k],b[k])
-                #if err is None: continue
-                #print 'outputs' , k
-                #print 'Error:' , err
-                #print ''
-                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
-        #else:
-            #return (a-b)/a
-
-    ## do the check
-    #check_vals(old_results.output,new_results.output)
-
 
     return
 
