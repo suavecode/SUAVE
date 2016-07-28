@@ -49,10 +49,10 @@ class Wing(Lofted_Body):
         self.chords.root             = 0.0
         self.chords.tip              = 0.0
         
-        self.sweep               = Data()
-        self.sweep.quarter_chord = 0.0
-        self.sweep.leading_edge  = 0.0
-        self.sweep.half_chord    = 0.0        
+        self.sweeps               = Data()
+        self.sweeps.quarter_chord = 0.0
+        self.sweeps.leading_edge  = 0.0
+        self.sweeps.half_chord    = 0.0        
 
         self.twists = Data()
         self.twists.root = 0.0

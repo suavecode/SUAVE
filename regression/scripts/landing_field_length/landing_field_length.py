@@ -50,7 +50,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.areas.reference     = vehicle.reference_area
-    wing.sweep.quarter_chord = 22. * Units.deg  # deg
+    wing.sweeps.quarter_chord = 22. * Units.deg  # deg
     wing.thickness_to_chord  = 0.11
     wing.taper               = 0.28          
 

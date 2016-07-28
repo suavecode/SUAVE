@@ -22,7 +22,7 @@ def main():
     wing.tag = 'main_wing'
     wing.areas.reference    = 5500.0 * Units.feet**2
     wing.spans.projected    = 196.0  * Units.feet
-    wing.sweep.quarter_chord = 42.0   * Units.deg # Leading edge
+    wing.sweeps.quarter_chord = 42.0   * Units.deg # Leading edge
     wing.chords.root        = 42.9   * Units.feet #54.5
     wing.chords.tip         = 14.7   * Units.feet
     wing.chords.mean_aerodynamic = 27.3 * Units.feet
@@ -39,7 +39,7 @@ def main():
     wing.spans.exposed      = 32.4  * Units.feet
     wing.chords.root        = 38.7  * Units.feet      # vertical.chords.fuselage_intersect
     wing.chords.tip         = 13.4  * Units.feet
-    wing.sweep.quarter_chord = 50.0  * Units.deg # Leading Edge
+    wing.sweeps.quarter_chord = 50.0  * Units.deg # Leading Edge
     wing.x_root_LE1         = 180.0 * Units.feet
     wing.symmetric          = False
     wing.exposed_root_chord_offset = 13.3   * Units.feet
