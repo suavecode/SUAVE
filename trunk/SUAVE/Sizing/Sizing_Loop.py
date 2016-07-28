@@ -2,11 +2,13 @@
 #Created: Jun 2016, M. Vegh
 
 from SUAVE.Core import Data
-import numpy as np
 import scipy.interpolate as interpolate
 import sklearn.svm as svm
 from write_sizing_outputs import write_sizing_outputs
 from read_sizing_inputs import read_sizing_inputs
+import numpy as np
+import scipy as sp
+import time
 
 class Sizing_Loop(Data):
     def __defaults__(self):
@@ -14,11 +16,9 @@ class Sizing_Loop(Data):
         self.tolerance             = None
         self.initial_step          = None  #'Default', 'Table', 'SVR'
         self.update_method         = None  #'fixed_point', 'newton-raphson'
-        self.default_y             = None
-        self.max_y                 = None  #maximum values for y to take (can be useful when large jumps happen)
-        self.min_y                 = None  #minimum values for y to take
+        self.default_y             = None  #default inputs in case the guess is very far from 
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
-        self.maximum_iterations    = None
+        self.maximum_iterations    = None  #cutoff point for sizing loop to close
         self.output_filename       = None
         self.function_evaluation   = None  #defined in the Procedure script
         self.write_threshhold      = 9     #number of iterations before it writes, regardless of how close it is to currently written values
@@ -69,9 +69,10 @@ class Sizing_Loop(Data):
         min_norm =1000.
         if self.initial_step == 'Table' or self.initial_step == 'SVR':
             data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
+            
             if read_success:
-                #check how close inputs are to tabulated values             
-                diff=np.subtract(scaled_inputs, data_inputs)
+                           
+                diff=np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
 
                 for row in diff:
                     row_norm = np.linalg.norm(row)
@@ -84,11 +85,22 @@ class Sizing_Loop(Data):
                         y = interp[0]
                 
                     elif self.initial_step == 'SVR':
+                    
                         if min_norm>=self.iteration_options.min_svr_step and len(data_outputs[:,0]) >= self.iteration_options.min_svr_length:
+                            print 'optimizing svr parameters'
+                            x = [0,0] #initial guess for 10**C, 10**eps
+                            t1=time.time()
+                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs))
+                            t2=time.time()
+                            print 'optimization time = ', t2-t1
+                            print 'norm err=', out.fun
+                            c_out = 10**out.x[0]
+                            eps_out = 10**out.x[1]
                             print 'running surrogate'
                             y = []
+                            
                             for j in range (len(data_outputs[0,:])):
-                                clf         = svm.SVR(C=1E3,  epsilon = .01)
+                                clf         = svm.SVR(C=c_out,  epsilon = eps_out)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
                             y = np.array(y)
@@ -112,6 +124,7 @@ class Sizing_Loop(Data):
             elif self.update_method == 'newton-raphson':
                 if i==0:
                     nr_start=0
+                    
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i   = self.fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
                 
@@ -136,7 +149,7 @@ class Sizing_Loop(Data):
     
         
             
-            #save the previous input values
+            #save the previous input values, as they're used to transition between methods
             y_save2 = 1.*y_save
             y_save = 1. *y  
             
@@ -177,6 +190,7 @@ class Sizing_Loop(Data):
     
         
         return nexus
+        
     def fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options):
         err, y_out = function_eval(y, nexus, scaling)
         iter += 1
@@ -192,8 +206,6 @@ class Sizing_Loop(Data):
         try:
             Jinv =np.linalg.inv(J)  
             p = -np.dot(Jinv,err)
-            print 'Jinv=', Jinv
-            print 'p=', p
             y_update = y + p
       
             
@@ -207,6 +219,7 @@ class Sizing_Loop(Data):
             err, y_out = function_eval(y_update, nexus, scaling)
             iter += 1 
             print 'err_out=', err
+            
         except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use fixed point'
             err, y_update, iter = self.fixed_point_update(y, err, function_eval, nexus, scaling, iter, iteration_options)
@@ -270,7 +283,27 @@ def interpolate_consistency_variables(self, nexus, data_inputs, data_outputs):
         x = interp[0] #use correct data size
  
     
+def check_svr_accuracy(x, data_inputs, data_outputs): #set up so you can frame as an optimization problem
+    #inputs parameters to svr regression C and epsilon, returns L2 norm of sizing outputs
+    #leaves out last data point, so you can optimize parameters to most recent result
     
+    
+    #use log base 10 inputs to find parameters
+    Cval= 10**x[0]
+    eps = 10**x[1]
+    
+    #prevent negative values
+    y = []
+    for j in range (len(data_outputs[0,:])): #loop over data
+        clf         = svm.SVR(C=Cval,  epsilon = eps)
+       
+        y_surrogate = clf.fit(data_inputs[0:-1,:], data_outputs[0:-1,j]) #leave out last data point for surrogate fit
+        y.append(y_surrogate.predict(data_inputs[-1,:])[0])
+    y = np.array(y)
+    y_real = data_outputs[-1,:]
+    diff = (y_real-y)/y_real
+    output= np.linalg.norm(diff)
+    return output    
     
     
         
