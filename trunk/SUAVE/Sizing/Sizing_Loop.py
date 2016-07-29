@@ -20,7 +20,7 @@ class Sizing_Loop(Data):
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
         self.maximum_iterations    = None  #cutoff point for sizing loop to close
         self.output_filename       = None
-        self.function_evaluation   = None  #defined in the Procedure script
+        self.sizing_evaluation     = None  #defined in the Procedure script
         self.write_threshhold      = 9     #number of iterations before it writes, regardless of how close it is to currently written values
         
         #parameters that may only apply to certain methods
@@ -55,7 +55,7 @@ class Sizing_Loop(Data):
         y                 = self.default_y
         max_iter          = self.maximum_iterations
         scaling           = self.default_scaling
-        function_eval     = self.function_evaluation
+        sizing_evaluation = self.sizing_evaluation
         iteration_options = self.iteration_options
         err               = [1000] #initialize error
         
@@ -119,23 +119,23 @@ class Sizing_Loop(Data):
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:        
             if self.update_method == 'fixed_point':
-                err,y, i   = self.fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
+                err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
             elif self.update_method == 'newton-raphson':
                 if i==0:
                     nr_start=0
                     
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
-                    err,y, i   = self.fixed_point_update(y,err, function_eval, nexus, scaling, i, iteration_options)
+                    err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
 
                 else:
                     
                     if nr_start==0:
-                        err,y, i   = self.newton_raphson_update(y_save2, err, function_eval, nexus, scaling, i, iteration_options)
+                        err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start =1
                     else:
-                        err,y, i   = self.newton_raphson_update(y, err, function_eval, nexus, scaling, i, iteration_options)
+                        err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start = 1
            
            
@@ -166,8 +166,6 @@ class Sizing_Loop(Data):
         if i<max_iter and not np.isnan(err).any():  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
-            print 'min_norm out=', min_norm
-            
             if converged and (min_norm>self.iteration_options.min_svr_step or i>self.write_threshhold): #now output to file, writing when it's either not a FD step, or it takes a long time to converge
             #make sure they're in right format      
             #use y_save2, as it makes derivatives more consistent
@@ -191,18 +189,18 @@ class Sizing_Loop(Data):
         
         return nexus
         
-    def fixed_point_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options):
-        err, y_out = function_eval(y, nexus, scaling)
+    def fixed_point_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        err, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
         print 'y_out=', y_out
         print 'err_out=', err
         
         return err, y_out, iter
     
-    def newton_raphson_update(self,y, err, function_eval, nexus, scaling, iter, iteration_options):
+    def newton_raphson_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         h = iteration_options.h
         print '###begin Finite Differencing###'
-        J, iter = Finite_Difference_Gradient(y,err, function_eval, nexus, scaling, iter, h)
+        J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
         try:
             Jinv =np.linalg.inv(J)  
             p = -np.dot(Jinv,err)
@@ -216,13 +214,13 @@ class Sizing_Loop(Data):
                 elif y_update[i]>self.max_y[i]:
                     y_update[i] = self.max_y[i]*1.
             '''
-            err, y_out = function_eval(y_update, nexus, scaling)
+            err, y_out = sizing_evaluation(y_update, nexus, scaling)
             iter += 1 
             print 'err_out=', err
             
         except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use fixed point'
-            err, y_update, iter = self.fixed_point_update(y, err, function_eval, nexus, scaling, iter, iteration_options)
+            err, y_update, iter = self.fixed_point_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
         
        
         return err, y_update, iter
