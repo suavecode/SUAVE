@@ -60,7 +60,7 @@ def translate_avl_wing(suave_wing):
 	w.tag       = suave_wing.tag
 	w.symmetric = suave_wing.symmetric
 	w.vertical  = suave_wing.vertical
-	w.sweep     = suave_wing.sweep
+	w.sweep     = suave_wing.sweeps.quarter_chord
 	w.dihedral  = suave_wing.dihedral
 	w = populate_wing_sections(w,suave_wing)
 	
@@ -84,7 +84,7 @@ def translate_avl_body(suave_body):
 
 def populate_wing_sections(avl_wing,suave_wing):
 	symm     = avl_wing.symmetric
-	sweep    = avl_wing.sweep
+	sweep    = avl_wing.sweeps.quarter_chord
 	dihedral = avl_wing.dihedral
 	span     = suave_wing.spans.projected
 	semispan = suave_wing.spans.projected * 0.5 * (2 - symm)

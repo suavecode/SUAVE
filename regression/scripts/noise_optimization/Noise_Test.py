@@ -136,7 +136,7 @@ def setup():
         [ 'wing_aspect_ratio'                ,    'vehicle_configurations.*.wings.main_wing.aspect_ratio'               ],
         [ 'wing_incidence'                   ,    'vehicle_configurations.*.wings.main_wing.twists.root'                ],
         [ 'wing_tip_twist'                   ,    'vehicle_configurations.*.wings.main_wing.twists.tip'                 ],
-        [ 'wing_sweep'                       ,    'vehicle_configurations.*.wings.main_wing.sweep'                      ],
+        [ 'wing_sweep'                       ,    'vehicle_configurations.*.wings.main_wing.sweeps.quarter_chord'        ],
         [ 'wing_thickness'                   ,    'vehicle_configurations.*.wings.main_wing.thickness_to_chord'         ],
         [ 'wing_taper'                       ,    'vehicle_configurations.*.wings.main_wing.taper'                      ],
         [ 'wing_location'                    ,    'vehicle_configurations.*.wings.main_wing.origin[0]'                  ],

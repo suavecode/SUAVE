@@ -218,7 +218,7 @@ def main():
     wing.spans.projected          = 50.      * Units.meter     # Span in meters
     wing.taper                    = 0.2                        # Taper ratio
     wing.thickness_to_chord       = 0.08                       # Thickness-to-chord ratio
-    wing.sweep                    = .4363323 * Units.rad       # sweep angle in degrees
+    wing.sweeps.quarter_chord      = .4363323 * Units.rad       # sweep angle in degrees
     wing.chords.root              = 15.      * Units.meter     # Wing root chord length
     wing.chords.mean_aerodynamic  = 10.      * Units.meters    # Length of the mean aerodynamic chord of the wing
     wing.origin                 = [20,0,0] * Units.meters    # Location of main wing from origin of the vehicle
@@ -239,7 +239,7 @@ def main():
     wing.tag = 'horizontal_stabilizer'    
     wing.areas.reference          = 75.     * Units.meters**2 # Area of the horizontal tail
     wing.spans.projected          = 15.     * Units.meters    # Span of the horizontal tail
-    wing.sweep                    = 38.     * Units.deg       # Sweep of the horizontal tail
+    wing.sweeps.quarter_chord      = 38.     * Units.deg       # Sweep of the horizontal tail
     wing.chords.mean_aerodynamic  = 5.      * Units.meters    # Length of the mean aerodynamic chord of the horizontal tail
     wing.thickness_to_chord       = 0.07                      # Thickness-to-chord ratio of the horizontal tail
     wing.areas.exposed            = 199.7792                  # Exposed area of the horizontal tail
@@ -253,7 +253,7 @@ def main():
     wing.areas.reference     = 60.     * Units.meters**2 # Area of the vertical tail
     wing.spans.projected     = 15.     * Units.meters    # Span of the vertical tail
     wing.thickness_to_chord  = 0.07                      # Thickness-to-chord ratio of the vertical tail
-    wing.sweep               = 40.     * Units.deg       # Sweep of the vertical tail
+    wing.sweeps.quarter_chord = 40.     * Units.deg       # Sweep of the vertical tail
     wing.t_tail              = "false"                   # Set to "yes" for a T-tail
     vehicle.append_component(wing)   
     
