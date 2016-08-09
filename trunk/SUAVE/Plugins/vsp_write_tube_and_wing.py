@@ -1,26 +1,25 @@
-# Python API Test
-#
-#
+# vsp_write_tube_and_wing.py
+# 
+# Created:  Jul 2016, T. MacDonald
+# Modified: 
 
-import vsp_g
-vsp=vsp_g
-#import vsp
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 
+import vsp_g as vsp
 import numpy as np
-import pylab as plt
 
-import copy, time
+# ----------------------------------------------------------------------
+#  write
+# ----------------------------------------------------------------------
 
-from SUAVE.Core import (
-Data, Container,
-)
-
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-
-
-def main(vehicle):
+def write(vehicle):
+    
+    # Wings
     
     for wing in vehicle.wings:
     
@@ -106,7 +105,7 @@ def main(vehicle):
     
     # Engines
     
-    nac_id = vsp.AddGeom("FUSELAGE")
+    nac_id = vsp.AddGeom( "FUSELAGE",pylon_id )
     
     # unpack the turbofan
     turbofan  = vehicle.propulsors.turbofan
@@ -114,27 +113,33 @@ def main(vehicle):
     length    = turbofan.engine_length
     width     = turbofan.nacelle_diameter
     origins   = turbofan.origin
-    
-    #turbofan.bypass_ratio      = 5.4
+    bpr       = turbofan.bypass_ratio
     
     if n_engines == 2:
         symmetric = 1
     else:
         symmetric = 0
         
+    z = pylon_z - width/2 - pylon_y_off
+    x = pylon_x - pylon_y_off -  length/2
+        
     # Length and overall diameter
     vsp.SetParmVal(nac_id,"Length","Design",length)
     vsp.SetParmVal(nac_id,"Diameter","Design",width)   
+    vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
+    vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',pylon_y)
+    vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z)        
     
     # The inside of the nacelle
-    #inside = vsp.AddSubSurf(nac_id, 1)
-    #vsp.SetParmVal(inside,"SS_LINE")
-    
-    
+    inside = vsp.AddSubSurf(nac_id, 1)
+    vsp.SetParmVal(inside,"Const_Line_Type",inside,0.)
+    vsp.SetParmVal(inside,"Const_Line_Value",inside,0.5)
+
+
+
     # Fuselage
     
-    
-    # Unpack from the vehicle
+    # Unpack the fuselage
     fuselage = vehicle.fuselages.fuselage
     width    = fuselage.width
     length   = fuselage.lengths.total
@@ -155,27 +160,23 @@ def main(vehicle):
     x3 = 1-t_fine*width/length
     
     fuse_id = vsp.AddGeom("FUSELAGE")    
-    
+
     vsp.SetParmVal(fuse_id,"Length","Design",length)
     vsp.SetParmVal(fuse_id,"Diameter","Design",width)
-    
     vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
     vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
     vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
     vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",.02)
-    
-    
     vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
     vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
     vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
-    
     vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
     vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);    
+    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
+    
+    
+    # Write the vehicle to the file
     
     vsp.WriteVSPFile(vehicle.tag + ".vsp3")
     
     return
-
-if __name__ == '__main__':
-    main()
