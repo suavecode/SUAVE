@@ -2,6 +2,7 @@
 #Created: Jun 2016, M. Vegh
 
 from SUAVE.Core import Data
+from SUAVE.Surrogate.svr_surrogate_functions import check_svr_accuracy
 import scipy.interpolate as interpolate
 import sklearn.svm as svm
 from write_sizing_outputs import write_sizing_outputs
@@ -32,7 +33,7 @@ class Sizing_Loop(Data):
         self.iteration_options.min_fix_point_iterations     = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
         self.iteration_options.min_svr_step                 = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
         self.iteration_options.min_svr_length               = 4      #minimum number data points needed before SVR is used
-        
+        self.iteration_options.number_of_surrogate_calls    = 0
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
@@ -49,7 +50,6 @@ class Sizing_Loop(Data):
         
         
         #unpack inputs
-        
         tol               = self.tolerance #percentage difference in mass and energy between iterations
         h                 = self.iteration_options.h 
         y                 = self.default_y
@@ -104,6 +104,7 @@ class Sizing_Loop(Data):
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
                             y = np.array(y)
+                            nexus.number_of_surrogate_calls +=1
                         else:
                             print 'running table'
                             interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
@@ -254,7 +255,7 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
 
 
 
-    
+'''    
 def interpolate_consistency_variables(self, nexus, data_inputs, data_outputs):
     unscaled_inputs= nexus.optimization_problem.inputs[:,1]
     input_scaling  = nexus.optimization_problem.inputs[:,3]
@@ -279,30 +280,9 @@ def interpolate_consistency_variables(self, nexus, data_inputs, data_outputs):
         print 'running table'
         interp = interpolate.griddata(data_inputs , data_outputs, opt_inputs, method='nearest')
         x = interp[0] #use correct data size
- 
+''' 
     
-def check_svr_accuracy(x, data_inputs, data_outputs): #set up so you can frame as an optimization problem
-    #inputs parameters to svr regression C and epsilon, returns L2 norm of sizing outputs
-    #leaves out last data point, so you can optimize parameters to most recent result
-    
-    
-    #use log base 10 inputs to find parameters
-    Cval= 10**x[0]
-    eps = 10**x[1]
-    
-    #prevent negative values
-    y = []
-    for j in range (len(data_outputs[0,:])): #loop over data
-        clf         = svm.SVR(C=Cval,  epsilon = eps)
-       
-        y_surrogate = clf.fit(data_inputs[0:-1,:], data_outputs[0:-1,j]) #leave out last data point for surrogate fit
-        y.append(y_surrogate.predict(data_inputs[-1,:])[0])
-    y = np.array(y)
-    y_real = data_outputs[-1,:]
-    diff = (y_real-y)/y_real
-    output= np.linalg.norm(diff)
-    return output    
-    
+
     
         
         
