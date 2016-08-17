@@ -1,7 +1,7 @@
 # Unknown_Throttle.py
 #
-# Created:  
-# Modified: Aug 2016, T. MacDonald
+# Created:  Aug 2016, T. MacDonald
+# Modified: 
 #
 # Added to descent folder
 

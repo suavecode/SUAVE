@@ -1,7 +1,9 @@
-# Constant_Speed_Constant_Rate.py
+# Constant_EAS_Constant_Rate.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Aug 2016, T. MacDonald
+# Modified: 
+#
+# Adapted from Constant_Speed_Constant_Rate
 
 # ----------------------------------------------------------------------
 #  Imports
