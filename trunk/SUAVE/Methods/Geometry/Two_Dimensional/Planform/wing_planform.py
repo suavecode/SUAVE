@@ -115,7 +115,7 @@ if __name__ == '__main__':
     
     wing.areas.reference        = 10.
     wing.taper                  =  0.50
-    wing.sweeps.quarter_chord    =  45.  * Units.deg
+    wing.sweeps.quarter_chord   =  45.  * Units.deg
     wing.aspect_ratio           = 10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg
