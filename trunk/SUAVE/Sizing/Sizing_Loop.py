@@ -148,12 +148,10 @@ class Sizing_Loop(Data):
                         nr_start = 1
             
             elif self.update_method == 'broyden':
-                if i==0:
-                    nr_start=0
                 
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                
+                    nr_start=0 #in case broyden update diverges
 
                 else:
                     
