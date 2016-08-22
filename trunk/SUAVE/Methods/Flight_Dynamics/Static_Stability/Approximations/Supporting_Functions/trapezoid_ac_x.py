@@ -43,7 +43,7 @@ def trapezoid_ac_x(wing):
     S     = wing.areas.reference
     b     = wing.spans.projected
     l     = wing.taper
-    sweep = wing.sweep
+    sweep = wing.sweeps.quarter_chord
     symm  = wing.symmetric
     c_r   = wing.chords.root
 

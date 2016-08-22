@@ -57,7 +57,7 @@ def compressibility_drag_wing(state,settings,geometry):
         
     # unpack wing
     t_c_w   = wing.thickness_to_chord
-    sweep_w = wing.sweep
+    sweep_w = wing.sweeps.quarter_chord
     
     # Currently uses vortex lattice model on all wings
     if wing.tag=='main_wing':

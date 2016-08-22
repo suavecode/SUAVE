@@ -69,7 +69,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     taper = geometry.wings['main_wing'].taper
     c_tip = taper*c_root
     span  = geometry.wings['main_wing'].spans.projected
-    sweep = geometry.wings['main_wing'].sweep
+    sweep = geometry.wings['main_wing'].sweeps.quarter_chord
     C_Law = conditions.lift_curve_slope
     w_f   = geometry.fuselages['fuselage'].width
     l_f   = geometry.fuselages['fuselage'].lengths.total
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     wing.spans.projected           = 196.0  * Units.feet
     wing.chords.mean_aerodynamic   = 27.3 * Units.feet
     wing.chords.root               = 44. * Units.feet  #54.5ft
-    wing.sweep          = 42.0   * Units.deg # Leading edge
+    wing.sweeps.leading_edge       = 42.0   * Units.deg # Leading edge
     wing.taper          = 13.85/44.  #14.7/54.5
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     wing.tag = 'horizontal_stabilizer'
     wing.areas.reference     = 1490.55* Units.feet**2
     wing.spans.projected     = 71.6   * Units.feet
-    wing.sweep               = 44.0   * Units.deg # leading edge
+    wing.sweeps.leading_edge = 44.0   * Units.deg # leading edge
     wing.taper               = 7.5/32.6
     wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
     wing.origin              = np.array([187.0,0,0])  * Units.feet

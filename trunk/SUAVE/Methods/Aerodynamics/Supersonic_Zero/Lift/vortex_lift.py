@@ -27,7 +27,7 @@ def vortex_lift(state,settings,geometry):
 
         if wing.vortex_lift is True:
             AR = wing.aspect_ratio
-            GAMMA = wing.sweep
+            GAMMA = wing.sweeps.quarter_chord
             
             # angle of attack
             a = AoA[Mc < 1.0]

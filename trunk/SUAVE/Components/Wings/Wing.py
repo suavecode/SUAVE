@@ -25,7 +25,6 @@ class Wing(Lofted_Body):
         self.symmetric                 = True
         self.vertical                  = False
         self.t_tail                    = False
-        self.sweep                     = 0.0
         self.taper                     = 0.0
         self.dihedral                  = 0.0
         self.aspect_ratio              = 0.0
@@ -36,6 +35,7 @@ class Wing(Lofted_Body):
 
         self.spans = Data()
         self.spans.projected = 0.0
+        
 
         self.areas = Data()
         self.areas.reference = 0.0
@@ -48,6 +48,11 @@ class Wing(Lofted_Body):
         self.chords.mean_geometric   = 0.0
         self.chords.root             = 0.0
         self.chords.tip              = 0.0
+        
+        self.sweeps               = Data()
+        self.sweeps.quarter_chord = 0.0
+        self.sweeps.leading_edge  = 0.0
+        self.sweeps.half_chord    = 0.0        
 
         self.twists = Data()
         self.twists.root = 0.0
