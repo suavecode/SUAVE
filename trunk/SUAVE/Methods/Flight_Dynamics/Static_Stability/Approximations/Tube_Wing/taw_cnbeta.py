@@ -126,7 +126,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     # Unpack inputs
     S      = geometry.wings['main_wing'].areas.reference
     b      = geometry.wings['main_wing'].spans.projected
-    sweep  = geometry.wings['main_wing'].sweep
+    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
     z_w    = geometry.wings['main_wing'].origin[2]
     S_bs   = geometry.fuselages['fuselage'].areas.side_projected

@@ -47,7 +47,7 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
             ratio, and taper ratio.
     """             
     # Unpack inputs
-    sweep = wing.sweep
+    sweep = wing.sweeps.quarter_chord
     taper = wing.taper
     if wing.has_key('effective_aspect_ratio'):
         ar = wing.effective_aspect_ratio

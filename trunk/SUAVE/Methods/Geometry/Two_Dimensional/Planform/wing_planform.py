@@ -39,7 +39,7 @@ def wing_planform(wing):
     # unpack
     sref        = wing.areas.reference
     taper       = wing.taper
-    sweep       = wing.sweep
+    sweep       = wing.sweeps.quarter_chord
     ar          = wing.aspect_ratio
     t_c_w       = wing.thickness_to_chord
     dihedral    = wing.dihedral 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     
     wing.areas.reference        = 10.
     wing.taper                  =  0.50
-    wing.sweep                  =  45.  * Units.deg
+    wing.sweeps.quarter_chord   =  45.  * Units.deg
     wing.aspect_ratio           = 10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg
