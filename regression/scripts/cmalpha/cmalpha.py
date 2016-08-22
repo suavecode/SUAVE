@@ -63,19 +63,19 @@ def main():
     
     wing                     = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
-    wing.areas.reference     = 1490.55* Units.feet**2
-    wing.spans.projected     = 71.6   * Units.feet
+    wing.areas.reference      = 1490.55* Units.feet**2
+    wing.spans.projected      = 71.6   * Units.feet
     wing.sweeps.quarter_chord = 44.0   * Units.deg # leading edge
     wing.sweeps.leading_edge  = 44.0   * Units.deg # Same as the quarter chord sweep (ignore why EMB)
-    wing.taper               = 7.5/32.6
-    wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
-    wing.origin              = np.array([187.0,0,0])  * Units.feet
-    wing.symmetric           = True
-    wing.vertical            = False
+    wing.taper                = 7.5/32.6
+    wing.aspect_ratio         = wing.spans.projected**2/wing.areas.reference
+    wing.origin               = np.array([187.0,0,0])  * Units.feet
+    wing.symmetric            = True
+    wing.vertical             = False
     wing.dynamic_pressure_ratio = 0.95
-    wing.ep_alpha            = 2.0*main_wing_CLa/np.pi/main_wing_ar    
-    wing.aerodynamic_center  = [trapezoid_ac_x(wing), 0.0, 0.0]
-    wing.CL_alpha            = datcom(wing,Mach)
+    wing.ep_alpha             = 2.0*main_wing_CLa/np.pi/main_wing_ar    
+    wing.aerodynamic_center   = [trapezoid_ac_x(wing), 0.0, 0.0]
+    wing.CL_alpha             = datcom(wing,Mach)
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
