@@ -31,9 +31,11 @@ class Sizing_Loop(Data):
         self.iteration_options.h                            = 1E-6   #finite difference step for Newton iteration
         self.iteration_options.max_initial_step             = 1.     #maximum distance at which interpolation is allowed
         self.iteration_options.min_fix_point_iterations     = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_svr_step                 = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
-        self.iteration_options.min_svr_length               = 4      #minimum number data points needed before SVR is used
+        self.iteration_options.min_surrogate_step           = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_write_step               = .011   #minimum distance at which sizing data are written
+        self.iteration_options.min_surrogate_length         = 4      #minimum number data points needed before SVR is used
         self.iteration_options.number_of_surrogate_calls    = 0
+        
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
@@ -86,7 +88,7 @@ class Sizing_Loop(Data):
                 
                     elif self.initial_step == 'SVR':
                     
-                        if min_norm>=self.iteration_options.min_svr_step and len(data_outputs[:,0]) >= self.iteration_options.min_svr_length:
+                        if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
                             print 'optimizing svr parameters'
                             x = [0,0] #initial guess for 10**C, 10**eps
                             t1=time.time()
@@ -99,7 +101,7 @@ class Sizing_Loop(Data):
                             print 'running surrogate'
                             y = []
                             
-                            for j in range (len(data_outputs[0,:])):
+                            for j in range(len(data_outputs[0,:])):
                                 clf         = svm.SVR(C=c_out,  epsilon = eps_out)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
@@ -109,6 +111,12 @@ class Sizing_Loop(Data):
                             print 'running table'
                             interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
                             y = interp[0]
+                    '''
+                    elif self.initial_step == 'GPR':
+                        if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
+                            print 'running GPR surrogate'
+                            for j in range (len(data_outputs[0,:])):
+                    '''        
         y_save  = 2*y  #save values to detect oscillation
         y_save2 = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a fixed point iteration
@@ -124,7 +132,7 @@ class Sizing_Loop(Data):
                 
             elif self.update_method == 'newton-raphson':
                 if i==0:
-                    nr_start=0
+                    nr_start=0  #flag to make sure it doesn't oscillate between newton-raphson and fixed point updates
                     
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
@@ -138,9 +146,24 @@ class Sizing_Loop(Data):
                     else:
                         err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start = 1
-           
-           
-       
+            
+            elif self.update_method == 'broyden':
+                if i==0:
+                    nr_start=0
+                
+                if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
+                    err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                
+
+                else:
+                    
+                    if nr_start==0:
+                        err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        nr_start =1
+                    else:
+                        err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                       
+                    
             dy  = y-y_save
             dy2 = y-y_save2
             norm_dy  = np.linalg.norm(dy)
@@ -153,7 +176,8 @@ class Sizing_Loop(Data):
             #save the previous input values, as they're used to transition between methods
             y_save2 = 1.*y_save
             y_save = 1. *y  
-            
+            print 'y_save2', y_save2
+            print 'y_save=', y_save
             
             print 'err=', err
             
@@ -167,7 +191,7 @@ class Sizing_Loop(Data):
         if i<max_iter and not np.isnan(err).any():  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
-            if converged and (min_norm>self.iteration_options.min_svr_step or i>self.write_threshhold): #now output to file, writing when it's either not a FD step, or it takes a long time to converge
+            if converged and (min_norm>self.iteration_options.min_write_step or i>self.write_threshhold): #now output to file, writing when it's either not a FD step, or it takes a long time to converge
             #make sure they're in right format      
             #use y_save2, as it makes derivatives more consistent
                 write_sizing_outputs(self, y_save2, problem_inputs)
@@ -203,6 +227,7 @@ class Sizing_Loop(Data):
         print '###begin Finite Differencing###'
         J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
         try:
+            
             Jinv =np.linalg.inv(J)  
             p = -np.dot(Jinv,err)
             y_update = y + p
@@ -215,16 +240,47 @@ class Sizing_Loop(Data):
                 elif y_update[i]>self.max_y[i]:
                     y_update[i] = self.max_y[i]*1.
             '''
-            err, y_out = sizing_evaluation(y_update, nexus, scaling)
+            err_out, y_out = sizing_evaluation(y_update, nexus, scaling)
             iter += 1 
-            print 'err_out=', err
+            
+            #save these values in case of Broyden update
+            iteration_options.Jinv     = Jinv 
+            iteration_options.y_save   = y
+            iteration_options.err_save = err
+           
+            print 'err_out=', err_out
             
         except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use fixed point'
-            err, y_update, iter = self.fixed_point_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
+            err_out, y_update, iter = self.fixed_point_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
         
        
-        return err, y_update, iter
+        return err_out, y_update, iter
+        
+    def broyden_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        #add stuff later
+       
+        y_save      = iteration_options.y_save
+        err_save    = iteration_options.err_save 
+        dy          = y - y_save
+        df          = err - err_save
+        Jinv        = iteration_options.Jinv
+        print 'Jinv=', Jinv
+        update_step = ((dy - Jinv*df)/np.linalg.norm(df))* df
+        print 'update_step=', update_step
+        Jinv_out    = Jinv + update_step
+        
+        p                      = -np.dot(Jinv_out,err)
+        y_update               = y + p
+        
+        err_out, y_out         = sizing_evaluation(y_update, nexus, scaling)
+        #pack outputs
+        iteration_options.Jinv     = Jinv_out
+        iteration_options.err_save = err  #save previous iteration
+        iteration_options.y_save   = y
+ 
+        return err_out, y_update, iter
+        
     __call__ = evaluate
     
 
@@ -255,36 +311,6 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
 
 
 
-'''    
-def interpolate_consistency_variables(self, nexus, data_inputs, data_outputs):
-    unscaled_inputs= nexus.optimization_problem.inputs[:,1]
-    input_scaling  = nexus.optimization_problem.inputs[:,3]
-    opt_inputs     = unscaled_inputs/input_scaling
-    diff=np.subtract(opt_inputs, data_inputs)#/input_scaling
-    in_norm=1000.
-    for row in diff:
-        row_norm = np.linalg.norm(row)
-        min_norm = min(min_norm, row_norm)    
-        
-    if len(data_inputs[:,0])>4 and min_norm>.011:
-        print 'running surrogate'
-        x = []
-        for j in range(len(data_outputs[0,:])):
-            clf = svm.SVR(C=1E4)
-            y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
-            y.append(y_surrogate.predict(opt_inputs)[0])
-   
-        y = np.array(y)
-
-    else:
-        print 'running table'
-        interp = interpolate.griddata(data_inputs , data_outputs, opt_inputs, method='nearest')
-        x = interp[0] #use correct data size
-''' 
-    
-
-    
-        
         
         
         
