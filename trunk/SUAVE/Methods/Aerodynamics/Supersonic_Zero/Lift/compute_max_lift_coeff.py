@@ -135,7 +135,7 @@ if __name__ == '__main__':
     wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
-    wing.sweeps.quarter_chord     = 22. * Units.deg
+    wing.sweeps.quarter_chord    = 22. * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference         = 26.
-    wing.sweeps.quarter_chord     = 34.5 * Units.deg
+    wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.chords.mean_aerodynamic = 2.
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'
     wing.areas.reference         = 16.0
-    wing.sweeps.quarter_chord     = 35. * Units.deg
+    wing.sweeps.quarter_chord    = 35. * Units.deg
     wing.symmetric               = False
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.10
