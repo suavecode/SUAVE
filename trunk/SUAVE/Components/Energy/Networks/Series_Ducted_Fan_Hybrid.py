@@ -155,6 +155,14 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         Q_fan = P_fan/Nf               # torque required
         conditions.propulsion.fan_torque = Q_fan
         
+        motor.inputs.torque = Q_fan
+        motor.inputs.omega  = Nf
+        motor.voltage_current(conditions)
+        
+        # torque is automatically matched?
+        state.conditions.propulsion.motor_torque           = Q_fan
+        state.conditions.propulsion.motor_voltage_required = motor.outputs.voltage   
+        
 
         # Fan Nozzle
 
