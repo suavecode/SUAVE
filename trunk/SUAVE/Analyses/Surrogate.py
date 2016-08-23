@@ -1,16 +1,15 @@
 # Surrogate.py
 #
-# Created:  Trent Lukaczyk, March 2015
-
+# Created:  Trent Lukaczyk, March 2015 
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # imports
-import numpy as np
 
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data
 from Analysis import Analysis
 
 

@@ -1,33 +1,18 @@
-#Prop_Design.py
+# propeller_design.py
 # 
-# Created:  Emilio Botero, Jul 2014
-# Modified:  
+# Created:  Jul 2014, E. Botero
+# Modified: Feb 2016. E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
 import SUAVE
-
-# package imports
 import numpy as np
-import scipy as sp
-
 from SUAVE.Core import Units
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
-
-    #def __defaults__(self):
-    
-        ## Default values
-        #Tc = 0.0
-        #Pc = 0.0
-
 # ----------------------------------------------------------------------
-#  Main
+#  Propeller Design
 # ----------------------------------------------------------------------
     
 def propeller_design(prop_attributes):
@@ -56,22 +41,27 @@ def propeller_design(prop_attributes):
     B      = prop_attributes.number_blades
     R      = prop_attributes.tip_radius
     Rh     = prop_attributes.hub_radius
-    omega  = prop_attributes.angular_velocity # Rotation Rate in rad/s
+    omega  = prop_attributes.angular_velocity    # Rotation Rate in rad/s
     V      = prop_attributes.freestream_velocity # Freestream Velocity
-    Cl     = prop_attributes.design_Cl # Design Lift Coefficient
+    Cl     = prop_attributes.design_Cl           # Design Lift Coefficient
     alt    = prop_attributes.design_altitude
     Thrust = prop_attributes.design_thrust
     Power  = prop_attributes.design_power
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = [ v[0] for v in atmosphere.compute_values(alt) ]
-    nu = mu/rho
+    atmo_data = atmosphere.compute_values(alt)
     
+    p   = atmo_data.pressure[0]
+    T   = atmo_data.temperature[0]
+    rho = atmo_data.density[0]
+    a   = atmo_data.speed_of_sound[0]
+    mu  = atmo_data.dynamic_viscosity[0]
+    nu  = mu/rho
     
     # Nondimensional thrust
-    Tc = 2.*Thrust/(rho*(V**2.)*np.pi*(R**2.))
-    Pc = 2.*Power/(rho*(V**3.)*np.pi*(R**2.))    
+    Tc = 2.*Thrust/(rho*(V*V)*np.pi*(R*R))
+    Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))    
     
     tol   = 1e-10 # Convergence tolerance
     N     = 20.   # Number of Stations
@@ -84,11 +74,11 @@ def propeller_design(prop_attributes):
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
     chi     = chi[0:N]
-    lamda   = V/(omega*R)           # Speed ratio
-    r       = chi*R                 # Radial coordinate
-    x       = omega*r/V             # Nondimensional distance
-    diff    = 1.0                   # Difference between zetas
-    n       = omega/(2*np.pi)       # Cycles per second
+    lamda   = V/(omega*R)             # Speed ratio
+    r       = chi*R                   # Radial coordinate
+    x       = omega*r/V               # Nondimensional distance
+    diff    = 1.0                     # Difference between zetas
+    n       = omega/(2*np.pi)         # Cycles per second
     D       = 2.*R
     J       = V/(D*n)
     
@@ -96,14 +86,13 @@ def propeller_design(prop_attributes):
         #Things that need a loop
         Tcnew   = Tc
         tanphit = lamda*(1.+zeta/2.)   # Tangent of the flow angle at the tip
-        phit    = np.arctan(tanphit) # Flow angle at the tip
-        tanphi  = tanphit/chi        # Flow angle at every station
+        phit    = np.arctan(tanphit)   # Flow angle at the tip
+        tanphi  = tanphit/chi          # Flow angle at every station
         f       = (B/2.)*(1.-chi)/np.sin(phit) 
         F       = (2./np.pi)*np.arccos(np.exp(-f)) #Prandtl momentum loss factor
         phi     = np.arctan(tanphi)  #Flow angle at every station
         
         #Step 3, determine the product Wc, and RE
-        
         G       = F*x*np.cos(phi)*np.sin(phi) #Circulation function
         Wc      = 4.*np.pi*lamda*G*V*R*zeta/(Cl*B)
         Ma      = Wc/a

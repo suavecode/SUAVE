@@ -1,15 +1,13 @@
 # scipy_setup.py
 # 
 # Created:  Aug 2015, E. Botero 
-# Modified:  
+# Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
 import numpy as np
 import scipy as sp
 
@@ -41,7 +39,7 @@ def SciPy_Solve(problem,solver='SLSQP'):
 
     # Finalize problem statement and run
     if solver=='SLSQP':
-        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds)
+        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,iter=200)
     else:
         outputs = sp.optimize.minimize(wrapper,x,method=solver)
     

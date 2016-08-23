@@ -1,15 +1,15 @@
+# Constant_Speed_Constant_Rate.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions
-
 from SUAVE.Methods.Missions import Segments as Methods
 
-from SUAVE.Analyses import Process
 from Unknown_Throttle import Unknown_Throttle
 
 # Units
@@ -35,7 +35,10 @@ class Constant_Speed_Constant_Rate(Unknown_Throttle):
         #   The Solving Process
         # --------------------------------------------------------------
         initialize = self.process.initialize
+        
         initialize.conditions = Methods.Climb.Constant_Speed_Constant_Rate.initialize_conditions
     
+        self.process.initialize = initialize
+        
         return
        

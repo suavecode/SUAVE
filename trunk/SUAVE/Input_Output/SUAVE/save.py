@@ -1,6 +1,7 @@
-# Input_Output.SUAVE.save.py
+#save.py
 #
 # Created By:   Trent Jan 2015
+# Updated: Carlos Ilario, Feb 2016
 
 """ Save a native SUAVE file """
 

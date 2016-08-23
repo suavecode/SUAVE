@@ -1,10 +1,13 @@
+# __init__.py
+# 
+# Created:  Aug 2014, E. Botero
+# Modified: Feb 2016, T. MacDonald
+
 # ------------------------------------------------------------
 #  Imports
 # ------------------------------------------------------------
 
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Data
 from SUAVE.Components import Physical_Component
 
 # ----------------------------------------------------------------------

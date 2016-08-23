@@ -1,8 +1,16 @@
+# Constant_Dynamic_Pressure_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import numpy as np
 import SUAVE
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -18,7 +26,7 @@ def initialize_conditions(segment,state):
     
     # Update freestream to get density
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
-    rho        = conditions.freestream.density[:,0]   
+    rho = conditions.freestream.density[:,0]   
 
     # check for initial altitude
     if alt0 is None:

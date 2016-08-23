@@ -1,20 +1,17 @@
 # systems.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, July 2014        
-
+# Created:  Jan 2014, A. Wendorff
+# Modified: Jul 2014, A. Wendorff
+#           Feb 2016, E. Botero     
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
-#   Method
+#   Systems
 # ----------------------------------------------------------------------
 
 def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
@@ -49,7 +46,6 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     area_h = S_h / Units.ft**2 # Convert meters squared to ft squared
     area_v = S_v / Units.ft**2 # Convert meters squared to ft squared
     
-     
     # process
     # Flight Controls Group Wt
     if ctrl_type == "fully powered":       #fully powered controls 

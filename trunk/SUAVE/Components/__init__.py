@@ -1,7 +1,10 @@
+# __init__.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # classes
 from Component import Component
-from Component_Exception import Component_Exception
 
 from Mass_Properties import Mass_Properties
 from Physical_Component import Physical_Component

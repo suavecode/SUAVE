@@ -1,15 +1,16 @@
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
-# Modified:  
+# Modified: Feb 2015, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # suave imports
-import SUAVE
-from SUAVE.Core import Data
+import SUAVE 
+from SUAVE.Core import Data, DataOrdered
+from SUAVE.Analyses import Process
 from copy import deepcopy
 import helper_functions as help_fun
 import numpy as np
@@ -24,7 +25,7 @@ class Nexus(Data):
         self.vehicle_configurations = SUAVE.Components.Configs.Config.Container()
         self.analyses               = SUAVE.Analyses.Analysis.Container()
         self.missions               = None
-        self.procedure              = None
+        self.procedure              = Process()
         self.results                = SUAVE.Analyses.Results()
         self.summary                = Data()
         self.optimization_problem   = None

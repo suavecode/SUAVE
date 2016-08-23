@@ -1,7 +1,8 @@
 # engine_jet.py
 # 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014      
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero   
 
 
 # ----------------------------------------------------------------------
@@ -10,13 +11,12 @@
 
 from SUAVE.Core import Units
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container
 )
 
 # ----------------------------------------------------------------------
-#   Method
+#   Jet Engine
 # ----------------------------------------------------------------------
-
 
 def engine_jet(thrust_sls):
     """ weight = SUAVE.Methods.Weights.Correlations.Propulsion.engine_jet(thrust_sls)

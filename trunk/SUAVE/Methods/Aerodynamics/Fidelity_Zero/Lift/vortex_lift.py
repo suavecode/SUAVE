@@ -1,31 +1,24 @@
 # vortex_lift.py
 # 
-# Created:  Tim MacDonald, 6/27/14
-# Modified: Tim MacDonald, 7/14/14
-# Based on http://adg.stanford.edu/aa241/highlift/sstclmax.html
+# Created:  Jub 2014, T. MacDonald
+# Modified: Jul 2014, T. MacDonald
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Core import Results
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
 
 # ----------------------------------------------------------------------
-#   The Function
+#   Vortex Lift
 # ----------------------------------------------------------------------
 
 def vortex_lift(AoA,configuration,wing):
     """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
         computes the vortex lift on highly swept wings
+        
+        Based on http://adg.stanford.edu/aa241/highlift/sstclmax.html
         
         Inputs:
         - SUave wing and angles of attack
@@ -38,10 +31,9 @@ def vortex_lift(AoA,configuration,wing):
 
         
     """
-
     
-    AR = wing.aspect_ratio
-    GAMMA = wing.sweep
+    AR    = wing.aspect_ratio
+    GAMMA = wing.sweeps.quarter_chord
     
     # angle of attack
     a = AoA

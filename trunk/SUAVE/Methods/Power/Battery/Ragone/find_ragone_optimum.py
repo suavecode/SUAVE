@@ -1,14 +1,16 @@
-"""sizes an optimized battery based on power and energy requirements based on a Ragone plot curve fit"""
-#by M. Vegh
-#Created 2014
-#Modified September, 2015
-""" SUAVE Methods for Energy Systems """
+# find_ragone_optimimum.py
+# 
+# Created:  ### 2104, M. Vegh
+# Modified: Sep 2105, M. Vegh
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
 import scipy as sp
 from find_ragone_properties import find_ragone_properties
+
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
@@ -40,13 +42,13 @@ def find_ragone_optimum(battery, energy, power): #adds a battery that is optimiz
             battery.mass_properties.mass
     """
 
-    specific_energy_guess=battery.specific_energy
-    lb=battery.ragone.lower_bound
-    ub=battery.ragone.upper_bound
+    specific_energy_guess = battery.specific_energy
+    
+    lb = battery.ragone.lower_bound
+    ub = battery.ragone.upper_bound
 
     #optimize!
-    specific_energy_opt=sp.optimize.fminbound(find_ragone_properties, lb, ub, args=( battery, energy, power))
+    specific_energy_opt = sp.optimize.fminbound(find_ragone_properties, lb, ub, args=( battery, energy, power), xtol=1e-12)
     
     #now initialize the battery with the new optimum properties
     find_ragone_properties(specific_energy_opt, battery, energy, power)
-    return

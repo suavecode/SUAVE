@@ -1,41 +1,22 @@
 # parasite_drag_propulsor.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero       
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# local imports
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from SUAVE.Analyses import Results
 
-# suave imports
-
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-
-from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-from SUAVE.Core import Results
-air = Air()
-compute_speed_of_sound = air.compute_speed_of_sound
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
-#   The Function
+#   Parasite Drag Propulsors
 # ----------------------------------------------------------------------
-
 
 def parasite_drag_propulsor(state,settings,geometry):
-#def parasite_drag_propulsor(conditions,configuration,propulsor):
     """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
         computes the parasite drag associated with a propulsor 
         
@@ -47,14 +28,12 @@ def parasite_drag_propulsor(state,settings,geometry):
 
         
     """
-
-
-
+    
     # unpack inputs
     
-    conditions = state.conditions
+    conditions    = state.conditions
     configuration = settings
-    propulsor = geometry
+    propulsor     = geometry
     
     # unpack inputs
     try:
@@ -71,15 +50,13 @@ def parasite_drag_propulsor(state,settings,geometry):
     d_prop  = propulsor.nacelle_diameter
     
     # conditions
-    Mc  = freestream.mach_number
-    roc = freestream.density
-    muc = freestream.dynamic_viscosity
-    Tc  = freestream.temperature    
-    pc  = freestream.pressure
+    freestream = conditions.freestream
+    Mc = freestream.mach_number
+    Tc = freestream.temperature    
+    re = freestream.reynolds_number
 
     # reynolds number
-    V = Mc * compute_speed_of_sound(Tc, pc) 
-    Re_prop = roc * V * l_prop/muc
+    Re_prop = re*l_prop
     
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
@@ -125,11 +102,3 @@ def parasite_drag_propulsor(state,settings,geometry):
     state.conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
     
     return propulsor_parasite_drag
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__': 
-    raise NotImplementedError

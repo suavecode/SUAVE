@@ -1,13 +1,17 @@
 # secondary_noise_component.py
 # 
-# Created:  Jul 2015, Carlos
-# Modified: 
+# Created:  Jul 2015, C. Ilario
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
 
 import numpy as np
+
+# ----------------------------------------------------------------------        
+#   Secondary Noise Component
+# ---------------------------------------------------------------------- 
 
 def secondary_noise_component (SPL_s,Velocity_primary,theta_s,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_s,EX_s,Str_s):
     """This function calculates the noise contribution of the secondary jet component"""

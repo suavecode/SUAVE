@@ -1,7 +1,7 @@
 # test_take_off_field_length.py
 #
 # Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified: Emilio Botero
+# Modified: M. Vegh, Feb 2016
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 from SUAVE.Core import Units
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform as size_planform
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 # package imports
@@ -60,13 +60,14 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        configuration.propulsors.turbo_fan.number_of_engines = engine_number
+        configuration.propulsors.turbofan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
             takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
                     estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
-  
+    
+   
     truth_TOFL = np.array([[ 1106.1894316 ,   720.57532937,   521.72582498],
                            [ 1169.44251482,   758.14235055,   548.54256171],
                            [ 1235.49201944,   797.22058262,   576.39554512],
@@ -78,29 +79,20 @@ def main():
                            [ 1694.3580448 ,  1064.76049592,   765.95832037],
                            [ 1781.95222403,  1115.09840143,   801.41246029]])
                              
-    truth_clb_grad = np.array([[ 0.0655736 ,  0.24371443,  0.42185526],
-                               [ 0.05989364,  0.23186809,  0.40384255],
-                               [ 0.0545621 ,  0.22076517,  0.38696824],
-                               [ 0.04954833,  0.21033864,  0.37112895],
-                               [ 0.04482514,  0.20052927,  0.3562334 ],
-                               [ 0.04036833,  0.19128451,  0.3422007 ],
-                               [ 0.03615629,  0.18255758,  0.32895888],
-                               [ 0.03216969,  0.17430671,  0.31644372],
-                               [ 0.02839116,  0.16649446,  0.30459777],
-                               [ 0.02480506,  0.15908723,  0.2933694 ]])
+    truth_clb_grad = np.array([[ 0.0663248  , 0.24446563 , 0.42260645],
+                               [0.06064292 , 0.23261737 , 0.40459183],
+                               [0.05530959 , 0.22151265 , 0.38771572],
+                               [0.05029414 , 0.21108444 , 0.37187475],
+                               [0.04556936 , 0.20127349 , 0.35697762],
+                               [0.04111106 , 0.19202724 , 0.34294343],
+                               [0.03689762 , 0.18329891 , 0.3297002 ],
+                               [0.0329097  , 0.17504671 , 0.31718373],
+                               [0.02912991 , 0.16723321 , 0.30533651],
+                               [0.02554262 , 0.15982479 , 0.29410696]]   )
                                
+                       
                                
-#    truth_clb_grad =  np.array([[ 0.07209448,  0.25023531,  0.42837614],
-#                                [ 0.06597428,  0.23794874,  0.40992319],
-#                                [ 0.06024464,  0.22644771,  0.39265077],
-#                                [ 0.05486975,  0.21566006,  0.37645037],
-#                                [ 0.04981803,  0.20552216,  0.3612263 ],
-#                                [ 0.04506152,  0.1959777 ,  0.34689389],
-#                                [ 0.04057537,  0.18697666,  0.33337796],
-#                                [ 0.03633745,  0.17847447,  0.32061148],
-#                                [ 0.03232796,  0.17043126,  0.30853456],
-#                                [ 0.02852914,  0.16281131,  0.29709347]])           used the wrong aerodynamic center reference                   
-
+    print 'second_seg_clb_grad=', second_seg_clb_grad
     TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))                           
     GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad))
     
@@ -223,7 +215,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 8.4
-    wing.sweep                   = 23.0 * Units.deg
+    wing.sweeps.quarter_chord    = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
     wing.span_efficiency         = 1.0
@@ -266,7 +258,7 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 5.5
-    wing.sweep                   = 34.5 * Units.deg
+    wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
     wing.span_efficiency         = 0.9
@@ -305,7 +297,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.7      #
-    wing.sweep                   = 35 * Units.deg
+    wing.sweeps.quarter_chord    = 35 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.31
     wing.span_efficiency         = 0.9
@@ -342,14 +334,21 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbo_fan'
+    gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
     gt_engine.position[1]       = 4.50
-
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length 
+    
+    #assign engine areas
+    gt_engine.areas.wetted  = Awet
+    
+    
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
 
@@ -486,8 +485,14 @@ def vehicle_setup():
     gt_engine.thrust = thrust
 
     #size the turbofan
+    #create conditions object for sizing the turbofan
+    atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+  
+    conditions             = atmosphere.compute_values(altitude)
+    
     turbofan_sizing(gt_engine,mach_number,altitude)
-
+    compute_turbofan_geometry(gt_engine, conditions)
+    
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)
 

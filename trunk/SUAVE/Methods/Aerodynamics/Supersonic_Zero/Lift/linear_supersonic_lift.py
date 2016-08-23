@@ -1,30 +1,18 @@
 # linear_supersonic_lift.py
 # 
-# Created:  Tim MacDonald 7/1/14
-# Modified: Tim MacDonald 7/14/14
-#
-# Adapted from vortex lattice code to strip theory
+# Created:  Jun 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-air = Air()
-compute_speed_of_sound = air.compute_speed_of_sound
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
 
 def linear_supersonic_lift(conditions,configuration,wing):
     """ Computes lift using linear supersonic theory
+        Adapted from vortex lattice code to strip theory
 
         Inputs:
             wing - geometry dictionary with fields:
@@ -41,24 +29,24 @@ def linear_supersonic_lift(conditions,configuration,wing):
     """
 
     # Unpack
-    span       = wing.spans.projected
-    root_chord = wing.chords.root
-    tip_chord  = wing.chords.tip
-    sweep      = wing.sweep
-    taper      = wing.taper
-    twist_rc   = wing.twists.root
-    twist_tc   = wing.twists.tip
-    sym_para   = wing.symmetric
-    AR         = wing.aspect_ratio
-    Sref       = wing.areas.reference
+    span        = wing.spans.projected
+    root_chord  = wing.chords.root
+    tip_chord   = wing.chords.tip
+    sweep       = wing.sweeps.quarter_chord
+    taper       = wing.taper
+    twist_rc    = wing.twists.root
+    twist_tc    = wing.twists.tip
+    sym_para    = wing.symmetric
+    AR          = wing.aspect_ratio
+    Sref        = wing.areas.reference
     orientation = wing.vertical
 
     aoa = conditions.aerodynamics.angle_of_attack
     
-    n  = configuration.number_panels_spanwise
+    n   = configuration.number_panels_spanwise
     
     # chord difference
-    dchord=(root_chord-tip_chord)
+    dchord = (root_chord-tip_chord)
     
     # Check if the wing is symmetric
     # If so, reduce the span by half for calculations
@@ -66,21 +54,21 @@ def linear_supersonic_lift(conditions,configuration,wing):
         span=span/2
         
     # Width of strips
-    deltax=span/n
+    deltax = span/n
 
     if orientation == False : # No lift for vertical surfaces
 
         # Intialize arrays with number of strips
-        section_length= np.empty(n)
-        area_section=np.empty(n)
-        twist_distri=np.empty(n)
+        section_length = np.empty(n)
+        area_section   = np.empty(n)
+        twist_distri   = np.empty(n)
         
         # Discretize the wing sections into strips
         for i in range(0,n):
     
-            section_length[i]= dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
-            area_section[i]=section_length[i]*deltax
-            twist_distri[i]=twist_rc + i/float(n)*(twist_tc-twist_rc)
+            section_length[i] = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+            area_section[i]   = section_length[i]*deltax
+            twist_distri[i]   = twist_rc + i/float(n)*(twist_tc-twist_rc)
         
         # Initialize variables
         area_tot = 0.0        
@@ -98,7 +86,6 @@ def linear_supersonic_lift(conditions,configuration,wing):
     else:
         
         Cl= 0.0       
-
 
     return Cl
 

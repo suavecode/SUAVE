@@ -1,8 +1,7 @@
 # compressible_mixed_flat_plate.py
 # 
-# Created:  Tim MacDonald, 8/1/14
-# Modified:         
-# Adapted from compressible_mixed_flat_plate.py
+# Created:  Aug 2014, T. MacDonald
+# Modified: Jan 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
@@ -11,11 +10,10 @@
 
 # package imports
 import numpy as np
-import pylab as plt
 
 
 # ----------------------------------------------------------------------
-#  Simple Method
+#  Compressible Mixed Flat Plate
 # ----------------------------------------------------------------------
 
 
@@ -52,12 +50,13 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     Rex = Re*xt
     Rex[Rex==0.0] = 0.0001
 
-    theta = 0.671*xt/np.sqrt(Rex)
-    xeff = (27.78*theta*Re**0.2)**1.25
-    Rext = Re*(1-xt+xeff)
+    theta = 0.671*xt/(Rex**0.5)
+    xeff  = (27.78*theta*Re**0.2)**1.25
+    Rext  = Re*(1-xt+xeff)
     
     cf_turb  = 0.455/(np.log10(Rext)**2.58)
-    cf_lam   = 1.328/np.sqrt(Rex)
+    cf_lam   = 1.328/(Rex**0.5)
+    
     if xt > 0.0:
         cf_start = 0.455/(np.log10(Re*xeff)**2.58)
     else:
@@ -66,12 +65,12 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     cf_inc = cf_lam*xt + cf_turb*(1-xt+xeff) - cf_start*xeff
     
     # compressibility correction
-    Tw = Tc * (1. + 0.178*Ma**2.)
-    Td = Tc * (1. + 0.035*Ma**2. + 0.45*(Tw/Tc - 1.))
+    Tw = Tc * (1. + 0.178*Ma*Ma)
+    Td = Tc * (1. + 0.035*Ma*Ma + 0.45*(Tw/Tc - 1.))
     k_comp = (Tc/Td) 
     
     # reynolds correction
-    Rd_w = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
+    Rd_w   = Re * (Td/Tc)**1.5 * ( (Td+216.) / (Tc+216.) )
     k_reyn = (Re/Rd_w)**0.2
     
     # apply corrections
@@ -87,6 +86,7 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
 if __name__ == '__main__':    
     
     validation_test = 0
+    import pylab as plt
     
     if validation_test:
     

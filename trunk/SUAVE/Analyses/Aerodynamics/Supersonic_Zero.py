@@ -1,7 +1,8 @@
 # Supersonic_Zero.py
 # 
 # Created:  Tim MacDonald, based on Fidelity_Zero
-# Modified: Tim MacDonald, 1/29/15
+# Modified: Tim MacDonald, 1/29/15 
+# Modified: Feb 2016, Andrew Wendorff
 #
 # Updated for new optimization structure
 
@@ -11,17 +12,15 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
-
-# default Aero Results
-from Results import Results
 
 from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 
+import numpy as np
 #from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 
 # ----------------------------------------------------------------------
@@ -42,11 +41,6 @@ class Supersonic_Zero(Markup):
         
         self.tag = 'Fidelity_Zero_Supersonic'
         
-        #self.geometry      = Geometry()
-        #self.configuration = Configuration()
-        #self.geometry = Data()
-        #self.settings = Data()
-
         # correction factors
         settings =  self.settings
         settings.fuselage_lift_correction           = 1.14
@@ -55,6 +49,7 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.aircraft_span_efficiency_factor    = 0.78
         settings.drag_coefficient_increment         = 0.0000
+        settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5
@@ -64,47 +59,30 @@ class Supersonic_Zero(Markup):
         # build the evaluation process
         compute = self.process.compute
         
-        ##self.conditions_table = Conditions(
-            ##angle_of_attack = np.array([-10,-5,0,5,10.0]) * Units.deg ,
-        ##)
-        #self.training = Data()        
-        #self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        #self.training.lift_coefficient = None
-        
-        ##self.models = Data()
-        ## surrogoate models
-        #self.surrogates = Data()
-        #self.surrogates.lift_coefficient = None    
-        
         compute.lift = Process()
-
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        
-        #compute.lift.parasite.wings                = Process_Geometry('wings')
-        #compute.drag.parasite.wings.wing           = Methods.Lift.vortex_lift
-        compute.lift.vortex                        = Methods.Lift.vortex_lift
-        
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
-        compute.lift.fuselage                      = Methods.Lift.fuselage_correction
-        compute.lift.total                         = Methods.Lift.aircraft_total
+        compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
+        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility # SZ
+        compute.lift.fuselage                      = Methods.Lift.fuselage_correction # difference in results storage
+        compute.lift.total                         = Methods.Lift.aircraft_total # no difference
         
         compute.drag = Process()
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing 
+        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing # SZ
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage # SZ
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
-        compute.drag.parasite.total                = Methods.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.parasite.total                = Methods.Drag.parasite_total # SZ
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
         compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total
-        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = Methods.Drag.untrimmed
-        compute.drag.trim                          = Methods.Drag.trim
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ
+        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
+        compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match
+        compute.drag.trim                          = Methods.Drag.trim # SZ can be chanaged to match
+        compute.drag.total                         = Methods.Drag.total_aircraft # SZ
         
         
     def initialize(self):

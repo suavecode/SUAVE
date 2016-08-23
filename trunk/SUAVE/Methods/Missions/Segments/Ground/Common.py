@@ -1,26 +1,48 @@
+# Common.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
+import SUAVE
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
-import SUAVE
+
+# ----------------------------------------------------------------------
+#  Unpack Unknowns
+# ----------------------------------------------------------------------
 
 def unpack_unknowns(segment,state):
     
     # unpack unknowns
     unknowns   = state.unknowns
     velocity_x = unknowns.velocity_x
-    v0 = segment.velocity_start 
-    vf = segment.velocity_end
+    time       = unknowns.time
+    v0         = segment.velocity_start 
+    vf         = segment.velocity_end
+    t_initial  = state.conditions.frames.inertial.time[0,0]
+    t_nondim   = state.numerics.dimensionless.control_points    
+    
+    # Velocity cannot be zero
+    velocity_x[velocity_x==0.0,0] = 0.01
+    velocity_x[0,0]               = v0
+    
+    # time
+    t_final    = t_initial + time  
+    time       = t_nondim * (t_final-t_initial) + t_initial  
 
     #apply unknowns
     conditions = state.conditions
     conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.velocity_vector[velocity_x==0.0,0] = 0.1
-    conditions.frames.inertial.velocity_vector[0,0] = v0
-    
-    t_initial = state.conditions.frames.inertial.time[0,0]
-    t_final   = t_initial + state.unknowns.time     
-    N = len(conditions.frames.inertial.velocity_vector[:,0])
-    state.conditions.frames.inertial.time[:,0] = np.linspace(t_initial,t_final,N)    
+    conditions.frames.inertial.time[:,0]            = time[:,0]
+
+# ----------------------------------------------------------------------
+#  Initialize Conditions
+# ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
     """ Segment.initialize_conditions(conditions,numerics,initials=None)
@@ -63,7 +85,10 @@ def initialize_conditions(segment,state):
     # pack conditions
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     state.unknowns.velocity_x            = np.linspace(v0,vf,N)
-
+    
+# ----------------------------------------------------------------------
+#  Compute Ground Forces
+# ----------------------------------------------------------------------
 
 def compute_ground_forces(segment,state):
     """ Compute the rolling friction on the aircraft """
@@ -88,7 +113,9 @@ def compute_ground_forces(segment,state):
     conditions.frames.inertial.ground_force_vector[:,2] = N[:,0]
     conditions.frames.inertial.ground_force_vector[:,0] = Ff[:,0]
 
-
+# ----------------------------------------------------------------------
+#  Compute Forces
+# ----------------------------------------------------------------------
 
 def compute_forces(segment,state):
 
@@ -106,7 +133,9 @@ def compute_forces(segment,state):
     # pack
     conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
 
-
+# ----------------------------------------------------------------------
+#  Solve Residual
+# ----------------------------------------------------------------------
 
 def solve_residuals(segment,state):
     """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
@@ -128,9 +157,6 @@ def solve_residuals(segment,state):
 
     state.residuals.final_velocity_error = (v[-1,0] - vf)
     state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
-
-    state
-
 
 # ------------------------------------------------------------------
 #   Methods For Post-Solver

@@ -16,7 +16,7 @@
 # suave imports
 ## these should start with SUAVE, unless importing locally
 from SUAVE.Core import (
-    Function, Data, Container, Data_Exception, Data_Warning,
+    Function, Data, Container
 )
 
 # python imports

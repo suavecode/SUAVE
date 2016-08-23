@@ -1,22 +1,16 @@
+# Segment.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-import numpy as np
-from copy import deepcopy
-
 # SUAVE imports
-from SUAVE.Core import Data, Data_Exception
 
 from SUAVE.Analyses import Analysis, Settings, Process
-
-from Conditions import State, Conditions
-
-from SUAVE.Core.Arrays import array_type
-
-
+from Conditions import State
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -36,9 +30,13 @@ class Segment(Analysis):
         self.process.initialize         = Process()
         self.process.converge           = Process()
         self.process.iterate            = Process()
+        self.process.iterate.unknowns   = Process()
         self.process.iterate.initials   = Process()
         self.process.iterate.conditions = Process()
+        self.process.iterate.residuals  = Process()
         self.process.finalize           = Process()
+        
+        return
         
 
     def initialize(self,state):
@@ -62,7 +60,7 @@ class Segment(Analysis):
                         
     def evaluate(self,state=None):
         if state is None:
-            state = deepcopy(self.state)
+            state = self.state
         self.process(self,state)
         return state
     

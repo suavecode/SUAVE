@@ -1,15 +1,16 @@
-""" Liquid.py: Liquid data container class """
-# Created by:     M. Vegh 12/12/13
+# Liquid.py
+
+# Created:  Dec, 2013, M. Vegh
+# Modified: Jan, 2016, M. Vegh
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-# from SUAVE.Attributes.Constants import Constant
-from SUAVE.Attributes.Constants import Composition
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
-#  Gas
+#  Liquid Data Class
 # ----------------------------------------------------------------------
 
 class Liquid(Data):
@@ -21,6 +22,6 @@ class Liquid(Data):
         self.molecular_mass  = 0.0               
         self.composition    = Data()
         self.composition.liquid = 1.0
-        self.heat_of_vaporization=0.                 #heat of vaporization of water [J/kg]
-        self.density=0.                   #density (kg/
+        self.heat_of_vaporization=0.            #heat of vaporization of water [J/kg]
+        self.density=0.                         #density (kg/
         self.boiling_point=0.                   #boiling point [K]

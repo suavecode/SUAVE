@@ -1,17 +1,13 @@
 # payload_range.py
 #
-# Created:  Tarik, Apr. 2014
-# Modified:
+# Created:  Apr 2014, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
 from SUAVE.Core import Units
-
-# other imports
 import time
 import numpy as np
 
@@ -97,12 +93,6 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     # allocating Range array
     R       = [0,0,0]
 
-    # Locate cruise segment to be variated
-    for i in range(len(mission.segments)):          #loop for all segments
-        if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
-            segmentNum = i
-            break
-
     # evaluate the mission
     if iprint:
         print('\n\n\n .......... PAYLOAD RANGE DIAGRAM CALCULATION ..........\n')
@@ -118,7 +108,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
 
         # Evaluate mission with current TOW
         results = mission.evaluate()
-        segment = results.segments[segmentNum]
+        segment = results.segments[cruise_segment_tag]
 
         # Distance convergency in order to have total fuel equal to target fuel
         #
@@ -148,11 +138,11 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
 
             # Estimated distance that will result in total fuel burn = target fuel
             DeltaDist  =  CruiseSR *  missingFuel
-            mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
+            mission.segments[cruise_segment_tag].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
             results = mission.evaluate()
-            segment = results.segments[segmentNum]
+            segment = results.segments[cruise_segment_tag]
 
             # Difference between burned fuel and target fuel
             err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i] + reserves
@@ -160,7 +150,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
-                  + str('%8.0F' % (err+FUEL[i]+reserves))+' (kg) | Error : '+str('%8.0F' % err))
+                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Residual : '+str('%8.0F' % err))
 
         # Allocating resulting range in ouput array.
         R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
@@ -225,10 +215,3 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
         plt.show(True)
 
     return payload_range
-
-
-# ----------------------------------------------------------------------
-#   Module Test
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    print(' Error: No test defined ! ')

@@ -1,8 +1,9 @@
 # taw_cnbeta.py
 #
-# Created:  Tim Momose, March 2014
-# Modified: Andrew Wendorff, July 2014
-# 
+# Created:  Mar 2014, T. Momose
+# Modified: Jul 2014, A. Wendorff
+#           Jan 2016, E. Botero
+
 # TO DO:
 #    - Add capability for multiple vertical tails
 #    - Smooth out k_v factor (line 143)
@@ -11,16 +12,11 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import SUAVE
 import numpy as np
 import copy
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area import extend_to_ref_area
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
 #  Method
@@ -56,12 +52,6 @@ def taw_cnbeta(geometry,conditions,configuration):
                     origin - the position of the vertical tail root in the aircraft body frame [meters]
                     exposed_root_chord_offset - the displacement from the fuselage
                      centerline to the exposed area's physical root chordline [meters]
-                     
-                     
-
-    x_v    = vert.origin[0]
-    b_v    = vert.spans.projected
-    ac_vLE = vert.aerodynamic_center[0]
     
                 fuselages.Fuselage - a data dictionary with the fields:
                     areas.side_projected - fuselage body side area [meters**2]
@@ -136,7 +126,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     # Unpack inputs
     S      = geometry.wings['main_wing'].areas.reference
     b      = geometry.wings['main_wing'].spans.projected
-    sweep  = geometry.wings['main_wing'].sweep
+    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
     z_w    = geometry.wings['main_wing'].origin[2]
     S_bs   = geometry.fuselages['fuselage'].areas.side_projected
@@ -148,9 +138,9 @@ def taw_cnbeta(geometry,conditions,configuration):
     d_i    = geometry.fuselages['fuselage'].heights.at_wing_root_quarter_chord
     other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
-    S_v    = vert.areas.reference
-    x_v    = vert.origin[0]
-    b_v    = vert.spans.projected
+    S_v    = vert.extended.areas.reference
+    x_v    = vert.extended.origin[0]
+    b_v    = vert.extended.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
@@ -165,14 +155,14 @@ def taw_cnbeta(geometry,conditions,configuration):
     #Compute fuselage contribution to Cn_beta
     Re_fuse  = rho*v_inf*l_f/mu
     x1       = x_cg/l_f
-    x2       = l_f**2.0/S_bs
+    x2       = l_f*l_f/S_bs
     x3       = np.sqrt(h1/h2)
     x4       = h_max/w_max
     kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-    kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3**2)*kN_1
-    kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4**2 - 2.811*np.exp(-4.0*x4))
+    kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
+    kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
     K_N      = (-0.47899 + kN_3*kN_2)*0.001
-    K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.)  
+    K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.) 
         #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
     CnBeta_f = -57.3*K_N*K_Rel*S_bs*l_f/S/b
     
@@ -191,12 +181,12 @@ def taw_cnbeta(geometry,conditions,configuration):
             x_cg_on_body = (x_cg-x_le)/l_b
             Re_body  = rho*v_inf*l_b/mew
             x1       = x_cg_on_body/l_b
-            x2       = l_b**2.0/S_bs
+            x2       = l_b*l_b/S_bs
             x3       = np.sqrt(h1/h2)
             x4       = h_max/w_max
             kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-            kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3**2)*kN_1
-            kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4**2 - 2.811*np.exp(-4.0*x4))
+            kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
+            kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
             K_N      = (-0.47899 + kN_3*kN_2)*0.001
             #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
             K_Rel    = 1.0+0.8*np.log(Re_body/1.0E6)/np.log(50.)
@@ -205,15 +195,13 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     #Compute vertical tail contribution
     l_v    = x_v + ac_vLE - x_cg
-    #try:
-    #    CLa_v  = geometry.wings['Vertical Stabilizer'].CL_alpha
-    #except AttributeError:
-    #    CLa_v  = datcom(geometry.wings['Vertical Stabilizer'], [M])
+
     try:
         iter(M)
     except TypeError:
         M = [M]
     CLa_v = datcom(vert,M)
+    
     #k_v correlated from Roskam Fig. 10.12. NOT SMOOTH.
     bf     = b_v/d_i
     if bf < 2.0:
@@ -222,7 +210,9 @@ def taw_cnbeta(geometry,conditions,configuration):
         k_v = 0.76 + 0.24*(bf-2.0)/1.5
     else:
         k_v = 1.0
+        
     quarter_chord_sweep = convert_sweep(geometry.wings['main_wing'])
+    
     k_sweep  = (1.0+np.cos(quarter_chord_sweep))
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
     Cy_bv    = -k_v*CLa_v*dsdb_e*(S_v/S)  #ASSUMING SINGLE VERTICAL TAIL
@@ -230,7 +220,5 @@ def taw_cnbeta(geometry,conditions,configuration):
     CnBeta_v = -Cy_bv*l_v/b
     
     CnBeta   = CnBeta_w + CnBeta_f + CnBeta_v + sum(CnBeta_other)
-    
-    ##print "Wing: {}  Fuse: {}   Vert: {}   Othr: {}".format(CnBeta_w,CnBeta_f,CnBeta_v,sum(CnBeta_other))
     
     return CnBeta

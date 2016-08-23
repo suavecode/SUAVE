@@ -1,3 +1,7 @@
+# State.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -5,12 +9,8 @@
 
 # python imports
 import numpy as np
-from copy import deepcopy
 
 # SUAVE imports
-from SUAVE.Core                    import Data, Data_Exception
-from SUAVE.Methods.Utilities            import atleast_2d_col
-
 from Conditions import Conditions
 from Unknowns   import Unknowns
 from Residuals  import Residuals
@@ -18,6 +18,7 @@ from Numerics   import Numerics
 
 import SUAVE
 from SUAVE.Core.Arrays import array_type
+from SUAVE.Core import DataOrdered
 
 # ----------------------------------------------------------------------
 #  State
@@ -62,7 +63,7 @@ class State(Conditions):
         
 class Container(State):
     def __defaults__(self):
-        self.segments = Conditions()
+        self.segments = DataOrdered()
         
     def merged(self):
         

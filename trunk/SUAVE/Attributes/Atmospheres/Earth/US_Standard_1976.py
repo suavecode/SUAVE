@@ -1,8 +1,7 @@
-""" US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
-#
-#
-# Modified by Tim MacDonald 2/16/15
-# Converted to vector form and changed output structure
+#US_Standard_1976.py
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Feb, 2015, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,11 +15,11 @@ from SUAVE.Core import Data
 from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
-#  Classes
+#  US_Standard_1976 Atmosphere Class
 # ----------------------------------------------------------------------
 
 class US_Standard_1976(Atmosphere):
-
+    
     """ Implements the U.S. Standard Atmosphere (1976 version)
     """
     
@@ -48,7 +47,13 @@ if __name__ == '__main__':
     
     atmosphere = US_Standard_1976()
     
-    p, T, rho, a, mew = atmosphere.compute_values(h)
+    atmo_data = atmosphere.compute_values(h)
+
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity   
     
     plt.figure(1)
     plt.plot(p,h)

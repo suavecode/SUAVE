@@ -10,7 +10,7 @@
 from Propellant import Propellant
 
 # ----------------------------------------------------------------------
-#  Class
+#  Aviation_Gasoline Propellant Class
 # ----------------------------------------------------------------------
 
 class Aviation_Gasoline(Propellant):
@@ -20,6 +20,6 @@ class Aviation_Gasoline(Propellant):
     def __defaults__(self):
 
         self.tag='Aviation Gasoline'
-        self.mass_density    = 721.0            # kg/m^3
+        self.density         = 721.0            # kg/m^3
         self.specific_energy = 43.71e6          # J/kg
         

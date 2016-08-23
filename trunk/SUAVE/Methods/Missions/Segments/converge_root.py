@@ -1,11 +1,14 @@
+# converge_root.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# Scipy
-import scipy
 import scipy.optimize
+import numpy as np
 
 from SUAVE.Core.Arrays import array_type
 
@@ -22,13 +25,21 @@ def converge_root(segment,state):
     except AttributeError:
         root_finder = scipy.optimize.fsolve 
     
-    unknowns = root_finder( iterate,
-                            unknowns,
-                            args = [segment,state],
-                            xtol = state.numerics.tolerance_solution)
-    
-    return
+    unknowns,infodict,ier,msg = root_finder( iterate,
+                                         unknowns,
+                                         args = [segment,state],
+                                         xtol = state.numerics.tolerance_solution,
+                                         full_output=1)
 
+    if ier!=1:
+        print "Segment did not converge. Segment Tag: " + segment.tag
+        print "Error Message:\n" + msg
+        segment.state.numerics.converged = False
+    else:
+        segment.state.numerics.converged = True
+         
+                            
+    return
     
 # ----------------------------------------------------------------------
 #  Helper Functions
@@ -46,4 +57,3 @@ def iterate(unknowns,(segment,state)):
     residuals = state.residuals.pack_array()
         
     return residuals 
-

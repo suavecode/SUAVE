@@ -1,13 +1,14 @@
-
+# Vehicle.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Analysis import Analysis
-from Results import Results
 
 
 # ----------------------------------------------------------------------

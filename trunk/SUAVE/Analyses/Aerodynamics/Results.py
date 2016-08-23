@@ -1,6 +1,6 @@
-# Default Aerodynamics Results
+# Results
 # Created:   Trent, Jan 2014
-# Modified:  
+# Modified:  Andrew Wendorff, Feb 2016
 
 # ----------------------------------------------------------------------
 #  Imports

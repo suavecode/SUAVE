@@ -1,27 +1,18 @@
 # linear_supersonic_lift.py
 # 
-# Created:  Tim MacDonald 7/1/14
-# Modified: Tim MacDonald 7/14/14
+# Created:  Jul 2014, T. MacDonald
+# Modified: Jan 2016, E. Botero
 #
-# Adapted from vortex lattice code to strip theory
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-air = Air()
-compute_speed_of_sound = air.compute_speed_of_sound
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
+
+# ----------------------------------------------------------------------
+#  Adapted from vortex lattice code to strip theory
+# ----------------------------------------------------------------------
 
 def linear_supersonic_lift(conditions,configuration,wing):
     """ Computes lift using linear supersonic theory
@@ -41,21 +32,20 @@ def linear_supersonic_lift(conditions,configuration,wing):
     """
 
     # Unpack
-    span       = wing.Spans.projected
-    root_chord = wing.Chords.root
-    tip_chord  = wing.Chords.tip
-    sweep      = wing.sweep
-    taper      = wing.taper
-    twist_rc   = wing.Twists.root
-    twist_tc   = wing.Twists.tip
-    sym_para   = wing.symmetric
-    AR         = wing.aspect_ratio
-    Sref       = wing.Areas.reference
+    span        = wing.Spans.projected
+    root_chord  = wing.Chords.root
+    tip_chord   = wing.Chords.tip
+    sweep       = wing.sweeps.quarter_chord
+    taper       = wing.taper
+    twist_rc    = wing.Twists.root
+    twist_tc    = wing.Twists.tip
+    sym_para    = wing.symmetric
+    AR          = wing.aspect_ratio
+    Sref        = wing.Areas.reference
     orientation = wing.vertical
 
     aoa = conditions.aerodynamics.angle_of_attack
-    
-    n  = configuration.number_panels_spanwise
+    n   = configuration.number_panels_spanwise
     
     # chord difference
     dchord=(root_chord-tip_chord)

@@ -1,6 +1,13 @@
-# Tim Momose, March 2015
+# read_results.py
+# 
+# Created:  Mar 2015, T. Momose
+# Modified: Jan 2016, E. Botero
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+from SUAVE.Core import Data
 from .Data.Results import Results
 
 def read_results(avl_object):

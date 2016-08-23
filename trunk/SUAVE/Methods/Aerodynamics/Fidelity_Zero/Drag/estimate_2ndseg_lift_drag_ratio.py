@@ -1,13 +1,14 @@
 # estimate_2ndseg_lift_drag_ratio.py
-#
-# Created:  Tarik, Carlos, Jun 2014
-# Modified: Tarik Oct. 2015
+# 
+# Created:  Jun 2013, C. Ilario & T. Orra
+# Modified: Oct 2015, T. Orra
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
+# SUAVE Imports
 from SUAVE.Components import Wings
 from SUAVE.Core import Data, Units
 
@@ -95,11 +96,4 @@ def estimate_2ndseg_lift_drag_ratio(config):
     # Estimate L/D in 2nd segment condition, ALL ENGINES OPERATIVE!
     lift_drag_ratio = -6.464 * lift_coeff + 7.264 * aspect_ratio ** 0.5
 
-    # Pack
     return lift_drag_ratio
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-

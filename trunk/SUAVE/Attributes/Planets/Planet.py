@@ -1,17 +1,16 @@
 # Planet.py
 # 
-# Created:  Unk 2013, J. Sinsay
-# Modified: Apr 2015, T. MacDonald
+# Created:  Unk, 2013, J. Sinsay
+# Modified: Apr, 2015, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
-from SUAVE.Attributes.Constants import Constant, Composition
+from SUAVE.Attributes.Constants import Constant
 
 # ----------------------------------------------------------------------
-#  Planet
+#  Planet Constant Class
 # ----------------------------------------------------------------------
      
 class Planet(Constant):

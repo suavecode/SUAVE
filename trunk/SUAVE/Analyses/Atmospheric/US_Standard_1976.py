@@ -1,8 +1,8 @@
 """ US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
 #
 #
-# Modified by Tim MacDonald 2/16/15
-# Converted to vector form and changed output structure
+# Modified by Tim MacDonald 2/16/15  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +13,6 @@ from warnings import warn
 
 import SUAVE
 
-from SUAVE.Attributes.Atmospheres import Atmosphere
 from SUAVE.Analyses.Atmospheric import Atmospheric
 
 from SUAVE.Attributes.Gases import Air
@@ -21,9 +20,8 @@ from SUAVE.Attributes.Planets import Earth
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
-from SUAVE.Core import Data
 from SUAVE.Core import Units
-from SUAVE.Methods.Utilities import atleast_2d_col
+from SUAVE.Core.Arrays import atleast_2d_col
 
 
 # ----------------------------------------------------------------------
@@ -64,12 +62,12 @@ class US_Standard_1976(Atmospheric):
         """
 
         # unpack
-        zs   = altitude
-        gas    = self.fluid_properties
-        planet = self.planet
-        grav   = self.planet.sea_level_gravity        
-        Rad    = self.planet.mean_radius
-        gamma  = gas.gas_specific_constant
+        zs        = altitude
+        gas       = self.fluid_properties
+        planet    = self.planet
+        grav      = self.planet.sea_level_gravity        
+        Rad       = self.planet.mean_radius
+        gamma     = gas.gas_specific_constant
         delta_isa = temperature_deviation
         
         # check properties
@@ -110,7 +108,7 @@ class US_Standard_1976(Atmospheric):
         
         # populate the altitude breaks
         # this uses >= and <= to capture both edges and because values should be the same at the edges
-        for i in range( len(self.breaks.altitude)-1 ): 
+        for i in xrange( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
             z0[ i_inside ]    = self.breaks.altitude[i]
             T0[ i_inside ]    = self.breaks.temperature[i]
@@ -129,8 +127,6 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mew = gas.compute_absolute_viscosity(T)
-        
-
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
@@ -164,29 +160,3 @@ if __name__ == '__main__':
     
     print data
     
-    #plt.figure(1)
-    #plt.plot(p,h)
-    #plt.xlabel('Pressure (Pa)')
-    #plt.ylabel('Altitude (km)')
-    
-    #plt.figure(2)
-    #plt.plot(T,h)
-    #plt.xlabel('Temperature (K)')
-    #plt.ylabel('Altitude (km)')    
-    
-    #plt.figure(3)
-    #plt.plot(rho,h)
-    #plt.xlabel('Density (kg/m^3)')
-    #plt.ylabel('Altitude (km)')       
-    
-    #plt.figure(4)
-    #plt.plot(a,h)
-    #plt.xlabel('Speed of Sound (m/s)')
-    #plt.ylabel('Altitude (km)') 
-    
-    #plt.figure(6)
-    #plt.plot(mew,h)
-    #plt.xlabel('Viscosity (kg/m-s)')
-    #plt.ylabel('Altitude (km)')   
-
-    #plt.show(block=True)

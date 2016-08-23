@@ -1,8 +1,7 @@
 # Ram.py
 #
-# Created:  Anil, July 2014
-
-#--put in a folder
+# Created:  Jul 2014, A. Variyar
+# Modified: Jan 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,22 +11,11 @@
 
 import SUAVE
 
-from SUAVE.Core import Units
-
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
 # package imports
 import numpy as np
-import scipy as sp
 
-
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Components import Component, Physical_Component, Lofted_Body
+from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Components import Component_Exception
 
 # ----------------------------------------------------------------------
 #  Ram Component
@@ -52,8 +40,6 @@ class Ram(Energy_Component):
 
     def compute(self,conditions):
         
-        #unpack the values
-        
         #unpack from conditions
         Po = conditions.freestream.pressure
         To = conditions.freestream.temperature
@@ -70,14 +56,11 @@ class Ram(Energy_Component):
         Cp                     = 1.4*287.87/(1.4-1)
         R                      = 287.87
         
-        #gamma                 = working_fluid.compute_gamma(To,Po)
-        #Cp                    = working_fluid.compute_cp(To,Po)
-        #R                     = (gamma-1)/gamma * Cp
         ao                     =  np.sqrt(Cp/(Cp-R)*R*To)
         
         #Compute the stagnation quantities from the input static quantities
-        stagnation_temperature = To*(1+((gamma-1)/2 *M**2))
-        stagnation_pressure    = Po* ((1+(gamma-1)/2 *M**2 )**3.5 )
+        stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
+        stagnation_pressure    = Po* ((1+(gamma-1)/2 *M*M )**3.5 )
         
         
         

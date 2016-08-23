@@ -1,18 +1,20 @@
-
+# Process.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Container
-from Results import Results
-
+from SUAVE.Core import ContainerOrdered, DataOrdered
+from SUAVE.Analyses.Results import Results
 
 # ----------------------------------------------------------------------
 #  Process
 # ----------------------------------------------------------------------
 
-class Process(Container):
+class Process(ContainerOrdered):
     
     verbose = False
     
@@ -46,12 +48,4 @@ class Process(Container):
         
     def __call__(self,*args,**kwarg):
         return self.evaluate(*args,**kwarg) 
-    
-    
-#import inspect
-#def get_args(obj):
-    #if hasattr(obj,'__call__'):
-        #return inspect.getargspec(obj.__call__).args
-    #else:
-        #return inspect.getargspec(obj).args
     

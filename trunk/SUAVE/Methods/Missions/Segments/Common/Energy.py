@@ -1,9 +1,13 @@
+# Energy.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np
 
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Initialize Battery
@@ -12,9 +16,9 @@ import numpy as np
 def initialize_battery(segment,state):
     
     if state.initials:
-        energy_initial = state.initials.conditions.propulsion.battery_energy[-1,0]
+        energy_initial  = state.initials.conditions.propulsion.battery_energy[-1,0]
     elif segment.has_key('battery_energy'):
-        energy_initial = segment.battery_energy
+        energy_initial  = segment.battery_energy
     else:
         energy_initial = 0.0
     

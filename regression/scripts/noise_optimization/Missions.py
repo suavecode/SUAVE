@@ -516,6 +516,8 @@ def max_range_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
@@ -1005,7 +1007,7 @@ def takeoff_mission_setup(analyses):
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
     segment.state.numerics.number_control_points = 10
-    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     mission.append_segment(segment)
 
     # Cutback Segment: Constant speed, constant segment angle
@@ -1014,7 +1016,7 @@ def takeoff_mission_setup(analyses):
     segment.analyses.extend( analyses.takeoff )
     segment.air_speed    = 85.4 * Units['m/s']
     segment.climb_angle   = 2.86  * Units.degrees
-    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     mission.append_segment(segment)  
     
     return mission
@@ -1048,7 +1050,7 @@ def sideline_mission_setup(analyses):
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
     segment.state.numerics.number_control_points = 10
-    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     mission.append_segment(segment)
     
     return mission    
@@ -1117,8 +1119,7 @@ def landing_mission_setup(analyses):
 
     segment.air_speed    = 67. * Units['m/s']
     segment.descent_angle = 3.0   * Units.degrees 
-    segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     mission.append_segment(segment)
         
     return mission
-

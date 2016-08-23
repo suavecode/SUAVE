@@ -1,8 +1,8 @@
 # wing_main.py
-# 
-# Created:  Andrew Wendorff, Jan 2014
-# Modified: Andrew Wendorff, Feb 2014       
-
+#
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,12 +10,9 @@
 
 from SUAVE.Core import Units
 import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 # ----------------------------------------------------------------------
-#   Method
+#   Wing Main
 # ----------------------------------------------------------------------
 
 def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
@@ -49,8 +46,6 @@ def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
     area  = S_gross_w / Units.ft**2 # Convert meters squared to ft squared
     mtow  = TOW / Units.lb # Convert kg to lbs
     zfw   = wt_zf / Units.lb # Convert kg to lbs
-
-    # process
 
     #Calculate weight of wing for traditional aircraft wing
     weight = 4.22*area + 1.642*10.**-6. * Nult*(span)**3. *(mtow*zfw)**0.5 \

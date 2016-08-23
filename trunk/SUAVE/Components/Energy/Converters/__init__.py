@@ -1,5 +1,8 @@
+# __init__.py
+#
+# Created:  Mar 2014, T. Lukacyzk
+# Modified: Jan 2016, T. MacDonald
 
-# classes
 from Combustor import Combustor
 from Compression_Nozzle import Compression_Nozzle
 from Compressor import Compressor

@@ -1,7 +1,8 @@
 # compute_flap_lift.py
 #
-# Created:  Anil V., Dec 2013
-# Modified: Tarik, Feb 2014
+# Created:  Dec 2013, A. Varyar
+# Modified: Feb 2014, T. Orra
+#           Jan 2016, E. Botero         
 
 # ----------------------------------------------------------------------
 #  Imports

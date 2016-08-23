@@ -12,12 +12,11 @@ data.sub = SUAVE.Core.Data()
 data.sub.z = 'z'
 data.sub.a = 1
 
-print json.dumps(data, indent=2)
-print yaml.dump(data.to_dict())
+#print json.dumps(data, indent=2)
+#print yaml.dump(data.to_dict())
 
 
 
-from SUAVE.Core import Ordered_Bunch
 from SUAVE.Core import Data
 
 
