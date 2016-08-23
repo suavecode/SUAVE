@@ -74,7 +74,7 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
+    #plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
@@ -377,200 +377,162 @@ def vehicle_setup():
     #   Turbofan Network
     # ------------------------------------------------------------------    
 
-    #instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan'
-
-    # setup
-    turbofan.number_of_engines = 2.0
-    turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 2.71
-    turbofan.nacelle_diameter  = 2.05
-    
-    #compute engine areas
-    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
-    
-    #Assign engine areas
-    turbofan.areas.wetted  = Awet
-    
-    
-    
-    # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
-
-
     # ------------------------------------------------------------------
-    #   Component 1 - Ram
+    #   Turbofan Network
+    # ------------------------------------------------------------------    
+    
+    
+    
+    #initialize the gas turbine network
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT()
+    gt_engine.tag               = 'Turbo_Fan'
 
-    # to convert freestream static to stagnation quantities
+    gt_engine.number_of_engines = 1.0
+    gt_engine.bypass_ratio      = 5.4 #4.9 #5.4
+    gt_engine.engine_length     = 2.71
+    gt_engine.nacelle_diameter  = 2.05
 
-    # instantiate
+    #set the working fluid for the network
+    working_fluid               = SUAVE.Attributes.Gases.Air
+
+    #add working fluid to the network
+    gt_engine.working_fluid = working_fluid
+
+
+    #Component 1 : ram,  to convert freestream static to stagnation quantities
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
 
-    # add to the network
-    turbofan.append(ram)
+    #add ram to the network
+    gt_engine.ram = ram
 
 
-    # ------------------------------------------------------------------
-    #  Component 2 - Inlet Nozzle
-
-    # instantiate
+    #Component 2 : inlet nozzle
     inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
-    inlet_nozzle.tag = 'inlet_nozzle'
+    inlet_nozzle.tag = 'inlet nozzle'
 
-    # setup
-    inlet_nozzle.polytropic_efficiency = 0.98
-    inlet_nozzle.pressure_ratio        = 0.98
+    inlet_nozzle.polytropic_efficiency = 1.0
+    inlet_nozzle.pressure_ratio        = 0.999 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
 
-    # add to network
-    turbofan.append(inlet_nozzle)
-
-
-    # ------------------------------------------------------------------
-    #  Component 3 - Low Pressure Compressor
-
-    # instantiate 
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
-    compressor.tag = 'low_pressure_compressor'
-
-    # setup
-    compressor.polytropic_efficiency = 0.91
-    compressor.pressure_ratio        = 1.14    
-
-    # add to network
-    turbofan.append(compressor)
+    #add inlet nozzle to the network
+    gt_engine.inlet_nozzle = inlet_nozzle
 
 
-    # ------------------------------------------------------------------
-    #  Component 4 - High Pressure Compressor
+    #Component 3 :low pressure compressor    
+    low_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    low_pressure_compressor.tag = 'lpc'
 
-    # instantiate
-    compressor = SUAVE.Components.Energy.Converters.Compressor()    
-    compressor.tag = 'high_pressure_compressor'
+    low_pressure_compressor.polytropic_efficiency = 0.93 #0.93 #0.93
+    low_pressure_compressor.pressure_ratio        = 1.94 #1.94 #2.04 #1.94
 
-    # setup
-    compressor.polytropic_efficiency = 0.91
-    compressor.pressure_ratio        = 13.415    
-
-    # add to network
-    turbofan.append(compressor)
+    #add low pressure compressor to the network    
+    gt_engine.low_pressure_compressor = low_pressure_compressor
 
 
-    # ------------------------------------------------------------------
-    #  Component 5 - Low Pressure Turbine
 
-    # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
-    turbine.tag='low_pressure_turbine'
+    #Component 4 :high pressure compressor  
+    high_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()    
+    high_pressure_compressor.tag = 'hpc'
 
-    # setup
-    turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.93     
+    high_pressure_compressor.polytropic_efficiency = 0.903 #0.93 #0.903
+    high_pressure_compressor.pressure_ratio        = 9.36 #9.5 #9.36
+    high_pressure_compressor.hub_to_tip_ratio      = 0.325 #9.36
 
-    # add to network
-    turbofan.append(turbine)
+    #add the high pressure compressor to the network    
+    gt_engine.high_pressure_compressor = high_pressure_compressor
 
 
-    # ------------------------------------------------------------------
-    #  Component 6 - High Pressure Turbine
+    #Component 5 :low pressure turbine  
+    low_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    low_pressure_turbine.tag='lpt'
 
-    # instantiate
-    turbine = SUAVE.Components.Energy.Converters.Turbine()   
-    turbine.tag='high_pressure_turbine'
+    low_pressure_turbine.mechanical_efficiency = 0.99
+    low_pressure_turbine.polytropic_efficiency = 0.882 #0.881
 
-    # setup
-    turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.93     
-
-    # add to network
-    turbofan.append(turbine)
+    #add low pressure turbine to the network    
+    gt_engine.low_pressure_turbine = low_pressure_turbine
 
 
-    # ------------------------------------------------------------------
-    #  Component 7 - Combustor
 
-    # instantiate    
+    #Component 5 :high pressure turbine  
+    high_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()   
+    high_pressure_turbine.tag='hpt'
+
+    high_pressure_turbine.mechanical_efficiency = 0.99
+    high_pressure_turbine.polytropic_efficiency = 0.874 #0.873
+
+    #add the high pressure turbine to the network    
+    gt_engine.high_pressure_turbine = high_pressure_turbine 
+
+
+    #Component 6 :combustor  
     combustor = SUAVE.Components.Energy.Converters.Combustor()   
-    combustor.tag = 'combustor'
+    combustor.tag = 'Comb'
 
-    # setup
-    combustor.efficiency                = 0.99 
+    combustor.efficiency                = 0.983
     combustor.alphac                    = 1.0     
-    combustor.turbine_inlet_temperature = 1450
-    combustor.pressure_ratio            = 0.95
+    combustor.turbine_inlet_temperature = 1585.0 #1585.0 #1480.0 #1485.0
+    combustor.pressure_ratio            = 0.946
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
 
-    # add to network
-    turbofan.append(combustor)
+    #add the combustor to the network    
+    gt_engine.combustor = combustor
 
 
-    # ------------------------------------------------------------------
-    #  Component 8 - Core Nozzle
 
-    # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
-    nozzle.tag = 'core_nozzle'
+    #Component 7 :core nozzle
+    core_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    core_nozzle.tag = 'core nozzle'
 
-    # setup
-    nozzle.polytropic_efficiency = 0.95
-    nozzle.pressure_ratio        = 0.99    
+    core_nozzle.polytropic_efficiency = 1.0
+    core_nozzle.pressure_ratio        = 0.99    
 
-    # add to network
-    turbofan.append(nozzle)
+    #add the core nozzle to the network    
+    gt_engine.core_nozzle = core_nozzle
 
 
-    # ------------------------------------------------------------------
-    #  Component 9 - Fan Nozzle
+    #Component 8 :fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle.tag = 'fan nozzle'
 
-    # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
-    nozzle.tag = 'fan_nozzle'
+    fan_nozzle.polytropic_efficiency = 1.0
+    fan_nozzle.pressure_ratio        = 0.99
 
-    # setup
-    nozzle.polytropic_efficiency = 0.95
-    nozzle.pressure_ratio        = 0.99    
-
-    # add to network
-    turbofan.append(nozzle)
+    #add the fan nozzle to the network
+    gt_engine.fan_nozzle = fan_nozzle
 
 
-    # ------------------------------------------------------------------
-    #  Component 10 - Fan
 
-    # instantiate
+    #Component 9 : fan   
     fan = SUAVE.Components.Energy.Converters.Fan()   
     fan.tag = 'fan'
 
-    # setup
-    fan.polytropic_efficiency = 0.93
-    fan.pressure_ratio        = 1.7    
+    fan.polytropic_efficiency = 0.9 #0.9 #0.9
+    fan.pressure_ratio        = 1.68 #1.68 #1.71 #1.68
+    fan.hub_to_tip_ratio      = 0.325 #9.36
 
-    # add to network
-    turbofan.append(fan)
+    #add the fan to the network
+    gt_engine.fan = fan    
 
-
-    # ------------------------------------------------------------------
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
 
     #total design thrust (includes all the engines)
-    thrust.total_design             = 2*24000. * Units.N #Newtons
+    thrust.total_design             = 24366.8335 * Units.N #29450.0 * Units.N #26366.8335 * Units.N # 26520.3 * Units.N #  24000. * Units.N  #Newtons
+    thrust.bypass_ratio = 5.4 #4.9 #5.4
 
-    #design sizing conditions
-    altitude      = 35000.0*Units.ft
-    mach_number   = 0.78 
-    isa_deviation = 0.
+    ##design sizing conditions
+    #altitude      = 35000.0*Units.ft
+    #mach_number   = 0.78 
+    #isa_deviation = 0.
 
-    # add to network
-    turbofan.thrust = thrust
-
-    #size the turbofan
-    turbofan_sizing(turbofan,mach_number,altitude)   
-
+    # add thrust to the network
+    gt_engine.thrust = thrust
+    
+    
     # add  gas turbine network gt_engine to the vehicle 
-    vehicle.append_component(turbofan)      
+    vehicle.append_component(gt_engine)      
 
 
     # ------------------------------------------------------------------
@@ -778,7 +740,6 @@ def plot_mission(results,line_style='bo-'):
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc    = 3600. * mdot / 0.1019715 / thrust	
-        throttle = segment.conditions.propulsion.throttle[:,0]
 
 
         axes = fig.add_subplot(3,1,1)
@@ -788,7 +749,7 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , throttle , line_style )
+        axes.plot( time , sfc , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
         axes.grid(True)
