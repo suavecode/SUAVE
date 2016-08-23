@@ -63,7 +63,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Swing      = wing.areas.reference
         tc         = wing.thickness_to_chord * 100
         chord_mac  = wing.chords.mean_aerodynamic
-        sweep      = wing.sweep
+        sweep      = wing.sweeps.quarter_chord
         taper      = wing.taper
         flap_chord = wing.flaps_chord
         flap_angle = wing.flaps_angle
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
-    wing.sweep                   = 22. * Units.deg
+    wing.sweeps.quarter_chord    = 22. * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     wing.tag = 'horizontal_stabilizer'
 
     wing.areas.reference         = 26.
-    wing.sweep                   = 34.5 * Units.deg
+    wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.chords.mean_aerodynamic = 2.
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'
     wing.areas.reference         = 16.0
-    wing.sweep                   = 35. * Units.deg
+    wing.sweeps.quarter_chord    = 35. * Units.deg
     wing.symmetric               = False
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.10

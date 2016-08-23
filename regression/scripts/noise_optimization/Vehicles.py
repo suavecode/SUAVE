@@ -93,7 +93,7 @@ def base_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25. * Units.deg
+    wing.sweeps.quarter_chord    = 25. * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.16
     wing.span_efficiency         = 0.9
@@ -141,7 +141,7 @@ def base_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 6.16
-    wing.sweep                   = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 30 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
@@ -177,7 +177,7 @@ def base_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9

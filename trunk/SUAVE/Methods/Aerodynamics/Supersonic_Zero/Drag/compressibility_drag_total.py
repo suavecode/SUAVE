@@ -168,7 +168,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
     else:
         # Unpack wing
         t_c_w   = wing.thickness_to_chord
-        sweep_w = wing.sweep
+        sweep_w = wing.sweeps.quarter_chord
 
         # Check if this is the main wing, other wings are assumed to have no lift
         if k == 'main_wing':

@@ -33,7 +33,7 @@ def vortex_lift(AoA,configuration,wing):
     """
     
     AR    = wing.aspect_ratio
-    GAMMA = wing.sweep
+    GAMMA = wing.sweeps.quarter_chord
     
     # angle of attack
     a = AoA
