@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 #load.py
 #
 # Created By:   Trent Jan 2015
 # Updated: Carlos Ilario, Feb 2016
-=======
-# load.py
-#
-# Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
->>>>>>> original/develop
+
 
 """ Load a native SUAVE file """
 

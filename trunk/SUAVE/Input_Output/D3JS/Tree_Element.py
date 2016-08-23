@@ -1,12 +1,6 @@
-# Tree_Element.py
-#
-<<<<<<< HEAD
-# Created: T. Lukaczyk Feb 2015
-# Updated: Carlos Ilario, Feb 2016
-=======
 # Created:  Feb 2015, T. Lukaczyk 
 # Modified: Jul 2016, E. Botero 
->>>>>>> original/develop
+
 
 """ SUAVE Methods for IO """
 
