@@ -1,26 +1,17 @@
-# Geoemtry.py
+# main_wing_planform.py
 #
-
-""" SUAVE Methods for Geoemtry Generation
-"""
-
-# TODO:
-# object placement, wing location
-# tail: placed at end of fuselage, or pull from volume
-# engines: number of engines, position by 757
+# Created:  Mar 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core  import Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-
-
 def main_wing_planform(Wing):
     """ err = SUAVE.Methods.Geometry.main_wing_planform(Wing)
         
@@ -33,7 +24,7 @@ def main_wing_planform(Wing):
             Wing.sref
             Wing.ar
             Wing.taper
-            Wing.sweep
+            Wing.sweeps.quarter_chord
             Wing.span
             Wing.lex
             Wing.tex

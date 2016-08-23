@@ -1,18 +1,7 @@
 # wing_fuel_volume.py
 #
-# Created:  Tarik, Apr 2014
-# Modified:
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-# SUAVE imports
-from SUAVE.Core  import Data
-
-# package imports
-import numpy
-from math import pi, sqrt
+# Created:  Apr 2014, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Correlation-based methods for wing fuel capacity estimation

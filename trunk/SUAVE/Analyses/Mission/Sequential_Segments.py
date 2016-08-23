@@ -1,17 +1,19 @@
-""" Mission.py: Top-level mission class """
+# Sequential_Segments.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data, Data_Exception
-from SUAVE.Core import Container as ContainerBase
+from SUAVE.Core import ContainerOrdered as ContainerBase
 
 from SUAVE.Methods import Missions as Methods
 
 from Mission import Mission
-
+""" Mission.py: Top-level mission class """
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
@@ -52,8 +54,6 @@ class Sequential_Segments(Mission):
     
     def finalize(self):
         pass
-    
-    
 
 # ----------------------------------------------------------------------
 #   Cotnainer Class

@@ -1,15 +1,16 @@
-""" Gas.py: Gas data container class """
+# Gas.py: 
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-# from SUAVE.Attributes.Constants import Constant
-from SUAVE.Attributes.Constants import Composition
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
-#  Gas
+#  Gas Data Class
 # ----------------------------------------------------------------------
 
 class Gas(Data):

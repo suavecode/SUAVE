@@ -1,8 +1,9 @@
 # compute_slat_lift.py
 #
-# Created:  Anil V., Dec 2013
-# Modified: Tarik, Feb 2014
-#           Tarik, Jun 2014
+# Created:  Dec 2013, A. Variyar
+# Modified: Feb 2014, T. Orra
+#           Jun 2014, T. Orra 
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -30,11 +31,11 @@ def compute_slat_lift(slat_angle,sweep_angle):
 
     """
 
-    #unpack
+    # unpack
     sa = slat_angle  / Units.deg
     sw = sweep_angle
 
-    #---AA241 Method
+    # AA241 Method from adg.stanford.edu
     dcl_slat = (sa/23.)*(np.cos(sw))**1.4 * np.cos(sa * Units.deg)**2
 
     #returning dcl_slat

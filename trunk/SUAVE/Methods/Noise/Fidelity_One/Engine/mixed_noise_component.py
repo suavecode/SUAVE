@@ -1,13 +1,17 @@
 # mixed_noise_component.py
 # 
-# Created:  Jul 2015, Carlos
-# Modified: 
+# Created:  Jul 2015, C. Ilario
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
 
 import numpy as np
+
+# ----------------------------------------------------------------------        
+#   Mixed Noise Component
+# ---------------------------------------------------------------------- 
 
 def mixed_noise_component (SPL_m,Velocity_primary,theta_m,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR):
     """This function calculates the noise contribution of the mixed jet component"""

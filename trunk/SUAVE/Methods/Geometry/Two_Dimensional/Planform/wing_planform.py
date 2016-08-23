@@ -1,27 +1,17 @@
-# Geoemtry.py
+# wing_planform.py
 #
-
-""" SUAVE Methods for Geoemtry Generation
-"""
-
-# TODO:
-# object placement, wing location
-# tail: placed at end of fuselage, or pull from volume
-# engines: number of engines, position by 757
+# Created:  Apr 2014, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core  import Data
 import numpy as np
-
 
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-
-
 def wing_planform(wing):
     """ err = SUAVE.Methods.Geometry.wing_planform(Wing)
     
@@ -49,7 +39,7 @@ def wing_planform(wing):
     # unpack
     sref        = wing.areas.reference
     taper       = wing.taper
-    sweep       = wing.sweep
+    sweep       = wing.sweeps.quarter_chord
     ar          = wing.aspect_ratio
     t_c_w       = wing.thickness_to_chord
     dihedral    = wing.dihedral 
@@ -58,7 +48,7 @@ def wing_planform(wing):
     origin      = wing.origin
     
     # calculate
-    span = (ar*sref)**.5
+    span       = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     
@@ -125,7 +115,7 @@ if __name__ == '__main__':
     
     wing.areas.reference        = 10.
     wing.taper                  =  0.50
-    wing.sweep                  =  45.  * Units.deg
+    wing.sweeps.quarter_chord   =  45.  * Units.deg
     wing.aspect_ratio           = 10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg

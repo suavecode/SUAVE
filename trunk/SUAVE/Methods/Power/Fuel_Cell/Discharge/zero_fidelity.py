@@ -1,20 +1,18 @@
-#Created by M. Vegh 4/23/15
-
-""" Calculates mass flow of fuel cell based solely on specific energy
-end base efficiency factor """
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
+# zero_fidelity.py
+#
+# Created : Apr 2015, M. Vegh 
+# Modified: Sep 2015, M. Vegh
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Methods
+#  Zero Fidelity
 # ----------------------------------------------------------------------
 
-def zero_fidelity(fuel_cell,conditions,numerics): #adds a battery that is optimized based on power and energy requirements and technology
+def zero_fidelity(fuel_cell,conditions,numerics):
+    
     power       = fuel_cell.inputs.power_in
-    mdot        = power/(fuel_cell.propellant.specific_energy*fuel_cell.efficiency)                      #mass flow rate of the fuel  
+    
+    #mass flow rate of the fuel  
+    mdot        = power/(fuel_cell.propellant.specific_energy*fuel_cell.efficiency)                      
   
     return mdot

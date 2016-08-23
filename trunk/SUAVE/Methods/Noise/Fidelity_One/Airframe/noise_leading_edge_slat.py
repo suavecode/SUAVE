@@ -1,7 +1,7 @@
 # noise_leading_edge_slat.py
 # 
 # Created:  Jul 2015, Carlos
-# Modified: 
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -38,11 +38,11 @@ def noise_leading_edge_slat (SPL_wing,Sw,bw,velocity,deltaw,viscosity,M,phi,thet
                 Correlation based."""
 
     #Process
-    SPLslat1=SPL_wing+3.0
-    SPLslat2=noise_clean_wing(0.15*Sw,bw,1,1,deltaw,velocity,viscosity,M,phi,theta,distance,frequency)
-    peakfactor=3+max(SPL_wing)-max(SPLslat2)
-    SPLslat2=SPLslat2+peakfactor
+    SPLslat1   = SPL_wing+3.0
+    SPLslat2   = noise_clean_wing(0.15*Sw,bw,1,1,deltaw,velocity,viscosity,M,phi,theta,distance,frequency)
+    peakfactor = 3+max(SPL_wing)-max(SPLslat2)
+    SPLslat2   = SPLslat2+peakfactor
 
-    SPL=10.*np.log10(10.0**(0.1*SPLslat1)+10.0**(0.1*SPLslat2))
+    SPL        = 10.*np.log10(10.0**(0.1*SPLslat1)+10.0**(0.1*SPLslat2))
 
     return (SPL)

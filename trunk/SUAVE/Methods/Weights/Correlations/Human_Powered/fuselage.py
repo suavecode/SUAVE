@@ -1,17 +1,11 @@
 #fuselage.py
 # 
-# Created:  Emilio Botero, Jun 2014
-# Modified:
+# Created:  Jun 2014, E. Botero
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Imports
+#  Fuselage
 # ----------------------------------------------------------------------
-
-from SUAVE.Core import Units
-import numpy as np
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
 
 def fuselage(Sts,qm,Ltb):
     

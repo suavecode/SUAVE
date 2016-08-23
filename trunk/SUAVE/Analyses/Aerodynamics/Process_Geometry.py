@@ -1,10 +1,13 @@
+# Process_Geometry.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Analyses import Process
-from SUAVE.Analyses import Results
+from SUAVE.Analyses import Process, Results
 
 # ----------------------------------------------------------------------
 #  Analysis

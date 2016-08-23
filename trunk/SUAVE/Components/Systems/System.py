@@ -1,7 +1,7 @@
-# Vehicle.py
-#
-# Created By:       T. Lukaczyk
-# Updated:          M. Colonno  4/20/13
+# System.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 """ SUAVE Vehicle container class 
     with database + input / output functionality 
@@ -21,11 +21,11 @@ from SUAVE.Components import Component
         
 class System(Component):
     def __defaults__(self):
-        self.tag = 'System'
+        self.tag             = 'System'
         self.mass_properties = mass_properties()
-        self.position  = [0.0,0.0,0.0]
-        self.control = None
-        self.accessories = None
+        self.position        = [0.0,0.0,0.0]
+        self.control         = None
+        self.accessories     = None
 
 class Container(Component.Container):
     pass

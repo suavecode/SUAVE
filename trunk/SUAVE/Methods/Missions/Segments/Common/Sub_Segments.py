@@ -1,7 +1,8 @@
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
+# Sub_Segments.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+#           Mar 2016, E. Botero
 
 from copy import deepcopy
 
@@ -35,9 +36,7 @@ def expand_sub_segments(segment,state):
         
         if Process.verbose:
             print 'segment end :' , tag        
-        
 
-        
 
 # ----------------------------------------------------------------------
 #  Update Sub Segments
@@ -48,9 +47,7 @@ def update_sub_segments(segment,state):
         sub_segment.initialize(state.segments[tag])
         sub_segment.iterate(state.segments[tag])
         sub_segment.finalize(state.segments[tag])
-        
-        
-                    
+                         
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments
 # ----------------------------------------------------------------------
@@ -62,8 +59,7 @@ def finalize_sub_segments(segment,state):
     for tag,sub_segment in segment.segments.items():
         sub_segment.finalize(state.segments[tag])
         state.segments[tag].initials = Conditions()
-    
-    
+
 # ----------------------------------------------------------------------
 #  Sequential Sub Segments
 # ----------------------------------------------------------------------

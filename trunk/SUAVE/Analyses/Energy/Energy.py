@@ -1,10 +1,13 @@
+# Energy.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-from SUAVE.Analyses import Analysis, Results
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------

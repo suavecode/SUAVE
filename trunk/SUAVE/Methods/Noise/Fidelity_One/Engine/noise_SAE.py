@@ -1,7 +1,8 @@
 # noise_SAE.py
 # 
-# Created:  May 2015, Carlos Ilario
-# Modified: Nov 2015, Carlos Ilario
+# Created:  May 2015, C. Ilario
+# Modified: Nov 2015, C. Ilario
+#           Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -19,15 +20,18 @@ from noise_source_location import noise_source_location
 from primary_noise_component import primary_noise_component
 from secondary_noise_component import secondary_noise_component
 
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 
+# ----------------------------------------------------------------------        
+#   Noise SAE
+# ----------------------------------------------------------------------    
 
 def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0): 
 
@@ -78,13 +82,14 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
 
 
     #unpack
-    Velocity_primary_1        =     np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.core.exit_velocity  
-    Temperature_primary     =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_temperature
-    Pressure_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_pressure
     
-    Velocity_secondary_1      =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) #noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_velocity
-    Temperature_secondary   =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_temperature
-    Pressure_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_pressure 
+    Velocity_primary_1      =       np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.))   
+    Temperature_primary     =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_temperature[:,0] 
+    Pressure_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_pressure[:,0] 
+    
+    Velocity_secondary_1    =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) 
+    Temperature_secondary   =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_temperature[:,0] 
+    Pressure_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_pressure[:,0] 
     
     N1                      =       np.float(turbofan.fan.rotation * 0.92*(turbofan.design_thrust/52700.))
     Diameter_primary        =       turbofan.core_nozzle_diameter
@@ -100,16 +105,29 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     Altitude                =       noise_segment.conditions.freestream.altitude[:,0] 
     AOA                     =       np.mean(noise_segment.conditions.aerodynamics.angle_of_attack / Units.deg)
     
-    time                    =       noise_segment.conditions.frames.inertial.time  
+    time                    =       noise_segment.conditions.frames.inertial.time[:,0]  
+    
+    noise_time = np.arange(0.,time[-1],.5)
+    
+    Temperature_primary   = np.interp(noise_time,time,Temperature_primary)
+    Pressure_primary      = np.interp(noise_time,time,Pressure_primary)
+    Temperature_secondary = np.interp(noise_time,time,Temperature_secondary)
+    Pressure_secondary    = np.interp(noise_time,time,Pressure_secondary)
+    Altitude              = np.interp(noise_time,time,Altitude)
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_geometric(noise_segment,analyses,config)
-    #unpack
-    angles              = geometric[:][1]
-    distance_microphone = geometric[:][0]    
-    phi                 = geometric[:][2]    
+   # geometric = noise_counterplot(noise_segment,analyses,config) #noise_geometric(noise_segment,analyses,config)
     
-    nsteps=len(time)        
+    #unpack
+    distance_microphone = noise_segment.dist #geometric[:][0]    
+    angles              = noise_segment.theta #geometric[:][1]
+    phi                 = noise_segment.phi #geometric[:][2]      
+    
+    distance_microphone = np.interp(noise_time,time,distance_microphone)
+    angles = np.interp(noise_time,time,angles)
+    phi   = np.interp(noise_time,time,phi)    
+    
+    nsteps = len(noise_time)        
     
     #Preparing matrix for noise calculation
     sound_ambient       = np.zeros(nsteps)
@@ -186,6 +204,10 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     SPL_primary_history   = np.zeros((nsteps,24))
     SPL_secondary_history = np.zeros((nsteps,24))
     SPL_mixed_history     = np.zeros((nsteps,24))
+    
+    #Noise history in dBA
+    SPLt_dBA_history = np.zeros((nsteps,24))  
+    SPLt_dBA_max = np.zeros(nsteps)     
 
     # Open output file to print the results
     if ioprint:
@@ -368,13 +390,16 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
      #Sum of the Total Noise
         SPL_total = 10 * np.log10(10**(0.1*SPL_p)+10**(0.1*SPL_s)+10**(0.1*SPL_m))
         
-        
      #Store the SPL history     
         SPL_total_history[id][:]     = SPL_total[:]
         SPL_primary_history[id][:]   = SPL_p[:]
         SPL_secondary_history[id][:] = SPL_s[:]
         SPL_mixed_history[id][:]     = SPL_m[:]
         
+        #Calculation of dBA based on the sound pressure time history
+        SPLt_dBA = dbA_noise(SPL_total)
+        SPLt_dBA_history[i][:] = SPLt_dBA[:]
+        SPLt_dBA_max[i] = max(SPLt_dBA)          
      
     #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =  pnl_noise(SPL_total_history)    
@@ -399,8 +424,10 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     EPNL_primary   = epnl_noise(PNLT_primary)
     EPNL_secondary = epnl_noise(PNLT_secondary)
     EPNL_mixed     = epnl_noise(PNLT_mixed)
+
+    #Calculation of the SENEL total
+    SENEL_total = senel_noise(SPLt_dBA_max)
     
-   
     if ioprint:
        # print EPNL_total
         
@@ -432,22 +459,30 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
             fid.write(str('%2.2f' % PNLT_secondary[id])+'        ')
             fid.write(str('%2.2f' % PNLT_mixed[id])+'        ')
             fid.write(str('%2.2f' % PNLT_total[id])+'        ')
+            fid.write(str('%2.2f' % SPLt_dBA_max[id])+'        ')
             fid.write('\n')
         fid.write('\n')
         fid.write('PNLT max =  ')
         fid.write(str('%2.2f' % (np.max(PNLT_total)))+'  dB')
         fid.write('\n')
+        fid.write('dBA max =  ')
+        fid.write(str('%2.2f' % (np.max(SPLt_dBA_max)))+'  dBA') 
+        fid.write('\n')
         fid.write('EPNdB')
         fid.write('\n')
-        fid.write('f	Primary    Secondary  	 Mixed       Total')
+        fid.write('Primary    Secondary  	 Mixed       Total')
         fid.write('\n')
         fid.write(str('%2.2f' % EPNL_primary)+'        ')
         fid.write(str('%2.2f' % EPNL_secondary)+'        ')
         fid.write(str('%2.2f' % EPNL_mixed)+'        ')
         fid.write(str('%2.2f' % EPNL_total)+'        ')
         fid.write('\n')
+        fid.write('\n')
+        fid.write('SENEL = ')
+        fid.write(str('%2.2f' % SENEL_total)+'        ')        
         
         for id in range (0,nsteps):
+            fid.write('\n')
             fid.write('\n')
             fid.write('Emission angle = ' + str(angles[id]*180/np.pi) + '\n')
             fid.write('Altitude = ' + str(Altitude[id]) + '\n')
@@ -463,8 +498,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
                     fid.write(str('%3.2f' % SPL_mixed_history[id][ijd]) + '       ')
                     fid.write(str('%3.2f' % SPL_total_history[id][ijd]) + '       ')
                     fid.write('\n')
-            
-               
+              
         fid.close
     
-    return(EPNL_total,SPL_total_history)
+    return(EPNL_total,SPL_total_history,SENEL_total)

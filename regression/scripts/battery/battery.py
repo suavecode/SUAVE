@@ -42,7 +42,7 @@ def main():
     
     #build battery_inputs(i.e. current it's run at, power, normally done from energy network
     battery_inputs.current        =90*Units.amps
-    battery_inputs.power_in       =np.array([[Preq/2.] , [Preq]])
+    battery_inputs.power_in       =np.array([Preq/2. , Preq])
     print 'battery_inputs=', battery_inputs
     battery_li_ion.inputs         =battery_inputs
     
@@ -56,7 +56,7 @@ def main():
     #make sure battery starts fully charged
     battery_li_ion.current_energy=[[battery_li_ion.max_energy, battery_li_ion.max_energy]] #normally handle making sure arrays are same length in network
     #run discharge model
-    battery_li_ion.energy_calc( numerics)
+    battery_li_ion.energy_calc(numerics)
     print battery_li_ion
     plot_ragone(battery_li_ion, 'lithium ion')
     plot_ragone(battery_li_s,   'lithium sulfur')

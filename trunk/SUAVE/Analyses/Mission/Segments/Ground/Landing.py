@@ -1,10 +1,12 @@
+# Landing.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# python imports
-import numpy as np
 
 # SUAVE imports
 from Ground import Ground

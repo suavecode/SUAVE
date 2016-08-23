@@ -1,7 +1,7 @@
 # cabin.py
 # 
-# Created:  Tim Momose, June 2014
-
+# Created:  Jun 2014, T. Momose
+# Modified: Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,7 +9,7 @@
 from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
-#  Method
+#  Cabin
 # ----------------------------------------------------------------------
 
 def cabin(cabin_area, TOGW):

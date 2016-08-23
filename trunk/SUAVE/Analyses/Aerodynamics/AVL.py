@@ -1,6 +1,7 @@
-# AVL_Callable.py
+# AVL.py
 #
-# Created:  Tim Momose, Dec 2014
+# Created:  Tim Momose, Dec 2014 
+# Modified: Feb 2016, Andrew Wendorff
 
 
 # ----------------------------------------------------------------------
@@ -107,19 +108,19 @@ class AVL(Aero_Analysis):
         """
         
         # unpack
-        run_folder = os.path.abspath(self.settings.filenames.run_folder)
+        run_folder      = os.path.abspath(self.settings.filenames.run_folder)
         output_template = self.settings.filenames.output_template
         batch_template  = self.settings.filenames.batch_template
         deck_template   = self.settings.filenames.deck_template
         
         # update current status
         self.current_status.batch_index += 1
-        batch_index = self.current_status.batch_index
-        self.current_status.batch_file = batch_template.format(batch_index)
-        self.current_status.deck_file = deck_template.format(batch_index)
+        batch_index                      = self.current_status.batch_index
+        self.current_status.batch_file   = batch_template.format(batch_index)
+        self.current_status.deck_file    = deck_template.format(batch_index)
         
         # translate conditions
-        cases = translate_conditions_to_cases(self,run_conditions)
+        cases                     = translate_conditions_to_cases(self,run_conditions)
         self.current_status.cases = cases        
         
         # case filenames

@@ -1,3 +1,7 @@
+# Constant_Throttle_Constant_Altitude.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,10 +14,6 @@ from SUAVE.Analyses.Mission.Segments import Conditions
 from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
-
-# Units
-from SUAVE.Core import Units
-
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -30,9 +30,10 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.throttle             = None
-        self.velocity_start       = 0.0
-        self.velocity_end         = 0.0 
+        self.throttle        = None
+        self.altitude        = None
+        self.air_speed_start = 0.0
+        self.air_speed_end   = 0.0 
         
         # --------------------------------------------------------------
         #   State
@@ -46,7 +47,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.state.unknowns.body_angle            = ones_row(1) * 0.0
         self.state.unknowns.velocity_x            = ones_row(1) * 0.0
         self.state.unknowns.time                  = 0.1
-        self.state.residuals.final_velocity_error = ones_row(1) * 0.0
+        self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0
     
         # --------------------------------------------------------------
@@ -57,7 +58,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
     
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -67,7 +67,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
     
         converge.converge_root             = Methods.converge_root    
        
@@ -75,18 +74,17 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
-    
+                
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
-    
-    
+        
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
     
         # Update Conditions
         iterate.conditions = Process()
@@ -103,8 +101,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
     
-    
-        ## NEW STUFF TO UPDATE   
         
         # Solve Residuals
         iterate.residuals = Process()     
@@ -114,7 +110,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
     
         # Post Processing
         finalize.post_process = Process()        

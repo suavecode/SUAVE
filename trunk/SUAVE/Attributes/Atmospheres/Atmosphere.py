@@ -1,28 +1,27 @@
-""" Atmosphere.py: Constant-property atmopshere model """
+#Atmosphere.py
+
+# Created:  Mar, 2014, SUAVE Team
+# Modified: Jan, 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# classes
-import numpy as np
-from SUAVE.Attributes.Gases import Air
-from SUAVE.Attributes.Constants import Constant, Composition
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Attributes.Constants import Constant #, Composition
+from SUAVE.Core import Data
 
-# other
-from numpy import sqrt, exp, abs
 
 # ----------------------------------------------------------------------
-#  Atmosphere Data Class
+#  Atmosphere Class
 # ----------------------------------------------------------------------
 
 class Atmosphere(Constant):
 
     """ SUAVE.Attributes.Atmospheres.Atmosphere
+    Constant-property atmosphere model
     """
 
     def __defaults__(self):
-        self.tag = 'Constant-property atmopshere'
+        self.tag = 'Constant-property atmosphere'
         self.composition           = Data()
         self.composition.gas       = 1.0

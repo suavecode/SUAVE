@@ -1,7 +1,16 @@
+# Constant_Mach_Constant_Rate.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import numpy as np
 import SUAVE
+
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):
@@ -10,14 +19,14 @@ def initialize_conditions(segment,state):
     # unpack user inputs
     climb_rate  = segment.climb_rate
     mach_number = segment.mach_number
-    alt0       = segment.altitude_start 
-    altf       = segment.altitude_end
-    t_nondim   = state.numerics.dimensionless.control_points
-    conditions = state.conditions  
+    alt0        = segment.altitude_start 
+    altf        = segment.altitude_end
+    t_nondim    = state.numerics.dimensionless.control_points
+    conditions  = state.conditions  
 
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
-    a          = conditions.freestream.speed_of_sound
+    a = conditions.freestream.speed_of_sound
 
     # check for initial altitude
     if alt0 is None:

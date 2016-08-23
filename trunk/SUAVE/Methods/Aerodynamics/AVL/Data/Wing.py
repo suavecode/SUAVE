@@ -1,10 +1,13 @@
-# Tim Momose, October 2014
+# Wing.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 # ------------------------------------------------------------
 #   Wing
@@ -36,7 +39,7 @@ class Wing(Data):
 
 		# assert database type
 		if not isinstance(section,Data):
-			raise Component_Exception, 'input component must be of type Data()'
+			raise Exception, 'input component must be of type Data()'
 
 		# store data
 		self.sections.append(section)
@@ -62,7 +65,7 @@ class Section(Data):
 
 		# assert database type
 		if not isinstance(control,Data):
-			raise Component_Exception, 'input component must be of type Data()'
+			raise Exception, 'input component must be of type Data()'
 
 		# store data
 		self.control_surfaces.append(control)

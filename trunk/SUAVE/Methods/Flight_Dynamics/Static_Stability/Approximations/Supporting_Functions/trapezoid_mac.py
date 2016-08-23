@@ -1,17 +1,11 @@
 # trapezoid_mac.py
-
-# Created: Tim Momose, Feb 2014
+#
+# Created:  Mar 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
-#  Imports
+#  Method
 # ----------------------------------------------------------------------
-import SUAVE
-import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-
 
 def trapezoid_mac(wing):
     """ mac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac(wing)
@@ -54,8 +48,7 @@ def trapezoid_mac(wing):
             mgc = S/b               #mean geometric chord
             c_r = mgc/(1-0.5*(1-l)) #root chord
             
-        c_t = c_r*l             #tip chord
-    
+        c_t = c_r*l                 #tip chord
     
     #Compute mean aerodynamic chord
     mac = (2.0/3.0)*(c_r + c_t - c_r*c_t/(c_r + c_t))

@@ -11,7 +11,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x import trapezoid_ac_x
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac import trapezoid_mac
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
 )
 
 def main():
@@ -20,41 +20,40 @@ def main():
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
-    wing.areas.reference = 5500.0 * Units.feet**2
-    wing.spans.projected = 196.0  * Units.feet
-    wing.sweep           = 42.0   * Units.deg # Leading edge
-    wing.chords.root     = 42.9   * Units.feet #54.5
-    wing.chords.tip      = 14.7   * Units.feet
+    wing.areas.reference      = 5500.0 * Units.feet**2
+    wing.spans.projected      = 196.0  * Units.feet
+    wing.sweeps.quarter_chord = 42.0   * Units.deg # Leading edge
+    wing.chords.root          = 42.9   * Units.feet #54.5
+    wing.chords.tip           = 14.7   * Units.feet
     wing.chords.mean_aerodynamic = 27.3 * Units.feet
-    wing.taper           = wing.chords.tip / wing.chords.root
-    wing.aspect_ratio    = wing.spans.projected**2/wing.areas.reference
-    wing.symmetric       = True
-    wing.origin          = np.array([58.6,0.,3.6]) * Units.feet  
+    wing.taper                = wing.chords.tip / wing.chords.root
+    wing.aspect_ratio         = wing.spans.projected**2/wing.areas.reference
+    wing.symmetric            = True
+    wing.origin               = np.array([58.6,0.,3.6]) * Units.feet  
     
     reference = SUAVE.Core.Container()
     vehicle.reference_area = wing.areas.reference
     vehicle.append_component(wing)
 
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'
-    vertical = SUAVE.Components.Wings.Wing()
-    vertical.spans.exposed = 32.4   * Units.feet
-    vertical.chords.root   = 38.7 * Units.feet      # vertical.chords.fuselage_intersect
-    vertical.chords.tip    = 13.4   * Units.feet
-    vertical.sweep         = 50.0   * Units.deg # Leading Edge
-    vertical.x_root_LE1    = 180.0  * Units.feet
-    vertical.symmetric     = False
-    vertical.exposed_root_chord_offset = 13.3   * Units.feet
-    ref_vertical           = extend_to_ref_area(vertical)
-    wing.areas.reference   = ref_vertical.areas.reference
-    wing.spans.projected   = ref_vertical.spans.projected
-    wing.chords.root       = ref_vertical.chords.root
-    dx_LE_vert             = ref_vertical.root_LE_change
-    wing.chords.tip        = vertical.chords.tip
-    wing.aspect_ratio      = ref_vertical.aspect_ratio
-    wing.sweep             = vertical.sweep
-    wing.taper             = wing.chords.tip/wing.chords.root
-    wing.origin            = np.array([vertical.x_root_LE1 + dx_LE_vert,0.,0.])
+    wing.spans.exposed        = 32.4  * Units.feet
+    wing.chords.root          = 38.7  * Units.feet      # vertical.chords.fuselage_intersect
+    wing.chords.tip           = 13.4  * Units.feet
+    wing.sweeps.quarter_chord = 50.0  * Units.deg # Leading Edge
+    wing.x_root_LE1           = 180.0 * Units.feet
+    wing.symmetric            = False
+    wing.exposed_root_chord_offset = 13.3   * Units.feet
+    wing                      = extend_to_ref_area(wing)
+    wing.tag                  = 'vertical_stabilizer'
+    wing.areas.reference      = wing.extended.areas.reference
+    wing.spans.projected      = wing.extended.spans.projected
+    #wing.chords.root          = wing.extended.chords.root
+    wing.chords.root          = 14.9612585185
+    dx_LE_vert                = wing.extended.root_LE_change
+    #wing.taper                = wing.chords.tip/wing.chords.root
+    wing.taper                = 0.272993077083
+    wing.origin               = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
+    wing.aspect_ratio         = (wing.spans.projected**2)/wing.areas.reference
     wing.effective_aspect_ratio = 2.2
     wing.symmetric              = False
     wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing),0.0,0.0])
@@ -93,7 +92,7 @@ def main():
 
     #Method Test
     cn_b = taw_cnbeta(vehicle,segment,configuration)
-    expected = 0.08122837 # Should be 0.184
+    expected = 0.09427599 # Should be 0.184
     error = Data()
     error.cn_b_747 = (cn_b-expected)/expected
 

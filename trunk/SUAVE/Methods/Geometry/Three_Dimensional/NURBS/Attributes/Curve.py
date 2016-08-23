@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception
+from SUAVE.Core import Data
 import numpy as np
 
 

@@ -175,6 +175,22 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Distance',axis_font)
         axes.grid(True)
                 
+                
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Velocity",figsize=(8,10))
+    axes = plt.gca()
+    for i, segment in enumerate(results.segments.values()):
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        velocity   = segment.conditions.freestream.velocity[:,0]
+        
+        axes.plot( time , velocity , 'ko-', label='CD parasite' )    
+
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('Velocity (m/s)')
+    axes.grid(True)
         
         
     plt.show()

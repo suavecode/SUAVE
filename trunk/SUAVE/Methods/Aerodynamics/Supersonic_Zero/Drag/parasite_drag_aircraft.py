@@ -1,8 +1,7 @@
 # parasite_drag_wing.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
-
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,16 +11,9 @@
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      parasite_drag_wing, parasite_drag_fuselage, parasite_drag_propulsor
 
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
-
-# package imports
 import numpy as np
-import scipy as sp
 
 # ----------------------------------------------------------------------
 #   The Function

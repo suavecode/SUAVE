@@ -1,10 +1,13 @@
-# Tim Momose, October 2014
+# Configuration.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 
 
 # ------------------------------------------------------------

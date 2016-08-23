@@ -1,9 +1,12 @@
-
+# Aerodynamics.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
 
 # default Aero Results
@@ -23,6 +26,7 @@ class Aerodynamics(Analysis):
         
         self.geometry = Data()
         self.settings = Data()
+        self.settings.maximum_lift_coefficient = np.inf
         
         
     def evaluate(self,state):

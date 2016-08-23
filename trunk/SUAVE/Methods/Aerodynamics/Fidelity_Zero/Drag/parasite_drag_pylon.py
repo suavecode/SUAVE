@@ -1,7 +1,7 @@
 # parasite_drag_pylon.py
-#
-# Created:  Tarik, Jan 2014
-# Modified:
+# 
+# Created:  Jan 2014, T. Orra
+# Modified: Jan 2016, E. Botero   
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,12 +9,12 @@
 import numpy as np
 
 # Suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Computes the pyloan parasite drag
 # ----------------------------------------------------------------------
-#def parasite_drag_pylon(conditions,configuration,geometry):
+
 def parasite_drag_pylon(state,settings,geometry):
     """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
         Simplified estimation, considering pylon drag a fraction of the nacelle drag
@@ -36,10 +36,8 @@ def parasite_drag_pylon(state,settings,geometry):
     conditions = state.conditions
     configuration = settings
     
-    
     pylon_factor        =  0.20 # 20% of propulsor drag
     n_propulsors        =  len(geometry.propulsors)  # number of propulsive system in vehicle (NOT # of ENGINES)
-    
     pylon_parasite_drag = 0.00
     pylon_wetted_area   = 0.00
     pylon_cf            = 0.00
@@ -74,7 +72,4 @@ def parasite_drag_pylon(state,settings,geometry):
     )
     conditions.aerodynamics.drag_breakdown.parasite['pylon'] = pylon_result 
  
-    
-
-    # done!
     return pylon_parasite_drag

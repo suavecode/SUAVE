@@ -1,15 +1,17 @@
 # asymmetry_drag.py
-#
-# Created:  Tarik, Oct 2015
+# 
+# Created:  Oct 2015, T. Orra
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
+# SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
-from SUAVE.Core import Units, Data, Results
+from SUAVE.Core import Units, Data
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Compute asymmetry drag due to engine failure 
@@ -80,7 +82,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     # finding vertical tail
     for idx,wing in enumerate(wings):
         if not wing.vertical: continue
-        vertical_idx = idx
+        vertical_idx = wing.tag
         break
     # if vertical tail not found, raise error
     try:
@@ -93,10 +95,11 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     vertical_dist   = wings[vertical_idx].aerodynamic_center[0] + wings[vertical_idx].origin[0] - xcg
     
     # colculating windmilling drag
-    if not windmilling_drag_coefficient:
+    if windmilling_drag_coefficient == 0:
         try:
-            windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag
+            windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag.windmilling_drag_coefficient
         except: pass
+    
     windmilling_drag = windmilling_drag_coefficient * dyn_press * reference_area
     
     # calculating Drag force due to trim     
@@ -110,8 +113,3 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     state.conditions.aerodynamics.drag_breakdown.asymmetry_trim_coefficient = asymm_trim_drag_coefficient
 
     return asymm_trim_drag_coefficient
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here

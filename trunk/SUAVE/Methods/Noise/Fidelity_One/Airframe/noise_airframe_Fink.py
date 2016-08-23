@@ -1,17 +1,15 @@
-# noise_fidelity_one.py
+# noise_airframce_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
-
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave Imports
-import SUAVE
+# SUAVE Imports
 from SUAVE.Core            import Data
 from SUAVE.Core            import Units
-
 
 from noise_clean_wing import noise_clean_wing
 from noise_landing_gear import noise_landing_gear
@@ -23,13 +21,18 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 
-# package imports
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
+
 import numpy as np
 
-def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0): 
+# ----------------------------------------------------------------------
+#  Noise Airframce Fink
+# ----------------------------------------------------------------------
+
+def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
     """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
             Computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight.
@@ -78,9 +81,9 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     # ==============================================
     wing = config.wings
 
-    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2                  #wing area, sq.ft
+    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
     bw      =       wing.main_wing.spans.projected / Units.ft                    #wing span, ft
-    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2           #horizontal tail area, sq.ft
+    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
     bht     =       wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
     Svt     =       wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
     bvt     =       wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
@@ -91,13 +94,17 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     Hp      =       config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
     Dn      =       config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
     Hn      =       config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
-    gear    =       config.landing_gear.gear_condition                #Gear up or gear down
-    nose_wheels    =   config.landing_gear.nose_wheels               #Number of wheels   
-    main_wheels    =   config.landing_gear.main_wheels               #Number of wheels   
-    main_units     =   config.landing_gear.main_units                #Number of main units   
+    gear    =       config.landing_gear.gear_condition                           #Gear up or gear down
+    
+    nose_wheels    =   config.landing_gear.nose_wheels                           #Number of wheels   
+    main_wheels    =   config.landing_gear.main_wheels                           #Number of wheels   
+    main_units     =   config.landing_gear.main_units                            #Number of main units   
     velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) 
     altitude       =   noise_segment.conditions.freestream.altitude[:,0] 
-    time           =   noise_segment.conditions.frames.inertial.time     
+    time           =   noise_segment.conditions.frames.inertial.time[:,0]    
+
+    noise_time = np.arange(0.,time[-1],.5)  
+    altitude = np.interp(noise_time,time,altitude)
 
     # determining flap slot number
     if wing.main_wing.flaps.type   == 'single_sloted':
@@ -108,15 +115,19 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
         slots = 3
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_geometric(noise_segment,analyses,config)
+    #geometric = noise_counterplot(noise_segment,analyses,config)  
+   # geometric = noise_geometric(noise_segment,analyses,config)
     
-    distance_vector = geometric[:][0]    
-    angle = geometric[:][1]
-    phi   = geometric[:][2]
+    distance_vector = noise_segment.dist #geometric[:][0]    
+    angle = noise_segment.theta #geometric[:][1]
+    phi   = noise_segment.phi #geometric[:][2]
     
+    distance_vector = np.interp(noise_time,time,distance_vector)
+    angle = np.interp(noise_time,time,angle)
+    phi   = np.interp(noise_time,time,phi)
         
     # Number of points on the discretize segment   
-    nsteps=len(time)
+    nsteps=len(noise_time)
     
     # Preparing matrix for noise calculation
     sound_speed = np.zeros(nsteps)
@@ -170,7 +181,8 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     SPL_total_history = np.zeros((nrange,24))
     
     #Noise history in dBA
-    SPLt_dBA_history = np.zeros((nrange,24))    
+    SPLt_dBA_history = np.zeros((nrange,24))  
+    SPLt_dBA_max = np.zeros(nrange)    
     
     #START LOOP FOR EACH POSITION OF AIRCRAFT   
     for i in range(0,nrange-1):
@@ -207,10 +219,6 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
          #Total Airframe Noise
         SPL_total = 10.*np.log10(10.0**(0.1*SPL_wing)+10.0**(0.1*SPLht)+10**(0.1*SPL_flap)+ \
              10.0**(0.1*SPL_slat)+10.0**(0.1*SPL_main_landing_gear)+10.0**(0.1*SPL_nose_landing_gear)) - delta_atmo
-             
-        #Included 02nd September 2015
-        SPLt_dBA = dbA_noise(SPL_total)       
-        SPLt_dBA_history[i][:] = SPLt_dBA[:]
             
         SPL_total_history[i][:] = SPL_total[:]
         SPL_wing_history[i][:]  = SPL_wing[:]
@@ -220,10 +228,16 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
         SPL_slat_history[i][:]  = SPL_slat[:]
         SPL_nose_landing_gear_history[i][:] = SPL_nose_landing_gear[:]
         SPL_main_landing_gear_history[i][:] = SPL_main_landing_gear[:]
+        
+        
+        #Calculation of dBA based on the sound pressure time history
+        SPLt_dBA = dbA_noise(SPL_total)
+        SPLt_dBA_history[i][:] = SPLt_dBA[:]
+        SPLt_dBA_max[i] = max(SPLt_dBA)        
        
        
    #Calculation of dBA based on the sound pressure time history
-   # dbA_total                =       dbA_noise(SPL_total_history)    #(Not used to certification point)
+   # dbA_total                =       max(SPLt_dBA_history)    #(Not used to certification point)
           
    #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =       pnl_noise(SPL_total_history)
@@ -266,6 +280,8 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     EPNL_slat = epnl_noise(PNLT_slat)
     EPNL_flap = epnl_noise(PNLT_flap)
     
+    #Calculation of the SENEL total
+    SENEL_total = senel_noise(SPLt_dBA_max)
     
     if ioprint:
         # write header of file
@@ -279,7 +295,7 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
         fid.write('\n')
         fid.write('PNLT history')
         fid.write('\n')
-        fid.write('time       altitude      Mach    Polar angle    Azim angle   distance       wing  	 ht 	     vt 	flap   	    slat   	nose        main       total')
+        fid.write('time       altitude      Mach    Polar_angle    Azim_angle   distance        wing  	   ht 	        vt 	   flap   	 slat         nose        main         total         dBA')
         fid.write('\n')
         
         for id in range (0,nsteps):
@@ -297,10 +313,14 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
             fid.write(str('%2.2f' % PNLT_nose_landing_gear[id])+'        ')
             fid.write(str('%2.2f' % PNLT_main_landing_gear[id])+'        ')
             fid.write(str('%2.2f' % PNLT_total[id])+'        ')
+            fid.write(str('%2.2f' % SPLt_dBA_max[id])+'        ')
             fid.write('\n')
         fid.write('\n')
         fid.write('PNLT max =  ')
         fid.write(str('%2.2f' % (np.max(PNLT_total)))+'  dB')
+        fid.write('\n')
+        fid.write('dBA max =  ')
+        fid.write(str('%2.2f' % (np.max(SPLt_dBA_max)))+'  dBA')        
         fid.write('\n')
         fid.write('\n')
         fid.write('EPNdB')
@@ -315,6 +335,9 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
         fid.write(str('%2.2f' % EPNL_nose_landing_gear)+'        ')
         fid.write(str('%2.2f' % EPNL_main_landing_gear)+'        ')
         fid.write(str('%2.2f' % EPNL_total)+'        ')
+        fid.write('\n')
+        fid.write('SENEL = ')
+        fid.write(str('%2.2f' % SENEL_total)+'        ')       
         fid.close 
         
         
@@ -343,4 +366,4 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     
         fid.close
     
-    return (EPNL_total,SPL_total_history)
+    return (EPNL_total,SPL_total_history,SENEL_total)

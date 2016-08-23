@@ -1,10 +1,12 @@
-
+# Physical_Component.py
+# 
+# Created:  
+# Modified: Feb 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
 from Component import Component
 from Mass_Properties import Mass_Properties
 
@@ -41,6 +43,7 @@ class Container(Component.Container):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
                 total += Comp.mass_properties.mass
+                
         return total
     
     

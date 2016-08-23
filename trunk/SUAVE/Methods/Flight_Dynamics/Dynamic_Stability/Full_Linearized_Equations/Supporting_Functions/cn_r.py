@@ -1,16 +1,7 @@
-# longitudinal.py
+# cn_r.py
 # 
-# Created:  Andrew Wendorff, June 2014
-# Modified:
-
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
-)
-import numpy as np
+# Created:  Jun 2014, A. Wendorff
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #   Method
@@ -30,7 +21,6 @@ def cn_r(cDw, Sv, Sref, l_v, span, eta_v, cLv_alpha):
     """
 
     # Generating Stability derivative
-    
     cn_r = -cDw/4. - 2. * Sv / Sref * (l_v/span)**2. * cLv_alpha * eta_v
     
     return cn_r

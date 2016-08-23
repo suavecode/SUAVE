@@ -1,3 +1,7 @@
+# Aerodynamic.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -37,13 +41,6 @@ class Aerodynamic(Simple):
         self.state.conditions.update( Conditions.Aerodynamics() )
         self.temperature_deviation = 0.0
         
-        # initials and unknowns, Example...
-        ##ones_row = self.state.ones_row
-        ##self.state.unknowns.throttle   = ones_row(1) * 0.5
-        ##self.state.unknowns.body_angle = ones_row(1) * 0.0
-        ##self.state.residuals.forces    = ones_row(2) * 0.0
-        
-        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
@@ -52,7 +49,6 @@ class Aerodynamic(Simple):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -62,7 +58,6 @@ class Aerodynamic(Simple):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root        
         
@@ -70,8 +65,7 @@ class Aerodynamic(Simple):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
-                
+
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
@@ -80,7 +74,8 @@ class Aerodynamic(Simple):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None  
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None  
         
         # Update Conditions
         iterate.conditions = Process()
@@ -104,7 +99,6 @@ class Aerodynamic(Simple):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         # Post Processing
         finalize.post_process = Process()        

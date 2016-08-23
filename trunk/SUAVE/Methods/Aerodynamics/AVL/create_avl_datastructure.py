@@ -1,4 +1,7 @@
-# Tim Momose, October 2014
+# create_avl_datastructure.py
+# 
+# Created:  Oct 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -6,9 +9,10 @@
 import scipy
 import numpy as np
 from copy import deepcopy
+
 # SUAVE Imports
-from SUAVE.Core import Data, Data_Exception, Data_Warning
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.parasite_drag_aircraft import parasite_drag_aircraft
+from SUAVE.Core import Data
+
 # SUAVE-AVL Imports
 from .Data.Inputs   import Inputs
 from .Data.Wing     import Wing, Section, Control_Surface
@@ -56,7 +60,7 @@ def translate_avl_wing(suave_wing):
 	w.tag       = suave_wing.tag
 	w.symmetric = suave_wing.symmetric
 	w.vertical  = suave_wing.vertical
-	w.sweep     = suave_wing.sweep
+	w.sweep     = suave_wing.sweeps.quarter_chord
 	w.dihedral  = suave_wing.dihedral
 	w = populate_wing_sections(w,suave_wing)
 	
@@ -80,7 +84,7 @@ def translate_avl_body(suave_body):
 
 def populate_wing_sections(avl_wing,suave_wing):
 	symm     = avl_wing.symmetric
-	sweep    = avl_wing.sweep
+	sweep    = avl_wing.sweeps.quarter_chord
 	dihedral = avl_wing.dihedral
 	span     = suave_wing.spans.projected
 	semispan = suave_wing.spans.projected * 0.5 * (2 - symm)

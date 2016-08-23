@@ -1,3 +1,7 @@
+# Simple.py
+#
+# Created:  
+# Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,11 +23,6 @@ class Simple(Segment):
     
     def __defaults__(self):
         
-        # --------------------------------------------------------------
-        #   User inputs
-        # --------------------------------------------------------------
-        # self.example = 1.0
-        
         
         # --------------------------------------------------------------
         #   State
@@ -31,12 +30,6 @@ class Simple(Segment):
         
         # conditions
         self.state.conditions.update( Conditions.Basic() )
-        
-        # initials and unknowns, Example...
-        ##ones_row = self.state.ones_row
-        ##self.state.unknowns.throttle   = ones_row(1) * 0.5
-        ##self.state.unknowns.body_angle = ones_row(1) * 0.0
-        ##self.state.residuals.forces    = ones_row(2) * 0.0
         
         
         # --------------------------------------------------------------
@@ -47,7 +40,6 @@ class Simple(Segment):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -57,7 +49,6 @@ class Simple(Segment):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root
 
@@ -65,14 +56,14 @@ class Simple(Segment):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None
         
         # Update Conditions
         iterate.conditions = Process()
@@ -85,7 +76,6 @@ class Simple(Segment):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         finalize.post_process = Process()
         

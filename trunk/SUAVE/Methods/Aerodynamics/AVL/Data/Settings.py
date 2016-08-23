@@ -1,4 +1,7 @@
-# Tim Momose, December 2014
+# Settings.py
+# 
+# Created:  Dec 2014, T. Momose
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,9 +1,7 @@
 # compressible_mixed_flat_plate.py
 # 
-# Created:  Tim MacDonald, 8/1/14
-# Modified:         
-# Adapted from compressible_turbulent_flat_plate.py
-
+# Created:  Aug 2014, T. Macdonald
+# Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,11 +11,11 @@
 import numpy as np
 import pylab as plt
 
-
 # ----------------------------------------------------------------------
 #  Simple Method
 # ----------------------------------------------------------------------
 
+# Adapted from compressible_turbulent_flat_plate.py
 
 def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     """ SUAVE.Methods.Aerodyanmics.Drag.Correlations.compressibile_mixed_flat_plate(Re,Ma,Tc,xt)
