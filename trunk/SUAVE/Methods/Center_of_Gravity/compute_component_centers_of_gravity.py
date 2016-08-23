@@ -41,13 +41,13 @@ def compute_component_centers_of_gravity(vehicle):
     span_location_mac                          = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     
     #assume that 80% of the chord difference is from leading edge sweep
-    mac_le_offset                              = .8*np.sin(wing.sweep)*span_location_mac  
+    mac_le_offset                              = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac  
     chord_length_h_tail_35_percent_semi_span   = compute_chord_length_from_span_location(h_tail,.35*h_tail.spans.projected*.5)
     chord_length_v_tail_35_percent_semi_span   = compute_chord_length_from_span_location(v_tail,.35*v_tail.spans.projected*.5)
     
     #x distance from leading edge of root chord to leading edge of aerodynamic center
-    h_tail_35_percent_semi_span_offset         =.8*np.sin(h_tail.sweep)*.35*.5*h_tail.spans.projected             
-    v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweep)*.35*.5*v_tail.spans.projected
+    h_tail_35_percent_semi_span_offset         =.8*np.sin(h_tail.sweeps.quarter_chord)*.35*.5*h_tail.spans.projected             
+    v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweeps.quarter_chord)*.35*.5*v_tail.spans.projected
     
     wing.mass_properties.center_of_gravity[0]   = .3*wing.chords.mean_aerodynamic + mac_le_offset
     h_tail.mass_properties.center_of_gravity[0] = .3*chord_length_h_tail_35_percent_semi_span + \

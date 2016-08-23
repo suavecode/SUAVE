@@ -1,6 +1,6 @@
-#Turbofan.py
+# Turbofan.py
 # 
-# Created:  Oct 2014, A. Variyar, 
+# Created:  Oct 2014, A. Variyar
 # Modified: Feb 2016, M. Vegh
 
 # ----------------------------------------------------------------------

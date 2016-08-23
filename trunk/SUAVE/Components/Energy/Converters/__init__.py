@@ -16,5 +16,5 @@ from Propeller_Lo_Fid import Propeller_Lo_Fid
 from Ram import Ram
 from Solar_Panel import Solar_Panel
 from Turbine import Turbine
-from Supersonic_Nozzle import Supersonic_Nozzle
-from Internal_Combustion_Engine import Internal_Combustion_Engine
+from Internal_Combustion_Engine import Internal_Combustion_Engineimport Turbofan_JDM
+import Turbofan_TASOPT
