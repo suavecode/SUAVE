@@ -81,6 +81,25 @@ class Motor(Energy_Component):
 
         return omega1
     
+    def torque(self,conditions):        
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        Kv    = self.speed_constant/G
+        v     = self.inputs.voltage
+        omega = self.inputs.omega
+        
+        # Torque
+        Q = ((v-omega1/Kv)/Res -io)/Kv
+        
+        self.outputs.torque = Q
+        self.outputs.omega  = omega
+    
+        return Q
+    
+    
     def current(self,conditions):
         """ The motor's current
             
