@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Core  import Data
+from SUAVE.Core  import Data, Units
 
 # package imports
 import numpy as np
@@ -29,8 +29,8 @@ def compute_turbofan_geometry(turbofan, conditions):
     fan_nozzle        = turbofan.fan_nozzle
     bypass_ratio      = turbofan.bypass_ratio
     
-    slsthrust         = turbofan.sealevel_static_thrust
-    slsthrust         = slsthrust*0.224809
+    slsthrust         = turbofan.sealevel_static_thrust*0.224809 #convert from N to lbs. in correlation
+    #slsthrust         = slsthrust*0.224809
 
     #note; this script doesn't actually use conditions; however, it takes it as input to maintain common interface
 
