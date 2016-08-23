@@ -13,7 +13,8 @@ import SUAVE
 # package imports
 import numpy as np
 
-from SUAVE.Core import Data, Results
+from SUAVE.Core import Data
+from SUAVE.Analyses import Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
@@ -26,7 +27,7 @@ class Turbofan(Propulsor):
     def __defaults__(self):
         
         #setting the default values
-        self.tag = 'Turbo_Fan'
+        self.tag = 'Turbofan'
         self.number_of_engines = 1.0
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0

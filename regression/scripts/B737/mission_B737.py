@@ -1,7 +1,7 @@
-# full_setup.py
+# mission_B737.py
 # 
-# Created:  SUave Team, Aug 2014
-# Modified: 
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with a 737
 """
@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -57,7 +57,7 @@ def main():
     #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
 
     # print parasite drag data into file
-        # define reference condition for parasite drag
+    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 12e6     
@@ -71,14 +71,16 @@ def main():
 
     # load older results
     #save_results(results)
-    #old_results = load_results()   
+    old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
+    #plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
-    #check_results(results,old_results)
+    check_results(results,old_results)
+    
+    #plt.show()
 
     return
 
@@ -230,7 +232,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.16
     wing.span_efficiency         = 0.9
@@ -267,7 +269,7 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 6.16
-    wing.sweep                   = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 30 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
@@ -303,7 +305,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
@@ -377,14 +379,22 @@ def vehicle_setup():
 
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
 
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
-
+    
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #Assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
@@ -922,6 +932,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    
+    segment.state.numerics.number_control_points = 10
 
     # add to mission
     mission.append_segment(segment)
@@ -1140,5 +1152,5 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    plt.show()
+    #plt.show()
 

@@ -32,7 +32,7 @@ class Control_Surface(Lofted_Body):
 
         # assert database type
         if not isinstance(section,Data):
-            raise Component_Exception, 'input control surface section must be of type Data()'
+            raise Exception, 'input control surface section must be of type Data()'
 
         # store data
         self.sections.append(section)

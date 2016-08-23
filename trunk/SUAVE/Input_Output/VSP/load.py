@@ -18,7 +18,7 @@ from warnings import warn
 # suave imports
 import SUAVE.Components
 from SUAVE.Input_Output.XML import load as import_from_xml
-from SUAVE.Core  import Data, Container, Data_Exception
+from SUAVE.Core  import Data, Container
 
 
 # ----------------------------------------------------------------------
@@ -216,7 +216,7 @@ def set_wing(component,mass_props = None):
     
     # check segment-section alignment
     if not len(sections)==(len(segments)+1):
-        raise Data_Exception , 'Segment-Section mismatch'    
+        raise Exception , 'Segment-Section mismatch'    
     
     # mass properties
     if mass_props and mass_props.has_key(wing.tag):
@@ -252,7 +252,7 @@ def read_airfoil_points(points):
     points = map(float,points)
     
     # restack list
-    if len(points) % 2 > 0 : raise Data_Exception , 'jagged airfoil point list'
+    if len(points) % 2 > 0 : raise Exception , 'jagged airfoil point list'
     points = zip(*[iter(points)]*2)
     points = map(list,points)
     

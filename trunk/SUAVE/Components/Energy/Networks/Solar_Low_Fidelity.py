@@ -103,6 +103,9 @@ class Solar_Low_Fidelity(Propulsor):
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
+        
+        # Adjust power usage for magic thrust
+        solar_logic.inputs.currentesc[eta>1.0] = solar_logic.inputs.currentesc[eta>1.0]*eta[eta>1.0]
         #
         solar_logic.logic(conditions,numerics)
         # link

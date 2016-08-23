@@ -100,20 +100,21 @@ def empty(vehicle):
     
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    
     propulsors     = vehicle.propulsors[propulsor_name]
-    if propulsor_name=='turbo_fan':
-        num_eng    = propulsors.number_of_engines
-                # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
-                # weight estimation. Engine sizing should return this value.
-                # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
+    num_eng    = propulsors.number_of_engines
+    if propulsor_name=='turbofan' or propulsor_name=='Turbofan':
+        # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
+        # weight estimation. Engine sizing should return this value.
+        # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
         thrust_sls                       = propulsors.sealevel_static_thrust
         wt_engine_jet                    = Propulsion.engine_jet(thrust_sls)
         wt_propulsion                    = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 
         
-    else : #propulsor used is not a turbo_fan; assume mass_properties defined outside model
+    else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
         wt_propulsion                   = propulsors.mass_properties.mass
-        
+
         if wt_propulsion==0:
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     
@@ -128,7 +129,7 @@ def empty(vehicle):
         b          = vehicle.wings['main_wing'].spans.projected
         lambda_w   = vehicle.wings['main_wing'].taper
         t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweep
+        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         wt_wing    = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
@@ -148,7 +149,7 @@ def empty(vehicle):
     else:    
         S_h            = vehicle.wings['horizontal_stabilizer'].areas.reference
         b_h            = vehicle.wings['horizontal_stabilizer'].spans.projected
-        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweep
+        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord
         mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
@@ -167,7 +168,7 @@ def empty(vehicle):
         S_v        = vehicle.wings['vertical_stabilizer'].areas.reference
         b_v        = vehicle.wings['vertical_stabilizer'].spans.projected
         t_c_v      = vehicle.wings['vertical_stabilizer'].thickness_to_chord
-        sweep_v    = vehicle.wings['vertical_stabilizer'].sweep
+        sweep_v    = vehicle.wings['vertical_stabilizer'].sweeps.quarter_chord
         t_tail     = vehicle.wings['vertical_stabilizer'].t_tail  
         output_3   = tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder

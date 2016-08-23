@@ -1,4 +1,4 @@
-# noise_fidelity_one.py
+# noise_airframce_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
 # Modified: Jan 2016, E. Botero
@@ -29,10 +29,10 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Noise Fidelity One
+#  Noise Airframce Fink
 # ----------------------------------------------------------------------
 
-def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0): 
+def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
     """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
             Computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight.
@@ -101,7 +101,10 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     main_units     =   config.landing_gear.main_units                            #Number of main units   
     velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) 
     altitude       =   noise_segment.conditions.freestream.altitude[:,0] 
-    time           =   noise_segment.conditions.frames.inertial.time     
+    time           =   noise_segment.conditions.frames.inertial.time[:,0]    
+
+    noise_time = np.arange(0.,time[-1],.5)  
+    altitude = np.interp(noise_time,time,altitude)
 
     # determining flap slot number
     if wing.main_wing.flaps.type   == 'single_sloted':
@@ -119,9 +122,12 @@ def noise_fidelity_one(config, analyses, noise_segment,ioprint = 0, filename=0):
     angle = noise_segment.theta #geometric[:][1]
     phi   = noise_segment.phi #geometric[:][2]
     
+    distance_vector = np.interp(noise_time,time,distance_vector)
+    angle = np.interp(noise_time,time,angle)
+    phi   = np.interp(noise_time,time,phi)
         
     # Number of points on the discretize segment   
-    nsteps=len(time)
+    nsteps=len(noise_time)
     
     # Preparing matrix for noise calculation
     sound_speed = np.zeros(nsteps)

@@ -41,8 +41,9 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
     k2 = 0.2857142857                               # constant to airspeed conversion
 
     TotalRange = 0
-    for i,(tag,segment) in enumerate(results.segments.items()):          #loop for all segments
-        segment = results.segments[i]
+    i = 0
+    for key in results.segments.keys():        #loop for all segments
+        segment = results.segments[key]
 
         HPf = -segment.conditions.frames.inertial.position_vector[-1,2] / Units.ft      #Final segment Altitude   [ft]
         HPi = -segment.conditions.frames.inertial.position_vector[0,2] / Units.ft       #Initial segment Altitude  [ft]
@@ -90,7 +91,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         KCASi_str = str('%7.1f'   % KCASi)    + '|'
         KCASf_str = str('%7.1f'   % KCASf)    + '|'
 
-        Segment_str = '%- 31s |' % tag 
+        Segment_str = '%- 31s |' % key 
         
 
         if i == 0:  #Write header
@@ -100,6 +101,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
             fid.write( '                                |       |       |        |        |         |       |        |       |       |       |       |\n')
         # Print segment data
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+Fuel_str+KCASi_str+KCASf_str+Mi_str+Mf_str+'\n')
+        i = i+1
 
     #Summary of results [nm]
     TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]

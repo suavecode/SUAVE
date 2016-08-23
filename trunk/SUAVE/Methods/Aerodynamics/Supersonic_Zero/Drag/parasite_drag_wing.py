@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import numpy as np
 
@@ -61,7 +61,7 @@ def parasite_drag_wing(state,settings,geometry):
     # wing
     mac_w        = wing.chords.mean_aerodynamic
     t_c_w        = wing.thickness_to_chord
-    sweep_w      = wing.sweep
+    sweep_w      = wing.sweeps.quarter_chord
     arw_w        = wing.aspect_ratio
     span_w       = wing.spans.projected
     S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())

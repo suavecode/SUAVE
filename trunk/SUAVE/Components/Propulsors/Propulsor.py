@@ -21,15 +21,10 @@ class Propulsor(Physical_Component):
 
     def __defaults__(self):
         self.tag = 'Propulsor'
-
-
+        
 class Container(Physical_Component.Container):
     """ Contains many SUAVE.Components.Propulsor()
     
-        Search Methods
-            import SUAVE.Components.Propulsors
-            example: find_instances(Propulsors.Motor)    > return all Motors
-            example: find_instances(Propulsors.Turbojet) > return all Turbojets
     """
     
     def evaluate_thrust(self,state):

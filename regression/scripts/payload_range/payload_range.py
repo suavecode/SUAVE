@@ -1,3 +1,4 @@
+
 # full_setup.py
 #
 # Created:  SUave Team, Aug 2014
@@ -20,13 +21,13 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 # the analysis functions
 from plot_mission import plot_mission
 
-from mission_Embraer_E190_constThr import full_setup
+from mission_Embraer_E190_constThr_payload_range import full_setup
 
 from SUAVE.Methods.Performance  import payload_range
 
@@ -46,7 +47,7 @@ def main():
     mission = analyses.missions
     
     # run payload diagram
-    cruise_segment_tag = "Cruise"
+    cruise_segment_tag = "cruise"
     reserves = 1750.
     payload_range_results = payload_range(vehicle,mission,cruise_segment_tag,reserves)    
     

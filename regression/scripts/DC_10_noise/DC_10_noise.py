@@ -5,7 +5,7 @@ import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Noise import Correlations as Correlations
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container
 )
 
 def main():

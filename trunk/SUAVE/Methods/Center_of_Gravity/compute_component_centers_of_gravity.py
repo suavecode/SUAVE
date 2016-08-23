@@ -26,7 +26,8 @@ def compute_component_centers_of_gravity(vehicle):
     landing_gear       = vehicle.landing_gear
     #main_landing_gear  = vehicle.main_landing_gear
     #nose_landing_gear  = vehicle.nose_landing_gear
-    turbo_fan          = vehicle.propulsors['turbo_fan']
+    propulsor_name     = vehicle.propulsors.keys()[0]
+    propulsor          = vehicle.propulsors[propulsor_name]
     electrical_systems = vehicle.electrical_systems
     avionics           = vehicle.avionics
     furnishings        = vehicle.furnishings
@@ -40,13 +41,13 @@ def compute_component_centers_of_gravity(vehicle):
     span_location_mac                          = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     
     #assume that 80% of the chord difference is from leading edge sweep
-    mac_le_offset                              = .8*np.sin(wing.sweep)*span_location_mac  
+    mac_le_offset                              = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac  
     chord_length_h_tail_35_percent_semi_span   = compute_chord_length_from_span_location(h_tail,.35*h_tail.spans.projected*.5)
     chord_length_v_tail_35_percent_semi_span   = compute_chord_length_from_span_location(v_tail,.35*v_tail.spans.projected*.5)
     
     #x distance from leading edge of root chord to leading edge of aerodynamic center
-    h_tail_35_percent_semi_span_offset         =.8*np.sin(h_tail.sweep)*.35*.5*h_tail.spans.projected             
-    v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweep)*.35*.5*v_tail.spans.projected
+    h_tail_35_percent_semi_span_offset         =.8*np.sin(h_tail.sweeps.quarter_chord)*.35*.5*h_tail.spans.projected             
+    v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweeps.quarter_chord)*.35*.5*v_tail.spans.projected
     
     wing.mass_properties.center_of_gravity[0]   = .3*wing.chords.mean_aerodynamic + mac_le_offset
     h_tail.mass_properties.center_of_gravity[0] = .3*chord_length_h_tail_35_percent_semi_span + \
@@ -58,10 +59,10 @@ def compute_component_centers_of_gravity(vehicle):
     control_systems.origin                                  = wing.origin
     control_systems.mass_properties.center_of_gravity[0]    = .4*wing.chords.mean_aerodynamic+mac_le_offset
     fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total
-    turbo_fan.origin[0]                                     = wing.origin[0]+mac_le_offset/2.-(3./4.)*turbo_fan.engine_length
-    turbo_fan.mass_properties.center_of_gravity[0]          = turbo_fan.engine_length*.5
+    propulsor.origin[0]                                     = wing.origin[0]+mac_le_offset/2.-(3./4.)*propulsor.engine_length
+    propulsor.mass_properties.center_of_gravity[0]          = propulsor.engine_length*.5
     electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0]+\
-                .5*fuselage.lengths.total)+.25*(turbo_fan.origin[0]+turbo_fan.mass_properties.center_of_gravity[0])
+                .5*fuselage.lengths.total)+.25*(propulsor.origin[0]+propulsor.mass_properties.center_of_gravity[0])
     
     
     avionics.origin                                         = fuselage.origin
@@ -86,7 +87,7 @@ def compute_component_centers_of_gravity(vehicle):
     
     hydraulics.origin                                       = fuselage.origin
     hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity)\
-        +.25*(turbo_fan.origin+turbo_fan.mass_properties.center_of_gravity)
+        +.25*(propulsor.origin+propulsor.mass_properties.center_of_gravity)
     
     optionals.origin                                        = fuselage.origin
     optionals.mass_properties.center_of_gravity[0]          = .51*fuselage.lengths.total

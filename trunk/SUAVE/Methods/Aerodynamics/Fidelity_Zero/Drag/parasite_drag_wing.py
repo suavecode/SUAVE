@@ -11,7 +11,7 @@
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # package imports
 import numpy as np
@@ -64,7 +64,7 @@ def parasite_drag_wing(state,settings,geometry):
     # wing
     mac_w        = wing.chords.mean_aerodynamic
     t_c_w        = wing.thickness_to_chord
-    sweep_w      = wing.sweep
+    sweep_w      = wing.sweeps.quarter_chord
     arw_w        = wing.aspect_ratio
     span_w       = wing.spans.projected
     S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
@@ -73,11 +73,15 @@ def parasite_drag_wing(state,settings,geometry):
     xtl          = wing.transition_x_lower
     
     # compute wetted area 
-    try:
-        Swet = wing.areas.wetted
-    except:
+    if wing.has_key('areas'):
+        if wing.areas.has_key('wetted'):
+            Swet = wing.areas.wetted
+        else:
+            Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
+            wing.areas.wetted = Swet
+    else:
         Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
-        wing.areas.wetted = Swet
+        wing.areas.wetted = Swet        
     
     # conditions
     Mc  = freestream.mach_number
@@ -95,9 +99,10 @@ def parasite_drag_wing(state,settings,geometry):
 
     # correction for airfoils
     cos_sweep = np.cos(sweep_w)
+    cos2      = cos_sweep*cos_sweep
     
-    k_w = 1. + ( 2.* C * (t_c_w * cos_sweep*cos_sweep) ) / ( np.sqrt(1.- Mc*Mc * cos_sweep*cos_sweep) )  \
-        + ( C**2. * cos_sweep*cos_sweep * t_c_w*t_c_w * (1. + 5.*(cos_sweep*cos_sweep)) ) \
+    k_w = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc*Mc * cos2) )  \
+        + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
         / (2.*(1.-(Mc*cos_sweep)**2.))                       
 
     # find the final result

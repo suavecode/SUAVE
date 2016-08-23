@@ -16,7 +16,7 @@ import os.path
 from warnings import warn
 
 # from SUAVE.Methods import Airfoils
-from SUAVE.Core  import Data, Container, Data_Exception
+from SUAVE.Core  import Data, Container
 from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------

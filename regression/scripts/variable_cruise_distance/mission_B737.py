@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -251,7 +251,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.16
     wing.span_efficiency         = 0.9
@@ -288,7 +288,7 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 6.16      #
-    wing.sweep                   = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 30 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
@@ -324,7 +324,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91      #
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
@@ -399,7 +399,7 @@ def vehicle_setup():
 
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbo_fan'
+    turbofan.tag = 'turbofan'
 
     # setup
     turbofan.number_of_engines = 2.0
@@ -407,9 +407,19 @@ def vehicle_setup():
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
 
+    #compute engine areas
+    Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 
+    
+    #assign engine areas
+    turbofan.areas.wetted  = Awet
+    
+    
+    
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
-
+    
+    
+    
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram
@@ -581,7 +591,7 @@ def vehicle_setup():
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
 
-    # add  gas turbine network gt_engine to the vehicle 
+    # add  gas turbine network turbofan to the vehicle 
     vehicle.append_component(turbofan)      
 
 

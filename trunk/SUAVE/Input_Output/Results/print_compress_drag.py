@@ -36,7 +36,7 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     """ 
 
     # Unpack
-    sweep           = vehicle.wings['main_wing'].sweep  / Units.deg
+    sweep           = vehicle.wings['main_wing'].sweeps.quarter_chord  / Units.deg
     t_c             = vehicle.wings['main_wing'].thickness_to_chord
     sref            = vehicle.reference_area
     settings        = analyses.configs.cruise.aerodynamics.settings
@@ -48,7 +48,7 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     cd_compress = Data()
     for idw,wing in enumerate(vehicle.wings):
         cd_compress[wing.tag] = np.zeros((len(mach_vec),len(cl_vec)))
-    cd_compress_tot = np.zeros_like(cd_compress[0])        
+    cd_compress_tot = np.zeros_like(cd_compress.main_wing)        
     
     # Alocatting array necessary for the drag estimation method
     state = Data()

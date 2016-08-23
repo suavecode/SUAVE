@@ -18,6 +18,7 @@ from Numerics   import Numerics
 
 import SUAVE
 from SUAVE.Core.Arrays import array_type
+from SUAVE.Core import DataOrdered
 
 # ----------------------------------------------------------------------
 #  State
@@ -62,7 +63,7 @@ class State(Conditions):
         
 class Container(State):
     def __defaults__(self):
-        self.segments = Conditions()
+        self.segments = DataOrdered()
         
     def merged(self):
         

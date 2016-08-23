@@ -36,7 +36,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+            atmo_data = atmosphere.compute_values(altitude,delta_isa)
+            
+            p   = atmo_data.pressure          
+            T   = atmo_data.temperature       
+            rho = atmo_data.density          
+            a   = atmo_data.speed_of_sound    
+            mu  = atmo_data.dynamic_viscosity           
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -204,20 +210,9 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     rho5_core         = core_nozzle.outputs.density
     U5_core           = core_nozzle.outputs.velocity
     
-    A0                = (mass_flow/(rho0*U0))[0][0]
-    Ae_fan            = mass_flow_fan/(rho5_fan*U5_fan)
-    Ae_core           = mass_flow/(rho5_core*U5_core)
-    exit_area_ratio   = thrust.inputs.core_nozzle.area_ratio[0][0]
-    fan_area_ratio    = thrust.inputs.fan_nozzle.area_ratio[0][0]
     
     
-    #output areas
-    turbofan.areas.inflow  = A0
-    turbofan.areas.maximum = 1.2*(Ae_fan+Ae_core)/fan_area_ratio  #1.2 accounts for nacelle
-    turbofan.areas.exit    = 1.2*(Ae_fan+Ae_core)
-    turbofan.nacelle_diameter = 2.1*((turbofan.areas.maximum/np.pi)**.5)
-    
-    
+  
     
     #update the design thrust value
     turbofan.design_thrust = thrust.total_design
@@ -225,7 +220,13 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     #compute the sls_thrust
     #call the atmospheric model to get the conditions at the specified altitude
     atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
+    atmo_data = atmosphere_sls.compute_values(0.0,0.0)
+    
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity      
 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -248,8 +249,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
     #size the turbofan
-    
-    
+
     state_sls = Data()
     state_sls.numerics = Data()
     state_sls.conditions = conditions_sls   
@@ -257,10 +257,5 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     
     
     turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-    sls_thrust                      = turbofan.sealevel_static_thrust*.224809 #convert to lbs.
-    turbofan.engine_length          = 2.4077*(sls_thrust**.3876)*.0254  #convert from inches to meters
-    turbofan.areas.wetted           = np.pi*turbofan.nacelle_diameter*turbofan.engine_length
-    
-    
-    
-   
+  
+ 

@@ -41,11 +41,16 @@ def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
     fid = open(filename,'w')   # Open output file
     fid.write('Output file with weight breakdown\n\n') #Start output printing
     fid.write( ' DESIGN WEIGHTS \n')    
-    fid.write( ' Maximum Takeoff Weigth ......... : ' + str( '%8.0F' % mass_properties.max_takeoff)    + ' kg\n')
-    fid.write( ' Maximum Landing Weigth ......... : ' + str( '%8.0F' % mass_properties.max_landing)    + ' kg\n')     
-    fid.write( ' Maximum Zero Fuel Weigth ....... : ' + str( '%8.0F' % mass_properties.max_zero_fuel)  + ' kg\n')     
-    fid.write( ' Maximum Fuel Weigth ............ : ' + str( '%8.0F' % mass_properties.max_fuel)       + ' kg\n')     
-    fid.write( ' Maximum Payload Weigth ......... : ' + str( '%8.0F' % mass_properties.max_payload)    + ' kg\n')     
+    if mass_properties.max_takeoff:
+        fid.write( ' Maximum Takeoff Weigth ......... : ' + str( '%8.0F' % mass_properties.max_takeoff)    + ' kg\n')
+    if mass_properties.max_landing:
+        fid.write( ' Maximum Landing Weigth ......... : ' + str( '%8.0F' % mass_properties.max_landing)    + ' kg\n')
+    if mass_properties.max_zero_fuel:
+        fid.write( ' Maximum Zero Fuel Weigth ....... : ' + str( '%8.0F' % mass_properties.max_zero_fuel)  + ' kg\n')
+    if mass_properties.max_fuel:
+        fid.write( ' Maximum Fuel Weigth ............ : ' + str( '%8.0F' % mass_properties.max_fuel)       + ' kg\n')
+    if mass_properties.max_payload:
+        fid.write( ' Maximum Payload Weigth ......... : ' + str( '%8.0F' % mass_properties.max_payload)    + ' kg\n')    
     fid.write('\n')
 
     fid.write(' ASSUMPTIONS FOR WEIGHT ESTIMATION \n')      

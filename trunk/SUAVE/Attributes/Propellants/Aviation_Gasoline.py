@@ -20,6 +20,6 @@ class Aviation_Gasoline(Propellant):
     def __defaults__(self):
 
         self.tag='Aviation Gasoline'
-        self.mass_density    = 721.0            # kg/m^3
+        self.density         = 721.0            # kg/m^3
         self.specific_energy = 43.71e6          # J/kg
         

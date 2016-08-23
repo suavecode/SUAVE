@@ -24,6 +24,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     #Unpack components
     
     #check if altitude is passed or conditions is passed
+    
     if(conditions):
         #use conditions
         pass
@@ -38,7 +39,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+            atmo_data = atmosphere.compute_values(altitude,delta_isa)
+
+            p   = atmo_data.pressure          
+            T   = atmo_data.temperature       
+            rho = atmo_data.density          
+            a   = atmo_data.speed_of_sound    
+            mu  = atmo_data.dynamic_viscosity   
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -139,19 +146,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
     
-    #determine geometry
-    U0       = conditions.freestream.velocity
-    rho0     = conditions.freestream.density
-    Ue       = fan_nozzle.outputs.velocity
-    rhoe     = fan_nozzle.outputs.density
-    Ae       = mass_flow[0][0]/(rhoe[0][0]*Ue[0][0]) #ducted fan nozzle exit area
-    A0       = (mass_flow/(rho0*U0))[0][0]
-    
-    ducted_fan.areas.inflow  = A0
-    ducted_fan.areas.maximum = 1.2*Ae/fan_nozzle.outputs.area_ratio
-    ducted_fan.areas.exit    = 1.2*Ae
-    ducted_fan.nacelle_diameter = 2.1*((ducted_fan.areas.maximum/np.pi)**.5)
-    
+
     #update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
     
@@ -160,7 +155,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #call the atmospheric model to get the conditions at the specified altitude
     atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
+    atmo_data = atmosphere_sls.compute_values(0.0,0.0)
+    
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity   
 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -192,12 +193,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
     ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-    
-    
    
     
-    ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
-    ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
-
+    #determine geometry
     
     
