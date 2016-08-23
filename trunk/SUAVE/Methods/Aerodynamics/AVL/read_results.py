@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from .Data.Results import Results
 
 def read_results(avl_object):

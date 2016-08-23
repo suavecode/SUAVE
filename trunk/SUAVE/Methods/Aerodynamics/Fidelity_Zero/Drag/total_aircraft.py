@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
      induced_drag_aircraft, compressibility_drag_wing, \

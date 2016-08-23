@@ -1,6 +1,6 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
-# Modified: 
+# Modified: May 2016, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports

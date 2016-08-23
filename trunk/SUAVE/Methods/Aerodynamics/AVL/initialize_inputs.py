@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 # SUAVE-AVL Imports
 from create_avl_datastructure import create_avl_datastructure
 from write_geometry           import write_geometry

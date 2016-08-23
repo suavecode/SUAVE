@@ -1,5 +1,8 @@
 """ print_parasite_drag.py """
 
+# Created: SUAVE team
+# Updated: Carlos Ilario, Feb 2016
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -9,7 +12,8 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import miscellaneous_drag_air
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 import numpy as np
-import copy
+
+
 # ----------------------------------------------------------------------
 #  Print output file with parasite drag breakdown
 # ----------------------------------------------------------------------
@@ -46,7 +50,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     Rey                     = ref_condition.reynolds_number
     mean_aerodynamic_chord  = vehicle.wings['main_wing'].chords.mean_aerodynamic
     aspect_ratio            = vehicle.wings['main_wing'].aspect_ratio
-    sweep                   = vehicle.wings['main_wing'].sweep  / Units.deg
+    sweep                   = vehicle.wings['main_wing'].sweeps.quarter_chord  / Units.deg
     t_c                     = vehicle.wings['main_wing'].thickness_to_chord
     taper                   = vehicle.wings['main_wing'].taper
     sref                    = vehicle.reference_area
@@ -65,7 +69,13 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 
     # compute atmosphere
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(altitude,0)
+    atmo_data = atmosphere.compute_values(altitude)
+    
+    p   = atmo_data.pressure
+    T   = atmo_data.temperature
+    rho = atmo_data.density
+    a   = atmo_data.speed_of_sound
+    mew = atmo_data.dynamic_viscosity
     
     # Find the dimensional RE, ie. Reynolds number/length
     re = rho*Mc*a/mew
@@ -148,7 +158,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     swet_tot += drag_breakdown['pylon'].wetted_area
 
     for k in drag_breakdown:
-        if isinstance(k,SUAVE.Core.Results):
+        if isinstance(k,SUAVE.Analyses.Results):
             # String formatting
             component       =   ' ' + k.tag[0:37] + (37-len(k.tag))*' '         + '|'
             wetted_area     =   str('%11.1f'   % k.wetted_area)                 + '    |'
@@ -188,7 +198,13 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
 def solve_altitude(alt,alt_conditions):
 
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p , T , rho , a , mew  = atmosphere.compute_values(alt,0)
+    atmo_data = atmosphere.compute_values(alt)
+    
+    p   = atmo_data.pressure
+    T   = atmo_data.temperature
+    rho = atmo_data.density
+    a   = atmo_data.speed_of_sound
+    mew = atmo_data.dynamic_viscosity
 
     # conditions
     Mc  = alt_conditions.Mc

@@ -11,7 +11,8 @@
 # SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
-from SUAVE.Core import Units, Data, Results
+from SUAVE.Core import Units, Data
+from  SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Compute drag of turbofan in windmilling condition

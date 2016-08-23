@@ -4,7 +4,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# from .Components import Data_Exception
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Geometry.Three_Dimensional.NURBS.Attributes.Curve import Curve

@@ -24,7 +24,7 @@ def main_wing_planform(Wing):
             Wing.sref
             Wing.ar
             Wing.taper
-            Wing.sweep
+            Wing.sweeps.quarter_chord
             Wing.span
             Wing.lex
             Wing.tex

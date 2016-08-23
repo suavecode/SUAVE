@@ -20,6 +20,7 @@ from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 
+import numpy as np
 #from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 
 # ----------------------------------------------------------------------
@@ -48,6 +49,7 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.aircraft_span_efficiency_factor    = 0.78
         settings.drag_coefficient_increment         = 0.0000
+        settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5

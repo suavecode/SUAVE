@@ -57,7 +57,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -67,7 +66,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root        
 
@@ -75,7 +73,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -84,9 +81,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
-        
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Common.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()
@@ -111,13 +108,11 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         # Post Processing
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         
-
         return
 

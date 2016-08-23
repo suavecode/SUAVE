@@ -10,7 +10,6 @@
 
 from SUAVE.Core import Data, Container
 from SUAVE import Components
-from SUAVE.Components import Component_Exception
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -70,7 +69,7 @@ class Vehicle(Data):
             if isinstance(component,component_type):
                 break
         else:
-            raise Component_Exception , "Unable to place component type %s" % component.typestring()
+            raise Exception , "Unable to place component type %s" % component.typestring()
 
         return component_root
 
@@ -80,7 +79,7 @@ class Vehicle(Data):
 
         # assert database type
         if not isinstance(component,Data):
-            raise Component_Exception, 'input component must be of type Data()'
+            raise Exception, 'input component must be of type Data()'
 
         # find the place to store data
         component_root = self.find_component_root(component)

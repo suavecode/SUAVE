@@ -10,7 +10,8 @@
 # SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
-from SUAVE.Core import Units, Data, Results
+from SUAVE.Core import Units, Data
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Compute asymmetry drag due to engine failure 
@@ -81,7 +82,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     # finding vertical tail
     for idx,wing in enumerate(wings):
         if not wing.vertical: continue
-        vertical_idx = idx
+        vertical_idx = wing.tag
         break
     # if vertical tail not found, raise error
     try:

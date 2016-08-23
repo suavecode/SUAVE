@@ -13,7 +13,8 @@ import SUAVE
 # package imports
 import numpy as np
 
-from SUAVE.Core import Data, Results
+from SUAVE.Core import Data
+from SUAVE.Analyses import Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------

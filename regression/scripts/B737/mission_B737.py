@@ -1,7 +1,7 @@
-# full_setup.py
+# mission_B737.py
 # 
-# Created:  SUave Team, Aug 2014
-# Modified: 
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with a 737
 """
@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -51,10 +51,10 @@ def main():
     results = mission.evaluate()
 
     # print weight breakdown
-    print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
+    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
 
     # print engine data into file
-    print_engine_data(configs.base,filename = 'B737_engine_data.dat')
+    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
 
     # print parasite drag data into file
     # define reference condition for parasite drag
@@ -67,18 +67,20 @@ def main():
     #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
 
     # print mission breakdown
-    print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
+    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
     #save_results(results)
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
+    #plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results)
+    
+    #plt.show()
 
     return
 
@@ -230,7 +232,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.16
     wing.span_efficiency         = 0.9
@@ -267,7 +269,7 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 6.16
-    wing.sweep                   = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 30 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
@@ -303,7 +305,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9

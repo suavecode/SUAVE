@@ -1,7 +1,7 @@
 # concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Apr 2016, T. MacDonald
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -30,7 +30,7 @@ import copy, time
 
 # More basic SUAVE function
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 # This is a sizing function to fill turbojet parameters
@@ -62,11 +62,13 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(results)
+    #plot_mission(old_results,'k-')
 
     # check the results
-    check_results(results,old_results)    
+    check_results(results,old_results) 
+    
+    #plt.show()
     
     return
 
@@ -200,7 +202,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 1.83
-    wing.sweep                   = 55 * Units.deg
+    wing.sweeps.quarter_chord    = 55 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
     wing.span_efficiency         = 0.74
@@ -240,7 +242,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
     
     wing.aspect_ratio            = 0.74      #
-    wing.sweep                   = 60 * Units.deg
+    wing.sweeps.quarter_chord    = 60 * Units.deg
     wing.thickness_to_chord      = 0.04
     wing.taper                   = 0.14
     wing.span_efficiency         = 0.9
@@ -1062,22 +1064,6 @@ def check_results(new_results,old_results):
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
         print ''
-
-    ## check high level outputs
-    #def check_vals(a,b):
-        #if isinstance(a,Data):
-            #for k in a.keys():
-                #err = check_vals(a[k],b[k])
-                #if err is None: continue
-                #print 'outputs' , k
-                #print 'Error:' , err
-                #print ''
-                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
-        #else:
-            #return (a-b)/a
-
-    ## do the check
-    #check_vals(old_results.output,new_results.output)
 
 
     return

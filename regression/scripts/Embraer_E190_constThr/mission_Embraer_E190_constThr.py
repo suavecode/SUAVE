@@ -1,7 +1,7 @@
-# full_setup.py
+# mission_Embraer_E190_constThr.py
 #
-# Created:  SUave Team, Aug 2014
-# Modified:
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2016, T. MacDonald
 
 """ setup file for a mission with a E190
 """
@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 # the analysis functions
@@ -75,11 +75,13 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(results)
+    #plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results)
+    
+    #plt.show()
 
     return
 
@@ -232,7 +234,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 8.4
-    wing.sweep                   = 23.0 * Units.deg
+    wing.sweeps.quarter_chord    = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
     wing.span_efficiency         = 1.0
@@ -270,7 +272,7 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 5.5
-    wing.sweep                   = 34.5 * Units.deg
+    wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
     wing.span_efficiency         = 0.9
@@ -308,7 +310,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.7      #
-    wing.sweep                   = 35 * Units.deg
+    wing.sweeps.quarter_chord    = 35 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.31
     wing.span_efficiency         = 0.9
