@@ -241,7 +241,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         # Create the outputs
         F         = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot_fuel = np.zeros_like(F)
-
+    
+    
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot_fuel
@@ -379,7 +380,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
     
         fan_nozzle.size(mdot_design,u8,T8,P0)
         A7 = fan_nozzle.exit_area
-    
+        
     
     def unpack_unknowns(self,segment,state):
         """"""        
@@ -399,12 +400,12 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         nozzle_mass_flow = state.conditions.propulsion.nozzle_mass_flow
         fan_mass_flow    = state.conditions.propulsion.fan_mass_flow
         v_required       = state.conditions.propulsion.motor_voltage_required
-        v_specified      = state.conditions.propulsion.motor_voltage_specified
+        v_specified      = state.conditions.propulsion.ESC_voltage_required
         v_max            = self.voltage
         
         # Return the residuals
         state.residuals.network[:,0] = nozzle_mass_flow[:,0] - fan_mass_flow[:,0]
-        state.residuals.network[:,1] = (v_required[:,0] - v_specified[:,0])/vmax
+        state.residuals.network[:,1] = (v_required[:,0] - v_specified[:,0])/v_max
         
         return    
             
