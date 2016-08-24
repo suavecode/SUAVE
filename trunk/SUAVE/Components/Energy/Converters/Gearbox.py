@@ -63,4 +63,3 @@ class Gearbox(Energy_Component):
     
     __call__ = compute     
     
-    
