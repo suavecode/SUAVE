@@ -50,8 +50,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         payload    = self.payload
         battery    = self.battery
         
-        mdotc = state.unknowns.corrected_mass_flow_rate
-        pic   = state.unknowns.pressure_ratio
+        mdotc = state.conditions.propulsion.corrected_mass_flow_rate
+        pic   = state.conditions.propulsion.pressure_ratio 
         
         P0 = conditions.freestream.pressure
         T0 = conditions.freestream.temperature
@@ -386,8 +386,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         """"""        
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        state.conditions.propulsion.compressor.corrected_mass_flow_rate = state.unknowns.corrected_mass_flow_ratio
-        state.conditions.propulsion.compressor.pressure_ratio           = state.unknowns.pressure_ratio
+        state.conditions.propulsion.corrected_mass_flow_rate = state.unknowns.corrected_mass_flow_ratio
+        state.conditions.propulsion.pressure_ratio           = state.unknowns.pressure_ratio
         
         return
     
