@@ -56,6 +56,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         P0 = conditions.freestream.pressure
         T0 = conditions.freestream.temperature
         u0 = conditions.freestream.velocity
+        a0 = conditions.freestream.speed_of_sound
         gamma = conditions.freestream.gamma
         Cp    = conditions.freestream.specific_heat
         R     = conditions.freestream.gas_specific_constant
@@ -96,6 +97,9 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         fan = self.fan
         fan.corrected_mass_flow   = mdotc
         fan.pressure_ratio        = pic
+        design_N = fan.speed_map.design_speed
+        design_N_corrected = design_N/np.sqrt(Tt2/Tref)
+        fan.speed_map.Nd = design_N_corrected
         fan.compute_performance()
         eta_f = fan.polytropic_efficiency
         Nfc   = fan.corrected_speed
@@ -180,7 +184,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         M8 = u8/np.sqrt(gamma*R*T8)
         
         P7 = np.zeros(P0.shape)
-        M7 = np.zeros(M0.shape)  
+        M7 = np.zeros(M8.shape)  
         
         # check for choked flow
         P7[M8<1.] = P0[M8<1]
@@ -208,12 +212,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         # Step 2
         esc.voltageout(conditions)
         # ESC Voltage
-        state.conditions.propulsion.ESC_voltage_required = ESC.outputs.voltage   
-    
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta        = conditions.propulsion.throttle[:,0,None]
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
+        state.conditions.propulsion.ESC_voltage_required = esc.outputs.voltageout
     
         # Run the avionics
         avionics.power()

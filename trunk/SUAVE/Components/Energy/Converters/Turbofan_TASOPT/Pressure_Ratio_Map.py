@@ -65,8 +65,8 @@ class Pressure_Ratio_Map(Data):
     
     
     
-        Nb = Nb*Nd
+        N_corrected = Nb*Nd
     
-        return Nb,dN_dpi,dN_dm        
+        return N_corrected,dN_dpi,dN_dm        
     
     
