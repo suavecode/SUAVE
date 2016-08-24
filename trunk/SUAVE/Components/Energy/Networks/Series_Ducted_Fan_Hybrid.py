@@ -34,6 +34,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         self.thrust_angle      = 0.0
         self.tag               = 'network'
         self.areas             = Data()
+        self.reference_temperature = 300. # K
+        self.reference_pressure    = 101325. # Pa
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -248,19 +250,21 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         
         return results
     
-    def size(self,state,mach_number,altitude,delta_isa = 0.):
+    def size(self,mach_number,altitude,delta_isa = 0.):
 
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmos_data = atmosphere.compute_values(altitude,delta_isa)                
         
-        conditions = state.conditions
+        P0    = np.atleast_2d(atmos_data.pressure)
+        T0    = np.atleast_2d(atmos_data.temperature)
+        a0    = np.atleast_2d(atmos_data.speed_of_sound)        
+        u0    = np.atleast_2d(mach_number*a0)
+        gamma = np.atleast_2d(self.working_fluid.compute_gamma())
+        Cp    = np.atleast_2d(self.working_fluid.compute_cp())
+        R     = np.atleast_2d(self.working_fluid.gas_specific_constant)
         
-        P0 = conditions.freestream.pressure
-        T0 = conditions.freestream.temperature
-        u0 = conditions.freestream.velocity
-        gamma = conditions.freestream.gamma
-        Cp    = conditions.freestream.specific_heat
-        R     = conditions.freestream.gas_specific_constant
         Tref  = self.reference_temperature
-        Pref  = self.reference_temperature
+        Pref  = self.reference_pressure
     
         # Ram calculations
         Dh = .5*u0*u0
@@ -349,8 +353,11 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         thrust.inputs.normalized_fuel_flow_rate = f
         thrust.inputs.fan_exhaust_flow_speed    = u8
     
-        conditions.freestream.speed_of_sound = a0
+        conditions = Data()
+        conditions.freestream = Data()
         conditions.freestream.velocity       = u0
+        conditions.freestream.speed_of_sound = a0    
+        conditions.freestream.gravity        = np.atleast_2d(9.81)
         thrust.compute(conditions)        
         
         Fsp = thrust.outputs.specific_thrust   

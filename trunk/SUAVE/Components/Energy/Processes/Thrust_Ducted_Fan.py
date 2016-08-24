@@ -48,6 +48,7 @@ class Thrust_Ducted_Fan(Energy_Component):
         u0                   = conditions.freestream.velocity
         a0                   = conditions.freestream.speed_of_sound
         g                    = conditions.freestream.gravity
+        f                    = self.inputs.normalized_fuel_flow_rate
         
         u8 = self.inputs.fan_exhaust_flow_speed
         
