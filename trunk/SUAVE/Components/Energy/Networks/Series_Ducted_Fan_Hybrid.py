@@ -231,6 +231,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
     
     def size(self,state,mach_number,altitude,delta_isa = 0.):
         
+        # how does the battery factor into this?
+        
         conditions = state.conditions
         
         P0 = conditions.freestream.pressure
