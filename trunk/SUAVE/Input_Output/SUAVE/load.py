@@ -1,7 +1,8 @@
-# load.py
+#load.py
 #
-# Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
+# Created By:   Trent Jan 2015
+# Updated: Carlos Ilario, Feb 2016
+
 
 """ Load a native SUAVE file """
 
