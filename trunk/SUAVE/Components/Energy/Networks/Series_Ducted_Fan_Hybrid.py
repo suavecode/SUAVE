@@ -136,8 +136,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         eta_f = fan.polytropic_efficiency
         Nfc   = fan.corrected_speed
         
-        Nf   = Nfc*np.sqrt(Tt2/Tref)
-        mdot = mdotc*(Pt2/Pref)/(Tt2/Tref)
+        Nf    = Nfc*np.sqrt(Tt2/Tref)
+        mdotf = mdotc*(Pt2/Pref)/(Tt2/Tref)
 
         fan.inputs.working_fluid.specific_heat = Cp
         fan.inputs.working_fluid.gamma         = gamma
@@ -151,7 +151,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         Pt2_1 = fan.outputs.total_pressure
         ht2_1 = fan.outputs.total_enthalpy
         
-        P_fan = (ht2_1-ht2)*mdot/eta_f # power required
+        P_fan = (ht2_1-ht2)*mdotf/eta_f # power required
         Q_fan = P_fan/Nf               # torque required
         conditions.propulsion.fan_torque = Q_fan
         
@@ -210,7 +210,31 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         
         Fsp = thrust.outputs.specific_thrust
         
-        F  = Fsp*mdot*a0
+        F  = Fsp*mdotf*a0
+        
+        # compute fan residual
+        
+        M8 = u8/np.sqrt(gamma*R*T8)
+        
+        P7 = np.zeros(P0.shape)
+        M7 = np.zeros(M0.shape)  
+        
+        # check for choked flow
+        P7[M8<1.] = P0[M8<1]
+        M7[M8<1.] = (np.sqrt((((Pt7/P7)**((gamma-1.)/gamma))-1.)*2./(gamma-1.)))[M8<1]
+
+        M7[M8>=1.] = 1.0
+        P7[M8>=1.]  = (Pt7/(1.+(gamma-1.)/2.*M7**2.)**(gamma/(gamma-1.)))[M8>=1]        
+        
+        T7 = Tt7/(1.+(gamma-1.)/2.*M7**2.)
+        h7 = Cp*T7
+        u7 = np.sqrt(2.0*(ht7-h7))
+        rho7 = P7/(R*T7)
+        A7 = fan_nozzle.exit_area
+        
+        # For mass flow residual
+        state.conditions.propulsion.nozzle_mass_flow = u7*rho7*A7
+        state.conditions.propulsion.fan_mass_flow    = mdotf
 
         # link
         battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
@@ -219,19 +243,18 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot = np.zeros_like(F)
+        F         = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        mdot_fuel = np.zeros_like(F)
 
         results = Data()
         results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate   = mdot_fuel
         
         
         return results
     
     def size(self,state,mach_number,altitude,delta_isa = 0.):
-        
-        # how does the battery factor into this?
+
         
         conditions = state.conditions
         
@@ -351,10 +374,10 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         #fan.size(mdot_design,ep.M2)
         #A2 = fan.entrance_area
     
-        ## Fan Nozzle Area
+        # Fan Nozzle Area
     
-        #fan_nozzle.size(mdot_design,u8,T8,P0)
-        #A7 = fan_nozzle.exit_area
+        fan_nozzle.size(mdot_design,u8,T8,P0)
+        A7 = fan_nozzle.exit_area
     
     
     def unpack_unknowns(self,segment,state):
@@ -372,8 +395,8 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack
-        q_motor     = state.conditions.propulsion.motor_torque
-        q_fan       = state.conditions.propulsion.fan_torque
+        nozzle_mass_flow     = state.conditions.propulsion.nozzle_mass_flow
+        fan_mass_flow        = state.conditions.propulsion.fan_mass_flow
         v_required  = state.conditions.propulsion.motor_voltage_required
         v_specified = state.conditions.propulsion.motor_voltage_specified
         
