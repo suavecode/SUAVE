@@ -48,44 +48,6 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         payload    = self.payload
         battery    = self.battery
         
-        # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy  
-
-        # Step 1 battery power
-        #esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
-        esc.inputs.voltagein = self.voltage
-        # Step 2
-        esc.voltageout(conditions)
-        # link
-        motor.inputs.voltage = esc.outputs.voltageout 
-        # step 3
-        motor.omega(conditions)
-        
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta        = conditions.propulsion.throttle[:,0,None]
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-
-        # Run the avionics
-        avionics.power()
-
-        # Run the payload
-        payload.power()
-        
-        # Run the motor for current
-        motor.current(conditions)
-        # link
-        esc.inputs.currentout =  motor.outputs.current
-        
-        # Run the esc
-        esc.currentin()
-
-        # Calculate avionics and payload power
-        avionics_payload_power = avionics.outputs.power + payload.outputs.power
-
-        # Calculate avionics and payload current
-        avionics_payload_current = avionics_payload_power/self.voltage
-        
         mdotc = state.unknowns.corrected_mass_flow_rate
         pic   = state.unknowns.pressure_ratio
         
@@ -159,8 +121,7 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         motor.inputs.omega  = Nf
         motor.voltage_current(conditions)
         
-        # torque is automatically matched?
-        state.conditions.propulsion.motor_torque           = Q_fan
+        # Motor voltage
         state.conditions.propulsion.motor_voltage_required = motor.outputs.voltage   
         
 
@@ -235,6 +196,40 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
         # For mass flow residual
         state.conditions.propulsion.nozzle_mass_flow = u7*rho7*A7
         state.conditions.propulsion.fan_mass_flow    = mdotf
+        
+        # Set battery energy
+        battery.current_energy = conditions.propulsion.battery_energy  
+    
+        # Step 1 battery power
+        #esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        esc.inputs.voltagein = self.voltage
+        # Step 2
+        esc.voltageout(conditions)
+        # ESC Voltage
+        state.conditions.propulsion.ESC_voltage_required = ESC.outputs.voltage   
+    
+        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
+        eta        = conditions.propulsion.throttle[:,0,None]
+        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
+        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
+    
+        # Run the avionics
+        avionics.power()
+    
+        # Run the payload
+        payload.power()
+    
+        # link
+        esc.inputs.currentout =  motor.outputs.current
+    
+        # Run the esc
+        esc.currentin()
+    
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+    
+        # Calculate avionics and payload current
+        avionics_payload_current = avionics_payload_power/self.voltage        
 
         # link
         battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
@@ -392,17 +387,18 @@ class Series_Ducted_Fan_Hybrid(Propulsor):
     def residuals(self,segment,state):
         """"""        
         
-        # Here we are going to pack the residuals (torque,voltage) from the network
+        # Here we are going to pack the residuals (mass flow,voltage) from the network
         
         # Unpack
-        nozzle_mass_flow     = state.conditions.propulsion.nozzle_mass_flow
-        fan_mass_flow        = state.conditions.propulsion.fan_mass_flow
-        v_required  = state.conditions.propulsion.motor_voltage_required
-        v_specified = state.conditions.propulsion.motor_voltage_specified
+        nozzle_mass_flow = state.conditions.propulsion.nozzle_mass_flow
+        fan_mass_flow    = state.conditions.propulsion.fan_mass_flow
+        v_required       = state.conditions.propulsion.motor_voltage_required
+        v_specified      = state.conditions.propulsion.motor_voltage_specified
+        v_max            = self.voltage
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        state.residuals.network[:,1] = v_required[:,0] - v_specified[:,0]
+        state.residuals.network[:,0] = nozzle_mass_flow[:,0] - fan_mass_flow[:,0]
+        state.residuals.network[:,1] = (v_required[:,0] - v_specified[:,0])/vmax
         
         return    
             
