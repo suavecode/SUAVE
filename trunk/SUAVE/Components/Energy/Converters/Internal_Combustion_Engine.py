@@ -34,6 +34,7 @@ class Internal_Combustion_Engine(Energy_Component):
                 sea-level power
                 flat rate altitude
                 speed (RPM)
+                throttle setting
             Freestream conditions:
                 altitude
                 delta_isa
@@ -51,6 +52,7 @@ class Internal_Combustion_Engine(Energy_Component):
         PSLS      = self.sea_level_power
         h_flat    = self.flat_rate_altitude
         rpm       = self.speed
+        throttle  = self.throttle
 
         altitude_virtual = altitude - h_flat # shift in power lapse due to flat rate
         atmo = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -78,20 +80,23 @@ class Internal_Combustion_Engine(Energy_Component):
             # calculating available power based on Gagg and Ferrar model (ref: S. Gudmundsson, 2014 - eq. 7-16)
             Pavailable = PSLS * (sigma - 0.117) / 0.883
 
+        # applying throttle setting
+        output_power = Pavailable * throttle
+
         # brake-specific fuel consumption <--- now considering it as a constant typical value
         BSFC = 0.36 # lb/hr/hp :: Ref: Table 5.1, Modern diesel engines, Saeed Farokhi, Aircraft Propulsion (2014)
 
         #fuel flow rate
         a = np.array([0.])
-        fuel_flow_rate   = np.fmax(Pavailable*BSFC/(3600 * 9.80665),a)
+        fuel_flow_rate   = np.fmax(output_power*BSFC/(3600 * 9.80665),a)
 
         #torque
         ## SHP = torque * 2*pi * RPM / 33000        (UK units)
-        torque = ( 5252. * Pavailable / rpm ) / (Units.ft * Units.lbf)
+        torque = ( 5252. * output_power / rpm ) / (Units.ft * Units.lbf)
 
         # store to outputs
         outputs = Data()
-        outputs.power                           = Pavailable
+        outputs.power                           = output_power
         outputs.power_specific_fuel_consumption = BSFC
         outputs.fuel_flow_rate                  = fuel_flow_rate
         outputs.torque                          = torque
@@ -110,6 +115,7 @@ if __name__ == '__main__':
     ICE.sea_level_power = 250.0 * Units.horsepower
     ICE.flat_rate_altitude = 5000. * Units.ft
     ICE.speed = 2200. # rpm
+    ICE.throttle = 1.0
     PSLS = 1.0
     delta_isa = 0.0
     i = 0
@@ -143,4 +149,3 @@ if __name__ == '__main__':
     axes.set_ylabel('Torque [lbf*ft]')
     axes.grid(True)
     plt.show()
-
