@@ -126,7 +126,7 @@ class Propeller(Energy_Component):
         size = (len(a),N)
     
         #Setup a Newton iteration
-        psi    = np.ones(size)
+        psi    = -np.ones(size)
         psiold = np.zeros(size)
         diff   = 1.
         
@@ -162,11 +162,11 @@ class Propeller(Energy_Component):
             # By 90 deg, it's totally stalled.
             Cl[alpha>=pi/2] = 0.
             
-            # Scale for Mach, this is Karmen_Tsien
-            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+            ## Scale for Mach, this is Karmen_Tsien
+            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
-            # If the blade segments are supersonic, don't scale
-            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            ## If the blade segments are supersonic, don't scale
+            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             

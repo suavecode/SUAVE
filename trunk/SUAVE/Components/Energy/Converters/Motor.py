@@ -105,7 +105,7 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         G     = self.gear_ratio
-        Kv    = self.speed_constant/G
+        kv    = self.speed_constant/G
         Q     = self.inputs.torque
         omega = self.inputs.omega        
         
