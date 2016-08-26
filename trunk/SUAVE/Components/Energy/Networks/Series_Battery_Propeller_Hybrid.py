@@ -1,4 +1,4 @@
-# Battery_Propeller.py
+# Series_Battery_Propller_Hybrid.py
 # 
 # Created:  Jul 2015, E. Botero
 # Modified: Feb 2016, T. MacDonald
@@ -19,7 +19,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
-class Battery_Propeller(Propulsor):
+class Series_Battery_Propeller_Hybrid(Propulsor):
     def __defaults__(self): 
         self.motor             = None
         self.propeller         = None
@@ -31,6 +31,8 @@ class Battery_Propeller(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.voltage           = None
+        self.combustion_engine = None
+        self.generator         = None
         self.thrust_angle      = 0.0
         self.tag               = 'network'
     
@@ -46,6 +48,8 @@ class Battery_Propeller(Propulsor):
         avionics   = self.avionics
         payload    = self.payload
         battery    = self.battery
+        engine     = self.combustion_engine
+        generator  = self.generator
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -89,10 +93,30 @@ class Battery_Propeller(Propulsor):
 
         # Calculate avionics and payload current
         avionics_payload_current = avionics_payload_power/self.voltage
+        
+        # Run the internal combustion engine
+        engine.power(conditions)
+        
+        # Link the internal combustion engine to the generator
+        generator.inputs            = engine.outputs
+        generator.inputs.omega = engine.speed
+        
+        # Run the generator
+        generator.voltage_current(conditions)
+        
+        # Assume the generators voltage can be normalized:
+        Pgen = generator.outputs.voltage * generator.outputs.current
+        
+        # Make sure the power generated is always positve:
+        Pgen[Pgen<0.] = 0.
+        
+        # Now the normalized current
+        i_gen = Pgen/self.voltage
+        
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current-i_gen
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power-Pgen)
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
@@ -114,13 +138,11 @@ class Battery_Propeller(Propulsor):
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot = np.zeros_like(F)
-
+        mdot = engine.outputs.fuel_flow_rate
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
-        
+            
         return results
     
     
@@ -146,7 +168,11 @@ class Battery_Propeller(Propulsor):
         #v_max     = self.voltage
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]    
+        
+        # HARD CODED 2!!!!!!!!!!!!!!
+        state.residuals.network[:,0] = 2.*q_motor[:,0] - q_prop[:,0]
+        # HARD CODED 2!!!!!!!!!!!!!!
+        
         #state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
         
         return    
