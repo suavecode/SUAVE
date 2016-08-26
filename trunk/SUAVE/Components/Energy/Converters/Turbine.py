@@ -1,7 +1,7 @@
 # Turbine.py
 #
 # Created:  Jul 2014, A. Variyar
-# Modified: Jan 2016, T. MacDonald
+# Modified: Aug 2016, L. Kulik
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,6 +16,8 @@ import numpy as np
 import scipy as sp
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Components.Energy.Converters.Generator import Generator
+
 
 # ----------------------------------------------------------------------
 #  Turbine Component
@@ -41,8 +43,9 @@ class Turbine(Energy_Component):
         self.outputs.stagnation_temperature    = 1.0
         self.outputs.stagnation_pressure       = 1.0
         self.outputs.stagnation_enthalpy       = 1.0
-    
-    
+
+        self.inputs.generator                  = Generator()
+        self.inputs.generator.work_done =       np.array([0.0])
     
     
     def compute(self,conditions):
@@ -60,7 +63,13 @@ class Turbine(Energy_Component):
         f               = self.inputs.fuel_to_air_ratio
         compressor_work = self.inputs.compressor.work_done
         fan_work        = self.inputs.fan.work_done
-        
+
+        generator_work = self.inputs.generator.work_done
+
+        if not (generator_work.shape == compressor_work.shape):
+            if np.all(generator_work == generator_work[0]):
+                generator_work = generator_work[0]          # if there is a shape mismatch, treat as a single value
+
         #unpack from self
         eta_mech        =  self.mechanical_efficiency
         etapolt         =  self.polytropic_efficiency
@@ -68,7 +77,7 @@ class Turbine(Energy_Component):
         #method to compute turbine properties
         
         #Using the work done by the compressors/fan and the fuel to air ratio to compute the energy drop across the turbine
-        deltah_ht =  -1/(1+f)*1/eta_mech*((compressor_work)+ alpha*(fan_work))
+        deltah_ht = -1 / (1 + f) * 1 / eta_mech * (compressor_work + generator_work + alpha * fan_work)
         
         #Compute the output stagnation quantities from the inputs and the energy drop computed above
         Tt_out    =  Tt_in+deltah_ht/Cp
