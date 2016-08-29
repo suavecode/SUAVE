@@ -115,8 +115,8 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     output = Data()
     output.Cl_max_ls = Cl_max_ls
     output.Cd_ind = Cd_ind
-    return output
-##    return Cl_max_ls, Cd_ind
+    #return output
+    return Cl_max_ls, Cd_ind
 
 
 # ----------------------------------------------------------------------
