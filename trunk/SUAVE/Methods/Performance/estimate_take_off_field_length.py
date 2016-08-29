@@ -10,7 +10,7 @@
 
 # SUave Imports
 import SUAVE
-from SUAVE.Core            import Data
+from SUAVE.Core            import Data, DataOrdered
 from SUAVE.Core            import Units
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
@@ -63,7 +63,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
                 - Considers ONE engine inoperative, for any number of engines.
                 - Valid for twin engine airplane - NOT VALIDATED/VERIFICATED WITH 3 OR MORE ENGINES.
     """
-
+    
     # ==============================================
         # Unpack
     # ==============================================
@@ -106,8 +106,11 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            CL_outputs =   compute_max_lift_coeff(vehicle,conditions)           
+            maximum_lift_coefficient = CL_outputs.Cl_max_ls
+
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
+            print 'maximum_lift_coefficient=', maximum_lift_coefficient
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
@@ -225,11 +228,12 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     
         # Compute 2nd segment climb gradient
         second_seg_climb_gradient = thrust / (weight*sea_level_gravity) - 1. / l_over_d_v2
-
-        output = Data()
+     
+        output = DataOrdered()
         output.takeoff_field_length = takeoff_field_length
         output.second_seg_climb_gradient = second_seg_climb_gradient
 ##        return takeoff_field_length, second_seg_climb_gradient
+        print 'output=', output
         return output
 
     else:

@@ -90,21 +90,29 @@ class Sizing_Loop(Data):
                     
                         if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
                             print 'optimizing svr parameters'
-                            x = [0,0] #initial guess for 10**C, 10**eps
+                         
+                            x = [2.,-1.] #initial guess for 10**C, 10**eps
+                     
                             t1=time.time()
                             out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs))
                             t2=time.time()
+                            
                             print 'optimization time = ', t2-t1
                             print 'norm err=', out.fun
                             c_out = 10**out.x[0]
                             eps_out = 10**out.x[1]
+                            print 'c_out=',  c_out
+                            print 'eps_out=', eps_out
+                            print 'out_err=', out
                             print 'running surrogate'
-                            y = []
                             
+                            y = []
+                            print 'scaled_inputs=', scaled_inputs
                             for j in range(len(data_outputs[0,:])):
                                 clf         = svm.SVR(C=c_out,  epsilon = eps_out)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
+                                print 'y=', y
                             y = np.array(y)
                             nexus.number_of_surrogate_calls +=1
                         else:
