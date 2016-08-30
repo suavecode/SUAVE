@@ -30,6 +30,7 @@ class Motor(Energy_Component):
         self.gear_ratio         = 0.0
         self.gearbox_efficiency = 0.0
         self.expected_current   = 0.0
+        self.interpolated_func  = None
     
     def omega(self,conditions):
         """ The motor's rotation rate
@@ -159,5 +160,43 @@ class Motor(Energy_Component):
         
         return i
 
+    def load_csv_data(self,file_name):
         
-    
+        # Load the CSV file
+        my_data = np.genfromtxt(file_name, delimiter=',')
+        
+        x = my_data[11:,:2] # Speed and torque
+        z = my_data[11:,2]  # Efficiency
+        
+        f = scipy.interpolate.CloughTocher2DInterpolator(xy,z)
+        
+        # Keep the interpolated function
+        self.interpolated_func = f
+        
+        return f
+        
+    def power_from_fit(self,conditions):
+        
+        # Unpack
+        omega  = self.inputs.omega
+        torque = self.inputs.torque
+        func   = self.interpolated_func
+        
+        # Find the values
+        efficiency = func(omega,torque)
+        
+        # Ensure the values make some sense
+        efficiency[efficiency<0.] = 0.
+        efficiency[efficiency>1.] = 1.
+        
+        # Mechanical Power
+        mech_power = rpm*torque
+        
+        # Electrical Power
+        elec_power = mech_power/efficiency
+        
+        # Pack the outputs
+        self.outputs.efficiency = efficiency
+        self.outputs.power_in   = elec_power
+        
+        return elec_power
