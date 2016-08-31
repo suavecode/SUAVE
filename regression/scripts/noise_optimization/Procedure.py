@@ -22,6 +22,8 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_limits
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
 # ----------------------------------------------------------------------        
@@ -446,7 +448,7 @@ def noise_approach(nexus):
     noise_segment = results.approach.segments.descent
     noise_config  = nexus.vehicle_configurations.landing
     noise_analyse = nexus.analyses.landing
-
+    
     noise_config.print_output = 0
     noise_config.output_file  = 'Noise_Approach.dat'
     noise_config.output_file_engine = 'Noise_Approach_Engine.dat'
@@ -471,6 +473,7 @@ def compute_noise(config,analyses,noise_segment):
     print_output      = config.print_output
     engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
     
+    geometric = noise_geometric(noise_segment,analyses,config)
     
     airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,print_output,outputfile)  
 
@@ -637,6 +640,9 @@ def post_process(nexus):
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
     
+    print "Sideline = ", summary.noise.sideline
+    print "Flyover = ", summary.noise.flyover
+    print "Approach = ", summary.noise.approach
   
     return nexus    
 

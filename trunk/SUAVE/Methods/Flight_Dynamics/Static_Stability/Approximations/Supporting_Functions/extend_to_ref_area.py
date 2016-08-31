@@ -60,7 +60,7 @@ def extend_to_ref_area(surface):
         b1 = surface.spans.projected * 0.5 * (2 - symm)
     c_t       = surface.chords.tip
     c_r1      = surface.chords.root
-    Lambda    = surface.sweep
+    Lambda    = surface.sweeps.quarter_chord
     dh_center = surface.exposed_root_chord_offset
 
     #Compute reference area dimensions

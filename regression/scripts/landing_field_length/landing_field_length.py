@@ -49,10 +49,10 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
-    wing.areas.reference    = vehicle.reference_area
-    wing.sweep              = 22. * Units.deg  # deg
-    wing.thickness_to_chord = 0.11
-    wing.taper              = 0.28          
+    wing.areas.reference      = vehicle.reference_area
+    wing.sweeps.quarter_chord = 22. * Units.deg  # deg
+    wing.thickness_to_chord   = 0.11
+    wing.taper                = 0.28          
 
     wing.chords.mean_aerodynamic = 3.66
     wing.areas.affected          = 0.6*wing.areas.reference # part of high lift system

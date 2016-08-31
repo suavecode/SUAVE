@@ -1,7 +1,7 @@
-# IO.py
+# load.py
 #
 # Created By:       M. Colonno  4/15/13
-# Updated:          M. Colonno  4/24/13
+# Updated:          Carlos Ilario, Feb 2016
 
 """ SUAVE Methods for IO """
 
@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
+#import numpy
 import re, copy
 import xml.sax.handler
 import os.path

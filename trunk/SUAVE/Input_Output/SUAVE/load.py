@@ -1,7 +1,8 @@
-# load.py
+#load.py
 #
-# Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
+# Created By:   Trent Jan 2015
+# Updated: Carlos Ilario, Feb 2016
+
 
 """ Load a native SUAVE file """
 
@@ -11,7 +12,7 @@
 
 from SUAVE.Core.Input_Output import load_data
 import json
-from SUAVE.Core import Data
+from SUAVE.Core import Data, DataOrdered
 import numpy as np
 from collections import OrderedDict
 
@@ -52,7 +53,7 @@ def build_data_r(v):
     if tv == OrderedDict:
         keys = v.keys()
         # Recursively assign values
-        ret = Data()
+        ret = DataOrdered()
         for k in keys:
             ret[k] = build_data_r(v[k])
     elif tv == list:

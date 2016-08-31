@@ -32,7 +32,8 @@ def main():
     wing.spans.projected           = 196.0  * Units.feet
     wing.chords.mean_aerodynamic   = 27.3 * Units.feet
     wing.chords.root               = 42.9 * Units.feet  #54.5ft
-    wing.sweep          = 42.0   * Units.deg # Leading edge
+    wing.sweeps.quarter_chord      = 42.0   * Units.deg  # Leading edge
+    wing.sweeps.leading_edge       = 42.0   * Units.deg  # Same as the quarter chord sweep (ignore why EMB)
     wing.taper          = 14.7/42.9  #14.7/54.5
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
@@ -43,7 +44,7 @@ def main():
     wing.ep_alpha               = 0.0
     
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
     wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
     
@@ -62,18 +63,19 @@ def main():
     
     wing                     = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
-    wing.areas.reference     = 1490.55* Units.feet**2
-    wing.spans.projected     = 71.6   * Units.feet
-    wing.sweep               = 44.0   * Units.deg # leading edge
-    wing.taper               = 7.5/32.6
-    wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
-    wing.origin              = np.array([187.0,0,0])  * Units.feet
-    wing.symmetric           = True
-    wing.vertical            = False
+    wing.areas.reference      = 1490.55* Units.feet**2
+    wing.spans.projected      = 71.6   * Units.feet
+    wing.sweeps.quarter_chord = 44.0   * Units.deg # leading edge
+    wing.sweeps.leading_edge  = 44.0   * Units.deg # Same as the quarter chord sweep (ignore why EMB)
+    wing.taper                = 7.5/32.6
+    wing.aspect_ratio         = wing.spans.projected**2/wing.areas.reference
+    wing.origin               = np.array([187.0,0,0])  * Units.feet
+    wing.symmetric            = True
+    wing.vertical             = False
     wing.dynamic_pressure_ratio = 0.95
-    wing.ep_alpha            = 2.0*main_wing_CLa/np.pi/main_wing_ar    
-    wing.aerodynamic_center  = [trapezoid_ac_x(wing), 0.0, 0.0]
-    wing.CL_alpha            = datcom(wing,Mach)
+    wing.ep_alpha             = 2.0*main_wing_CLa/np.pi/main_wing_ar    
+    wing.aerodynamic_center   = [trapezoid_ac_x(wing), 0.0, 0.0]
+    wing.CL_alpha             = datcom(wing,Mach)
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
@@ -135,17 +137,18 @@ def main():
     wing.spans.projected           = 46.0  * Units.feet
     wing.chords.mean_aerodynamic   = 6.5 * Units.feet
     wing.chords.root               = 7.9 * Units.feet
-    wing.sweep          = 4.0   * Units.deg # Leading edge
-    wing.taper          = 0.47
-    wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
-    wing.symmetric      = True
-    wing.vertical       = False
-    wing.origin         = np.array([15.,0,0]) * Units.feet  
-    wing.aerodynamic_center     = np.array([trapezoid_ac_x(wing), 0. , 0. ])
-    wing.dynamic_pressure_ratio = 1.0
-    wing.ep_alpha               = 0.0
+    wing.sweeps.leading_edge       = 4.0   * Units.deg # Same as the quarter chord sweep (ignore why EMB)
+    wing.sweeps.quarter_chord      = 4.0   * Units.deg # Leading edge
+    wing.taper                     = 0.47
+    wing.aspect_ratio              = wing.spans.projected**2/wing.areas.reference
+    wing.symmetric                 = True
+    wing.vertical                  = False
+    wing.origin                    = np.array([15.,0,0]) * Units.feet  
+    wing.aerodynamic_center        = np.array([trapezoid_ac_x(wing), 0. , 0. ])
+    wing.dynamic_pressure_ratio    = 1.0
+    wing.ep_alpha                  = 0.0
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
     wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
     
@@ -168,19 +171,20 @@ def main():
     main_wing_ar  = wing.aspect_ratio
     
     wing = SUAVE.Components.Wings.Wing()
-    wing.tag                 = 'horizontal_stabilizer'
-    wing.areas.reference     = 100.5 * Units.feet**2
-    wing.spans.projected     = 22.5  * Units.feet
-    wing.sweep               = 21.   * Units.deg # leading edge
-    wing.taper               = 3.1/6.17
-    wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
-    wing.origin              = np.array([36.3,0,0])  * Units.feet
-    wing.symmetric           = True
-    wing.vertical            = False
-    wing.dynamic_pressure_ratio = 0.95
-    wing.ep_alpha            = 2.0*main_wing_CLa/np.pi/main_wing_ar
-    wing.aerodynamic_center  = np.array([trapezoid_ac_x(wing), 0.0, 0.0])
-    wing.CL_alpha            = datcom(wing,Mach)
+    wing.tag                      = 'horizontal_stabilizer'
+    wing.areas.reference          = 100.5 * Units.feet**2
+    wing.spans.projected          = 22.5  * Units.feet
+    wing.sweeps.leading_edge      = 21.0   * Units.deg # Same as the quarter chord sweep (ignore why EMB)
+    wing.sweeps.quarter_chord     = 21.0   * Units.deg # leading edge
+    wing.taper                    = 3.1/6.17
+    wing.aspect_ratio             = wing.spans.projected**2/wing.areas.reference
+    wing.origin                   = np.array([36.3,0,0])  * Units.feet
+    wing.symmetric                = True
+    wing.vertical                 = False
+    wing.dynamic_pressure_ratio   = 0.95
+    wing.ep_alpha                 = 2.0*main_wing_CLa/np.pi/main_wing_ar
+    wing.aerodynamic_center       = np.array([trapezoid_ac_x(wing), 0.0, 0.0])
+    wing.CL_alpha                 = datcom(wing,Mach)
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
@@ -241,7 +245,8 @@ def main():
     wing.chords.mean_aerodynamic   = 5.4   * Units.feet
     wing.chords.root               = 7.03  * Units.feet
     wing.chords.tip                = 3.1   * Units.feet
-    wing.sweep          = 19.5  * Units.deg # Leading edge
+    wing.sweeps.quarter_chord      = 19.5  * Units.deg # Leading edge
+    wing.sweeps.leading_edge       = 19.5  * Units.deg # Same as the quarter chord sweep (ignore why EMB)
     wing.taper          = 3.1/7.03
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
@@ -252,7 +257,7 @@ def main():
     wing.ep_alpha       = 0.0
     
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
     wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
        
@@ -277,7 +282,8 @@ def main():
     wing.tag                 = 'horizontal_stabilizer'
     wing.areas.reference     = 36.46 * Units.feet**2
     wing.spans.projected     = 13.3   * Units.feet
-    wing.sweep               = 18.5   * Units.deg # leading edge
+    wing.sweeps.quarter_chord= 18.5  * Units.deg  # leading edge
+    wing.sweeps.leading_edge = 18.5  * Units.deg  # Same as the quarter chord sweep (ignore why EMB)
     wing.taper               = 1.6/3.88
     wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
     wing.origin              = np.array([26.07,0.,0.]) * Units.feet
@@ -289,7 +295,7 @@ def main():
     wing.CL_alpha            = datcom(wing,Mach)
     
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-    mac_le_offset                            =.8*np.sin(wing.sweep)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
+    mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
     wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
     
