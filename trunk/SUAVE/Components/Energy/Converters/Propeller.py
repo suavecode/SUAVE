@@ -71,6 +71,7 @@ class Propeller(Energy_Component):
         a      = conditions.freestream.speed_of_sound[:,0,None]
         T      = conditions.freestream.temperature[:,0,None]
         theta  = self.thrust_angle
+        tc     = .12 # Thickness to chord
         
         BB     = B*B
         BBB    = BB*B
@@ -89,7 +90,7 @@ class Propeller(Energy_Component):
         V = V_thrust[:,0,None]
         
         nu    = mu/rho
-        tol   = 1e-5 # Convergence tolerance
+        tol   = 1e-6 # Convergence tolerance
         
         omega = omega1*1.0
         omega = np.abs(omega)
@@ -110,7 +111,7 @@ class Propeller(Energy_Component):
         x       = r*np.multiply(omega,1/V) # Nondimensional distance
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-        sigma   = np.multiply(B*c,1./(2.*pi*r))   
+        sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
         #I make the assumption that externally-induced velocity at the disk is zero
         #This can be easily changed if needed in the future:
@@ -126,7 +127,7 @@ class Propeller(Energy_Component):
         size = (len(a),N)
     
         #Setup a Newton iteration
-        psi    = -np.ones(size)
+        psi    = np.ones(size)*0.5
         psiold = np.zeros(size)
         diff   = 1.
         
@@ -156,11 +157,19 @@ class Propeller(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
+            # Estimate Cl max
+            Re         = (W*c)/nu 
+            #Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            #Re_ref     = 9.*10**6      
+            #Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
+            #Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
             Cl[alpha>=pi/2] = 0.
+            
             
             ## Scale for Mach, this is Karmen_Tsien
             #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
@@ -202,11 +211,11 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                print 'broke'
                 break
 
-        #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
-        Re      = (W*c)/nu
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
         

@@ -12,6 +12,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -147,7 +148,7 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
-        i=(v-omeg/Kv)/Res
+        i = (v-omeg/Kv)/Res
         
         # This line means the motor cannot recharge the battery
         i[i < 0.0] = 0.0
@@ -155,7 +156,7 @@ class Motor(Energy_Component):
         # Pack
         self.outputs.current = i
           
-        etam=(1-io/i)*(1-i*Res/v)
+        etam = (1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
         
         return i
@@ -165,17 +166,17 @@ class Motor(Energy_Component):
         # Load the CSV file
         my_data = np.genfromtxt(file_name, delimiter=',')
         
-        x = my_data[11:,:2] # Speed and torque
-        z = my_data[11:,2]  # Efficiency
+        xy = my_data[11:,:2] # Speed and torque
+        z  = my_data[11:,2]  # Efficiency
         
-        f = scipy.interpolate.CloughTocher2DInterpolator(xy,z)
+        f  = sp.interpolate.CloughTocher2DInterpolator(xy,z)
         
         # Keep the interpolated function
         self.interpolated_func = f
         
         return f
         
-    def power_from_fit(self,conditions):
+    def power_from_fit(self):
         
         # Unpack
         omega  = self.inputs.omega
@@ -186,11 +187,12 @@ class Motor(Energy_Component):
         efficiency = func(omega,torque)
         
         # Ensure the values make some sense
-        efficiency[efficiency<0.] = 0.
-        efficiency[efficiency>1.] = 1.
+        efficiency[efficiency<=0.]       = .01
+        efficiency[efficiency>1.]        = 1.
+        efficiency[np.isnan(efficiency)] = .01
         
         # Mechanical Power
-        mech_power = rpm*torque
+        mech_power = omega*torque
         
         # Electrical Power
         elec_power = mech_power/efficiency
