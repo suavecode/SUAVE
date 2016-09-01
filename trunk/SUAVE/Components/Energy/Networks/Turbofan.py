@@ -16,7 +16,7 @@ import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Analyses import Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-
+from SUAVE.Components.Energy.Converters.Generator import Generator
 
 # ----------------------------------------------------------------------
 #  Turbofan Network
@@ -39,6 +39,7 @@ class Turbofan(Propulsor):
         self.areas.maximum     = 0.0
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
+        self.generator         = Generator()
     _component_root_map = None
         
     
@@ -55,6 +56,7 @@ class Turbofan(Propulsor):
         inlet_nozzle              = self.inlet_nozzle
         low_pressure_compressor   = self.low_pressure_compressor
         high_pressure_compressor  = self.high_pressure_compressor
+        generator                 = self.generator
         fan                       = self.fan
         combustor                 = self.combustor
         high_pressure_turbine     = self.high_pressure_turbine
@@ -62,6 +64,7 @@ class Turbofan(Propulsor):
         core_nozzle               = self.core_nozzle
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
+
         
         bypass_ratio              = self.bypass_ratio
         number_of_engines         = self.number_of_engines        
@@ -120,8 +123,16 @@ class Turbofan(Propulsor):
         
         #flow through the high pressor comprresor
         combustor(conditions)
-        
-        
+
+        # link the generator to the low pressure compressor
+
+        generator.inputs.mdhc                                  = thrust.compressor_nondimensional_massflow
+        generator.inputs.Tref                                  = thrust.reference_temperature
+        generator.inputs.Pref                                  = thrust.reference_pressure
+        generator.inputs.total_temperature_reference           = low_pressure_compressor.outputs.stagnation_temperature
+        generator.inputs.total_pressure_reference              = low_pressure_compressor.outputs.stagnation_pressure
+
+        generator(conditions)
 
         #link the high pressure turbione to the combustor
         high_pressure_turbine.inputs.stagnation_temperature    = combustor.outputs.stagnation_temperature
@@ -147,6 +158,8 @@ class Turbofan(Propulsor):
         low_pressure_turbine.inputs.fuel_to_air_ratio          = combustor.outputs.fuel_to_air_ratio
         #link the low pressure turbine to the fan
         low_pressure_turbine.inputs.fan                        = fan.outputs
+        # link the low pressure turbine to the generator
+        low_pressure_turbine.inputs.generator                  = generator.outputs
         #get the bypass ratio from the thrust component
         low_pressure_turbine.inputs.bypass_ratio               = bypass_ratio
         
