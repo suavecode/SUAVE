@@ -1,9 +1,7 @@
-# integrated_propulsion.py
-# 
-# Created:  Jan 2014, A. Wendorff 
-# Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero
 
+# integrated_propulsion_general_aviation.py
+# 
+# Created:  Sept 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -36,4 +34,5 @@ def integrated_propulsion_general_aviation(engine_piston,num_eng, engine_wt_fact
     mass = weight*Units.lbs #convert to kg
     
     return mass
-    
+
+
