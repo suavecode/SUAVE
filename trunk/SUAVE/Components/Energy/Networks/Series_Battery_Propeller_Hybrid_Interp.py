@@ -35,6 +35,8 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         self.generator         = None
         self.thrust_angle      = 0.0
         self.max_omega         = 0.0
+        self.motors_per_prop   = None
+        self.number_of_props   = None
         self.tag               = 'network'
     
     # manage process with a driver function
@@ -51,40 +53,66 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         battery    = self.battery
         engine     = self.combustion_engine
         generator  = self.generator
+        n_motor    = self.motors_per_prop
+        n_props    = self.number_of_props
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
 
         
         # Throttle the system
+        ## Check to see if magic thrust is needed
+        #eta          = conditions.propulsion.throttle[:,0,None] * 1.0
+        #eta_c        = conditions.propulsion.throttle[:,0,None] * 1.0
+        #eta_c[eta_c>1.0] = 1.0
+        #eta_c[eta_c<0.0] = 0.0
+        #omega        = self.max_omega * eta_c
+
+        ## link
+        #propeller.inputs.omega = omega
+        #propeller.thrust_angle = self.thrust_angle
+        
+        ## Run the propeller
+        #F, Q, P, Cp = propeller.spin(conditions)   
+        
+        #P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
+        #F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
+        ##Q[eta>1.0] = Q[eta>1.0]*eta[eta>1.0]
+        #P[eta<0.0] = P[eta<0.0]*eta[eta<0.0]
+        #F[eta<0.0] = F[eta<0.0]*eta[eta<0.0]    
+        ##Q[eta<0.0] = Q[eta<0.0]*eta[eta<0.0] 
+        
+        # Throttle the system
         # Check to see if magic thrust is needed
         eta          = conditions.propulsion.throttle[:,0,None] * 1.0
         eta_c        = conditions.propulsion.throttle[:,0,None] * 1.0
-        eta_c[eta_c>1.0] = 1.0
-        eta_c[eta_c<0.0] = 0.0
-        omega        = self.max_omega * eta_c
 
-        # link
+        
+        omega = conditions.propulsion.rpm
+        conditions.propulsion.pitch_command =  eta_c*10**-8
+        #link
         propeller.inputs.omega = omega
         propeller.thrust_angle = self.thrust_angle
         
         # Run the propeller
-        F, Q, P, Cp = propeller.spin(conditions)   
+        F, Q, P, Cp = propeller.spin_variable_pitch(conditions)   
+        #F, Q, P, Cp = propeller.spin(conditions)   
+        #P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
+        #F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
+        ##Q[eta>1.0] = Q[eta>1.0]*eta[eta>1.0]
+        #P[eta<0.0] = P[eta<0.0]*eta[eta<0.0]
+        #F[eta<0.0] = F[eta<0.0]*eta[eta<0.0]    
+        ##Q[eta<0.0] = Q[eta<0.0]*eta[eta<0.0] 
         
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-        Q[eta>1.0] = Q[eta>1.0]*eta[eta>1.0]
-        P[eta<0.0] = P[eta<0.0]*eta[eta<0.0]
-        F[eta<0.0] = F[eta<0.0]*eta[eta<0.0]    
-        Q[eta<0.0] = Q[eta<0.0]*eta[eta<0.0] 
+        
         
         # Run the motor
         motor.inputs.omega  = omega
-        motor.inputs.torque = Q/2 
+        motor.inputs.torque = Q/n_motor
         motor.power_from_fit()
         
         # Calculate the current going into the motor and ESC
-        esc.outputs.currentin = 2*motor.outputs.power_in/self.voltage
+        esc.outputs.currentin = n_motor*motor.outputs.power_in/self.voltage
 
         # Run the avionics
         avionics.power()
@@ -118,8 +146,8 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         i_gen = Pgen/self.voltage
         
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current-i_gen
-        battery.inputs.power_in = -(motor.outputs.power_in*self.number_of_engines + avionics_payload_power-Pgen)
+        battery.inputs.current  = esc.outputs.currentin*n_props + avionics_payload_current-i_gen
+        battery.inputs.power_in = -(motor.outputs.power_in*n_props + avionics_payload_power-Pgen)
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
@@ -130,13 +158,13 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
           
-        conditions.propulsion.rpm                  = rpm
+        #conditions.propulsion.rpm                  = rpm
         conditions.propulsion.current              = current
         conditions.propulsion.battery_draw         = battery_draw
         conditions.propulsion.battery_energy       = battery_energy
         conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.motor_torque         = Q/2
+        conditions.propulsion.motor_torque         = Q/n_motor
         conditions.propulsion.propeller_torque     = Q
         
         # Create the outputs
