@@ -19,3 +19,4 @@ from Turbofan_TASOPT import Turbofan_TASOPT
 from Turbofan_Deck_I import Turbofan_Deck_I
 from Turbofan_JDM import Turbofan_JDM
 from Turbofan_TASOPT_Net import Turbofan_TASOPT_Net
+from Turbofan_TASOPT_Net_fsolve import Turbofan_TASOPT_Net_fsolve
