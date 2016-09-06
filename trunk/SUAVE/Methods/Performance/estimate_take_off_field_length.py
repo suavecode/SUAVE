@@ -106,11 +106,10 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
-            CL_outputs =   compute_max_lift_coeff(vehicle,conditions)           
-            maximum_lift_coefficient = CL_outputs.Cl_max_ls
-
+            maximum_lift_coefficient,induced_drag_coeff =   compute_max_lift_coeff(vehicle,conditions)           
+        
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
-            print 'maximum_lift_coefficient=', maximum_lift_coefficient
+            
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
 
@@ -233,7 +232,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         output.takeoff_field_length = takeoff_field_length
         output.second_seg_climb_gradient = second_seg_climb_gradient
 ##        return takeoff_field_length, second_seg_climb_gradient
-        print 'output=', output
+        
         return output
 
     else:
