@@ -382,7 +382,7 @@ def vehicle_setup():
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT_Net_fsolve()
     gt_engine.tag               = 'turbofan'
 
-    gt_engine.number_of_engines = 1.0
+    gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4 #4.9 #5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
@@ -732,7 +732,7 @@ def plot_mission(results,line_style='bo-'):
         axes = fig.add_subplot(2,1,2)
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
+        axes.set_ylabel('eta',axis_font)
         axes.grid(True)	
 
         #plt.savefig("B737_engine.pdf")
@@ -920,9 +920,8 @@ def mission_setup(analyses):
     # base segment
     base_segment = Segments.Segment()
 
-
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment Modified
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -930,13 +929,37 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.takeoff )
 
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.0   * Units.km
+    segment.altitude_start = 1.8   * Units.km
+    segment.altitude_end   = 2.2   * Units.km
     segment.air_speed      = 125.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle   = ones_row(1) * 1.0
 
     # add to misison
     mission.append_segment(segment)
+
+
+    ## ------------------------------------------------------------------
+    ##   First Climb Segment: constant Mach, constant segment angle 
+    ## ------------------------------------------------------------------
+
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "climb_1"
+
+    #segment.analyses.extend( analyses.takeoff )
+
+    #segment.altitude_start = 0.0   * Units.km
+    #segment.altitude_end   = 3.0   * Units.km
+    #segment.air_speed      = 125.0 * Units['m/s']
+    #segment.climb_rate     = 6.0   * Units['m/s']
+    
+    #ones_row = segment.state.ones_row
+    #segment.state.unknowns.throttle   = ones_row(1) * 1.0
+
+    ## add to misison
+    #mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
