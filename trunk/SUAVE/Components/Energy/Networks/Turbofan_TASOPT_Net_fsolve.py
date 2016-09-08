@@ -874,19 +874,23 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
 
     def iterate(self,unknowns,(conditions,design_run)):
         
+        l = np.shape(conditions.freestream.gamma)[0]
+        n = np.size(unknowns)/l
+        unknowns = np.reshape(unknowns,[n,l])
         [pi_f,pi_lc,pi_hc,mf,mlc,mhc,Tt4,Pt5] = unknowns
         
-        self.offdesign_params.pi_f  = pi_f
-        self.offdesign_params.pi_lc = pi_lc
-        self.offdesign_params.pi_hc = pi_hc
-        self.offdesign_params.mf    = mf
-        self.offdesign_params.mlc   = mlc
-        self.offdesign_params.mhc   = mhc
-        self.offdesign_params.Tt4   = Tt4
-        self.offdesign_params.Pt5   = Pt5
+        self.offdesign_params.pi_f  = np.atleast_2d(pi_f)
+        self.offdesign_params.pi_lc = np.atleast_2d(pi_lc)
+        self.offdesign_params.pi_hc = np.atleast_2d(pi_hc)
+        self.offdesign_params.mf    = np.atleast_2d(mf)
+        self.offdesign_params.mlc   = np.atleast_2d(mlc)
+        self.offdesign_params.mhc   = np.atleast_2d(mhc)
+        self.offdesign_params.Tt4   = np.atleast_2d(Tt4)
+        self.offdesign_params.Pt5   = np.atleast_2d(Pt5)
     
         results = self.evaluate(conditions,design_run)
-        R = results.Res[:,0]
+        R = results.Res
+        R = R.flatten()
         
         return R
 
@@ -906,7 +910,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             
         design_run = False
         
-        unknowns = np.array([ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5])
+        unknowns = [ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5]
+
+        #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
 
         root_finder = scipy.optimize.fsolve
         unknowns,infodict,ier,msg = root_finder( self.iterate,
@@ -915,7 +921,15 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
                                                  xtol = 1e-6,
                                                  full_output=1)        
         
-        [ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5] = unknowns
+        ep.pi_f  = np.atleast_2d(unknowns[segment_length*0:segment_length*1])
+        ep.pi_lc = np.atleast_2d(unknowns[segment_length*1:segment_length*2])
+        ep.pi_hc = np.atleast_2d(unknowns[segment_length*2:segment_length*3])
+        ep.mf    = np.atleast_2d(unknowns[segment_length*3:segment_length*4])
+        ep.mlc   = np.atleast_2d(unknowns[segment_length*4:segment_length*5])
+        ep.mhc   = np.atleast_2d(unknowns[segment_length*5:segment_length*6])
+        ep.Tt4   = np.atleast_2d(unknowns[segment_length*6:segment_length*7])
+        ep.Pt5   = np.atleast_2d(unknowns[segment_length*7:segment_length*8])
+        #[ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5] = unknowns
                 
         self.offdesign_params.pi_f  = ep.pi_f
         self.offdesign_params.pi_lc = ep.pi_lc
@@ -925,6 +939,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         self.offdesign_params.mhc   = ep.mhc
         self.offdesign_params.Tt4   = ep.Tt4
         self.offdesign_params.Pt5   = ep.Pt5
+        
+        #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
+        print msg
         
         results = self.evaluate(conditions, design_run)
                 
