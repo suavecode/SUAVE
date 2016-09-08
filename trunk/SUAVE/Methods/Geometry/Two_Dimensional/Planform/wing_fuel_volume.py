@@ -57,11 +57,11 @@ if __name__ == '__main__':
     wing_fuel = sp.zeros((len(tc_vec),len(sw_array),len(AR_vec)))
 
     for i in range(len(tc_vec)):
-        wing.t_c = tc_vec[i]
+        wing.thickness_to_chord = tc_vec[i]
         for j in range(len(sw_array)):
-            wing.sref = sw_array[j]
+            wing.areas.reference = sw_array[j]
             for k in range(len(AR_vec)):
-                wing.ar = AR_vec[k]
+                wing.aspect_ratio = AR_vec[k]
                 wing_fuel_volume(wing)
                 wing_fuel[i,j,k] = wing.fuel_volume
 

@@ -27,14 +27,15 @@ class Segment(Analysis):
         self.analyses = Analysis.Container()
         
         self.process = Process()
-        self.process.initialize         = Process()
-        self.process.converge           = Process()
-        self.process.iterate            = Process()
-        self.process.iterate.unknowns   = Process()
-        self.process.iterate.initials   = Process()
-        self.process.iterate.conditions = Process()
-        self.process.iterate.residuals  = Process()
-        self.process.finalize           = Process()
+        self.process.initialize            = Process()
+        self.process.converge              = Process()
+        self.process.iterate               = Process()
+        self.process.iterate.unknowns      = Process()
+        self.process.iterate.initials      = Process()
+        self.process.iterate.conditions    = Process()
+        self.process.iterate.residuals     = Process()
+        self.process.finalize              = Process()
+        self.process.finalize.post_process =  Process()
         
         return
         

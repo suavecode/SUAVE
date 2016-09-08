@@ -66,74 +66,74 @@ def write(vehicle):
     
     # Pylons
     
-    wing = vehicle.wings.main_wing
+    #wing = vehicle.wings.main_wing
     
-    pylon_wing_pos = 0.25
-    pylon_y_off    = .4
-    pylon_x_off    = 1    
-    engine_nac_length = 2.5
-    pylon_tc       = .2
+    #pylon_wing_pos = 0.25
+    #pylon_y_off    = .4
+    #pylon_x_off    = 1    
+    #engine_nac_length = 2.5
+    #pylon_tc       = .2
     
-    root_chord = wing.chords.root
-    tip_chord  = wing.chords.tip
-    sweep      = wing.sweeps.quarter_chord
-    span       = wing.spans.projected
+    #root_chord = wing.chords.root
+    #tip_chord  = wing.chords.tip
+    #sweep      = wing.sweeps.quarter_chord
+    #span       = wing.spans.projected
     
-    dx_tip   = .25*root_chord + span/2.*np.tan(sweep)-.25*tip_chord
-    dx_pylon = dx_tip*pylon_wing_pos
+    #dx_tip   = .25*root_chord + span/2.*np.tan(sweep)-.25*tip_chord
+    #dx_pylon = dx_tip*pylon_wing_pos
     
-    pylon_id = vsp.AddGeom( "WING",main_wing_id)
+    #pylon_id = vsp.AddGeom( "WING",main_wing_id)
     
-    pylon_x = dx_pylon + wing.origin[0]
-    pylon_y = span/2.*pylon_wing_pos
-    pylon_z = wing.origin[2]
+    #pylon_x = dx_pylon + wing.origin[0]
+    #pylon_y = span/2.*pylon_wing_pos
+    #pylon_z = wing.origin[2]
     
-    pylon_chord = engine_nac_length/2.
-    pylon_sweep = -np.arctan(pylon_x_off/pylon_y_off) / Units.deg
+    #pylon_chord = engine_nac_length/2.
+    #pylon_sweep = -np.arctan(pylon_x_off/pylon_y_off) / Units.deg
     
-    vsp.SetParmVal( pylon_id,'X_Rel_Location','XForm',pylon_x)
-    vsp.SetParmVal( pylon_id,'Y_Rel_Location','XForm',pylon_y)
-    vsp.SetParmVal( pylon_id,'Z_Rel_Location','XForm',pylon_z)
-    vsp.SetParmVal( pylon_id,'Span','XSec_1',pylon_y_off)
-    vsp.SetParmVal( pylon_id,'Root_Chord','XSec_1',pylon_chord)
-    vsp.SetParmVal( pylon_id,'Tip_Chord','XSec_1',pylon_chord)  
-    vsp.SetParmVal( pylon_id,'X_Rel_Rotation','XForm',-90) 
-    vsp.SetParmVal( pylon_id,'Sweep','XSec_1',pylon_sweep)
-    vsp.SetParmVal( pylon_id,'Sweep_Location','XSec_1',0)   
-    vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_0',pylon_tc)
-    vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_1',pylon_tc) 
+    #vsp.SetParmVal( pylon_id,'X_Rel_Location','XForm',pylon_x)
+    #vsp.SetParmVal( pylon_id,'Y_Rel_Location','XForm',pylon_y)
+    #vsp.SetParmVal( pylon_id,'Z_Rel_Location','XForm',pylon_z)
+    #vsp.SetParmVal( pylon_id,'Span','XSec_1',pylon_y_off)
+    #vsp.SetParmVal( pylon_id,'Root_Chord','XSec_1',pylon_chord)
+    #vsp.SetParmVal( pylon_id,'Tip_Chord','XSec_1',pylon_chord)  
+    #vsp.SetParmVal( pylon_id,'X_Rel_Rotation','XForm',-90) 
+    #vsp.SetParmVal( pylon_id,'Sweep','XSec_1',pylon_sweep)
+    #vsp.SetParmVal( pylon_id,'Sweep_Location','XSec_1',0)   
+    #vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_0',pylon_tc)
+    #vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_1',pylon_tc) 
     
-    # Engines
+    ## Engines
     
-    nac_id = vsp.AddGeom( "FUSELAGE",pylon_id )
+    #nac_id = vsp.AddGeom( "FUSELAGE",pylon_id )
     
-    # unpack the turbofan
-    turbofan  = vehicle.propulsors.turbofan
-    n_engines = turbofan.number_of_engines
-    length    = turbofan.engine_length
-    width     = turbofan.nacelle_diameter
-    origins   = turbofan.origin
-    bpr       = turbofan.bypass_ratio
+    ## unpack the turbofan
+    #turbofan  = vehicle.propulsors.turbofan
+    #n_engines = turbofan.number_of_engines
+    #length    = turbofan.engine_length
+    #width     = turbofan.nacelle_diameter
+    #origins   = turbofan.origin
+    #bpr       = turbofan.bypass_ratio
     
-    if n_engines == 2:
-        symmetric = 1
-    else:
-        symmetric = 0
+    #if n_engines == 2:
+        #symmetric = 1
+    #else:
+        #symmetric = 0
         
-    z = pylon_z - width/2 - pylon_y_off
-    x = pylon_x - pylon_y_off -  length/2
+    #z = pylon_z - width/2 - pylon_y_off
+    #x = pylon_x - pylon_y_off -  length/2
         
-    # Length and overall diameter
-    vsp.SetParmVal(nac_id,"Length","Design",length)
-    vsp.SetParmVal(nac_id,"Diameter","Design",width)   
-    vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
-    vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',pylon_y)
-    vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z)        
+    ## Length and overall diameter
+    #vsp.SetParmVal(nac_id,"Length","Design",length)
+    #vsp.SetParmVal(nac_id,"Diameter","Design",width)   
+    #vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
+    #vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',pylon_y)
+    #vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z)        
     
-    # The inside of the nacelle
-    inside = vsp.AddSubSurf(nac_id, 1)
-    vsp.SetParmVal(inside,"Const_Line_Type",inside,0.)
-    vsp.SetParmVal(inside,"Const_Line_Value",inside,0.5)
+    ## The inside of the nacelle
+    #inside = vsp.AddSubSurf(nac_id, 1)
+    #vsp.SetParmVal(inside,"Const_Line_Type",inside,0.)
+    #vsp.SetParmVal(inside,"Const_Line_Value",inside,0.5)
 
 
 
@@ -150,13 +150,15 @@ def write(vehicle):
     effdia   = fuselage.effective_diameter
     n_fine   = fuselage.fineness.nose 
     t_fine   = fuselage.fineness.tail  
+    w_ac     = wing.aerodynamic_center
     
     w_origin = vehicle.wings.main_wing.origin
+    w_ac     = vehicle.wings.main_wing.aerodynamic_center
     
     # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
     
     x1 = n_fine*width/length
-    x2 = w_origin[0]/length
+    x2 = (w_origin[0]+w_ac[0])/length
     x3 = 1-t_fine*width/length
     
     fuse_id = vsp.AddGeom("FUSELAGE")    

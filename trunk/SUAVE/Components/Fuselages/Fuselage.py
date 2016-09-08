@@ -52,12 +52,7 @@ class Fuselage(Lofted_Body):
         self.fineness.tail = 0.0
         
         self.differential_pressure = 0.0
-            
-        self.Fineness = Data()
-        self.Fineness.nose = 0.0
-        self.Fineness.tail = 0.0
         
-        self.differential_pressure = 0.0
         
 class Container(Physical_Component.Container):
     pass
