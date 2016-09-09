@@ -686,6 +686,7 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             
             Res = np.zeros([8,M0.shape[0]])
             
+            scaling_array = np.array([[1.],[4.],[10.],[150.],[30.],[30.],[1.],[80000.]])
             
             # temporary transposes
             Res[0,:] = (ep.Nf*ep.GF - ep.Nl).T
@@ -699,7 +700,7 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             
             Res[7,:] = (ep.Pt5.T - Pt4_9*ep.pi_tn.T).T
              
-            results.Res = Res
+            results.Res = Res/scaling_array
             results.F   = F
             results.mdot = mdot
 
@@ -915,6 +916,7 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
 
         root_finder = scipy.optimize.fsolve
+        print unknowns
         unknowns,infodict,ier,msg = root_finder( self.iterate,
                                                  unknowns,
                                                  args = [conditions,design_run],
@@ -942,6 +944,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         
         #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
         print msg
+        print conditions
+        print unknowns
+        print design_run
         
         results = self.evaluate(conditions, design_run)
                 
@@ -1017,82 +1022,6 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         
         ep.Pt5  = ep.Pt5*onesv 
         ep.Tt4_Tt2 = ep.Tt4_Tt2*onesv        
-    
-
-
-
-
-
-
-
-
-    def set_baseline_params(self,segment_length):
-        
-        odp = self.offdesign_params
-        bp = np.zeros([8,segment_length])
-        # set the baseline params from the odp array
-        bp[0,:] = odp.pi_f[0,:]
-        bp[1,:] = odp.pi_lc[0,:]
-        bp[2,:] = odp.pi_hc[0,:]
-        bp[3,:] = odp.mf[0,:]
-        bp[4,:] = odp.mlc[0,:]
-        bp[5,:] = odp.mhc[0,:]
-        bp[6,:] = odp.Tt4[0,:]
-        bp[7,:] = odp.Pt5[0,:]
-        
-        return bp
-    
-    
-    
-    
-    
-    def update_engine_params(self,baseline_params):
-    
-        bp  = baseline_params
-        odp = self.offdesign_params
-        # set the engine params from a new base line
-        odp.pi_f[0,:]  = bp[0,:]
-        odp.pi_lc[0,:] = bp[1,:]
-        odp.pi_hc[0,:] = bp[2,:]
-        odp.mf[0,:]    = bp[3,:]
-        odp.mlc[0,:]   = bp[4,:]
-        odp.mhc[0,:]   = bp[5,:]
-        odp.Tt4[0,:]   = bp[6,:]
-        odp.Pt5[0,:]   = bp[7,:]       
-    
- 
-        return
-    
-    
-
-    
-    def jacobian(self,conditions,baseline_parameters,base_residuals):
-        
-        delta = 1e-8
-        R     = base_residuals
-        
-        # Engine parameters (ep)
-        bp = baseline_parameters
-        ep = self.offdesign_params
-        
-        segment_length = len(conditions.propulsion.throttle)
-        jacobian       = np.zeros([8,8,segment_length])
-        
-        # Network variable values
-        network_vars = [ep.pi_f, ep.pi_lc, ep.pi_hc, ep.mf, ep.mlc, ep.mhc, ep.Tt4, ep.Pt5]
-        
-        design_run = False
-        
-        for i, network_var in enumerate(network_vars):
-                network_var[0,:]         = bp[i,:]*(1.+delta)
-                results                  = self.evaluate(conditions, design_run, ep)
-                network_var[0,:]         = bp[i,:]
-                jacobian[i,:,:]          = (results.Res - R)/(bp[i,:]*delta) 
-        
-        jacobian = np.swapaxes(jacobian, 0, 1)
-
-
-        return jacobian
         
         
 
