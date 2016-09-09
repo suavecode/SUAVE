@@ -16,5 +16,4 @@ from Propeller_Lo_Fid import Propeller_Lo_Fid
 from Ram import Ram
 from Solar_Panel import Solar_Panel
 from Turbine import Turbine
-from Generator import Generator
 from Supersonic_Nozzle import Supersonic_Nozzle

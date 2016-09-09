@@ -1,4 +1,4 @@
-# Generator.py
+# Shaft_Takeoff_Power.py
 #
 # Created:  Jun 2016, L. Kulik
 
@@ -13,10 +13,10 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Generator component
+#  Shaft Power component
 # ----------------------------------------------------------------------
 
-class Generator(Energy_Component):
+class Shaft_Takeoff_Power(Energy_Component):
     """ SUAVE.Components.Energy.Converters.Generator
         an electrical generator component
 
@@ -45,12 +45,11 @@ class Generator(Energy_Component):
         else:
 
             mdhc = self.inputs.mdhc
-
             Tref = self.reference_temperature
             Pref = self.reference_pressure
 
             total_temperature_reference = self.inputs.total_temperature_reference
-            total_pressure_reference = self.inputs.total_pressure_reference
+            total_pressure_reference    = self.inputs.total_pressure_reference
 
             self.outputs.power = self.power_draw
 
