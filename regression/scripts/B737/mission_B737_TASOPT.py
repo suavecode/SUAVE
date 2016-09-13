@@ -619,7 +619,7 @@ def vehicle_setup():
 
     #size the turbofan
     gt_engine.unpack()
-    aaa = gt_engine.size(mach_number,altitude)   
+    gt_engine.size(mach_number,altitude)   
 
     # add  gas turbine network gt_engine to the vehicle 
     vehicle.append_component(gt_engine)      
@@ -920,30 +920,8 @@ def mission_setup(analyses):
     # base segment
     base_segment = Segments.Segment()
 
-    # ------------------------------------------------------------------
-    #   First Climb Segment Modified
-    # ------------------------------------------------------------------
-
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-
-    segment.analyses.extend( analyses.takeoff )
-
-    segment.altitude_start = 1.8   * Units.km
-    segment.altitude_end   = 2.2   * Units.km
-    segment.air_speed      = 150.0 * Units['m/s']
-    segment.climb_rate     = 3.0   * Units['m/s']
-    
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.throttle   = ones_row(1) * 1.0
-    segment.state.numerics.number_control_points = 2
-
-    # add to misison
-    mission.append_segment(segment)
-
-
     ## ------------------------------------------------------------------
-    ##   First Climb Segment: constant Mach, constant segment angle 
+    ##   First Climb Segment Modified
     ## ------------------------------------------------------------------
 
     #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -951,16 +929,38 @@ def mission_setup(analyses):
 
     #segment.analyses.extend( analyses.takeoff )
 
-    #segment.altitude_start = 0.0   * Units.km
-    #segment.altitude_end   = 3.0   * Units.km
-    #segment.air_speed      = 125.0 * Units['m/s']
-    #segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.altitude_start = 1.8   * Units.km
+    #segment.altitude_end   = 2.2   * Units.km
+    #segment.air_speed      = 150.0 * Units['m/s']
+    #segment.climb_rate     = 3.0   * Units['m/s']
     
     #ones_row = segment.state.ones_row
     #segment.state.unknowns.throttle   = ones_row(1) * 1.0
+    #segment.state.numerics.number_control_points = 2
 
     ## add to misison
     #mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   First Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_1"
+
+    segment.analyses.extend( analyses.takeoff )
+
+    segment.altitude_start = 0.0   * Units.km
+    segment.altitude_end   = 3.0   * Units.km
+    segment.air_speed      = 125.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle   = ones_row(1) * 1.0
+
+    # add to misison
+    mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------

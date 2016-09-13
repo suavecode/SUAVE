@@ -503,7 +503,7 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             
             # Core Nozzle Area
             
-            core_nozzle.size(mdot_core,u6,T6,P0)
+            core_nozzle.size(mdot_core*(1.+f),u6,T6,P0)
             A5 = core_nozzle.exit_area        
             
             
@@ -520,9 +520,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             mhtD = (1.0+f)*mdot_core*np.sqrt(Tt4_1/ep.Tref)/(Pt4_1/ep.Pref)
             mltD = (1.0+f)*mdot_core*np.sqrt(Tt4_5/ep.Tref)/(Pt4_5/ep.Pref)
             
-            mhcD = (1.0+f)*mdot_core*np.sqrt(Tt2_5/ep.Tref)/(Pt2_5/ep.Pref)
-            mlcD = (1.0+f)*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref) 
-            mfD  = (1.0+f)*ep.aalpha*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref)    
+            mhcD = mdot_core*np.sqrt(Tt2_5/ep.Tref)/(Pt2_5/ep.Pref)
+            mlcD = mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref) 
+            mfD  = ep.aalpha*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref)    
             
             # Update engine parameters
             
@@ -717,6 +717,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
     
     def size(self,mach_number,altitude,delta_isa = 0.):  
         
+        altitude    = np.atleast_2d(altitude)
+        mach_number = np.atleast_2d(mach_number)
+        
         #Unpack components
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data = atmosphere.compute_values(altitude,delta_isa)
@@ -731,12 +734,13 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         freestream_gas = SUAVE.Attributes.Gases.Air()
         
-        # Note that these calculations are not accounting for temperature, and 
-        # therefore vary slightly from those used to calculate atmosphere parameters.
-        # This means values such as speed of sound will vary slightly if computed with
-        # these outputs directly.
-        gamma = freestream_gas.compute_gamma()
-        Cp    = freestream_gas.compute_cp()
+        ## Note that these calculations are not accounting for temperature, and 
+        ## therefore vary slightly from those used to calculate atmosphere parameters.
+        ## This means values such as speed of sound will vary slightly if computed with
+        ## these outputs directly.
+        # now they do
+        gamma = freestream_gas.compute_gamma(T,p)
+        Cp    = freestream_gas.compute_cp(T,p)
         R     = freestream_gas.gas_specific_constant
     
     
@@ -757,7 +761,7 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
         
         # propulsion conditions
-        conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+        conditions.propulsion.throttle           =  np.atleast_2d(1.0)
              
         design_run = True
         results = self.evaluate(conditions, design_run)
@@ -767,61 +771,61 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         
         
         
-        ones_1col = np.ones([1,1])
-        altitude      = ones_1col*0.0
-        mach_number   = ones_1col*0.0
-        throttle      = ones_1col*1.0
+        #ones_1col = np.ones([1,1])
+        #altitude      = ones_1col*0.0
+        #mach_number   = ones_1col*0.0
+        #throttle      = ones_1col*1.0
         
-        #call the atmospheric model to get the conditions at the specified altitude
-        atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data = atmosphere_sls.compute_values(altitude,0.0)
+        ##call the atmospheric model to get the conditions at the specified altitude
+        #atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        #atmo_data = atmosphere_sls.compute_values(altitude,0.0)
     
-        p   = atmo_data.pressure          
-        T   = atmo_data.temperature       
-        rho = atmo_data.density          
-        a   = atmo_data.speed_of_sound    
-        mu  = atmo_data.dynamic_viscosity  
+        #p   = atmo_data.pressure          
+        #T   = atmo_data.temperature       
+        #rho = atmo_data.density          
+        #a   = atmo_data.speed_of_sound    
+        #mu  = atmo_data.dynamic_viscosity  
     
-        # setup conditions
-        conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-        freestream_gas = SUAVE.Attributes.Gases.Air()
+        ## setup conditions
+        #conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
+        #freestream_gas = SUAVE.Attributes.Gases.Air()
         
-        # Note that these calculations are not accounting for temperature, and 
-        # therefore vary slightly from those used to calculate atmosphere parameters.
-        # This means values such as speed of sound will vary slightly if computed with
-        # these outputs directly.
-        gamma = freestream_gas.compute_gamma()
-        Cp    = freestream_gas.compute_cp()
-        R     = freestream_gas.gas_specific_constant
+        ## Note that these calculations are not accounting for temperature, and 
+        ## therefore vary slightly from those used to calculate atmosphere parameters.
+        ## This means values such as speed of sound will vary slightly if computed with
+        ## these outputs directly.
+        #gamma = freestream_gas.compute_gamma()
+        #Cp    = freestream_gas.compute_cp()
+        #R     = freestream_gas.gas_specific_constant
     
     
-        # freestream conditions
+        ## freestream conditions
         
-        conditions_sls.freestream.altitude           = np.atleast_1d(altitude)
-        conditions_sls.freestream.mach_number        = np.atleast_1d(mach_number)
+        #conditions_sls.freestream.altitude           = np.atleast_1d(altitude)
+        #conditions_sls.freestream.mach_number        = np.atleast_1d(mach_number)
         
-        conditions_sls.freestream.pressure           = np.atleast_1d(p)
-        conditions_sls.freestream.temperature        = np.atleast_1d(T)
-        conditions_sls.freestream.density            = np.atleast_1d(rho)
-        conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-        conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-        conditions_sls.freestream.gamma              = np.atleast_2d(gamma)
-        conditions_sls.freestream.specific_heat      = np.atleast_2d(Cp)
-        conditions_sls.freestream.gas_specific_constant = np.atleast_2d(R)  
-        conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
-        conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
+        #conditions_sls.freestream.pressure           = np.atleast_1d(p)
+        #conditions_sls.freestream.temperature        = np.atleast_1d(T)
+        #conditions_sls.freestream.density            = np.atleast_1d(rho)
+        #conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
+        #conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
+        #conditions_sls.freestream.gamma              = np.atleast_2d(gamma)
+        #conditions_sls.freestream.specific_heat      = np.atleast_2d(Cp)
+        #conditions_sls.freestream.gas_specific_constant = np.atleast_2d(R)  
+        #conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
+        #conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
         
-        # propulsion conditions
-        conditions_sls.propulsion.throttle           =  np.atleast_1d(throttle)
+        ## propulsion conditions
+        #conditions_sls.propulsion.throttle           =  np.atleast_1d(throttle)
         
-        state_sls = Data()
-        state_sls.numerics = Data()
-        state_sls.conditions = conditions_sls   
-        results_sls = self.offdesign(state_sls)
+        #state_sls = Data()
+        #state_sls.numerics = Data()
+        #state_sls.conditions = conditions_sls   
+        #results_sls = self.offdesign(state_sls)
         
         
         
-        self.sealevel_static_thrust = results_sls.F
+        #self.sealevel_static_thrust = results_sls.F
         
         return results
 
@@ -878,6 +882,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         l = np.shape(conditions.freestream.gamma)[0]
         n = np.size(unknowns)/l
         unknowns = np.reshape(unknowns,[n,l])
+        input_scale = np.array([[1.],[1.],[10.],[100.],[10.],[10.],[1000.],[100000.]])
+        
+        unknowns = unknowns*input_scale
         [pi_f,pi_lc,pi_hc,mf,mlc,mhc,Tt4,Pt5] = unknowns
         
         self.offdesign_params.pi_f  = np.atleast_2d(pi_f)
@@ -911,26 +918,31 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
             
         design_run = False
         
-        unknowns = [ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5]
+        input_scale = np.array([1.,1.,10.,100.,10.,10.,1000.,100000.])
+        sc = input_scale
+        unknowns = np.array([ep.pi_f/sc[0],ep.pi_lc/sc[1],ep.pi_hc/sc[2],ep.mf/sc[3],ep.mlc/sc[4],ep.mhc/sc[5],ep.Tt4/sc[6],ep.Pt5/sc[7]])
+        
+        #unknowns = unknowns.flatten()
+        #unknowns = unknowns/input_scale
 
         #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
 
         root_finder = scipy.optimize.fsolve
-        print unknowns
+        #print unknowns
         unknowns,infodict,ier,msg = root_finder( self.iterate,
                                                  unknowns,
                                                  args = [conditions,design_run],
                                                  xtol = 1e-6,
                                                  full_output=1)        
         
-        ep.pi_f  = np.atleast_2d(unknowns[segment_length*0:segment_length*1])
-        ep.pi_lc = np.atleast_2d(unknowns[segment_length*1:segment_length*2])
-        ep.pi_hc = np.atleast_2d(unknowns[segment_length*2:segment_length*3])
-        ep.mf    = np.atleast_2d(unknowns[segment_length*3:segment_length*4])
-        ep.mlc   = np.atleast_2d(unknowns[segment_length*4:segment_length*5])
-        ep.mhc   = np.atleast_2d(unknowns[segment_length*5:segment_length*6])
-        ep.Tt4   = np.atleast_2d(unknowns[segment_length*6:segment_length*7])
-        ep.Pt5   = np.atleast_2d(unknowns[segment_length*7:segment_length*8])
+        ep.pi_f  = np.atleast_2d(unknowns[segment_length*0:segment_length*1])*sc[0]
+        ep.pi_lc = np.atleast_2d(unknowns[segment_length*1:segment_length*2])*sc[1]
+        ep.pi_hc = np.atleast_2d(unknowns[segment_length*2:segment_length*3])*sc[2]
+        ep.mf    = np.atleast_2d(unknowns[segment_length*3:segment_length*4])*sc[3]
+        ep.mlc   = np.atleast_2d(unknowns[segment_length*4:segment_length*5])*sc[4]
+        ep.mhc   = np.atleast_2d(unknowns[segment_length*5:segment_length*6])*sc[5]
+        ep.Tt4   = np.atleast_2d(unknowns[segment_length*6:segment_length*7])*sc[6]
+        ep.Pt5   = np.atleast_2d(unknowns[segment_length*7:segment_length*8])*sc[7]
         #[ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5] = unknowns
                 
         self.offdesign_params.pi_f  = ep.pi_f
@@ -944,9 +956,9 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         
         #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
         print msg
-        print conditions
-        print unknowns
-        print design_run
+        #print conditions
+        #print unknowns
+        #print design_run
         
         results = self.evaluate(conditions, design_run)
                 
@@ -968,7 +980,20 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         results_offdesign.Nh = self.offdesign_params.Nh   
         results_offdesign.mlc = self.offdesign_params.mlc
         results_offdesign.mhc = self.offdesign_params.mhc
-        results_offdesign.mf = self.offdesign_params.mf           
+        results_offdesign.mf = self.offdesign_params.mf 
+        
+        results_offdesign.eta_f  = ep.eta_f
+        results_offdesign.eta_hc = ep.eta_hc
+        results_offdesign.eta_ht = ep.eta_ht
+        results_offdesign.eta_lt = ep.eta_lt
+        results_offdesign.Pt2    = self.fan.inputs.total_pressure
+        results_offdesign.Pt2_1  = self.fan.outputs.total_pressure
+        results_offdesign.Pt4_9  = self.core_nozzle.inputs.total_pressure
+        results_offdesign.Tt7    = self.fan_nozzle.outputs.total_temperature
+        results_offdesign.Tt5    = self.core_nozzle.outputs.total_temperature
+        results_offdesign.Tt4_5  = self.high_pressure_turbine.outputs.total_temperature
+        results_offdesign.u5     = self.core_nozzle.outputs.flow_speed
+        results_offdesign.u7     = self.fan_nozzle.outputs.flow_speed
         
         #print results_offdesign.F,throttle.T,results_offdesign.TSFC
             
