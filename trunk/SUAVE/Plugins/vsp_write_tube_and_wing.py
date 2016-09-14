@@ -40,26 +40,93 @@ def write(vehicle):
         tip_tc     = wing.thickness_to_chord 
         dihedral   = wing.dihedral / Units.deg
         
+        # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
+        if wing.has_key('Segments'):
+            n_segments = 1+len(wing.Segments.keys())
+        else:
+            n_segments = 1
+
+        # Create the wing
         wing_id = vsp.AddGeom( "WING" )
-        
+            
+        # Make names for each section and insert them into the wing if necessary
+        x_secs       = []
+        x_sec_curves = []
+        for i_segs in xrange(0,n_segments+1):
+            x_secs.append('XSec_' + str(i_segs))
+            x_sec_curves.append('XSecCurve_' + str(i_segs))
+
+        # Apply the basic characteristics of the wing to root and tip
         if wing.symmetric == False:
             vsp.SetParmVal( wing_id,'Sym_Planar_Flag','Sym',0)
         if wing.vertical == True:
-            vsp.SetParmVal( wing_id,'X_Rel_Rotation','XForm',90)           
-        
+            vsp.SetParmVal( wing_id,'X_Rel_Rotation','XForm',90)     
+            
         vsp.SetParmVal( wing_id,'X_Rel_Location','XForm',wing_x)
         vsp.SetParmVal( wing_id,'Y_Rel_Location','XForm',wing_y)
         vsp.SetParmVal( wing_id,'Z_Rel_Location','XForm',wing_z)
-        vsp.SetParmVal( wing_id,'Span','XSec_1',span)
-        vsp.SetParmVal( wing_id,'Root_Chord','XSec_1',root_chord)
-        vsp.SetParmVal( wing_id,'Tip_Chord','XSec_1',tip_chord)
-        vsp.SetParmVal( wing_id,'Sweep','XSec_1',sweep)
-        vsp.SetParmVal( wing_id,'Sweep_Location','XSec_1',sweep_loc)
-        vsp.SetParmVal( wing_id,'Twist','XSec_1',tip_twist) # tip
-        vsp.SetParmVal( wing_id,'Twist','XSec_0',root_twist) # root
+        
+        vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
+        
+        # Root chord
+        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[1],root_chord)
+        
+        # Sweep of the first section
+        vsp.SetParmVal( wing_id,'Sweep',x_secs[1],sweep)
+        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[1],sweep_loc)
+        
+        # Twists
+        vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
+        vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
+        
+        # Thickness to chords
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
-        vsp.SetParmVal( wing_id,'Dihedral','XSec_1',dihedral)
+        
+        # dihedral
+        vsp.SetParmVal( wing_id,'Dihedral',x_secs[1],dihedral)
+        
+        # Span and tip of the section
+        if n_segments>1:
+            local_span    = span*wing.Segments[0].percent_span_location  
+            sec_tip_chord = root_chord*wing.Segments[0].root_chord_percent
+            vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
+        else:
+            vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
+            
+        vsp.Update()
+            
+        # Loop for the number of segments left over
+        for i_segs in xrange(1,n_segments):
+            
+            # Unpack thing
+            dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
+            chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
+            twist_i    = wing.Segments[i_segs-1].twist / Units.deg
+            sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+            
+            # Calculate the local span
+            if i_segs == n_segments-1:
+                span_i = span*(1 - wing.Segments[i_segs-1].percent_span_location)
+            else:
+                span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)            
+            
+            # Inser the new wing section
+            vsp.InsertXSec(wing_id,i_segs,vsp.XS_FOUR_SERIES)
+            
+            # Set the parms
+            vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+1],span_i)
+            vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs+1],dihedral_i)
+            vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs+1],sweep_i)
+            vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+1],sweep_loc)      
+            vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+1],chord_i)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+1],twist_i)
+            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+1],tip_tc)
+            
+            vsp.Update()
+        
+        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1],tip_chord)
+        
         
         if wing.tag == 'main_wing':
             main_wing_id = wing_id

@@ -36,7 +36,6 @@ class Wing(Lofted_Body):
         self.spans = Data()
         self.spans.projected = 0.0
         
-
         self.areas = Data()
         self.areas.reference = 0.0
         self.areas.exposed   = 0.0
@@ -108,59 +107,31 @@ class Wing(Lofted_Body):
 
         return
 
-
 class Container(Component.Container):
     pass
 
+## ------------------------------------------------------------
+##  Wing Sections
+## ------------------------------------------------------------
 
-# ------------------------------------------------------------
-#  Wing Sections
-# ------------------------------------------------------------
+#class Section(Lofted_Body.Section):
+    #def __defaults__(self):
+        #self.tag     = 'section'
+        #self.airfoil = None
 
-class Section(Lofted_Body.Section):
-    def __defaults__(self):
-        self.tag                   = 'section'
-        self.twist                 = 0.0
-        self.chord                 = 0.0
-        self.origin                = [0.0,0.0,0.0]
-        self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]
-        self.airfoil = None
+#class SectionContainer(Lofted_Body.Section.Container):
+    #pass
 
 
-class SectionContainer(Lofted_Body.Section.Container):
-    pass
-
-
-# ------------------------------------------------------------
-#  Wing Segments
-# ------------------------------------------------------------
-
-class Segment(Lofted_Body.Segment):
-    def __defaults__(self):
-        self.tag = 'segment'
-        self.aspect_ratio = 0.0
-        self.taper_ratio  = 0.0
-        self.area         = 0.0
-        self.span         = 0.0
-        self.tip_chord    = 0.0
-        self.root_chord   = 0.0
-        self.sweep        = 0.0
-        self.sweep_loc    = 0.0
-        self.twist        = 0.0
-        self.twist_loc    = 0.0
-
-
-class SegmentContainer(Lofted_Body.Segment.Container):
-    pass
 
 # ------------------------------------------------------------
 #  Handle Linking
 # ------------------------------------------------------------
 Wing.Container = Container
-Section.Container  = SectionContainer #propogates to Airfoil
-Segment.Container  = SegmentContainer
-Wing.Section = Section
-Wing.Airfoil = Airfoil
-Wing.Segment = Segment
+#Section.Container  = SectionContainer #propogates to Airfoil
+#Segment.Container  = SegmentContainer
+##Wing.Section = Section
+#Wing.Airfoil = Airfoil
+#Wing.Segments = Segment
 
 

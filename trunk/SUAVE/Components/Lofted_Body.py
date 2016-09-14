@@ -9,6 +9,7 @@
 
 from Component          import Component
 from Physical_Component import Physical_Component
+from SUAVE.Core         import DataOrdered
 
 
 # ------------------------------------------------------------
@@ -18,7 +19,8 @@ from Physical_Component import Physical_Component
 class Lofted_Body(Physical_Component):
     def __defaults__(self):
         self.tag = 'Lofted_Body'
-        self.Segments = SegmentContainer() # think edges
+        #self.Segments = SegmentContainer() # think edges
+        self.Segments = DataOrdered()
         self.Sections = SectionContainer() # think nodes
     
    
@@ -60,8 +62,8 @@ class Curve(Component):
 #  Containers
 # ------------------------------------------------------------
 
-class SegmentContainer(Component.Container):
-    pass
+#class SegmentContainer(Component.Container):
+    #pass   
 
 class SectionContainer(Component.Container):
     pass
@@ -76,7 +78,7 @@ class CurveContainer(Component.Container):
 
 Section.Curve      = Curve
 Section.Container  = SectionContainer
-Segment.Container  = SegmentContainer
+#Segment.Container  = SegmentContainer
 Curve.Container    = CurveContainer
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
