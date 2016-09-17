@@ -114,7 +114,7 @@ class Sizing_Loop(Data):
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
                                 print 'y=', y
                             y = np.array(y)
-                            nexus.number_of_surrogate_calls +=1
+                            self.iteration_options.number_of_surrogate_calls +=1
                         else:
                             print 'running table'
                             interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
@@ -284,7 +284,8 @@ class Sizing_Loop(Data):
         iteration_options.Jinv     = Jinv_out
         iteration_options.err_save = err  #save previous iteration
         iteration_options.y_save   = y
- 
+        iter                       = iter+1
+        
         return err_out, y_update, iter
         
     __call__ = evaluate
