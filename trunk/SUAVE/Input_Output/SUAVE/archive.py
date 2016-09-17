@@ -65,6 +65,8 @@ def build_dict_r(v):
         ret = v
     elif tv == types.FunctionType: # Functions cannot be stored
         ret = None
+    elif tv == list:
+        ret = v    
     else:
         # Assume other data types are SUAVE data types and check
         try:
