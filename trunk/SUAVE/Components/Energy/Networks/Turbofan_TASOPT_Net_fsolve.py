@@ -955,7 +955,13 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         self.offdesign_params.Pt5   = ep.Pt5
         
         #print ep.pi_f,ep.pi_lc,ep.pi_hc,ep.mf,ep.mlc,ep.mhc,ep.Tt4,ep.Pt5
-        print msg
+        #print infodict
+        #print ier
+        #print msg
+        if ier == 5:
+            converge_flag = False
+        else:
+            converge_flag = True
         #print conditions
         #print unknowns
         #print design_run
@@ -994,6 +1000,8 @@ class Turbofan_TASOPT_Net_fsolve(Propulsor):
         results_offdesign.Tt4_5  = self.high_pressure_turbine.outputs.total_temperature
         results_offdesign.u5     = self.core_nozzle.outputs.flow_speed
         results_offdesign.u7     = self.fan_nozzle.outputs.flow_speed
+        
+        results_offdesign.converged = converge_flag
         
         #print results_offdesign.F,throttle.T,results_offdesign.TSFC
             

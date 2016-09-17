@@ -502,7 +502,7 @@ class Turbofan_TASOPT_Net(Propulsor):
             
             # Core Nozzle Area
             
-            core_nozzle.size(mdot_core,u6,T6,P0)
+            core_nozzle.size(mdot_core*(1.+f),u6,T6,P0)
             A5 = core_nozzle.exit_area        
             
             
@@ -519,9 +519,9 @@ class Turbofan_TASOPT_Net(Propulsor):
             mhtD = (1.0+f)*mdot_core*np.sqrt(Tt4_1/ep.Tref)/(Pt4_1/ep.Pref)
             mltD = (1.0+f)*mdot_core*np.sqrt(Tt4_5/ep.Tref)/(Pt4_5/ep.Pref)
             
-            mhcD = (1.0+f)*mdot_core*np.sqrt(Tt2_5/ep.Tref)/(Pt2_5/ep.Pref)
-            mlcD = (1.0+f)*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref) 
-            mfD  = (1.0+f)*ep.aalpha*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref)    
+            mhcD = mdot_core*np.sqrt(Tt2_5/ep.Tref)/(Pt2_5/ep.Pref)
+            mlcD = mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref) 
+            mfD  = ep.aalpha*mdot_core*np.sqrt(Tt2/ep.Tref)/(Pt2/ep.Pref)    
             
             # Update engine parameters
             
@@ -715,6 +715,8 @@ class Turbofan_TASOPT_Net(Propulsor):
     
     def size(self,mach_number,altitude,delta_isa = 0.):  
         
+	altitude    = np.atleast_2d(altitude)
+        mach_number = np.atleast_2d(mach_number)
         #Unpack components
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data = atmosphere.compute_values(altitude,delta_isa)
@@ -729,12 +731,13 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         freestream_gas = SUAVE.Attributes.Gases.Air()
         
-        # Note that these calculations are not accounting for temperature, and 
-        # therefore vary slightly from those used to calculate atmosphere parameters.
-        # This means values such as speed of sound will vary slightly if computed with
-        # these outputs directly.
-        gamma = freestream_gas.compute_gamma()
-        Cp    = freestream_gas.compute_cp()
+        ## Note that these calculations are not accounting for temperature, and 
+        ## therefore vary slightly from those used to calculate atmosphere parameters.
+        ## This means values such as speed of sound will vary slightly if computed with
+        ## these outputs directly.
+		# now they do
+        gamma = freestream_gas.compute_gamma(T,p)
+        Cp    = freestream_gas.compute_cp(T,p)
         R     = freestream_gas.gas_specific_constant
     
     
@@ -755,7 +758,7 @@ class Turbofan_TASOPT_Net(Propulsor):
         conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
         
         # propulsion conditions
-        conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+        conditions.propulsion.throttle           =  np.atleast_2d(1.0)
              
         design_run = True
         results = self.evaluate(conditions, design_run)
@@ -918,9 +921,11 @@ class Turbofan_TASOPT_Net(Propulsor):
                 
                 
                 if(np.linalg.norm(R)<1e-6):
+		    print 'converged'
                     break                
                 
                 if iiter == (self.max_iters-1):
+		    print 'probably not converged'
                     aaa = 0
             
         
@@ -947,6 +952,19 @@ class Turbofan_TASOPT_Net(Propulsor):
         results_offdesign.mlc = self.offdesign_params.mlc
         results_offdesign.mhc = self.offdesign_params.mhc
         results_offdesign.mf = self.offdesign_params.mf           
+
+	results_offdesign.eta_f  = ep.eta_f
+        results_offdesign.eta_hc = ep.eta_hc
+        results_offdesign.eta_ht = ep.eta_ht
+        results_offdesign.eta_lt = ep.eta_lt
+        results_offdesign.Pt2    = self.fan.inputs.total_pressure
+        results_offdesign.Pt2_1  = self.fan.outputs.total_pressure
+        results_offdesign.Pt4_9  = self.core_nozzle.inputs.total_pressure
+        results_offdesign.Tt7    = self.fan_nozzle.outputs.total_temperature
+        results_offdesign.Tt5    = self.core_nozzle.outputs.total_temperature
+        results_offdesign.Tt4_5  = self.high_pressure_turbine.outputs.total_temperature
+        results_offdesign.u5     = self.core_nozzle.outputs.flow_speed
+        results_offdesign.u7     = self.fan_nozzle.outputs.flow_speed
         
         #print results_offdesign.F,throttle.T,results_offdesign.TSFC
             

@@ -735,7 +735,13 @@ class Turbofan_TASOPT(Propulsor):
         
         #Unpack components
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+        atmo_data = atmosphere.compute_values(altitude,delta_isa)
+    
+        p   = atmo_data.pressure          
+        T   = atmo_data.temperature       
+        rho = atmo_data.density          
+        a   = atmo_data.speed_of_sound    
+        mu  = atmo_data.dynamic_viscosity 
         
         # setup conditions
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -776,7 +782,13 @@ class Turbofan_TASOPT(Propulsor):
         
         #call the atmospheric model to get the conditions at the specified altitude
         atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p,T,rho,a,mu = atmosphere_sls.compute_values(altitude,0.0)
+        atmo_data = atmosphere.compute_values(altitude,0.0)
+    
+        p   = atmo_data.pressure          
+        T   = atmo_data.temperature       
+        rho = atmo_data.density          
+        a   = atmo_data.speed_of_sound    
+        mu  = atmo_data.dynamic_viscosity 
     
         # setup conditions
         conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -1062,6 +1074,7 @@ class Turbofan_TASOPT(Propulsor):
                 
                 
                 if(np.linalg.norm(R)<1e-6):
+                    print 'converged'
                     break                
 
                 #if((R.all<1e-2) and (np.linalg.norm(R2)<1e-9)):
