@@ -79,6 +79,18 @@ def write(vehicle):
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
         
+        # Figure out if there is an airfoil provided
+        if len(wing.Airfoil) != 0:
+            xsecsurf = vsp.GetXSecSurf(wing_id,0)
+            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
+            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
+            xsec1 = vsp.GetXSec(xsecsurf,0)
+            xsec2 = vsp.GetXSec(xsecsurf,1)
+            vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
+            vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+            vsp.Update()
+        
+        
         # Thickness to chords
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
@@ -111,8 +123,15 @@ def write(vehicle):
             else:
                 span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)            
             
-            # Inser the new wing section
-            vsp.InsertXSec(wing_id,i_segs,vsp.XS_FOUR_SERIES)
+            # Insert the new wing section
+            if len(wing.Segments[i_segs-1].Airfoil) != 0:
+                vsp.InsertXSec(wing_id,i_segs,vsp.XS_FILE_AIRFOIL)
+                xsecsurf = vsp.GetXSecSurf(wing_id,0)
+                xsec = vsp.GetXSec(xsecsurf,i_segs+1)
+                vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
+                
+            else:
+                vsp.InsertXSec(wing_id,i_segs,vsp.XS_FOUR_SERIES)
             
             # Set the parms
             vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+1],span_i)
@@ -205,43 +224,43 @@ def write(vehicle):
 
 
     # Fuselage
+    if vehicle.has_key('fuselages'):
+        # Unpack the fuselage
+        fuselage = vehicle.fuselages.fuselage
+        width    = fuselage.width
+        length   = fuselage.lengths.total
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
+        w_ac     = wing.aerodynamic_center
+        
+        w_origin = vehicle.wings.main_wing.origin
+        w_c_4     = vehicle.wings.main_wing.chords.root/4
+        
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+        
+        x1 = n_fine*width/length
+        x2 = (w_origin[0]+w_c_4)/length
+        x3 = 1-t_fine*width/length
+        
+        fuse_id = vsp.AddGeom("FUSELAGE")    
     
-    # Unpack the fuselage
-    fuselage = vehicle.fuselages.fuselage
-    width    = fuselage.width
-    length   = fuselage.lengths.total
-    hmax     = fuselage.heights.maximum
-    height1  = fuselage.heights.at_quarter_length
-    height2  = fuselage.heights.at_wing_root_quarter_chord 
-    height3  = fuselage.heights.at_three_quarters_length
-    effdia   = fuselage.effective_diameter
-    n_fine   = fuselage.fineness.nose 
-    t_fine   = fuselage.fineness.tail  
-    w_ac     = wing.aerodynamic_center
-    
-    w_origin = vehicle.wings.main_wing.origin
-    w_ac     = vehicle.wings.main_wing.aerodynamic_center
-    
-    # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
-    
-    x1 = n_fine*width/length
-    x2 = (w_origin[0]+w_ac[0])/length
-    x3 = 1-t_fine*width/length
-    
-    fuse_id = vsp.AddGeom("FUSELAGE")    
-
-    vsp.SetParmVal(fuse_id,"Length","Design",length)
-    vsp.SetParmVal(fuse_id,"Diameter","Design",width)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
-    vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",.02)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
+        vsp.SetParmVal(fuse_id,"Length","Design",length)
+        vsp.SetParmVal(fuse_id,"Diameter","Design",width)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
+        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",.02)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
     
     
     # Write the vehicle to the file

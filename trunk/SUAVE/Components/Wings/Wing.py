@@ -80,7 +80,8 @@ class Wing(Lofted_Body):
 
         self.transition_x_upper = 0.0
         self.transition_x_lower = 0.0
-
+        
+        self.Airfoil            = Data()
 
     def append_segment(self,segment):
         """ adds a segment to the wing """
@@ -93,6 +94,18 @@ class Wing(Lofted_Body):
         self.Segments.append(segment)
 
         return
+    
+    def append_airfoil(self,airfoil):
+        """ adds an airfoil to the segment """
+
+        # assert database type
+        if not isinstance(airfoil,Data):
+            raise Exception, 'input component must be of type Data()'
+
+        # store data
+        self.Airfoil.append(airfoil)
+
+        return        
 
 
     def append_control_surface(self,control_surface):
@@ -109,19 +122,6 @@ class Wing(Lofted_Body):
 
 class Container(Component.Container):
     pass
-
-## ------------------------------------------------------------
-##  Wing Sections
-## ------------------------------------------------------------
-
-#class Section(Lofted_Body.Section):
-    #def __defaults__(self):
-        #self.tag     = 'section'
-        #self.airfoil = None
-
-#class SectionContainer(Lofted_Body.Section.Container):
-    #pass
-
 
 
 # ------------------------------------------------------------
