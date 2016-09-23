@@ -21,7 +21,7 @@ class Landing_Gear(Physical_Component):
         Methods:
 
         Assumptions:
-            if needed
+            if needed.
 
     """
 
