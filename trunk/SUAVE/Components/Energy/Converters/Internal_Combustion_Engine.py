@@ -25,6 +25,7 @@ class Internal_Combustion_Engine(Energy_Component):
         self.sea_level_power    = 0.0
         self.flat_rate_altitude = 0.0
         self.speed              = 0.0
+        self.BSFC               = 0.36 # lb/hr/hp :: Ref: Table 5.1, Modern diesel engines, Saeed Farokhi, Aircraft Propulsion (2014)
 
     def power(self,conditions):
         """ The internal combustion engine output power and specific power consumption
@@ -53,6 +54,7 @@ class Internal_Combustion_Engine(Energy_Component):
         PSLS      = self.sea_level_power
         h_flat    = self.flat_rate_altitude
         speed     = self.speed
+        BSFC      = self.BSFC
 
 
         altitude_virtual = altitude - h_flat # shift in power lapse due to flat rate
@@ -81,13 +83,12 @@ class Internal_Combustion_Engine(Energy_Component):
 
         # applying throttle setting
         output_power = Pavailable * throttle
-
-        # brake-specific fuel consumption <--- now considering it as a constant typical value
-        BSFC = 0.36 # lb/hr/hp :: Ref: Table 5.1, Modern diesel engines, Saeed Farokhi, Aircraft Propulsion (2014)
+        
+        SFC = BSFC * Units['lb/hp/hr']
 
         #fuel flow rate
         a = np.array([0.])
-        fuel_flow_rate   = np.fmax(output_power*BSFC/(3600 * 9.80665),a)
+        fuel_flow_rate   = np.fmax(output_power*SFC,a)
 
         #torque
         ## SHP = torque * 2*pi * RPM / 33000        (UK units)
