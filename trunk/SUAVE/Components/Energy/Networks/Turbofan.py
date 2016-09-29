@@ -121,7 +121,7 @@ class Turbofan(Propulsor):
 
         # link the shaft power output to the low pressure compressor
         try:
-            shaft_power = self.Shaft_Takeoff_Power        
+            shaft_power = self.Shaft_Power_Off_Take       
             shaft_power.inputs.mdhc                                  = thrust.compressor_nondimensional_massflow
             shaft_power.inputs.Tref                                  = thrust.reference_temperature
             shaft_power.inputs.Pref                                  = thrust.reference_pressure
@@ -158,7 +158,7 @@ class Turbofan(Propulsor):
         low_pressure_turbine.inputs.fan                        = fan.outputs
         # link the low pressure turbine to the shaft power, if needed
         try:
-            low_pressure_turbine.inputs.shaft_takeoff_power    = shaft_power.outputs
+            low_pressure_turbine.inputs.shaft_power_off_take    = shaft_power.outputs
         except:
             pass
         

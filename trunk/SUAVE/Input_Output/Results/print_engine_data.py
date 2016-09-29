@@ -76,7 +76,13 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     sea_level_gravity = 9.81  # mission.segments[0].planet.sea_level_gravity
     atmo = SUAVE.Analyses.Atmospheric.US_Standard_1976()  # mission.segments[0].atmosphere
 
-    p0, T0, rho0, a0, mu0 = atmo.compute_values(0, 0)
+    atmo_values     = atmo.compute_values(0.,0.)
+    
+    p0   = atmo_values.pressure
+    T0   = atmo_values.temperature
+    rho0 = atmo_values.density
+    a0   = atmo_values.speed_of_sound
+    mu0  = atmo_values.dynamic_viscosity    
 
     state = Data()
     state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
@@ -108,8 +114,15 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
 
         for altitude in hp_vec:
             for idx, speed in enumerate(speed_vec):
-                # Computing atmospheric conditions
-                p, T, rho, a, mu = atmo.compute_values(altitude, 0)
+                # Computing atmospheric conditions      
+                atmo_values     = atmo.compute_values(altitude,0)
+                
+                p   = atmo_values.pressure
+                T   = atmo_values.temperature
+                rho = atmo_values.density
+                a   = atmo_values.speed_of_sound
+                mu  = atmo_values.dynamic_viscosity                
+                
                 T_delta_ISA = T + d_isa
                 sigma_disa = (p / p0) / (T_delta_ISA / T0)
                 rho_delta_ISA = rho0 * sigma_disa

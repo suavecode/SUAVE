@@ -43,7 +43,7 @@ class Turbine(Energy_Component):
         self.outputs.stagnation_pressure       = 1.0
         self.outputs.stagnation_enthalpy       = 1.0
 
-        self.inputs.shaft_takeoff_power        = None
+        self.inputs.shaft_power_off_take       = None
     
     
     def compute(self,conditions):
@@ -62,8 +62,8 @@ class Turbine(Energy_Component):
         compressor_work = self.inputs.compressor.work_done
         fan_work        = self.inputs.fan.work_done
 
-        if self.inputs.shaft_takeoff_power is not None:
-            shaft_takeoff = self.inputs.shaft_takeoff_power.work_done
+        if self.inputs.shaft_power_off_take is not None:
+            shaft_takeoff = self.inputs.shaft_power_off_take.work_done
         else:
             shaft_takeoff = 0.
 

@@ -16,7 +16,7 @@ import numpy as np
 #  Shaft Power component
 # ----------------------------------------------------------------------
 
-class Shaft_Takeoff_Power(Energy_Component):
+class Shaft_Power_Off_Take(Energy_Component):
     """ SUAVE.Components.Energy.Converters.Generator
         an electrical generator component
 
