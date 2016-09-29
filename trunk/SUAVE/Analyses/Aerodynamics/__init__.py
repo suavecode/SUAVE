@@ -9,6 +9,7 @@ from Results          import Results
 from Supersonic_Zero  import Supersonic_Zero
 from Vortex_Lattice   import Vortex_Lattice
 from AERODAS          import AERODAS
+from SU2_Euler        import SU2_Euler
 
 import Surrogates
 
