@@ -93,13 +93,28 @@ class Surrogate_Optimization(Data):
         #constraint_scale  = base_constraints[:,3]
         
         for j in range(0,self.max_iterations):
-      
-            surr_iterations, surr_obj_values, surr_inputs, surr_constraints = read_optimization_outputs(filename, base_inputs, base_constraints)
+            if j ==0 or self.surrogate_model != 'Kriging':
+                surr_iterations, surr_obj_values, surr_inputs, surr_constraints = read_optimization_outputs(filename, base_inputs, base_constraints)
             if self.surrogate_model == 'SVR':
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_svr_models(surr_obj_values, surr_inputs ,surr_constraints, C = 1E5, epsilon=.01 )
             elif self.surrogate_model == 'Kriging':
-                obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
-            
+                #obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
+                
+                if j==0:
+                    obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
+                    
+                else:       #add to existing surrogate to improve code speed
+                    xt1= time.time()
+                    obj_surrogate.addPoint(x_out, output_real[0])
+                    obj_surrogate.train()
+                    for j in range(len(constraints_surrogates)):
+                        constraints_surrogates[j].addPoint(x_out,problem.all_constraints()[j])
+                        constraints_surrogates[j].train()
+                    xt2= time.time()
+                    #reassign to surrogate_function
+                    surrogate_function.obj_surrogate  = obj_surrogate
+                    surrogate_function.constraints_surrogates =constraints_surrogates
+                    print 'time to train model=', xt2-xt1
             elif self.surrogate_model == 'GPR':
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_gpr_models(surr_obj_values, surr_inputs ,surr_constraints, base_inputs)
             

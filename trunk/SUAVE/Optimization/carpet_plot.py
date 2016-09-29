@@ -63,7 +63,7 @@ def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0):
             cbar.ax.set_ylabel(constraint_names[i])
             plt.xlabel(names[idx0])
             plt.ylabel(names[idx1])
-    plt.show()      
+    plt.show(block=True)      
        
         
     #pack outputs
