@@ -1,4 +1,4 @@
-# Shaft_Takeoff_Power.py
+# Shaft_Power_Off_Take.py
 #
 # Created:  Jun 2016, L. Kulik
 
