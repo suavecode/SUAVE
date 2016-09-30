@@ -306,6 +306,8 @@ class Propeller(Energy_Component):
         tc      = .12 # Thickness to chord
         beta_c  = conditions.propulsion.pitch_command
         
+        print beta_c
+        
         beta   = beta_in + beta_c
         
         BB     = B*B
@@ -470,10 +472,7 @@ class Propeller(Energy_Component):
         power    = torque*omega       
        
         D        = 2*R
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
-
-        thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))   
         
         thrust[omega1<0.0] = - thrust[omega1<0.0]
 

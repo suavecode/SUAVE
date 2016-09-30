@@ -14,7 +14,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -86,10 +86,13 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         # Check to see if magic thrust is needed
         eta          = conditions.propulsion.throttle[:,0,None] * 1.0
         eta_c        = conditions.propulsion.throttle[:,0,None] * 1.0
+        
+        eta_c[eta_c<=-np.pi/2] = -np.pi/2
+        eta_c[eta_c>=np.pi/2]  =  np.pi/2
 
         
         omega = conditions.propulsion.rpm
-        conditions.propulsion.pitch_command =  eta_c*10**-8
+        conditions.propulsion.pitch_command =  eta_c
         #link
         propeller.inputs.omega = omega
         propeller.thrust_angle = self.thrust_angle
@@ -151,7 +154,7 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
-        rpm                  = omega*60./(2.*np.pi)
+        rpm                  = omega / Units.rpm
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
