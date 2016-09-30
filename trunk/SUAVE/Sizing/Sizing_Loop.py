@@ -75,10 +75,14 @@ class Sizing_Loop(Data):
             if read_success:
                            
                 diff=np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
-
-                for row in diff:
+                #find minimum entry and corresponding index 
+                imin_dist = -1 
+                for k in range(len(diff[:,-1])):
+                    row = diff[k,:]
                     row_norm = np.linalg.norm(row)
-                    min_norm = min(min_norm, row_norm)
+                    if row_norm<min_norm:
+                        min_norm = row_norm
+                        imin_dist = k*1 
 
                 if min_norm<self.iteration_options.max_initial_step: #make sure data is close to current guess
                 
@@ -86,15 +90,14 @@ class Sizing_Loop(Data):
                         interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
                         y = interp[0]
                 
-                    elif self.initial_step == 'SVR':
-                    
+                    elif self.initial_step == 'SVR':    
                         if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
                             print 'optimizing svr parameters'
                          
                             x = [2.,-1.] #initial guess for 10**C, 10**eps
                      
                             t1=time.time()
-                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs))
+                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, imin_dist))
                             t2=time.time()
                             
                             print 'optimization time = ', t2-t1
@@ -112,7 +115,7 @@ class Sizing_Loop(Data):
                                 clf         = svm.SVR(C=c_out,  epsilon = eps_out)
                                 y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
-                                print 'y=', y
+
                             y = np.array(y)
                             self.iteration_options.number_of_surrogate_calls +=1
                         else:

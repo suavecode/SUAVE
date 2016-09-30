@@ -107,9 +107,9 @@ class Surrogate_Optimization(Data):
                     xt1= time.time()
                     obj_surrogate.addPoint(x_out, output_real[0])
                     obj_surrogate.train()
-                    for j in range(len(constraints_surrogates)):
-                        constraints_surrogates[j].addPoint(x_out,problem.all_constraints()[j])
-                        constraints_surrogates[j].train()
+                    for k in range(len(constraints_surrogates)):
+                        constraints_surrogates[k].addPoint(x_out,problem.all_constraints()[k])
+                        constraints_surrogates[k].train()
                     xt2= time.time()
                     #reassign to surrogate_function
                     surrogate_function.obj_surrogate  = obj_surrogate
