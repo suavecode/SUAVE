@@ -87,8 +87,8 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         eta          = conditions.propulsion.throttle[:,0,None] * 1.0
         eta_c        = conditions.propulsion.throttle[:,0,None] * 1.0
         
-        eta_c[eta_c<=-np.pi/2] = -np.pi/2
-        eta_c[eta_c>=np.pi/2]  =  np.pi/2
+        #eta_c[eta_c<=-np.pi/10.] = -np.pi/10.
+        #eta_c[eta_c>=np.pi/10.]  =  np.pi/10.
 
         
         omega = conditions.propulsion.rpm
