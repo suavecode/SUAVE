@@ -45,8 +45,7 @@ class SU2_Euler(Markup):
         compute = self.process.compute
         compute.lift = Process()
         
-        # Mesh the Geometry
-        
+        # Some stuff for meshing
 
         # Run SU2
         compute.lift_inviscid                      = SU2_inviscid()
@@ -75,7 +74,10 @@ class SU2_Euler(Markup):
         
         
     def initialize(self):
+        # Mesh the Geometry
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        
+        # Generate the surrogate
         self.process.compute.lift.inviscid_wings.initialize()
         
     finalize = initialize
