@@ -19,6 +19,8 @@ import numpy as np
 
 def write(vehicle):
     
+    area_tags = dict() # for wetted area assignment
+    
     # Wings
     
     for wing in vehicle.wings:
@@ -48,6 +50,8 @@ def write(vehicle):
 
         # Create the wing
         wing_id = vsp.AddGeom( "WING" )
+        vsp.SetGeomName(wing_id, wing.tag)
+        area_tags[wing.tag] = ['wings',wing.tag]
             
         # Make names for each section and insert them into the wing if necessary
         x_secs       = []
@@ -247,7 +251,9 @@ def write(vehicle):
         x2 = (w_origin[0]+w_c_4)/length
         x3 = 1-t_fine*width/length
         
-        fuse_id = vsp.AddGeom("FUSELAGE")    
+        fuse_id = vsp.AddGeom("FUSELAGE") 
+        vsp.SetGeomName(fuse_id, fuselage.tag)
+        area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
     
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         vsp.SetParmVal(fuse_id,"Diameter","Design",width)
@@ -267,4 +273,4 @@ def write(vehicle):
     
     vsp.WriteVSPFile(vehicle.tag + ".vsp3")
     
-    return
+    return area_tags
