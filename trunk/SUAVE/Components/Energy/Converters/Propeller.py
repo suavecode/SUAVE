@@ -443,11 +443,6 @@ class Propeller(Energy_Component):
             psi    = psi + dpsi
             diff   = np.max(abs(psiold-psi))
             psiold = psi
-            
-            ## If its really not going to converge
-            #if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                #print 'broke'
-                #break
 
         #There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
@@ -473,8 +468,6 @@ class Propeller(Energy_Component):
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))   
         
         thrust[omega1<0.0] = - thrust[omega1<0.0]
-        
-        #thrust[np.any(psi>(pi*85.0/180.),axis=1)] = 0.0
 
         etap     = V*thrust/power     
         
