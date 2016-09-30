@@ -1,7 +1,7 @@
 # print_mission_breakdown.py
 
-# Created: SUAVE team
-# Updated: Luke Kulik, August 2016
+# Created:  SUAVE team
+# Modified: Aug 2016, L. Kulik
 
 # ----------------------------------------------------------------------
 #  Imports
