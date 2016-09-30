@@ -4,7 +4,7 @@
 from SUAVE.Core import Data
 import numpy as np
 import matplotlib.pyplot as plt
-def carpet_plot(problem, number_of_points, idx0=0, idx1=1, plot_obj=1, plot_const=0): 
+def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, idx0=0, idx1=1,): 
     #SUAVE.Optimization.carpet_plot(problem, ):
     #takes in an optimization problem and runs a carpet plot of the first 2 variables
     #idx0, idx1 is index of variables you want to run carpet plot (i.e. idx0=0 means you want to sweep first variable)
