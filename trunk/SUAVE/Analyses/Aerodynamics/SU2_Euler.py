@@ -13,13 +13,17 @@ from Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
+from SUAVE.Plugins.OpenVSP.write_vsp_mesh import write_vsp_mesh
+from SUAVE.Plugins.GMSH.write_geo_file import write_geo_file
+from SUAVE.Plugins.GMSH.mesh_geo_file import mesh_geo_file
+
 # default Aero Results
 from Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
-from SUAVE.Methods.Aerodynamics.SU2_Euler import SU2_inviscid
+from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -40,6 +44,7 @@ class SU2_Euler(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
+        settings.half_mesh_flag                     = True
         
         # build the evaluation process
         compute = self.process.compute
@@ -48,7 +53,8 @@ class SU2_Euler(Markup):
         # Some stuff for meshing
 
         # Run SU2
-        compute.lift.inviscid                      = SU2_inviscid()
+        compute.lift.inviscid                         = SU2_inviscid()
+        compute.lift.inviscid.settings.half_mesh_flag = settings.half_mesh_flag 
         
         # Do a traditional drag buildup for viscous components
         compute.drag = Process()
@@ -71,6 +77,10 @@ class SU2_Euler(Markup):
     def initialize(self):
         # Mesh the Geometry
         self.process.compute.lift.inviscid.geometry = self.geometry
+        
+        tag = self.geometry.tag
+        write_vsp_mesh(tag,self.settings.half_mesh_flag)
+        write_geo_file(tag)
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()

@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
-def total_aircraft(state,settings,geometry):
+def total_aircraft_drag(state,settings,geometry):
     """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag(conditions,configuration,geometry)
         computes the lift associated with an aircraft 
         
