@@ -118,6 +118,7 @@ class SU2_inviscid(Aerodynamics):
         konditions.aerodynamics = Data()
 
         # calculate aerodynamics for table
+        
         for i,_ in enumerate(AoA):
             for j in enumerate(mach):
                 
@@ -146,8 +147,8 @@ class SU2_inviscid(Aerodynamics):
         #xy = 
         
         # learn the model
-        cl_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,z)
-        cd_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,z)
+        cl_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CL_data)
+        cd_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CL_data)
 
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
@@ -164,5 +165,7 @@ def call_SU2(conditions,settings,geometry):
     """ calculate total vehicle lift coefficient by SU2
     """
 
+    lift_coefficient = 1.
+    drag_coefficient = 1.
 
     return lift_coefficient, drag_coefficient
