@@ -48,7 +48,7 @@ class SU2_Euler(Markup):
         # Some stuff for meshing
 
         # Run SU2
-        compute.lift_inviscid                      = SU2_inviscid()
+        compute.lift.inviscid                      = SU2_inviscid()
         
         # Do a traditional drag buildup for viscous components
         compute.drag = Process()
@@ -61,7 +61,6 @@ class SU2_Euler(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.wings         = Process_Geometry('wings')
         compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
@@ -70,14 +69,14 @@ class SU2_Euler(Markup):
         compute.drag.untrimmed                     = Methods.Drag.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
         compute.drag.spoiler                       = Methods.Drag.spoiler_drag
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler
         
         
     def initialize(self):
         # Mesh the Geometry
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid_wings.initialize()
+        self.process.compute.lift.inviscid.initialize()
         
     finalize = initialize
