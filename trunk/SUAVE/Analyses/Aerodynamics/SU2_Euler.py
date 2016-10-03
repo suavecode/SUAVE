@@ -62,7 +62,7 @@ class SU2_Euler(Markup):
         compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
-        compute.drag.untrimmed                     = Methods.Drag.untrimmed
+        compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
         compute.drag.spoiler                       = Methods.Drag.spoiler_drag
         compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler.total_aircraft_drag
