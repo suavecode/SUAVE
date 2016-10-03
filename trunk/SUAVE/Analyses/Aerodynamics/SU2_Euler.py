@@ -61,15 +61,11 @@ class SU2_Euler(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.wings         = Process_Geometry('wings')
-        compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
         compute.drag.untrimmed                     = Methods.Drag.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
         compute.drag.spoiler                       = Methods.Drag.spoiler_drag
-        compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler
+        compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler.total_aircraft_drag
         
         
     def initialize(self):
