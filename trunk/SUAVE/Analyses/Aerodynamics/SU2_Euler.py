@@ -19,7 +19,7 @@ from Results import Results
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
-from Vortex_Lattice import Vortex_Lattice
+from SUAVE.Methods.Aerodynamics.SU2_Euler import SU2_inviscid
 
 # ----------------------------------------------------------------------
 #  Analysis
