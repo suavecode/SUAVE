@@ -1,6 +1,6 @@
-# manufacturing_costs.py
+# industrial_costs.py
 #
-# Created:  Sep 2016, Tarik
+# Created:  Sep 2016, T. Orra
 
 """ regression for industrial costs methods
 """
