@@ -108,8 +108,6 @@ def full_setup():
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
     
-    # write to OpenVSP
-    write(vehicle)
 
     return configs, analyses
 
@@ -201,7 +199,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_737800'    
+    vehicle.tag = '737_write_test'    
 
 
     # ------------------------------------------------------------------
@@ -253,7 +251,7 @@ def vehicle_setup():
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = -4.0 * Units.degrees
 
-    wing.origin                  = [20,0,0]
+    wing.origin                  = [15.2,0,0]
     wing.aerodynamic_center      = [3,0,0] 
 
     wing.vertical                = False
@@ -290,7 +288,7 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [32.5,0,0]
     wing.aerodynamic_center      = [2,0,0]
 
     wing.vertical                = False 
@@ -326,7 +324,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [30.1,0,0]
     wing.aerodynamic_center      = [2,0,0]    
 
     wing.vertical                = True 
@@ -600,6 +598,9 @@ def configs_setup(vehicle):
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
+    
+    # write to OpenVSP
+    write(vehicle,base_config.tag)    
 
     # ------------------------------------------------------------------
     #   Cruise Configuration
@@ -609,6 +610,9 @@ def configs_setup(vehicle):
     config.tag = 'cruise'
 
     configs.append(config)
+    
+    # write to OpenVSP
+    write(vehicle,config.tag)     
 
 
     # ------------------------------------------------------------------
@@ -625,6 +629,9 @@ def configs_setup(vehicle):
     config.maximum_lift_coefficient = 2.
 
     configs.append(config)
+    
+    # write to OpenVSP
+    write(vehicle,config.tag)       
 
 
     # ------------------------------------------------------------------
@@ -641,6 +648,9 @@ def configs_setup(vehicle):
     config.maximum_lift_coefficient = 2.
 
     configs.append(config)
+    
+    # write to OpenVSP
+    write(vehicle,config.tag)       
 
 
     # done!

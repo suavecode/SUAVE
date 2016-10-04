@@ -81,6 +81,7 @@ class SU2_Euler(Markup):
         tag = self.geometry.tag
         write_vsp_mesh(tag,self.settings.half_mesh_flag)
         write_geo_file(tag)
+        mesh_geo_file(tag)
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()

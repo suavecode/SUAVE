@@ -17,7 +17,9 @@ import numpy as np
 #  write
 # ----------------------------------------------------------------------
 
-def write(vehicle):
+def write(vehicle,tag):
+    
+    vsp.ClearVSPModel()
     
     area_tags = dict() # for wetted area assignment
     
@@ -271,6 +273,6 @@ def write(vehicle):
     
     # Write the vehicle to the file
     
-    vsp.WriteVSPFile(vehicle.tag + ".vsp3")
+    vsp.WriteVSPFile(tag + ".vsp3")
     
     return area_tags

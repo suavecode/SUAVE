@@ -1,7 +1,11 @@
 import vsp_g as vsp
 import numpy as np
+import time
 
 def write_vsp_mesh(tag,half_mesh_flag):
+    
+    vsp.ClearVSPModel()
+    vsp.ReadVSPFile(tag + '.vsp3')
     
     file_type = vsp.CFD_STL_TYPE + vsp.CFD_KEY_TYPE
     set_int   = vsp.SET_ALL
@@ -17,12 +21,15 @@ def write_vsp_mesh(tag,half_mesh_flag):
     if half_mesh_flag == True:
         vsp.SetCFDMeshVal(vsp.CFD_HALF_MESH_FLAG,1)
     
-    
+    print 'Starting mesh for ' + tag
+    ti = time.time()
     vsp.ComputeCFDMesh(set_int,file_type)
-    
+    tf = time.time()
+    dt = tf-ti
+    print 'VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s'
     
     
 if __name__ == '__main__':
     
-    tag = 'vsp_mesh_test'
-    write_vsp_mesh(tag)
+    tag = '/home/tim/Documents/SUAVE/scripts/experimental/SU2_link/cruise'
+    write_vsp_mesh(tag,True)
