@@ -7,10 +7,11 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
+
+import numpy as np
 
 # ----------------------------------------------------------------------
 #   Main
@@ -21,21 +22,27 @@ def main():
     # list of airplanes to compute manufacturing costs
     config_list = ['B747','B777-200','A380','L-500','MRJ-90','E170-AR','E190-AR','ERJ-145','A321-200','B737-900ER','A330-300','A350-900','B787-8']
 
+    # outputs list
+    output_list = np.zeros_like([config_list,config_list])
+
     # loop to compute industrial cost of each airplane
-    for item in config_list:
+    for idx,item in enumerate(config_list):
         config = define_config(item)
-##        config.costs.industrial.units_to_amortize = 700
         costs         = SUAVE.Analyses.Costs.Costs()
         costs.vehicle = config
         costs.evaluate()
 
         nrec = (config.costs.industrial.non_recurring.total - config.costs.industrial.non_recurring.breakdown.tooling_production) / 1e6
         rec  = config.costs.industrial.unit_cost / 1e6
-        output = config.costs
 
         print '{:10s} => NREC: {:10.2f} , REC: {:7.2f}'.format(item,nrec,rec)
 
-    return output
+        output_list[:,idx] = nrec,rec
+
+    print ''
+    test = check_results(config_list,output_list)
+
+    return output_list
 
 def define_config(tag):
 
@@ -456,52 +463,36 @@ def define_config(tag):
 
     return config
 #==================================
-def check_results(new_results,old_results):
+
+def check_results(config_list,new_results):
 
     # check segment values
-    check_list = [
-        'segments.cruise.conditions.aerodynamics.angle_of_attack',
-        'segments.cruise.conditions.aerodynamics.drag_coefficient',
-        'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        #'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
-        'segments.cruise.conditions.propulsion.throttle',
-        'segments.cruise.conditions.weights.vehicle_mass_rate',
-    ]
+    old_results = [['4474.11819', '6501.93808', '14458.8219', '592.762814',
+        '1231.10138', '662.096986', '823.261765', '366.953003',
+        '1434.72752', '1290.42378', '3038.82443', '5283.75084',
+        '4553.70202'],
+       ['106.368618', '108.551707', '228.829859', '14.0782491',
+        '27.1352858', '13.3878321', '16.5547165', '9.65499519',
+        '32.8083219', '29.6803338', '62.9236325', '69.9310621',
+        '60.1980080']]
 
     # do the check
-    for k in check_list:
-        print k
+    for idx,item in enumerate(config_list):
+        print item
 
-        old_val = np.max( old_results.deep_get(k) )
-        new_val = np.max( new_results.deep_get(k) )
+        old_val = float(old_results[0][idx])
+        new_val = float(new_results[0][idx])
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
-        assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
+        print 'Error at NREC:' , err
+        assert np.abs(err) < 1e-6 , 'NREC Cost Failed : %s' % item
 
-        old_val = np.min( old_results.deep_get(k) )
-        new_val = np.min( new_results.deep_get(k) )
+        old_val = float(old_results[1][idx])
+        new_val = float(new_results[1][idx])
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
-        assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k
+        print 'Error at REC:' , err
+        assert np.abs(err) < 1e-6 , 'REC Cost Failed : %s' % item
 
         print ''
-
-    ## check high level outputs
-    #def check_vals(a,b):
-        #if isinstance(a,Data):
-            #for k in a.keys():
-                #err = check_vals(a[k],b[k])
-                #if err is None: continue
-                #print 'outputs' , k
-                #print 'Error:' , err
-                #print ''
-                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k
-        #else:
-            #return (a-b)/a
-
-    ## do the check
-    #check_vals(old_results.output,new_results.output)
 
     return
 
