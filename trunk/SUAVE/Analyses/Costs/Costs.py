@@ -1,6 +1,6 @@
-# Weights.py
+# Costs.py
 #
-# Created:  Sep 2016, Tarik Orra
+# Created:  Sep 2016, T. Orra
 
 # ----------------------------------------------------------------------
 #  Imports
