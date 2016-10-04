@@ -73,16 +73,16 @@ def main():
 
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
+    plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
     
-    #plt.show()
+    plt.show()
 
     return
 
@@ -189,11 +189,6 @@ def base_analysis(vehicle):
 
     # done!
     return analyses    
-
-# ----------------------------------------------------------------------
-#   Define the Vehicle
-# ----------------------------------------------------------------------
-
 def vehicle_setup():
 
     # ------------------------------------------------------------------
@@ -201,7 +196,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_737800'    
+    vehicle.tag = '737_write_test'    
 
 
     # ------------------------------------------------------------------
@@ -253,7 +248,7 @@ def vehicle_setup():
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = -4.0 * Units.degrees
 
-    wing.origin                  = [20,0,0]
+    wing.origin                  = [15.2,0,0]
     wing.aerodynamic_center      = [3,0,0] 
 
     wing.vertical                = False
@@ -290,7 +285,7 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [32.5,0,0]
     wing.aerodynamic_center      = [2,0,0]
 
     wing.vertical                = False 
@@ -326,7 +321,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
 
-    wing.origin                  = [50,0,0]
+    wing.origin                  = [30.1,0,0]
     wing.aerodynamic_center      = [2,0,0]    
 
     wing.vertical                = True 
