@@ -19,3 +19,4 @@ from Turbine import Turbine
 from Internal_Combustion_Engine import Internal_Combustion_Engine
 import Turbofan_JDM
 import Turbofan_TASOPT
+from Gearbox import Gearbox

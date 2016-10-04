@@ -33,6 +33,7 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         self.voltage           = None
         self.combustion_engine = None
         self.generator         = None
+        self.gearbox           = None
         self.thrust_angle      = 0.0
         self.max_omega         = 0.0
         self.motors_per_prop   = None
@@ -55,6 +56,7 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         generator  = self.generator
         n_motor    = self.motors_per_prop
         n_props    = self.number_of_props
+        gearbox    = self.gearbox
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -64,16 +66,25 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         omega = conditions.propulsion.rpm
         conditions.propulsion.pitch_command = conditions.propulsion.throttle[:,0,None] * 1.0
         
+        # Use the gearbox to calculate the RPM
+        gearbox.inputs.speed = omega
+        gearbox.compute()
+        
         #link
-        propeller.inputs.omega = omega
+        propeller.inputs.omega = gearbox.outputs.speed
         propeller.thrust_angle = self.thrust_angle
         
         # Run the propeller
         F, Q, P, Cp = propeller.spin_variable_pitch(conditions)   
+        
+        # Run the gearbox again to get power and torque
+        gearbox.inputs.power  = P
+        gearbox.inputs.torque = Q
+        gearbox.compute()
 
         # Run the motor
         motor.inputs.omega  = omega
-        motor.inputs.torque = Q/n_motor
+        motor.inputs.torque = gearbox.outputs.torque/n_motor
         motor.power_from_fit()
         
         # Calculate the current going into the motor and ESC
@@ -129,7 +140,7 @@ class Series_Battery_Propeller_Hybrid_Interp(Propulsor):
         conditions.propulsion.battery_energy       = battery_energy
         conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.motor_torque         = Q/n_motor
+        conditions.propulsion.motor_torque         = motor.inputs.torque
         conditions.propulsion.propeller_torque     = Q
         
         # Create the outputs
