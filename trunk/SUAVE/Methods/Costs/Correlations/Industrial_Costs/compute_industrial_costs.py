@@ -61,7 +61,7 @@ def compute_industrial_costs(vehicle):
     total_production        = costs.production_total_units
     n_prototypes            = costs.prototypes_units
     development_total_years = vehicle.costs.industrial.development_total_years
-    ac_type 		        = costs.aircraft_type.lower()
+    ac_type 		    = costs.aircraft_type.lower()
 
     # define number of airplanes to amortize non-recurring costs
     if costs.units_to_amortize:
