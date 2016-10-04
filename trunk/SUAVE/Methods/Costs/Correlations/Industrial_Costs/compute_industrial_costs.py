@@ -1,4 +1,4 @@
-# compute_manufacturing_costs.py
+# compute_industrial_costs.py
 #
 # Created:  Sep 2016, T. Orra
 #
