@@ -1,5 +1,5 @@
 import subprocess
-from SUAVE.Core import Data()
+from SUAVE.Core import Data
 
 def call_SU2_CFD(tag):
     
