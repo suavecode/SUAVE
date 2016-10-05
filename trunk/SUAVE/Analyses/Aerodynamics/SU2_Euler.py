@@ -55,6 +55,7 @@ class SU2_Euler(Markup):
         # Run SU2
         compute.lift.inviscid                         = SU2_inviscid()
         compute.lift.inviscid.settings.half_mesh_flag = settings.half_mesh_flag 
+        compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
         
         # Do a traditional drag buildup for viscous components
         compute.drag = Process()
@@ -78,10 +79,10 @@ class SU2_Euler(Markup):
         # Mesh the Geometry
         self.process.compute.lift.inviscid.geometry = self.geometry
         
-        tag = self.geometry.tag
-        write_vsp_mesh(tag,self.settings.half_mesh_flag)
-        write_geo_file(tag)
-        mesh_geo_file(tag)
+        #tag = self.geometry.tag
+        #write_vsp_mesh(tag,self.settings.half_mesh_flag)
+        #write_geo_file(tag)
+        #mesh_geo_file(tag)
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()

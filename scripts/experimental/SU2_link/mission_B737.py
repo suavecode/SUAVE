@@ -126,12 +126,12 @@ def analyses_setup(configs):
 
     # adjust analyses for configs
 
-    # takeoff_analysis
-    analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
+    ## takeoff_analysis
+    #analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
 
-    # landing analysis
-    aerodynamics = analyses.landing.aerodynamics
-    # do something here eventually
+    ## landing analysis
+    #aerodynamics = analyses.landing.aerodynamics
+    ## do something here eventually
 
     return analyses
 
@@ -157,6 +157,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -597,55 +598,55 @@ def configs_setup(vehicle):
     # write to OpenVSP
     write(vehicle,base_config.tag)    
 
-    # ------------------------------------------------------------------
-    #   Cruise Configuration
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Cruise Configuration
+    ## ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'cruise'
+    #config = SUAVE.Components.Configs.Config(base_config)
+    #config.tag = 'cruise'
 
-    configs.append(config)
+    #configs.append(config)
     
-    # write to OpenVSP
-    write(vehicle,config.tag)     
+    ## write to OpenVSP
+    #write(vehicle,config.tag)     
 
 
-    # ------------------------------------------------------------------
-    #   Takeoff Configuration
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Takeoff Configuration
+    ## ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'takeoff'
+    #config = SUAVE.Components.Configs.Config(base_config)
+    #config.tag = 'takeoff'
 
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
+    #config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    #config.wings['main_wing'].slats.angle = 25. * Units.deg
 
-    config.V2_VS_ratio = 1.21
-    config.maximum_lift_coefficient = 2.
+    #config.V2_VS_ratio = 1.21
+    #config.maximum_lift_coefficient = 2.
 
-    configs.append(config)
+    #configs.append(config)
     
-    # write to OpenVSP
-    write(vehicle,config.tag)       
+    ## write to OpenVSP
+    #write(vehicle,config.tag)       
 
 
-    # ------------------------------------------------------------------
-    #   Landing Configuration
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Landing Configuration
+    ## ------------------------------------------------------------------
 
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'landing'
+    #config = SUAVE.Components.Configs.Config(base_config)
+    #config.tag = 'landing'
 
-    config.wings['main_wing'].flaps_angle = 30. * Units.deg
-    config.wings['main_wing'].slats_angle = 25. * Units.deg
+    #config.wings['main_wing'].flaps_angle = 30. * Units.deg
+    #config.wings['main_wing'].slats_angle = 25. * Units.deg
 
-    config.Vref_VS_ratio = 1.23
-    config.maximum_lift_coefficient = 2.
+    #config.Vref_VS_ratio = 1.23
+    #config.maximum_lift_coefficient = 2.
 
-    configs.append(config)
+    #configs.append(config)
     
-    # write to OpenVSP
-    write(vehicle,config.tag)       
+    ## write to OpenVSP
+    #write(vehicle,config.tag)       
 
 
     # done!
@@ -743,23 +744,23 @@ def plot_mission(results,line_style='bo-'):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
+        #cdi = drag_breakdown.induced.total[:,0]
+        #cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
 
         if line_style == 'bo-':
             axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            #axes.plot( time , cdi , 'bo-', label='CD induced' )
+            #axes.plot( time , cdc , 'go-', label='CD compressibility' )
             axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
             axes.plot( time , cd  , 'ro-', label='CD total'   )
             if i == 0:
                 axes.legend(loc='upper center')            
         else:
             axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
+            #axes.plot( time , cdi , line_style )
+            #axes.plot( time , cdc , line_style )
             axes.plot( time , cdm , line_style )
             axes.plot( time , cd  , line_style )            
 
@@ -834,19 +835,19 @@ def simple_sizing(configs):
     # diff the new data
     base.store_diff()
 
-    # ------------------------------------------------------------------
-    #   Landing Configuration
-    # ------------------------------------------------------------------
-    landing = configs.landing
+    ## ------------------------------------------------------------------
+    ##   Landing Configuration
+    ## ------------------------------------------------------------------
+    #landing = configs.landing
 
-    # make sure base data is current
-    landing.pull_base()
+    ## make sure base data is current
+    #landing.pull_base()
 
-    # landing weight
-    landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
+    ## landing weight
+    #landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
 
-    # diff the new data
-    landing.store_diff()
+    ## diff the new data
+    #landing.store_diff()
 
     # done!
     return
@@ -886,7 +887,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
 
-    segment.analyses.extend( analyses.takeoff )
+    segment.analyses.extend( analyses.base )
 
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.0   * Units.km
@@ -904,7 +905,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_2"
 
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.base )
 
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
@@ -921,7 +922,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_3"
 
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.base )
 
     segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
@@ -938,7 +939,7 @@ def mission_setup(analyses):
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
 
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.base )
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
@@ -956,7 +957,7 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_1"
 
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.base )
 
     segment.altitude_end = 8.0   * Units.km
     segment.air_speed    = 220.0 * Units['m/s']
@@ -973,9 +974,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_2"
 
-    segment.analyses.extend( analyses.landing )
+    segment.analyses.extend( analyses.base )
 
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 6.0   * Units.km
     segment.air_speed    = 195.0 * Units['m/s']
@@ -992,9 +993,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_3"
 
-    segment.analyses.extend( analyses.landing )
+    segment.analyses.extend( analyses.base )
 
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 4.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
@@ -1011,9 +1012,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_4"
 
-    segment.analyses.extend( analyses.landing )
+    segment.analyses.extend( analyses.base )
 
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 2.0   * Units.km
     segment.air_speed    = 150.0 * Units['m/s']
@@ -1032,8 +1033,8 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_5"
 
-    segment.analyses.extend( analyses.landing )
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    segment.analyses.extend( analyses.base )
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
 
     segment.altitude_end = 0.0   * Units.km
