@@ -154,11 +154,30 @@ class SU2_inviscid(Aerodynamics):
         xy        = training.grid_points 
         
         # learn the model
-        cl_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CL_data)
-        cd_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CD_data)
+        cl_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CL_data,fill_value=np.nan)
+        cd_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CD_data,fill_value=np.nan)
 
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
+        
+        import pylab as plt
+        fig = plt.figure('Surrogate Plot')
+
+        
+        AoA_points = np.array([-.1,0,1,2,3,4,5,5.1])*Units.deg
+        mach_points = np.array([.35,.45,.55,.65,.75,.8])
+        
+        AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
+        
+        CL_sur = np.zeros(np.shape(AoA_mesh))
+        CD_sur = np.zeros(np.shape(AoA_mesh))        
+        
+        for jj in range(len(AoA_points)):
+            for ii in range(len(mach_points)):
+                CL_sur[ii,jj] = cl_surrogate(AoA_mesh[ii,jj],mach_mesh[ii,jj])
+                CD_sur[ii,jj] = cd_surrogate(AoA_mesh[ii,jj],mach_mesh[ii,jj])
+        
+        axes = fig.add_subplot(2,1,1)
 
         return
 
