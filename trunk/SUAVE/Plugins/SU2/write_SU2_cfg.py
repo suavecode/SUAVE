@@ -100,6 +100,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('MESH_FORMAT = SU2\n\n')
     f.write('OUTPUT_FORMAT = TECPLOT\n\n')
     f.write('CONV_FILENAME = history\n\n')
+    f.write('BREAKDOWN_FILENAME = ' + tag + '_forces_breakdown.dat\n\n')
     f.write('RESTART_FLOW_FILENAME = ' + tag + '_restart_flow.dat\n\n')
     f.write('RESTART_ADJ_FILENAME = restart_adj.dat\n\n')
     f.write('VOLUME_FLOW_FILENAME = ' + tag + '_flow\n\n')

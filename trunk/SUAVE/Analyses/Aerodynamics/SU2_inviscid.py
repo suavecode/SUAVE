@@ -47,8 +47,8 @@ class SU2_inviscid(Aerodynamics):
 
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        self.training.Mach             = np.array([0.05,0.3,0.5,0.8])
+        self.training.angle_of_attack  = np.array([0.,5.]) * Units.deg
+        self.training.Mach             = np.array([0.4,0.75])
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
         
@@ -183,14 +183,26 @@ def call_SU2(conditions,settings,geometry):
     SU2_settings.mach_number     = conditions.aerodynamics.mach
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     
-    # build SU2 cfg
-    write_SU2_cfg(tag, SU2_settings)
+    ## build SU2 cfg
+    #write_SU2_cfg(tag, SU2_settings)
     
-    # run su2
-    CL, CD = call_SU2_CFD(tag)
+    ### run su2
+    #CL, CD = call_SU2_CFD(tag)
     
-    
-    lift_coefficient = 1.
-    drag_coefficient = 1.
+    if SU2_settings.angle_of_attack == 0:
+        if SU2_settings.mach_number == 0.4:
+            CL = .337
+            CD = .0204
+        else:
+            CL = .416
+            CD = .0265            
+            
+    else:
+        if SU2_settings.mach_number == 0.4:
+            CL = .879
+            CD = .0780
+        else:
+            CL = 1.00
+            CD = .125
 
-    return lift_coefficient, drag_coefficient
+    return CL, CD

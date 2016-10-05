@@ -5,7 +5,7 @@ def call_SU2_CFD(tag):
     
     subprocess.call(['SU2_CFD',tag+'.cfg'])
     
-    f = open('forces_breakdown.dat')
+    f = open(tag + '_forces_breakdown.dat')
         
     SU2_results = Data()    
     
