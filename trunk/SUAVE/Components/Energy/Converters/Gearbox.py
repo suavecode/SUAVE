@@ -46,13 +46,13 @@ class Gearbox(Energy_Component):
         R2  = self.gearwhell_radius2
         T1  = self.torque1
         w1  = self.speed_1
-           
+        eta = self.efficiency   
 
         # method to compute gearbox properties
 
-        w2 = w1 * R1/R2
-        T2 = T1 * R1/R2
-        P2 = T2 * w2
+        w2 = w1 * R1/R2 * eta    #gear output speed
+        T2 = T1 * R1/R2 * eta    #gear output torque
+        P2 = P1 * eta            #gear output horsepower
         
         # pack computed quantities into outputs
         self.outputs.rotation_speed  = w2
@@ -62,5 +62,4 @@ class Gearbox(Energy_Component):
     
     
     __call__ = compute     
-    
     
