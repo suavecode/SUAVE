@@ -1,6 +1,6 @@
 # __init__.py
 # 
-# Created:  
+# Created: Aug 2015, C. R. I. da Silva
 # Modified: Feb 2016, T. MacDonald
 
 # classes 
