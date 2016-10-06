@@ -21,7 +21,7 @@ class Nose_Landing_Gear(Landing_Gear):
         Methods:
 
         Assumptions:
-            if needed
+
 
     """
 
