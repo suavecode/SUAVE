@@ -6,6 +6,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+import SUAVE
+from SUAVE.Core import Units
 import numpy as np
 
 def noise_propeller_sae():
