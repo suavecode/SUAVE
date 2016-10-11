@@ -129,7 +129,7 @@ class Surrogate_Optimization(Data):
             print 'x_out=', surrogate_outputs[1]
             
             
-            if j>3:
+            if j>1:
                 x_diff = surrogate_outputs[1]-x_out
                 print 'x_diff=', x_diff 
                 if np.linalg.norm(x_diff)<.0001:  #exit for loop if surrogate optimization converges

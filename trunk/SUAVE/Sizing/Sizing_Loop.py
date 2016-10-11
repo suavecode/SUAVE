@@ -5,6 +5,7 @@ from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import check_svr_accuracy
 import scipy.interpolate as interpolate
 import sklearn.svm as svm
+import sklearn.linear_model
 from write_sizing_outputs import write_sizing_outputs
 from read_sizing_inputs import read_sizing_inputs
 import numpy as np
@@ -90,34 +91,46 @@ class Sizing_Loop(Data):
                         interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
                         y = interp[0]
                 
-                    elif self.initial_step == 'SVR':    
+                    elif self.initial_step == 'SVR' or self.initial_step == 'RANSAC':    
                         if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
-                            print 'optimizing svr parameters'
-                         
-                            x = [2.,-1.] #initial guess for 10**C, 10**eps
-                     
-                            t1=time.time()
-                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, imin_dist))
-                            t2=time.time()
-                            
-                            print 'optimization time = ', t2-t1
-                            print 'norm err=', out.fun
-                            c_out = 10**out.x[0]
-                            eps_out = 10**out.x[1]
-                            print 'c_out=',  c_out
-                            print 'eps_out=', eps_out
-                            print 'out_err=', out
-                            print 'running surrogate'
-                            
-                            y = []
-                            print 'scaled_inputs=', scaled_inputs
+                            if self.initial_step == 'SVR':
+                                #for SVR, can optimize parameters C and eps for closest point
+                                print 'optimizing svr parameters'
+                                x = [2.,-1.] #initial guess for 10**C, 10**eps
+                        
+                                t1=time.time()
+                                out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, imin_dist))
+                                t2=time.time()
+                                c_out = 10**out.x[0]
+                                eps_out = 10**out.x[1]
+                                
+                                #debugging print statements
+                                print 'optimization time = ', t2-t1
+                                print 'norm err=', out.fun
+                                print 'c_out=',  c_out
+                                print 'eps_out=', eps_out
+                                print 'out_err=', out
+                                print 'running SVR'
+             
+                                
+                                regr        = svm.SVR(C=c_out,  epsilon = eps_out)
+                                   
+                            elif self.initial_step == 'RANSAC':
+                                print 'running RANSAC Regression'
+                                regr        = linear_model.RANSACRegressor()
+                                
+                            #now run the fits/guesses  
+                            y = []    
                             for j in range(len(data_outputs[0,:])):
-                                clf         = svm.SVR(C=c_out,  epsilon = eps_out)
-                                y_surrogate = clf.fit(data_inputs, data_outputs[:,j])
+                                y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(scaled_inputs)[0])
-
+                                   
                             y = np.array(y)
+                            print 'adding surrogate calls'
                             self.iteration_options.number_of_surrogate_calls +=1
+                                
+                  
+                                
                         else:
                             print 'running table'
                             interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
