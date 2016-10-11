@@ -8,4 +8,3 @@ from noise_geometric import noise_geometric
 from noise_certification_limits import noise_certification_limits
 from noise_counterplot import noise_counterplot
 from senel_noise import senel_noise
-from noise_certification_limits import noise_certification_propeller
