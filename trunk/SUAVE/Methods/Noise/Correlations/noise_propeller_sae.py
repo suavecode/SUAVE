@@ -96,5 +96,5 @@ def noise_propeller_sae():
     
     print PNL , PNL_dBA, OASPL, EPNdB_landing,EPNdB_takeoff
     
-    return
+    return (EPNdB_takeoff)
 
