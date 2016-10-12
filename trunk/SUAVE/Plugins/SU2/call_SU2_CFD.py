@@ -31,3 +31,6 @@ def call_SU2_CFD(tag):
     CD = SU2_results.coefficient_of_drag
             
     return CL,CD
+
+if __name__ == '__main__':
+    call_SU2_CFD('cruise')

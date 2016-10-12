@@ -1,10 +1,19 @@
 import vsp_g as vsp
 import numpy as np
 import time
+import fileinput
 
 def write_vsp_mesh(tag,half_mesh_flag):
     
     vsp.ClearVSPModel()
+    
+    f = fileinput.input(tag + '.vsp3',inplace=1)
+    for line in f:
+        if 'SymmetrySplitting' in line:
+            print line[0:34] + '1' + line[35:-1]
+        else:
+            print line
+    
     vsp.ReadVSPFile(tag + '.vsp3')
     
     file_type = vsp.CFD_STL_TYPE + vsp.CFD_KEY_TYPE
@@ -20,6 +29,14 @@ def write_vsp_mesh(tag,half_mesh_flag):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_FIELD_FLAG,1)
     if half_mesh_flag == True:
         vsp.SetCFDMeshVal(vsp.CFD_HALF_MESH_FLAG,1)
+        
+    #vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_GAP, 0.005) # to prevent half mesh tail errors
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_X_SCALE,10)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_Y_SCALE,10)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_Z_SCALE,10)    
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, 30)
+    
+    vsp.AddDefaultSources()    
     
     print 'Starting mesh for ' + tag
     ti = time.time()

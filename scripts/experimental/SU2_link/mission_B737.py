@@ -680,6 +680,7 @@ def plot_mission(results,line_style='bo-'):
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc    = 3600. * mdot / 0.1019715 / thrust	
+        
 
 
         axes = fig.add_subplot(2,1,1)
@@ -788,7 +789,8 @@ def plot_mission(results,line_style='bo-'):
         altitude = segment.conditions.freestream.altitude[:,0] / Units.km *3.28084 *1000
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        sfc    = 3600. * mdot / 0.1019715 / thrust
+        mach   = segment.conditions.freestream.mach_number[:,0]
 
 
         axes = fig.add_subplot(3,1,1)
@@ -798,9 +800,9 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , sfc , line_style )
+        axes.plot( time , mach , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.set_ylabel('Mach Number',axis_font)
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
