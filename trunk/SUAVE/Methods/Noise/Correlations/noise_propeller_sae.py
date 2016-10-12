@@ -64,7 +64,7 @@ def noise_propeller_sae(noise_data, ioprint = 0):
     PNL_dBA =np.zeros(nsteps)
     
 #***************************************************************    
-# Farfield Partial Noise Level Based on Blade cound and Propeller diameter
+# Farfield Partial Noise Level Based on Blade count and Propeller diameter
 # ***** Figure 4 *********************
 
     if n_blades == 2:
