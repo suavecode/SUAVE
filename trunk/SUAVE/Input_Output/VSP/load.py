@@ -1,8 +1,9 @@
-# IO.py
+# load.py
 #
 # Created By:       M. Colonno  4/15/13
 # Updated:          M. Colonno  4/24/13
 #                   T. Lukaczyk 12/19/13
+#                   C. Ilario   Feb/16
 
 """ Import from VSP File """
 

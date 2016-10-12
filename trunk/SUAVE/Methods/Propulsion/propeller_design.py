@@ -194,12 +194,20 @@ def propeller_design(prop_attributes):
     #eta        = Ct*J/Cp 
     
     
+    # Calculate mid-chord alignment angle, MCA
+    # This is the distance from the mid chord to the line axis out of the center of the blade
+    # In this case the 1/4 chords are all aligned
+    
+    MCA = c/4. - c[0]/4.
+    
+    
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
 
     prop_attributes.twist_distribution = beta
     prop_attributes.chord_distribution = c
-    prop_attributes.Cp   = Cp
+    prop_attributes.Cp                 = Cp
+    prop_attributes.mid_chord_aligment = MCA
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller

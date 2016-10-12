@@ -129,7 +129,7 @@ if __name__ == '__main__':
     wing.spans.projected           = 196.0  * Units.feet
     wing.chords.mean_aerodynamic   = 27.3 * Units.feet
     wing.chords.root               = 44. * Units.feet  #54.5ft
-    wing.sweeps.leading_edge        = 42.0   * Units.deg # Leading edge
+    wing.sweeps.leading_edge       = 42.0   * Units.deg # Leading edge
     wing.taper          = 13.85/44.  #14.7/54.5
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True

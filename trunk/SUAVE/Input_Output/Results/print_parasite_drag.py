@@ -1,5 +1,8 @@
 """ print_parasite_drag.py """
 
+# Created: SUAVE team
+# Updated: Carlos Ilario, Feb 2016
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -9,7 +12,8 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import miscellaneous_drag_air
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 import numpy as np
-import copy
+
+
 # ----------------------------------------------------------------------
 #  Print output file with parasite drag breakdown
 # ----------------------------------------------------------------------
