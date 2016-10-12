@@ -57,29 +57,29 @@ def noise_certification_limits(results,vehicle):
 
     return (noise_approach_limit,noise_flyover_limit,noise_sideline_limit)
 
-def noise_certification_propeller (results):
+def noise_certification_propeller (noise_data):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_propeller(results,vehicle):
                 Computes the certification noise limit as a function of the aircraft weight [lbs] in dbA for a Propeller driven aircraft.
     
                 Inputs:
-                    results
+                    noise_data
     
-                Outputs: Noise limits in EPNL
+                Outputs: Noise limits in db(A)
                     noise_takeoff_limit             - Takeoff noise limit as a function of the takeoff weight, [dbA]
 
                 Assumptions:
                     None."""
     
     #unpack
-    weight_tow_mission = np.float(results.flyover.segments.climb.conditions.weights.total_mass[-1])     / Units.lbs 
+    weight_tow_mission = noise_data.tow_weight / Units.lbs 
     
-    #Calculation of noise limit based on the aircraft weight
+    #Calculation of noise limit based on the aircraft weight - FAA AC36-1H Appendix 7
     if weight_tow_mission <= 1320.0:
-        noise_takeoff_limit = 76.00
-    elif weight_tow_mission < 3000.0:
-        noise_takeoff_limit = 76.00 + 0.007*(weight_tow_mission-1320.0)
+        noise_takeoff_limit = 68.00
+    elif weight_tow_mission <= 3300.0:
+        noise_takeoff_limit = 68.00 + (weight_tow_mission - 1320.0)/165 
     else:
-        noise_takeoff_limit = 88.00
+        noise_takeoff_limit = 80.00 
         
     return (noise_takeoff_limit)
     

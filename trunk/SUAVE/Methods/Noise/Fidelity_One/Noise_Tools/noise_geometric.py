@@ -9,6 +9,7 @@
 
 import SUAVE
 from SUAVE.Core import Data
+from SUAVE.Core import Units
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -33,10 +34,10 @@ def noise_geometric(noise_segment,analyses,config):
                 For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground."""
     
     #unpack
-    sideline = 0 #analyses.noise.settings.sideline
-    flyover  = 1 #analyses.noise.settings.flyover
-    approach = 0 #analyses.noise.settings.approach
-    x0       = 0 #analyses.noise.settings.mic_x_position #only sideline
+    sideline = analyses.noise.settings.sideline
+    flyover  = analyses.noise.settings.flyover
+    approach = analyses.noise.settings.approach
+    x0       = analyses.noise.settings.mic_x_position #only sideline
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
@@ -149,3 +150,56 @@ def noise_geometric(noise_segment,analyses,config):
     noise_segment.phi   = phi
 
     return (dist,theta,phi)
+
+
+
+def geometric_propeller(noise_data):
+    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.geometric_propeller(noise_data):
+                Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
+    
+                Inputs:
+                    noise_data	 - SUAVE type vehicle
+    
+                Outputs:
+                    dist                         - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
+                    theta                        - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+                    phi                          - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+    
+                Assumptions:
+                    Propeller-driven aircraft has to comply only with the take-off noise limit."""    
+    
+    
+    # unpack
+    position_vector = noise_data.position
+    altitude        = noise_data.altitude
+    S_0             = noise_data.tofl * Units.ft
+    
+ #   s       = position_vector
+    n_steps = len(altitude)  #number of time steps (space discretization)    
+    
+    
+    #--------------------------------------------------------
+    #------------------ FLYOVER CALCULATION -----------------
+    #--------------------------------------------------------
+    
+    # Azimuthal angle is zero for flyover condition
+    phi=np.zeros(n_steps)    
+    theta = np.zeros(n_steps)  
+       
+    
+  #  S_0 = 1500 * Units.ft
+
+    #Microphone position from the start of the takeoff roll
+    x0= np.float(2500. - S_0)
+    
+    #Calculation of the distance vector and emission angle
+    dist  = np.sqrt(altitude**2+(position_vector-x0)**2)
+
+    for i in range(0, n_steps):
+        if (position_vector[i]-x0)< 0.:
+            theta[i] = np.arctan(np.abs(altitude[i]/(position_vector[i]-x0)))
+        else:
+            theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(position_vector[i]-x0)))
+            
+    return (dist,theta,phi)
+    
