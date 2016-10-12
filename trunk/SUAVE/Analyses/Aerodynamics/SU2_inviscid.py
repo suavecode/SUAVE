@@ -94,7 +94,7 @@ class SU2_inviscid(Aerodynamics):
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model = surrogates.lift_coefficient
-        drag_model = surrogates.drag_coefficient
+        #drag_model = surrogates.drag_coefficient
         
         ## inviscid lift for Clough interp
         #inviscid_lift                                              = lift_model(AoA,mach)
@@ -105,13 +105,14 @@ class SU2_inviscid(Aerodynamics):
             inviscid_lift[ii] = lift_model.predict([AoA[ii][0],mach[ii][0]])
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
         
         ## inviscid drag for Clough interp
         #inviscid_drag                                              = drag_model(AoA,mach)
         inviscid_drag = np.zeros([data_len,1])
-        for ii,_ in enumerate(AoA):
-            inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        #for ii,_ in enumerate(AoA):
+            #inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+        #state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
 
         return inviscid_lift, inviscid_drag
 
@@ -161,15 +162,15 @@ class SU2_inviscid(Aerodynamics):
         AoA_data  = training.angle_of_attack
         mach_data = training.Mach
         CL_data   = training.coefficients[:,0]
-        CD_data   = training.coefficients[:,1]
+        #CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
         # Kriging -------
         
         cl_surrogate = kriging(xy, CL_data)
         cl_surrogate.train()
-        cd_surrogate = kriging(xy, CD_data)
-        cd_surrogate.train()        
+        #cd_surrogate = kriging(xy, CD_data)
+        #cd_surrogate.train()        
         
         # ------
         
@@ -188,7 +189,7 @@ class SU2_inviscid(Aerodynamics):
         #cd_surrogate = sp.interpolate.CloughTocher2DInterpolator(xy,CD_data,fill_value=np.nan)
 
         self.surrogates.lift_coefficient = cl_surrogate
-        self.surrogates.drag_coefficient = cd_surrogate
+        #self.surrogates.drag_coefficient = cd_surrogate
         
         import pylab as plt
         #fig = plt.figure('Surrogate Plot')
@@ -200,12 +201,12 @@ class SU2_inviscid(Aerodynamics):
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
         CL_sur = np.zeros(np.shape(AoA_mesh))
-        CD_sur = np.zeros(np.shape(AoA_mesh))        
+        #CD_sur = np.zeros(np.shape(AoA_mesh))        
         
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
                 CL_sur[ii,jj] = cl_surrogate.predict([AoA_mesh[ii,jj],mach_mesh[ii,jj]])
-                CD_sur[ii,jj] = cd_surrogate.predict([AoA_mesh[ii,jj],mach_mesh[ii,jj]])
+                #CD_sur[ii,jj] = cd_surrogate.predict([AoA_mesh[ii,jj],mach_mesh[ii,jj]])
         
         #axes = fig.add_subplot(2,1,1)
         #plt.contourf(AoA_mesh/Units.deg,mach_mesh,cl_surrogate(AoA_mesh,mach_mesh))
@@ -221,11 +222,11 @@ class SU2_inviscid(Aerodynamics):
         plt.xlabel('Angle of Attack (deg)')
         plt.ylabel('Mach Number')
         
-        axes = fig.add_subplot(2,1,2)
-        plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
-        plt.colorbar()
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')   
+        #axes = fig.add_subplot(2,1,2)
+        #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        #plt.colorbar()
+        #plt.xlabel('Angle of Attack (deg)')
+        #plt.ylabel('Mach Number')   
         
         plt.show()
 
@@ -252,11 +253,11 @@ def call_SU2(conditions,settings,geometry):
     SU2_settings.mach_number     = conditions.aerodynamics.mach
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     
-    ## build SU2 cfg
-    write_SU2_cfg(tag, SU2_settings)
+    ### build SU2 cfg
+    #write_SU2_cfg(tag, SU2_settings)
     
-    # run su2
-    CL, CD = call_SU2_CFD(tag)
+    ## run su2
+    #CL, CD = call_SU2_CFD(tag)
     
     ## Results from unrefined half mesh
     
@@ -284,31 +285,31 @@ def call_SU2(conditions,settings,geometry):
             #CL = 1.08189
             #CD = 0.152071  
             
-    ## Results from unrefined half mesh
+    # Results from unrefined half mesh
     
-    #if SU2_settings.angle_of_attack == -2:
-        #if SU2_settings.mach_number == 0.3:
-            #CL = 0.104922
-            #CD = 0.00511061
-        #else:
-            #CL = 0.155651
-            #CD = 0.0113375
+    if SU2_settings.angle_of_attack == -2:
+        if SU2_settings.mach_number == 0.3:
+            CL = 0.104922
+            CD = 0.00511061
+        else:
+            CL = 0.155651
+            CD = 0.0113375
             
-    #elif SU2_settings.angle_of_attack == 0:
-        #if SU2_settings.mach_number == 0.3:
-            #CL = 0.336125
-            #CD = 0.00974673
-        #else:
-            #CL = 0.461421
-            #CD = 0.0251625
+    elif SU2_settings.angle_of_attack == 0:
+        if SU2_settings.mach_number == 0.3:
+            CL = 0.336125
+            CD = 0.00974673
+        else:
+            CL = 0.461421
+            CD = 0.0251625
             
-    #else:
-        #if SU2_settings.mach_number == 0.3:
-            #CL = 0.890109
-            #CD = 0.0513007
-        #else:
-            #CL = 1.09259
-            #CD = 0.138807     
+    else:
+        if SU2_settings.mach_number == 0.3:
+            CL = 0.890109
+            CD = 0.0513007
+        else:
+            CL = 1.09259
+            CD = 0.138807     
             
 
     return CL, CD

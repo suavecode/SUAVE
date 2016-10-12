@@ -745,15 +745,15 @@ def plot_mission(results,line_style='bo-'):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
-        #cdi = drag_breakdown.induced.total[:,0]
-        #cdc = drag_breakdown.compressible.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
 
         if line_style == 'bo-':
             axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            #axes.plot( time , cdi , 'bo-', label='CD induced' )
-            #axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdi , 'bo-', label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
             axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
             axes.plot( time , cd  , 'ro-', label='CD total'   )
             if i == 0:

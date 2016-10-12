@@ -68,6 +68,11 @@ class SU2_Euler(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.compressibility               = Process()
+        compute.drag.compressibility.wings         = Process_Geometry('wings')
+        compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total        
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
@@ -79,10 +84,10 @@ class SU2_Euler(Markup):
         # Mesh the Geometry
         self.process.compute.lift.inviscid.geometry = self.geometry
         
-        tag = self.geometry.tag
-        write_vsp_mesh(tag,self.settings.half_mesh_flag)
-        write_geo_file(tag)
-        mesh_geo_file(tag)
+        #tag = self.geometry.tag
+        #write_vsp_mesh(tag,self.settings.half_mesh_flag)
+        #write_geo_file(tag)
+        #mesh_geo_file(tag)
         
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()
