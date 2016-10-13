@@ -305,6 +305,7 @@ class Propeller(Energy_Component):
         theta   = self.thrust_angle
         tc      = .12 # Thickness to chord
         beta_c  = conditions.propulsion.pitch_command
+        ducted  = self.prop_attributes.ducted
         
         beta   = beta_in + beta_c
         
@@ -463,6 +464,9 @@ class Propeller(Energy_Component):
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         power    = torque*omega       
+        
+        if ducted == True:
+            thrust = thrust*1.02 # 2% extra thrust for duct effects
        
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))   
