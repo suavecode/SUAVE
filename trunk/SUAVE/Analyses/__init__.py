@@ -7,7 +7,6 @@ from Process   import Process
 from Settings  import Settings
 from Vehicle   import Vehicle
 
-     
 import Aerodynamics
 import Stability
 import Energy
@@ -20,3 +19,4 @@ import Atmospheric
 import Planets
 import Sizing
 import Noise
+import Costs
