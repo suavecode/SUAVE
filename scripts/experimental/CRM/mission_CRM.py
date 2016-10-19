@@ -231,15 +231,15 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 9.0 #not used in VSP definition
-    wing.sweeps.quarter_chord     = 25 * Units.deg
+    wing.sweeps.quarter_chord     = 35 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.275
     wing.span_efficiency         = 0.9
 
     wing.spans.projected         =191*Units.feet  
 
-    wing.chords.root             = 275.8*Units.inches
-    wing.chords.tip              = wing.chords.root*wing.taper
+    wing.chords.root             = 13.735
+    wing.chords.tip              = 2.35 #wing.chords.root*wing.taper
     wing.chords.mean_aerodynamic = 4.235
 
     wing.areas.reference         = 4130*(Units.feet**2.)
@@ -259,6 +259,31 @@ def vehicle_setup():
     airfoil.coordinate_file = 'crm_airfoil.dat'
     
     wing.append_airfoil(airfoil)
+    # Sections
+    
+    #Yehudi
+    '''
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_1'
+    segment.percent_span_location = 0.366513527
+    segment.twist                 = (wing.twists.tip  -wing.twists.root)*segment.percent_span_location
+    segment.root_chord_percent    = 0.486832078
+    segment.dihedral_outboard     = 0. * Units.deg
+    segment.sweeps.quarter_chord  = wing.sweeps.quarter_chord
+    wing.Segments.append(segment)
+    '''
+    
+    #Outer wing
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_2'
+    segment.percent_span_location = 0.366513527
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.486832078 #0.8  #.8
+    segment.dihedral_outboard     = 0. * Units.deg
+    segment.sweeps.quarter_chord  = wing.sweeps.quarter_chord
+    wing.Segments.append(segment)
+    
+    
     # add to vehicle
     vehicle.append_component(wing)
 
