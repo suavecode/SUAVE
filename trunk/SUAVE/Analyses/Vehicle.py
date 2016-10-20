@@ -1,6 +1,6 @@
 # Vehicle.py
 #
-# Created:  
+# Created:
 # Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
@@ -27,21 +27,21 @@ class Vehicle(Analysis.Container):
         self.atmosphere   = None
         self.planet       = None
         self.noise        = None
-
+        self.costs        = None
 
     def append(self,analysis):
-        
+
         key = self.get_root(analysis)
-        
+
         self[key] = analysis
-        
+
 
     _analyses_map = None
-    
+
     def __init__(self,*args,**kwarg):
-        
+
         Analysis.Container.__init__(self,*args,**kwarg)
-        
+
         self._analyses_map = {
             SUAVE.Analyses.Sizing.Sizing             : 'sizing'       ,
             SUAVE.Analyses.Weights.Weights           : 'weights'      ,
@@ -51,6 +51,7 @@ class Vehicle(Analysis.Container):
             SUAVE.Analyses.Atmospheric.Atmospheric   : 'atmosphere'   ,
             SUAVE.Analyses.Planets.Planet            : 'planet'       ,
             SUAVE.Analyses.Noise.Noise               : 'noise'        ,
+            SUAVE.Analyses.Costs.Costs               : 'costs'        ,
         }
 
     def get_root(self,analysis):
@@ -62,7 +63,6 @@ class Vehicle(Analysis.Container):
         else:
             raise Exception , "Unable to place analysis type %s" % analysis.typestring()
 
-        return analysis_root        
-        
-        
-   
+        return analysis_root
+
+

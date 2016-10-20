@@ -33,6 +33,7 @@ class Propeller(Energy_Component):
         self.prop_attributes.hub_radius         = 0.0
         self.prop_attributes.twist_distribution = 0.0
         self.prop_attributes.chord_distribution = 0.0
+        self.prop_attributes.mid_chord_aligment = 0.0
         self.thrust_angle                       = 0.0
         
     def spin(self,conditions):
@@ -249,17 +250,18 @@ class Propeller(Energy_Component):
         # store data
         results_conditions = Results       
         conditions.propulsion.acoustic_outputs = results_conditions(
-            number_sections = N,
-            r0 = r,
-            airfoil_chord = c,
-            blades_number = B,
+            number_sections    = N,
+            r0                 = r,
+            airfoil_chord      = c,
+            blades_number      = B,
             propeller_diameter = D,
-            drag_coefficient = Cd,
-            lift_coefficient = Cl,
-            rpm = omega,
-            velocity = V,
-            thrust = thrust,
-            hp = power,
+            drag_coefficient   = Cd,
+            lift_coefficient   = Cl,
+            omega              = omega,
+            velocity           = V,
+            thrust             = thrust,
+            power              = power,
+            mid_chord_aligment = self.prop_attributes.mid_chord_aligment
         )
         
         

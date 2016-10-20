@@ -21,14 +21,14 @@ class Nose_Landing_Gear(Landing_Gear):
         Methods:
 
         Assumptions:
-
+            if needed
 
     """
 
     def __defaults__(self):        
           
-        self.tire_diameter = 0. #diameter of the tire   
-        self.strut_length  = 0. #landing gear strut lenght   
+        self.tire_diameter = 0.    
+        self.strut_length  = 0.    
         self.units         = 0. # number of nose landing gear    
         self.wheels        = 0. # number of wheels on the nose landing gear
 
