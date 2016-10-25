@@ -56,7 +56,6 @@ def noise_certification_limits(results,vehicle):
     noise_approach_limit = np.around(np.log((weight_approach   /C_approach))* T_approach /np.log(2),decimals=1)
 
     return (noise_approach_limit,noise_flyover_limit,noise_sideline_limit)
-<<<<<<< HEAD
 
 def noise_certification_propeller (noise_data):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_propeller(results,vehicle):
@@ -83,7 +82,3 @@ def noise_certification_propeller (noise_data):
         noise_takeoff_limit = 80.00 
         
     return (noise_takeoff_limit)
-    
-    
-=======
->>>>>>> develop
