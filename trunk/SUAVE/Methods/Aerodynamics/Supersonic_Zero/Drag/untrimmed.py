@@ -26,7 +26,6 @@ def untrimmed(state,settings,geometry):
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 
 
     # untrimmed drag
-    Mc                 = conditions.freestream.mach_number   
     aircraft_untrimmed = parasite_total        \
                        + induced_total         \
                        + compressibility_total \

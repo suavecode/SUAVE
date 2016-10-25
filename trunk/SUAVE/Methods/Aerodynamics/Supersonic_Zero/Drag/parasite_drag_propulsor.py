@@ -34,17 +34,11 @@ def parasite_drag_propulsor(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     propulsor     = geometry
-    
-    # unpack inputs
-    try:
-        form_factor = configuration.propulsor_parasite_drag_form_factor
-    except(AttributeError):
-        form_factor = 2.3
         
     freestream = conditions.freestream
     
     Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
-    Swet        = propulsor.nacelle_diameter * np.pi * propulsor.engine_length
+    Swet        = propulsor.areas.wetted
     
     l_prop  = propulsor.engine_length
     d_prop  = propulsor.nacelle_diameter
@@ -61,28 +55,9 @@ def parasite_drag_propulsor(state,settings,geometry):
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
     
-    # form factor for cylindrical bodies
-    try: # Check if propulsor has an intake
-        A_max = propulsor.nacelle_diameter
-        A_exit = propulsor.A7
-        A_inflow = propulsor.Ao
-        d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))
-    except:
-        d_d = float(d_prop)/float(l_prop)
-    D = np.array([[0.0]] * len(Mc))
-    a = np.array([[0.0]] * len(Mc))
-    du_max_u = np.array([[0.0]] * len(Mc))
-    k_prop = np.array([[0.0]] * len(Mc))
-    
-    D[Mc < 0.95] = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
-    a[Mc < 0.95] = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
-    du_max_u[Mc < 0.95] = a[Mc < 0.95] / ( (2-a[Mc < 0.95]) * (1-Mc[Mc < 0.95]**2)**0.5 )
-    
-    D[Mc >= 0.95] = np.sqrt(1 - d_d**2)
-    a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
-    du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
-    
-    k_prop = (1 + form_factor*du_max_u)**2
+
+    ## form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
+    k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop)) 
     
     # --------------------------------------------------------
     # find the final result    
