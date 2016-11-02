@@ -160,23 +160,23 @@ class Propeller(Energy_Component):
             
             # Estimate Cl max
             Re         = (W*c)/nu 
-            #Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-            #Re_ref     = 9.*10**6      
-            #Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            Re_ref     = 9.*10**6      
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
-            #Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
             Cl[alpha>=pi/2] = 0.
             
             
-            ## Scale for Mach, this is Karmen_Tsien
-            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+            # Scale for Mach, this is Karmen_Tsien
+            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
-            ## If the blade segments are supersonic, don't scale
-            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            # If the blade segments are supersonic, don't scale
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
@@ -212,7 +212,7 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                print 'broke'
+                #print 'broke'
                 break
 
         #There is also RE scaling

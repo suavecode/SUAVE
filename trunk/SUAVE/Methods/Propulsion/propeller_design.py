@@ -15,7 +15,7 @@ from SUAVE.Core import Units
 #  Propeller Design
 # ----------------------------------------------------------------------
     
-def propeller_design(prop_attributes):
+def propeller_design(prop_attributes,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -25,7 +25,7 @@ def propeller_design(prop_attributes):
               rotation rate
               freestream velocity
               number of blades
-              number of stations
+              number of stations- N
               design lift coefficient
               airfoil data
 
@@ -64,7 +64,6 @@ def propeller_design(prop_attributes):
     Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))    
     
     tol   = 1e-10 # Convergence tolerance
-    N     = 20.   # Number of Stations
 
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
