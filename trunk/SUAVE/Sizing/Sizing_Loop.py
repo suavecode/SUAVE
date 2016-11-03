@@ -4,8 +4,11 @@
 from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import check_svr_accuracy
 import scipy.interpolate as interpolate
+
 import sklearn.svm as svm
+import sklearn.gaussian_process as gaussian_process
 import sklearn.linear_model as linear_model
+import sklearn.neighbors as neighbors
 from write_sizing_outputs import write_sizing_outputs
 from read_sizing_inputs import read_sizing_inputs
 import numpy as np
@@ -36,7 +39,7 @@ class Sizing_Loop(Data):
         self.iteration_options.min_write_step               = .011   #minimum distance at which sizing data are written
         self.iteration_options.min_surrogate_length         = 4      #minimum number data points needed before SVR is used
         self.iteration_options.number_of_surrogate_calls    = 0
-        
+        self.iteration_options.minimum_training_samples     = 1E6
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
@@ -70,7 +73,7 @@ class Sizing_Loop(Data):
         
         #determine the initial step
         min_norm =1000.
-        if self.initial_step == 'Table' or self.initial_step == 'SVR' or self.initial_step =='RANSAC':
+        if self.initial_step == 'Table' or self.initial_step == 'SVR' or self.initial_step =='RANSAC' or self.initial_step == 'Neighbors' or self.initial_step== 'Gaussian':
             data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
             
             if read_success:
@@ -85,8 +88,8 @@ class Sizing_Loop(Data):
                         min_norm = row_norm
                         imin_dist = k*1 
 
-                if min_norm<self.iteration_options.max_initial_step: #make sure data is close to current guess
-                    if self.initial_step == 'Table' or min_norm<self.iteration_options.min_surrogate_step or len(data_outputs[:,0])< self.iteration_options.min_surrogate_length:
+                if min_norm<iteration_options.max_initial_step: #make sure data is close to current guess
+                    if self.initial_step == 'Table' or min_norm<iteration_options.min_surrogate_step or len(data_outputs[:,0])< iteration_options.min_surrogate_length:
                         print 'running table'
                         interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
                         y = interp[0]
@@ -102,7 +105,10 @@ class Sizing_Loop(Data):
                             t2=time.time()
                             c_out = 10**out.x[0]
                             eps_out = 10**out.x[1]
-                            
+                            if c_out > 1E10:
+                                c_out = 1E10
+                            if eps_out<1E-8:
+                                eps_out = 1E-8
                             #debugging print statements
                             print 'optimization time = ', t2-t1
                             print 'norm err=', out.fun
@@ -113,11 +119,22 @@ class Sizing_Loop(Data):
              
                             
                             regr        = svm.SVR(C=c_out,  epsilon = eps_out)
-                               
+                            
+                        elif self.initial_step == 'GPR':
+                            regr          = gaussian_process.GaussianProcess()
+                            
                         elif self.initial_step == 'RANSAC':
                             print 'running RANSAC Regression'
                             regr        = linear_model.RANSACRegressor()
+                        
+                        elif self.initial_step == 'Neighbors':
+                            n_neighbors = min(iteration_options.n_neighbors, len(data_outputs))
+                            if iteration_options.neighbors_weighted_distance  == True:
+                                regr        = neighbors.KNeighborsRegressor( n_neighbors = n_neighbors ,weights = 'distance')
                             
+                            else:  
+                                regr        = neighbors.KNeighborsRegressor( n_neighbors = n_neighbors)
+                        
                         #now run the fits/guesses  
                         y = []    
                         for j in range(len(data_outputs[0,:])):
@@ -125,7 +142,7 @@ class Sizing_Loop(Data):
                             y.append(y_surrogate.predict(scaled_inputs)[0])
                                
                         y = np.array(y)
-                        self.iteration_options.number_of_surrogate_calls +=1
+                        iteration_options.number_of_surrogate_calls +=1
 
                     '''
                     elif self.initial_step == 'GPR':
@@ -176,7 +193,10 @@ class Sizing_Loop(Data):
                         nr_start =1
                     else:
                         err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                       
+            
+            elif self.update_method == 'recurring_neural_network':
+                err,y, i   = self.recurring_neural_network_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                
                     
             dy  = y-y_save
             dy2 = y-y_save2
@@ -296,6 +316,27 @@ class Sizing_Loop(Data):
         
         return err_out, y_update, iter
         
+    def recurring_neural_network_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        #unpack global optimization problem inputs
+        unscaled_inputs = nexus.optimization_problem.inputs[:,1]    
+        input_scaling   = nexus.optimization_problem.inputs[:,3]    
+        scaled_inputs   = unscaled_inputs/input_scaling    
+        
+        
+        min_train = iteration_options.minimum_training_samples
+        data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
+        xtrain = data_inputs
+        ytrain = data_outputs
+         
+        y_evaluate = []
+        if iter<min_train:
+            err_out,y_iter, iter   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, iter, iteration_options)
+            y_evaluate.append(y_iter)
+
+        y_update = y_iter
+        return err_out, y_update, iter
+        
+        Sizing_Loop.update_step = recurring_neural_network_update
     __call__ = evaluate
     
 
