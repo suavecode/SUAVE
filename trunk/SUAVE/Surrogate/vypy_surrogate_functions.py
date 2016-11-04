@@ -14,7 +14,7 @@ try:
     import VyPy
     from VyPy.regression import gpr
 except ImportError:
-
+    pass 
 from Surrogate_Problem import Surrogate_Problem
 
 import numpy as np
