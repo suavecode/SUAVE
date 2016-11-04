@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 try:
     import VyPy
     from VyPy.regression import gpr
-except ImportError
+except ImportError:
 
 from Surrogate_Problem import Surrogate_Problem
 
