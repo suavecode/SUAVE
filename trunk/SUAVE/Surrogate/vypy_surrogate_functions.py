@@ -10,8 +10,10 @@
 
 
 from SUAVE.Core import Data
-import VyPy
-from VyPy.regression import gpr
+try:
+    import VyPy
+    from VyPy.regression import gpr
+except ImportError
 
 from Surrogate_Problem import Surrogate_Problem
 
