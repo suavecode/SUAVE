@@ -62,8 +62,8 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(results)
+    plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results) 
@@ -313,6 +313,8 @@ def vehicle_setup():
     turbojet.number_of_engines = 4.0
     turbojet.engine_length     = 12.5
     turbojet.nacelle_diameter  = 1.60
+    turbojet.areas             = Data()
+    turbojet.areas.wetted      = turbojet.nacelle_diameter * np.pi * turbojet.engine_length
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()

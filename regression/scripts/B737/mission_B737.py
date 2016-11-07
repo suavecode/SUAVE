@@ -74,8 +74,8 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(results)
+    plot_mission(old_results,'k-')
 
     # check the results
     check_results(results,old_results)
