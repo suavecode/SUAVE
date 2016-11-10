@@ -285,7 +285,7 @@ def call_SU2(conditions,settings,geometry):
             #CL = 1.08189
             #CD = 0.152071  
             
-    # Results from unrefined half mesh
+    #Results from unrefined half mesh
     
     if SU2_settings.angle_of_attack == -2:
         if SU2_settings.mach_number == 0.3:

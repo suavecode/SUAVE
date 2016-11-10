@@ -4,6 +4,7 @@ import numpy as np
 def get_vsp_areas(tag):
     
     half_mesh = False # note that this does not affect the SU2 meshing process
+    # it only effects how much area of a component is included in the output
     file_type = vsp.COMP_GEOM_CSV_TYPE
 
     vsp.ComputeCompGeom(vsp.SET_ALL, half_mesh, file_type)

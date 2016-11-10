@@ -24,6 +24,7 @@ Data, Container,
 )
 
 from SUAVE.Plugins.vsp_write_tube_and_wing import write
+from SUAVE.Plugins.OpenVSP.get_vsp_areas import get_vsp_areas
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
@@ -156,8 +157,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
-    #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    #aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -825,14 +826,19 @@ def simple_sizing(configs):
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
+    wetted_areas = get_vsp_areas(base.tag)
+
     # wing areas
     for wing in base.wings:
         wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
+        wing.areas.exposed  = wetted_areas[wing.tag]
         wing.areas.affected = 0.6 * wing.areas.wetted
+        
+    
 
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
+    base.fuselages['fuselage'].areas.wetted = wetted_areas[base.fuselages['fuselage'].tag]
 
     # diff the new data
     base.store_diff()
