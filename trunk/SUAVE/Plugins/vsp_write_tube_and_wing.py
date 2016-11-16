@@ -156,6 +156,19 @@ def write(vehicle,tag):
         
         if wing.tag == 'main_wing':
             main_wing_id = wing_id
+            
+            
+    ## If we have props
+    #try:
+        #prop_center = vehicle.propulsors.network.propeller.origin
+        #diameter    = vehicle.propulsors.network.propeller.prop_attributes.diameter
+        #try:
+            #angle   = vehicle.propulsors.network.thrust_angle
+        #except:
+            #angle   = 0.
+            
+    #except:
+        #pass
     
     # Pylons
     
@@ -231,7 +244,7 @@ def write(vehicle,tag):
 
 
     # Fuselage
-    if vehicle.has_key('fuselages'):
+    if vehicle.fuselages.has_key('fuselages'):
         # Unpack the fuselage
         fuselage = vehicle.fuselages.fuselage
         width    = fuselage.width
