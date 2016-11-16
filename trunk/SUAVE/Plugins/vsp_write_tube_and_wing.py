@@ -244,7 +244,7 @@ def write(vehicle,tag):
 
 
     # Fuselage
-    if vehicle.fuselages.has_key('fuselages'):
+    if vehicle.fuselages.has_key('fuselage'):
         # Unpack the fuselage
         fuselage = vehicle.fuselages.fuselage
         width    = fuselage.width
