@@ -149,6 +149,7 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+1],tip_tc)
             
             vsp.Update()
+            pass
         
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1],tip_chord)
         
@@ -245,7 +246,7 @@ def write(vehicle,tag):
         w_ac     = wing.aerodynamic_center
         
         w_origin = vehicle.wings.main_wing.origin
-        w_c_4     = vehicle.wings.main_wing.chords.root/4
+        w_c_4    = vehicle.wings.main_wing.chords.root/4
         
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
@@ -256,6 +257,28 @@ def write(vehicle,tag):
         fuse_id = vsp.AddGeom("FUSELAGE") 
         vsp.SetGeomName(fuse_id, fuselage.tag)
         area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
+    
+        if fuselage.has_key('OpenVSP_values'):
+
+            vals = fuselage.OpenVSP_values
+            
+            # nose
+            vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_0",vals.nose.top.strength)
+            vsp.SetParmVal(fuse_id,"RightLAngle","XSec_0",vals.nose.side.angle)
+            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
+            vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
+            vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
+            
+            
+            # tail
+            vsp.SetParmVal(fuse_id,"TopLAngle","XSec_4",vals.tail.top.angle)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_4",vals.tail.top.strength)
+            vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
+            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
+            vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
+            vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
+            vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
     
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         vsp.SetParmVal(fuse_id,"Diameter","Design",width)

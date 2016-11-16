@@ -50,8 +50,8 @@ class SU2_inviscid(Aerodynamics):
 
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack  = np.array([-2.,0,5.]) * Units.deg
-        self.training.Mach             = np.array([0.3,0.8])
+        self.training.angle_of_attack  = np.array([-2.,0,2.]) * Units.deg
+        self.training.Mach             = np.array([0.3,0.8,2.])
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
         
@@ -253,11 +253,11 @@ def call_SU2(conditions,settings,geometry):
     SU2_settings.mach_number     = conditions.aerodynamics.mach
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     
-    ### build SU2 cfg
-    #write_SU2_cfg(tag, SU2_settings)
+    ## build SU2 cfg
+    write_SU2_cfg(tag, SU2_settings)
     
-    ## run su2
-    #CL, CD = call_SU2_CFD(tag)
+    # run su2
+    CL, CD = call_SU2_CFD(tag)
     
     ## Results from unrefined half mesh
     
@@ -287,29 +287,29 @@ def call_SU2(conditions,settings,geometry):
             
     #Results from unrefined half mesh
     
-    if SU2_settings.angle_of_attack == -2:
-        if SU2_settings.mach_number == 0.3:
-            CL = 0.104922
-            CD = 0.00511061
-        else:
-            CL = 0.155651
-            CD = 0.0113375
+    #if SU2_settings.angle_of_attack == -2:
+        #if SU2_settings.mach_number == 0.3:
+            #CL = 0.104922
+            #CD = 0.00511061
+        #else:
+            #CL = 0.155651
+            #CD = 0.0113375
             
-    elif SU2_settings.angle_of_attack == 0:
-        if SU2_settings.mach_number == 0.3:
-            CL = 0.336125
-            CD = 0.00974673
-        else:
-            CL = 0.461421
-            CD = 0.0251625
+    #elif SU2_settings.angle_of_attack == 0:
+        #if SU2_settings.mach_number == 0.3:
+            #CL = 0.336125
+            #CD = 0.00974673
+        #else:
+            #CL = 0.461421
+            #CD = 0.0251625
             
-    else:
-        if SU2_settings.mach_number == 0.3:
-            CL = 0.890109
-            CD = 0.0513007
-        else:
-            CL = 1.09259
-            CD = 0.138807     
+    #else:
+        #if SU2_settings.mach_number == 0.3:
+            #CL = 0.890109
+            #CD = 0.0513007
+        #else:
+            #CL = 1.09259
+            #CD = 0.138807     
             
 
     return CL, CD
