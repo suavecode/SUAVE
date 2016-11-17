@@ -38,11 +38,13 @@ def write_vsp_mesh(tag,half_mesh_flag):
     
     # Max length
     max_len = np.max([xlen,ylen,zlen])
+    far_length = 10.*max_len
         
     #vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_GAP, 0.005) # to prevent half mesh tail errors
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_LENGTH,10.*max_len)
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,10.*max_len)
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,10.*max_len)    
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_SIZE_ABS_FLAG,1)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_LENGTH,far_length)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,far_length)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, 30)
     
     vsp.AddDefaultSources()    

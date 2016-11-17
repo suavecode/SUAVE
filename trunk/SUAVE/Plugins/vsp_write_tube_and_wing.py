@@ -45,10 +45,9 @@ def write(vehicle,tag):
         dihedral   = wing.dihedral / Units.deg
         
         # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
-        if wing.has_key('Segments'):
+        n_segments = 1
+        if len(wing.Segments.keys())>0:
             n_segments = len(wing.Segments.keys())
-        else:
-            n_segments = 1
 
         # Create the wing
         wing_id = vsp.AddGeom( "WING" )
@@ -75,11 +74,11 @@ def write(vehicle,tag):
         vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
         
         # Root chord
-        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[0],root_chord)
+        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[1],root_chord)
         
         # Sweep of the first section
-        vsp.SetParmVal( wing_id,'Sweep',x_secs[0],sweep)
-        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[0],sweep_loc)
+        vsp.SetParmVal( wing_id,'Sweep',x_secs[1],sweep)
+        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[1],sweep_loc)
         
         # Twists
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
@@ -102,20 +101,20 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
         
         # dihedral
-        vsp.SetParmVal( wing_id,'Dihedral',x_secs[0],dihedral)
+        vsp.SetParmVal( wing_id,'Dihedral',x_secs[1],dihedral)
         
         # Span and tip of the section
         if n_segments>1:
             local_span    = span*wing.Segments[0].percent_span_location  
             sec_tip_chord = root_chord*wing.Segments[0].root_chord_percent
-            vsp.SetParmVal( wing_id,'Span',x_secs[0],local_span) 
+            vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
         else:
-            vsp.SetParmVal( wing_id,'Span',x_secs[0],span) 
+            vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
             
         vsp.Update()
             
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments+1):
+        for i_segs in xrange(2,n_segments+1):
             
             # Unpack thing
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
