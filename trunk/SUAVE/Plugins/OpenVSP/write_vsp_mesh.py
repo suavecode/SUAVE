@@ -30,10 +30,19 @@ def write_vsp_mesh(tag,half_mesh_flag):
     if half_mesh_flag == True:
         vsp.SetCFDMeshVal(vsp.CFD_HALF_MESH_FLAG,1)
         
+    # Figure out the size of the bounding box
+    vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
+    xlen = vsp.GetParmVal(vsp.FindParm(vehicle_id,"X_Len","BBox"))
+    ylen = vsp.GetParmVal(vsp.FindParm(vehicle_id,"Y_Len","BBox"))
+    zlen = vsp.GetParmVal(vsp.FindParm(vehicle_id,"Z_Len","BBox"))
+    
+    # Max length
+    max_len = np.max([xlen,ylen,zlen])
+        
     #vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_GAP, 0.005) # to prevent half mesh tail errors
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_X_SCALE,10)
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_Y_SCALE,10)
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_Z_SCALE,10)    
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_LENGTH,10.*max_len)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,10.*max_len)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,10.*max_len)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, 30)
     
     vsp.AddDefaultSources()    
