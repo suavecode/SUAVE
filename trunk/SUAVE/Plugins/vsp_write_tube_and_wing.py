@@ -75,11 +75,11 @@ def write(vehicle,tag):
         vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
         
         # Root chord
-        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[1],root_chord)
+        vsp.SetParmVal( wing_id,'Root_Chord',x_secs[0],root_chord)
         
         # Sweep of the first section
-        vsp.SetParmVal( wing_id,'Sweep',x_secs[1],sweep)
-        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[1],sweep_loc)
+        vsp.SetParmVal( wing_id,'Sweep',x_secs[0],sweep)
+        vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[0],sweep_loc)
         
         # Twists
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
@@ -102,15 +102,15 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
         
         # dihedral
-        vsp.SetParmVal( wing_id,'Dihedral',x_secs[1],dihedral)
+        vsp.SetParmVal( wing_id,'Dihedral',x_secs[0],dihedral)
         
         # Span and tip of the section
         if n_segments>1:
             local_span    = span*wing.Segments[0].percent_span_location  
             sec_tip_chord = root_chord*wing.Segments[0].root_chord_percent
-            vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
+            vsp.SetParmVal( wing_id,'Span',x_secs[0],local_span) 
         else:
-            vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
+            vsp.SetParmVal( wing_id,'Span',x_secs[0],span) 
             
         vsp.Update()
             
