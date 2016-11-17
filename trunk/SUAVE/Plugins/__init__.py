@@ -1,5 +1,6 @@
 
 import vsp_write_tube_and_wing
+import vsp_write_tube_and_wing2
 import vsp_write_blended_wing_body
 from load_plugin import load_plugin
 # these packages are imported by temporarily modifying

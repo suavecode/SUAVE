@@ -46,7 +46,7 @@ def write(vehicle,tag):
         
         # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
         if wing.has_key('Segments'):
-            n_segments = 1+len(wing.Segments.keys())
+            n_segments = len(wing.Segments.keys())
         else:
             n_segments = 1
 
@@ -115,7 +115,7 @@ def write(vehicle,tag):
         vsp.Update()
             
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments):
+        for i_segs in xrange(1,n_segments+1):
             
             # Unpack thing
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
@@ -124,29 +124,31 @@ def write(vehicle,tag):
             sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
             
             # Calculate the local span
-            if i_segs == n_segments-1:
+            if i_segs == n_segments:
                 span_i = span*(1 - wing.Segments[i_segs-1].percent_span_location)
             else:
                 span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)            
             
             # Insert the new wing section
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
-                vsp.InsertXSec(wing_id,i_segs,vsp.XS_FILE_AIRFOIL)
+                if i_segs != 1:
+                    vsp.InsertXSec(wing_id,i_segs-1,vsp.XS_FILE_AIRFOIL)
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
-                xsec = vsp.GetXSec(xsecsurf,i_segs+1)
+                xsec = vsp.GetXSec(xsecsurf,i_segs)
                 vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
                 
             else:
-                vsp.InsertXSec(wing_id,i_segs,vsp.XS_FOUR_SERIES)
+                if i_segs != 1:
+                    vsp.InsertXSec(wing_id,i_segs-1,vsp.XS_FOUR_SERIES)
             
             # Set the parms
-            vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+1],span_i)
-            vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs+1],dihedral_i)
-            vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs+1],sweep_i)
-            vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+1],sweep_loc)      
-            vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+1],chord_i)
-            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+1],twist_i)
-            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+1],tip_tc)
+            vsp.SetParmVal( wing_id,'Span',x_secs[i_segs],span_i)
+            vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs],dihedral_i)
+            vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs],sweep_i)
+            vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs],sweep_loc)      
+            vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs],chord_i)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs],twist_i)
+            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs],tip_tc)
             
             vsp.Update()
             pass
