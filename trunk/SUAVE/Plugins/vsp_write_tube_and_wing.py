@@ -152,9 +152,9 @@ def write(vehicle,tag):
             
             vsp.Update()
             pass
-        
+       
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1],tip_chord)
-        
+        vsp.Update() # to fix problems with chords not matching up
         
         if wing.tag == 'main_wing':
             main_wing_id = wing_id
