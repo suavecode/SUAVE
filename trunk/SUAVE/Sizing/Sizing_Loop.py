@@ -6,6 +6,7 @@ from SUAVE.Surrogate.svr_surrogate_functions import check_svr_accuracy
 import scipy.interpolate as interpolate
 
 import sklearn.svm as svm
+import sklearn.ensemble as ensemble
 import sklearn.gaussian_process as gaussian_process
 import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
@@ -30,16 +31,18 @@ class Sizing_Loop(Data):
         
         #parameters that may only apply to certain methods
         self.iteration_options     = Data()
-        self.iteration_options.newton_raphson_tolerance     = 5E-2   #threshhold of convergence when you start using newton raphson
-        self.iteration_options.max_newton_raphson_tolerance = 2E-4   #threshhold at which newton raphson is no longer used (to prevent overshoot and extra iterations)
-        self.iteration_options.h                            = 1E-6   #finite difference step for Newton iteration
-        self.iteration_options.max_initial_step             = 1.     #maximum distance at which interpolation is allowed
-        self.iteration_options.min_fix_point_iterations     = 2      #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_surrogate_step           = .011   #minimum distance at which SVR is used (if closer, table lookup is used)
-        self.iteration_options.min_write_step               = .011   #minimum distance at which sizing data are written
-        self.iteration_options.min_surrogate_length         = 4      #minimum number data points needed before SVR is used
+        self.iteration_options.newton_raphson_tolerance     = 5E-2             #threshhold of convergence when you start using newton raphson
+        self.iteration_options.max_newton_raphson_tolerance = 2E-4             #threshhold at which newton raphson is no longer used (to prevent overshoot and extra iterations)
+        self.iteration_options.h                            = 1E-6             #finite difference step for Newton iteration
+        self.iteration_options.initialize_jacobian          = 'newton-raphson' #how Jacobian is initialized for broyden; newton-raphson by default
+        self.iteration_options.max_initial_step             = 1.               #maximum distance at which interpolation is allowed
+        self.iteration_options.min_fix_point_iterations     = 2                #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
+        self.iteration_options.min_surrogate_step           = .011             #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_write_step               = .011             #minimum distance at which sizing data are written
+        self.iteration_options.min_surrogate_length         = 4                #minimum number data points needed before SVR is used
         self.iteration_options.number_of_surrogate_calls    = 0
         self.iteration_options.minimum_training_samples     = 1E6
+        
     def evaluate(self, nexus):
         unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
         input_scaling   = nexus.optimization_problem.inputs[:,3]
@@ -119,12 +122,14 @@ class Sizing_Loop(Data):
              
                             
                             regr        = svm.SVR(C=c_out,  epsilon = eps_out)
-                            
+                        elif self.initial_step == 'GradientBoosting':
+                            regr        = ensemble.GradientBoostingRegressor()
+                        elif self.initial_step == 'ExtraTrees':
+                            regr        = ensemble.ExtraTreesRegressor()
                         elif self.initial_step == 'GPR':
                             regr          = gaussian_process.GaussianProcess()
                             
                         elif self.initial_step == 'RANSAC':
-                            print 'running RANSAC Regression'
                             regr        = linear_model.RANSACRegressor()
                         
                         elif self.initial_step == 'Neighbors':
@@ -143,7 +148,7 @@ class Sizing_Loop(Data):
                                
                         y = np.array(y)
                         iteration_options.number_of_surrogate_calls +=1
-
+                    
                     '''
                     elif self.initial_step == 'GPR':
                         if min_norm>=self.iteration_options.min_surrogate_step and len(data_outputs[:,0]) >= self.iteration_options.min_surrogate_length:
@@ -157,7 +162,7 @@ class Sizing_Loop(Data):
         
         #handle input data
         
-        
+        nr_start = 0
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:        
             if self.update_method == 'fixed_point':
@@ -182,18 +187,49 @@ class Sizing_Loop(Data):
             
             elif self.update_method == 'broyden':
                 
-                if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
+                if (np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations) and nr_start ==0:
+                    if i>1:  #obtain this value so you can get an ok value initialization from the Jacobian w/o finite differincing
+                        err_save   = iteration_options.err_save
                     err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                    nr_start=0 #in case broyden update diverges
-
+                    nr_start   =0 #in case broyden update diverges
+                    
+                    if i==2:
+                        D = np.diag((y-y_save)/(err-self.iteration_options.err_save))
+                        self.iteration_options.Jinv = D
+                        print 'D = ', D
+                    elif i>=2:
+                        df = err-err_save
+                        dy = y - y_save
+                        Jinv = self.iteration_options.Jinv
+                        self.iteration_options.y_save = y
+                        update_step = ((dy - Jinv*df)/np.linalg.norm(df))* df
+                        Jinv_out    = Jinv + update_step
+                        self.iteration_options.Jinv = Jinv_out
+                        print 'improving Jacobian'
+                        print 'Jinv_out =', Jinv_out
                 else:
                     
                     if nr_start==0:
-                        err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        if self.iteration_options.initialize_jacobian == 'newton-raphson':
+                            err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        #initialize Jacobian
+                        #from http://www.jnmas.org/jnmas2-5.pdf
+                        else:
+                            #D = np.diag((y-y_save2)/(err-self.iteration_options.err_save))
+                            #self.iteration_options.y_save = y_save
+                            #print 'D=', D
+                            #D = np.eye(len(y))
+                            #self.iteration_options.Jinv = D
+                        
+                            err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                     
                         nr_start =1
+                        
                     else:
                         err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
-            
+                        if  norm_dy<1E-6:
+                            print 'reinitializing the Jacobian'
+                            #nr_start = 0  #reiniatilize the Jacobian
             elif self.update_method == 'recurring_neural_network':
                 err,y, i   = self.recurring_neural_network_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
@@ -249,12 +285,12 @@ class Sizing_Loop(Data):
         return nexus
         
     def fixed_point_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
-        err, y_out = sizing_evaluation(y, nexus, scaling)
+        err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
         print 'y_out=', y_out
-        print 'err_out=', err
-        
-        return err, y_out, iter
+        print 'err_out=', err_out
+        iteration_options.err_save = err
+        return err_out, y_out, iter
     
     def newton_raphson_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         h = iteration_options.h
