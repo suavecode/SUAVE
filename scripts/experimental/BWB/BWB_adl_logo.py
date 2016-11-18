@@ -25,8 +25,8 @@ Data, Container
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
-#from SUAVE.Plugins.vsp_write_tube_and_wing import write
-from SUAVE.Plugins.vsp_write_blended_wing_body import write
+from SUAVE.Plugins.vsp_write_tube_and_wing import write
+#from SUAVE.Plugins.vsp_write_blended_wing_body import write
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -229,35 +229,35 @@ def vehicle_setup():
     #nose
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_1'
-    segment.percent_span_location = .004
+    segment.percent_span_location = 0 
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 1. #0.8  #.8
+    segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.deg
-    segment.sweeps.quarter_chord  = 0*Units.deg#70. * Units.deg
+    segment.sweeps.quarter_chord  = 0*Units.deg
     wing.Segments.append(segment)
     
     #first fuselage section
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_2'
-    segment.percent_span_location = .164
+    segment.percent_span_location = .004
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = .7 #0.8  #.8
+    segment.root_chord_percent    = 1
     segment.dihedral_outboard     = 3. * Units.deg
-    segment.sweeps.quarter_chord  = 50.*Units.deg#70. * Units.deg
+    segment.sweeps.quarter_chord  = 50.*Units.deg
     
     #airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
     #airfoil.coordinate_file = 'NACA2412'#'/Users/emiliobotero/Dropbox/SUAVE/Workspace/NACA2412.dat' # Or enter a NACA number
     
     #wing.append_airfoil(airfoil)
-    
     #segment.append_airfoil(airfoil)
+    
     wing.Segments.append(segment)
     
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_3'
-    segment.percent_span_location = .284
+    segment.percent_span_location = .164
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.588
+    segment.root_chord_percent    = .7 
     segment.dihedral_outboard     = 3. * Units.deg
     segment.sweeps.quarter_chord  = 30. * Units.deg
     
@@ -269,9 +269,9 @@ def vehicle_setup():
 
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_4'
-    segment.percent_span_location = .378
+    segment.percent_span_location = .284
     segment.twist                 = -1. * Units.deg
-    segment.root_chord_percent    = 0.384
+    segment.root_chord_percent    = 0.588
     segment.dihedral_outboard     = 3. * Units.deg
     segment.sweeps.quarter_chord  = 40. * Units.deg
     #section = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -280,9 +280,9 @@ def vehicle_setup():
 
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_5'
-    segment.percent_span_location = .458
+    segment.percent_span_location = .378
     segment.twist                 = -1. * Units.deg
-    segment.root_chord_percent    = 0.25
+    segment.root_chord_percent    = 0.384
     segment.dihedral_outboard     = 3. * Units.deg
     segment.sweeps.quarter_chord  = 40. * Units.deg
     #section = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -291,9 +291,9 @@ def vehicle_setup():
     
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_6'
-    segment.percent_span_location = .668
+    segment.percent_span_location = .458
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.115
+    segment.root_chord_percent    = 0.25
     segment.dihedral_outboard     = 6. * Units.deg
     segment.sweeps.quarter_chord  = 35. * Units.deg
     #section = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -302,9 +302,9 @@ def vehicle_setup():
     
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_7'
-    segment.percent_span_location = .877
+    segment.percent_span_location = .668
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.1
+    segment.root_chord_percent    = 0.115
     segment.dihedral_outboard     = 6. * Units.deg
     segment.sweeps.quarter_chord  = 35. * Units.deg
     #section = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -315,7 +315,7 @@ def vehicle_setup():
     #wingtip
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_8'
-    segment.percent_span_location = .997
+    segment.percent_span_location = .877
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 0.1
     segment.dihedral_outboard     = 80. * Units.deg
@@ -327,35 +327,6 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)
 
-    '''
-    # ------------------------------------------------------------------
-    #  Fuselage
-    # ------------------------------------------------------------------
-    #fuselage not included in geometry, but used in simple_sizing
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
-    fuselage.fineness.nose         = 0.65
-    fuselage.fineness.tail         = 0.5
-    fuselage.lengths.nose          = 4.0
-    fuselage.lengths.tail          = 4.0
-    fuselage.lengths.cabin         = 12.0
-    fuselage.lengths.total         = 22.
-    fuselage.lengths.fore_space    = 1.
-    fuselage.lengths.aft_space     = 1.    
-    fuselage.width                 = 8.
-    fuselage.heights.maximum                    = 3.8
-    fuselage.heights.at_quarter_length          = 3.7
-    fuselage.heights.at_three_quarters_length   = 2.5
-    fuselage.heights.at_wing_root_quarter_chord = 4.0
-    fuselage.areas.side_projected  = 100.
-    fuselage.areas.wetted          = 400.
-    fuselage.areas.front_projected = 40.
-    R = (fuselage.heights.maximum-fuselage.width)/(fuselage.heights.maximum-fuselage.width)
-    fuselage.effective_diameter    = (fuselage.width/2 + fuselage.heights.maximum/2.)*(64.-3.*R**4.)/(64.-16.*R**2.)
-    fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
-    # add to vehicle
-    vehicle.append_component(fuselage)
-    '''
 
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -1108,3 +1079,4 @@ def missions_setup(base_mission):
 if __name__ == '__main__': 
     main()    
     plt.show()
+
