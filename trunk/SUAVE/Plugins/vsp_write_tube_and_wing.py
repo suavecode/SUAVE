@@ -45,10 +45,9 @@ def write(vehicle,tag):
         dihedral   = wing.dihedral / Units.deg
         
         # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
-        if wing.has_key('Segments'):
+        n_segments = 1
+        if len(wing.Segments.keys())>0:
             n_segments = len(wing.Segments.keys())
-        else:
-            n_segments = 1
 
         # Create the wing
         wing_id = vsp.AddGeom( "WING" )
@@ -115,7 +114,7 @@ def write(vehicle,tag):
         vsp.Update()
             
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments+1):
+        for i_segs in xrange(2,n_segments+1):
             
             # Unpack thing
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
