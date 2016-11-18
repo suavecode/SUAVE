@@ -23,8 +23,7 @@ from SUAVE.Core import (
 Data, Container,
 )
 
-#from SUAVE.Plugins.vsp_write_blended_wing_body import write
-from SUAVE.Plugins.vsp_write_tube_and_wing import write
+from SUAVE.Plugins.OpenVSP import write
 
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
@@ -261,7 +260,7 @@ def vehicle_setup():
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_1'
-    segment.percent_span_location = 0.
+    segment.percent_span_location = 0.0
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 33.8/33.8
     segment.dihedral_outboard     = 0.

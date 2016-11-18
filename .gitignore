@@ -59,4 +59,9 @@ nosetests.xml
 
 *.dat
 
+# Geometry
+*.geo
+*.stl
+*.vsp3
+
 ide/Wing/SUAVE.wpr

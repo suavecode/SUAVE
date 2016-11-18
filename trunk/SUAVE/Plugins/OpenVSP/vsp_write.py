@@ -45,7 +45,7 @@ def write(vehicle,tag):
         dihedral   = wing.dihedral / Units.deg
         
         # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
-        n_segments = 1
+        n_segments = 0
         if len(wing.Segments.keys())>0:
             n_segments = len(wing.Segments.keys())
 
@@ -57,7 +57,7 @@ def write(vehicle,tag):
         # Make names for each section and insert them into the wing if necessary
         x_secs       = []
         x_sec_curves = []
-        for i_segs in xrange(0,n_segments+1):
+        for i_segs in xrange(0,n_segments+2):
             x_secs.append('XSec_' + str(i_segs))
             x_sec_curves.append('XSecCurve_' + str(i_segs))
 
@@ -108,13 +108,14 @@ def write(vehicle,tag):
             local_span    = span*wing.Segments[0].percent_span_location  
             sec_tip_chord = root_chord*wing.Segments[0].root_chord_percent
             vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
+            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[1],sec_tip_chord)
         else:
             vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
             
         vsp.Update()
             
         # Loop for the number of segments left over
-        for i_segs in xrange(2,n_segments+1):
+        for i_segs in xrange(1,n_segments+1):
             
             # Unpack thing
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
@@ -150,7 +151,6 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs],tip_tc)
             
             vsp.Update()
-            pass
        
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1],tip_chord)
         vsp.Update() # to fix problems with chords not matching up
