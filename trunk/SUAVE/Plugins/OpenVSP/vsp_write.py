@@ -1,4 +1,4 @@
-# vsp_write_tube_and_wing.py
+# vsp_write.py
 # 
 # Created:  Jul 2016, T. MacDonald
 # Modified: 
@@ -114,6 +114,10 @@ def write(vehicle,tag):
             
         vsp.Update()
             
+        adjust = 1
+        if (n_segments>0) & (wing.Segments[0].percent_span_location==0.):
+            adjust = 0
+        
         # Loop for the number of segments left over
         for i_segs in xrange(1,n_segments+1):
             
@@ -142,17 +146,17 @@ def write(vehicle,tag):
                     vsp.InsertXSec(wing_id,i_segs-1,vsp.XS_FOUR_SERIES)
             
             # Set the parms
-            vsp.SetParmVal( wing_id,'Span',x_secs[i_segs],span_i)
-            vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs],dihedral_i)
-            vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs],sweep_i)
-            vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs],sweep_loc)      
-            vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs],chord_i)
-            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs],twist_i)
-            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs],tip_tc)
+            vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+adjust],span_i)
+            vsp.SetParmVal( wing_id,'Dihedral',x_secs[i_segs+adjust],dihedral_i)
+            vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs+adjust],sweep_i)
+            vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+adjust],sweep_loc)      
+            vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+adjust],chord_i)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
+            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tip_tc)
             
             vsp.Update()
        
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1],tip_chord)
+        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
         vsp.Update() # to fix problems with chords not matching up
         
         if wing.tag == 'main_wing':
