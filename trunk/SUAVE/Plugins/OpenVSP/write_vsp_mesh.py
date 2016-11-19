@@ -45,7 +45,7 @@ def write_vsp_mesh(tag,half_mesh_flag):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_LENGTH,far_length)
     vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,far_length)
     vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
-    vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, 30)
+    vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
     
     vsp.AddDefaultSources()    
     
