@@ -260,7 +260,7 @@ def vehicle_setup():
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_1'
-    segment.percent_span_location = 0.0
+    segment.percent_span_location = 0.
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 33.8/33.8
     segment.dihedral_outboard     = 0.
