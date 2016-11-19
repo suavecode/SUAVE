@@ -10,8 +10,10 @@
 
 
 from SUAVE.Core import Units, Data
-
-from pyKriging.krige import kriging  
+try:
+    from pyKriging.krige import kriging  
+except ImportError:
+    pass 
 from Surrogate_Problem import Surrogate_Problem
 import numpy as np
 import time

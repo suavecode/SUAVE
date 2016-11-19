@@ -76,7 +76,7 @@ class Sizing_Loop(Data):
         
         #determine the initial step
         min_norm =1000.
-        if self.initial_step == 'Table' or self.initial_step == 'SVR' or self.initial_step =='RANSAC' or self.initial_step == 'Neighbors' or self.initial_step== 'Gaussian':
+        if self.initial_step != 'Default':
             data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
             
             if read_success:
@@ -230,6 +230,7 @@ class Sizing_Loop(Data):
                         if  norm_dy<1E-6:
                             print 'reinitializing the Jacobian'
                             #nr_start = 0  #reiniatilize the Jacobian
+                            
             elif self.update_method == 'recurring_neural_network':
                 err,y, i   = self.recurring_neural_network_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
