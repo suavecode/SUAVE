@@ -1,10 +1,9 @@
 # Supersonic_Zero.py
 # 
-# Created:  Tim MacDonald, based on Fidelity_Zero
-# Modified: Tim MacDonald, 1/29/15 
-# Modified: Feb 2016, Andrew Wendorff
+# Created:            T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 #
-# Updated for new optimization structure
+# Based on Fidelity_Zero
 
 
 # ----------------------------------------------------------------------
@@ -21,7 +20,6 @@ from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 
 import numpy as np
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
 
 # ----------------------------------------------------------------------
 #  Class

@@ -1,8 +1,7 @@
 # aerodynamics.py
 # 
 # Created:  Sep 2014, T. MacDonald
-# Modified: Mar 2016, M. Vegh
-#           Feb 2016, M. Vegh, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 #
 # Modified to match compressibility drag updates
 

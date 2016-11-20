@@ -1,7 +1,7 @@
 # concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """

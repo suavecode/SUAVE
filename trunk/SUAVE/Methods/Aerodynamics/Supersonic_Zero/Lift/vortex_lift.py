@@ -25,7 +25,6 @@ def vortex_lift(state,settings,geometry):
 
     for wing in geometry.wings:
 
-        # if geometry.wings[wing].vortex_lift is True: # used in tested loaded data
         if wing.vortex_lift is True:
             AR = wing.aspect_ratio
             GAMMA = wing.sweeps.quarter_chord

@@ -1,7 +1,7 @@
 # parasite_drag_pylon.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, E. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -62,6 +62,8 @@ def parasite_total(state,settings,geometry):
         total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
 
     # from pylons
+    # new method needed to account for lack of pylons in some configurations
+    # they are commented out here because this script is currently primarily used for the concorde
     #parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient
 
     #total_parasite_drag += parasite_drag

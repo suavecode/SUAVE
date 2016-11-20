@@ -1,7 +1,7 @@
 # parasite_drag_fuselage.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero    
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,11 +39,8 @@ def parasite_drag_fuselage(state,settings,geometry):
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
     
-    #l_fus  = fuselage.lengths.cabin
     l_fus  = fuselage.lengths.total
     d_fus  = fuselage.effective_diameter
-    #l_nose = fuselage.lengths.nose
-    #l_tail = fuselage.lengths.tail
     
     # conditions
     Mc  = freestream.mach_number

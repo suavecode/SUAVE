@@ -1,7 +1,7 @@
 # untrimmed.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, E. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

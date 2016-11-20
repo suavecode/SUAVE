@@ -41,15 +41,12 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     # Estimating total wetted area
     swet_tot        = 0.
     for wing in geometry.wings:
-        #wing = geometry.wings[wing] # used in tested loaded data
         swet_tot += wing.areas.wetted
 
     for fuselage in geometry.fuselages:
-        #fuselage = geometry.fuselages[fuselage] # used in tested loaded data
         swet_tot += fuselage.areas.wetted
 
     for propulsor in geometry.propulsors:
-        #propulsor = geometry.propulsors[propulsor] # used in tested loaded data
         swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
 
     swet_tot *= 1.10

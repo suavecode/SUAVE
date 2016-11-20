@@ -1,7 +1,7 @@
 # archive.py
 #
 # Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 
 """ Save a native SUAVE file """
