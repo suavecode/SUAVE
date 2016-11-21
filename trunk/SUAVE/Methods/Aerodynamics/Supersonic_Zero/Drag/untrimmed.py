@@ -1,7 +1,7 @@
 # untrimmed.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -26,7 +26,6 @@ def untrimmed(state,settings,geometry):
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 
 
     # untrimmed drag
-    Mc                 = conditions.freestream.mach_number   
     aircraft_untrimmed = parasite_total        \
                        + induced_total         \
                        + compressibility_total \

@@ -1,7 +1,7 @@
 # parasite_drag_wing.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Feb 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,13 +64,12 @@ def parasite_drag_wing(state,settings,geometry):
     sweep_w      = wing.sweeps.quarter_chord
     arw_w        = wing.aspect_ratio
     span_w       = wing.spans.projected
-    S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
+    S_exposed_w  = wing.areas.exposed
     S_affected_w = wing.areas.affected  
     xtu          = wing.transition_x_upper
     xtl          = wing.transition_x_lower
+    Swet         = wing.areas.wetted
     
-    # compute wetted area # TODO: calcualte as preprocessing
-    Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w  
     
     # conditions
     Mc  = freestream.mach_number

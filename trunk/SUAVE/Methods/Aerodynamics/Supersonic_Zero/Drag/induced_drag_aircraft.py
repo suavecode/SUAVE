@@ -1,7 +1,7 @@
 # induced_drag_aircraft.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,14 +34,17 @@ def induced_drag_aircraft(state,settings,geometry):
     configuration = settings    
     
     aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
-    ar            = geometry.wings['main_wing'].aspect_ratio # TODO: get estimate from weissinger
-    Mc            = conditions.freestream.mach_number
     
-    # start the results
-    total_induced_drag = np.array([[0.0]]*len(Mc))
-    total_induced_drag[Mc < 1.0] = aircraft_lift[Mc < 1.0]**2 / (np.pi*ar*e)
-    total_induced_drag[Mc >= 1.0] = aircraft_lift[Mc >= 1.0]**2 / (np.pi*ar*e)
+    e             = configuration.oswald_efficiency_factor
+    K             = configuration.viscous_lift_dependent_drag_factor
+    wing_e        = geometry.wings['main_wing'].span_efficiency
+    ar            = geometry.wings['main_wing'].aspect_ratio 
+    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    
+    if e == None:
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
+    
+    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
         
     # store data
     try:

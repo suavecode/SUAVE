@@ -1,7 +1,7 @@
 # parasite_drag_pylon.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -60,6 +60,9 @@ def parasite_total(state,settings,geometry):
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
         total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
+
+    # from pylons
+    # not currently available for supersonics
 
     # dump to condtitions
     state.conditions.aerodynamics.drag_breakdown.parasite.total = total_parasite_drag
