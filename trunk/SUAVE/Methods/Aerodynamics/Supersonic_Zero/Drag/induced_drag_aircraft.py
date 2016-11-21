@@ -34,9 +34,7 @@ def induced_drag_aircraft(state,settings,geometry):
     configuration = settings    
     
     aircraft_lift = conditions.aerodynamics.lift_coefficient
-    Mc            = conditions.freestream.mach_number[:,0]
     
-    # unclear how valid this is for the supersonic condition, needs to be checked
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
     wing_e        = geometry.wings['main_wing'].span_efficiency
@@ -46,10 +44,7 @@ def induced_drag_aircraft(state,settings,geometry):
     if e == None:
         e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
     
-    # start the results
-    total_induced_drag = np.array([[0.0]]*len(Mc))
-    total_induced_drag[Mc < 1.0] = aircraft_lift[Mc < 1.0]**2 / (np.pi*ar*e[Mc < 1.0])
-    total_induced_drag[Mc >= 1.0] = aircraft_lift[Mc >= 1.0]**2 / (np.pi*ar*e[Mc >= 1.0]) # for future changes to e
+    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
         
     # store data
     try:
