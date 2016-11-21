@@ -1,7 +1,7 @@
 # archive.py
 #
 # Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 
 """ Save a native SUAVE file """
@@ -65,6 +65,8 @@ def build_dict_r(v):
         ret = v
     elif tv == types.FunctionType: # Functions cannot be stored
         ret = None
+    elif tv == list:
+        ret = v    
     else:
         # Assume other data types are SUAVE data types and check
         try:
