@@ -67,6 +67,8 @@ class Supersonic_Zero(Markup):
         compute.lift.total                         = Methods.Lift.aircraft_total # no difference
         
         compute.drag = Process()
+        compute.drag.compressibility               = Process()
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
         compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing # SZ
@@ -77,8 +79,6 @@ class Supersonic_Zero(Markup):
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total # SZ
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match
         compute.drag.trim                          = Methods.Drag.trim # SZ can be chanaged to match

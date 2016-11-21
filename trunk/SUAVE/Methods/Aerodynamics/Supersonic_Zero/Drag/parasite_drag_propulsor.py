@@ -2,8 +2,6 @@
 # 
 # Created:  Aug 2014, T. MacDonald
 # Modified: Nov 2016, T. MacDonald
-#
-# Changes are copied from older changes to fidelity zero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -56,10 +54,26 @@ def parasite_drag_propulsor(state,settings,geometry):
     
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
-    
 
-    ## form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
-    k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop)) 
+
+    k_prop = np.array([[0.0]]*len(Mc))
+    # assume that the drag divergence mach number of the propulsor matches the main wing
+    Mdiv = state.conditions.aerodynamics.drag_breakdown.compressible.main_wing.divergence_mach
+    
+    # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
+    k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 
+    
+    # for supersonic flow (http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML)
+    k_prop_sup = 1.
+    
+    sb_mask = (Mc <= Mdiv)
+    tn_mask = ((Mc > Mdiv) & (Mc < 1.05))
+    sp_mask = (Mc >= 1.05)
+    
+    k_prop[sb_mask] = k_prop_sub
+    # basic interpolation for transonic
+    k_prop[tn_mask] = (k_prop_sup-k_prop_sub)*(Mc[tn_mask]-Mdiv[tn_mask])/(1.05-Mdiv[tn_mask]) + k_prop_sub
+    k_prop[sp_mask] = k_prop_sup
     
     # --------------------------------------------------------
     # find the final result    
