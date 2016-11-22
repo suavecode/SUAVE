@@ -115,8 +115,9 @@ def write(vehicle,tag):
         vsp.Update()
             
         adjust = 1
-        if (n_segments>0) & (wing.Segments[0].percent_span_location==0.):
-            adjust = 0
+        if n_segments>0:
+            if wing.Segments[0].percent_span_location==0.:
+                adjust = 0
         
         # Loop for the number of segments left over
         for i_segs in xrange(1,n_segments+1):
