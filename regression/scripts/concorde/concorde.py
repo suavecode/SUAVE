@@ -1,7 +1,7 @@
 # concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -313,6 +313,8 @@ def vehicle_setup():
     turbojet.number_of_engines = 4.0
     turbojet.engine_length     = 12.5
     turbojet.nacelle_diameter  = 1.60
+    turbojet.areas             = Data()
+    turbojet.areas.wetted      = turbojet.nacelle_diameter * np.pi * turbojet.engine_length
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()

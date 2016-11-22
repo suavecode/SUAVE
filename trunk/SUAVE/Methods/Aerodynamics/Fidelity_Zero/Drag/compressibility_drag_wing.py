@@ -1,7 +1,7 @@
 # compressibility_drag_wing.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Nov 2016, T. MacDonald
 #        
 
 # ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ def compressibility_drag_wing(state,settings,geometry):
     configuration = settings    
     
     wing = geometry
-    if isinstance(wing,Wings.Main_Wing):
+    if wing.tag == 'main_wing':
         wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     elif wing.vertical:
         wing_lifts = 0
