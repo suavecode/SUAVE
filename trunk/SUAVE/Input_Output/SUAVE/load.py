@@ -1,7 +1,7 @@
 #load.py
 #
-# Created By:   Trent Jan 2015
-# Updated: Carlos Ilario, Feb 2016
+# Created:  Jan 2015, T. Lukaczyk
+# Modified: Nov 2016, T. MacDonald
 
 
 """ Load a native SUAVE file """
@@ -42,6 +42,7 @@ def read_SUAVE_json_dict(res_dict):
     
     # Assign all values
     for k in keys:
+        k = str(k)
         v = res_dict[k]
         SUAVE_data[k] = build_data_r(v) # recursive function
     return SUAVE_data
@@ -55,16 +56,19 @@ def build_data_r(v):
         # Recursively assign values
         ret = DataOrdered()
         for k in keys:
+            k = str(k)
             ret[k] = build_data_r(v[k])
     elif tv == list:
         ret = np.array(v)
-    elif (tv == unicode) or (tv == bool):
+    elif (tv == unicode): 
         ret = str(v)
+    elif (tv == bool):
+        ret = v
     elif tv == type(None):
         ret = None
     elif (tv == float) or (tv == int):
         ret = v        
     else:
         raise TypeError('Data type not expected in SUAVE JSON structure')
-    
+
     return ret

@@ -1,7 +1,7 @@
 # Optimize.py
 #
 # Created:  Nov 2015, Carlos / Tarik
-# Modified: Feb 2016, M. Vegh, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -41,7 +41,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 17.820611883056927
+    actual.noise_cumulative_margin = 17.7898019866
 
     
     
