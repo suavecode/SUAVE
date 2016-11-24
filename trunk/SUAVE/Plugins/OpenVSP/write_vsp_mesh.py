@@ -3,7 +3,7 @@ import numpy as np
 import time
 import fileinput
 
-def write_vsp_mesh(tag,half_mesh_flag):
+def write_vsp_mesh(geometry,tag,half_mesh_flag):
     
     vsp.ClearVSPModel()
     
@@ -47,7 +47,8 @@ def write_vsp_mesh(tag,half_mesh_flag):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
     
-    vsp.AddDefaultSources()    
+    #SetSources(geometry)
+    vsp.AddDefaultSources()   
     
     print 'Starting mesh for ' + tag
     ti = time.time()
@@ -56,6 +57,150 @@ def write_vsp_mesh(tag,half_mesh_flag):
     dt = tf-ti
     print 'VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s'
     
+def SetSources(geometry):
+    # Extract information on geometry type (for some reason it seems VSP doesn't have a simple 
+    # way to do this)
+    comp_type_dict = dict()
+    comp_dict      = dict()
+    for wing in geometry.wings:
+        comp_type_dict[wing.tag] = 'wing'
+        comp_dict[wing.tag] = wing
+    for fuselage in geometry.fuselages:
+        comp_type_dict[fuselage.tag] = 'fuselage'
+        comp_dict[fuselage.tag] = fuselage
+        
+    components = vsp.FindGeoms()
+    
+    # This is based on the default source script
+    # https://github.com/OpenVSP/OpenVSP/blob/a5ac5302b320e8e318830663bb50ba0d4f2d6f64/src/geom_core/WingGeom.cpp
+    
+    for comp in components:
+        comp_name = vsp.GetGeomName(comp)
+        comp_type = comp_type_dict[comp_name]
+        if comp_type == 'wing':
+            wing = comp_dict[comp_name]
+            # check if segment exist
+            # check if segments have info
+            # check if overall info exists
+            # if not, use default source procedure
+            if len(wing.Segments) == 0:
+                num_secs = 1
+                use_base = True
+            else:
+                if wing.Segments[0].percent_span_location == 0.:
+                    num_secs = len(wing.Segments)
+                    use_base = False
+                else:
+                    num_secs = len(wing.Segments) + 1
+                    use_base = True
+                    
+            u_start = 0.
+            base_root = wing.chords.root
+            base_tip  = wing.chords.tip            
+            #xsecsurf = vsp.GetXSecSurf(comp,0)
+            for ii in xrange(0,num_secs):
+                if (ii==0) and (use_base == True):
+                    cr = base_root
+                    if len(wing.Segments) > 0:
+                        ct = base_root  * wing.Segments[0].root_chord_percent
+                    else:
+                        ct = base_tip                
+                    # extract CFD source parameters 
+                    len1 = 0.01 * cr
+                    len2 = 0.01 * ct
+                    rad1 = 0.2 * cr
+                    rad2 = 0.2 * ct
+                    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2)
+                    wloc1 = 0.0
+                    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+                    wloc2 = 0.0
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                    wloc1 = 0.5
+                    wloc2 = 0.5
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                    if len(wing.Segments) == 0:
+                        len1 = len2
+                        rad1 = rad2
+                        wloc1 = 0.0
+                        uloc1 = uloc2
+                        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)                         
+                elif (ii==0) and (use_base == False):
+                    cr = base_root * wing.Segments[0].root_chord_percent
+                    if num_secs > 1:
+                        ct = base_root  * wing.Segments[1].root_chord_percent
+                    else:
+                        ct = base_tip
+                    # extract CFD source parameters 
+                    len1 = 0.01 * cr
+                    len2 = 0.01 * ct
+                    rad1 = 0.2 * cr
+                    rad2 = 0.2 * ct
+                    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2)
+                    wloc1 = 0.0
+                    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+                    wloc2 = 0.0
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                    wloc1 = 0.5
+                    wloc2 = 0.5
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                elif ii < num_secs - 1:
+                    #if use_base == True: # for use with special case once geometry write is working
+                        #jj = ii-1
+                    #else:
+                        #jj = ii
+                    cr = base_root * wing.Segments[ii].root_chord_percent
+                    ct = base_root * wing.Segments[ii+1].root_chord_percent
+                    len1 = 0.01 * cr
+                    len2 = 0.01 * ct
+                    rad1 = 0.2 * cr
+                    rad2 = 0.2 * ct
+                    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2)
+                    wloc1 = 0.0
+                    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+                    wloc2 = 0.0
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                    wloc1 = 0.5
+                    wloc2 = 0.5
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)                    
+                else:
+                    #if use_base == True:
+                        #jj = ii-1
+                    #else:
+                        #jj = ii                    
+                    cr = base_root * wing.Segments[ii].root_chord_percent
+                    ct = base_tip
+                    len1 = 0.01 * cr
+                    len2 = 0.01 * ct
+                    rad1 = 0.2 * cr
+                    rad2 = 0.2 * ct
+                    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2)
+                    wloc1 = 0.0
+                    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+                    wloc2 = 0.0
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+                    wloc1 = 0.5
+                    wloc2 = 0.5
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
+                    len1 = len2
+                    rad1 = rad2
+                    wloc1 = 0.0
+                    uloc1 = uloc2
+                    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
+                pass
+                    
+        elif comp_type == 'fuselage':
+            fuselage = comp_dict[comp_name]
+            len1 = 0.1 * 0.5 # not sure where VSP is getting this value
+            rad1 = 0.2 * fuselage.lengths.total
+            uloc = 0.0
+            wloc = 0.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            uloc = 1.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            pass
+    
+        
+    pass
     
 if __name__ == '__main__':
     
