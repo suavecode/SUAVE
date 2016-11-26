@@ -103,16 +103,21 @@ def SetSources(geometry):
                     cr = base_root
                     if len(wing.Segments) > 0:
                         ct = base_root  * wing.Segments[0].root_chord_percent
+                        seg = wing.Segments[ii]
                     else:
-                        ct = base_tip                
+                        if wing.has_key('vsp_mesh'):
+                            custom_flag = True
+                        else:
+                            custom_flag = False
+                        ct = base_tip           
+                        seg = wing
                     # extract CFD source parameters
-                    custom_flag = False
                     if len(wing.Segments) == 0:
                         wingtip_flag = True
                     else:
                         wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
-                                  wingtip_flag)                        
+                                  wingtip_flag,seg)                        
                 elif (ii==0) and (use_base == False):
                     cr = base_root * wing.Segments[0].root_chord_percent
                     if num_secs > 1:
@@ -120,10 +125,14 @@ def SetSources(geometry):
                     else:
                         ct = base_tip
                     # extract CFD source parameters
-                    custom_flag = False
+                    seg = wing.Segments[ii]
+                    if wing.Segments[ii].has_key('vsp_mesh'):
+                        custom_flag = True
+                    else:
+                        custom_flag = False
                     wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
-                                  wingtip_flag)
+                                  wingtip_flag,seg)
                 elif ii < num_secs - 1:
                     #if use_base == True: # for use with special case once geometry write is working
                         #jj = ii-1
@@ -131,25 +140,39 @@ def SetSources(geometry):
                         #jj = ii
                     cr = base_root * wing.Segments[ii].root_chord_percent
                     ct = base_root * wing.Segments[ii+1].root_chord_percent
-                    custom_flag = False
+                    seg = wing.Segments[ii]
+                    if wing.Segments[ii].has_key('vsp_mesh'):
+                        custom_flag = True
+                    else:
+                        custom_flag = False
                     wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
-                                  wingtip_flag)                   
+                                  wingtip_flag,seg)                   
                 else:
                     #if use_base == True:
                         #jj = ii-1
                     #else:
                         #jj = ii                    
-                    custom_flag = False
+                    cr = base_root * wing.Segments[ii].root_chord_percent
+                    ct = base_tip
+                    seg = wing.Segments[ii]
+                    if wing.Segments[ii].has_key('vsp_mesh'):
+                        custom_flag = True
+                    else:
+                        custom_flag = False
                     wingtip_flag = True
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
-                                  wingtip_flag)
+                                  wingtip_flag,seg)  
                 pass
                     
         elif comp_type == 'fuselage':
             fuselage = comp_dict[comp_name]
-            len1 = 0.1 * 0.5 # not sure where VSP is getting this value
-            rad1 = 0.2 * fuselage.lengths.total
+            if fuselage.has_key('vsp_mesh'):
+                len1 = fuselage.vsp_mesh.length
+                rad1 = fuselage.vsp_mesh.radius
+            else:
+                len1 = 0.1 * 0.5 # not sure where VSP is getting this value
+                rad1 = 0.2 * fuselage.lengths.total
             uloc = 0.0
             wloc = 0.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
@@ -160,12 +183,18 @@ def SetSources(geometry):
         
     pass
 
-def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag):
-    len1 = 0.01 * cr
-    len2 = 0.01 * ct
-    rad1 = 0.2 * cr
-    rad2 = 0.2 * ct
-    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2)
+def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,seg):
+    if custom_flag == True:
+        len1 = seg.vsp_mesh.inner_length
+        len2 = seg.vsp_mesh.outer_length
+        rad1 = seg.vsp_mesh.inner_radius
+        rad2 = seg.vsp_mesh.outer_radius
+    else:
+        len1 = 0.01 * cr
+        len2 = 0.01 * ct
+        rad1 = 0.2 * cr
+        rad2 = 0.2 * ct
+    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
     wloc1 = 0.0
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
     wloc2 = 0.0

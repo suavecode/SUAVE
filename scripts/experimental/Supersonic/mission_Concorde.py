@@ -157,6 +157,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.]) * Units.deg
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.])
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
 
@@ -409,8 +411,8 @@ def vehicle_setup():
     fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
     
     fuselage.vsp_mesh              = Data()
-    fuselage.vsp_mesh.radius       = 12.3
-    fuselage.vsp_mesh.length       = 0.05
+    fuselage.vsp_mesh.radius       = 12
+    fuselage.vsp_mesh.length       = 0.04
     
     fuselage.OpenVSP_values = Data() # VSP uses degrees directly
     
