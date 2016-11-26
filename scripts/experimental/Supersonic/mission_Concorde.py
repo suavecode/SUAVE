@@ -265,6 +265,11 @@ def vehicle_setup():
     segment.root_chord_percent    = 33.8/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 67. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 6.8
+    segment.vsp_mesh.outer_radius    = 2.8
+    segment.vsp_mesh.inner_length    = .34
+    segment.vsp_mesh.outer_length    = .14    
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -275,6 +280,11 @@ def vehicle_setup():
     segment.root_chord_percent    = 13.8/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 48. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 2.8
+    segment.vsp_mesh.outer_radius    = .88
+    segment.vsp_mesh.inner_length    = .14
+    segment.vsp_mesh.outer_length    = .044    
     wing.Segments.append(segment)
     
     # set tip section start point
@@ -285,6 +295,11 @@ def vehicle_setup():
     segment.root_chord_percent    = 4.4/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 71. * Units.deg 
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = .88
+    segment.vsp_mesh.outer_radius    = .22
+    segment.vsp_mesh.inner_length    = .044
+    segment.vsp_mesh.outer_length    = .011    
     wing.Segments.append(segment)    
     
     # add to vehicle
@@ -334,6 +349,11 @@ def vehicle_setup():
     segment.root_chord_percent    = 14.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 2.9
+    segment.vsp_mesh.outer_radius    = 1.5
+    segment.vsp_mesh.inner_length    = .14
+    segment.vsp_mesh.outer_length    = .075
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -344,6 +364,11 @@ def vehicle_setup():
     segment.root_chord_percent    = 7.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 1.5
+    segment.vsp_mesh.outer_radius    = .54
+    segment.vsp_mesh.inner_length    = .075
+    segment.vsp_mesh.outer_length    = .027   
     wing.Segments.append(segment)
     
     # add to vehicle
@@ -382,6 +407,10 @@ def vehicle_setup():
     fuselage.effective_diameter    = 3.1
     
     fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
+    
+    fuselage.vsp_mesh              = Data()
+    fuselage.vsp_mesh.radius       = 12.3
+    fuselage.vsp_mesh.length       = 0.05
     
     fuselage.OpenVSP_values = Data() # VSP uses degrees directly
     
