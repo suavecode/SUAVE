@@ -45,6 +45,8 @@ class SU2_Euler(Markup):
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
         settings.half_mesh_flag                     = True
+        settings.parallel                           = False
+        settings.processors                         = 1
         
         # build the evaluation process
         compute = self.process.compute
