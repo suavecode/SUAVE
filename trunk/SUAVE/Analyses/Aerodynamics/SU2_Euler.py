@@ -45,6 +45,9 @@ class SU2_Euler(Markup):
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
         settings.half_mesh_flag                     = True
+        settings.parallel                           = False
+        settings.processors                         = 1
+        settings.vsp_mesh_growth_ratio              = 1.3
         
         # build the evaluation process
         compute = self.process.compute
@@ -85,7 +88,7 @@ class SU2_Euler(Markup):
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag
-        write_vsp_mesh(tag,self.settings.half_mesh_flag)
+        write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio)
         write_geo_file(tag)
         mesh_geo_file(tag)
         
