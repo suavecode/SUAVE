@@ -119,7 +119,11 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
 
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    #aerodynamics.settings.drag_coefficient_increment = 0.0000
+    #aerodynamics.settings.parallel = True
+    #aerodynamics.settings.processors = 8
+    aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
+    aerodynamics.process.compute.lift.inviscid.settings.processors = 8
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
@@ -440,7 +444,7 @@ def vehicle_setup():
     fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
 
     # add to vehicle
-    vehicle.append_component(fuselage)
+    #vehicle.append_component(fuselage)
 
 
     # ------------------------------------------------------------------
@@ -879,7 +883,7 @@ def simple_sizing(configs):
         wing.areas.affected = 0.6 * wing.areas.wetted
 
     # fuselage seats
-    base.fuselages['fuselage'].number_coach_seats = base.passengers
+    #base.fuselages['fuselage'].number_coach_seats = base.passengers
 
     # diff the new data
     base.store_diff()
