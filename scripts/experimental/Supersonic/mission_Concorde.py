@@ -161,6 +161,7 @@ def base_analysis(vehicle):
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.])
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.vsp_mesh_growth_ratio = 1.1
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -257,7 +258,8 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
-        
+    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil.coordinate_file = 'NACA65-203.dat'      
     
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -268,10 +270,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 67. * Units.deg
     segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 6.8
-    segment.vsp_mesh.outer_radius    = 2.8
-    segment.vsp_mesh.inner_length    = .34
-    segment.vsp_mesh.outer_length    = .14    
+    segment.vsp_mesh.inner_radius    = 6.8/4.
+    segment.vsp_mesh.outer_radius    = 2.8/4.
+    segment.vsp_mesh.inner_length    = .34/4.
+    segment.vsp_mesh.outer_length    = .14/4.
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -283,10 +286,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 48. * Units.deg
     segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 2.8
-    segment.vsp_mesh.outer_radius    = .88
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .044    
+    segment.vsp_mesh.inner_radius    = 2.8/4.
+    segment.vsp_mesh.outer_radius    = .88/4.
+    segment.vsp_mesh.inner_length    = .14/4.
+    segment.vsp_mesh.outer_length    = .044/4. 
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
     # set tip section start point
@@ -298,10 +302,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 71. * Units.deg 
     segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = .88
-    segment.vsp_mesh.outer_radius    = .22
-    segment.vsp_mesh.inner_length    = .044
-    segment.vsp_mesh.outer_length    = .011    
+    segment.vsp_mesh.inner_radius    = .88/4.
+    segment.vsp_mesh.outer_radius    = .22/4.
+    segment.vsp_mesh.inner_length    = .044/4.
+    segment.vsp_mesh.outer_length    = .011/4. 
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)    
     
     # add to vehicle
@@ -342,6 +347,9 @@ def vehicle_setup():
     wing.high_mach               = True     
     
     wing.dynamic_pressure_ratio  = 1.0
+    
+    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil.coordinate_file = 'supertail.dat'     
 
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -352,10 +360,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
     segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 2.9
-    segment.vsp_mesh.outer_radius    = 1.5
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .075
+    segment.vsp_mesh.inner_radius    = 2.9/4.
+    segment.vsp_mesh.outer_radius    = 1.5/4.
+    segment.vsp_mesh.inner_length    = .14/4.
+    segment.vsp_mesh.outer_length    = .075/4.
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -367,10 +376,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
     segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 1.5
-    segment.vsp_mesh.outer_radius    = .54
-    segment.vsp_mesh.inner_length    = .075
-    segment.vsp_mesh.outer_length    = .027   
+    segment.vsp_mesh.inner_radius    = 1.5/4.
+    segment.vsp_mesh.outer_radius    = .54/4.
+    segment.vsp_mesh.inner_length    = .075/4.
+    segment.vsp_mesh.outer_length    = .027/4. 
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # add to vehicle

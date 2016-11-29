@@ -3,7 +3,7 @@ import numpy as np
 import time
 import fileinput
 
-def write_vsp_mesh(geometry,tag,half_mesh_flag):
+def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     
     vsp.ClearVSPModel()
     
@@ -46,9 +46,12 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,far_length)
     vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
+    vsp.SetCFDMeshVal(vsp.CFD_GROWTH_RATIO, growth_ratio)
     
     SetSources(geometry)
     #vsp.AddDefaultSources()   
+    
+    vsp.Update()
     
     print 'Starting mesh for ' + tag
     ti = time.time()
