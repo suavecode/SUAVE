@@ -161,7 +161,7 @@ def base_analysis(vehicle):
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.])
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.vsp_mesh_growth_ratio = 1.1
+    aerodynamics.settings.vsp_mesh_growth_ratio = 1.3
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -350,10 +350,10 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
-    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tail_airfoil.coordinate_file = 'supertail_refined.dat' 
+    #tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #tail_airfoil.coordinate_file = 'supertail_refined.dat' 
     
-    wing.append_airfoil(tail_airfoil)  
+    #wing.append_airfoil(tail_airfoil)  
 
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -368,7 +368,7 @@ def vehicle_setup():
     segment.vsp_mesh.outer_radius    = 1.5/4.
     segment.vsp_mesh.inner_length    = .14/4.
     segment.vsp_mesh.outer_length    = .075/4.
-    segment.append_airfoil(tail_airfoil)
+    #segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -384,7 +384,7 @@ def vehicle_setup():
     segment.vsp_mesh.outer_radius    = .54/4.
     segment.vsp_mesh.inner_length    = .075/4.
     segment.vsp_mesh.outer_length    = .027/4. 
-    segment.append_airfoil(tail_airfoil)
+    #segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # add to vehicle
