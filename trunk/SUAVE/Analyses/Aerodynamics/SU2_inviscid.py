@@ -228,7 +228,7 @@ class SU2_inviscid(Aerodynamics):
         #plt.xlabel('Angle of Attack (deg)')
         #plt.ylabel('Mach Number')   
         
-        plt.show()
+        #plt.show()
 
         return
 
