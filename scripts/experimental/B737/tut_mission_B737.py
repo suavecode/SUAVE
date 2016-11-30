@@ -118,8 +118,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.compute.lift.inviscid.settings.parallel   = True
-    aerodynamics.settings.compute.lift.inviscid.settings.processors = 8
+    
+    aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
+    aerodynamics.process.compute.lift.inviscid.settings.processors = 8
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -366,7 +367,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
 
-    wing.origin                  = [28.79,0,1.87]
+    wing.origin                  = [28.79,0,1.57]
     wing.aerodynamic_center      = [0,0,0]    
 
     wing.vertical                = True 
@@ -467,7 +468,7 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.z_pos = .035
 
     # add to vehicle
-    #vehicle.append_component(fuselage)
+    vehicle.append_component(fuselage)
 
 
     # ------------------------------------------------------------------
