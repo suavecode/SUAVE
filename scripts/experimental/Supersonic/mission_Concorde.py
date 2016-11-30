@@ -52,28 +52,7 @@ def main(source_ratio=1.):
 
     # mission analysis
     mission = analyses.missions.base
-    
-    f = open('base_forces_breakdown.dat')
-        
-    SU2_results = Data()    
-    
-    # only the total forces have the ":"
-    for line in f:
-        if line.startswith('Total CL:'):
-            print 'CL:',line.split()[2]
-            SU2_results.coefficient_of_lift = float(line.split()[2])
-        elif line.startswith('Total CD:'):
-            print 'CD:',line.split()[2]
-            SU2_results.coefficient_of_drag = float(line.split()[2])    
-            
-    f.close()
-    
-    f = open('mesh_study.res','a')
-    f.write(str(SU2_results.coefficient_of_lift) + '\n')
-    f.write(str(SU2_results.coefficient_of_drag) + '\n')
-    f.close()
-    
-    #results = mission.evaluate()
+    results = mission.evaluate()
 
     # print weight breakdown
     #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
@@ -99,13 +78,13 @@ def main(source_ratio=1.):
     #old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
+    plot_mission(results)
     #plot_mission(old_results,'k-')
 
     # check the results
     #check_results(results,old_results)
     
-    #plt.show()
+    plt.show()
 
     return
 
