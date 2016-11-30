@@ -45,6 +45,8 @@ class SU2_Euler(Markup):
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
         settings.half_mesh_flag                     = True
+        settings.parallel                           = False
+        settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
         
         # build the evaluation process
@@ -56,6 +58,8 @@ class SU2_Euler(Markup):
         # Run SU2
         compute.lift.inviscid                         = SU2_inviscid()
         compute.lift.inviscid.settings.half_mesh_flag = settings.half_mesh_flag 
+        compute.lift.inviscid.settings.parallel       = settings.parallel  
+        compute.lift.inviscid.settings.processors     = settings.processors
         compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
         
         # Do a traditional drag buildup for viscous components

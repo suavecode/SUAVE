@@ -23,8 +23,8 @@ import numpy as np
 import scipy as sp
 import scipy.interpolate
 
-import pyKriging
-from pyKriging.krige import kriging
+#import pyKriging
+#from pyKriging.krige import kriging
 
 # ----------------------------------------------------------------------
 #  Class
@@ -244,6 +244,8 @@ def call_SU2(conditions,settings,geometry):
 
     half_mesh_flag = settings.half_mesh_flag
     tag            = geometry.tag
+    parallel       = settings.parallel
+    processors     = settings.processors 
     
     SU2_settings = Data()
     if half_mesh_flag == False:
@@ -257,7 +259,7 @@ def call_SU2(conditions,settings,geometry):
     write_SU2_cfg(tag, SU2_settings)
     
     # run su2
-    CL, CD = call_SU2_CFD(tag)
+    CL, CD = call_SU2_CFD(tag,parallel,processors)
     
     ## Results from unrefined half mesh
     

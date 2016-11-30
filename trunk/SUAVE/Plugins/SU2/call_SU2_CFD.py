@@ -1,10 +1,17 @@
 import subprocess
 from SUAVE.Core import Data
+import sys, os
 
-def call_SU2_CFD(tag):
+def call_SU2_CFD(tag,parallel=False,processors=1):
     
-    subprocess.call(['SU2_CFD',tag+'.cfg'])
-    
+    if parallel==True:
+        sys.path.append(os.environ['SU2_HOME'])
+        from parallel_computation import parallel_computation
+        parallel_computation( tag+'.cfg', processors )
+        pass
+    else:
+        subprocess.call(['SU2_CFD',tag+'.cfg'])
+        
     f = open(tag + '_forces_breakdown.dat')
         
     SU2_results = Data()    
@@ -33,4 +40,4 @@ def call_SU2_CFD(tag):
     return CL,CD
 
 if __name__ == '__main__':
-    call_SU2_CFD('cruise')
+    call_SU2_CFD('cruise',parallel=True)
