@@ -298,13 +298,17 @@ def write(vehicle,tag):
             vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
             vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
             vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
+            if vals.tail.has_key('z_pos'):
+                tail_z_pos = vals.tail.z_pos
+            else:
+                tail_z_pos = 0.02
     
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         vsp.SetParmVal(fuse_id,"Diameter","Design",width)
         vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
         vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
         vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
-        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",.02)
+        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
         vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
         vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
         vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)

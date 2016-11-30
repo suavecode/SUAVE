@@ -416,7 +416,7 @@ def vehicle_setup():
     fuselage.seats_abreast         = 6
     fuselage.seat_pitch            = 1
 
-    fuselage.fineness.nose         = 2.12
+    fuselage.fineness.nose         = 1.57
     fuselage.fineness.tail         = 3.2
 
     fuselage.lengths.nose          = 8.0
@@ -440,9 +440,34 @@ def vehicle_setup():
     fuselage.effective_diameter    = 3.76
 
     fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
+    
+    fuselage.OpenVSP_values = Data() # VSP uses degrees directly
+    
+    fuselage.OpenVSP_values.nose = Data()
+    fuselage.OpenVSP_values.nose.top = Data()
+    fuselage.OpenVSP_values.nose.side = Data()
+    fuselage.OpenVSP_values.nose.top.angle = 75.0
+    fuselage.OpenVSP_values.nose.top.strength = 0.40
+    fuselage.OpenVSP_values.nose.side.angle = 45.0
+    fuselage.OpenVSP_values.nose.side.strength = 0.75  
+    fuselage.OpenVSP_values.nose.TB_Sym = True
+    fuselage.OpenVSP_values.nose.z_pos = -.015
+    
+    fuselage.OpenVSP_values.tail = Data()
+    fuselage.OpenVSP_values.tail.top = Data()
+    fuselage.OpenVSP_values.tail.side = Data()    
+    fuselage.OpenVSP_values.tail.bottom = Data()
+    fuselage.OpenVSP_values.tail.top.angle = -90.0
+    fuselage.OpenVSP_values.tail.top.strength = 0.1
+    fuselage.OpenVSP_values.tail.side.angle = -30.0
+    fuselage.OpenVSP_values.tail.side.strength = 0.50  
+    fuselage.OpenVSP_values.tail.TB_Sym = True
+    fuselage.OpenVSP_values.tail.bottom.angle = -30.0
+    fuselage.OpenVSP_values.tail.bottom.strength = 0.50 
+    fuselage.OpenVSP_values.tail.z_pos = .035
 
     # add to vehicle
-    vehicle.append_component(fuselage)
+    #vehicle.append_component(fuselage)
 
 
     # ------------------------------------------------------------------
@@ -881,7 +906,7 @@ def simple_sizing(configs):
         wing.areas.affected = 0.6 * wing.areas.wetted
 
     # fuselage seats
-    base.fuselages['fuselage'].number_coach_seats = base.passengers
+    #base.fuselages['fuselage'].number_coach_seats = base.passengers
 
     # diff the new data
     base.store_diff()
