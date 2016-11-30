@@ -118,7 +118,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
-
+    aerodynamics.settings.compute.lift.inviscid.settings.parallel   = True
+    aerodynamics.settings.compute.lift.inviscid.settings.processors = 8
+    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
