@@ -195,6 +195,7 @@ def write(vehicle,tag):
     #dx_pylon = dx_tip*pylon_wing_pos
     
     #pylon_id = vsp.AddGeom( "WING",main_wing_id)
+    #vsp.SetGeomName(pylon_id, 'pylons')
     
     #pylon_x = dx_pylon + wing.origin[0]
     #pylon_y = span/2.*pylon_wing_pos
@@ -217,36 +218,51 @@ def write(vehicle,tag):
     
     ## Engines
     
-    #nac_id = vsp.AddGeom( "FUSELAGE",pylon_id )
+    if vehicle.propulsors.has_key('turbofan'):
     
-    ## unpack the turbofan
-    #turbofan  = vehicle.propulsors.turbofan
-    #n_engines = turbofan.number_of_engines
-    #length    = turbofan.engine_length
-    #width     = turbofan.nacelle_diameter
-    #origins   = turbofan.origin
-    #bpr       = turbofan.bypass_ratio
-    
-    #if n_engines == 2:
-        #symmetric = 1
-    #else:
-        #symmetric = 0
+        nac_id = vsp.AddGeom( "FUSELAGE", main_wing_id)
+        vsp.SetGeomName(nac_id, 'turbofan')
         
-    #z = pylon_z - width/2 - pylon_y_off
-    #x = pylon_x - pylon_y_off -  length/2
+        # unpack the turbofan
+        turbofan  = vehicle.propulsors.turbofan
+        n_engines = turbofan.number_of_engines
+        length    = turbofan.engine_length
+        width     = turbofan.nacelle_diameter
+        origins   = turbofan.origin
+        bpr       = turbofan.bypass_ratio
         
-    ## Length and overall diameter
-    #vsp.SetParmVal(nac_id,"Length","Design",length)
-    #vsp.SetParmVal(nac_id,"Diameter","Design",width)   
-    #vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
-    #vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',pylon_y)
-    #vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z)        
-    
-    ## The inside of the nacelle
-    #inside = vsp.AddSubSurf(nac_id, 1)
-    #vsp.SetParmVal(inside,"Const_Line_Type",inside,0.)
-    #vsp.SetParmVal(inside,"Const_Line_Value",inside,0.5)
-
+        if n_engines == 2:
+            symmetric = 1
+        else:
+            symmetric = 0
+            
+        x = origins[0]
+        y = origins[1]
+        z = origins[2]
+            
+        # Length and overall diameter
+        vsp.SetParmVal(nac_id,"Length","Design",length)
+        vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
+        vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
+        vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',y)
+        vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z) 
+        vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+        vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
+        vsp.SetParmVal(nac_id,'Z_Rel_Rotation','XForm',180.)
+        
+        xsecsurf = vsp.GetXSecSurf(nac_id,0)
+        vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
+        vsp.Update()
+        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
+        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
+        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
+        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
+        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
+        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
+        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
+        
+        vsp.Update()
 
 
     # Fuselage
@@ -265,7 +281,7 @@ def write(vehicle,tag):
         w_ac     = wing.aerodynamic_center
         
         w_origin = vehicle.wings.main_wing.origin
-        w_c_4    = vehicle.wings.main_wing.chords.root/4
+        w_c_4    = vehicle.wings.main_wing.chords.root/4.
         
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         

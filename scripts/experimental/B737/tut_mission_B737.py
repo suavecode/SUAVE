@@ -295,7 +295,7 @@ def vehicle_setup():
 
     wing.aspect_ratio            = 6.16 # Not set
     wing.thickness_to_chord      = 0.08 # Not set
-    wing.taper                   = 0.955/6.64
+    wing.taper                   = 0.955/4.70
     wing.span_efficiency         = 0.9
 
     wing.spans.projected         = 14.2
@@ -482,8 +482,9 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 2.71
-    turbofan.nacelle_diameter  = 2.05
+    turbofan.engine_length     = 4.1
+    turbofan.nacelle_diameter  = 0.85
+    turbofan.origin            = [13.72, 4.86,-1.9]
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
