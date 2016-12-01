@@ -242,11 +242,11 @@ def write(vehicle,tag):
             
         # Length and overall diameter
         vsp.SetParmVal(nac_id,"Length","Design",length)
-        vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
-        vsp.SetParmVal(nac_id,'X_Rel_Location','XForm',x)
-        vsp.SetParmVal(nac_id,'Y_Rel_Location','XForm',y)
-        vsp.SetParmVal(nac_id,'Z_Rel_Location','XForm',z) 
         vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+        vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
+        vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+        vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(nac_id,'Z_Location','XForm',z) 
         vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
         vsp.SetParmVal(nac_id,'Z_Rel_Rotation','XForm',180.)
         
