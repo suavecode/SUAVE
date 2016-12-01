@@ -220,7 +220,7 @@ def write(vehicle,tag):
     
     if vehicle.propulsors.has_key('turbofan'):
     
-        nac_id = vsp.AddGeom( "FUSELAGE", main_wing_id)
+        nac_id = vsp.AddGeom( "FUSELAGE")
         vsp.SetGeomName(nac_id, 'turbofan')
         
         # unpack the turbofan
