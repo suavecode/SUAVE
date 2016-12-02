@@ -50,7 +50,7 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     vsp.SetCFDMeshVal(vsp.CFD_GROWTH_RATIO, growth_ratio)
     
     SetSources(geometry)
-    #vsp.AddDefaultSources()   
+    vsp.AddDefaultSources()   
     
     vsp.Update()
     
@@ -72,6 +72,9 @@ def SetSources(geometry):
     for fuselage in geometry.fuselages:
         comp_type_dict[fuselage.tag] = 'fuselage'
         comp_dict[fuselage.tag] = fuselage
+    for propulsor in geometry.propulsors:
+        comp_type_dict[propulsor.tag] = 'turbofan'
+        comp_dict[propulsor.tag] = propulsor
         
     components = vsp.FindGeoms()
     
@@ -183,6 +186,23 @@ def SetSources(geometry):
             uloc = 1.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
             pass
+        
+        # nacelle currently triggered by use of the name turbofan, this won't work and might 
+        # break if a propulsor but not a nacelle exists
+        elif comp_type == 'turbofan':
+            propulsor = comp_dict[comp_name]
+            if propulsor.has_key('vsp_mesh'):
+                len1 = propulsor.vsp_mesh.length
+                rad1 = propulsor.vsp_mesh.radius
+            else:
+                len1 = 0.1 * 0.5 # not sure where VSP is getting this value
+                rad1 = 0.2 * propulsor.engine_length
+            uloc = 0.0
+            wloc = 0.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            uloc = 1.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            pass        
     
         
     pass
