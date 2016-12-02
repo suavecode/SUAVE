@@ -248,7 +248,7 @@ def write(vehicle,tag):
         vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
         vsp.SetParmVal(nac_id,'Z_Location','XForm',z) 
         vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
-        vsp.SetParmVal(nac_id,'Z_Rel_Rotation','XForm',180.)
+        vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
         
         xsecsurf = vsp.GetXSecSurf(nac_id,0)
         vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
