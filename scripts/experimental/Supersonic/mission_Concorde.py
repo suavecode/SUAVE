@@ -39,7 +39,7 @@ from SUAVE.Plugins.SU2.call_SU2_CFD import call_SU2_CFD
 
 def main(source_ratio=1.):
 
-    configs, analyses = full_setup()
+    configs, analyses = full_setup(source_ratio)
 
     simple_sizing(configs)
 
@@ -93,10 +93,10 @@ def main(source_ratio=1.):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup():
+def full_setup(source_ratio=1.):
 
     # vehicle data
-    vehicle  = vehicle_setup()
+    vehicle  = vehicle_setup(source_ratio)
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -194,7 +194,7 @@ def base_analysis(vehicle):
 
     # done!
     return analyses    
-def vehicle_setup():
+def vehicle_setup(source_ratio=1.):
 
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -1218,9 +1218,11 @@ def save_results(results):
     return
 
 if __name__ == '__main__': 
-    source_ratios = [1.,2.,3.,4.]
-    for source_ratio in source_ratios:
-        main(source_ratio)
+    #source_ratios = [1.,2.,3.,4.]
+    #for source_ratio in source_ratios:
+        #main(source_ratio)
+    
+    main(4.)
 
     #plt.show()
 
