@@ -47,6 +47,8 @@ class SU2_inviscid(Aerodynamics):
         self.geometry = Data()
         self.settings = Data()
         self.settings.half_mesh_flag   = True
+        self.settings.parallel         = False
+        self.settings.processors       = 1
 
         # conditions table, used for surrogate model training
         self.training = Data()        

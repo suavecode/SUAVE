@@ -7,12 +7,13 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     
     vsp.ClearVSPModel()
     
-    f = fileinput.input(tag + '.vsp3',inplace=1)
-    for line in f:
-        if 'SymmetrySplitting' in line:
-            print line[0:34] + '1' + line[35:-1]
-        else:
-            print line
+    if half_mesh_flag == True:
+        f = fileinput.input(tag + '.vsp3',inplace=1)
+        for line in f:
+            if 'SymmetrySplitting' in line:
+                print line[0:34] + '1' + line[35:-1]
+            else:
+                print line
     
     vsp.ReadVSPFile(tag + '.vsp3')
     
