@@ -196,8 +196,8 @@ def vehicle_setup():
     wing.aspect_ratio            = 10.18 # Not set
     wing.thickness_to_chord      = 0.1 # Not set
     wing.taper                   = 0.782/7.7760
-    wing.span_efficiency         = 0.9 # Not set
-
+    wing.span_efficiency         = 0.9
+    
     wing.spans.projected         = 34.32    
 
     wing.chords.root             = 7.760 * Units.meter
@@ -268,7 +268,7 @@ def vehicle_setup():
     
     # Add a tip
     tip_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file = 'B737d.dat' 
+    tip_airfoil.coordinate_file = 'B737c.dat' 
     
     segment = SUAVE.Components.Wings.Segment() 
     segment.tag                   = 'Tip'

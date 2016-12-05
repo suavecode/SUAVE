@@ -318,6 +318,8 @@ def write(vehicle,tag):
                 tail_z_pos = vals.tail.z_pos
             else:
                 tail_z_pos = 0.02
+                
+            vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
     
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         vsp.SetParmVal(fuse_id,"Diameter","Design",width)

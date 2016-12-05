@@ -25,8 +25,8 @@ Data, Container
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
-from SUAVE.Plugins.vsp_write_tube_and_wing import write
-#from SUAVE.Plugins.vsp_write_blended_wing_body import write
+from SUAVE.Plugins.OpenVSP.vsp_write import write
+
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
