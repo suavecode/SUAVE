@@ -108,7 +108,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('GRAD_OBJFUNC_FILENAME = of_grad.dat\n\n')
     f.write('SURFACE_FLOW_FILENAME = ' + tag + '_surface_flow\n\n')
     f.write('SURFACE_ADJ_FILENAME = surface_adjoint\n\n')
-    f.write('WRT_SOL_FREQ = 100\n\n')
+    f.write('WRT_SOL_FREQ = 1000\n\n')
     f.write('WRT_CON_FREQ = 1\n\n')
     
     f.close()

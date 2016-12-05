@@ -23,8 +23,8 @@ import numpy as np
 import scipy as sp
 import scipy.interpolate
 
-#import pyKriging
-#from pyKriging.krige import kriging
+import pyKriging
+from pyKriging.krige import kriging
 
 # ----------------------------------------------------------------------
 #  Class
@@ -52,8 +52,8 @@ class SU2_inviscid(Aerodynamics):
 
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack  = np.array([-2.,0,2.]) * Units.deg
-        self.training.Mach             = np.array([0.3,0.8,2.])
+        self.training.angle_of_attack  = np.array([-2.,3.,8.]) * Units.deg
+        self.training.Mach             = np.array([0.3,0.7,0.85])
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
         
