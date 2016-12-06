@@ -110,7 +110,6 @@ class SU2_inviscid(Aerodynamics):
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
         
         # inviscid drag
-        inviscid_drag                                              = drag_model(AoA,mach)
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
