@@ -203,6 +203,7 @@ def vehicle_setup():
 
     wing.chords.root             = 7.760 * Units.meter
     wing.chords.tip              = 0.782 * Units.meter
+    wing.chords.mean_aerodynamic = 3.5
 
     wing.areas.reference         = 124.862  # Not set
     wing.sweeps.quarter_chord    = 25. * Units.degrees
@@ -303,9 +304,9 @@ def vehicle_setup():
 
     wing.chords.root             = 4.70
     wing.chords.tip              = 0.955   
-    wing.chords.mean_aerodynamic = 0 # Not set
+    wing.chords.mean_aerodynamic = 2.5
 
-    wing.areas.reference         = 32.488 # Not set
+    wing.areas.reference         = 42.65
 
     wing.twists.root             = 0.0 * Units.degrees # Not set
     wing.twists.tip              = 0.0 * Units.degrees # Not set
@@ -361,9 +362,9 @@ def vehicle_setup():
 
     wing.chords.root             = 8.19
     wing.chords.tip              = 0.95
-    wing.chords.mean_aerodynamic = 0.
+    wing.chords.mean_aerodynamic = 4.0
 
-    wing.areas.reference         = 32.488
+    wing.areas.reference         = 27.316
 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
@@ -738,7 +739,7 @@ def plot_mission(results,line_style='bo-'):
         axes = fig.add_subplot(2,1,2)
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('eta',axis_font)
+        axes.set_ylabel('Throttle',axis_font)
         axes.grid(True)	
 
         plt.savefig("B737_engine.pdf")
@@ -909,7 +910,7 @@ def simple_sizing(configs):
         wing.areas.affected = 0.6 * wing.areas.wetted
 
     # fuselage seats
-    #base.fuselages['fuselage'].number_coach_seats = base.passengers
+    base.fuselages['fuselage'].number_coach_seats = base.passengers
 
     # diff the new data
     base.store_diff()
