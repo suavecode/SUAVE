@@ -44,7 +44,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('NUM_METHOD_GRAD = WEIGHTED_LEAST_SQUARES\n\n')
     f.write('OBJECTIVE_FUNCTION = DRAG\n\n')
     f.write('CFL_NUMBER = 5.0\n\n')
-    f.write('CFL_ADAPT = Yes\n\n')
+    f.write('CFL_ADAPT = YES\n\n')
     f.write('CFL_ADAPT_PARAM = ( 1.5, 0.5, 1.0, 100.0 )\n\n')
     f.write('RK_ALPHA_COEFF = ( 0.66667, 0.66667, 1.000000 )\n\n')
     f.write('EXT_ITER = 99999\n\n')

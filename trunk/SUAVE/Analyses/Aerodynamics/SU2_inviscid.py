@@ -24,8 +24,8 @@ import scipy as sp
 import scipy.interpolate
 import time
 
-#import pyKriging
-#from pyKriging.krige import kriging
+import pyKriging
+from pyKriging.krige import kriging
 
 # ----------------------------------------------------------------------
 #  Class
@@ -57,6 +57,7 @@ class SU2_inviscid(Aerodynamics):
         self.training.Mach             = np.array([0.3,0.7,0.85])
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
+        self.training_file             = None
         
         # surrogate model
         self.surrogates = Data()
@@ -134,27 +135,33 @@ class SU2_inviscid(Aerodynamics):
         konditions              = Data()
         konditions.aerodynamics = Data()
 
-        # calculate aerodynamics for table
-        table_size = len(AoA)*len(mach)
-        xy = np.zeros([table_size,2])
-        count = 0
-        time0 = time.time()
-        for i,_ in enumerate(AoA):
-            for j,_ in enumerate(mach):
-                
-                xy[count,:] = np.array([AoA[i],mach[j]])
-                # overriding conditions, thus the name mangling
-                konditions.aerodynamics.angle_of_attack = AoA[i]
-                konditions.aerodynamics.mach            = mach[j]
-                
-                # these functions are inherited from Aerodynamics() or overridden
-                CL[count],CD[count] = call_SU2(konditions, settings, geometry)
-                count += 1
-        
-        time1 = time.time()
-        
-        print 'The total elapsed time to run SU2: '+ time1-time0 + '  Seconds'
-        
+        if self.training_file is None:
+            # calculate aerodynamics for table
+            table_size = len(AoA)*len(mach)
+            xy = np.zeros([table_size,2])
+            count = 0
+            time0 = time.time()
+            for i,_ in enumerate(AoA):
+                for j,_ in enumerate(mach):
+                    
+                    xy[count,:] = np.array([AoA[i],mach[j]])
+                    # overriding conditions, thus the name mangling
+                    konditions.aerodynamics.angle_of_attack = AoA[i]
+                    konditions.aerodynamics.mach            = mach[j]
+                    
+                    # these functions are inherited from Aerodynamics() or overridden
+                    CL[count],CD[count] = call_SU2(konditions, settings, geometry)
+                    count += 1
+            
+            time1 = time.time()
+            
+            print 'The total elapsed time to run SU2: '+ time1-time0 + '  Seconds'
+        else:
+            data_array = np.loadtxt(self.training_file)
+            xy         = data_array[:,0:2]
+            CL         = data_array[:,2:3]
+            CD         = data_array[:,3:4]
+
         # Save the data
         np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='AoA Mach CL CD')
 
