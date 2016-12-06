@@ -1240,7 +1240,7 @@ def save_results(results):
     return
 
 if __name__ == '__main__': 
-    source_ratios = [2.,3.,4.]
+    source_ratios = [4.]
     for source_ratio in source_ratios:
         main(source_ratio)
 

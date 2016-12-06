@@ -221,11 +221,11 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
         rad1 = 0.2 * cr
         rad2 = 0.2 * ct
     uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
-    wloc1 = 0.0
+    wloc1 = 0.5
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
-    wloc2 = 0.0
+    wloc2 = 0.5
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
-    # Remove custom TE
+    # Remove custom TE (this was actually LE)
     #wloc1 = 0.5
     #wloc2 = 0.5
     #vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)  
@@ -235,8 +235,8 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
         wloc1 = 0.0
         uloc1 = uloc2
         # to match not custom TE
-        len2 = 0.01 * ct
-        rad2 = 0.2 * ct
+        len1 = 0.01 * ct
+        rad1 = 0.2 * ct
         vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
         
     # Keep defaults for TE
@@ -248,8 +248,8 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     wloc1 = 0.0
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
     wloc2 = 0.0    
-    wloc1 = 0.5
-    wloc2 = 0.5
+    wloc1 = 0.0
+    wloc2 = 0.0
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)      
     
     
