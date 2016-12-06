@@ -84,7 +84,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('TIME_DISCRE_ADJFLOW = EULER_IMPLICIT\n\n')
     
     # Convergence parameters
-    f.write('CONV_CRITERIA = RESIDUAL\n\n')
+    f.write('CONV_CRITERIA = CAUCHY\n\n')
     f.write('RESIDUAL_REDUCTION = 8\n\n')
     f.write('RESIDUAL_MINVAL = -12\n\n')
     f.write('STARTCONV_ITER = 25\n\n')
