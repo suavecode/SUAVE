@@ -156,7 +156,7 @@ class SU2_inviscid(Aerodynamics):
         print 'The total elapsed time to run SU2: '+ time1-time0 + '  Seconds'
         
         # Save the data
-        np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.7f',header='AoA Mach CL CD')
+        np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='AoA Mach CL CD')
 
         # store training data
         training.coefficients = np.hstack([CL,CD])
