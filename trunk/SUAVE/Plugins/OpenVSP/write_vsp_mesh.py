@@ -54,6 +54,8 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     
     vsp.Update()
     
+    vsp.WriteVSPFile(tag + '_premesh.vsp3')
+    
     print 'Starting mesh for ' + tag
     ti = time.time()
     vsp.ComputeCFDMesh(set_int,file_type)
@@ -223,15 +225,33 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
     wloc2 = 0.0
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
-    wloc1 = 0.5
-    wloc2 = 0.5
-    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)  
+    # Remove custom TE
+    #wloc1 = 0.5
+    #wloc2 = 0.5
+    #vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)  
     if wingtip_flag == True:
         len1 = len2
         rad1 = rad2
         wloc1 = 0.0
         uloc1 = uloc2
-        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)         
+        # to match not custom TE
+        len2 = 0.01 * ct
+        rad2 = 0.2 * ct
+        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
+        
+    # Keep defaults for TE
+    len1 = 0.01 * cr
+    len2 = 0.01 * ct
+    rad1 = 0.2 * cr
+    rad2 = 0.2 * ct
+    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
+    wloc1 = 0.0
+    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+    wloc2 = 0.0    
+    wloc1 = 0.5
+    wloc2 = 0.5
+    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)      
+    
     
 if __name__ == '__main__':
     

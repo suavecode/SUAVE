@@ -23,8 +23,8 @@ import numpy as np
 import scipy as sp
 import scipy.interpolate
 
-#import pyKriging
-#from pyKriging.krige import kriging
+import pyKriging
+from pyKriging.krige import kriging
 
 # ----------------------------------------------------------------------
 #  Class
