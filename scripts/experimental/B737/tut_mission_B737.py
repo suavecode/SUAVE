@@ -120,7 +120,6 @@ def base_analysis(vehicle):
     aerodynamics.geometry = vehicle
     
     aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
-
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
     #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
