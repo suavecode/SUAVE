@@ -155,7 +155,7 @@ class SU2_inviscid(Aerodynamics):
             
             time1 = time.time()
             
-            print 'The total elapsed time to run SU2: '+ time1-time0 + '  Seconds'
+            print 'The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds'
         else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
