@@ -47,9 +47,10 @@ class SU2_inviscid(Aerodynamics):
 
         self.geometry = Data()
         self.settings = Data()
-        self.settings.half_mesh_flag   = True
-        self.settings.parallel         = False
-        self.settings.processors       = 1
+        self.settings.half_mesh_flag     = True
+        self.settings.parallel           = False
+        self.settings.processors         = 1
+        self.settings.maximum_iterations = 1500
 
         # conditions table, used for surrogate model training
         self.training = Data()        
@@ -113,7 +114,7 @@ class SU2_inviscid(Aerodynamics):
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        #state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
 
         return inviscid_lift, inviscid_drag
 
@@ -238,6 +239,7 @@ def call_SU2(conditions,settings,geometry):
     tag            = geometry.tag
     parallel       = settings.parallel
     processors     = settings.processors 
+    iters          = settings.maximum_iterations
     
     SU2_settings = Data()
     if half_mesh_flag == False:
@@ -246,6 +248,7 @@ def call_SU2(conditions,settings,geometry):
         SU2_settings.reference_area  = geometry.reference_area/2.
     SU2_settings.mach_number     = conditions.aerodynamics.mach
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
+    SU2_settings.maximum_iterations = iters
     
     # build SU2 cfg
     write_SU2_cfg(tag, SU2_settings)
