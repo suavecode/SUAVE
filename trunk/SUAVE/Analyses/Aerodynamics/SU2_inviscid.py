@@ -22,6 +22,7 @@ from SUAVE.Plugins.SU2.write_SU2_cfg import write_SU2_cfg
 import numpy as np
 import scipy as sp
 import scipy.interpolate
+import time
 
 #import pyKriging
 #from pyKriging.krige import kriging
@@ -137,6 +138,7 @@ class SU2_inviscid(Aerodynamics):
         table_size = len(AoA)*len(mach)
         xy = np.zeros([table_size,2])
         count = 0
+        time0 = time.time()
         for i,_ in enumerate(AoA):
             for j,_ in enumerate(mach):
                 
@@ -148,7 +150,11 @@ class SU2_inviscid(Aerodynamics):
                 # these functions are inherited from Aerodynamics() or overridden
                 CL[count],CD[count] = call_SU2(konditions, settings, geometry)
                 count += 1
-                
+        
+        time1 = time.time()
+        
+        print 'The total elapsed time to run SU2: '+ time1-time0 + '  Seconds'
+        
         # Save the data
         np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.7f',header='AoA Mach CL CD')
 
