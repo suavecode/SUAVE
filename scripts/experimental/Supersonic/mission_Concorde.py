@@ -448,7 +448,8 @@ def vehicle_setup(source_ratio=1.):
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.75
+    fuselage.OpenVSP_values.tail.top.strength = 0.0
+    # after this doesn't matter in current setup
     fuselage.OpenVSP_values.tail.side.angle = -10.0
     fuselage.OpenVSP_values.tail.side.strength = 0.75  
     fuselage.OpenVSP_values.tail.TB_Sym = False 
@@ -1222,7 +1223,7 @@ if __name__ == '__main__':
     #for source_ratio in source_ratios:
         #main(source_ratio)
     
-    main(4.)
+    main(1.)
 
     #plt.show()
 
