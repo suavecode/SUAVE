@@ -4,6 +4,7 @@ def write_SU2_cfg(tag,SU2_settings):
     ref_area = SU2_settings.reference_area
     mach     = SU2_settings.mach_number
     AoA      = SU2_settings.angle_of_attack
+    iters    = SU2_settings.maximum_iterations
     
     
     filename = tag + '.cfg'
@@ -47,7 +48,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('CFL_ADAPT = YES\n\n')
     f.write('CFL_ADAPT_PARAM = ( 1.5, 0.5, 1.0, 100.0 )\n\n')
     f.write('RK_ALPHA_COEFF = ( 0.66667, 0.66667, 1.000000 )\n\n')
-    f.write('EXT_ITER = 99999\n\n')
+    f.write('EXT_ITER ='+str(int(iters)) +'\n\n')
     f.write('LINEAR_SOLVER = FGMRES\n\n')
     f.write('LINEAR_SOLVER_ERROR = 1E-6\n\n')
     f.write('LINEAR_SOLVER_ITER = 2\n\n')
