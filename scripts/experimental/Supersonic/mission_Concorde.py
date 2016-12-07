@@ -159,8 +159,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.])
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-3.,0.,3.,5.]) * Units.deg
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3,.8,.9,1.1,1.2,2.])
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.vsp_mesh_growth_ratio = 1.3
@@ -448,7 +448,8 @@ def vehicle_setup(source_ratio=1.):
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.75
+    fuselage.OpenVSP_values.tail.top.strength = 0.0
+    # after this doesn't matter in current setup
     fuselage.OpenVSP_values.tail.side.angle = -10.0
     fuselage.OpenVSP_values.tail.side.strength = 0.75  
     fuselage.OpenVSP_values.tail.TB_Sym = False 
@@ -471,6 +472,8 @@ def vehicle_setup(source_ratio=1.):
     turbojet.number_of_engines = 4.0
     turbojet.engine_length     = 12.5
     turbojet.nacelle_diameter  = 1.60
+    turbojet.areas             = Data()
+    turbojet.areas.wetted      = 12.5*1.6*8. # essentially rectangles attached to the wings
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -1222,7 +1225,7 @@ if __name__ == '__main__':
     #for source_ratio in source_ratios:
         #main(source_ratio)
     
-    main(4.)
+    main(1.)
 
     #plt.show()
 
