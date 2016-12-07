@@ -39,7 +39,7 @@ from SUAVE.Plugins.SU2.call_SU2_CFD import call_SU2_CFD
 
 def main(source_ratio=1.):
 
-    configs, analyses = full_setup()
+    configs, analyses = full_setup(source_ratio)
 
     simple_sizing(configs)
 
@@ -114,11 +114,11 @@ def main(source_ratio=1.):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup():
+def full_setup(source_ratio):
 
     # vehicle data
-    vehicle  = vehicle_setup()
-    configs  = configs_setup(vehicle)
+    vehicle  = vehicle_setup(source_ratio)
+    configs  = configs_setup(vehicle,source_ratio)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
@@ -215,7 +215,7 @@ def base_analysis(vehicle):
 
     # done!
     return analyses    
-def vehicle_setup():
+def vehicle_setup(source_ratio):
 
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -469,7 +469,8 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.75
+    fuselage.OpenVSP_values.tail.top.strength = 0.0
+    # the current vsp_write function does not use data below this point (12/5/16 2:35pm)
     fuselage.OpenVSP_values.tail.side.angle = -10.0
     fuselage.OpenVSP_values.tail.side.strength = 0.75  
     fuselage.OpenVSP_values.tail.TB_Sym = False 
@@ -658,7 +659,7 @@ def vehicle_setup():
 #   Define the Configurations
 # ---------------------------------------------------------------------
 
-def configs_setup(vehicle):
+def configs_setup(vehicle,source_ratio):
 
     # ------------------------------------------------------------------
     #   Initialize Configurations
@@ -1239,7 +1240,7 @@ def save_results(results):
     return
 
 if __name__ == '__main__': 
-    source_ratios = [1.,2.,3.,4.]
+    source_ratios = [4.]
     for source_ratio in source_ratios:
         main(source_ratio)
 
