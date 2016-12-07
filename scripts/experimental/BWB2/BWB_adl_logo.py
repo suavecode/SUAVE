@@ -1,10 +1,10 @@
-# tut_mission_B737.py
+# full_setup.py
 # 
-# Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2015, SUAVE Team
+# Created:  Aug 2014, E. Botero
+# Modified: 
 
-""" setup file for a mission with a 737
-"""
+
+
 
 
 # ----------------------------------------------------------------------
@@ -23,11 +23,9 @@ from SUAVE.Core import (
 Data, Container
 )
 
-
-from SUAVE.Plugins.OpenVSP import write
-
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
+from SUAVE.Plugins.OpenVSP.vsp_write import write
 
 # ----------------------------------------------------------------------
 #   Main
@@ -43,19 +41,17 @@ def main():
     analyses.finalize()
 
     # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()      
+    #weights = analyses.configs.base.weights
+    #breakdown = weights.evaluate()      
 
-    # mission analysis
-    mission = analyses.missions.base
-    results = mission.evaluate()
+    ## mission analysis
+    #mission = analyses.missions.base
+    #results = mission.evaluate()
 
-    # plt the old results
-    plot_mission(results)
-
+    ## plt the old results
+    #plot_mission(results)
 
     return
-
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
@@ -66,6 +62,9 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
+    
+    # Write the vsp file
+    write(vehicle, 'BWB')
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
@@ -93,6 +92,14 @@ def analyses_setup(configs):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
+    # adjust analyses for configs
+
+    # takeoff_analysis
+    analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
+
+    # landing analysis
+    aerodynamics = analyses.landing.aerodynamics
+
     return analyses
 
 def base_analysis(vehicle):
@@ -116,13 +123,9 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
-    
-    aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
-    aerodynamics.process.compute.lift.inviscid.settings.processors = 8
-    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
-    
+
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -163,7 +166,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_737_800'    
+    vehicle.tag = 'BWB'    
 
 
     # ------------------------------------------------------------------
@@ -171,305 +174,158 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff
-    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.max_takeoff    = 79015.8   # kg
+    vehicle.mass_properties.takeoff        = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel  = 0.9 * vehicle.mass_properties.max_takeoff
+    vehicle.mass_properties.cargo          = 10000.  * Units.kilogram   
 
     # envelope properties
     vehicle.envelope.ultimate_load = 2.5
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area         = 124.862       
+    vehicle.reference_area         = 125.0     
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
 
 
     # ------------------------------------------------------------------        
-    #   Main Wing
+    #  Overall Body properties
     # ------------------------------------------------------------------        
 
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
-
-    wing.aspect_ratio            = 10.18 # Not set
-    wing.thickness_to_chord      = 0.1 # Not set
-    wing.taper                   = 0.782/7.7760
-    wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 34.32    
+    #wing.aspect_ratio            = 5.86 #12. #not used in VSP definition
+    wing.sweeps.quarter_chord    = 0. * Units.deg
+    wing.thickness_to_chord      = 0.14
+    wing.taper                   = 0.1
+    wing.span_efficiency         = 0.9
+    wing.dihedral                = 0.0 * Units.degrees
 
-    wing.chords.root             = 7.760 * Units.meter
-    wing.chords.tip              = 0.782 * Units.meter
+    wing.spans.projected         = 21#18.85 #38.7298
 
-    wing.areas.reference         = 124.862  # Not set
-    wing.sweeps.quarter_chord    = 25. * Units.degrees
+    wing.chords.root             = 10.#16.
+    wing.chords.tip              = .1
+    wing.chords.mean_aerodynamic = (2./3.)*(wing.chords.root + wing.chords.root -(wing.chords.root*wing.chords.root)/(wing.chords.root+wing.chords.root))
 
-    wing.twists.root             = 4.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
-    wing.dihedral                = 2.5 * Units.degrees
+    wing.areas.reference         = 74.9
 
-    wing.origin                  = [13.61,0,-1.27]
-    wing.aerodynamic_center      = [0,0,0] 
+    wing.twists.root             = 0.#1.0 * Units.degrees
+    wing.twists.tip              = 0. -4.0 * Units.degrees
 
+    wing.origin                  = [3.,0.,0.]
+    wing.aerodynamic_center      = [3.,0,0.]
+    wing.percent_span_location   = 0.004085714
     wing.vertical                = False
     wing.symmetric               = True
-    wing.high_lift               = True
+    #wing.high_lift               = Fa
 
     wing.dynamic_pressure_ratio  = 1.0
     
-    airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    airfoil.coordinate_file = 'B737b.dat'
-    wing.append_airfoil(airfoil)    
+    # Sections
     
-    # Root
-    root_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    root_airfoil.coordinate_file = 'B737a.dat'
-    
+    #nose
     segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'root'
-    segment.percent_span_location = 0.0
-    segment.twist                 = 4. * Units.deg
-    segment.root_chord_percent    = 1.
-    segment.dihedral_outboard     = 2.5 * Units.degrees
-    segment.sweeps.quarter_chord  = 28.225 * Units.degrees
-    segment.append_airfoil(root_airfoil)
-    wing.Segments.append(segment)    
-    
-    
-    # Yehudi
-    yehudi_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    yehudi_airfoil.coordinate_file = 'B737b.dat'
-    
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'yehudi'
-    segment.percent_span_location = 0.324
+    segment.tag                   = 'section_1'
+    segment.percent_span_location = 0 
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.5
-    segment.dihedral_outboard     = 5.5 * Units.degrees
-    segment.sweeps.quarter_chord  = 25. * Units.degrees
-    segment.append_airfoil(yehudi_airfoil)
+    segment.root_chord_percent    = 1.
+    segment.dihedral_outboard     = 0. * Units.deg
+    segment.sweeps.quarter_chord  = 0*Units.deg
     wing.Segments.append(segment)
     
-    # set tip section start point
-    mid_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    mid_airfoil.coordinate_file = 'B737c.dat' 
-    
+    #first fuselage section
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_2'
-    segment.percent_span_location = 0.963
+    segment.percent_span_location = .004
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.220
-    segment.dihedral_outboard     = 5.5 * Units.degrees
-    segment.sweeps.quarter_chord  = 56.75 * Units.degrees
-    segment.append_airfoil(mid_airfoil)
+    segment.root_chord_percent    = 1
+    segment.dihedral_outboard     = 3. * Units.deg
+    segment.sweeps.quarter_chord  = 50.*Units.deg
+    
+    #airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #airfoil.coordinate_file = 'NACA2412'#'/Users/emiliobotero/Dropbox/SUAVE/Workspace/NACA2412.dat' # Or enter a NACA number
+    
+    #wing.append_airfoil(airfoil)
+    #segment.append_airfoil(airfoil)
+    
     wing.Segments.append(segment)
     
-    # Add a tip
-    tip_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file = 'B737c.dat' 
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'Tip'
-    segment.percent_span_location = 1.
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_3'
+    segment.percent_span_location = .164
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.782/7.760
-    segment.dihedral_outboard     = 0.
-    segment.sweeps.quarter_chord  = 0.
-    segment.append_airfoil(tip_airfoil)
-    wing.Segments.append(segment)        
+    segment.root_chord_percent    = .7 
+    segment.dihedral_outboard     = 3. * Units.deg
+    segment.sweeps.quarter_chord  = 30. * Units.deg
     
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    
+    #segment.append(section)
+    wing.Segments.append(segment)    
 
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_4'
+    segment.percent_span_location = .284
+    segment.twist                 = -1. * Units.deg
+    segment.root_chord_percent    = 0.588
+    segment.dihedral_outboard     = 3. * Units.deg
+    segment.sweeps.quarter_chord  = 40. * Units.deg
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    wing.Segments.append(segment)
 
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_5'
+    segment.percent_span_location = .378
+    segment.twist                 = -1. * Units.deg
+    segment.root_chord_percent    = 0.384
+    segment.dihedral_outboard     = 3. * Units.deg
+    segment.sweeps.quarter_chord  = 40. * Units.deg
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    wing.Segments.append(segment)
+    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_6'
+    segment.percent_span_location = .458
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.25
+    segment.dihedral_outboard     = 6. * Units.deg
+    segment.sweeps.quarter_chord  = 35. * Units.deg
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    wing.Segments.append(segment)
+    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_7'
+    segment.percent_span_location = .668
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.115
+    segment.dihedral_outboard     = 6. * Units.deg
+    segment.sweeps.quarter_chord  = 35. * Units.deg
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    wing.Segments.append(segment)
+    
+    
+    #wingtip
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_8'
+    segment.percent_span_location = .877
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.1
+    segment.dihedral_outboard     = 80. * Units.deg
+    segment.sweeps.quarter_chord  = 45. * Units.deg
+    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
+    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
+    wing.Segments.append(segment)
+    
     # add to vehicle
     vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------        
-    #  Horizontal Stabilizer
-    # ------------------------------------------------------------------        
-
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'horizontal_stabilizer'
-
-    wing.aspect_ratio            = 6.16 # Not set
-    wing.thickness_to_chord      = 0.08 # Not set
-    wing.taper                   = 0.955/4.70
-    wing.span_efficiency         = 0.9
-
-    wing.spans.projected         = 14.2
-
-    wing.chords.root             = 4.70
-    wing.chords.tip              = 0.955   
-    wing.chords.mean_aerodynamic = 0 # Not set
-
-    wing.areas.reference         = 32.488 # Not set
-
-    wing.twists.root             = 0.0 * Units.degrees # Not set
-    wing.twists.tip              = 0.0 * Units.degrees # Not set
-    
-    wing.sweeps.quarter_chord    = 40.0 * Units.degrees
-
-    wing.origin                  = [32.83,0,1.14]
-    wing.aerodynamic_center      = [0,0,0]
-    wing.dihedral                = 8.63 * Units.degrees
-
-    wing.vertical                = False 
-    wing.symmetric               = True
-
-    wing.dynamic_pressure_ratio  = 0.9 
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'root_segment'
-    segment.percent_span_location = 0.0
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 1.0
-    segment.dihedral_outboard     = 8.63 * Units.degrees
-    segment.sweeps.quarter_chord  = 38.42 * Units.degrees
-    wing.Segments.append(segment)         
-    
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'segment'
-    segment.percent_span_location = 0.91
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.35
-    segment.dihedral_outboard     = 8.63 * Units.degrees
-    segment.sweeps.quarter_chord  = 48.17 * Units.degrees
-    wing.Segments.append(segment)         
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------
-    #   Vertical Stabilizer
-    # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'    
-
-    wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25. * Units.deg
-    wing.thickness_to_chord      = 0.08
-    wing.taper                   = 0.25
-    wing.span_efficiency         = 0.9
-
-    wing.spans.projected         = 7.77
-
-    wing.chords.root             = 8.19
-    wing.chords.tip              = 0.95
-    wing.chords.mean_aerodynamic = 0.
-
-    wing.areas.reference         = 32.488
-
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees  
-
-    wing.origin                  = [28.79,0,1.54]
-    wing.aerodynamic_center      = [0,0,0]    
-
-    wing.vertical                = True 
-    wing.symmetric               = False
-    wing.t_tail                  = False
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'root'
-    segment.percent_span_location = 0.0
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 1.
-    segment.dihedral_outboard     = 0 * Units.degrees
-    segment.sweeps.quarter_chord  = 63.63 * Units.degrees
-    wing.Segments.append(segment)      
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'segment_1'
-    segment.percent_span_location = 0.194
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.540
-    segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
-    wing.Segments.append(segment)  
-    
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                   = 'segment_2'
-    segment.percent_span_location = 0.961
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.175
-    segment.dihedral_outboard     = 0.0 * Units.degrees
-    segment.sweeps.quarter_chord  = 51.0 * Units.degrees
-    wing.Segments.append(segment)        
-
-    wing.dynamic_pressure_ratio  = 1.0
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------
-    #  Fuselage
-    # ------------------------------------------------------------------
-
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
-
-    fuselage.seats_abreast         = 6
-    fuselage.seat_pitch            = 1
-
-    fuselage.fineness.nose         = 1.57
-    fuselage.fineness.tail         = 3.2
-
-    fuselage.lengths.nose          = 8.0
-    fuselage.lengths.tail          = 12.
-    fuselage.lengths.cabin         = 28.85
-    fuselage.lengths.total         = 38.02
-    fuselage.lengths.fore_space    = 6.
-    fuselage.lengths.aft_space     = 5.    
-
-    fuselage.width                 = 3.76
-
-    fuselage.heights.maximum       = 3.76
-    fuselage.heights.at_quarter_length          = 3.76
-    fuselage.heights.at_three_quarters_length   = 3.65
-    fuselage.heights.at_wing_root_quarter_chord = 3.76
-
-    fuselage.areas.side_projected  = 142.1948
-    fuselage.areas.wetted          = 446.718
-    fuselage.areas.front_projected = 12.57
-
-    fuselage.effective_diameter    = 3.76
-
-    fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
-    
-    fuselage.OpenVSP_values = Data() # VSP uses degrees directly
-    
-    fuselage.OpenVSP_values.nose = Data()
-    fuselage.OpenVSP_values.nose.top = Data()
-    fuselage.OpenVSP_values.nose.side = Data()
-    fuselage.OpenVSP_values.nose.top.angle = 75.0
-    fuselage.OpenVSP_values.nose.top.strength = 0.40
-    fuselage.OpenVSP_values.nose.side.angle = 45.0
-    fuselage.OpenVSP_values.nose.side.strength = 0.75  
-    fuselage.OpenVSP_values.nose.TB_Sym = True
-    fuselage.OpenVSP_values.nose.z_pos = -.015
-    
-    fuselage.OpenVSP_values.tail = Data()
-    fuselage.OpenVSP_values.tail.top = Data()
-    fuselage.OpenVSP_values.tail.side = Data()    
-    fuselage.OpenVSP_values.tail.bottom = Data()
-    fuselage.OpenVSP_values.tail.top.angle = -90.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.1
-    fuselage.OpenVSP_values.tail.side.angle = -30.0
-    fuselage.OpenVSP_values.tail.side.strength = 0.50  
-    fuselage.OpenVSP_values.tail.TB_Sym = True
-    fuselage.OpenVSP_values.tail.bottom.angle = -30.0
-    fuselage.OpenVSP_values.tail.bottom.strength = 0.50 
-    fuselage.OpenVSP_values.tail.z_pos = .035
-
-    # add to vehicle
-    vehicle.append_component(fuselage)
 
 
     # ------------------------------------------------------------------
@@ -483,9 +339,8 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 4.1
-    turbofan.nacelle_diameter  = 0.85
-    turbofan.origin            = [13.72, 4.86,-1.9]
+    turbofan.engine_length     = 2.71
+    turbofan.nacelle_diameter  = 2.05
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -693,8 +548,47 @@ def configs_setup(vehicle):
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
-    
-    #write(vehicle,base_config.tag) 
+
+    # ------------------------------------------------------------------
+    #   Cruise Configuration
+    # ------------------------------------------------------------------
+
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'cruise'
+
+    configs.append(config)
+
+
+    # ------------------------------------------------------------------
+    #   Takeoff Configuration
+    # ------------------------------------------------------------------
+
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'takeoff'
+
+    config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 25. * Units.deg
+
+    config.V2_VS_ratio = 1.21
+    config.maximum_lift_coefficient = 2.
+
+    configs.append(config)
+
+
+    # ------------------------------------------------------------------
+    #   Landing Configuration
+    # ------------------------------------------------------------------
+
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'landing'
+
+    config.wings['main_wing'].flaps_angle = 30. * Units.deg
+    config.wings['main_wing'].slats_angle = 25. * Units.deg
+
+    config.Vref_VS_ratio = 1.23
+    config.maximum_lift_coefficient = 2.
+
+    configs.append(config)
 
 
     # done!
@@ -914,6 +808,20 @@ def simple_sizing(configs):
     # diff the new data
     base.store_diff()
 
+    # ------------------------------------------------------------------
+    #   Landing Configuration
+    # ------------------------------------------------------------------
+    landing = configs.landing
+
+    # make sure base data is current
+    landing.pull_base()
+
+    # landing weight
+    landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
+
+    # diff the new data
+    landing.store_diff()
+
     # done!
     return
 
@@ -943,6 +851,8 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
+    base_segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
 
 
     # ------------------------------------------------------------------
@@ -952,7 +862,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.takeoff )
 
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.0   * Units.km
@@ -970,7 +880,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_2"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.cruise )
 
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
@@ -987,7 +897,7 @@ def mission_setup(analyses):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_3"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.cruise )
 
     segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
@@ -1004,7 +914,7 @@ def mission_setup(analyses):
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.cruise )
 
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = (3933.65 + 770 - 92.6) * Units.km
@@ -1020,7 +930,7 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_1"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.cruise )
 
     segment.altitude_end = 8.0   * Units.km
     segment.air_speed    = 220.0 * Units['m/s']
@@ -1037,7 +947,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_2"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.landing )
+
+    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 6.0   * Units.km
     segment.air_speed    = 195.0 * Units['m/s']
@@ -1054,7 +966,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_3"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.landing )
+
+    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 4.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
@@ -1071,7 +985,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_4"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.landing )
+
+    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 2.0   * Units.km
     segment.air_speed    = 150.0 * Units['m/s']
@@ -1090,7 +1006,9 @@ def mission_setup(analyses):
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_5"
 
-    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.landing )
+    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+
 
     segment.altitude_end = 0.0   * Units.km
     segment.air_speed    = 145.0 * Units['m/s']

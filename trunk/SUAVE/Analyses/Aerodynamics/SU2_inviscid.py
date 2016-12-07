@@ -24,8 +24,10 @@ import scipy as sp
 import scipy.interpolate
 import time
 
-import pyKriging
-from pyKriging.krige import kriging
+#import pyKriging
+#from pyKriging.krige import kriging
+import sklearn
+from sklearn import gaussian_process
 
 # ----------------------------------------------------------------------
 #  Class
@@ -105,7 +107,7 @@ class SU2_inviscid(Aerodynamics):
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict([AoA[ii][0],mach[ii][0]])
+            inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
@@ -113,7 +115,7 @@ class SU2_inviscid(Aerodynamics):
         # inviscid drag
         inviscid_drag = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+            inviscid_drag[ii] = drag_model.predict(np.array([AoA[ii][0],mach[ii][0]]))      
         #state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
 
         return inviscid_lift, inviscid_drag
@@ -182,12 +184,11 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        # Kriging -------
-        
-        cl_surrogate = kriging(xy, CL_data)
-        cl_surrogate.train()
-        cd_surrogate = kriging(xy, CD_data)
-        cd_surrogate.train()        
+        # Gaussian Process
+        regr_cl = gaussian_process.GaussianProcess()
+        regr_cd = gaussian_process.GaussianProcess()
+        cl_surrogate = regr_cl.fit(xy, CL_data)
+        cd_surrogate = regr_cd.fit(xy, CD_data)    
         
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
@@ -195,8 +196,8 @@ class SU2_inviscid(Aerodynamics):
         import pylab as plt
         fig = plt.figure('Surrogate Plot')
 
-        AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5])*Units.deg
-        mach_points = np.array([.35,.45,.55,.65,.75,.8])
+        AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
+        mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])
         
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -205,8 +206,8 @@ class SU2_inviscid(Aerodynamics):
         
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
-                CL_sur[ii,jj] = cl_surrogate.predict([AoA_mesh[ii,jj],mach_mesh[ii,jj]])
-                CD_sur[ii,jj] = cd_surrogate.predict([AoA_mesh[ii,jj],mach_mesh[ii,jj]])
+                CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         
         fig = plt.figure('CL - CD Surrogate Plot')    
         axes = fig.add_subplot(2,1,1)
@@ -221,7 +222,7 @@ class SU2_inviscid(Aerodynamics):
         plt.xlabel('Angle of Attack (deg)')
         plt.ylabel('Mach Number')   
         
-        #plt.show()
+        #plt.show() 
 
         return
 
