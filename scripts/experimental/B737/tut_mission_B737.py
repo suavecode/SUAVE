@@ -116,11 +116,14 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    #aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     
-    aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
-    aerodynamics.process.compute.lift.inviscid.settings.processors = 12
+   # aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
+   # aerodynamics.process.compute.lift.inviscid.settings.processors = 12
+    
+    #aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-2.,3.,8.,12.]) * Units.deg
     #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -203,7 +206,7 @@ def vehicle_setup():
 
     wing.chords.root             = 7.760 * Units.meter
     wing.chords.tip              = 0.782 * Units.meter
-    wing.chords.mean_aerodynamic = 3.5
+    wing.chords.mean_aerodynamic = 4.235 * Units.meter
 
     wing.areas.reference         = 124.862  # Not set
     wing.sweeps.quarter_chord    = 25. * Units.degrees
