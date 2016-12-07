@@ -44,7 +44,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('NUM_METHOD_GRAD = WEIGHTED_LEAST_SQUARES\n\n')
     f.write('OBJECTIVE_FUNCTION = DRAG\n\n')
     f.write('CFL_NUMBER = 5.0\n\n')
-    f.write('CFL_ADAPT = NO\n\n')
+    f.write('CFL_ADAPT = YES\n\n')
     f.write('CFL_ADAPT_PARAM = ( 1.5, 0.5, 1.0, 100.0 )\n\n')
     f.write('RK_ALPHA_COEFF = ( 0.66667, 0.66667, 1.000000 )\n\n')
     f.write('EXT_ITER = 99999\n\n')
@@ -84,12 +84,12 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('TIME_DISCRE_ADJFLOW = EULER_IMPLICIT\n\n')
     
     # Convergence parameters
-    f.write('CONV_CRITERIA = RESIDUAL\n\n')
+    f.write('CONV_CRITERIA = CAUCHY\n\n')
     f.write('RESIDUAL_REDUCTION = 8\n\n')
     f.write('RESIDUAL_MINVAL = -12\n\n')
     f.write('STARTCONV_ITER = 25\n\n')
     f.write('CAUCHY_ELEMS = 100\n\n')
-    f.write('CAUCHY_EPS = 1E-10\n\n')
+    f.write('CAUCHY_EPS = 1E-8\n\n')
     f.write('CAUCHY_FUNC_FLOW = DRAG\n\n')
     
     # Input/Output
@@ -108,7 +108,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('GRAD_OBJFUNC_FILENAME = of_grad.dat\n\n')
     f.write('SURFACE_FLOW_FILENAME = ' + tag + '_surface_flow\n\n')
     f.write('SURFACE_ADJ_FILENAME = surface_adjoint\n\n')
-    f.write('WRT_SOL_FREQ = 100\n\n')
+    f.write('WRT_SOL_FREQ = 1000\n\n')
     f.write('WRT_CON_FREQ = 1\n\n')
     
     f.close()

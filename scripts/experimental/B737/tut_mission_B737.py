@@ -121,6 +121,7 @@ def base_analysis(vehicle):
     
     aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
     aerodynamics.process.compute.lift.inviscid.settings.processors = 8
+    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
