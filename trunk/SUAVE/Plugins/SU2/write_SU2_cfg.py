@@ -90,7 +90,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('RESIDUAL_MINVAL = -12\n\n')
     f.write('STARTCONV_ITER = 25\n\n')
     f.write('CAUCHY_ELEMS = 100\n\n')
-    f.write('CAUCHY_EPS = 1E-8\n\n')
+    f.write('CAUCHY_EPS = 1E-6\n\n')
     f.write('CAUCHY_FUNC_FLOW = DRAG\n\n')
     
     # Input/Output

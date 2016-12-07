@@ -114,10 +114,10 @@ class SU2_inviscid(Aerodynamics):
         
         # inviscid drag
         inviscid_drag = np.zeros([data_len,1])
-        for ii,_ in enumerate(AoA):
-            inviscid_drag[ii] = drag_model.predict(np.array([AoA[ii][0],mach[ii][0]]))      
-        #state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
-
+        #for ii,_ in enumerate(AoA):
+        #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        
         return inviscid_lift, inviscid_drag
 
 
