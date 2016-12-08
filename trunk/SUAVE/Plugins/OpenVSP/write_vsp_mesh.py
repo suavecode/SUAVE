@@ -85,7 +85,10 @@ def SetSources(geometry):
     
     for comp in components:
         comp_name = vsp.GetGeomName(comp)
-        comp_type = comp_type_dict[comp_name]
+        if comp_name[0:8] == 'turbofan':
+            comp_type = comp_type_dict[comp_name[0:8]]
+        else:
+            comp_type = comp_type_dict[comp_name]
         if comp_type == 'wing':
             wing = comp_dict[comp_name]
             # check if segment exist
@@ -192,7 +195,7 @@ def SetSources(geometry):
         # nacelle currently triggered by use of the name turbofan, this won't work and might 
         # break if a propulsor but not a nacelle exists
         elif comp_type == 'turbofan':
-            propulsor = comp_dict[comp_name]
+            propulsor = comp_dict[comp_name[0:8]]
             if propulsor.has_key('vsp_mesh'):
                 len1 = propulsor.vsp_mesh.length
                 rad1 = propulsor.vsp_mesh.radius

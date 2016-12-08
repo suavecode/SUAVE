@@ -130,9 +130,9 @@ def write(vehicle,tag):
             
             # Calculate the local span
             if i_segs == n_segments:
-                span_i = span*(1 - wing.Segments[i_segs-1].percent_span_location)
+                span_i = span*(1 - wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)
             else:
-                span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)            
+                span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)           
             
             # Insert the new wing section
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
@@ -220,9 +220,6 @@ def write(vehicle,tag):
     
     if vehicle.propulsors.has_key('turbofan'):
     
-        nac_id = vsp.AddGeom( "FUSELAGE")
-        vsp.SetGeomName(nac_id, 'turbofan')
-        
         # unpack the turbofan
         turbofan  = vehicle.propulsors.turbofan
         n_engines = turbofan.number_of_engines
@@ -231,39 +228,42 @@ def write(vehicle,tag):
         origins   = turbofan.origin
         bpr       = turbofan.bypass_ratio
         
-        if n_engines == 2:
-            symmetric = 1
-        else:
-            symmetric = 0
-            
-        x = origins[0]
-        y = origins[1]
-        z = origins[2]
-            
-        # Length and overall diameter
-        vsp.SetParmVal(nac_id,"Length","Design",length)
-        vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
-        vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
-        vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-        vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-        vsp.SetParmVal(nac_id,'Z_Location','XForm',z) 
-        vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
-        vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
-        
-        xsecsurf = vsp.GetXSecSurf(nac_id,0)
-        vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
-        vsp.Update()
-        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
-        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
-        vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
-        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
-        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
-        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
-        vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
-        
-        vsp.Update()
+        for ii in xrange(0,int(n_engines)):
 
+            origin = origins[ii]
+            
+            x = origin[0]
+            y = origin[1]
+            z = origin[2]
+            
+            nac_id = vsp.AddGeom( "FUSELAGE")
+            vsp.SetGeomName(nac_id, 'turbofan')
+            
+            
+            # Length and overall diameter
+            vsp.SetParmVal(nac_id,"Length","Design",length)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+            vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z) 
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
+            vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
+            
+            xsecsurf = vsp.GetXSecSurf(nac_id,0)
+            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
+            
+            vsp.Update()
+    
 
     # Fuselage
     if vehicle.fuselages.has_key('fuselage'):
