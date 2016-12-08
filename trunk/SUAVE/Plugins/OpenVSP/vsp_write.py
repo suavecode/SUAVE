@@ -158,6 +158,9 @@ def write(vehicle,tag):
             vsp.Update()
        
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+        vsp.SetParmVal(wing_id,'CapUMaxOption','EndCap',2.)
+        vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
+        
         vsp.Update() # to fix problems with chords not matching up
         
         if wing.tag == 'main_wing':
