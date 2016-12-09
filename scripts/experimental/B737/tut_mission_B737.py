@@ -489,7 +489,7 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 4.1
     turbofan.nacelle_diameter  = 0.85
-    turbofan.origin            = [13.72, 4.86,-1.9]
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -953,7 +953,7 @@ def mission_setup(analyses):
     #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment = Segments.Climb.Constant_Speed_Constant_angle(base_segment)
     segment.tag = "climb_1"
 
     segment.analyses.extend( analyses.base )

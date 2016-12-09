@@ -9,9 +9,7 @@
 
 # SUAVE imports
 import SUAVE
-
-from SUAVE.Core import Data
-from SUAVE.Core import Units
+from SUAVE.Core import Data, Units
 
 # local imports
 from Aerodynamics import Aerodynamics
@@ -20,12 +18,8 @@ from SUAVE.Plugins.SU2.write_SU2_cfg import write_SU2_cfg
 
 # package imports
 import numpy as np
-import scipy as sp
-import scipy.interpolate
 import time
-
-#import pyKriging
-#from pyKriging.krige import kriging
+import pylab as plt
 import sklearn
 from sklearn import gaussian_process
 
@@ -193,9 +187,6 @@ class SU2_inviscid(Aerodynamics):
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
         
-        import pylab as plt
-        fig = plt.figure('Surrogate Plot')
-
         AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
         mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])
         

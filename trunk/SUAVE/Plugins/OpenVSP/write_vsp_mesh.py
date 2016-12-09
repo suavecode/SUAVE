@@ -49,8 +49,8 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
     vsp.SetCFDMeshVal(vsp.CFD_GROWTH_RATIO, growth_ratio)
     
+    vsp.AddDefaultSources()   
     SetSources(geometry)
-    #vsp.AddDefaultSources()   
     
     vsp.Update()
     
