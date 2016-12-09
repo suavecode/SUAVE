@@ -44,7 +44,7 @@ def main():
 
     # weight analysis
     weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()      
+    #breakdown = weights.evaluate()      
 
     # mission analysis
     mission = analyses.missions.base
@@ -124,16 +124,16 @@ def base_analysis(vehicle):
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
      
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-2.,3.,8.,12.]) * Units.deg
-    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
     #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
+    #stability = SUAVE.Analyses.Stability.Fidelity_Zero()
+    #stability.geometry = vehicle
+    #analyses.append(stability)
 
     # ------------------------------------------------------------------
     #  Energy
@@ -174,18 +174,18 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_takeoff               = 823000. * Units.lb
+    vehicle.mass_properties.takeoff                   = 823000. * Units.lb
     vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff
-    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.cargo                     = 00.  * Units.kilogram   
 
     # envelope properties
     vehicle.envelope.ultimate_load = 2.5
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area         = 124.862       
-    vehicle.passengers             = 170
+    vehicle.reference_area         = 7840. * Units.feet**2       
+    vehicle.passengers             = 450.
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
 
@@ -199,16 +199,16 @@ def vehicle_setup():
 
     wing.aspect_ratio            = 10.18 # Not set
     wing.thickness_to_chord      = 0.15 # Not set
-    wing.taper                   = 0.0069
+    wing.taper                   = 0.0138
     wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 289.0 * Units.feet    
 
     wing.chords.root             = 145.0 * Units.feet
-    wing.chords.tip              = 1.0  * Units.feet
+    wing.chords.tip              = 3.5  * Units.feet
     wing.chords.mean_aerodynamic = 80. * Units.feet
 
-    wing.areas.reference         = 0.  # Not set
+    wing.areas.reference         = 7840. * Units.feet**2  # Not set
     wing.sweeps.quarter_chord    = 23. * Units.degrees
 
     wing.twists.root             = 0.0 * Units.degrees
@@ -230,7 +230,7 @@ def vehicle_setup():
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 25.0 * Units.degrees
+    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
     segment.thickness_to_chord    = 0.165
     wing.Segments.append(segment)    
     
@@ -241,7 +241,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.921
     segment.dihedral_outboard     = 0.   * Units.degrees
     segment.sweeps.quarter_chord  = 52.5 * Units.degrees
-    segment.thickness_to_chord    = 0.165
+    segment.thickness_to_chord    = 0.167
     wing.Segments.append(segment)   
 
     segment = SUAVE.Components.Wings.Segment()
@@ -251,7 +251,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.76
     segment.dihedral_outboard     = 1.85 * Units.degrees
     segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
-    segment.thickness_to_chord    = 0.17
+    segment.thickness_to_chord    = 0.171
     wing.Segments.append(segment)   
     
     segment = SUAVE.Components.Wings.Segment()
@@ -313,7 +313,7 @@ def vehicle_setup():
     turbofan.engine_length     = 289. * Units.inches
     turbofan.nacelle_diameter  = 3.96 * Units.meters
     #turbofan.cooling_ratio     = 1.0
-    turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 5.0*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 5.0*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 5.0*Units.feet]]
+    turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
