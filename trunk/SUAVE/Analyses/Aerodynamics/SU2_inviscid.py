@@ -194,7 +194,7 @@ class SU2_inviscid(Aerodynamics):
         mach_points = np.array([.3,.5,.7,.9,1.1,1.3,1.5,1.7,1.9,2.1])      
         
         AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
-        mach_points = np.array([0.1,0.2,0.3,.35,.45,.55,.65,.75,.8,.9,1.1,1.3,1.5,1.7,1.9,2.1])        
+        mach_points = np.array([0.3,.35,.45,.55,.65,.75,.8,.9,1.1,1.3,1.5,1.7,1.9,2.1])        
         
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -207,17 +207,17 @@ class SU2_inviscid(Aerodynamics):
                 CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         
         fig = plt.figure('CL - CD Surrogate Plot')    
-        axes = fig.add_subplot(2,1,1)
+        axes = fig.add_subplot(1,1,1)
         plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
         plt.colorbar()
         plt.xlabel('Angle of Attack (deg)')
         plt.ylabel('Mach Number')
         
-        axes = fig.add_subplot(2,1,2)
-        plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
-        plt.colorbar()
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')   
+        #axes = fig.add_subplot(2,1,2)
+        #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        #plt.colorbar()
+        #plt.xlabel('Angle of Attack (deg)')
+        #plt.ylabel('Mach Number')   
         
         #plt.show() 
 
