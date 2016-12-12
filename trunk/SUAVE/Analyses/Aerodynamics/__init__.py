@@ -11,6 +11,7 @@ from Vortex_Lattice   import Vortex_Lattice
 from AERODAS          import AERODAS
 from SU2_Euler        import SU2_Euler
 from SU2_inviscid     import SU2_inviscid
+from SU2_Euler_Super  import SU2_Euler_Super
 
 import Surrogates
 
