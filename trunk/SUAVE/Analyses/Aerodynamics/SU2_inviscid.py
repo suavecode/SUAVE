@@ -200,18 +200,19 @@ class SU2_inviscid(Aerodynamics):
                 CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         
-        fig = plt.figure('CL - CD Surrogate Plot')    
-        axes = fig.add_subplot(2,1,1)
+        fig = plt.figure('Coefficient of Lift Surrogate Plot')    
+        #axes = fig.add_subplot(2,1,1)
         plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
-        plt.colorbar()
+        cbar = plt.colorbar()
         plt.xlabel('Angle of Attack (deg)')
         plt.ylabel('Mach Number')
-        
-        axes = fig.add_subplot(2,1,2)
-        plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
-        plt.colorbar()
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')   
+        cbar.ax.set_ylabel('Coefficient of Lift')
+
+        #axes = fig.add_subplot(2,1,2)
+        #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        #plt.colorbar()
+        #plt.xlabel('Angle of Attack (deg)')
+        #plt.ylabel('Mach Number')   
         
         #plt.show() 
 
