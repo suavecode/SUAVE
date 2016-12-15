@@ -1,7 +1,7 @@
 # Nose_Landing_Gear.py
 # 
 # Created:  Aug 2015, C. R. I. da Silva
-# Modified: Feb 2016, T. MacDonald
+# Modified: Feb 2016, T. MacDonald 
 
 # ----------------------------------------------------------------------
 #  Imports

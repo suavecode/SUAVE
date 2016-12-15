@@ -2,6 +2,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+# Modified: Aug 2016, T. Orra, D. Bianchi
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -26,8 +27,8 @@ class Weights(Analysis):
         self.settings = Data()
         self.settings.empty_weight_method = \
             SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
-        
-        
+        self.settings.empty_weight_increment = 0.
+
     def evaluate(self,conditions=None):
         
         # unpack
@@ -36,7 +37,10 @@ class Weights(Analysis):
         
         # evaluate
         results = empty(vehicle)
-        
+
+        # applying empty weight offset
+        results.empty += self.settings.empty_weight_increment
+
         # storing weigth breakdown into vehicle
         vehicle.weight_breakdown = results 
 

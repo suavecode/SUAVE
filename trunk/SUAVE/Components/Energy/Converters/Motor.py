@@ -12,6 +12,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -30,6 +31,7 @@ class Motor(Energy_Component):
         self.gear_ratio         = 0.0
         self.gearbox_efficiency = 0.0
         self.expected_current   = 0.0
+        self.interpolated_func  = None
     
     def omega(self,conditions):
         """ The motor's rotation rate
@@ -81,6 +83,43 @@ class Motor(Energy_Component):
 
         return omega1
     
+    def torque(self,conditions):        
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        Kv    = self.speed_constant/G
+        v     = self.inputs.voltage
+        omega = self.inputs.omega
+        
+        # Torque
+        Q = ((v-omega1/Kv)/Res -io)/Kv
+        
+        self.outputs.torque = Q
+        self.outputs.omega  = omega
+    
+        return Q
+    
+    def voltage_current(self,conditions):
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        kv    = self.speed_constant/G
+        Q     = self.inputs.torque
+        omega = self.inputs.omega        
+        
+        v = (Q*kv+io)*Res + omega/kv
+        i = (v-omega/kv)/Res
+        
+        self.outputs.voltage = v
+        self.outputs.current = i
+        
+        return
+    
+    
     def current(self,conditions):
         """ The motor's current
             
@@ -109,7 +148,7 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
-        i=(v-omeg/Kv)/Res
+        i = (v-omeg/Kv)/Res
         
         # This line means the motor cannot recharge the battery
         i[i < 0.0] = 0.0
@@ -117,10 +156,49 @@ class Motor(Energy_Component):
         # Pack
         self.outputs.current = i
           
-        etam=(1-io/i)*(1-i*Res/v)
+        etam = (1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
         
         return i
 
+    def load_csv_data(self,file_name):
         
-    
+        # Load the CSV file
+        my_data = np.genfromtxt(file_name, delimiter=',')
+        
+        xy = my_data[11:,:2] # Speed and torque
+        z  = my_data[11:,2]  # Efficiency
+        
+        f  = sp.interpolate.CloughTocher2DInterpolator(xy,z)
+        
+        # Keep the interpolated function
+        self.interpolated_func = f
+        
+        return f
+        
+    def power_from_fit(self):
+        
+        # Unpack
+        omega  = self.inputs.omega
+        torque = self.inputs.torque
+        func   = self.interpolated_func
+        
+        # Find the values
+        efficiency = func(omega,torque)
+        
+        # Ensure the values make some sense
+        efficiency[efficiency<=0.]       = .01
+        efficiency[efficiency>1.]        = 1.
+        efficiency[np.isnan(efficiency)] = .01
+        
+        # Mechanical Power
+        mech_power = omega*torque
+        
+        # Electrical Power
+        elec_power = mech_power/efficiency
+        
+        # Pack the outputs
+        self.outputs.efficiency = efficiency
+        self.outputs.power_in   = elec_power
+        
+        return elec_power

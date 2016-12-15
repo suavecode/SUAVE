@@ -43,7 +43,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
 
             analyses  - SUAVE analyses type data structure, with the following fields:
                 analyses.base.atmosphere   - Atmosphere to be used for calculation
-                 
+
                 
             airport   - SUAVE type airport data, with followig fields:
                 atmosphere                  - Airport atmosphere (SUAVE type)
@@ -133,7 +133,15 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     state = Data()
     state.conditions = Aerodynamics() 
     state.numerics   = Numerics()
-    conditions = state.conditions    
+    from SUAVE.Methods.Missions.Segments.Common.Numerics import initialize_differentials_dimensionless, update_differentials_time
+##    initialize_differentials_dimensionless(None,state)
+    state.conditions.frames.inertial.time = [0,60]
+    state.numerics.time.integrate = 1.
+    state.numerics.time.differentiate = 1.
+##    update_differentials_time(None,state)
+
+
+    conditions = state.conditions
 
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
@@ -141,7 +149,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.mach_number      = np.array(np.atleast_1d(speed_for_thrust/ a))
     conditions.freestream.temperature      = np.array(np.atleast_1d(T))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
-    conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))
+    conditions.propulsion.throttle         = np.array(np.atleast_2d(1.))
     
     results = vehicle.propulsors.evaluate_thrust(state) # total thrust
     
@@ -193,8 +201,12 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         state.conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * V2_speed**2))
         state.conditions.freestream.velocity         = np.array(np.atleast_1d(V2_speed))
         state.conditions.freestream.mach_number      = np.array(np.atleast_1d(V2_speed/ a))
-        results = vehicle.propulsors['turbofan'].engine_out(state)
-        thrust = results.thrust_force_vector[0][0]
+        try:
+            results = vehicle.propulsors['turbofan'].engine_out(state)
+            thrust = results.thrust_force_vector[0][0]
+        except:
+            results = vehicle.propulsors.evaluate_thrust(state) # total thrust
+            thrust = results.thrust_force_vector / (engine_number - 1)
 
         # Compute windmilling drag
         windmilling_drag_coefficient = windmilling_drag(vehicle,state)
@@ -213,9 +225,13 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     
         # Compute 2nd segment climb gradient
         second_seg_climb_gradient = thrust / (weight*sea_level_gravity) - 1. / l_over_d_v2
-        
-        return takeoff_field_length, second_seg_climb_gradient
-    
+
+        output = Data()
+        output.takeoff_field_length = takeoff_field_length
+        output.second_seg_climb_gradient = second_seg_climb_gradient
+##        return takeoff_field_length, second_seg_climb_gradient
+        return output
+
     else:
         # return only takeoff_field_length
         return takeoff_field_length

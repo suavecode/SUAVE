@@ -5,6 +5,7 @@ from atmospheric_attenuation import atmospheric_attenuation
 from noise_tone_correction import noise_tone_correction
 from dbA_noise import dbA_noise
 from noise_geometric import noise_geometric
+from noise_geometric import geometric_propeller
 from noise_certification_limits import noise_certification_limits
 from noise_counterplot import noise_counterplot
 from senel_noise import senel_noise
