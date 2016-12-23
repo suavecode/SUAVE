@@ -45,9 +45,10 @@ def write(vehicle,tag):
         dihedral   = wing.dihedral / Units.deg
         
         # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
-        n_segments = 0
         if len(wing.Segments.keys())>0:
             n_segments = len(wing.Segments.keys())
+        else:
+            n_segments = 0
 
         # Create the wing
         wing_id = vsp.AddGeom( "WING" )
@@ -57,6 +58,9 @@ def write(vehicle,tag):
         # Make names for each section and insert them into the wing if necessary
         x_secs       = []
         x_sec_curves = []
+        # n_segments + 2 will create an extra segment if the root segment is 
+        # included in the list of segments. This is not used and the tag is
+        # removed when the segments are checked for this case.
         for i_segs in xrange(0,n_segments+2):
             x_secs.append('XSec_' + str(i_segs))
             x_sec_curves.append('XSecCurve_' + str(i_segs))
@@ -113,14 +117,20 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
             
         vsp.Update()
-            
-        adjust = 1
+          
         if n_segments>0:
             if wing.Segments[0].percent_span_location==0.:
+                x_secs[-1] = [] # remove extra section tag (for clarity)
+                segment_0_is_root_flag = True
                 adjust = 0
+            else:
+                segment_0_is_root_flag = False
+                adjust = 1
+        else:
+            adjust = 1
         
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments+1):
+        for i_segs in xrange(1,n_segments+1):            
             
             # Unpack thing
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
@@ -132,19 +142,16 @@ def write(vehicle,tag):
             if i_segs == n_segments:
                 span_i = span*(1 - wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)
             else:
-                span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)           
+                span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)                      
             
             # Insert the new wing section
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
-                if i_segs != 1:
-                    vsp.InsertXSec(wing_id,i_segs-1,vsp.XS_FILE_AIRFOIL)
+                vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FILE_AIRFOIL)
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
-                xsec = vsp.GetXSec(xsecsurf,i_segs)
+                xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)
                 vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
-                
             else:
-                if i_segs != 1:
-                    vsp.InsertXSec(wing_id,i_segs-1,vsp.XS_FOUR_SERIES)
+                vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FOUR_SERIES)
             
             # Set the parms
             vsp.SetParmVal( wing_id,'Span',x_secs[i_segs+adjust],span_i)
