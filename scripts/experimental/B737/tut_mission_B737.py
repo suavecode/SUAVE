@@ -25,9 +25,11 @@ Data, Container
 
 
 from SUAVE.Plugins.OpenVSP import write
+from SUAVE.Plugins.OpenVSP.get_vsp_areas import get_vsp_areas
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
+
 
 # ----------------------------------------------------------------------
 #   Main
@@ -906,12 +908,16 @@ def simple_sizing(configs):
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
+    # Areas
+    wetted_areas = get_vsp_areas(base.tag)
 
+    for wing in base.wings:
+        wing.areas.wetted   = wetted_areas[wing.tag]
+        wing.areas.exposed  = wetted_areas[wing.tag]
+        wing.areas.affected = 0.6 * wing.areas.wetted # this appear to only be used in computing max lift coeff
+
+    base.fuselages.fuselage.areas.wetted = wetted_areas['fuselage']
+    
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
 
