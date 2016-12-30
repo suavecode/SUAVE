@@ -124,6 +124,7 @@ def base_analysis(vehicle):
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
      
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-2.,3.,8.,12.]) * Units.deg
+    #aerodynamics.process.compute.lift.inviscid.training.mach  = np.array([0.7])
     #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -296,7 +297,7 @@ def vehicle_setup():
 
 
     # add to vehicle
-    #vehicle.append_component(wing)
+    vehicle.append_component(wing)
 
     # ------------------------------------------------------------------
     #   Turbofan Network
