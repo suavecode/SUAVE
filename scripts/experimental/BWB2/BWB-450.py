@@ -208,7 +208,7 @@ def vehicle_setup():
     wing.chords.tip              = 3.5  * Units.feet
     wing.chords.mean_aerodynamic = 80. * Units.feet
 
-    wing.areas.reference         = 7840. * Units.feet**2  # Not set
+    wing.areas.reference         = 7840. * Units.feet**2
     wing.sweeps.quarter_chord    = 33. * Units.degrees
 
     wing.twists.root             = 0.0 * Units.degrees
@@ -305,7 +305,7 @@ def vehicle_setup():
     #instantiate the gas turbine network
 
     turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan'
+    turbofan.tag = 'turbofan1'
     
     # setup
     turbofan.number_of_engines = 3.0
@@ -757,7 +757,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.number_control_points = 8
+    base_segment.state.numerics.number_control_points = 16
 
 
     # ------------------------------------------------------------------

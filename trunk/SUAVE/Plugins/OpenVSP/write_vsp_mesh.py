@@ -51,6 +51,13 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     if growth_limiting_flag == True:
         vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
     
+    # Set the max edge length so we have on average 50 elements per chord length
+    MAC     = geometry.wings.main_wing.chords.mean_aerodynamic
+    min_len = MAC/50.
+    vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
+    
+    
+    
     #vsp.AddDefaultSources()   
     SetSources(geometry)
     
