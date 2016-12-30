@@ -163,8 +163,10 @@ def base_analysis(vehicle):
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler_Super()
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-3,0.,1.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3,.5,.7,.9,1.1,1.3,1.5,1.7,1.9,2.0])
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([1.,]) * Units.deg
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.0])
+    #aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-3,0.,1.,3.,6.]) * Units.deg
+    #aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3,.5,.7,.9,1.1,1.3,1.5,1.7,1.9,2.0])    
     aerodynamics.settings.vsp_mesh_growth_ratio = 1.3
     aerodynamics.settings.half_mesh_flag = False
     aerodynamics.settings.vsp_mesh_growth_limiting_flag = True
