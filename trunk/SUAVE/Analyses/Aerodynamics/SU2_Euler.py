@@ -48,6 +48,7 @@ class SU2_Euler(Markup):
         settings.parallel                           = False
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
+        settings.vsp_mesh_growth_limiting_flag      = False
         
         # build the evaluation process
         compute = self.process.compute
@@ -88,7 +89,7 @@ class SU2_Euler(Markup):
         
         tag = self.geometry.tag
         if self.process.compute.lift.inviscid.training_file is None:
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio)
+            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             write_geo_file(tag)
             mesh_geo_file(tag)
         

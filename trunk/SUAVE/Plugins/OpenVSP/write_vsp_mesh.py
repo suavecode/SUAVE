@@ -3,7 +3,7 @@ import numpy as np
 import time
 import fileinput
 
-def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
+def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
     
     vsp.ClearVSPModel()
     
@@ -48,6 +48,8 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
     vsp.SetCFDMeshVal(vsp.CFD_GROWTH_RATIO, growth_ratio)
+    if growth_limiting_flag == True:
+        vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
     
     # Set the max edge length so we have on average 50 elements per chord length
     MAC     = geometry.wings.main_wing.chords.mean_aerodynamic
@@ -235,32 +237,39 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
     wloc2 = 0.5
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
-    # Remove custom TE (this was actually LE)
-    #wloc1 = 0.5
-    #wloc2 = 0.5
-    #vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)  
+    # Comment below to remove custom TE 
+    wloc1 = 0.
+    wloc2 = 0.
+    if (custom_flag == True) and (seg.vsp_mesh.has_key('matching_TE')):
+        if seg.vsp_mesh.matching_TE == False:
+            vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,0.01 * cr,0.2 * cr,uloc1,wloc1,0.01 * ct,0.2 * ct,uloc2,wloc2) 
+        else:
+            vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
+    else:
+        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)  
     if wingtip_flag == True:
         len1 = len2
         rad1 = rad2
         wloc1 = 0.0
+        wloc2 = 0.5
         uloc1 = uloc2
         # to match not custom TE
         len1 = 0.01 * ct
         rad1 = 0.2 * ct
         vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
         
-    # Keep defaults for TE
-    len1 = 0.01 * cr
-    len2 = 0.01 * ct
-    rad1 = 0.2 * cr
-    rad2 = 0.2 * ct
-    uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
-    wloc1 = 0.0
-    uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
-    wloc2 = 0.0    
-    wloc1 = 0.0
-    wloc2 = 0.0
-    vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)      
+    ## Keep defaults for TE
+    #len1 = 0.01 * cr
+    #len2 = 0.01 * ct
+    #rad1 = 0.2 * cr
+    #rad2 = 0.2 * ct
+    #uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
+    #wloc1 = 0.0
+    #uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
+    #wloc2 = 0.0    
+    #wloc1 = 0.0
+    #wloc2 = 0.0
+    #vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)      
     
     
 if __name__ == '__main__':
