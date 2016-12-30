@@ -3,7 +3,7 @@ import numpy as np
 import time
 import fileinput
 
-def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
+def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
     
     vsp.ClearVSPModel()
     
@@ -48,7 +48,8 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio):
     vsp.SetCFDMeshVal(vsp.CFD_FAR_HEIGHT,far_length)    
     vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_EDGE_LEN, max_len)
     vsp.SetCFDMeshVal(vsp.CFD_GROWTH_RATIO, growth_ratio)
-    vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
+    if growth_limiting_flag == True:
+        vsp.SetCFDMeshVal(vsp.CFD_LIMIT_GROWTH_FLAG, 1.0)
     
     #vsp.AddDefaultSources()   
     SetSources(geometry)
@@ -232,7 +233,7 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     # Comment below to remove custom TE 
     wloc1 = 0.
     wloc2 = 0.
-    if seg.vsp_mesh.has_key('matching_TE'):
+    if (custom_flag == True) and (seg.vsp_mesh.has_key('matching_TE')):
         if seg.vsp_mesh.matching_TE == False:
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,0.01 * cr,0.2 * cr,uloc1,wloc1,0.01 * ct,0.2 * ct,uloc2,wloc2) 
         else:

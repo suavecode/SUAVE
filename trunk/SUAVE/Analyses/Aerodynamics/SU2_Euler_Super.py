@@ -21,14 +21,15 @@ from SUAVE.Plugins.GMSH.mesh_geo_file import mesh_geo_file
 from Results import Results
 
 # the aero methods
-from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
+from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
+from SUAVE.Methods.Aerodynamics import Fidelity_Zero   as FZ_Methods
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-class SU2_Euler(Markup):
+class SU2_Euler_Super(Markup):
     
     def __defaults__(self):
         
@@ -48,7 +49,6 @@ class SU2_Euler(Markup):
         settings.parallel                           = False
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
-        settings.vsp_mesh_growth_limiting_flag      = False
         
         # build the evaluation process
         compute = self.process.compute
@@ -62,24 +62,23 @@ class SU2_Euler(Markup):
         
         # Do a traditional drag buildup for viscous components
         compute.drag = Process()
+        compute.drag.compressibility               = Process()
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing 
+        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing # SZ
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage # SZ
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
-        compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
-        compute.drag.parasite.total                = Methods.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.wings         = Process_Geometry('wings')
-        compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total        
-        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
+        compute.drag.parasite.total                = Methods.Drag.parasite_total # SZ
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
+        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
+        compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
-        compute.drag.spoiler                       = Methods.Drag.spoiler_drag
+        compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag
         compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler.total_aircraft_drag
         
         
