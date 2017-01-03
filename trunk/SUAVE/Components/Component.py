@@ -1,7 +1,7 @@
 # Component.py
 # 
 # Created:  
-# Modified: Feb 2016, T. MacDonald
+# Modified: Dec 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

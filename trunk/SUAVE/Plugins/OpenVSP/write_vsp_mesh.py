@@ -1,3 +1,8 @@
+# write_vsp_mesh.py
+# 
+# Created:  Oct 2016, T. MacDonald
+# Modified: Dec 2016, T. MacDonald
+
 import vsp_g as vsp
 import numpy as np
 import time
@@ -5,8 +10,10 @@ import fileinput
 
 def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
     
+    # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
-    
+
+    # Turn on symmetry plane splitting to improve robustness of meshing process
     if half_mesh_flag == True:
         f = fileinput.input(tag + '.vsp3',inplace=1)
         for line in f:
@@ -17,12 +24,14 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     vsp.ReadVSPFile(tag + '.vsp3')
     
+    # Set output file types and what will be meshed
     file_type = vsp.CFD_STL_TYPE + vsp.CFD_KEY_TYPE
     set_int   = vsp.SET_ALL
 
     vsp.SetComputationFileName(vsp.CFD_STL_TYPE, tag + '.stl')
     vsp.SetComputationFileName(vsp.CFD_KEY_TYPE, tag + '.key')
     
+    # Set to create a tagged STL mesh file
     vehicle_cont = vsp.FindContainer('Vehicle',0)
     STL_multi    = vsp.FindParm(vehicle_cont, 'MultiSolid', 'STLSettings')
     vsp.SetParmVal(STL_multi, 1.0)
@@ -41,7 +50,6 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     max_len = np.max([xlen,ylen,zlen])
     far_length = 10.*max_len
         
-    #vsp.SetCFDMeshVal(vsp.CFD_FAR_MAX_GAP, 0.005) # to prevent half mesh tail errors
     vsp.SetCFDMeshVal(vsp.CFD_FAR_SIZE_ABS_FLAG,1)
     vsp.SetCFDMeshVal(vsp.CFD_FAR_LENGTH,far_length)
     vsp.SetCFDMeshVal(vsp.CFD_FAR_WIDTH,far_length)
@@ -58,7 +66,7 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     
     
-    #vsp.AddDefaultSources()   
+    # vsp.AddDefaultSources()   
     SetSources(geometry)
     
     vsp.Update()
@@ -100,15 +108,11 @@ def SetSources(geometry):
             comp_type = comp_type_dict[comp_name]
         if comp_type == 'wing':
             wing = comp_dict[comp_name]
-            # check if segment exist
-            # check if segments have info
-            # check if overall info exists
-            # if not, use default source procedure
-            if len(wing.Segments) == 0:
+            if len(wing.Segments) == 0: # check if segments exist
                 num_secs = 1
                 use_base = True
             else:
-                if wing.Segments[0].percent_span_location == 0.:
+                if wing.Segments[0].percent_span_location == 0.: # check if first segment starts at the root
                     num_secs = len(wing.Segments)
                     use_base = False
                 else:
@@ -118,9 +122,8 @@ def SetSources(geometry):
             u_start = 0.
             base_root = wing.chords.root
             base_tip  = wing.chords.tip            
-            #xsecsurf = vsp.GetXSecSurf(comp,0)
             for ii in xrange(0,num_secs):
-                if (ii==0) and (use_base == True):
+                if (ii==0) and (use_base == True): # create sources on root segment
                     cr = base_root
                     if len(wing.Segments) > 0:
                         ct = base_root  * wing.Segments[0].root_chord_percent
@@ -139,7 +142,7 @@ def SetSources(geometry):
                         wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)                        
-                elif (ii==0) and (use_base == False):
+                elif (ii==0) and (use_base == False): 
                     cr = base_root * wing.Segments[0].root_chord_percent
                     if num_secs > 1:
                         ct = base_root  * wing.Segments[1].root_chord_percent
@@ -155,10 +158,6 @@ def SetSources(geometry):
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)
                 elif ii < num_secs - 1:
-                    #if use_base == True: # for use with special case once geometry write is working
-                        #jj = ii-1
-                    #else:
-                        #jj = ii
                     cr = base_root * wing.Segments[ii].root_chord_percent
                     ct = base_root * wing.Segments[ii+1].root_chord_percent
                     seg = wing.Segments[ii]
@@ -169,11 +168,7 @@ def SetSources(geometry):
                     wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)                   
-                else:
-                    #if use_base == True:
-                        #jj = ii-1
-                    #else:
-                        #jj = ii                    
+                else:                  
                     cr = base_root * wing.Segments[ii].root_chord_percent
                     ct = base_tip
                     seg = wing.Segments[ii]
@@ -237,11 +232,10 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
     wloc2 = 0.5
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
-    # Comment below to remove custom TE 
     wloc1 = 0.
     wloc2 = 0.
     if (custom_flag == True) and (seg.vsp_mesh.has_key('matching_TE')):
-        if seg.vsp_mesh.matching_TE == False:
+        if seg.vsp_mesh.matching_TE == False: # use default values if so
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,0.01 * cr,0.2 * cr,uloc1,wloc1,0.01 * ct,0.2 * ct,uloc2,wloc2) 
         else:
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
@@ -256,20 +250,7 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
         # to match not custom TE
         len1 = 0.01 * ct
         rad1 = 0.2 * ct
-        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2) 
-        
-    ## Keep defaults for TE
-    #len1 = 0.01 * cr
-    #len2 = 0.01 * ct
-    #rad1 = 0.2 * cr
-    #rad2 = 0.2 * ct
-    #uloc1 = ((ii+1)+u_start-1 +1)/(num_secs+2) # index additions are shown explicitly for cross-referencing with VSP code
-    #wloc1 = 0.0
-    #uloc2 = ((ii+1)+u_start +1)/(num_secs+2)
-    #wloc2 = 0.0    
-    #wloc1 = 0.0
-    #wloc2 = 0.0
-    #vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)      
+        vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)    
     
     
 if __name__ == '__main__':

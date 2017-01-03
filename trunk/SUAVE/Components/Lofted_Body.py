@@ -1,7 +1,7 @@
 # Lofted_Body.py
 # 
 # Created:  
-# Modified: Feb 2016, T. MacDonald
+# Modified: Dec 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,8 +19,7 @@ from SUAVE.Core         import DataOrdered
 class Lofted_Body(Physical_Component):
     def __defaults__(self):
         self.tag = 'Lofted_Body'
-        #self.Segments = SegmentContainer() # think edges
-        self.Segments = DataOrdered()
+        self.Segments = DataOrdered() # think edges
         self.Sections = SectionContainer() # think nodes
     
    
@@ -62,8 +61,6 @@ class Curve(Component):
 #  Containers
 # ------------------------------------------------------------
 
-#class SegmentContainer(Component.Container):
-    #pass   
 
 class SectionContainer(Component.Container):
     pass
@@ -78,7 +75,6 @@ class CurveContainer(Component.Container):
 
 Section.Curve      = Curve
 Section.Container  = SectionContainer
-#Segment.Container  = SegmentContainer
 Curve.Container    = CurveContainer
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
