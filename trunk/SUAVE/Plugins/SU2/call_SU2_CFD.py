@@ -1,3 +1,8 @@
+# call_SU2_CFD.py
+# 
+# Created:  Oct 2016, T. MacDonald
+# Modified: Nov 2016, E. Botero
+
 import subprocess
 from SUAVE.Core import Data
 import sys, os

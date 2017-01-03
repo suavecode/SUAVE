@@ -1,14 +1,13 @@
 # total_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
-# Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra
-#           Jan 2016, E. Botero 
+# Modified: Oct 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
+# SUAVE imports
 from SUAVE.Analyses import Results
 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
@@ -47,7 +46,7 @@ def total_aircraft_drag(state,settings,geometry):
             
     """    
     
-    # unpack inputs
+    # Unpack inputs
     conditions    = state.conditions
     configuration = settings
     
@@ -57,11 +56,11 @@ def total_aircraft_drag(state,settings,geometry):
     #inviscid_drag              = conditions.aerodynamics.inviscid_drag_coefficient 
 
     aircraft_total_drag = 0.0
-    # add drag_coefficient_increment
+    # Add drag_coefficient_increment
     aircraft_total_drag += trim_corrected_drag + drag_coefficient_increment + spoiler_drag
     conditions.aerodynamics.drag_breakdown.drag_coefficient_increment = drag_coefficient_increment
 
-    # store to results
+    # Store to results
     conditions.aerodynamics.drag_breakdown.total = aircraft_total_drag
     conditions.aerodynamics.drag_coefficient     = aircraft_total_drag
     

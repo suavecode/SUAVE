@@ -1,8 +1,7 @@
 # Airfoil.py
 # 
 # Created:  
-# Modified: Feb 2016, T. MacDonald
-#           Sep 2016, E. Botero
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,30 +17,26 @@ import numpy as np
 class Airfoil(Lofted_Body.Section):
     def __defaults__(self):
         self.tag                = 'Airfoil'
-        #self.type               = 0
-        #self.inverted           = False
-        #self.camber             = 0.0
-        #self.camber_loc         = 0.0
         self.thickness_to_chord = 0.0
-        #self.thickness_loc      = 0.0
-        #self.radius_le          = 0.0
-        #self.radius_te          = 0.0
-        #self.six_series         = 0
-        #self.ideal_cl           = 0.0
-        #self.A                  = 0.0
-        #self.slat_flag          = False
-        #self.slat_shear_flag    = False
-        #self.slat_chord         = 0.0
-        #self.slat_angle         = 0.0
-        #self.flap_flag          = False
-        #self.flap_shear_flag    = False
-        #self.flap_chord         = 0.0
-        #self.flap_angle         = 0.0
         self.coordinate_file    = None    # absolute path
         self.points             = [[],[]]
         
     
     def import_airfoil_dat(self):
+        
+        # Airfoils should be in Lednicer format
+        # i.e. :
+        #
+        #EXAMPLE AIRFOIL
+        # 3. 3. 
+        #
+        # 0.0 0.0
+        # 0.5 0.1
+        # 1.0 0.0
+        #
+        # 0.0 0.0
+        # 0.5 -0.1
+        # 1.0 0.0
         
         filename = self.coordinate_file
         

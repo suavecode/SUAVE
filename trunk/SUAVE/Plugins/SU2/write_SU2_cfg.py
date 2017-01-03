@@ -1,3 +1,8 @@
+# write_SU2_cfg.py
+# 
+# Created:  Oct 2016, T. MacDonald
+# Modified: Dec 2016, E. Botero
+
 
 def write_SU2_cfg(tag,SU2_settings):
     

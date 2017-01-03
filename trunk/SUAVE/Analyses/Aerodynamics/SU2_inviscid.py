@@ -1,7 +1,7 @@
 # SU2_inviscid.py
 #
 # Created:  Sep 2016, E. Botero
-# Modified:
+# Modified: Dec 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,12 +11,12 @@
 import SUAVE
 from SUAVE.Core import Data, Units
 
-# local imports
+# Local imports
 from Aerodynamics import Aerodynamics
 from SUAVE.Plugins.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Plugins.SU2.write_SU2_cfg import write_SU2_cfg
 
-# package imports
+# Package imports
 import numpy as np
 import time
 import pylab as plt
@@ -28,14 +28,6 @@ from sklearn import gaussian_process
 # ----------------------------------------------------------------------
 
 class SU2_inviscid(Aerodynamics):
-    """ SUAVE.Analyses.Aerodynamics.Fidelity_Zero
-        aerodynamic model that builds a surrogate model for a model,
-        using SU2 Euler, and various handbook methods
-        for everything else
-
-        this class is callable, see self.__call__
-
-    """
 
     def __defaults__(self):
 
@@ -48,7 +40,7 @@ class SU2_inviscid(Aerodynamics):
         self.settings.processors         = 1
         self.settings.maximum_iterations = 1500
 
-        # conditions table, used for surrogate model training
+        # Conditions table, used for surrogate model training
         self.training = Data()        
         self.training.angle_of_attack  = np.array([-2.,3.,8.]) * Units.deg
         self.training.Mach             = np.array([0.3,0.7,0.85])
@@ -56,48 +48,32 @@ class SU2_inviscid(Aerodynamics):
         self.training.drag_coefficient = None
         self.training_file             = None
         
-        # surrogate model
+        # Surrogate model
         self.surrogates = Data()
         self.surrogates.coefficients   = None
  
         
     def initialize(self):
                    
-        # sample training data
+        # Sample training data
         self.sample_training()
                     
-        # build surrogate
+        # Build surrogate
         self.build_surrogate()
 
 
     def evaluate(self,state,settings,geometry):
-        """ process vehicle to setup geometry, condititon and settings
 
-            Inputs:
-                conditions - DataDict() of aerodynamic conditions
-
-            Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
-
-            Assumptions:
-                non-linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or settings
-        """
-
-        # unpack
+        # Unpack
         surrogates = self.surrogates        
         conditions = state.conditions
         
-        # unpack
         mach = conditions.freestream.mach_number
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model = surrogates.lift_coefficient
         drag_model = surrogates.drag_coefficient
         
-        # for Kriging
+        # Inviscid lift
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
@@ -106,7 +82,7 @@ class SU2_inviscid(Aerodynamics):
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
         
-        # inviscid drag
+        # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag = np.zeros([data_len,1])
         #for ii,_ in enumerate(AoA):
         #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
@@ -117,7 +93,7 @@ class SU2_inviscid(Aerodynamics):
 
     def sample_training(self):
         
-        # unpack
+        # Unpack
         geometry = self.geometry
         settings = self.settings
         training = self.training
@@ -127,12 +103,12 @@ class SU2_inviscid(Aerodynamics):
         CL   = np.zeros([len(AoA)*len(mach),1])
         CD   = np.zeros([len(AoA)*len(mach),1])
 
-        # condition input, local, do not keep
+        # Condition input, local, do not keep (k is used to avoid confusion)
         konditions              = Data()
         konditions.aerodynamics = Data()
 
         if self.training_file is None:
-            # calculate aerodynamics for table
+            # Calculate aerodynamics for table
             table_size = len(AoA)*len(mach)
             xy = np.zeros([table_size,2])
             count = 0
@@ -141,11 +117,10 @@ class SU2_inviscid(Aerodynamics):
                 for j,_ in enumerate(mach):
                     
                     xy[count,:] = np.array([AoA[i],mach[j]])
-                    # overriding conditions, thus the name mangling
+                    # Set training conditions
                     konditions.aerodynamics.angle_of_attack = AoA[i]
                     konditions.aerodynamics.mach            = mach[j]
                     
-                    # these functions are inherited from Aerodynamics() or overridden
                     CL[count],CD[count] = call_SU2(konditions, settings, geometry)
                     count += 1
             
@@ -161,7 +136,7 @@ class SU2_inviscid(Aerodynamics):
         # Save the data
         np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='AoA Mach CL CD')
 
-        # store training data
+        # Store training data
         training.coefficients = np.hstack([CL,CD])
         training.grid_points  = xy
         
@@ -170,7 +145,7 @@ class SU2_inviscid(Aerodynamics):
 
     def build_surrogate(self):
 
-        # unpack data
+        # Unpack data
         training  = self.training
         AoA_data  = training.angle_of_attack
         mach_data = training.Mach
@@ -214,7 +189,8 @@ class SU2_inviscid(Aerodynamics):
         plt.ylabel('Mach Number')
         cbar.ax.set_ylabel('Coefficient of Lift')
 
-        #axes = fig.add_subplot(2,1,2)
+        # Stub for plotting drag if implemented:
+
         #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
         #plt.colorbar()
         #plt.xlabel('Angle of Attack (deg)')
@@ -231,7 +207,7 @@ class SU2_inviscid(Aerodynamics):
 # ----------------------------------------------------------------------
 
 def call_SU2(conditions,settings,geometry):
-    """ calculate total vehicle lift coefficient by SU2
+    """ calculate total vehicle lift coefficient with SU2
     """
 
     half_mesh_flag = settings.half_mesh_flag
@@ -249,10 +225,10 @@ def call_SU2(conditions,settings,geometry):
     SU2_settings.angle_of_attack = conditions.aerodynamics.angle_of_attack / Units.deg
     SU2_settings.maximum_iterations = iters
     
-    # build SU2 cfg
+    # Build SU2 configuration file
     write_SU2_cfg(tag, SU2_settings)
     
-    # run su2
+    # Run SU2
     CL, CD = call_SU2_CFD(tag,parallel,processors)
         
     return CL, CD

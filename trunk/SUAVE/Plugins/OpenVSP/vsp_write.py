@@ -1,7 +1,7 @@
 # vsp_write.py
 # 
 # Created:  Jul 2016, T. MacDonald
-# Modified: 
+# Modified: Dec 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,17 +13,16 @@ from SUAVE.Core import Units, Data
 import vsp_g as vsp
 import numpy as np
 
-# ----------------------------------------------------------------------
-#  write
-# ----------------------------------------------------------------------
-
 def write(vehicle,tag):
     
+    # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
     
     area_tags = dict() # for wetted area assignment
     
+    # -------------
     # Wings
+    # -------------
     
     for wing in vehicle.wings:
     
@@ -44,7 +43,7 @@ def write(vehicle,tag):
         tip_tc     = wing.thickness_to_chord 
         dihedral   = wing.dihedral / Units.deg
         
-        # Check to see if segments are defined. Get count, minimum 2 (0 and 1)
+        # Check to see if segments are defined. Get count
         if len(wing.Segments.keys())>0:
             n_segments = len(wing.Segments.keys())
         else:
@@ -75,6 +74,7 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'Y_Rel_Location','XForm',wing_y)
         vsp.SetParmVal( wing_id,'Z_Rel_Location','XForm',wing_z)
         
+        # This ensures that the other VSP parameters are driven properly
         vsp.SetDriverGroup( wing_id, 1, vsp.SPAN_WSECT_DRIVER, vsp.ROOTC_WSECT_DRIVER, vsp.TIPC_WSECT_DRIVER )
         
         # Root chord
@@ -104,7 +104,7 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_1',tip_tc)
         
-        # dihedral
+        # Dihedral
         vsp.SetParmVal( wing_id,'Dihedral',x_secs[1],dihedral)
         
         # Span and tip of the section
@@ -122,7 +122,7 @@ def write(vehicle,tag):
             if wing.Segments[0].percent_span_location==0.:
                 x_secs[-1] = [] # remove extra section tag (for clarity)
                 segment_0_is_root_flag = True
-                adjust = 0
+                adjust = 0 # used for indexing
             else:
                 segment_0_is_root_flag = False
                 adjust = 1
@@ -132,7 +132,7 @@ def write(vehicle,tag):
         # Loop for the number of segments left over
         for i_segs in xrange(1,n_segments+1):            
             
-            # Unpack thing
+            # Unpack
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
             chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
             twist_i    = wing.Segments[i_segs-1].twist / Units.deg
@@ -144,7 +144,7 @@ def write(vehicle,tag):
             else:
                 span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)                      
             
-            # Insert the new wing section
+            # Insert the new wing section with specified airfoil if available
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
                 vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FILE_AIRFOIL)
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
@@ -174,63 +174,16 @@ def write(vehicle,tag):
             main_wing_id = wing_id
             
             
-    ## If we have props
-    #try:
-        #prop_center = vehicle.propulsors.network.propeller.origin
-        #diameter    = vehicle.propulsors.network.propeller.prop_attributes.diameter
-        #try:
-            #angle   = vehicle.propulsors.network.thrust_angle
-        #except:
-            #angle   = 0.
-            
-    #except:
-        #pass
+    ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
+    ## This was a place to start and may not still be functional
     
-    # Pylons
-    
-    #wing = vehicle.wings.main_wing
-    
-    #pylon_wing_pos = 0.25
-    #pylon_y_off    = .4
-    #pylon_x_off    = 1    
-    #engine_nac_length = 2.5
-    #pylon_tc       = .2
-    
-    #root_chord = wing.chords.root
-    #tip_chord  = wing.chords.tip
-    #sweep      = wing.sweeps.quarter_chord
-    #span       = wing.spans.projected
-    
-    #dx_tip   = .25*root_chord + span/2.*np.tan(sweep)-.25*tip_chord
-    #dx_pylon = dx_tip*pylon_wing_pos
-    
-    #pylon_id = vsp.AddGeom( "WING",main_wing_id)
-    #vsp.SetGeomName(pylon_id, 'pylons')
-    
-    #pylon_x = dx_pylon + wing.origin[0]
-    #pylon_y = span/2.*pylon_wing_pos
-    #pylon_z = wing.origin[2]
-    
-    #pylon_chord = engine_nac_length/2.
-    #pylon_sweep = -np.arctan(pylon_x_off/pylon_y_off) / Units.deg
-    
-    #vsp.SetParmVal( pylon_id,'X_Rel_Location','XForm',pylon_x)
-    #vsp.SetParmVal( pylon_id,'Y_Rel_Location','XForm',pylon_y)
-    #vsp.SetParmVal( pylon_id,'Z_Rel_Location','XForm',pylon_z)
-    #vsp.SetParmVal( pylon_id,'Span','XSec_1',pylon_y_off)
-    #vsp.SetParmVal( pylon_id,'Root_Chord','XSec_1',pylon_chord)
-    #vsp.SetParmVal( pylon_id,'Tip_Chord','XSec_1',pylon_chord)  
-    #vsp.SetParmVal( pylon_id,'X_Rel_Rotation','XForm',-90) 
-    #vsp.SetParmVal( pylon_id,'Sweep','XSec_1',pylon_sweep)
-    #vsp.SetParmVal( pylon_id,'Sweep_Location','XSec_1',0)   
-    #vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_0',pylon_tc)
-    #vsp.SetParmVal( pylon_id,'ThickChord','XSecCurve_1',pylon_tc) 
-    
-    ## Engines
+    # -------------
+    # Engines
+    # -------------
     
     if vehicle.propulsors.has_key('turbofan'):
     
-        # unpack the turbofan
+        # Unpack
         turbofan  = vehicle.propulsors.turbofan
         n_engines = turbofan.number_of_engines
         length    = turbofan.engine_length
@@ -274,10 +227,12 @@ def write(vehicle,tag):
             
             vsp.Update()
     
-
+    # -------------
     # Fuselage
+    # -------------    
+    
     if vehicle.fuselages.has_key('fuselage'):
-        # Unpack the fuselage
+        # Unpack
         fuselage = vehicle.fuselages.fuselage
         width    = fuselage.width
         length   = fuselage.lengths.total
@@ -307,7 +262,7 @@ def write(vehicle,tag):
 
             vals = fuselage.OpenVSP_values
             
-            # nose
+            # Nose
             vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
             vsp.SetParmVal(fuse_id,"TopLStrength","XSec_0",vals.nose.top.strength)
             vsp.SetParmVal(fuse_id,"RightLAngle","XSec_0",vals.nose.side.angle)
@@ -316,7 +271,7 @@ def write(vehicle,tag):
             vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
             
             
-            # tail
+            # Tail
             vsp.SetParmVal(fuse_id,"TopLAngle","XSec_4",vals.tail.top.angle)
             vsp.SetParmVal(fuse_id,"TopLStrength","XSec_4",vals.tail.top.strength)
             vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
