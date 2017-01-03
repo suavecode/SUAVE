@@ -362,10 +362,10 @@ def vehicle_setup(source_ratio=1.):
     
     wing.dynamic_pressure_ratio  = 1.0
     
-    #tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    #tail_airfoil.coordinate_file = 'supertail_refined.dat' 
+    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil.coordinate_file = 'supertail_refined.dat' 
     
-    #wing.append_airfoil(tail_airfoil)  
+    wing.append_airfoil(tail_airfoil)  
 
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -380,7 +380,7 @@ def vehicle_setup(source_ratio=1.):
     segment.vsp_mesh.outer_radius    = 1.5/source_ratio
     segment.vsp_mesh.inner_length    = .044/source_ratio
     segment.vsp_mesh.outer_length    = .044/source_ratio
-    #segment.append_airfoil(tail_airfoil)
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -396,7 +396,7 @@ def vehicle_setup(source_ratio=1.):
     segment.vsp_mesh.outer_radius    = .54/source_ratio
     segment.vsp_mesh.inner_length    = .044/source_ratio
     segment.vsp_mesh.outer_length    = .027/source_ratio 
-    #segment.append_airfoil(tail_airfoil)
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # add to vehicle
