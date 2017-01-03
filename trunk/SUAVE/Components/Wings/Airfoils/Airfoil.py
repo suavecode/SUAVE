@@ -24,20 +24,6 @@ class Airfoil(Lofted_Body.Section):
     
     def import_airfoil_dat(self):
         
-        # Airfoils should be in Lednicer format
-        # i.e. :
-        #
-        #EXAMPLE AIRFOIL
-        # 3. 3. 
-        #
-        # 0.0 0.0
-        # 0.5 0.1
-        # 1.0 0.0
-        #
-        # 0.0 0.0
-        # 0.5 -0.1
-        # 1.0 0.0
-        
         filename = self.coordinate_file
         
         filein = open(filename,'r')

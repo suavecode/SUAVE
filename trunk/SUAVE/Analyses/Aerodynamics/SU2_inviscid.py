@@ -50,7 +50,6 @@ class SU2_inviscid(Aerodynamics):
         
         # Surrogate model
         self.surrogates = Data()
-        self.surrogates.coefficients   = None
  
         
     def initialize(self):
@@ -162,12 +161,11 @@ class SU2_inviscid(Aerodynamics):
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
         
-        AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
-        mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])
+        # Standard subsonic test case
+        #AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
+        #mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])     
         
-        AoA_points = np.array([-3,-2,-1,0,1,2,3,4,5])*Units.deg
-        mach_points = np.array([.3,.5,.7,.9,1.1,1.3,1.5,1.7,1.9,2.1])      
-        
+        # Standard supersonic test case
         AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
         mach_points = np.array([0.3,.35,.45,.55,.65,.75,.8,.9,1.1,1.3,1.5,1.7,1.9,2.1])        
         
