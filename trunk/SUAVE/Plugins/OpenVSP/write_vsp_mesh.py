@@ -158,21 +158,29 @@ def SetSources(geometry):
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)
                 elif ii < num_secs - 1:
-                    cr = base_root * wing.Segments[ii].root_chord_percent
-                    ct = base_root * wing.Segments[ii+1].root_chord_percent
-                    seg = wing.Segments[ii]
-                    if wing.Segments[ii].has_key('vsp_mesh'):
+                    if use_base == True:
+                        jj = 1
+                    else:
+                        jj = 0
+                    cr = base_root * wing.Segments[ii-jj].root_chord_percent
+                    ct = base_root * wing.Segments[ii+1-jj].root_chord_percent
+                    seg = wing.Segments[ii-jj]
+                    if wing.Segments[ii-jj].has_key('vsp_mesh'):
                         custom_flag = True
                     else:
                         custom_flag = False
                     wingtip_flag = False
                     AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)                   
-                else:                  
-                    cr = base_root * wing.Segments[ii].root_chord_percent
+                else:     
+                    if use_base == True:
+                        jj = 1
+                    else:
+                        jj = 0                    
+                    cr = base_root * wing.Segments[ii-jj].root_chord_percent
                     ct = base_tip
-                    seg = wing.Segments[ii]
-                    if wing.Segments[ii].has_key('vsp_mesh'):
+                    seg = wing.Segments[ii-jj]
+                    if wing.Segments[ii-jj].has_key('vsp_mesh'):
                         custom_flag = True
                     else:
                         custom_flag = False
@@ -234,9 +242,11 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
     vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
     wloc1 = 0.
     wloc2 = 0.
+    TE_match = True
     if (custom_flag == True) and (seg.vsp_mesh.has_key('matching_TE')):
         if seg.vsp_mesh.matching_TE == False: # use default values if so
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,0.01 * cr,0.2 * cr,uloc1,wloc1,0.01 * ct,0.2 * ct,uloc2,wloc2) 
+            TE_match = False
         else:
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)
     else:
@@ -247,9 +257,9 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
         wloc1 = 0.0
         wloc2 = 0.5
         uloc1 = uloc2
-        # to match not custom TE
-        len1 = 0.01 * ct
-        rad1 = 0.2 * ct
+        if TE_match == False: # to match not custom TE if indicated
+            len1 = 0.01 * ct
+            rad1 = 0.2 * ct
         vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)    
     
     
