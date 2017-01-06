@@ -154,13 +154,11 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        import pyKriging
-        
         # Gaussian Process New
-        #regr_cl = gaussian_process.GaussianProcess()
-        #regr_cd = gaussian_process.GaussianProcess()
-        #cl_surrogate = regr_cl.fit(xy, CL_data)
-        #cd_surrogate = regr_cd.fit(xy, CD_data)          
+        regr_cl = gaussian_process.GaussianProcess()
+        regr_cd = gaussian_process.GaussianProcess()
+        cl_surrogate = regr_cl.fit(xy, CL_data)
+        cd_surrogate = regr_cd.fit(xy, CD_data)          
         
         # Gaussian Process New
         #regr_cl = gaussian_process.GaussianProcessRegressor()
@@ -175,10 +173,10 @@ class SU2_inviscid(Aerodynamics):
         #cd_surrogate = regr_cd.fit(xy, CD_data)  
         
         # SVR
-        regr_cl = svm.SVR(C=500.)
-        regr_cd = svm.SVR()
-        cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)          
+        #regr_cl = svm.SVR(C=500.)
+        #regr_cd = svm.SVR()
+        #cl_surrogate = regr_cl.fit(xy, CL_data)
+        #cd_surrogate = regr_cd.fit(xy, CD_data)          
         
         
         self.surrogates.lift_coefficient = cl_surrogate
