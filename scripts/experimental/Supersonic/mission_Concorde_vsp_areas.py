@@ -165,12 +165,12 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler_Super()
     #aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([1.,]) * Units.deg
     #aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([2.0])
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-3,0.,1.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3,.5,.7,.9,1.1,1.3,1.5,1.7,1.9,2.0])    
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-1.,1.,3.,6.,9.]) * Units.deg
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.95,1.05])    
     aerodynamics.settings.vsp_mesh_growth_ratio = 1.3
     aerodynamics.settings.half_mesh_flag = False
     aerodynamics.settings.vsp_mesh_growth_limiting_flag = True
-    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data_comb.txt'
+    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data_supertail.txt'
 
     aerodynamics.geometry = vehicle    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -962,6 +962,9 @@ def mission_setup(analyses):
     segment.tag = "climb_1"
     
     segment.analyses.extend( analyses.base )
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 7. * Units.deg   
     
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.05   * Units.km

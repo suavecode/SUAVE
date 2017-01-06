@@ -24,7 +24,7 @@ from Results import Results
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero   as FZ_Methods
 from Process_Geometry import Process_Geometry
-from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
+from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -55,7 +55,7 @@ class SU2_Euler_Super(Markup):
         compute.lift = Process()
 
         # Run SU2
-        compute.lift.inviscid                         = SU2_inviscid()
+        compute.lift.inviscid                         = SU2_inviscid_Super()
         compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
         
         # Do a traditional drag buildup
@@ -85,7 +85,7 @@ class SU2_Euler_Super(Markup):
         tag = self.geometry.tag
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            #write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             write_geo_file(tag)
             mesh_geo_file(tag)
         

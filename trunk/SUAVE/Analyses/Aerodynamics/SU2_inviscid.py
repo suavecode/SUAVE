@@ -22,6 +22,8 @@ import time
 import pylab as plt
 import sklearn
 from sklearn import gaussian_process
+from sklearn import neighbors
+from sklearn import svm
 
 # ----------------------------------------------------------------------
 #  Class
@@ -152,11 +154,32 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        # Gaussian Process
-        regr_cl = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcess()
+        import pyKriging
+        
+        # Gaussian Process New
+        #regr_cl = gaussian_process.GaussianProcess()
+        #regr_cd = gaussian_process.GaussianProcess()
+        #cl_surrogate = regr_cl.fit(xy, CL_data)
+        #cd_surrogate = regr_cd.fit(xy, CD_data)          
+        
+        # Gaussian Process New
+        #regr_cl = gaussian_process.GaussianProcessRegressor()
+        #regr_cd = gaussian_process.GaussianProcessRegressor()
+        #cl_surrogate = regr_cl.fit(xy, CL_data)
+        #cd_surrogate = regr_cd.fit(xy, CD_data)  
+        
+        # KNN
+        #regr_cl = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+        #regr_cd = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+        #cl_surrogate = regr_cl.fit(xy, CL_data)
+        #cd_surrogate = regr_cd.fit(xy, CD_data)  
+        
+        # SVR
+        regr_cl = svm.SVR(C=500.)
+        regr_cd = svm.SVR()
         cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)    
+        cd_surrogate = regr_cd.fit(xy, CD_data)          
+        
         
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
@@ -166,8 +189,8 @@ class SU2_inviscid(Aerodynamics):
         #mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])     
         
         # Standard supersonic test case
-        AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
-        mach_points = np.array([0.3,.35,.45,.55,.65,.75,.8,.9,1.1,1.3,1.5,1.7,1.9,2.1])        
+        AoA_points = np.linspace(-1,6,100)*Units.deg
+        mach_points = np.linspace(1.0,2.0,100)      
         
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -181,8 +204,10 @@ class SU2_inviscid(Aerodynamics):
         
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-        plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
+        plt_handle = plt.contour(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
+        plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
+        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
         plt.xlabel('Angle of Attack (deg)')
         plt.ylabel('Mach Number')
         cbar.ax.set_ylabel('Coefficient of Lift')
@@ -194,7 +219,7 @@ class SU2_inviscid(Aerodynamics):
         #plt.xlabel('Angle of Attack (deg)')
         #plt.ylabel('Mach Number')   
         
-        #plt.show() 
+        plt.show() 
 
         return
 
