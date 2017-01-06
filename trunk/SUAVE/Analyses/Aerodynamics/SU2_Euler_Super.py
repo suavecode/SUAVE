@@ -73,7 +73,6 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.total                = Methods.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match -- looks like this happened?
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
         compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag

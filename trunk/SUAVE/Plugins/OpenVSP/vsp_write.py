@@ -89,16 +89,54 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
         
         # Figure out if there is an airfoil provided
-        if len(wing.Airfoil) != 0:
-            xsecsurf = vsp.GetXSecSurf(wing_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
-            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
-            xsec1 = vsp.GetXSec(xsecsurf,0)
-            xsec2 = vsp.GetXSec(xsecsurf,1)
-            vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
-            vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
-            vsp.Update()
         
+        # Airfoils should be in Lednicer format
+        # i.e. :
+        #
+        #EXAMPLE AIRFOIL
+        # 3. 3. 
+        #
+        # 0.0 0.0
+        # 0.5 0.1
+        # 1.0 0.0
+        #
+        # 0.0 0.0
+        # 0.5 -0.1
+        # 1.0 0.0
+    
+        # Note this will fail silently if airfoil is not in correct format
+        # check geometry output
+        
+        if n_segments==0:
+            if len(wing.Airfoil) != 0:
+                xsecsurf = vsp.GetXSecSurf(wing_id,0)
+                vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
+                vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
+                xsec1 = vsp.GetXSec(xsecsurf,0)
+                xsec2 = vsp.GetXSec(xsecsurf,1)
+                vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.Update()
+        else: # The wing airfoil is still used for the root segment if the first added segment does not begin there
+            # This could be combined with above, but is left here for clarity
+            if (len(wing.Airfoil) != 0) and (wing.Segments[0].percent_span_location!=0.):
+                xsecsurf = vsp.GetXSecSurf(wing_id,0)
+                vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
+                vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
+                xsec1 = vsp.GetXSec(xsecsurf,0)
+                xsec2 = vsp.GetXSec(xsecsurf,1)
+                vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.Update()
+            elif len(wing.Segments[0].Airfoil) != 0:
+                xsecsurf = vsp.GetXSecSurf(wing_id,0)
+                vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
+                vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
+                xsec1 = vsp.GetXSec(xsecsurf,0)
+                xsec2 = vsp.GetXSec(xsecsurf,1)
+                vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
+                vsp.Update()                
         
         # Thickness to chords
         vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
@@ -274,11 +312,12 @@ def write(vehicle,tag):
             # Tail
             vsp.SetParmVal(fuse_id,"TopLAngle","XSec_4",vals.tail.top.angle)
             vsp.SetParmVal(fuse_id,"TopLStrength","XSec_4",vals.tail.top.strength)
-            vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
-            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
-            vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
-            vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
-            vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
+            # Below can be enabled if AllSym (below) is removed
+            #vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
+            #vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
+            #vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
+            #vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
+            #vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
             if vals.tail.has_key('z_pos'):
                 tail_z_pos = vals.tail.z_pos
             else:
