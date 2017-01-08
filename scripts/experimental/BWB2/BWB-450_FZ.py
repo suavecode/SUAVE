@@ -199,7 +199,7 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
-    wing.aspect_ratio            = 10. 
+    wing.aspect_ratio            = 289.**2 / (7840. * 2)
     wing.thickness_to_chord      = 0.15
     wing.taper                   = 0.0138
     wing.span_efficiency         = 0.95
@@ -580,8 +580,6 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Throttle',axis_font)
         axes.grid(True)	
 
-        plt.savefig("B737_engine.pdf")
-        plt.savefig("B737_engine.png")
 
 
     # ------------------------------------------------------------------
@@ -614,9 +612,6 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
-
-        plt.savefig("B737_aero.pdf")
-        plt.savefig("B737_aero.png")
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -651,8 +646,6 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
-    plt.savefig("B737_drag.pdf")
-    plt.savefig("B737_drag.png")
 
     # ------------------------------------------------------------------
     #   Altitude, sfc, vehicle weight
@@ -690,8 +683,6 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Weight (lb)',axis_font)
         axes.grid(True)
 
-        plt.savefig("B737_mission.pdf")
-        plt.savefig("B737_mission.png")
         
     print 'Fuel burn: ' + str(823000. - mass[-1])
         
