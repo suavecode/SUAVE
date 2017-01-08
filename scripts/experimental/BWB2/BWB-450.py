@@ -25,6 +25,7 @@ Data, Container
 
 
 from SUAVE.Plugins.OpenVSP import write
+from SUAVE.Plugins.OpenVSP.get_vsp_areas import get_vsp_areas
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
@@ -123,8 +124,8 @@ def base_analysis(vehicle):
     #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
      
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([-2.,3.,8.,12.]) * Units.deg
-    #aerodynamics.process.compute.lift.inviscid.training.mach  = np.array([0.7])
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
     #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
@@ -185,7 +186,7 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters
-    vehicle.reference_area         = 7840. * Units.feet**2       
+    vehicle.reference_area         = 7840. * 2 * Units.feet**2       
     vehicle.passengers             = 450.
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
@@ -209,7 +210,7 @@ def vehicle_setup():
     wing.chords.tip              = 3.5  * Units.feet
     wing.chords.mean_aerodynamic = 80. * Units.feet
 
-    wing.areas.reference         = 7840. * Units.feet**2
+    wing.areas.reference         = 7840. * 2 * Units.feet**2
     wing.sweeps.quarter_chord    = 33. * Units.degrees
 
     wing.twists.root             = 0.0 * Units.degrees
@@ -692,6 +693,8 @@ def plot_mission(results,line_style='bo-'):
         plt.savefig("B737_mission.pdf")
         plt.savefig("B737_mission.png")
         
+    print 'Fuel burn: ' + str(823000. - mass[-1])
+        
     # ------------------------------------------------------------------
     #   Aerodynamics 2
     # ------------------------------------------------------------------
@@ -740,12 +743,19 @@ def simple_sizing(configs):
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
+    ## wing areas
+    #for wing in base.wings:
+        #wing.areas.wetted   = 2.0 * wing.areas.reference
+        #wing.areas.exposed  = 0.8 * wing.areas.wetted
+        #wing.areas.affected = 0.6 * wing.areas.wetted
 
+    # Areas
+    wetted_areas = get_vsp_areas(base.tag)
+
+    for wing in base.wings:
+        wing.areas.wetted   = wetted_areas[wing.tag]
+        wing.areas.exposed  = wetted_areas[wing.tag]
+        wing.areas.affected = 0.6 * wing.areas.wetted 
 
     # diff the new data
     base.store_diff()
@@ -789,6 +799,9 @@ def mission_setup(analyses):
     segment.tag = "climb_1"
 
     segment.analyses.extend( analyses.base )
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 3. * Units.deg      
 
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.0   * Units.km

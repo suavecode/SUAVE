@@ -183,12 +183,8 @@ class SU2_inviscid(Aerodynamics):
         self.surrogates.drag_coefficient = cd_surrogate
         
         # Standard subsonic test case
-        #AoA_points = np.array([-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12])*Units.deg
-        #mach_points = np.array([0.2,0.3,.35,.45,.55,.65,.75,.8,.9])     
-        
-        # Standard supersonic test case
-        AoA_points = np.linspace(-1,6,100)*Units.deg
-        mach_points = np.linspace(1.0,2.0,100)      
+        AoA_points = np.linspace(-1.,7.,100)*Units.deg
+        mach_points = np.linspace(.25,.9,100)      
         
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -202,8 +198,8 @@ class SU2_inviscid(Aerodynamics):
         
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-        plt_handle = plt.contour(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
-        plt.clabel(plt_handle, inline=1, fontsize=10)
+        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
+        #plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
         plt.scatter(xy[:,0]/Units.deg,xy[:,1])
         plt.xlabel('Angle of Attack (deg)')
@@ -217,7 +213,7 @@ class SU2_inviscid(Aerodynamics):
         #plt.xlabel('Angle of Attack (deg)')
         #plt.ylabel('Mach Number')   
         
-        plt.show() 
+        #plt.show() 
 
         return
 

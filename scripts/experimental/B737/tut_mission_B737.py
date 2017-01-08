@@ -124,9 +124,9 @@ def base_analysis(vehicle):
 
     #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.7]) 
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([3.]) * Units.deg
-    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3,.5,.7,.85]) 
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
+    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -784,6 +784,7 @@ def plot_mission(results,line_style='bo-'):
 
         plt.savefig("B737_aero.pdf")
         plt.savefig("B737_aero.png")
+        
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -860,6 +861,8 @@ def plot_mission(results,line_style='bo-'):
         plt.savefig("B737_mission.pdf")
         plt.savefig("B737_mission.png")
         
+    print 'Fuel burn: ' + str(174200 - mass[-1])
+        
     # ------------------------------------------------------------------
     #   Aerodynamics 2
     # ------------------------------------------------------------------
@@ -907,6 +910,12 @@ def simple_sizing(configs):
 
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
+
+    ## wing areas
+    #for wing in base.wings:
+        #wing.areas.wetted   = 2.0 * wing.areas.reference
+        #wing.areas.exposed  = 0.8 * wing.areas.wetted
+        #wing.areas.affected = 0.6 * wing.areas.wetted
 
     # Areas
     wetted_areas = get_vsp_areas(base.tag)
@@ -963,6 +972,9 @@ def mission_setup(analyses):
     segment.tag = "climb_1"
 
     segment.analyses.extend( analyses.base )
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 5. * Units.deg      
 
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.0   * Units.km
