@@ -48,7 +48,9 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 563356.60640792653 + 1. # this is in lb
+    final_mass_true = 563356.60640792653 # this is in lb
+    
+    print final_mass
     
     assert np.abs(final_mass - final_mass_true) < 1e-6
 
