@@ -1,7 +1,7 @@
 # Component.py
 # 
 # Created:  
-# Modified: Feb 2016, T. MacDonald
+# Modified: Dec 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,7 +21,7 @@ class Component(Data):
     """
     def __defaults__(self):
         self.tag    = 'Component'
-        self.origin = [0.0,0.0,0.0]
+        self.origin = [[0.0,0.0,0.0]]
     
     
 # ----------------------------------------------------------------------

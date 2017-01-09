@@ -12,3 +12,6 @@ from . import FreeMind
 from . import D3JS
 from . import Results
 
+import SU2
+import OpenVSP
+import GMSH
