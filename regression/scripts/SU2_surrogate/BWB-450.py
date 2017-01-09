@@ -52,7 +52,7 @@ def main():
     
     print final_mass
     
-    assert np.abs(final_mass - final_mass_true) < 1e-6
+    assert np.abs(final_mass - final_mass_true) < 1e-3
 
 
     return
