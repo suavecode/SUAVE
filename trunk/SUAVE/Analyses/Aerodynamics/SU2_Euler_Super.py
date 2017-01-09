@@ -1,7 +1,7 @@
 # SU2_Euler_Super.py
 #
 # Created:  Dec 2016, T. MacDonald
-# Modified: Dec 2016, T. MacDonald
+# Modified: Jan 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,9 +13,9 @@ from Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
-from SUAVE.Plugins.OpenVSP.write_vsp_mesh import write_vsp_mesh
-from SUAVE.Plugins.GMSH.write_geo_file import write_geo_file
-from SUAVE.Plugins.GMSH.mesh_geo_file import mesh_geo_file
+from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
+from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 
 # Default aero Results
 from Results import Results
@@ -85,7 +85,7 @@ class SU2_Euler_Super(Markup):
         tag = self.geometry.tag
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            #write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             write_geo_file(tag)
             mesh_geo_file(tag)
         

@@ -13,8 +13,8 @@ from SUAVE.Core import Data, Units
 
 # Local imports
 from Aerodynamics import Aerodynamics
-from SUAVE.Plugins.SU2.call_SU2_CFD import call_SU2_CFD
-from SUAVE.Plugins.SU2.write_SU2_cfg import write_SU2_cfg
+from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
+from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
 
 # Package imports
 import numpy as np

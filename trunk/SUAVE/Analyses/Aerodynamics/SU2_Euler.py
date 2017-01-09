@@ -1,7 +1,7 @@
 # SU2_Euler.py
 #
 # Created:  Sep 2016, E. Botero
-# Modified: Dec 2016, T. MacDonald
+# Modified: Jan 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,9 +13,9 @@ from Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
-from SUAVE.Plugins.OpenVSP.write_vsp_mesh import write_vsp_mesh
-from SUAVE.Plugins.GMSH.write_geo_file import write_geo_file
-from SUAVE.Plugins.GMSH.mesh_geo_file import mesh_geo_file
+from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
+from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 
 # Default aero Results
 from Results import Results

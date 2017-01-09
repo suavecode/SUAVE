@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # regression
+    'scripts/SU2_surrogate/BWB-450.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/weights/weights.py',

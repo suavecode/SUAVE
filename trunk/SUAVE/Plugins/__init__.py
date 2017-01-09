@@ -6,7 +6,3 @@ from load_plugin import load_plugin
 
 ADiPy = load_plugin('ADiPy')
 pint = load_plugin('pint')
-
-import SU2
-import OpenVSP
-import GMSH
