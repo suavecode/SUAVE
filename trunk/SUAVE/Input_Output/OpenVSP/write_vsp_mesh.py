@@ -67,8 +67,6 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     min_len = MAC/50.
     vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
     
-    
-    
     # vsp.AddDefaultSources()   
     SetSources(geometry)
     
@@ -229,7 +227,6 @@ def SetSources(geometry):
             #pass        
     
         
-    pass
 
 def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,seg):
     if custom_flag == True:
@@ -269,8 +266,5 @@ def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,se
             rad1 = 0.2 * ct
         vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,len1,rad1,uloc1,wloc1,len2,rad2,uloc2,wloc2)    
     
-    
 if __name__ == '__main__':
-    
-    tag = '/home/tim/Documents/SUAVE/scripts/experimental/SU2_link/cruise'
     write_vsp_mesh(tag,True)
