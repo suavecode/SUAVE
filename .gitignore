@@ -39,6 +39,7 @@ nosetests.xml
 .project
 .pydevproject
 *.wpu
+*.wpr
 
 # local directories
 /workspace
@@ -58,6 +59,16 @@ nosetests.xml
 
 *.dat
 
+# Geometry
+*.geo
+*.stl
+*.vsp3
+*.cfg
+*.su2
+*.key
 
+# Images
+*.pdf
+*.png
 
 ide/Wing/SUAVE.wpr

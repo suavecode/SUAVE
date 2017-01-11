@@ -1,8 +1,6 @@
+# Created:  Feb 2015, T. Lukaczyk 
+# Modified: Jul 2016, E. Botero 
 
-# D3JS.save_tree.py
-#
-# Created: T. Lukaczyk Feb 2015
-# Updated:  
 
 """ SUAVE Methods for IO """
 
@@ -10,14 +8,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Ordered_Bunch
+from SUAVE.Core import DataOrdered
 
-
+#----------------------------------------------------------------------
+# Tree Element
 # ----------------------------------------------------------------------
-#  Tree Element
-# ----------------------------------------------------------------------
 
-class Tree_Element(Ordered_Bunch):
+class Tree_Element(DataOrdered):
     def __init__(self,name):
         self.name = name
         

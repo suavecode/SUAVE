@@ -39,8 +39,6 @@ def noise_landing_gear (D,H,wheels,M,velocity,phi,theta,distance,frequency):
                 Correlation based."""
 
 
-  #  kt2fts=1.6878098571
-
     #Process
     
     velocity_fts = velocity/Units.ft

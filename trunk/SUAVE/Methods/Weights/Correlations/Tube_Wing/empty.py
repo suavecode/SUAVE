@@ -129,7 +129,7 @@ def empty(vehicle):
         b          = vehicle.wings['main_wing'].spans.projected
         lambda_w   = vehicle.wings['main_wing'].taper
         t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweep
+        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         wt_wing    = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
@@ -149,7 +149,7 @@ def empty(vehicle):
     else:    
         S_h            = vehicle.wings['horizontal_stabilizer'].areas.reference
         b_h            = vehicle.wings['horizontal_stabilizer'].spans.projected
-        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweep
+        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord
         mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
@@ -168,7 +168,7 @@ def empty(vehicle):
         S_v        = vehicle.wings['vertical_stabilizer'].areas.reference
         b_v        = vehicle.wings['vertical_stabilizer'].spans.projected
         t_c_v      = vehicle.wings['vertical_stabilizer'].thickness_to_chord
-        sweep_v    = vehicle.wings['vertical_stabilizer'].sweep
+        sweep_v    = vehicle.wings['vertical_stabilizer'].sweeps.quarter_chord
         t_tail     = vehicle.wings['vertical_stabilizer'].t_tail  
         output_3   = tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder

@@ -1,7 +1,7 @@
-# IO.py
+# load.py
 #
 # Created By:       M. Colonno  4/15/13
-# Updated:          M. Colonno  4/24/13
+# Updated:          Carlos Ilario, Feb 2016
 
 """ SUAVE Methods for IO """
 
@@ -9,14 +9,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy
+#import numpy
 import re, copy
 import xml.sax.handler
 import os.path
 from warnings import warn
 
 # from SUAVE.Methods import Airfoils
-from SUAVE.Core  import Data, Container, Data_Exception
+from SUAVE.Core  import Data, Container
 from SUAVE.Attributes import Constants
 
 # ----------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# XML.load.py
+# load.py
 #
 # Created: T. Lukaczyk Feb 2015
 # Updated:  

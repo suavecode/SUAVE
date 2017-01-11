@@ -93,7 +93,7 @@ def base_setup():
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25. * Units.deg
+    wing.sweeps.quarter_chord    = 25. * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.16
     wing.span_efficiency         = 0.9
@@ -141,7 +141,7 @@ def base_setup():
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 6.16
-    wing.sweep                   = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 30 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.4
     wing.span_efficiency         = 0.9
@@ -177,7 +177,7 @@ def base_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25 * Units.deg
+    wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
@@ -495,9 +495,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition    = 'up'       
     config.output_filename                = 'Flyover_' 
 
-    config.propulsors[0].fan.rotation     = 3470. #N1 speed
-    config.propulsors[0].fan_nozzle.noise_speed  = 315.
-    config.propulsors[0].core_nozzle.noise_speed = 415.
+    config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
 
     configs.append(config)
     
@@ -513,9 +513,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition    = 'up'       
     config.output_filename                = 'Cutback_' 
 
-    config.propulsors[0].fan.rotation     = 2780. #N1 speed
-    config.propulsors[0].fan_nozzle.noise_speed  = 210.
-    config.propulsors[0].core_nozzle.noise_speed = 360.
+    config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
 
     configs.append(config)    
 
@@ -533,9 +533,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition = 'down'    
     config.output_filename             = 'Approach_'
 
-    config.propulsors[0].fan.rotation     = 2030.  #N1 speed
-    config.propulsors[0].fan_nozzle.noise_speed  = 109.3
-    config.propulsors[0].core_nozzle.noise_speed = 92.
+    config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 109.3
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 92.
 
     configs.append(config)
 

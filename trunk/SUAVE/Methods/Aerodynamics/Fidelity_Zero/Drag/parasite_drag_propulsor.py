@@ -12,7 +12,7 @@
 
 # suave imports
 from SUAVE.Core import Data
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 # package imports

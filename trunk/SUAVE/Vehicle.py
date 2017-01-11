@@ -1,5 +1,5 @@
 # Vehicle.py
-# 
+#
 # Created:  ### 2013, SUAVE Team
 # Modified: ### ####, M. Vegh
 #           Feb 2016, E. Botero
@@ -10,7 +10,6 @@
 
 from SUAVE.Core import Data, Container
 from SUAVE import Components
-from SUAVE.Components import Component_Exception
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -29,16 +28,16 @@ class Vehicle(Data):
 
     def __defaults__(self):
         self.tag = 'vehicle'
-        self.fuselages       = Components.Fuselages.Fuselage.Container()
-        self.wings           = Components.Wings.Wing.Container()
-        self.propulsors      = Components.Propulsors.Propulsor.Container()
-        self.energy          = Components.Energy.Energy()
-        self.systems         = Components.Systems.System.Container()
-        self.mass_properties = Vehicle_Mass_Properties()
-        self.cost            = Components.Cost()
-        self.envelope        = Components.Envelope()
-        self.reference_area  = 0.0
-        self.passengers      = 0.0
+        self.fuselages              = Components.Fuselages.Fuselage.Container()
+        self.wings                  = Components.Wings.Wing.Container()
+        self.propulsors             = Components.Propulsors.Propulsor.Container()
+        self.energy                 = Components.Energy.Energy()
+        self.systems                = Components.Systems.System.Container()
+        self.mass_properties        = Vehicle_Mass_Properties()
+        self.costs                  = Costs()
+        self.envelope               = Components.Envelope()
+        self.reference_area         = 0.0
+        self.passengers             = 0.0
 
         self.max_lift_coefficient_factor = 1.0
 
@@ -52,7 +51,6 @@ class Vehicle(Data):
             Components.Fuselages.Fuselage              : self['fuselages']              ,
             Components.Wings.Wing                      : self['wings']                  ,
             Components.Systems.System                  : self['systems']                ,
-            Components.Cost                            : self['cost']                   ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
             Components.Envelope                        : self['envelope']               ,
         }
@@ -70,7 +68,7 @@ class Vehicle(Data):
             if isinstance(component,component_type):
                 break
         else:
-            raise Component_Exception , "Unable to place component type %s" % component.typestring()
+            raise Exception , "Unable to place component type %s" % component.typestring()
 
         return component_root
 
@@ -80,7 +78,7 @@ class Vehicle(Data):
 
         # assert database type
         if not isinstance(component,Data):
-            raise Component_Exception, 'input component must be of type Data()'
+            raise Exception, 'input component must be of type Data()'
 
         # find the place to store data
         component_root = self.find_component_root(component)
@@ -133,3 +131,10 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
+
+
+class Costs(Data):
+    def __defaults__(self):
+        self.tag = 'costs'
+        self.industrial = Components.Costs.Industrial_Costs()
+        self.operating  = Components.Costs.Operating_Costs()

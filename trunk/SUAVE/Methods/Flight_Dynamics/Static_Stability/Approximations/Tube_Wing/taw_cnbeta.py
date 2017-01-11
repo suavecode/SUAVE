@@ -126,7 +126,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     # Unpack inputs
     S      = geometry.wings['main_wing'].areas.reference
     b      = geometry.wings['main_wing'].spans.projected
-    sweep  = geometry.wings['main_wing'].sweep
+    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
     z_w    = geometry.wings['main_wing'].origin[2]
     S_bs   = geometry.fuselages['fuselage'].areas.side_projected
@@ -138,9 +138,9 @@ def taw_cnbeta(geometry,conditions,configuration):
     d_i    = geometry.fuselages['fuselage'].heights.at_wing_root_quarter_chord
     other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
-    S_v    = vert.areas.reference
-    x_v    = vert.origin[0]
-    b_v    = vert.spans.projected
+    S_v    = vert.extended.areas.reference
+    x_v    = vert.extended.origin[0]
+    b_v    = vert.extended.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity

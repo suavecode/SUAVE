@@ -30,9 +30,10 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.throttle             = None
-        self.velocity_start       = 0.0
-        self.velocity_end         = 0.0 
+        self.throttle        = None
+        self.altitude        = None
+        self.air_speed_start = 0.0
+        self.air_speed_end   = 0.0 
         
         # --------------------------------------------------------------
         #   State
@@ -57,7 +58,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
     
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -67,7 +67,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
     
         converge.converge_root             = Methods.converge_root    
        
@@ -75,7 +74,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -85,8 +83,8 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
-
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
     
         # Update Conditions
         iterate.conditions = Process()
@@ -112,7 +110,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
     
         # Post Processing
         finalize.post_process = Process()        

@@ -11,7 +11,7 @@ import SUAVE
 import numpy as np
 
 from SUAVE.Core import (
-    Data, Container, Data_Exception, Data_Warning,
+    Data, Container,
     )
 
 def Empty(vehicle):

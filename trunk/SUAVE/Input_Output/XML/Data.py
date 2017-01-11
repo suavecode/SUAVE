@@ -1,4 +1,4 @@
-# XML.Data.py
+# Data.py
 #
 # Created: T. Lukaczyk Feb 2015
 # Updated:  
@@ -22,6 +22,7 @@ t_table = string.maketrans( chars          + string.uppercase ,
 # ----------------------------------------------------------------------
 
 class Data(Data_Base):
+    
     def __defaults__(self):
         self.tag        = ''
         self.attributes = Attributes()
@@ -62,7 +63,7 @@ class Data(Data_Base):
                 element.content = str(value)
                 result.elements.append(element)
                 
-        return result
+        return result 
          
     def __str__(self,indent=''):
         

@@ -9,7 +9,6 @@
 
 #from SUAVE.Core import Data, Units
 import numpy as np
-#from copy import deepcopy
 
 # ----------------------------------------------------------------------        
 #   Set_values

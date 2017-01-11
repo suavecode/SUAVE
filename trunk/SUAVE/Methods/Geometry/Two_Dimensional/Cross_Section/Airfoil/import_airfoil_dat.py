@@ -1,6 +1,18 @@
+# import_airfoil_dat.py
+# 
+# Created:  
+# Modified: Sep 2016, E. Botero
 
-from math import sqrt, sin, cos, atan
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
+
+# ------------------------------------------------------------
+#  import airfoil dat
+# ------------------------------------------------------------
+
 
 def import_airfoil_dat(filename):
     

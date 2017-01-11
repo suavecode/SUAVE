@@ -1,7 +1,7 @@
 # Fuselage.py
 # 
 # Created:  Mar 2014, T. Lukacyzk
-# Modified: Feb 2016, T. MacDonald
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -52,12 +52,7 @@ class Fuselage(Lofted_Body):
         self.fineness.tail = 0.0
         
         self.differential_pressure = 0.0
-            
-        self.Fineness = Data()
-        self.Fineness.nose = 0.0
-        self.Fineness.tail = 0.0
         
-        self.differential_pressure = 0.0
         
 class Container(Physical_Component.Container):
     pass

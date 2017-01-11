@@ -50,8 +50,14 @@ def propeller_design(prop_attributes):
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = [ v[0] for v in atmosphere.compute_values(alt) ]
-    nu = mu/rho
+    atmo_data = atmosphere.compute_values(alt)
+    
+    p   = atmo_data.pressure[0]
+    T   = atmo_data.temperature[0]
+    rho = atmo_data.density[0]
+    a   = atmo_data.speed_of_sound[0]
+    mu  = atmo_data.dynamic_viscosity[0]
+    nu  = mu/rho
     
     # Nondimensional thrust
     Tc = 2.*Thrust/(rho*(V*V)*np.pi*(R*R))
@@ -188,12 +194,20 @@ def propeller_design(prop_attributes):
     #eta        = Ct*J/Cp 
     
     
+    # Calculate mid-chord alignment angle, MCA
+    # This is the distance from the mid chord to the line axis out of the center of the blade
+    # In this case the 1/4 chords are all aligned
+    
+    MCA = c/4. - c[0]/4.
+    
+    
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
 
     prop_attributes.twist_distribution = beta
     prop_attributes.chord_distribution = c
-    prop_attributes.Cp   = Cp
+    prop_attributes.Cp                 = Cp
+    prop_attributes.mid_chord_aligment = MCA
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller

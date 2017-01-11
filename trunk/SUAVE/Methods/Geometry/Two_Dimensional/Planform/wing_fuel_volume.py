@@ -1,7 +1,7 @@
 # wing_fuel_volume.py
 #
 # Created:  Apr 2014, T. Orra
-# Modified: Jan 2016, E. Botero
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Correlation-based methods for wing fuel capacity estimation
@@ -12,12 +12,12 @@ def wing_fuel_volume(wing):
         Estimates wing fuel capacity based in correlation methods.
 
         Inputs:
-            wing.sref    - Wing reference area [m2]
-            wing.ar     - Wing Aspect Ratio (span?/wing area) [-]
-            wing.t_C    - Wing thickness ration [-]
+            wing.areas.reference    - Wing reference area [m2]
+            wing.aspect_ratio       - Wing Aspect Ratio (span?/wing area) [-]
+            wing.thickness_to_chord - Wing thickness ration [-]
 
         Outputs:
-            wing.fuel_volume - Wing fuel capacity [m?]
+            wing.fuel_volume        - Wing fuel capacity [m?]
 
 
         Assumptions:
@@ -26,15 +26,15 @@ def wing_fuel_volume(wing):
 
     """
 
-    # unpack
+    # Unpack
     sref  = wing.areas.reference
     ar    = wing.aspect_ratio
     tc    = wing.thickness_to_chord
 
-    # calculate
+    # Calculate
     volume = 0.90* tc * sref** 1.5 * ar**-0.5 * 0.55
 
-    # pack
+    # Pack
     wing.fuel_volume = volume
 
 # ----------------------------------------------------------------------
@@ -42,12 +42,12 @@ def wing_fuel_volume(wing):
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
 
-        # imports
+    # Imports
     import SUAVE
     import scipy as sp
     import pylab as plt
 
-    #define arrays of wing area, AR and t/c
+    # Define arrays of wing area, AR and t/c
     tc_vec   = sp.linspace(0.10,0.12,2)
     sw_array = sp.linspace(50,200,11)
     AR_vec   = sp.linspace(6,16,11)
@@ -57,11 +57,11 @@ if __name__ == '__main__':
     wing_fuel = sp.zeros((len(tc_vec),len(sw_array),len(AR_vec)))
 
     for i in range(len(tc_vec)):
-        wing.t_c = tc_vec[i]
+        wing.thickness_to_chord = tc_vec[i]
         for j in range(len(sw_array)):
-            wing.sref = sw_array[j]
+            wing.areas.reference = sw_array[j]
             for k in range(len(AR_vec)):
-                wing.ar = AR_vec[k]
+                wing.aspect_ratio = AR_vec[k]
                 wing_fuel_volume(wing)
                 wing_fuel[i,j,k] = wing.fuel_volume
 

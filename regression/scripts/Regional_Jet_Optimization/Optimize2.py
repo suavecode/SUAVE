@@ -1,6 +1,6 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
-# Modified: 
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -29,10 +29,10 @@ def main():
     con3 = problem.all_constraints([1.1,0.9])    
     
     actual = Data()
-    actual.obj  = 0.6883660224407133
-    actual.con  = 0.56581479
-    actual.obj2 = 0.7066622701538261
-    actual.con3 = 0.67963357
+    actual.obj  = 0.6765738665234822
+    actual.con  = 0.60342875
+    actual.obj2 = 0.6955339462505217
+    actual.con3 = 0.7197643
     
     print 'Fuel Burn   =', obj
     print 'Fuel Margin =', con    

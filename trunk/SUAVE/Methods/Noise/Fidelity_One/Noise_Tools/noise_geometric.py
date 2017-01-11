@@ -140,6 +140,12 @@ def noise_geometric(noise_segment,analyses,config):
             if (s[i]-x0)< 0.:
                 theta[i] = np.arccos(np.abs((x0-s[i])/dist[i]))
             else:
-                theta[i] = np.pi - np.arccos(np.abs((x0-s[i])/dist[i]))               
+                theta[i] = np.pi - np.arccos(np.abs((x0-s[i])/dist[i])) 
+                
+    
+    #Pack the results in Noise Segments    
+    noise_segment.dist  = dist
+    noise_segment.theta = theta
+    noise_segment.phi   = phi
 
     return (dist,theta,phi)

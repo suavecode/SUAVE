@@ -1,7 +1,7 @@
 # Optimize.py
 #
 # Created:  Nov 2015, Carlos / Tarik
-# Modified: Feb 2016, M. Vegh, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -41,7 +41,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 17.820611883056927
+    actual.noise_cumulative_margin = 17.7898019866
 
     
     
@@ -136,7 +136,7 @@ def setup():
         [ 'wing_aspect_ratio'                ,    'vehicle_configurations.*.wings.main_wing.aspect_ratio'               ],
         [ 'wing_incidence'                   ,    'vehicle_configurations.*.wings.main_wing.twists.root'                ],
         [ 'wing_tip_twist'                   ,    'vehicle_configurations.*.wings.main_wing.twists.tip'                 ],
-        [ 'wing_sweep'                       ,    'vehicle_configurations.*.wings.main_wing.sweep'                      ],
+        [ 'wing_sweep'                       ,    'vehicle_configurations.*.wings.main_wing.sweeps.quarter_chord'        ],
         [ 'wing_thickness'                   ,    'vehicle_configurations.*.wings.main_wing.thickness_to_chord'         ],
         [ 'wing_taper'                       ,    'vehicle_configurations.*.wings.main_wing.taper'                      ],
         [ 'wing_location'                    ,    'vehicle_configurations.*.wings.main_wing.origin[0]'                  ],
