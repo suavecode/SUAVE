@@ -1,7 +1,7 @@
 # setup.py
 # 
 # Created:  Dec 2013, T. Lukaczyk 
-# Modified: Feb 2016, E. Botero
+# Modified: Jan 2017, E. Botero
 
 """ SUAVE setup script
 """
