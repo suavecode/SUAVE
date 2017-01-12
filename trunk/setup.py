@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version = '0.3.0'
-    date = 'April 27, 2016'
+    version = '0.9.0'
+    date = 'Jan 11, 2017'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -61,7 +61,7 @@ def install(the_package,version,date):
         url = 'suave.stanford.edu',
         packages = packages,
         include_package_data = True,
-        license = 'CC BY-NC-SA 4.0',
+        license = 'LGPL-2.1',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
         long_description = read('../README.md')
