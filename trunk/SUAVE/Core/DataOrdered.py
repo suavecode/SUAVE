@@ -1,7 +1,7 @@
 # DataOrdered.py
 #
 # Created:  Jul 2016, E. Botero
-# Modified: 
+# Modified: Sep 2016, E. Botero
 
    
 # ----------------------------------------------------------------------
@@ -17,6 +17,7 @@ t_table = string.maketrans( chars          + string.uppercase ,
                             '_'*len(chars) + string.lowercase )
 
 from warnings import warn
+import numpy as np
 
 # ----------------------------------------------------------------------
 #   Property Class
@@ -219,7 +220,7 @@ class DataOrdered(OrderedDict):
         
     def __eq__(self, other):
         if isinstance(other, (DataOrdered,OrderedDict)):
-            return len(self)==len(other) and self.items() == other.items()
+            return len(self)==len(other) and np.all(self.items() == other.items())
         return dict.__eq__(self, other)
         
     def __len__(self):

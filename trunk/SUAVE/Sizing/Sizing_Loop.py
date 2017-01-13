@@ -122,10 +122,19 @@ class Sizing_Loop(Data):
              
                             
                             regr        = svm.SVR(C=c_out,  epsilon = eps_out)
+                            
                         elif self.initial_step == 'GradientBoosting':
                             regr        = ensemble.GradientBoostingRegressor()
+                            
                         elif self.initial_step == 'ExtraTrees':
                             regr        = ensemble.ExtraTreesRegressor()
+                        
+                        elif self.initial_step == 'RandomForest':
+                            regr        = ensemble.RandomForestRegressor()
+                        
+                        elif self.initial_step == 'Bagging':
+                            regr        = ensemble.BaggingRegressor()
+                            
                         elif self.initial_step == 'GPR':
                             regr          = gaussian_process.GaussianProcess()
                             
@@ -251,7 +260,12 @@ class Sizing_Loop(Data):
             print 'y_save=', y_save
             
             print 'err=', err
-            
+            file=open('y_err_values.txt', 'ab')
+            file.write(str(i))
+            file.write(', ')
+            file.write(str(err.tolist()))
+            file.write('\n') 
+            file.close()
             j+=1
             
             if i>max_iter: # or any(kk > 500 for kk in y):
