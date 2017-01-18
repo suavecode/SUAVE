@@ -27,14 +27,14 @@ class Propeller(Energy_Component):
     
     def __defaults__(self):
         
-        self.prop_attributes = Data
-        self.prop_attributes.number_blades      = 0.0
-        self.prop_attributes.tip_radius         = 0.0
-        self.prop_attributes.hub_radius         = 0.0
-        self.prop_attributes.twist_distribution = 0.0
-        self.prop_attributes.chord_distribution = 0.0
-        self.prop_attributes.mid_chord_aligment = 0.0
-        self.thrust_angle                       = 0.0
+        self.number_blades      = 0.0
+        self.tip_radius         = 0.0
+        self.hub_radius         = 0.0
+        self.twist_distribution = 0.0
+        self.chord_distribution = 0.0
+        self.mid_chord_aligment = 0.0
+        self.thrust_angle       = 0.0
+        self.surrogate          = None
         
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
@@ -60,11 +60,11 @@ class Propeller(Energy_Component):
            """
            
         #Unpack    
-        B      = self.prop_attributes.number_blades
-        R      = self.prop_attributes.tip_radius
-        Rh     = self.prop_attributes.hub_radius
-        beta   = self.prop_attributes.twist_distribution
-        c      = self.prop_attributes.chord_distribution
+        B      = self.number_blades
+        R      = self.tip_radius
+        Rh     = self.hub_radius
+        beta   = self.twist_distribution
+        c      = self.chord_distribution
         omega1 = self.inputs.omega
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -261,7 +261,7 @@ class Propeller(Energy_Component):
             velocity           = V,
             thrust             = thrust,
             power              = power,
-            mid_chord_aligment = self.prop_attributes.mid_chord_aligment
+            mid_chord_aligment = self.mid_chord_aligment
         )
         
         
