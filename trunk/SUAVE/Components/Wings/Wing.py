@@ -1,7 +1,7 @@
 # Wing.py
 # 
 # Created:  
-# Modified: Feb 2016, T. MacDonald
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -86,11 +86,11 @@ class Wing(Lofted_Body):
     def append_segment(self,segment):
         """ adds a segment to the wing """
 
-        # assert database type
+        # Assert database type
         if not isinstance(segment,Data):
             raise Exception, 'input component must be of type Data()'
 
-        # store data
+        # Store data
         self.Segments.append(segment)
 
         return
@@ -98,11 +98,11 @@ class Wing(Lofted_Body):
     def append_airfoil(self,airfoil):
         """ adds an airfoil to the segment """
 
-        # assert database type
+        # Assert database type
         if not isinstance(airfoil,Data):
             raise Exception, 'input component must be of type Data()'
 
-        # store data
+        # Store data
         self.Airfoil.append(airfoil)
 
         return        
@@ -111,11 +111,11 @@ class Wing(Lofted_Body):
     def append_control_surface(self,control_surface):
         """ adds a component to vehicle """
 
-        # assert database type
+        # Assert database type
         if not isinstance(control_surface,Data):
             raise Exception, 'input control surface must be of type Data()'
 
-        # store data
+        # Store data
         self.control_surfaces.append(control_surface)
 
         return
@@ -127,11 +127,5 @@ class Container(Component.Container):
 # ------------------------------------------------------------
 #  Handle Linking
 # ------------------------------------------------------------
+
 Wing.Container = Container
-#Section.Container  = SectionContainer #propogates to Airfoil
-#Segment.Container  = SegmentContainer
-##Wing.Section = Section
-#Wing.Airfoil = Airfoil
-#Wing.Segments = Segment
-
-

@@ -15,14 +15,10 @@ from SUAVE.Components import Physical_Component
 
 class Landing_Gear(Physical_Component):
     """ SUAVE.Components.Landing_Gear.Landing_Gear()
-
         Attributes:
-
         Methods:
-
         Assumptions:
             if needed
-
     """
 
     def __defaults__(self):

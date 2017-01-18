@@ -1,7 +1,7 @@
 # Segment.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,7 +35,7 @@ class Segment(Analysis):
         self.process.iterate.conditions    = Process()
         self.process.iterate.residuals     = Process()
         self.process.finalize              = Process()
-        self.process.finalize.post_process =  Process()
+        self.process.finalize.post_process = Process()
         
         return
         

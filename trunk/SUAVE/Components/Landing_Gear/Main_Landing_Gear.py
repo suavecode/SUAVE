@@ -15,14 +15,10 @@ from Landing_Gear import Landing_Gear
 
 class Main_Landing_Gear(Landing_Gear):
     """ SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
-
         Attributes:
-
         Methods:
-
         Assumptions:
             if needed
-
     """
 
     def __defaults__(self):

@@ -163,14 +163,14 @@ def base_analysis(vehicle):
 #   Define the Vehicle
 # ----------------------------------------------------------------------
 
-def vehicle_setup():
-    
+def vehicle_setup(source_ratio=1.):
+
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
     
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'AS2'    
+    vehicle.tag = 'Concorde'    
     
     
     # ------------------------------------------------------------------
@@ -202,16 +202,16 @@ def vehicle_setup():
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 1.83
-    wing.sweeps.quarter_chord    = 55 * Units.deg
+    wing.sweeps.quarter_chord     = 59.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
     wing.span_efficiency         = 0.74
     
     wing.spans.projected         = 25.6    
     
-    wing.chords.root             = 27.66
-    wing.total_length            = 27.66
-    wing.chords.tip              = 0.0
+    wing.chords.root             = 33.8
+    wing.total_length            = 33.8
+    wing.chords.tip              = 1.1
     wing.chords.mean_aerodynamic = 18.4
     
     wing.areas.reference         = 358.25 
@@ -219,7 +219,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     
-    wing.origin                  = [15,0,0]
+    wing.origin                  = [14,0,-.8]
     wing.aerodynamic_center      = [35,0,0] 
     
     wing.vertical                = False
@@ -247,11 +247,11 @@ def vehicle_setup():
     wing.taper                   = 0.14
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 5.0      #    
+    wing.spans.projected         = 6.0      #    
 
-    wing.chords.root             = 12.58 
-    wing.total_length            = 12.58
-    wing.chords.tip              = 2.5 
+    wing.chords.root             = 14.5
+    wing.total_length            = 14.5
+    wing.chords.tip              = 2.7
     wing.chords.mean_aerodynamic = 8.66
     
     wing.areas.reference         = 33.91    #
@@ -259,7 +259,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
     
-    wing.origin                  = [42,0,0]
+    wing.origin                  = [42.,0,1.]
     wing.aerodynamic_center      = [50,0,0]    
     
     wing.vertical                = True 
@@ -268,9 +268,9 @@ def vehicle_setup():
     wing.high_mach               = True     
     
     wing.dynamic_pressure_ratio  = 1.0
-        
+    
     # add to vehicle
-    vehicle.append_component(wing)
+    vehicle.append_component(wing)    
 
 
     # ------------------------------------------------------------------
@@ -280,22 +280,30 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
-    #fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
     fuselage.seat_pitch            = 1
+    
+    fuselage.fineness.nose         = 4.3
+    fuselage.fineness.tail         = 6.4
     
     fuselage.lengths.total         = 61.66  
     
     fuselage.width                 = 2.88
     
     fuselage.heights.maximum       = 3.32    #
+    
+    fuselage.heights.maximum       = 3.32    #
+    fuselage.heights.at_quarter_length              = 3.32    #
+    fuselage.heights.at_wing_root_quarter_chord     = 3.32    #
+    fuselage.heights.at_three_quarters_length       = 3.32    #
 
     fuselage.areas.wetted          = 523.
     fuselage.areas.front_projected = 7.55
     
+    
     fuselage.effective_diameter    = 3.1
     
-    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
+    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure   
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -305,7 +313,7 @@ def vehicle_setup():
     #   Turbojet Network
     # ------------------------------------------------------------------    
     
-    #instantiate the gas turbine network
+    # instantiate the gas turbine network
     turbojet = SUAVE.Components.Energy.Networks.Turbojet_Super()
     turbojet.tag = 'turbojet'
     
@@ -314,7 +322,7 @@ def vehicle_setup():
     turbojet.engine_length     = 12.5
     turbojet.nacelle_diameter  = 1.60
     turbojet.areas             = Data()
-    turbojet.areas.wetted      = turbojet.nacelle_diameter * np.pi * turbojet.engine_length
+    turbojet.areas.wetted      = 12.5*1.6*8. # essentially rectangles attached to the wings
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -440,22 +448,17 @@ def vehicle_setup():
     # add to network
     turbojet.append(nozzle)
     
-    # ------------------------------------------------------------------
-    #  Component 9 - Divergening Nozzle
-    
-    
-    
     
     # ------------------------------------------------------------------
-    #Component 10 : thrust (to compute the thrust)
+    #Component 9 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
  
-    #total design thrust (includes all the engines)
+    # total design thrust (includes all the engines)
     thrust.total_design             = 4*140000. * Units.N #Newtons
  
     # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
-    #design sizing conditions
+    # Design sizing conditions
     altitude      = 0.0*Units.ft
     mach_number   = 0.01
     isa_deviation = 0.

@@ -1,29 +1,22 @@
 # untrimmed.py
 #
 # Created:  Jan 2014, T. Orra
-# Modified: Jan 2016, E. Botero  
+# Modified: Oct 2016, T. MacDonald  
 
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-# ----------------------------------------------------------------------
-#  Computes the miscellaneous drag
-# ----------------------------------------------------------------------
 def untrimmed(state,settings,geometry):
 
-    # unpack inputs
+    # Unpack inputs
     conditions     = state.conditions
     configuration  = settings
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
-    # various drag components
+    # Various drag components
     parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total            
     induced_total         = conditions.aerodynamics.drag_breakdown.induced.total            
     compressibility_total = conditions.aerodynamics.drag_breakdown.compressible.total         
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 
 
-    # untrimmed drag
+    # Untrimmed drag
     aircraft_untrimmed = parasite_total        \
         + induced_total         \
         + compressibility_total \

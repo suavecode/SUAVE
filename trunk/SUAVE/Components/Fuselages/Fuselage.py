@@ -1,7 +1,7 @@
 # Fuselage.py
 # 
 # Created:  Mar 2014, T. Lukacyzk
-# Modified: Feb 2016, T. MacDonald
+# Modified: Sep 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

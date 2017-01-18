@@ -1,7 +1,7 @@
 # SU2_Euler.py
 #
 # Created:  Sep 2016, E. Botero
-# Modified:
+# Modified: Jan 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,14 +13,14 @@ from Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
-from SUAVE.Plugins.OpenVSP.write_vsp_mesh import write_vsp_mesh
-from SUAVE.Plugins.GMSH.write_geo_file import write_geo_file
-from SUAVE.Plugins.GMSH.mesh_geo_file import mesh_geo_file
+from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
+from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 
-# default Aero Results
+# Default aero Results
 from Results import Results
 
-# the aero methods
+# The aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
@@ -34,7 +34,7 @@ class SU2_Euler(Markup):
         
         self.tag    = 'SU2_Euler_markup'       
     
-        # correction factors
+        # Correction factors
         settings = self.settings
         settings.trim_drag_correction_factor        = 1.02
         settings.wing_parasite_drag_form_factor     = 1.1
@@ -48,18 +48,17 @@ class SU2_Euler(Markup):
         settings.parallel                           = False
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
+        settings.vsp_mesh_growth_limiting_flag      = False
         
-        # build the evaluation process
+        # Build the evaluation process
         compute = self.process.compute
         compute.lift = Process()
-        
-        # Some stuff for meshing
 
-        # Run SU2
+        # Run SU2 to determine lift
         compute.lift.inviscid                         = SU2_inviscid()
         compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
         
-        # Do a traditional drag buildup for viscous components
+        # Do a traditional drag buildup
         compute.drag = Process()
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
@@ -83,12 +82,12 @@ class SU2_Euler(Markup):
         
         
     def initialize(self):
-        # Mesh the Geometry
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag
+        # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio)
+            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
             write_geo_file(tag)
             mesh_geo_file(tag)
         
