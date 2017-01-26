@@ -21,7 +21,7 @@ class Sizing_Loop(Data):
         #parameters common to all methods
         self.tolerance             = None
         self.initial_step          = None  #'Default', 'Table', 'SVR'
-        self.update_method         = None  #'fixed_point', 'newton-raphson'
+        self.update_method         = None  #'successive_substitution', 'newton-raphson', ;broyden
         self.default_y             = None  #default inputs in case the guess is very far from 
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
         self.maximum_iterations    = None  #cutoff point for sizing loop to close
@@ -44,17 +44,21 @@ class Sizing_Loop(Data):
         self.iteration_options.minimum_training_samples     = 1E6
         
     def evaluate(self, nexus):
-        unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
-        input_scaling   = nexus.optimization_problem.inputs[:,3]
-        scaled_inputs   = unscaled_inputs/input_scaling
         
-        
-        problem_inputs=[]
-        for value in scaled_inputs:
-            problem_inputs.append(value)  #writing to file is easier when you use list
-        
-        nexus.problem_inputs = problem_inputs
-        print 'problem inputs=', problem_inputs
+        if nexus.optimization_problem != None: #make it so you can run sizing without an optimization problem
+            unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
+            input_scaling   = nexus.optimization_problem.inputs[:,3]
+            scaled_inputs   = unscaled_inputs/input_scaling
+            
+            
+            problem_inputs=[]
+            for value in scaled_inputs:
+                problem_inputs.append(value)  #writing to file is easier when you use list
+            
+            nexus.problem_inputs = problem_inputs
+            opt_flag = 1 #tells if you're running an optimization case or not-used in writing outputs
+        else:
+            opt_flag = 0
         #data_inputs, data_outputs, read_success = read_sizing_inputs(problem_inputs)
         
         
@@ -174,15 +178,15 @@ class Sizing_Loop(Data):
         nr_start = 0
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:        
-            if self.update_method == 'fixed_point':
-                err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
+            if self.update_method == 'successive_substitution':
+                err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
             elif self.update_method == 'newton-raphson':
                 if i==0:
                     nr_start=0  #flag to make sure it doesn't oscillate between newton-raphson and fixed point updates
                     
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
-                    err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                    err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
 
                 else:
@@ -199,7 +203,7 @@ class Sizing_Loop(Data):
                 if (np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations) and nr_start ==0:
                     if i>1:  #obtain this value so you can get an ok value initialization from the Jacobian w/o finite differincing
                         err_save   = iteration_options.err_save
-                    err,y, i   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                    err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                     nr_start   =0 #in case broyden update diverges
                     
                     if i==2:
@@ -240,9 +244,6 @@ class Sizing_Loop(Data):
                             print 'reinitializing the Jacobian'
                             #nr_start = 0  #reiniatilize the Jacobian
                             
-            elif self.update_method == 'recurring_neural_network':
-                err,y, i   = self.recurring_neural_network_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                
                     
             dy  = y-y_save
             dy2 = y-y_save2
@@ -273,7 +274,7 @@ class Sizing_Loop(Data):
                 print "###########sizing loop did not converge##########"
                 break
     
-        if i<max_iter and not np.isnan(err).any():  #write converged values to file
+        if i<max_iter and not np.isnan(err).any() and opt_flag == 1:  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
             if converged and (min_norm>self.iteration_options.min_write_step or i>self.write_threshhold): #now output to file, writing when it's either not a FD step, or it takes a long time to converge
@@ -293,14 +294,14 @@ class Sizing_Loop(Data):
         print 'number of iterations total=', nexus.total_number_of_iterations
 
     
-        nexus.converged = converged
-        nexus.norm_err  = np.linalg.norm(err)
+        nexus.sizing_loop.converged = converged
+        nexus.sizing_loop.norm_error  = np.linalg.norm(err)
         nexus.sizing_variables = y_save2
     
         
         return nexus
         
-    def fixed_point_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+    def successive_substitution_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
         print 'y_out=', y_out
@@ -338,7 +339,7 @@ class Sizing_Loop(Data):
             
         except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use fixed point'
-            err_out, y_update, iter = self.fixed_point_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
+            err_out, y_update, iter = self.successive_substitution_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
         
        
         return err_out, y_update, iter
@@ -368,27 +369,9 @@ class Sizing_Loop(Data):
         
         return err_out, y_update, iter
         
-    def recurring_neural_network_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
-        #unpack global optimization problem inputs
-        unscaled_inputs = nexus.optimization_problem.inputs[:,1]    
-        input_scaling   = nexus.optimization_problem.inputs[:,3]    
-        scaled_inputs   = unscaled_inputs/input_scaling    
+ 
         
-        
-        min_train = iteration_options.minimum_training_samples
-        data_inputs, data_outputs, read_success = read_sizing_inputs(self, scaled_inputs)
-        xtrain = data_inputs
-        ytrain = data_outputs
-         
-        y_evaluate = []
-        if iter<min_train:
-            err_out,y_iter, iter   = self.fixed_point_update(y,err, sizing_evaluation, nexus, scaling, iter, iteration_options)
-            y_evaluate.append(y_iter)
 
-        y_update = y_iter
-        return err_out, y_update, iter
-        
-        Sizing_Loop.update_step = recurring_neural_network_update
     __call__ = evaluate
     
 
