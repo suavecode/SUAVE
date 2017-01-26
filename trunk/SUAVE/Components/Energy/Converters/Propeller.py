@@ -34,7 +34,7 @@ class Propeller(Energy_Component):
         self.chord_distribution = 0.0
         self.mid_chord_aligment = 0.0
         self.thrust_angle       = 0.0
-        self.surrogate          = None
+        self.surrogate          = Data()
         
     def spin(self,conditions):
         """ Analyzes a propeller given geometry and operating conditions
@@ -91,7 +91,7 @@ class Propeller(Energy_Component):
         V = V_thrust[:,0,None]
         
         nu    = mu/rho
-        tol   = 1e-6 # Convergence tolerance
+        tol   = 1e-8 # Convergence tolerance
         
         omega = omega1*1.0
         omega = np.abs(omega)
@@ -173,10 +173,10 @@ class Propeller(Energy_Component):
             
             
             # Scale for Mach, this is Karmen_Tsien
-            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
             # If the blade segments are supersonic, don't scale
-            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
@@ -210,9 +210,15 @@ class Propeller(Energy_Component):
             diff   = np.max(abs(psiold-psi))
             psiold = psi
             
-            # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            ## If its really not going to converge
+            #if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
                 #print 'broke'
+                #break
+                
+            ii+=1
+                
+            if ii>20000:
+                print 'broke'
                 break
 
         #There is also RE scaling
@@ -293,11 +299,11 @@ class Propeller(Energy_Component):
            """
            
         #Unpack    
-        B       = self.prop_attributes.number_blades
-        R       = self.prop_attributes.tip_radius
-        Rh      = self.prop_attributes.hub_radius
-        beta_in = self.prop_attributes.twist_distribution
-        c       = self.prop_attributes.chord_distribution
+        B       = self.number_blades
+        R       = self.tip_radius
+        Rh      = self.hub_radius
+        beta_in = self.twist_distribution
+        c       = self.chord_distribution
         omega1  = self.inputs.omega
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -307,7 +313,7 @@ class Propeller(Energy_Component):
         theta   = self.thrust_angle
         tc      = .12 # Thickness to chord
         beta_c  = conditions.propulsion.pitch_command
-        ducted  = self.prop_attributes.ducted
+        ducted  = self.ducted
         
         beta   = beta_in + beta_c
         
@@ -496,4 +502,41 @@ class Propeller(Energy_Component):
         )
         
         
+        return thrust, torque, power, Cp
+    
+    
+    def spin_surrogate(self,conditions):
+        
+        # unpack
+        surrogate = self.surrogate
+        altitude  = conditions.freestream.altitude
+        velocity  = conditions.frames.inertial.velocity_vector[:,0,None]
+        rho       = conditions.freestream.density[:,0,None]        
+        omega     = self.inputs.omega
+        R         = self.tip_radius 
+
+        # Diameter
+        D = R*2         
+        
+        # Advance Ratio
+        n = omega/(2*np.pi)
+        J = velocity/(n*D)
+        
+        # Surrogate input
+        xyz = np.hstack([J,altitude])
+        
+        # Use the surrogate
+        eta = surrogate.efficiency.predict(xyz)
+        Cp  = surrogate.power_coefficient.predict(xyz)
+        
+        # Get results
+        Ct  = eta*Cp/J
+        Cq  = Cp/(2*np.pi)
+        
+        thrust = Ct*rho*(n**2)*(D**4)
+        torque = Cq*rho*(n**2)*(D**5)
+        power  = Cp*rho*(n**3)*(D**5)
+        
+        conditions.propulsion.etap = eta
+
         return thrust, torque, power, Cp

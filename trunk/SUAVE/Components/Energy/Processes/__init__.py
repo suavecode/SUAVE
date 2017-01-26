@@ -8,3 +8,4 @@ from Thrust import Thrust
 from Thrust_JDM import Thrust_JDM
 from Thrust_TASOPT import Thrust_TASOPT
 from Thrust_Ducted_Fan import Thrust_Ducted_Fan
+from propeller_map import propeller_map

@@ -75,7 +75,8 @@ class Solar(Propulsor):
         # link
         propeller.inputs.omega =  motor.outputs.omega
         # step 6
-        F, Q, P, Cplast = propeller.spin(conditions)
+        F, Q, P, Cplast = propeller.spin_surrogate(conditions)
+        #F, Q, P, Cplast = propeller.spin(conditions)
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
