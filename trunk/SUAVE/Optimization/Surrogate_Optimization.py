@@ -5,6 +5,7 @@ from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
 from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
 from SUAVE.Surrogate.vypy_surrogate_functions import build_gpr_models
+from SUAVE.Surrogate.scikit_surrogate_functions import build_scikit_models
 
 from SUAVE.Optimization.Package_Setups.pyopt_surrogate_setup import pyopt_surrogate_setup
 from read_optimization_outputs import read_optimization_outputs
@@ -28,7 +29,7 @@ class Surrogate_Optimization(Data):
         self.sample_plan           = None #VyPy.sampling.lhc_uniform
         self.problem               = None  #SUAVE nexus object
         self.optimizer             = None #pyOpt.pySNOPT.SNOPT()
-        self.surrogate_model       = None #Kriging, SVR, GPR  #used for different options for 
+        self.surrogate_model       = None #Kriging, SVR, GPR, or any scikit learn regression  #used for different options for 
         self.optimization_filename = None  #where you keep track of results
         self.number_of_points      = 0.
         self.max_iterations        = 100
@@ -46,30 +47,29 @@ class Surrogate_Optimization(Data):
         base_units        = base_inputs[:,-1]*1.0
         base_inputs[:,-1] = base_units #keeps it from overwriting 
                         
-
-       
-        bounds        = []
-        scaled_bounds = []
-        
-        for i in range(len(bnd)):
-            lb = bnd[i][0] /scl[i]
-            ub = bnd[i][1] /scl[i] 
-    
-            scaled_bounds.append([lb,ub])
+        if npoints > 0: #use 0 points to utilize an existing dataset
+            bounds        = []
+            scaled_bounds = []
             
-        #now handle constraints    
-        scaled_bounds      = np.array(scaled_bounds)
-
-        #now create a sample
-        npoints = self.number_of_points
-        Xsample = self.sample_plan(scaled_bounds,npoints)
-
-        #now run; results will be written to file, which can be read later
-        for i in range(0,npoints):
-       
-            opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
-           
-            problem.objective()
+            for i in range(len(bnd)):
+                lb = bnd[i][0] /scl[i]
+                ub = bnd[i][1] /scl[i] 
+        
+                scaled_bounds.append([lb,ub])
+                
+            #now handle constraints    
+            scaled_bounds      = np.array(scaled_bounds)
+    
+            #now create a sample
+            npoints = self.number_of_points
+            Xsample = self.sample_plan(scaled_bounds,npoints)
+    
+            #now run; results will be written to file, which can be read later
+            for i in range(0,npoints):
+        
+                opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
+            
+                problem.objective()
         return 
         
         
@@ -118,7 +118,8 @@ class Surrogate_Optimization(Data):
             elif self.surrogate_model == 'GPR':
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_gpr_models(surr_obj_values, surr_inputs ,surr_constraints, base_inputs)
             
-            
+            else: #directly call scikit learn models
+                obj_surrogate, constraints_surrogates ,surrogate_function = build_scikit_models(self, surr_obj_values, surr_inputs ,surr_constraints)
             surrogate_problem = pyopt_surrogate_setup(surrogate_function, base_inputs, base_constraints)
         
             t3 = time.time()

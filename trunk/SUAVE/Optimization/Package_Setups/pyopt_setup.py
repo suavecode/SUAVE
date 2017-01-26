@@ -111,7 +111,8 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
     elif solver == 'ALPSO':
         import pyOpt.pyALPSO
-        opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM')
+        #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM')
+        opt = pyOpt.pyALPSO.ALPSO()
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':

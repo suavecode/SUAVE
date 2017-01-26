@@ -294,6 +294,7 @@ class Sizing_Loop(Data):
 
     
         nexus.converged = converged
+        nexus.norm_err  = np.linalg.norm(err)
         nexus.sizing_variables = y_save2
     
         
