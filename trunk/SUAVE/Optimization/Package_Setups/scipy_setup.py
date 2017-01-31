@@ -15,7 +15,7 @@ import scipy as sp
 #  Something that should become a class at some point
 # ----------------------------------------------------------------------
 
-def SciPy_Solve(problem,solver='SLSQP'):
+def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08):
     
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
@@ -39,7 +39,7 @@ def SciPy_Solve(problem,solver='SLSQP'):
 
     # Finalize problem statement and run
     if solver=='SLSQP':
-        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,iter=200)
+        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,iter=200, epsilon = sense_step, acc  = sense_step**2)
     else:
         outputs = sp.optimize.minimize(wrapper,x,method=solver)
     
