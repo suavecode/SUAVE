@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from   SUAVE.Core            import Data
+from   SUAVE.Core            import Data, DataOrdered
 from   SUAVE.Core            import Units
 
 import numpy as np
@@ -92,7 +92,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         conditions.freestream.velocity          = 90. * Units.knots
         
         try:
-            maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
+            maximum_lift_coefficient,induced_drag_coeff      =   compute_max_lift_coeff(vehicle,conditions)           
             vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
             
         except:
@@ -103,7 +103,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # ==============================================
     stall_speed  = (2 * weight * sea_level_gravity / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
     Vref         = stall_speed * Vref_VS_ratio
-    
+
     # ========================================================================================
     # Computing landing distance, according to Torenbeek equation
     #     Landing Field Length = k1 + k2 * Vref**2

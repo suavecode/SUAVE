@@ -1,6 +1,6 @@
 # integrated_propulsion.py
 # 
-# Created:  Jan 2014, M. A. Wendorff 
+# Created:  Jan 2014, A. Wendorff 
 # Modified: Feb 2014, A. Wendorff
 #           Feb 2016, E. Botero
 

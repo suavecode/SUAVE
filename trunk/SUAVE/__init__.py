@@ -16,6 +16,8 @@ import Methods
 import Attributes
 import Components
 import Optimization
+import Surrogate
+import Sizing
 import Input_Output
 
 # the vehicle class
