@@ -17,82 +17,77 @@ def unpack_unknowns(segment,state):
     # unpack unknowns and givens
     throttle = state.unknowns.throttle
     theta    = state.unknowns.body_angle
-    alts     = state.unknowns.altitude 
-    time     = state.unknowns.time
+    gamma1   = state.unknowns.flight_path_angle
+    vel      = state.unknowns.velocity
     alt0     = segment.altitude_start
     altf     = segment.altitude_end
+    vel0     = segment.air_speed_start
+    velf     = segment.air_speed_end 
+
+    # Overide the speeds   
+    v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+    gamma = np.concatenate([[[0]],gamma1,[[0]]])
     
-    # Overide the altitudes and velocities
-    alts[0]  = alt0
-    alts[-1] = altf
-    
-    # dimensionalize time
-    t_initial = state.conditions.frames.inertial.time[0,0]
-    t_nondim  = state.numerics.dimensionless.control_points
-    time      = t_nondim * (time) + t_initial    
-    
+    # process velocity vector
+    v_x   =  v_mag * np.cos(gamma)
+    v_z   = -v_mag * np.sin(gamma)    
+
     # apply unknowns and pack conditions   
     state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
     state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    state.conditions.frames.inertial.position_vector[:,2] = -alts[:,0] # z points down
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]
-    state.conditions.freestream.altitude[:,0]             = alts[:,0] # positive altitude in this context    
-    
-    
-def calculate_velocities(segment,state):
-    
-    # unpack unknowns and givens
-    throttle = state.unknowns.throttle
-    theta    = state.unknowns.body_angle
-    alts     = state.unknowns.altitude 
-    vels     = state.unknowns.velocity 
-    v0       = segment.air_speed_start
-    vf       = segment.air_speed_end    
-    D        = state.numerics.time.differentiate
-    
-    # Overide the velocities
-    vels[0]  = v0
-    vels[-1] = vf    
-    
-    # Figure out the altitudes
-    alts = state.conditions.freestream.altitude
-    
-    # Calculate the rate of climb
-    climb_rate = np.dot(D,alts)
-    
-    # process velocity vector
-    v_mag = vels
-    v_z   = climb_rate
-    v_x   = np.sqrt( v_mag**2 - v_z**2 )
-    
-    #v_x[v_x>v_mag] = v_mag[v_x>v_mag]
-    #v_x[np.isnan(v_x)] = v_mag[np.isnan(v_x)]
-    
-    #v_z[v_z>v_mag] = v_mag[v_z>v_mag]
-    #v_z[np.isnan(v_z)] = v_mag[np.isnan(v_z)]
-    
-    # apply unknowns and pack conditions   
-    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
-    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]  
-    
+    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
+    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+
 def initialize_unknowns(segment,state):
     
     # unpack unknowns and givens
-    alts     = state.unknowns.altitude 
-    vels     = state.unknowns.velocity 
-    alt0     = segment.altitude_start
-    altf     = segment.altitude_end
+    gamma    = state.unknowns.flight_path_angle
+    vel      = state.unknowns.velocity 
     v0       = segment.air_speed_start
-    vf       = segment.air_speed_end
-    
-    # Overide the altitudes and velocities
-    alts = np.reshape(np.linspace(alt0,altf,np.size(alts)),np.shape(alts))
-    vels = np.reshape(np.linspace(v0,vf,np.size(vels)),np.shape(vels))
+    ones_m2  = state.ones_row_m2(1)
+    ones     = state.ones_row(1)
     
     # repack
-    state.unknowns.velocity = vels
-    state.unknowns.altitude = alts
+    state.unknowns.velocity          = v0*ones_m2
+    state.unknowns.flight_path_angle = gamma[0]*ones_m2
     
+def update_differentials(segment,state):
+
+    # unpack
+    numerics   = state.numerics
+    conditions = state.conditions
+    x    = numerics.dimensionless.control_points
+    D    = numerics.dimensionless.differentiate
+    I    = numerics.dimensionless.integrate 
+    r    = state.conditions.frames.inertial.position_vector
+    v    = state.conditions.frames.inertial.velocity_vector
+    alt0 = segment.altitude_start
+    altf = segment.altitude_end    
+
+    dz = altf - alt0
+    vz = -v[:,2,None] # maintain column array
+
+    # get overall time step
+    dt = (dz/np.dot(I,vz))[-1]
+
+    # rescale operators
+    x = x * dt
+    D = D / dt
+    I = I * dt
+    
+    # Calculate the altitudes
+    alt = np.dot(I,vz) + segment.altitude_start
+    
+    # pack
+    t_initial                                       = state.conditions.frames.inertial.time[0,0]
+    numerics.time.control_points                    = x
+    numerics.time.differentiate                     = D
+    numerics.time.integrate                         = I
+    conditions.frames.inertial.time[:,0]            = t_initial + x[:,0] 
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
+    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
+
+    return
 
 def objective(segment,state):
     
@@ -108,7 +103,8 @@ def objective(segment,state):
         
 
 def constraints(segment,state):
-        
+    
+    # Residuals
     state.constraint_values = state.residuals.pack_array()
         
 

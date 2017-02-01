@@ -44,20 +44,17 @@ class Optimized(Aerodynamic):
         
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
-        
         # initials and unknowns
-        ones_row = self.state.ones_row
-        self.state.unknowns.throttle   = ones_row(1) * 0.8
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
-        self.state.unknowns.altitude   = ones_row(1) * 0.0
-        self.state.unknowns.velocity   = ones_row(1) * 1.0
-        self.state.unknowns.time       = 1000.0
-        self.state.residuals.forces    = ones_row(2) * 0.0
-        self.state.inputs_last         = None
-        self.state.objective_value     = 0.0
-        self.state.constraint_values   = 0.0
-        
-        
+        ones_row    = self.state.ones_row
+        self.state.unknowns.throttle          = ones_row(1) * 0.8
+        self.state.unknowns.body_angle        = ones_row(1) * 1.0 * Units.degree
+        self.state.unknowns.flight_path_angle = ones_row(1) * 1.0 * Units.degree
+        self.state.unknowns.velocity          = ones_row(1) * 100.0
+        self.state.residuals.forces           = ones_row(2) * 0.0
+        self.state.inputs_last                = None
+        self.state.objective_value            = 0.0
+        self.state.constraint_values          = 0.0
+         
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
@@ -97,8 +94,7 @@ class Optimized(Aerodynamic):
         
         # Update Conditions
         iterate.conditions = Process()
-        iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.velocities      = Methods.Climb.Optimized.calculate_velocities
+        iterate.conditions.differentials   = Methods.Climb.Optimized.update_differentials
         iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere

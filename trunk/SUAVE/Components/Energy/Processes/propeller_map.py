@@ -22,6 +22,20 @@ import pylab as plt
 
 def propeller_map(prop, points):
     
+    # Run the propeller
+    thrust, torque, power, J, Cp, eta, alts  = run_propeller(prop, points)
+    
+    # Build a surrogate
+    prop = build_surrogate(prop, J, Cp, eta, alts)
+    
+    # Test Surrogate
+    test_surrogate(prop,thrust,torque,power,J,Cp,eta,alts)
+    
+    
+    return prop
+
+def run_propeller(prop,points):
+    
     #Unpack    
     R          = prop.tip_radius  
     altitudes  = points.altitudes
@@ -69,86 +83,89 @@ def propeller_map(prop, points):
     thrust, torque, power, Cp = prop.spin(Aerodynamic.state.conditions)
     
     cond = Aerodynamic.state.conditions
-    eta = cond.propulsion.etap
+    eta = cond.propulsion.etap    
     
-    Cpflat = Cp.flatten()
+    return thrust, torque, power, J, Cp, eta, alts 
+
+
+def test_surrogate(prop,thrust, torque, power, J, Cp, eta, alts ):
     
-    xyz = np.vstack([J,np.array(alts)]).T
+    surr_eta = prop.surrogate.efficiency 
+    surr_cp  = prop.surrogate.power_coefficient
     
-    #gp_eta = gaussian_process.GaussianProcess()
-    #gp_cp = gaussian_process.GaussianProcess()
     
-    #gp_eta = svm.SVR(C=500.)
-    #gp_cp  = svm.SVR(C=500.)
-    
-    gp_eta = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-    gp_cp  = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-    
-    surr_eta = gp_eta.fit(xyz,eta)
-    surr_cp  = gp_cp.fit(xyz,Cp)
-    
-    prop.surrogate.efficiency        = surr_eta
-    prop.surrogate.power_coefficient = surr_cp
-    
-    # Test the surrogate
-    eta_sur = np.zeros(np.shape(xyz))
-    
-    Jnew  = np.linspace(1.0, 3.5, 100)
-    altnew = np.linspace(14000, 16000, 100)
+    Jnew  = np.linspace(1.0, 2.4, 40)
+    altnew = np.linspace(14000, 16000, 40)
     
     Jmesh, altmesh = np.meshgrid(Jnew,altnew)
     
     etas = np.zeros(np.shape(Jmesh))
     cps  = np.zeros(np.shape(Jmesh))
     
+    eta_prop = np.zeros(np.shape(Jmesh))
+    cp_prop  = np.zeros(np.shape(Jmesh))  
+    
+    vel = 35.
+    
+    points = Data()
+    
+    R = prop.tip_radius 
+    D = R*2 
+    
+    
     for ii in xrange(len(Jnew)):
         for jj in xrange(len(altnew)):
-            etas[ii,jj] = surr_eta.predict(np.array([Jmesh[ii,jj],altmesh[ii,jj]]))
-            cps[ii,jj] = surr_cp.predict(np.array([Jmesh[ii,jj],altmesh[ii,jj]]))
+            jjj  = Jmesh[ii,jj]
+            altj = altmesh[ii,jj]
+            
+            n = vel/(jjj*D)
+            omega = n*2*np.pi
+            
+            points.altitudes  = [altj]
+            points.velocities = [vel] 
+            points.omega      = [omega]
+            
+            etas[ii,jj] = surr_eta.predict(np.array([jjj,altj]))
+            cps[ii,jj] = surr_cp.predict(np.array([jjj,altj]))
+            
+            thrust, torque, power, J, Cp, eta, alts  = run_propeller(prop, points)
+            
+            eta_prop[ii,jj] = eta
+            cp_prop[ii,jj]  = Cp
             
     fig = plt.figure("Eta")
-    plt_handle = plt.contourf(Jmesh,altmesh,etas,levels=None)
+    plt_handle = plt.contourf(Jmesh,altmesh,cps,levels=None)
     cbar = plt.colorbar()
-    plt.scatter(xyz[:,0],xyz[:,1])
-    plt.xlabel('J')
-    plt.xlabel('Altitude')
-    
-    #fig = plt.figure("Eta")
-    #plt_handle = plt.contourf(Jmesh,altmesh,cps,levels=None)
-    #cbar = plt.colorbar()
     #plt.scatter(xyz[:,0],xyz[:,1])
-    #plt.xlabel('J')
-    #plt.xlabel('Altitude')
+    plt.xlabel('J')
+    plt.ylabel('Altitude')
     
-    plt.show()
+    fig = plt.figure("Eta_Real")
+    plt_handle = plt.contourf(Jmesh,altmesh,cp_prop,levels=None)
+    cbar = plt.colorbar()
+    #plt.scatter(xyz[:,0],xyz[:,1])
+    plt.xlabel('J')
+    plt.ylabel('Altitude')
     
+    plt.show()    
+    
+    return 
+    
+
+def build_surrogate(prop, J, Cp, eta, alts):
+    
+    xyz = np.vstack([J,np.array(alts)]).T
+    
+    #surr_eta = gaussian_process.GaussianProcess()
+    #surr_cp = gaussian_process.GaussianProcess()
+    
+    #surr_eta = svm.SVR(C=500.)
+    #surr_cp  = svm.SVR(C=500.)
+    
+    surr_eta = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+    surr_cp  = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+
+    prop.surrogate.efficiency        = surr_eta.fit(xyz,eta)
+    prop.surrogate.power_coefficient = surr_cp.fit(xyz,Cp)
+  
     return prop
-    
-    
-    
-#if __name__ == '__main__': 
-
-    #from SUAVE.Methods.Propulsion import propeller_design
-    
-    ## Design the Propeller
-    #prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    #prop.number_blades       = 2.0 
-    #prop.freestream_velocity = 50.0
-    #prop.angular_velocity    = 2000.*(2.*np.pi/60.0)
-    #prop.tip_radius          = 1.5
-    #prop.hub_radius          = 0.05
-    #prop.design_Cl           = 0.7 
-    #prop.design_altitude     = 0.0 * Units.km
-    #prop.design_thrust       = 0.0
-    #prop.design_power        = 7000.
-    #prop                     = propeller_design(prop)  
-
-    
-    #points = Data()
-    #points.altitudes  = np.array([0, 1000, 2000])
-    #points.velocities = np.array([1, 50.])
-    #points.omega      = np.array([2000. * Units.rpm])
-    
-    #surrogate = propeller_map(prop, points)
-    
-    #print surrogate.predict([0,0.1,.1])

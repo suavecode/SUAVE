@@ -14,6 +14,9 @@ from SUAVE.Core.Arrays import array_type
 from SUAVE.Core import Units
 import copy
 
+import pyOpt
+import pyOpt.pySNOPT
+
 # ----------------------------------------------------------------------
 #  Converge Root
 # ----------------------------------------------------------------------
@@ -22,6 +25,8 @@ def converge_opt(segment,state):
     
     # pack up the array
     unknowns = state.unknowns.pack_array()
+    
+    #segment_points = state.numerics.number_control_points
     
     # Have the optimizer call the wrapper
     obj   = lambda unknowns:get_objective(unknowns,(segment,state))   
@@ -34,6 +39,30 @@ def converge_opt(segment,state):
     #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,iter=200)
     
     unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ, bounds=bnds,iter=200)
+    
+    #opt_prob = pyOpt.Optimization('SUAVE',obj)
+    #opt_prob.addObj('Something')
+
+    #for ii in xrange(0,len(unknowns)):
+        #lbd = (bnds[ii][0])
+        #ubd = (bnds[ii][1])
+        #vartype = 'c'
+        #opt_prob.addVar(str(ii),vartype,lower=lbd,upper=ubd,value=unknowns[ii])  
+        
+
+    ## Setup constraints  
+    #for ii in xrange(0,2*segment_points):
+        #opt_prob.addCon(str(ii), type='e', equal=0.)     
+        
+    #print opt_prob
+
+    #opt = pyOpt.pySNOPT.SNOPT()    
+    
+    #outputs = opt(opt_prob) 
+    
+    #print outputs
+    
+    #print opt_prob.solution(0)
                       
     return
     
@@ -55,6 +84,8 @@ def get_objective(unknowns,(segment,state)):
     
     #print unknowns
     
+    #print objective
+    
     return objective
 
 def get_econstraints(unknowns,(segment,state)):
@@ -69,24 +100,22 @@ def get_econstraints(unknowns,(segment,state)):
 
     constraints = state.constraint_values
     
-    print constraints
+    #print constraints
         
     return constraints
 
 
 def make_bnds(unknowns,state):
     
-    state.unknowns.throttle
+    ones    = state.ones_row(1)
+    ones_m2 = state.ones_row_m2(1)
     
-    ones = np.ones_like(state.unknowns.throttle)
+    throttle_bnds = ones*(0.,1.)
+    body_angle    = ones*(0. * Units.degrees, 60. * Units.degrees)
+    gamma         = ones_m2*(  0. * Units.degrees, 30. * Units.degrees)
+    vels          = ones_m2*(0.,1.e20)
     
-    throttle_bnds = ones*(0,1)
-    body_angle    = ones*(0. * Units.degrees,30. * Units.degrees)
-    alts          = ones*(-1e20,1e20)
-    vels          = ones*(-1e20,1e20)
-    times         = np.array([0,1e20])
-    
-    bnds = np.vstack([throttle_bnds,body_angle,alts,vels,times])
+    bnds = np.vstack([vels,throttle_bnds,gamma,body_angle])
     
     bnds = list(map(tuple, bnds))
     

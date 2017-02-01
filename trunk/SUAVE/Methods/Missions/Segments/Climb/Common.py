@@ -63,7 +63,6 @@ def update_differentials_altitude(segment,state):
     t = state.numerics.dimensionless.control_points
     D = state.numerics.dimensionless.differentiate
     I = state.numerics.dimensionless.integrate
-
     r = state.conditions.frames.inertial.position_vector
     v = state.conditions.frames.inertial.velocity_vector
 
