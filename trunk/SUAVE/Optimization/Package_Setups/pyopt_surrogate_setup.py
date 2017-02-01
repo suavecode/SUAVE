@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import pyOpt #use pyOpt to set up the problem
+
 import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as helper_functions
@@ -23,6 +23,8 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     input_units      = inputs[:,-1] *1.0
     constraint_scale = constraints[:,3]
     constraint_units = constraints[:,-1]*1.0
+    
+    import pyOpt #use pyOpt to set up the problem
     opt_problem      = pyOpt.Optimization('surrogate', surrogate_function)
     
     #constraints
