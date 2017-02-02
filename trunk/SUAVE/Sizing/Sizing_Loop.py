@@ -280,8 +280,6 @@ class Sizing_Loop(Data):
     def successive_substitution_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
-        print 'y_out=', y_out
-        print 'err_out=', err_out
         iteration_options.err_save = err
         return err_out, y_out, iter
     

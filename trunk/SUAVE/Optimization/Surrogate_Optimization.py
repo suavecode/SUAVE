@@ -4,7 +4,6 @@
 from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
 from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
-from SUAVE.Surrogate.vypy_surrogate_functions import build_gpr_models
 from SUAVE.Surrogate.scikit_surrogate_functions import build_scikit_models
 
 from SUAVE.Optimization.Package_Setups.pyopt_surrogate_setup import pyopt_surrogate_setup
@@ -98,9 +97,7 @@ class Surrogate_Optimization(Data):
             if self.surrogate_model == 'SVR':
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_svr_models(surr_obj_values, surr_inputs ,surr_constraints, C = 1E5, epsilon=.01 )
             elif self.surrogate_model == 'Kriging':
-                #obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
-                
-                if j==0:
+                if j==0: # first iteration, initialize surrogate
                     obj_surrogate, constraints_surrogates ,surrogate_function = build_kriging_models(surr_obj_values, surr_inputs ,surr_constraints)
                     
                 else:       #add to existing surrogate to improve code speed
@@ -115,9 +112,7 @@ class Surrogate_Optimization(Data):
                     surrogate_function.obj_surrogate  = obj_surrogate
                     surrogate_function.constraints_surrogates =constraints_surrogates
                     print 'time to train model=', xt2-xt1
-            elif self.surrogate_model == 'GPR':
-                obj_surrogate, constraints_surrogates ,surrogate_function = build_gpr_models(surr_obj_values, surr_inputs ,surr_constraints, base_inputs)
-            
+        
             else: #directly call scikit learn models
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_scikit_models(self, surr_obj_values, surr_inputs ,surr_constraints)
             surrogate_problem = pyopt_surrogate_setup(surrogate_function, base_inputs, base_constraints)
