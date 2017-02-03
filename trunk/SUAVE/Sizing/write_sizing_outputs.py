@@ -1,4 +1,4 @@
-#read_sizing_inputs.py
+#write_sizing_inputs.py
 # Created: Jun 2016, M. Vegh
 
 
@@ -10,7 +10,7 @@ import numpy as np
 
 
 # ----------------------------------------------------------------------
-#  write_sizing_inputs
+#  write_sizing_outputs
 # ----------------------------------------------------------------------
 
 

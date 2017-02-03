@@ -17,6 +17,12 @@ import numpy as np
 import time
 
 
+# ----------------------------------------------------------------------
+#  svr_surrogate_functions
+# ----------------------------------------------------------------------
+
+
+
 def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E5, epsilon =.01):
     #now build surrogates based on these
     t1=time.time()

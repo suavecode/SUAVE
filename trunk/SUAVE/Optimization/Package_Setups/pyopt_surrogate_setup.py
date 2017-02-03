@@ -12,6 +12,12 @@ import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as helper_functions
 
+
+# ----------------------------------------------------------------------
+#  pyopt_surrogate_setup
+# ----------------------------------------------------------------------
+
+
 def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     #sets up a surrogate problem so it can be run by pyOpt
     

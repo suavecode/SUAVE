@@ -7,6 +7,12 @@
 from SUAVE.Core import Data
 import numpy as np
 
+
+# ----------------------------------------------------------------------
+#  Surrogate_Problem
+# ----------------------------------------------------------------------
+
+
 class Surrogate_Problem(Data):
     def __defaults__(self):
         self.obj_surrogate = None

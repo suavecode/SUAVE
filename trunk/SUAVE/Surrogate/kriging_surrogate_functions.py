@@ -19,6 +19,12 @@ import numpy as np
 import time
 
 
+# ----------------------------------------------------------------------
+#  kriging_surrogate_functions
+# ----------------------------------------------------------------------
+
+
+
 def build_kriging_models(obj_values, inputs, constraints):
 
     #now build surrogates based on these
