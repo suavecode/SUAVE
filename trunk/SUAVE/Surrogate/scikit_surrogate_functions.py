@@ -1,4 +1,4 @@
-# svr_surrogate_functions.py
+# scikit_surrogate_functions.py
 #
 # Created:  May 2016, M. Vegh
 # Modified:
