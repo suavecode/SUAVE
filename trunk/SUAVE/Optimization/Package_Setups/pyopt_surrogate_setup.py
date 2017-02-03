@@ -1,6 +1,6 @@
 # surrogate_setup.py
 #
-# Created:  May 206, M. Vegh
+# Created:  May 2016, M. Vegh
 # Modified:
 
 
@@ -16,7 +16,7 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     #sets up a surrogate problem so it can be run by pyOpt
     
 
-    #taken from initial optimization problem that you run
+    #taken from initial optimization problem that you set up
     ini              = inputs[:,1] # values
     bnd              = inputs[:,2] # Bounds
     scl              = inputs[:,3] # Scaling

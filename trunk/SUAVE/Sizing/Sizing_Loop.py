@@ -1,5 +1,10 @@
 #Sizing_Loop.py
-#Created: Jun 2016, M. Vegh
+#Created:  Jun 2016, M. Vegh
+#Modified: Feb 2017, M. Vegh
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import check_svr_accuracy
@@ -59,8 +64,7 @@ class Sizing_Loop(Data):
             opt_flag = 1 #tells if you're running an optimization case or not-used in writing outputs
         else:
             opt_flag = 0
-        #data_inputs, data_outputs, read_success = read_sizing_inputs(problem_inputs)
-        
+  
         
         #unpack inputs
         tol               = self.tolerance #percentage difference in mass and energy between iterations
@@ -135,7 +139,7 @@ class Sizing_Loop(Data):
                             regr        = ensemble.BaggingRegressor()
                             
                         elif self.initial_step == 'GPR':
-                            regr          = gaussian_process.GaussianProcess()
+                            regr        = gaussian_process.GaussianProcess()
                             
                         elif self.initial_step == 'RANSAC':
                             regr        = linear_model.RANSACRegressor()
@@ -157,15 +161,15 @@ class Sizing_Loop(Data):
                         y = np.array(y)
                         iteration_options.number_of_surrogate_calls += 1
              
-             
-        y_save  = 2*y  #save values to detect oscillation
-        y_save2 = 3*y
+        # initialize previous sizing values
+        y_save   = 2*y  #save values to detect oscillation
+        y_save2  = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a successive_substitution iteration
   
         #handle input data
         
-        nr_start = 0 #flag to make sure it doesn't oscillate between newton-raphson and successive_substitution updates
-                    
+        nr_start = 0 #flag to switch between methods; if you do nr too early, sizing diverges
+        
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:        
             if self.update_method == 'successive_substitution':
@@ -193,7 +197,7 @@ class Sizing_Loop(Data):
                     if i>1:  #obtain this value so you can get an ok value initialization from the Jacobian w/o finite differincing
                         err_save   = iteration_options.err_save
                     err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                    nr_start   =0 #in case broyden update diverges
+                    nr_start   = 0 #in case broyden update diverges
                     
                 else:
                     
@@ -210,7 +214,7 @@ class Sizing_Loop(Data):
                         
                             err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                      
-                        nr_start =1
+                        nr_start = 1
                         
                     else:
                         err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
@@ -221,18 +225,18 @@ class Sizing_Loop(Data):
             dy2 = y-y_save2
             norm_dy  = np.linalg.norm(dy)
             norm_dy2 = np.linalg.norm(dy2)
-            print 'norm(dy)=', norm_dy
-            print 'norm(dy2)=', norm_dy2
+            print 'norm(dy) = ', norm_dy
+            print 'norm(dy2) = ', norm_dy2
     
         
             
-            #save the previous input values, as they're used to transition between methods + for saving results
+            #keep track of previous iterations, as they're used to transition between methods + for saving results
             y_save2 = 1.*y_save
             y_save = 1. *y  
-            print 'y_save2', y_save2
-            print 'y_save=', y_save
+            print 'y_save2 = ', y_save2
+            print 'y_save = ', y_save
             
-            print 'err=', err
+            print 'err = ', err
             '''
             #uncomment this when you want to write error at each iteration
             file=open('y_err_values.txt', 'ab')
@@ -319,8 +323,6 @@ class Sizing_Loop(Data):
         return err_out, y_update, iter
         
     def broyden_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
-        #add stuff later
-       
         y_save      = iteration_options.y_save
         err_save    = iteration_options.err_save 
         dy          = y - y_save
@@ -355,10 +357,7 @@ class Sizing_Loop(Data):
     
 def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     #use forward difference
-    #print 'type(x)= ', type(x)
 
-    print 'h=', h
-    #h=scaling[0]*.0001
     J=np.nan*np.ones([len(x), len(x)])
     for i in range(len(x)):
         xu=1.*x;

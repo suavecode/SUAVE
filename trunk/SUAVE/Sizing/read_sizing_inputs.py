@@ -21,9 +21,9 @@ def read_sizing_inputs(sizing_loop, opt_inputs):
     except IOError:
         print 'no data to read, use default values'
         read_success   = 0
+        
+        
     #read data from previous iterations
-    
-    
     if  read_success==1:
         data=file_in.readlines()
         file_in.close()

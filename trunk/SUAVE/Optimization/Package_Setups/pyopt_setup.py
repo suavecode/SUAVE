@@ -75,7 +75,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     if solver == 'SNOPT':
         import pyOpt.pySNOPT
         opt = pyOpt.pySNOPT.SNOPT()
-        CD_step = (sense_step**2.)**(1./3.)
+        CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
         opt.setOption('Function precision', sense_step**2.)
         opt.setOption('Difference interval', sense_step)
         opt.setOption('Central difference interval', CD_step)
@@ -111,7 +111,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
     elif solver == 'ALPSO':
         import pyOpt.pyALPSO
-        #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM')
+        #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
         opt = pyOpt.pyALPSO.ALPSO()
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')

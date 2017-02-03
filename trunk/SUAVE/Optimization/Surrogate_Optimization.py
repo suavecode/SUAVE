@@ -1,5 +1,11 @@
 #Surrogate_Optimization.py
-#Created: Jul 2016, M. Vegh
+#
+#Created:  Jul 2016, M. Vegh
+#Modified: Feb 2017, M. Vegh
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
@@ -17,19 +23,17 @@ import time
 
 '''
 Takes a SUAVE Optimization problem, builds a surrogate around it, 
-and iteratively optimizes the surrogate, sampling the SUAVE problem at
-the optimum determined by the surrogate
-
-(currently only uses SVR, plan to add other surrogate options later)
-
+and iteratively finds the optimum of the surrogate, then samples at that point.
+Stops when you hit max_iterations or it converges
 '''
+
 class Surrogate_Optimization(Data):
     def __defaults__(self):
         self.sample_plan           = None #VyPy.sampling.lhc_uniform
-        self.problem               = None  #SUAVE nexus object
+        self.problem               = None #SUAVE nexus object
         self.optimizer             = None #pyOpt.pySNOPT.SNOPT()
-        self.surrogate_model       = None #Kriging, SVR, GPR, or any scikit learn regression  #used for different options for 
-        self.optimization_filename = None  #where you keep track of results
+        self.surrogate_model       = None #Kriging, SVR, or any scikit learn regression  #used for different options for 
+        self.optimization_filename = None #where you keep track of results
         self.number_of_points      = 0.
         self.max_iterations        = 100
         
@@ -88,8 +92,7 @@ class Surrogate_Optimization(Data):
         base_units        = base_inputs[:,-1]*1.0
         base_inputs[:,-1] = base_units #keeps it from overwriting 
         
-        #constraint_names  = base_constraints[:,0]
-        #constraint_scale  = base_constraints[:,3]
+
         
         for j in range(0,self.max_iterations):
             if j ==0 or self.surrogate_model != 'Kriging':
@@ -141,9 +144,9 @@ class Surrogate_Optimization(Data):
         
             f_out, g_out, fail_out = surrogate_function(np.array(x_out))
           
-            print 'f_out=', f_out
-            print 'g_out=', g_out
-            print 'fail_out=', fail_out
+            print 'f_out    = ', f_out
+            print 'g_out    = ', g_out
+            print 'fail_out = ', fail_out
             opt_prob.inputs[:,1] = surrogate_outputs[1]*scl/base_units
             
             output_real = problem.objective(surrogate_outputs[1])

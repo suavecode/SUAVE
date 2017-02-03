@@ -1,7 +1,7 @@
 # scipy_setup.py
 # 
 # Created:  Aug 2015, E. Botero 
-# Modified: Feb 2016, M. Vegh
+# Modified: Feb 2017, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,7 +15,7 @@ import scipy as sp
 #  Something that should become a class at some point
 # ----------------------------------------------------------------------
 
-def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08):
+def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #1.4901161193847656e-08 is SLSQP default FD step in scipy
     
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective

@@ -47,7 +47,7 @@ def check_svr_accuracy(x, data_inputs, data_outputs, imin = -1): #set up so you 
     #use log base 10 inputs to find parameters
     Cval= 10**x[0]
     eps = 10**x[1]
-    #prevent negative values
+    #prevents negative values
 
     y = []
     
@@ -62,10 +62,8 @@ def check_svr_accuracy(x, data_inputs, data_outputs, imin = -1): #set up so you 
     for j in range (len(data_outputs[0,:])): #loop over data
         clf         = svm.SVR(C=Cval,  epsilon = eps)
         y_surrogate = clf.fit(data_inputs2, data_outputs2[:,j]) #leave out closest data point for surrogate fit
-        #y_surrogate = clf.fit(data_inputs[0:-1,:], data_outputs[0:-1,j]) #leave out last data point for surrogate fit
         y.append(y_surrogate.predict(data_inputs[-1,:])[0])
     y = np.array(y)
-    #y_real = data_outputs[-1,:]
     y_real = data_outputs[imin,:]
     diff = (y_real-y)/y_real
     output= np.linalg.norm(diff)

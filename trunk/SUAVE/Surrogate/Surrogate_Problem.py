@@ -1,6 +1,6 @@
 # surrogate_problem.py
 #
-# Created:  May 206, M. Vegh
+# Created:  May 2016, M. Vegh
 # Modified:
 
 
@@ -19,7 +19,8 @@ class Surrogate_Problem(Data):
         for j in range(len(self.constraints_surrogates)):
             g.append(self.constraints_surrogates[j].predict(x))
           
-        #g = np.array(g)
+        #g = np.array(g) #uncomment if particular surrogate saves each value as array
+        
         fail  = np.array(np.isnan(f.tolist()) or np.isnan(np.array(g).any())).astype(int)
     
         return f, g, fail
