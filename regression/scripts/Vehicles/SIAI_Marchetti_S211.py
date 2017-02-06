@@ -4,7 +4,7 @@
 # Modified: 
 
 """ setup file for the SIAI Marchetti S-211 Aircraft
-note that it does not include an engine; current values only used to test stability
+note that it does not include an engine; current values only used to test stability cmalpha
 """
 
 # ----------------------------------------------------------------------

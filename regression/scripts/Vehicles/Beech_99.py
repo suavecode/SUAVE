@@ -1,9 +1,9 @@
-# Boeing_747.py
+# Beech99.py
 #
 # Created:  Feb 2017, M. Vegh
 # Modified: 
 
-""" setup file for the Boeing 747 vehicle
+""" setup file for the Beech 99 aircraft, current values only used to test stability cmalpha
 """
 
 # ----------------------------------------------------------------------
