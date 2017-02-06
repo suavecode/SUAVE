@@ -60,6 +60,7 @@ modules = [
     'scripts/noise_optimization/Noise_Test.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/industrial_costs/industrial_costs.py',
+    'scripts/sizing_loop/sizing_loop.py',
 ]
 
 
