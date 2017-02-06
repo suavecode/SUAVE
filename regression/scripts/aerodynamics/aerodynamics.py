@@ -5,12 +5,14 @@
 #
 # Modified to match compressibility drag updates
 
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
+
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-
-
-from mission_B737 import vehicle_setup
 
 import numpy as np
 import pylab as plt
@@ -18,6 +20,11 @@ import pylab as plt
 import copy, time
 import random
 from SUAVE.Attributes.Gases.Air import Air
+import sys
+#import vehicle file
+sys.path.append('../Vehicles')
+from Boeing_737 import vehicle_setup
+
 
 def main():
     

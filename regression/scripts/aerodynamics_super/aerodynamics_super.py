@@ -5,6 +5,11 @@
 #
 # Updated for new structure. cd_tot change assumed due to propulsion updates
 
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
@@ -12,14 +17,17 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
 
-from mission_B737 import vehicle_setup
-
 import numpy as np
 import pylab as plt
 
 import copy, time
 from copy import deepcopy
 import random
+import sys
+#import vehicle file
+sys.path.append('../Vehicles')
+from Boeing_737 import vehicle_setup
+
 
 def main():
     
