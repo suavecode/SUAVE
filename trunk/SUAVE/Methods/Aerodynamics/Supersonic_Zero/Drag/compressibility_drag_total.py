@@ -52,8 +52,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
-    propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
-    print 'propulsor_name = ', propulsor_name
+    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
     propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
