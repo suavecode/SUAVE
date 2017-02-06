@@ -13,6 +13,12 @@ from SUAVE.Core            import Data
 from SUAVE.Core import Units
 from SUAVE.Core import Units
 from SUAVE.Methods.Performance.estimate_landing_field_length import estimate_landing_field_length
+import sys
+sys.path.append('../Vehicles')
+
+#from Embraer_190 import vehicle_setup, configs_setup
+
+
 
 # package imports
 import numpy as np
@@ -326,6 +332,8 @@ def configs_setup(vehicle):
     configs.append(config)
     return configs       
     
+
+
 def main():
 
     # ----------------------------------------------------------------------

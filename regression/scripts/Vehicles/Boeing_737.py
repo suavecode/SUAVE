@@ -3,7 +3,7 @@
 # Created:  Feb 2017, M. Vegh
 # Modified: 
 
-""" setup file for the E190 vehicle
+""" setup file for the Boeing 737 vehicle
 """
 
 
@@ -39,6 +39,7 @@ def vehicle_setup():
 
     # mass properties
     vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 0.9 * vehicle.mass_properties.max_takeoff
@@ -115,7 +116,8 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = 8.0
 
     wing.areas.reference         = 32.488    #
-    
+    wing.areas.exposed           = 199.7792                  # Exposed area of the horizontal tail
+    wing.areas.wetted            = 249.724                   # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     
@@ -192,9 +194,9 @@ def vehicle_setup():
     fuselage.width                 = 3.74 #4.
     
     fuselage.heights.maximum       = 3.74  #4.    #
-    fuselage.heights.at_quarter_length          = 4. # Not correct
-    fuselage.heights.at_three_quarters_length   = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.at_quarter_length          = 3.74 # Not correct
+    fuselage.heights.at_three_quarters_length   = 3.74 # Not correct
+    fuselage.heights.at_wing_root_quarter_chord = 3.74 # Not correct
 
     fuselage.areas.side_projected  = 3.74* 38.02 #4.* 59.8 #  Not correct
     fuselage.areas.wetted          = 446.718 #688.64

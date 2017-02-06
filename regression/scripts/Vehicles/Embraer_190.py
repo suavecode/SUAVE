@@ -1,7 +1,7 @@
 # Embraer_190
 #
 # Created:  Feb 2017, M. Vegh
-# Modified: Jun 2016, T. MacDonald
+# Modified:
 
 """ setup file for the E190 vehicle
 """
