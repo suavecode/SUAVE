@@ -10,7 +10,17 @@ from SUAVE.Core import (
 )
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
+import sys
+
+sys.path.append('../Vehicles')
+# the analysis functions
+
+from Boeing_737 import vehicle_setup
+from SUAVE.Methods.Performance  import payload_range
+
+
 def main():
+    '''
     vehicle = SUAVE.Vehicle()# Create the vehicle for testing
     
     # Parameters Required
@@ -256,11 +266,33 @@ def main():
     wing.sweeps.quarter_chord = 40.     * Units.deg       # Sweep of the vertical tail
     wing.t_tail               = "false"                   # Set to "yes" for a T-tail
     vehicle.append_component(wing)   
+    '''
+    vehicle = vehicle_setup()
+    
+    
     
     weight = Tube_Wing.empty(vehicle)
     
     
     actual = Data()
+    actual.payload         = 17349.9081525
+    actual.pax             = 15036.5870655
+    actual.bag             = 2313.321087
+    actual.fuel            = 22177.6377131
+    actual.empty           = 39488.2541344
+    actual.wing            = 7343.29196359
+    actual.fuselage        = 6641.4815082
+    actual.propulsion      = 6855.68572746
+    actual.landing_gear    = 3160.632
+    actual.systems         = 13567.4864956
+    actual.wt_furnish      = 6431.80372889
+    actual.horizontal_tail = 931.102490828
+    actual.vertical_tail   = 706.124249046
+    actual.rudder          = 282.449699618
+    
+    
+    '''
+    #old errors; original geometry appears to be incorrect
     actual.payload = 17349.9081525
     actual.pax = 15036.5870655
     actual.bag = 2313.321087
@@ -275,6 +307,8 @@ def main():
     actual.horizontal_tail = 2191.30720639
     actual.vertical_tail = 5260.75341411
     actual.rudder = 2104.30136565    
+    '''
+    
     
     error = Data()
     error.payload = (actual.payload - weight.payload)/actual.payload
