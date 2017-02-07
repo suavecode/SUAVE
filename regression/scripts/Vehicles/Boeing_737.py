@@ -57,6 +57,22 @@ def vehicle_setup():
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
+
+    # ------------------------------------------------------------------        
+    #  Landing Gear
+    # ------------------------------------------------------------------        
+    #used for noise calculations
+    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
+    landing_gear.tag = "main_landing_gear"
+    landing_gear.main_tire_diameter = 1.12000 * Units.m
+    landing_gear.nose_tire_diameter = 0.6858 * Units.m
+    landing_gear.main_strut_length = 1.8 * Units.m
+    landing_gear.nose_strut_length = 1.3 * Units.m
+    landing_gear.main_units = 2     #number of main landing gear units
+    landing_gear.nose_units = 1     #number of nose landing gear
+    landing_gear.main_wheels = 2    #number of wheels on the main landing gear
+    landing_gear.nose_wheels = 2    #number of wheels on the nose landing gear      
+    vehicle.landing_gear=landing_gear
     
     
     # ------------------------------------------------------------------        
@@ -424,57 +440,89 @@ def vehicle_setup():
 
 def configs_setup(vehicle):
     
-    # ------------------------------------------------------------------
+  # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
-    
     configs = SUAVE.Components.Configs.Config.Container()
-    
+
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
-    
+
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise'
-    
     configs.append(config)
-    
-    
+
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------
-    
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
-    
     config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
-    
-    config.V2_VS_ratio = 1.21
-    config.maximum_lift_coefficient = 2.
-    
+    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.max_lift_coefficient_factor    = 1. #0.95
+    #Noise input for the landing gear
+    config.landing_gear.gear_condition    = 'up'       
+    config.output_filename                = 'Flyover_' 
+
+    config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
+
     configs.append(config)
     
-    
+    # ------------------------------------------------------------------
+    #   Cutback Configuration
+    # ------------------------------------------------------------------
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'cutback'
+    config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.max_lift_coefficient_factor    = 1. #0.95
+    #Noise input for the landing gear
+    config.landing_gear.gear_condition    = 'up'       
+    config.output_filename                = 'Cutback_' 
+
+    config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
+
+    configs.append(config)    
+
     # ------------------------------------------------------------------
     #   Landing Configuration
     # ------------------------------------------------------------------
 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
-    
-    config.wings['main_wing'].flaps_angle = 30. * Units.deg
-    config.wings['main_wing'].slats_angle = 25. * Units.deg
 
-    config.Vref_VS_ratio = 1.23
-    config.maximum_lift_coefficient = 2.
-    
+    config.wings['main_wing'].flaps.angle = 40. * Units.deg
+    config.wings['main_wing'].slats.angle = 20. * Units.deg  
+    config.max_lift_coefficient_factor    = 1. #0.95
+    #Noise input for the landing gear
+    config.landing_gear.gear_condition = 'down'    
+    config.output_filename             = 'Approach_'
+
+    config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
+    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 109.3
+    config.propulsors['turbofan'].core_nozzle.noise_speed = 92.
+
     configs.append(config)
+
+    # ------------------------------------------------------------------
+    #   Short Field Takeoff Configuration
+    # ------------------------------------------------------------------ 
+
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'short_field_takeoff'
     
-    
-    # done!
+    config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.max_lift_coefficient_factor    = 1. #0.95
+  
+    configs.append(config)
+
     return configs

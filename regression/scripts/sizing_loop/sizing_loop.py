@@ -61,10 +61,10 @@ def main():
     results = nexus.results
 
     err = nexus.sizing_loop.norm_error
-    err_true = 8.81614843863e-05
+    err_true = 0.00330191 #for 1E-2 tol
     error = abs((err-err_true)/err)
-    print error
-    assert(error<1e-12), 'sizing loop regression failed'    
+    print 'error = ', error
+    assert(error<1e-5), 'sizing loop regression failed'    
     
     #output=nexus._really_evaluate() #run; use optimization setup without inputs
     return
@@ -114,7 +114,7 @@ def run_sizing_loop(nexus):
     sizing_loop = nexus.sizing_loop
     #assign to sizing loop
     
-    sizing_loop.tolerance                                      = 1E-4 #percentage difference in mass and energy between iterations
+    sizing_loop.tolerance                                      = 1E-2 #fraction difference in mass and energy between iterations
     sizing_loop.initial_step                                   = 'Default' #Default, Table, SVR
     sizing_loop.update_method                                  = 'successive_substitution' #'successive_substitution','newton-raphson', 'broyden'
     sizing_loop.default_y                                      = y
