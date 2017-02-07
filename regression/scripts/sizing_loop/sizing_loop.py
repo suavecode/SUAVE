@@ -23,8 +23,6 @@ import pylab as plt
 
 
 from SUAVE.Analyses.Process import Process
-from SUAVE.Methods.Performance import estimate_take_off_field_length
-from SUAVE.Methods.Performance import estimate_landing_field_length 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -35,8 +33,7 @@ from SUAVE.Optimization.Nexus import Nexus
 #from SUAVE.Optimization.write_optimization_outputs import write_optimization_outputs
 
 import sys
-#sys.path.append('../B737')
-sys.path.append('../noise_optimization')
+sys.path.append('../noise_optimization') #import structure from noise_optimization
 import Vehicles
 import Analyses
 import Missions
@@ -85,7 +82,6 @@ def evaluate_problem(nexus):
 # ----------------------------------------------------------------------   
 
 def setup():
-    
     # ------------------------------------------------------------------
     #   Analysis Procedure
     # ------------------------------------------------------------------ 
@@ -93,8 +89,7 @@ def setup():
     # size the base config
     procedure = Process()
     procedure.run_sizing_loop       = run_sizing_loop #size aircraft and run mission
-    procedure.evaluate_field_length = evaluate_field_length
-  
+    
     return procedure
 
 
@@ -106,13 +101,9 @@ def run_sizing_loop(nexus):
     analyses   = nexus.analyses
     mission    = nexus.missions.base
     
-    
-    
-    #initial guesses
-    m_guess    = 60000.       
 
- 
-  
+    #initial guesses
+    m_guess       = 60000.       
     scaling       = np.array([1E4])
     y             = np.array([m_guess])/scaling
     min_y         = [.05]
@@ -131,16 +122,13 @@ def run_sizing_loop(nexus):
     sizing_loop.max_y                                          = max_y
     sizing_loop.default_scaling                                = scaling
     sizing_loop.sizing_evaluation                              = sizing_evaluation
-    
     sizing_loop.maximum_iterations                             = 50
     sizing_loop.write_threshhold                               = 50.
-   
     sizing_loop.output_filename                                = 'sizing_outputs.txt' #used if you run optimization
     
     nexus.max_iter                                             = sizing_loop.maximum_iterations  #used to pass it to constraints
   
-  
-    #nexus.sizing_loop               = sizing_loop
+    #run the sizing loop
     nexus = sizing_loop(nexus)
     return nexus   
    
@@ -154,24 +142,21 @@ def simple_sizing(nexus):
     analyses   = nexus.analyses
     base       = configs.base
 
-    m_guess    = nexus.m_guess #take in sizing inputs
-    #fuel_guess = nexus.fuel_guess
     
+    
+    m_guess                            = nexus.m_guess #take in sizing inputs
     base.mass_properties.max_takeoff   = m_guess
  
-    #design_thrust = base.thrust_loading*m_guess*9.81 #scale engine with vehicle
-    
     #find conditions
     air_speed   = nexus.missions.base.segments['cruise'].air_speed 
     altitude    = nexus.missions.base.segments['climb_3'].altitude_end
     atmosphere  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    
     freestream  = atmosphere.compute_values(altitude)
     freestream0 = atmosphere.compute_values(6000.*Units.ft)  #cabin altitude
     
     
-    diff_pressure         = np.max(freestream0.pressure-freestream.pressure,0)
-    fuselage              = base.fuselages['fuselage']
+    diff_pressure                  = np.max(freestream0.pressure-freestream.pressure,0)
+    fuselage                       = base.fuselages['fuselage']
     fuselage.differential_pressure = diff_pressure 
     
     #now size engine
@@ -201,7 +186,7 @@ def simple_sizing(nexus):
             
 
 
-        fuselage              = config.fuselages['fuselage']
+        fuselage                       = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
      
         #now evealute weights
@@ -236,25 +221,25 @@ def simple_sizing(nexus):
     landing.mass_properties.landing = base.mass_properties.max_zero_fuel
     
     # Landing CL_max
-    altitude = nexus.missions.base.segments[-1].altitude_end
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
+    altitude                                         = nexus.missions.base.segments[-1].altitude_end
+    atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
     landing_conditions.freestream.velocity           = nexus.missions.base.segments['descent_3'].air_speed
     landing_conditions.freestream.density            = rho
     landing_conditions.freestream.dynamic_viscosity  = mu/rho
-    CL_max_landing,CDi = compute_max_lift_coeff(landing,landing_conditions)
-    landing.maximum_lift_coefficient = CL_max_landing
+    CL_max_landing,CDi                               = compute_max_lift_coeff(landing,landing_conditions)
+    landing.maximum_lift_coefficient                 = CL_max_landing
     # diff the new data
     landing.store_diff()
     
     
     #Takeoff CL_max
-    takeoff = nexus.vehicle_configurations.takeoff
-    takeoff_conditions = Data()
-    takeoff_conditions.freestream = Data()    
-    altitude = nexus.missions.base.airport.altitude
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
+    takeoff                                          = nexus.vehicle_configurations.takeoff
+    takeoff_conditions                               = Data()
+    takeoff_conditions.freestream                    = Data()    
+    altitude                                         = nexus.missions.base.airport.altitude
+    atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
     takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     takeoff_conditions.freestream.density            = rho
     takeoff_conditions.freestream.dynamic_viscosity  = mu/rho 
@@ -266,17 +251,17 @@ def simple_sizing(nexus):
    
 
     #Base config CL_max
-    base = nexus.vehicle_configurations.base
-    base_conditions = Data()
-    base_conditions.freestream = Data()    
-    altitude = nexus.missions.base.airport.altitude
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
+    base                                          = nexus.vehicle_configurations.base
+    base_conditions                               = Data()
+    base_conditions.freestream                    = Data()    
+    altitude                                      = nexus.missions.base.airport.altitude
+    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    p, T, rho, a, mu                              = atmosphere.compute_values(altitude)
     base_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     base_conditions.freestream.density            = rho
     base_conditions.freestream.dynamic_viscosity  = mu/rho 
-    max_CL_base,CDi = compute_max_lift_coeff(base,base_conditions) 
-    base.maximum_lift_coefficient = max_CL_base    
+    max_CL_base,CDi                               = compute_max_lift_coeff(base,base_conditions) 
+    base.maximum_lift_coefficient                 = max_CL_base    
     base.store_diff()
     
     # done!
@@ -331,37 +316,6 @@ def finalize(nexus):
     
     return nexus         
        
-
-    
-
-def evaluate_field_length(nexus):
-    configs = nexus.vehicle_configurations
-    analyses = nexus.analyses
-    mission = nexus.missions.base
-    results = nexus.results
-    
-    # unpack
-    airport = mission.airport
-    
-    takeoff_config = configs.takeoff
-    landing_config = configs.landing
-   
-    # evaluate
-    TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
-    LFL = estimate_landing_field_length (landing_config, analyses,airport)
-    
-    # pack
-    field_length = SUAVE.Core.Data()
-    field_length.takeoff = TOFL[0]
-    field_length.landing = LFL[0]
-    
-    results.field_length = field_length
-    nexus.results = results
-    
-    return nexus
-    
-
-    
 
 if __name__ == '__main__':
     main()
