@@ -26,6 +26,10 @@ class Conditions(Data):
         """ returns a row vector of ones with given number of columns """
         return np.ones([self._size,cols])
     
+    def ones_row_m1(self,cols):
+        """ returns a row vector of ones with given number of columns """
+        return np.ones([self._size-1,cols])    
+    
     def ones_row_m2(self,cols):
         """ returns a row vector of ones with given number of columns """
         return np.ones([self._size-2,cols])

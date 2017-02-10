@@ -25,8 +25,11 @@ def unpack_unknowns(segment,state):
     velf     = segment.air_speed_end 
 
     # Overide the speeds   
-    v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
-    gamma = np.concatenate([[[0]],gamma1,[[0]]])
+    #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+    #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+    v_mag =  np.concatenate([[[vel0]],vel])
+    #gamma = np.concatenate([[[0]],gamma1,[[0]]])
+    gamma = np.concatenate([gamma1,[[0]]])
     
     # process velocity vector
     v_x   =  v_mag * np.cos(gamma)
@@ -44,12 +47,13 @@ def initialize_unknowns(segment,state):
     gamma    = state.unknowns.flight_path_angle
     vel      = state.unknowns.velocity 
     v0       = segment.air_speed_start
-    ones_m2  = state.ones_row_m2(1)
     ones     = state.ones_row(1)
+    ones_m1  = state.ones_row_m1(1)
+    ones_m2  = state.ones_row_m2(1)
     
     # repack
-    state.unknowns.velocity          = v0*ones_m2
-    state.unknowns.flight_path_angle = gamma[0]*ones_m2
+    state.unknowns.velocity          = ones_m1* 100.
+    state.unknowns.flight_path_angle = gamma[0]*ones_m1
     
 def update_differentials(segment,state):
 

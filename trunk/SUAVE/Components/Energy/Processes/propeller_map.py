@@ -29,7 +29,7 @@ def propeller_map(prop, points):
     prop = build_surrogate(prop, J, Cp, eta, alts)
     
     # Test Surrogate
-    test_surrogate(prop,thrust,torque,power,J,Cp,eta,alts)
+    #test_surrogate(prop,thrust,torque,power,J,Cp,eta,alts)
     
     
     return prop

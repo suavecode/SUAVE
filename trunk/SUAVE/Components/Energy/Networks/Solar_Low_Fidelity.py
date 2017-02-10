@@ -14,7 +14,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -71,12 +71,18 @@ class Solar_Low_Fidelity(Propulsor):
         # link
         motor.inputs.voltage = esc.outputs.voltageout 
         # step 5
-        motor.omega(conditions)
-        # link
-        propeller.inputs.omega  = motor.outputs.omega
-        propeller.inputs.torque = motor.outputs.torque
+        #motor.omega(conditions)
+        ## link
+        #propeller.inputs.omega  = motor.outputs.omega
+        #propeller.inputs.torque = motor.outputs.torque
         # step 6
-        F, Q, P, Cplast = propeller.spin(conditions)       
+        #F, Q, P, Cplast = propeller.spin(conditions) 
+        
+        
+        motor.power_lo(conditions)
+        #link
+        propeller.inputs.power = motor.outputs.power
+        F,P = propeller.spin_lo(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -93,8 +99,8 @@ class Solar_Low_Fidelity(Propulsor):
         # link
         solar_logic.inputs.ppayload = payload.outputs.power
         
-        # Run the motor for current
-        motor.current(conditions)
+        ## Run the motor for current
+        #motor.current(conditions)
         # link
         esc.inputs.currentout =  motor.outputs.current
         
@@ -113,13 +119,13 @@ class Solar_Low_Fidelity(Propulsor):
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
-        rpm                                  = motor.outputs.omega*60./(2.*np.pi)
+        #rpm                                  = motor.outputs.omega/Units.rpm
         current                              = solar_logic.inputs.currentesc
         battery_draw                         = battery.inputs.power_in 
         battery_energy                       = battery.current_energy
     
         conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
-        conditions.propulsion.rpm            = rpm
+        #conditions.propulsion.rpm            = rpm
         conditions.propulsion.current        = current
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy

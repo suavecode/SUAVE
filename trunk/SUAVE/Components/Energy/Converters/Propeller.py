@@ -510,14 +510,33 @@ class Propeller(Energy_Component):
         # unpack
         surrogate = self.surrogate
         altitude  = conditions.freestream.altitude
-        velocity  = conditions.frames.inertial.velocity_vector[:,0,None]
+        Vv     = conditions.frames.inertial.velocity_vector
         rho       = conditions.freestream.density[:,0,None]        
         omega     = self.inputs.omega
         R         = self.tip_radius 
+        theta  = self.thrust_angle
+        
+        
+        # Velocity in the Body frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T_inertial2body = orientation_transpose(T_body2inertial)
+        V_body = orientation_product(T_inertial2body,Vv)
+    
+        # Velocity transformed to the propulsor frame
+        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        V_thrust      = orientation_product(T_body2thrust,V_body)
+    
+        # Now just use the aligned velocity
+        velocity = V_thrust[:,0,None] 
+        
+        velocity[velocity==0.] = np.sqrt(self.design_thrust/(2*rho[velocity==0.]*np.pi*(self.tip_radius**2)))
 
         # Diameter
-        D = R*2         
+        D = R*2  
         
+        omega[omega==0] = 1e-6 
+
         # Advance Ratio
         n = omega/(2*np.pi)
         J = velocity/(n*D)
@@ -536,6 +555,8 @@ class Propeller(Energy_Component):
         thrust = Ct*rho*(n**2)*(D**4)
         torque = Cq*rho*(n**2)*(D**5)
         power  = Cp*rho*(n**3)*(D**5)
+        
+        #thrust[omega<0.0] = - thrust[omega<0.0]
         
         conditions.propulsion.etap = eta
 

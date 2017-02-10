@@ -104,7 +104,7 @@ class Lift_Forward(Propulsor):
         propeller_forward.thrust_angle = self.thrust_angle_forward   
         
         # Run the propeller
-        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -137,6 +137,7 @@ class Lift_Forward(Propulsor):
         konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
         konditions.freestream.speed_of_sound              = conditions.freestream.speed_of_sound *1.
         konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
+        konditions.freestream.altitude                    = conditions.freestream.altitude * 1.
         konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
         konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
         
@@ -152,7 +153,7 @@ class Lift_Forward(Propulsor):
         propeller_lift.thrust_angle = self.thrust_angle_lift
         
         # Run the propeller
-        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.lift_throttle
