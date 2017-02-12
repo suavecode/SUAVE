@@ -37,9 +37,9 @@ def converge_opt(segment,state):
     
     #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ, f_ieqcons=iecon, bounds=bnds,iter=2000)
     
-    unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,bounds=bnds,iter=2000)
+    #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,bounds=bnds,iter=2000)
     
-    #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
+    unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
     
     #opt_prob = pyOpt.Optimization('SUAVE',obj)
     #opt_prob.addObj('Something')
@@ -101,9 +101,6 @@ def get_econstraints(unknowns,(segment,state)):
 
     constraints = state.constraint_values
     
-    constraints2 = np.array([(segment.air_speed_start -state.conditions.freestream.velocity[0,0])/segment.air_speed_start])
-    
-    constraints = np.concatenate((constraints,constraints2))
     print constraints
         
     return constraints
@@ -137,15 +134,18 @@ def get_ieconstraints(unknowns,(segment,state)):
     if not np.all(state.inputs_last == state.unknowns):       
         segment.process.iterate(segment,state)
     
+    # Time goes forward, not backward
+    t_final = state.conditions.frames.inertial.time[-1,0]
+    constraints = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
     
-    #a  = state.conditions.frames.inertial.acceleration_vector[:,2] 
+    # Less than a specified CL limit
+    CL_limit = segment.CL_limit 
+    constraints2 = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
-    #constraints2 = np.concatenate([1.5*9.81 + a,9.81-a])
+    # Altitudes are greater than 0
+    constraints3 = state.conditions.freestream.altitude[:,0]
     
-    #constraints = state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0] 
-    
-    
-    #constraints = np.concatenate((constraints))
+    constraints = np.concatenate((constraints,constraints2,constraints3))
     
     return constraints
 

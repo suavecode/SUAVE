@@ -36,6 +36,7 @@ class Optimized(Aerodynamic):
         self.air_speed_end   = None
         self.objective       = None # This will be a key
         self.minimize        = True
+        self.CL_limit        = 1.e20 
         
         
         # --------------------------------------------------------------
