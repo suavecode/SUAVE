@@ -128,6 +128,8 @@ class Motor_Lo_Fid(Energy_Component):
         
         i = power_out/(etam*v_in)
         
+        i[power_out == 0.] = 0.
+        
         self.outputs.power   = power_out
         self.outputs.current = i
         
