@@ -52,9 +52,9 @@ class Solar_Radiation(Energy_Component):
         altitude  = conditions.freestream.altitude
         times     = conditions.frames.inertial.time
         
-        #phip   = 0.* np.ones_like(altitude)
-        #thetap = 0.* np.ones_like(altitude)
-        #psip   = 0.* np.ones_like(altitude)        
+        phip   = 0.* np.ones_like(altitude)
+        thetap = 0.* np.ones_like(altitude)
+        psip   = 0.* np.ones_like(altitude)        
         
         # Figure out the date and time
         day       = timedate.tm_yday + np.floor_divide(times, 24.*60.*60.)

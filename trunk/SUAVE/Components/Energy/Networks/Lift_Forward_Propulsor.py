@@ -154,6 +154,7 @@ class Lift_Forward(Propulsor):
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
+        #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.lift_throttle

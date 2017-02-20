@@ -218,7 +218,7 @@ class Propeller(Energy_Component):
             ii+=1
                 
             if ii>2000:
-                print 'broke'
+                #print 'broke'
                 break
 
         #There is also RE scaling
