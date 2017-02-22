@@ -17,6 +17,9 @@ import Plot_Mission2
 import matplotlib.pyplot as plt
 from SUAVE.Optimization import Nexus, carpet_plot
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+import sys
+sys.path.append('../Vehicles')
+from Embraer_190 import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
@@ -108,7 +111,8 @@ def setup():
     #  Vehicles
     # -------------------------------------------------------------------
     nexus.vehicle_configurations = Vehicles2.setup()
-    
+    #vehicle = vehicle_setup()
+    #nexus.vehicle_configurations = configs_setup(vehicle)
     
     # -------------------------------------------------------------------
     #  Analyses

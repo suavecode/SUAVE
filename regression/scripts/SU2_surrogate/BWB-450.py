@@ -37,11 +37,11 @@ from Boeing_BWB_450 import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------
 
 def main():
-
+    
     configs, analyses = full_setup()
-
+    
     simple_sizing(configs)
-
+   
     configs.finalize()
     analyses.finalize()
 
@@ -71,8 +71,9 @@ def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    
     configs  = configs_setup(vehicle)
-
+    
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
 

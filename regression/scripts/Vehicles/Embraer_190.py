@@ -41,7 +41,7 @@ def vehicle_setup():
     vehicle.mass_properties.max_payload               = 13063. * Units.kg
     vehicle.mass_properties.max_fuel                  = 12971.
 
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
+    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]#[[60 * Units.feet, 0, 0]]  # Not correct
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
 
     # envelope properties
@@ -173,8 +173,8 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
-
+    fuselage.tag    = 'fuselage'
+    fuselage.origin = [0,0,0]
     fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
     fuselage.seat_pitch            = 0.7455
@@ -444,7 +444,25 @@ def configs_setup(vehicle):
     config.maximum_lift_coefficient = 2.
 
     configs.append(config)
+    
+    
+     
+    # ------------------------------------------------------------------
+    #   Short Field Takeoff Configuration
+    # ------------------------------------------------------------------ 
 
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'short_field_takeoff'
+    
+    config.wings['main_wing'].flaps.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 25. * Units.deg
+
+    config.V2_VS_ratio = 1.21
+    config.maximum_lift_coefficient = 2. 
+    
+    # payload?
+    
+    configs.append(config)
 
     # done!
     return configs
