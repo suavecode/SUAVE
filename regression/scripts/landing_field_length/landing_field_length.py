@@ -352,6 +352,8 @@ def main():
     landing_config.Vref_VS_ratio = 1.23
     # CLmax for a given configuration may be informed by user
     # landing_config.maximum_lift_coefficient = 2.XX
+    # Used defined ajust factor for maximum lift coefficient
+    landing_config.max_lift_coefficient_factor = 0.90
 
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
