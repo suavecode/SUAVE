@@ -73,7 +73,8 @@ def wing_planform(wing):
         y_coord = 0    
         
     # Computing flap geometry
-    if wing.flaps.chord:     
+    affected_area = 0.
+    if wing.high_lift:
         flap = wing.flaps
         #compute wing chords at flap start and end
         delta_chord = chord_tip - chord_root
@@ -87,15 +88,17 @@ def wing_planform(wing):
         flap.chord_dimensional = wing_mac_flap * flap.chord
         flap_chord_start = wing_chord_flap_start * flap.chord
         flap_chord_end   = wing_chord_flap_end * flap.chord
-        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.            
-    
+        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.    
+        flaped_wing_area = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
+        affected_area    = flaped_wing_area / sref
+        
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
+    wing.areas.affected              = affected_area
     wing.spans.projected            = span
-
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     
     return wing
