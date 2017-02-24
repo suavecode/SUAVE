@@ -89,8 +89,8 @@ def wing_planform(wing):
         flap_chord_start = wing_chord_flap_start * flap.chord
         flap_chord_end   = wing_chord_flap_end * flap.chord
         flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.    
-        flaped_wing_area = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
-        affected_area    = flaped_wing_area / sref
+        flapped_wing_area = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
+        affected_area    = flapped_wing_area / sref
         
     # update
     wing.chords.root                = chord_root

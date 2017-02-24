@@ -16,7 +16,7 @@ from SUAVE.Methods.Performance.estimate_landing_field_length import estimate_lan
 import sys
 sys.path.append('../Vehicles')
 
-#from Embraer_190 import vehicle_setup, configs_setup
+from Embraer_190 import vehicle_setup, configs_setup
 
 
 
@@ -27,7 +27,7 @@ import pylab as plt
 # ----------------------------------------------------------------------
 #   Build the Vehicle
 # ----------------------------------------------------------------------
-
+'''
 def vehicle_setup():
 
     # ------------------------------------------------------------------
@@ -273,7 +273,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     return vehicle
-    
+'''    
 def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -294,7 +294,7 @@ def base_analysis(vehicle):
     
     # done!
     return analyses    
-    
+'''    
 def configs_setup(vehicle):
     
     # ------------------------------------------------------------------
@@ -331,7 +331,7 @@ def configs_setup(vehicle):
   
     configs.append(config)
     return configs       
-    
+'''    
 
 
 def main():
@@ -381,11 +381,12 @@ def main():
     plt.plot(w_vec,landing_field_length, 'k-', label = 'Landing Field Length')
 
     plt.title(title); plt.grid(True)
+
+    plt.figure(1); plt.plot(w_vec,truth_LFL, label = 'Landing Field Length (true)')
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
     plt.ylabel('Landing Field Length (m)')
     
-    plt.figure(2); plt.plot(w_vec,truth_LFL)
     #assert( LFL_error   < 1e-5 )
 
     return 

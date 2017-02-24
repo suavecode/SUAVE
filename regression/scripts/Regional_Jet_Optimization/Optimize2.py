@@ -110,9 +110,9 @@ def setup():
     # -------------------------------------------------------------------
     #  Vehicles
     # -------------------------------------------------------------------
-    nexus.vehicle_configurations = Vehicles2.setup()
-    #vehicle = vehicle_setup()
-    #nexus.vehicle_configurations = configs_setup(vehicle)
+    #nexus.vehicle_configurations = Vehicles2.setup()
+    vehicle = vehicle_setup()
+    nexus.vehicle_configurations = configs_setup(vehicle)
     
     # -------------------------------------------------------------------
     #  Analyses

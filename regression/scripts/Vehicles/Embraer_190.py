@@ -59,7 +59,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
     wing.areas.reference         = 92.0
