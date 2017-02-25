@@ -9,7 +9,6 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 import numpy as np
-import Vehicles2
 import Analyses2
 import Missions2
 import Procedure2
@@ -32,13 +31,14 @@ def main():
     con3 = problem.all_constraints([1.1,0.9])    
     
     actual = Data()
-    actual.obj  = 0.6765738665234822
-    actual.con  = 0.60342875
-    actual.obj2 = 0.6955339462505217
-    actual.con3 = 0.7197643
+    actual.obj  = 0.6669194640437861
+    actual.con  = 1.12443656
+    actual.obj2 = 0.6849694056002233
+    actual.con3 =  1.19398434
     
     print 'Fuel Burn   =', obj
     print 'Fuel Margin =', con    
+
 
     error = Data()
     error.obj = (actual.obj - obj)/actual.obj
@@ -110,7 +110,6 @@ def setup():
     # -------------------------------------------------------------------
     #  Vehicles
     # -------------------------------------------------------------------
-    #nexus.vehicle_configurations = Vehicles2.setup()
     vehicle = vehicle_setup()
     nexus.vehicle_configurations = configs_setup(vehicle)
     

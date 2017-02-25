@@ -108,6 +108,15 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
+    # ------------------------------------------------------------------
+    #   Flaps
+    # ------------------------------------------------------------------
+    wing.flaps.chord      =  0.30   
+    wing.flaps.span_start =  0.10   # ->     wing.flaps.area = 97.1112
+    wing.flaps.span_end   =  0.75
+    wing.flaps.type       = 'double_sloted'  # -> wing.flaps.number_slots = 2
+    
+    
     # add to vehicle
     vehicle.append_component(wing)
 
@@ -417,9 +426,25 @@ def vehicle_setup():
     mach_number   = 0.78 
     isa_deviation = 0.
     
+    #Engine setup for noise module    
+   
+    
     # add to network
     turbofan.thrust = thrust
 
+    turbofan.core_nozzle_diameter = 0.92
+    turbofan.fan_nozzle_diameter  = 1.659
+    turbofan.engine_height        = 0.5  #Engine centerline heigh above the ground plane
+    turbofan.exa                  = 1    #distance from fan face to fan exit/ fan diameter)
+    turbofan.plug_diameter        = 0.1  #dimater of the engine plug 
+    turbofan.geometry_xe          = 1. # Geometry information for the installation effects function
+    turbofan.geometry_ye          = 1. # Geometry information for the installation effects function   
+    turbofan.geometry_Ce          = 2. # Geometry information for the installation effects function
+    
+    
+    
+    
+    
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
     

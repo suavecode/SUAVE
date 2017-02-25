@@ -34,11 +34,11 @@ from SUAVE.Optimization.Nexus import Nexus
 
 import sys
 sys.path.append('../noise_optimization') #import structure from noise_optimization
-import Vehicles
+sys.path.append('../Vehicles')
 import Analyses
 import Missions
+from Boeing_737 import vehicle_setup, configs_setup
 matplotlib.interactive(True)
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -47,7 +47,8 @@ def main():
     
     #initialize the problem
     nexus                        = Nexus()
-    nexus.vehicle_configurations = Vehicles.setup()
+    vehicle = vehicle_setup()
+    nexus.vehicle_configurations = configs_setup(vehicle)
     nexus.analyses               = Analyses.setup(nexus.vehicle_configurations)
     nexus.missions               = Missions.setup(nexus.analyses)
     
@@ -61,7 +62,7 @@ def main():
     results = nexus.results
 
     err = nexus.sizing_loop.norm_error
-    err_true = 0.00330191 #for 1E-2 tol
+    err_true = 0.00299688 #for 1E-2 tol
     error = abs((err-err_true)/err)
     print 'error = ', error
     assert(error<1e-5), 'sizing loop regression failed'    
