@@ -24,6 +24,9 @@ Data, Container,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
+
 import sys
 
 sys.path.append('../Vehicles')
@@ -54,6 +57,10 @@ def main():
     # weight analysis
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()      
+    
+    #compute centers of gravity
+    compute_component_centers_of_gravity(configs.base)
+    compute_aircraft_center_of_gravity(configs.base)
 
     # mission analysis
     mission = analyses.missions.base

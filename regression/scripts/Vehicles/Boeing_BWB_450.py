@@ -1,4 +1,4 @@
-# Embraer_190
+# Boeing_BWB_450.py
 #
 # Created:  Feb 2017, M. Vegh
 # Modified: 

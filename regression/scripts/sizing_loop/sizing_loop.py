@@ -1,4 +1,4 @@
-# tut_lithium_air_jet.py
+# sizing_loop.py
 #
 # Created:  Jun 2015, SUAVE Team
 # Modified: 
@@ -224,7 +224,13 @@ def simple_sizing(nexus):
     # Landing CL_max
     altitude                                         = nexus.missions.base.segments[-1].altitude_end
     atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
+    
+    freestream             = atmosphere.compute_values(altitude)
+    mu                     = freestream.dynamic_viscosity
+    rho                    = freestream.density
+    #p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
+    
+    
     landing_conditions.freestream.velocity           = nexus.missions.base.segments['descent_3'].air_speed
     landing_conditions.freestream.density            = rho
     landing_conditions.freestream.dynamic_viscosity  = mu/rho
@@ -240,7 +246,9 @@ def simple_sizing(nexus):
     takeoff_conditions.freestream                    = Data()    
     altitude                                         = nexus.missions.base.airport.altitude
     atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
+    freestream                                       = atmosphere.compute_values(altitude)
+    mu                                               = freestream.dynamic_viscosity
+    rho                                              = freestream.density
     takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     takeoff_conditions.freestream.density            = rho
     takeoff_conditions.freestream.dynamic_viscosity  = mu/rho 
@@ -257,7 +265,12 @@ def simple_sizing(nexus):
     base_conditions.freestream                    = Data()    
     altitude                                      = nexus.missions.base.airport.altitude
     atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                              = atmosphere.compute_values(altitude)
+    freestream                                    = atmosphere.compute_values(altitude)
+    mu                                            = freestream.dynamic_viscosity
+    rho                                           = freestream.density
+    
+    
+    
     base_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     base_conditions.freestream.density            = rho
     base_conditions.freestream.dynamic_viscosity  = mu/rho 

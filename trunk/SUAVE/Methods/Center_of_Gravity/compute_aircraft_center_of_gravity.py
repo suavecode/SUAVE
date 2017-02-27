@@ -102,8 +102,8 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     #optionals_moment         =np.array([fuselage.lengths.total*.51,0,0])*optionals.mass_properties.mass 
     
     # Landing Gear
-    landing_gear.origin      = 1*(fuselage.origin) #front gear location
-    landing_gear.origin[0]   = fuselage.origin[0]+fuselage.lengths.nose
+    landing_gear.origin       = 1*(fuselage.origin) #front gear location
+    landing_gear.origin[0][0] = fuselage.origin[0][0]+fuselage.lengths.nose
     
     #find moment of every object other than landing gear to find aft gear location, then cg
     sum_moments              = (wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\

@@ -1,9 +1,9 @@
-# Concorde.py
+# AS2.py
 #
 # Created:  Feb 2017, M. Vegh
 # Modified: 
 
-""" setup file for the Concorde 
+""" setup file for the AS2
 """
 
 import numpy as np

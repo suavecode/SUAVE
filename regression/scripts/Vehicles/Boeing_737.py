@@ -18,7 +18,6 @@ from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 
 
-
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -43,7 +42,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
-    vehicle.mass_properties.cargo                     = 0.       #10000.  * Units.kilogram   
+    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
     vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
     vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
@@ -487,7 +486,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.wings['main_wing'].slats.angle = 25. * Units.deg
     config.max_lift_coefficient_factor    = 1. #0.95
     #Noise input for the landing gear
     config.landing_gear.gear_condition    = 'up'       
@@ -524,8 +523,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
 
-    config.wings['main_wing'].flaps.angle = 40. * Units.deg
-    config.wings['main_wing'].slats.angle = 20. * Units.deg  
+    config.wings['main_wing'].flaps.angle = 30. * Units.deg
+    config.wings['main_wing'].slats.angle = 25. * Units.deg  
     config.max_lift_coefficient_factor    = 1. #0.95
     #Noise input for the landing gear
     config.landing_gear.gear_condition = 'down'    

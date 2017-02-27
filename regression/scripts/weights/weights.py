@@ -29,10 +29,10 @@ def main():
     
     
     actual = Data()
-    actual.payload         = 17349.9081525
+    actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.5870655
     actual.bag             = 2313.321087
-    actual.fuel            = 22177.6377131
+    actual.fuel            = 12177.6377131 #includes cargo #22177.6377131 #without cargo
     actual.empty           = 39488.2541344
     actual.wing            = 7343.29196359
     actual.fuselage        = 6641.4815082
