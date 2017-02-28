@@ -84,22 +84,22 @@ def vehicle_setup():
     wing.aspect_ratio            = 10.18
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
-    wing.taper                   = 0.16
+    wing.taper                   = 0.1
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 35.66    
+    wing.spans.projected         = 34.32   
     
-    wing.chords.root             = 6.81
-    wing.chords.tip              = 1.09
-    wing.chords.mean_aerodynamic = 4.235
+    wing.chords.root             = 7.760 * Units.meter
+    wing.chords.tip              = 0.782 * Units.meter
+    wing.chords.mean_aerodynamic = 4.235 * Units.meter
     
     wing.areas.reference         = 124.862 
     
     wing.twists.root             = 4.0 * Units.degrees
-    wing.twists.tip              = -4.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
     
-    wing.origin                  = [20,0,0]
-    wing.aerodynamic_center      = [3,0,0] 
+    wing.origin                  = [13.61,0,-1.27]
+    wing.aerodynamic_center      = [0,0,0]  #[3,0,0]
     
     wing.vertical                = False
     wing.symmetric               = True
@@ -128,15 +128,15 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16      #
-    wing.sweeps.quarter_chord    = 30 * Units.deg
+    wing.sweeps.quarter_chord    = 40 * Units.deg
     wing.thickness_to_chord      = 0.08
-    wing.taper                   = 0.4
+    wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 14.146      #
+    wing.spans.projected         = 14.2      #
 
-    wing.chords.root             = 3.28
-    wing.chords.tip              = 1.31    
+    wing.chords.root             = 4.7
+    wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
 
     wing.areas.reference         = 32.488    #
@@ -145,8 +145,8 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]
+    wing.origin                  = [32.83,0,1.14]
+    wing.aerodynamic_center      = [0,0,0] #[2,0,0] from before
     
     wing.vertical                = False 
     wing.symmetric               = True
@@ -170,19 +170,19 @@ def vehicle_setup():
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 7.877      #    
+    wing.spans.projected         = 7.777      #    
 
-    wing.chords.root             = 6.60
-    wing.chords.tip              = 1.65
-    wing.chords.mean_aerodynamic = 8.0
+    wing.chords.root             = 8.19
+    wing.chords.tip              = 0.95
+    wing.chords.mean_aerodynamic = 4.0
     
-    wing.areas.reference         = 32.488    #
+    wing.areas.reference         = 27.316    #
     
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
     
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]    
+    wing.origin                  = [28.79,0,1.54]
+    wing.aerodynamic_center      = [0,0,0]    #[2,0,0]    
     
     wing.vertical                = True 
     wing.symmetric               = False

@@ -32,17 +32,17 @@ def main():
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.5870655
     actual.bag             = 2313.321087
-    actual.fuel            = 12177.6377131 #includes cargo #22177.6377131 #without cargo
-    actual.empty           = 39488.2541344
-    actual.wing            = 7343.29196359
+    actual.fuel            = 12973.7402681 #includes cargo #22177.6377131 #without cargo
+    actual.empty           = 38692.1515794
+    actual.wing            = 6649.70965874
     actual.fuselage        = 6641.4815082
     actual.propulsion      = 6855.68572746
     actual.landing_gear    = 3160.632
-    actual.systems         = 13567.4864956
+    actual.systems         = 13479.1047906
     actual.wt_furnish      = 6431.80372889
-    actual.horizontal_tail = 931.102490828
-    actual.vertical_tail   = 706.124249046
-    actual.rudder          = 282.449699618
+    actual.horizontal_tail = 1024.58733327
+    actual.vertical_tail   = 629.03876835
+    actual.rudder          =  251.61550734
     
     
     '''
