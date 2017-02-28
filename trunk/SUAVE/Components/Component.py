@@ -22,7 +22,7 @@ class Component(Data):
     def __defaults__(self):
         self.tag    = 'Component'
         self.origin = [[0.0,0.0,0.0]]
-        #self.origin = np.array([0,0,0])
+
     
 # ----------------------------------------------------------------------
 #  Component Container
