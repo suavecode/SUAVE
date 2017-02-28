@@ -190,7 +190,7 @@ def simple_sizing(nexus):
         fuselage                       = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
      
-        #now evealute weights
+        #now evaluate weights
 
         # diff the new data
         
@@ -228,9 +228,7 @@ def simple_sizing(nexus):
     freestream             = atmosphere.compute_values(altitude)
     mu                     = freestream.dynamic_viscosity
     rho                    = freestream.density
-    #p, T, rho, a, mu                                 = atmosphere.compute_values(altitude)
-    
-    
+
     landing_conditions.freestream.velocity           = nexus.missions.base.segments['descent_3'].air_speed
     landing_conditions.freestream.density            = rho
     landing_conditions.freestream.dynamic_viscosity  = mu/rho
@@ -252,8 +250,8 @@ def simple_sizing(nexus):
     takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     takeoff_conditions.freestream.density            = rho
     takeoff_conditions.freestream.dynamic_viscosity  = mu/rho 
-    max_CL_takeoff,CDi = compute_max_lift_coeff(takeoff,takeoff_conditions) 
-    takeoff.maximum_lift_coefficient = max_CL_takeoff
+    max_CL_takeoff,CDi                               = compute_max_lift_coeff(takeoff,takeoff_conditions) 
+    takeoff.maximum_lift_coefficient                 = max_CL_takeoff
     
     takeoff.store_diff()
     

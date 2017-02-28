@@ -96,7 +96,7 @@ def wing_planform(wing):
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
-    wing.areas.affected              = affected_area
+    wing.areas.affected             = affected_area
     wing.spans.projected            = span
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     #imports
     wing = Wing()
     
-    wing.areas.reference        = 10.
+    wing.areas.reference        =  10.
     wing.taper                  =  0.50
     wing.sweeps.quarter_chord   =  45.  * Units.deg
-    wing.aspect_ratio           = 10.
+    wing.aspect_ratio           =  10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg
     wing.vertical               =  1
