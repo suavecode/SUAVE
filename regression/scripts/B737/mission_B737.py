@@ -49,19 +49,13 @@ def main():
 
     configs, analyses = full_setup()
 
-    simple_sizing(configs)
+    simple_sizing(configs, analyses)
 
     configs.finalize()
     analyses.finalize()
 
-    # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()      
-    
-    #compute centers of gravity
-    compute_component_centers_of_gravity(configs.base)
-    compute_aircraft_center_of_gravity(configs.base)
-
+  
+ 
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
@@ -96,7 +90,7 @@ def main():
     # check the results
     check_results(results,old_results)
     
-
+   
 
     return
 
@@ -360,7 +354,7 @@ def plot_mission(results,line_style='bo-'):
 
     return
 
-def simple_sizing(configs):
+def simple_sizing(configs, analyses):
 
     base = configs.base
     base.pull_base()
@@ -376,7 +370,18 @@ def simple_sizing(configs):
 
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
-
+    
+    # weight analysis
+    #need to put here, otherwise it won't be updated
+    weights = analyses.configs.base.weights
+    breakdown = weights.evaluate()    
+    
+    
+    #compute centers of gravity
+    #need to put here, otherwise, results won't be stored
+    compute_component_centers_of_gravity(base)
+    compute_aircraft_center_of_gravity(base)
+    
     # diff the new data
     base.store_diff()
 
