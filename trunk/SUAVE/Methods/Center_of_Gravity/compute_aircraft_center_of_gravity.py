@@ -129,6 +129,6 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
     vehicle.mass_properties.zero_fuel_center_of_gravity = \
         (sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
-    
+    print 'vehicle.mass_properties.center_of_gravity=', vehicle.mass_properties.center_of_gravity
     return vehicle.mass_properties.center_of_gravity
 
