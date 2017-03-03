@@ -83,19 +83,16 @@ class SU2_inviscid_Super(Aerodynamics):
         for ii,_ in enumerate(AoA):
             if mach[ii][0] <= 1.:
                 inviscid_lift[ii] = lift_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
-                #inviscid_drag[ii] = drag_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
+                inviscid_drag[ii] = drag_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
             else:
                 inviscid_lift[ii] = lift_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
-                #inviscid_drag[ii] = drag_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
+                inviscid_drag[ii] = drag_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
         
-        # Inviscid drag, zeros are a placeholder for possible future implementation
-        #inviscid_drag = np.zeros([data_len,1])
-        #for ii,_ in enumerate(AoA):
-        #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.inviscid        = Data()
+        state.conditions.aerodynamics.drag_breakdown.inviscid.total  = inviscid_drag
         
         return inviscid_lift, inviscid_drag
 
@@ -107,10 +104,14 @@ class SU2_inviscid_Super(Aerodynamics):
         settings = self.settings
         training = self.training
         
-        AoA  = training.angle_of_attack
-        mach = training.Mach 
-        CL   = np.zeros([len(AoA)*len(mach),1])
-        CD   = np.zeros([len(AoA)*len(mach),1])
+        t_set = self.training_set
+        CL = np.zeros(np.shape(t_set))
+        CD = np.zeros(np.shape(t_set))
+        
+        #AoA  = training.angle_of_attack
+        #mach = training.Mach 
+        #CL   = np.zeros([len(AoA)*len(mach),1])
+        #CD   = np.zeros([len(AoA)*len(mach),1])
 
         # Condition input, local, do not keep (k is used to avoid confusion)
         konditions              = Data()
@@ -118,20 +119,25 @@ class SU2_inviscid_Super(Aerodynamics):
 
         if self.training_file is None:
             # Calculate aerodynamics for table
-            table_size = len(AoA)*len(mach)
-            xy = np.zeros([table_size,2])
-            count = 0
+            #table_size = len(AoA)*len(mach)
+            #xy = np.zeros([table_size,2])
+            xy = t_set
+            #count = 0
             time0 = time.time()
-            for i,_ in enumerate(AoA):
-                for j,_ in enumerate(mach):
+            #for i,_ in enumerate(AoA):
+                #for j,_ in enumerate(mach):
                     
-                    xy[count,:] = np.array([AoA[i],mach[j]])
-                    # Set training conditions
-                    konditions.aerodynamics.angle_of_attack = AoA[i]
-                    konditions.aerodynamics.mach            = mach[j]
+                    #xy[count,:] = np.array([AoA[i],mach[j]])
+                    ## Set training conditions
+                    #konditions.aerodynamics.angle_of_attack = AoA[i]
+                    #konditions.aerodynamics.mach            = mach[j]
                     
-                    CL[count],CD[count] = call_SU2(konditions, settings, geometry)
-                    count += 1
+                    #CL[count],CD[count] = call_SU2(konditions, settings, geometry)
+                    #count += 1
+            for ii in xrange(np.shape(t_set)[0]):
+                konditions.aerodynamics.angle_of_attack = t_set[ii,1]
+                konditions.aerodynamics.mach            = t_set[ii,2]
+                CL[ii],CD[ii] = call_SU2(konditions, settings, geometry)
             
             time1 = time.time()
             
@@ -162,7 +168,7 @@ class SU2_inviscid_Super(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        import pyKriging
+        #import pyKriging
         
         # Gaussian Process New
         regr_cl_sup = gaussian_process.GaussianProcess()
@@ -228,8 +234,8 @@ class SU2_inviscid_Super(Aerodynamics):
         cbar.ax.set_ylabel('Coefficient of Lift')
 
         fig = plt.figure('Coefficient of Drag Surrogate Plot')    
-        levals = [.0,.0025,.005,.0075,.01,.0125,.015,.0175,.02,.0225]
-        #levals = None
+        #levals = [.0,.0025,.005,.0075,.01,.0125,.015,.0175,.02,.0225]
+        levals = None
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=levals)
         #plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
