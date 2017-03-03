@@ -73,26 +73,25 @@ class SU2_inviscid_Super(Aerodynamics):
         AoA  = conditions.aerodynamics.angle_of_attack
         lift_model_sub = surrogates.lift_coefficient_subsonic
         lift_model_sup = surrogates.lift_coefficient_supersonic
-        drag_model_sub = surrogates.drag_coefficient_subsonic
-        drag_model_sup = surrogates.drag_coefficient_supersonic
+        drag_model = surrogates.drag_coefficient
         
         # Inviscid lift
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
-        inviscid_drag = np.zeros([data_len,1]) # Inviscid drag, zeros are a placeholder for possible future implementation
         for ii,_ in enumerate(AoA):
             if mach[ii][0] <= 1.:
                 inviscid_lift[ii] = lift_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
-                inviscid_drag[ii] = drag_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
             else:
                 inviscid_lift[ii] = lift_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
-                inviscid_drag[ii] = drag_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
         
-        state.conditions.aerodynamics.drag_breakdown.inviscid        = Data()
-        state.conditions.aerodynamics.drag_breakdown.inviscid.total  = inviscid_drag
+        # Inviscid drag, zeros are a placeholder for possible future implementation
+        inviscid_drag = np.zeros([data_len,1])
+        #for ii,_ in enumerate(AoA):
+        #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         
         return inviscid_lift, inviscid_drag
 
@@ -104,14 +103,10 @@ class SU2_inviscid_Super(Aerodynamics):
         settings = self.settings
         training = self.training
         
-        t_set = self.training_set
-        CL = np.zeros(np.shape(t_set))
-        CD = np.zeros(np.shape(t_set))
-        
-        #AoA  = training.angle_of_attack
-        #mach = training.Mach 
-        #CL   = np.zeros([len(AoA)*len(mach),1])
-        #CD   = np.zeros([len(AoA)*len(mach),1])
+        AoA  = training.angle_of_attack
+        mach = training.Mach 
+        CL   = np.zeros([len(AoA)*len(mach),1])
+        CD   = np.zeros([len(AoA)*len(mach),1])
 
         # Condition input, local, do not keep (k is used to avoid confusion)
         konditions              = Data()
@@ -119,25 +114,20 @@ class SU2_inviscid_Super(Aerodynamics):
 
         if self.training_file is None:
             # Calculate aerodynamics for table
-            #table_size = len(AoA)*len(mach)
-            #xy = np.zeros([table_size,2])
-            xy = t_set
-            #count = 0
+            table_size = len(AoA)*len(mach)
+            xy = np.zeros([table_size,2])
+            count = 0
             time0 = time.time()
-            #for i,_ in enumerate(AoA):
-                #for j,_ in enumerate(mach):
+            for i,_ in enumerate(AoA):
+                for j,_ in enumerate(mach):
                     
-                    #xy[count,:] = np.array([AoA[i],mach[j]])
-                    ## Set training conditions
-                    #konditions.aerodynamics.angle_of_attack = AoA[i]
-                    #konditions.aerodynamics.mach            = mach[j]
+                    xy[count,:] = np.array([AoA[i],mach[j]])
+                    # Set training conditions
+                    konditions.aerodynamics.angle_of_attack = AoA[i]
+                    konditions.aerodynamics.mach            = mach[j]
                     
-                    #CL[count],CD[count] = call_SU2(konditions, settings, geometry)
-                    #count += 1
-            for ii in xrange(np.shape(t_set)[0]):
-                konditions.aerodynamics.angle_of_attack = t_set[ii,1]
-                konditions.aerodynamics.mach            = t_set[ii,2]
-                CL[ii],CD[ii] = call_SU2(konditions, settings, geometry)
+                    CL[count],CD[count] = call_SU2(konditions, settings, geometry)
+                    count += 1
             
             time1 = time.time()
             
@@ -168,17 +158,15 @@ class SU2_inviscid_Super(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
-        #import pyKriging
+        import pyKriging
         
         # Gaussian Process New
         regr_cl_sup = gaussian_process.GaussianProcess()
         regr_cl_sub = gaussian_process.GaussianProcess()
         cl_surrogate_sup = regr_cl_sup.fit(xy[xy[:,1]>=1.], CL_data[xy[:,1]>=1.])
         cl_surrogate_sub = regr_cl_sub.fit(xy[xy[:,1]<=1.], CL_data[xy[:,1]<=1.])  
-        regr_cd_sup = gaussian_process.GaussianProcess()
-        regr_cd_sub = gaussian_process.GaussianProcess()
-        cd_surrogate_sup = regr_cd_sup.fit(xy[xy[:,1]>=1.], CD_data[xy[:,1]>=1.])
-        cd_surrogate_sub = regr_cd_sub.fit(xy[xy[:,1]<=1.], CD_data[xy[:,1]<=1.])        
+        regr_cd = gaussian_process.GaussianProcess()
+        cd_surrogate = regr_cd.fit(xy, CD_data)        
         
         # Gaussian Process New
         #regr_cl = gaussian_process.GaussianProcessRegressor()
@@ -201,8 +189,7 @@ class SU2_inviscid_Super(Aerodynamics):
         
         self.surrogates.lift_coefficient_subsonic = cl_surrogate_sub
         self.surrogates.lift_coefficient_supersonic = cl_surrogate_sup
-        self.surrogates.drag_coefficient_subsonic = cd_surrogate_sub
-        self.surrogates.drag_coefficient_supersonic = cd_surrogate_sup
+        self.surrogates.drag_coefficient = cd_surrogate
          
         
         # Standard supersonic test case
@@ -218,10 +205,9 @@ class SU2_inviscid_Super(Aerodynamics):
             for ii in range(len(mach_points)):
                 if mach_mesh[ii,jj] >= 1. :
                     CL_sur[ii,jj] = cl_surrogate_sup.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                    CD_sur[ii,jj] = cd_surrogate_sup.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 else:
                     CL_sur[ii,jj] = cl_surrogate_sub.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                    CD_sur[ii,jj] = cd_surrogate_sub.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
@@ -233,31 +219,12 @@ class SU2_inviscid_Super(Aerodynamics):
         plt.ylabel('Mach Number')
         cbar.ax.set_ylabel('Coefficient of Lift')
 
-        fig = plt.figure('Coefficient of Drag Surrogate Plot')    
-        #levals = [.0,.0025,.005,.0075,.01,.0125,.015,.0175,.02,.0225]
-        levals = None
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=levals)
-        #plt.clabel(plt_handle, inline=1, fontsize=10)
-        cbar = plt.colorbar()
-        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')
-        cbar.ax.set_ylabel('Coefficient of Drag (----------NOT USED----------)') 
-        
-        fig = plt.figure('L/D')   
-        #levals=[8,8.5,9,9.5,10,10.5]
-        levals=None
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur/CD_sur,levels=levals)
-        #plt.clabel(plt_handle, inline=1, fontsize=10)
-        cbar = plt.colorbar()
-        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')
-        cbar.ax.set_ylabel('L/D')         
-        
-        cl_cruise = cl_surrogate_sup.predict(np.array([2.1*Units.deg,2.0]))
-        cd_cruise = cd_surrogate_sup.predict(np.array([2.1*Units.deg,2.0]))        
-        print cd_cruise
+        # Stub for plotting drag if implemented:
+
+        #plt.contourf(AoA_mesh/Units.deg,mach_mesh,CD_sur,levels=None)
+        #plt.colorbar()
+        #plt.xlabel('Angle of Attack (deg)')
+        #plt.ylabel('Mach Number')   
         
         plt.show() 
 

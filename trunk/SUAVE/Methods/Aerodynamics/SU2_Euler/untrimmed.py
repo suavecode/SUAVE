@@ -11,17 +11,14 @@ def untrimmed(state,settings,geometry):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Various drag components
-    if settings.use_CFD_drag is False:
-        parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total            
-        induced_total         = conditions.aerodynamics.drag_breakdown.induced.total  
-        invisid_total         = parasite_total + induced_total
-    else:
-        invisid_total         = conditions.aerodynamics.drag_breakdown.inviscid.total
+    parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total            
+    induced_total         = conditions.aerodynamics.drag_breakdown.induced.total            
     compressibility_total = conditions.aerodynamics.drag_breakdown.compressible.total         
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 
 
     # Untrimmed drag
-    aircraft_untrimmed = invisid_total        \
+    aircraft_untrimmed = parasite_total        \
+        + induced_total         \
         + compressibility_total \
         + miscellaneous_drag
     

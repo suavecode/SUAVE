@@ -1,5 +1,4 @@
 """ US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
-## @ingroup Atmospheric
 #
 #
 # Modified by Tim MacDonald 2/16/15  
@@ -29,7 +28,6 @@ from SUAVE.Core.Arrays import atleast_2d_col
 #  Classes
 # ----------------------------------------------------------------------
 
-## @ingroup Atmospheric
 class US_Standard_1976(Atmospheric):
 
     """ Implements the U.S. Standard Atmosphere (1976 version)

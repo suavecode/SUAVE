@@ -1,4 +1,4 @@
-""" Constant_Temperature.py: Contains the Constant Temperature Atmosphere class """
+# Constant_Temperature.py: 
 
 # Created:  Mar, 2014, SUAVE Team
 # Modified: Jan, 2016, M. Vegh
@@ -28,7 +28,6 @@ from SUAVE.Methods.Utilities import atleast_2d_col
 #  Classes
 # ----------------------------------------------------------------------
 
-## @ingroup Atmospheric
 class Constant_Temperature(Atmospheric):
 
     """ Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure

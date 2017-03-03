@@ -49,8 +49,6 @@ class SU2_Euler(Markup):
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
         settings.vsp_mesh_growth_limiting_flag      = False
-        settings.use_CFD_drag                       = False
-        settings.skip_VSP_mesh                      = False # can be used if a mesh already exists for use        
         
         # Build the evaluation process
         compute = self.process.compute
@@ -71,12 +69,11 @@ class SU2_Euler(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total
-        if settings.use_CFD_drag is False:   
-            compute.drag.induced                       = Methods.Drag.induced_drag_aircraft    
-            compute.drag.compressibility               = Process()
-            compute.drag.compressibility.wings         = Process_Geometry('wings')
-            compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
-            compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total        
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.compressibility               = Process()
+        compute.drag.compressibility.wings         = Process_Geometry('wings')
+        compute.drag.compressibility.wings.wing    = Methods.Drag.compressibility_drag_wing
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_wing_total        
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft_ESDU
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
