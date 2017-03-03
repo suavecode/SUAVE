@@ -76,18 +76,7 @@ class Solar(Propulsor):
         propeller.inputs.omega =  motor.outputs.omega
         # step 6
         F, Q, P, Cplast = propeller.spin(conditions)
-       
-        # iterate the Cp here
-        diff = abs(Cplast-motor.propeller_Cp)
-        tol = 1e-6
-        while (np.any(diff>tol)):
-            motor.propeller_Cp  = Cplast # Change the Cp
-            motor.omega(conditions) # Rerun the motor
-            propeller.inputs.omega =  motor.outputs.omega # Relink the motor
-            F, Q, P, Cplast        = propeller.spin(conditions) # Run the motor again
-            diff                   = abs(Cplast-motor.propeller_Cp) # Check to see if it converged          
-        
-            
+     
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
@@ -125,11 +114,13 @@ class Solar(Propulsor):
         battery_draw                         = battery.inputs.power_in 
         battery_energy                       = battery.current_energy
         
-        conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
-        conditions.propulsion.rpm            = rpm
-        conditions.propulsion.current        = current
-        conditions.propulsion.battery_draw   = battery_draw
-        conditions.propulsion.battery_energy = battery_energy
+        conditions.propulsion.solar_flux       = solar_flux.outputs.flux  
+        conditions.propulsion.rpm              = rpm
+        conditions.propulsion.current          = current
+        conditions.propulsion.battery_draw     = battery_draw
+        conditions.propulsion.battery_energy   = battery_energy
+        conditions.propulsion.motor_torque     = motor.outputs.torque
+        conditions.propulsion.propeller_torque = Q        
         
         #Create the outputs
         F    = self.number_of_engines * F * [1,0,0]      
@@ -140,5 +131,28 @@ class Solar(Propulsor):
         results.vehicle_mass_rate   = mdot
 
         return results
+    
+    
+    def unpack_unknowns(self,segment,state):
+        """"""        
+        
+        # Here we are going to unpack the unknowns (Cp) provided for this network
+        state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+
+        return
+    
+    def residuals(self,segment,state):
+        """"""        
+        
+        # Here we are going to pack the residuals from the network
+        
+        # Unpack
+        q_motor   = state.conditions.propulsion.motor_torque
+        q_prop    = state.conditions.propulsion.propeller_torque
+        
+        # Return the residuals
+        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        
+        return        
             
     __call__ = evaluate_thrust
