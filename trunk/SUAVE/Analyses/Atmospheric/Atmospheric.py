@@ -16,6 +16,7 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Atmospheric
 class Atmospheric(Analysis):
     """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
     """
