@@ -1,6 +1,6 @@
 # SIAI_Marchetti_S211.py
 #
-# Created:  Feb 2017, M. Vegh
+# Created:  Feb 2017, M. Vegh (created from data originally in cmalpha/cmalpha.py)
 # Modified: 
 
 """ setup file for the SIAI Marchetti S-211 Aircraft

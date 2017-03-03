@@ -1,6 +1,6 @@
 # Boeing_BWB_450.py
 #
-# Created:  Feb 2017, M. Vegh
+# Created:  Feb 2017, M. Vegh (created from data originally SU2_surrogate/BWB-450.py)
 # Modified: 
 
 """ setup file for the BWB vehicle

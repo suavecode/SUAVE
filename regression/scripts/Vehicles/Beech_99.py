@@ -1,6 +1,6 @@
 # Beech99.py
 #
-# Created:  Feb 2017, M. Vegh
+# Created:  Feb 2017, M. Vegh (modified from data originally in cmalpha/cmalpha.py)
 # Modified: 
 
 """ setup file for the Beech 99 aircraft, current values only used to test stability cmalpha

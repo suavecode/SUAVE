@@ -1,6 +1,6 @@
 # Concorde.py
 #
-# Created:  Feb 2017, M. Vegh
+# Created:  Feb 2017, M. Vegh (created from data taken from concorde/concorde.py)
 # Modified: 
 
 """ setup file for the Concorde 

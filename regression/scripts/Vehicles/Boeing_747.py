@@ -1,6 +1,6 @@
 # Boeing_747.py
 #
-# Created:  Feb 2017, M. Vegh
+# Created:  Feb 2017, M. Vegh (taken from data originally in cmalpha/cmalpha.py and cnbeta/cnbeta.py)
 # Modified: 
 
 """ setup file for the Boeing 747 vehicle
