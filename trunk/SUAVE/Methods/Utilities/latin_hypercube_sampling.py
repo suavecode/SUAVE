@@ -3,12 +3,22 @@
 # Created:  Jul 2016, R. Fenrich (outside of SUAVE code)
 # Modified: Mar 2017, T. MacDonald
 
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
 
 ## If needed for mapping to normal distribution:
 #from scipy.stats.distributions import norm 
 
-def latin_hypercube_sampling(num_dimensions,num_samples,criterion=''):
+
+# ----------------------------------------------------------------------
+#   Latin Hypercube Sampling
+# ----------------------------------------------------------------------
+
+def latin_hypercube_sampling(num_dimensions,num_samples,criterion='random'):
     
     n = num_dimensions
     samples = num_samples
@@ -16,16 +26,14 @@ def latin_hypercube_sampling(num_dimensions,num_samples,criterion=''):
     segsize = 1./samples
     lhd = np.zeros((samples,n))
     
-    if( criterion == "" ): # sample is randomly chosen from within segment
-        for jj in range(n):
-            for ii in range(samples):
-                segStart = ii*segsize
-                lhd[ii,jj] = segStart + np.random.rand()*segsize
+    if( criterion == "random" ): # sample is randomly chosen from within segment
+        segment_starts = np.arange(samples)*segsize
+        lhd_base       = np.transpose(np.tile(segment_starts,(n,1)))
+        lhd            = lhd_base + np.random.rand(samples,n)*segsize
     elif( criterion == "center" ): # sample is chosen as center of segment
-        for jj in range(n):
-            for ii in range(samples):
-                segStart = ii*segsize
-                lhd[ii,jj] = segStart + 0.5*segsize        
+        segment_starts = np.arange(samples)*segsize
+        lhd_base       = np.transpose(np.tile(segment_starts,(n,1)))
+        lhd            = lhd_base + 0.5*segsize           
     else:
         raise NotImplementedError("Other sampling criterion not implemented")
         
@@ -38,10 +46,12 @@ def latin_hypercube_sampling(num_dimensions,num_samples,criterion=''):
 
     return lhd
 
+# ----------------------------------------------------------------------
+#   Functionality Test and Use Example 
+# ----------------------------------------------------------------------
+
 if __name__ == '__main__': 
-    
-    # Functionality Test and Use Example
-    #
+     
     # 2D test is performed with samples chosen randomly in segment
     # 3D test is performed with samples chosen at the center of the segment
     
@@ -90,5 +100,13 @@ if __name__ == '__main__':
     
     # Display plots for both cases
     plt.show()    
+    
+    import time
+    
+    ti = time.time()
+    latin_hypercube_sampling(40,10000)
+    tf = time.time()
+    print 'Time for 40D, 10000 samples: ' + str(tf-ti) + ' s'
+    # 0.12 s on Surface Pro 3
     
     pass
