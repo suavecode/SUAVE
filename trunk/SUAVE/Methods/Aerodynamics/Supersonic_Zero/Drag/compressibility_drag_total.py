@@ -50,9 +50,10 @@ def compressibility_drag_total(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     
-    wings       = geometry.wings
-    fuselages   = geometry.fuselages
-    propulsor   = geometry.propulsors['turbojet']
+    wings          = geometry.wings
+    fuselages      = geometry.fuselages
+    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown

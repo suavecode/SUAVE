@@ -10,7 +10,6 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 import numpy as np
-import Vehicles
 import Analyses
 import Missions
 import Procedure
@@ -18,6 +17,12 @@ import Plot_Mission
 from SUAVE.Optimization.Nexus import Nexus
 import SUAVE.Optimization.Package_Setups.pyopt_setup as pyopt_setup
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+import sys
+sys.path.append('../Vehicles')
+# the analysis functions
+
+from Boeing_737 import vehicle_setup, configs_setup
+
 
 # ----------------------------------------------------------------------
 #   Run the whole thing
@@ -41,7 +46,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 17.7898019866
+    actual.noise_cumulative_margin = 18.3438059842
 
     
     
@@ -53,7 +58,7 @@ def main():
     print 'noise_cumulative_margin=', noise_cumulative_margin
     
     print error.noise_cumulative_margin
-    
+    print error
     for k,v in error.items():
         assert(np.abs(v)<0.001) 
         
@@ -184,8 +189,9 @@ def setup():
     # -------------------------------------------------------------------
     #  Vehicles
     # -------------------------------------------------------------------
-    nexus.vehicle_configurations = Vehicles.setup()
-
+    vehicle = vehicle_setup()
+    nexus.vehicle_configurations = configs_setup(vehicle)
+    
 
     # -------------------------------------------------------------------
     #  Analyses
