@@ -25,23 +25,23 @@ def main():
     # analysis scripts
     
     # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = 2.0 
-    prop_attributes.freestream_velocity = 50.0
-    prop_attributes.angular_velocity    = 2000.*(2.*np.pi/60.0)
-    prop_attributes.tip_radius          = 1.5
-    prop_attributes.hub_radius          = 0.05
-    prop_attributes.design_Cl           = 0.7 
-    prop_attributes.design_altitude     = 0.0 * Units.km
-    prop_attributes.design_thrust       = 0.0
-    prop_attributes.design_power        = 7000.
-    prop_attributes                     = propeller_design(prop_attributes)    
+    prop                     = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_blades       = 2.0 
+    prop.freestream_velocity = 50.0
+    prop.angular_velocity    = 2000.*(2.*np.pi/60.0)
+    prop.tip_radius          = 1.5
+    prop.hub_radius          = 0.05
+    prop.design_Cl           = 0.7 
+    prop.design_altitude     = 0.0 * Units.km
+    prop.design_thrust       = 0.0
+    prop.design_power        = 7000.
+    prop                     = propeller_design(prop)    
 
     # Find the operating conditions
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(prop_attributes.design_altitude)
+    atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude)
     
-    V = prop_attributes.freestream_velocity
+    V = prop.freestream_velocity
     
     conditions = Data()
     conditions.freestream = Data()
@@ -55,10 +55,8 @@ def main():
     conditions.propulsion.throttle = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial = np.array([np.eye(3)])
     
-    # Create and attach this propeller
-    prop                 = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes    
-    prop.inputs.omega    = np.array(prop_attributes.angular_velocity,ndmin=2)
+    # Create and attach this propeller 
+    prop.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
     
     F, Q, P, Cplast = prop.spin(conditions)
     

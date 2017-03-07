@@ -7,6 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -16,7 +17,7 @@ def unpack_unknowns(segment,state):
     
     # unpack unknowns and givens
     throttle = state.unknowns.throttle
-    theta    = state.unknowns.body_angle
+    theta1   = state.unknowns.body_angle
     gamma1   = state.unknowns.flight_path_angle
     vel      = state.unknowns.velocity
     alt0     = segment.altitude_start
@@ -27,13 +28,18 @@ def unpack_unknowns(segment,state):
     # Overide the speeds   
     #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
     #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
-    v_mag =  np.concatenate([[[vel0]],vel])
+    v_mag =  np.concatenate([[[vel0]],vel*vel0])
     #gamma = np.concatenate([[[0]],gamma1,[[0]]])
-    gamma = np.concatenate([gamma1,[[0]]])
+    #gamma = np.concatenate([gamma1* Units.degree,[[0]]])
+    gamma = gamma1 * Units.degree
     
     # process velocity vector
     v_x   =  v_mag * np.cos(gamma)
     v_z   = -v_mag * np.sin(gamma)    
+    
+    theta =  theta1 * Units.degrees
+    
+    #print v_mag
 
     # apply unknowns and pack conditions   
     state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
@@ -52,8 +58,8 @@ def initialize_unknowns(segment,state):
     ones_m2  = state.ones_row_m2(1)
     
     # repack
-    state.unknowns.velocity          = ones_m1* 100.
-    state.unknowns.flight_path_angle = gamma[0]*ones_m1
+    state.unknowns.velocity          = ones_m1 * vel[0]
+    state.unknowns.flight_path_angle = ones * gamma[0]
     
 def update_differentials(segment,state):
 

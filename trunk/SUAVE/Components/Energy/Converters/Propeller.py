@@ -168,15 +168,14 @@ class Propeller(Energy_Component):
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
-            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
             
-            
             # Scale for Mach, this is Karmen_Tsien
-            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
             # If the blade segments are supersonic, don't scale
-            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
@@ -210,15 +209,13 @@ class Propeller(Energy_Component):
             diff   = np.max(abs(psiold-psi))
             psiold = psi
             
-            ## If its really not going to converge
-            #if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                #print 'broke'
-                #break
+            # If its really not going to converge
+            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                break
                 
             ii+=1
                 
-            if ii>2000:
-                #print 'broke'
+            if ii>20000:
                 break
 
         #There is also RE scaling

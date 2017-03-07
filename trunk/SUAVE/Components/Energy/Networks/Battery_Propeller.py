@@ -33,6 +33,7 @@ class Battery_Propeller(Propulsor):
         self.voltage           = None
         self.thrust_angle      = 0.0
         self.tag               = 'network'
+        self.use_surrogate     = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -51,8 +52,8 @@ class Battery_Propeller(Propulsor):
         battery.current_energy = conditions.propulsion.battery_energy  
 
         # Step 1 battery power
-        #esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
-        esc.inputs.voltagein = self.voltage
+        esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        #esc.inputs.voltagein = self.voltage
         # Step 2
         esc.voltageout(conditions)
         # link
@@ -62,9 +63,13 @@ class Battery_Propeller(Propulsor):
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
-        # step 4
-        F, Q, P, Cp = propeller.spin(conditions)
         
+        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
+            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+        else:            
+            # step 4
+            F, Q, P, Cp = propeller.spin(conditions)
+            
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]

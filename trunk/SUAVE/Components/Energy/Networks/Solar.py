@@ -34,6 +34,7 @@ class Solar(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'network'
+        self.use_surrogate     = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -74,9 +75,14 @@ class Solar(Propulsor):
         motor.omega(conditions)
         # link
         propeller.inputs.omega =  motor.outputs.omega
+        
         # step 6
-        F, Q, P, Cplast = propeller.spin_surrogate(conditions)
-        #F, Q, P, Cplast = propeller.spin(conditions)
+        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
+            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+        else:            
+            # step 4
+            F, Q, P, Cp = propeller.spin(conditions)
+        
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]

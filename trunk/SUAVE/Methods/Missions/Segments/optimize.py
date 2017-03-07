@@ -39,6 +39,7 @@ def converge_opt(segment,state):
     
     #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,bounds=bnds,iter=2000)
     
+    # Use this one
     unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
     
     #opt_prob = pyOpt.Optimization('SUAVE',obj)
@@ -53,7 +54,7 @@ def converge_opt(segment,state):
 
     ## Setup constraints  
     #for ii in xrange(0,2*segment_points):
-        #opt_prob.addCon(str(ii), type='e', equal=0.)     
+        #opt_prob.addCon(str(ii), type='e', equal=0.)
         
     #print opt_prob
 
@@ -73,6 +74,7 @@ def converge_opt(segment,state):
     
 
 def get_objective(unknowns,(segment,state)):
+    
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:
@@ -113,11 +115,12 @@ def make_bnds(unknowns,state):
     ones_m2 = state.ones_row_m2(1)
     
     throttle_bnds = ones*(0.,1.)
-    body_angle    = ones*(0. * Units.degrees, 60. * Units.degrees)
-    gamma         = ones_m1*(0. * Units.degrees, 60. * Units.degrees)
-    vels          = ones_m1*(0.,1.e20)
+    body_angle    = ones*(0., 50.)
+    gamma         = ones*(0., 50.)
+    vels          = ones_m1*(0.,2000.)
     
     bnds = np.vstack([vels,throttle_bnds,gamma,body_angle])
+    #bnds = np.vstack([throttle_bnds,gamma,body_angle])
     
     bnds = list(map(tuple, bnds))
     
