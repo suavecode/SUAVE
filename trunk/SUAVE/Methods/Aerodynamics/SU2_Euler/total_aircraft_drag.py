@@ -1,4 +1,5 @@
-# total_aircraft_drag.py
+""" total_aircraft_drag.py: Provide a total drag coefficient. """
+## @ingroup SU2_Euler
 # 
 # Created:  Dec 2013, A. Variyar
 # Modified: Oct 2016, T. MacDonald
@@ -18,6 +19,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
+## @ingroup SU2_Euler
 def total_aircraft_drag(state,settings,geometry):
     """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag(conditions,configuration,geometry)
         computes the lift associated with an aircraft 

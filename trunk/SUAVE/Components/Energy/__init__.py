@@ -1,7 +1,6 @@
-# __init__.py
-# 
-# Created:  
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Energy
+# Energy components are used in energy networks.
+## @ingroup Components
 
 # classes
 from Energy_Component import Energy_Component

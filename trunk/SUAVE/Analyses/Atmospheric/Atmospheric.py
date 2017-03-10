@@ -1,4 +1,5 @@
-# Atmospheric.py
+""" Atmospheric.py: The base atmosphere analysis class."""
+## @ingroup Atmospheric
 #
 # Modified  2/16/15, Tim MacDonald
 # Modified: Feb 2016, Andrew Wendorff
@@ -16,10 +17,16 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Atmospheric
 class Atmospheric(Analysis):
-    """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
+    """ This is the base class for atmospheric Analyses
     """
     def __defaults__(self):
+        """ This sets the default values for the analysis to function.
+        Inputs:
+        Base atmosphere attribute class
+    
+            """          
         atmo_data = Atmosphere()
         self.update(atmo_data)
         

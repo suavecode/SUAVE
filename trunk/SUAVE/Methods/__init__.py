@@ -1,3 +1,6 @@
+"""Methods provide group of functions."""
+## @defgroup Methods
+# Methods provide the functions needed to perform Analyses
 
 import Utilities
 import Noise

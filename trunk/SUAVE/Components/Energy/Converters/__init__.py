@@ -1,7 +1,8 @@
-# __init__.py
-#
-# Created:  Mar 2014, T. Lukacyzk
-# Modified: Jan 2016, T. MacDonald
+"""These are components meant to be used within an energy network."""
+## @defgroup Converters
+# These are components meant to be used within an energy network.
+# They typically contain functions providing input and output variables.
+## @ingroup Energy
 
 from Combustor import Combustor
 from Compression_Nozzle import Compression_Nozzle

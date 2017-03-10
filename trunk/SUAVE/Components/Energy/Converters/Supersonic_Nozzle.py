@@ -1,4 +1,5 @@
-# Supersonic_Nozzle.py
+""" Supersonic_Nozzle.py: A nozzle that will prevent choking. """
+## @ingroup Converters
 #
 # Created:  May 2015, T. MacDonald
 # Modified: Jan 2016, T. MacDonald
@@ -23,15 +24,25 @@ from SUAVE.Methods.Propulsion.fm_id import fm_id
 #  Expansion Nozzle Component
 # ----------------------------------------------------------------------
 
+## @ingroup Converters
 class Supersonic_Nozzle(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
-        a nozzle component
-        
-        this class is callable, see self.__call__
+    """ This is a nozzle component that allows for supersonic outflow.
+    The equations used here come from Cantwell's AA283 book.
+     
+    Calling this class calls the compute function.
         
         """
     
     def __defaults__(self):
+        """ This sets the default values for the component to function.
+        
+        Inputs:
+            None
+        
+        Outputs:
+            None
+    
+            """        
         
         #set the defaults
         self.tag = 'Nozzle'
@@ -46,6 +57,39 @@ class Supersonic_Nozzle(Energy_Component):
     
     
     def compute(self,conditions):
+        """ This computes the input values from the output values according to
+        equations from the AA283 notes.
+        
+        Inputs:
+            conditions data class with conditions.freestream.
+                isentropic_expansion_factor         [Unitless]
+                specific_heat_at_constant_pressure  [J/(kg K)]
+                pressure                            [Pa]
+                stagnation_pressure                 [Pa]
+                stagnation_temperature              [K]
+                universal_gas_constant              [J/(kg K)] (this is a bad name)
+                mach_number                         [Unitless]
+                
+            self.inputs.
+                stagnation_temperature              [K]
+                stagnation_pressure                 [Pa]
+                
+            self.
+                pressure_ratio                      [Unitless]
+                polytropic_efficiency               [Unitless]
+                
+        Outputs:
+            self.outputs.
+                stagnation_temperature              [K]  
+                stagnation_pressure                 [Pa]
+                stagnation_enthalpy                 [J/kg]
+                mach_number                         [Unitless]
+                static_temperature                  [K]
+                static_enthalpy                     [J/kg]
+                velocity                            [m/s]
+                static_pressure                     [Pa]
+                area_ratio                          [Unitless]
+            """           
         
         #unpack the values
         
