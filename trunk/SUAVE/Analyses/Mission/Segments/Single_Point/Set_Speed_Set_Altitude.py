@@ -81,7 +81,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
                 
         # Update Initials
         iterate.initials = Process()
-        iterate.initials.time              = skip
+        iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position

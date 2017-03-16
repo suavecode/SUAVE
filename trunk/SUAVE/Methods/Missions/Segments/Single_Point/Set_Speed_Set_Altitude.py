@@ -24,7 +24,7 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    #state.conditions.frames.inertial.time                 = state.initials.conditions.frames.inertial.time
+    #state.conditions.frames.inertial.time                 = conditions.frames.inertial.time
     
 def update_weights(segment,state):
     
