@@ -1,5 +1,5 @@
 ## @defgroup Converters
-# These are components meant to be used within an energy network.
+# Energy components meant to be used within an energy network.
 # They typically contain functions operating on class specific input variables.
 ## @ingroup Energy
 
