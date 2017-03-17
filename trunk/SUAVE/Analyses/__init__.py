@@ -1,8 +1,7 @@
-"""Analyses are classes that are comprised of several methods. Methods operate on attributes. 
-This process and structure is described here."""
 ## @defgroup Analyses
-# Analyses are classes that are comprised of several methods. Methods operate on attributes. 
-# This process and structure is described <a href="http://suave.stanford.edu">here</a>.
+# Analyses are classes that are comprised of several methods. 
+# Methods operate on attributes. This process and structure is described 
+# <a href="http://suave.stanford.edu">here</a>.
 
 from Results   import Results
 from Analysis  import Analysis

@@ -1,8 +1,8 @@
-""" Atmospheric.py: The base atmosphere analysis class."""
 ## @ingroup Atmospheric
+# Atmospheric.py
 #
-# Modified  2/16/15, Tim MacDonald
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Feb 2015, T. MacDonald
+# Modified: Feb 2016, A. Wendorff
 
 
 # ----------------------------------------------------------------------
@@ -19,17 +19,38 @@ from SUAVE.Analyses import Analysis
 
 ## @ingroup Atmospheric
 class Atmospheric(Analysis):
-    """ This is the base class for atmospheric Analyses
+    """ This is the base class for atmospheric analyses. It contains functions
+    that are build the default class.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
     """
     def __defaults__(self):
-        """ This sets the default values for the analysis to function.
+        """This sets the default values for the analysis to function. (I don't actually
+        understand what's happening here). Sets the class atmosphere attribute.
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
         Inputs:
-        Base atmosphere attribute class
-    
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        None.
             """          
         atmo_data = Atmosphere()
         self.update(atmo_data)
         
         
     def compute_values(self,altitude):
+        """This function is not implemented."""
         raise NotImplementedError

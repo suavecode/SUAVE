@@ -1,5 +1,5 @@
 ## @defgroup Aerodynamics
-# Aerodynamic methods contain the functions for the aerodyanmic analyses.
+# Aerodynamic methods contain the functions for the aerodynamic analyses.
 # @ingroup Methods
 
 import AVL

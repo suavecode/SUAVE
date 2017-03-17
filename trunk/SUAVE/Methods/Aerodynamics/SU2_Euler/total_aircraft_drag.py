@@ -1,5 +1,5 @@
-""" total_aircraft_drag.py: Provide a total drag coefficient. """
 ## @ingroup SU2_Euler
+# total_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
 # Modified: Oct 2016, T. MacDonald
@@ -21,31 +21,26 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
 
 ## @ingroup SU2_Euler
 def total_aircraft_drag(state,settings,geometry):
-    """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag(conditions,configuration,geometry)
-        computes the lift associated with an aircraft 
-        
-        Inputs:
-            conditions - data dictionary with fields:
-                mach_number - float or 1D array of freestream mach numbers
-                angle_of_attack - floar or 1D array of angle of attacks
-                
-            configuration - data dictionary with fields:
-                surrogate_models.lift_coefficient - a callable function or class 
-                    with inputs of angle of attack and outputs of lift coefficent
-                fuselage_lift_correction - the correction to fuselage contribution to lift
-                    
-            geometry - the aircraft geoemtry with fields:
-            
-        
-        Outputs:
-            CD - float or 1D array of drag coefficients of the total aircraft
-        
-        Updates:
-            conditions.drag_breakdown - stores results here
-            
-        Assumptions:
-            
-            
+    """ This computes the total drag of an aircraft and stores
+    that data in the conditions structure.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    settings.drag_coefficient_increment            [Unitless]
+    state.conditions.aerodynamics.drag_breakdown.
+      trim_corrected_drag                          [Unitless]
+      spoiler_drag                                 [Unitless]
+      
+    Outputs:
+    aircraft_total_drag                            [Unitless]
+
+    Properties Used:
+    N/A
     """    
     
     # Unpack inputs

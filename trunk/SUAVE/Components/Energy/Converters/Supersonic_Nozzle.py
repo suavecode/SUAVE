@@ -1,5 +1,5 @@
-""" Supersonic_Nozzle.py: A nozzle that will prevent choking. """
 ## @ingroup Converters
+# Supersonic_Nozzle.py
 #
 # Created:  May 2015, T. MacDonald
 # Modified: Jan 2016, T. MacDonald
@@ -27,22 +27,33 @@ from SUAVE.Methods.Propulsion.fm_id import fm_id
 ## @ingroup Converters
 class Supersonic_Nozzle(Energy_Component):
     """ This is a nozzle component that allows for supersonic outflow.
-    The equations used here come from Cantwell's AA283 book.
-     
     Calling this class calls the compute function.
-        
-        """
+    
+    Assumptions:
+    Pressure ratio and efficiency do not change with varying conditions.
+    
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """
     
     def __defaults__(self):
         """ This sets the default values for the component to function.
         
-        Inputs:
-            None
-        
-        Outputs:
-            None
+        Assumptions:
+        None
     
-            """        
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        None
+        """        
         
         #set the defaults
         self.tag = 'Nozzle'
@@ -57,38 +68,45 @@ class Supersonic_Nozzle(Energy_Component):
     
     
     def compute(self,conditions):
-        """ This computes the input values from the output values according to
-        equations from the AA283 notes.
+        """ This computes the output values from the input values according to
+        equations from the source.
+        
+        Assumptions:
+        Constant polytropic efficiency and pressure ratio
+        
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
         
         Inputs:
-            conditions data class with conditions.freestream.
-                isentropic_expansion_factor         [Unitless]
-                specific_heat_at_constant_pressure  [J/(kg K)]
-                pressure                            [Pa]
-                stagnation_pressure                 [Pa]
-                stagnation_temperature              [K]
-                universal_gas_constant              [J/(kg K)] (this is a bad name)
-                mach_number                         [Unitless]
+          conditions data class with conditions.freestream.
+            isentropic_expansion_factor         [Unitless]
+            specific_heat_at_constant_pressure  [J/(kg K)]
+            pressure                            [Pa]
+            stagnation_pressure                 [Pa]
+            stagnation_temperature              [K]
+            universal_gas_constant              [J/(kg K)] (this is a bad name)
+            mach_number                         [Unitless]
                 
-            self.inputs.
-                stagnation_temperature              [K]
-                stagnation_pressure                 [Pa]
-                
-            self.
-                pressure_ratio                      [Unitless]
-                polytropic_efficiency               [Unitless]
-                
+          self.inputs.
+            stagnation_temperature              [K]
+            stagnation_pressure                 [Pa]
+                   
         Outputs:
-            self.outputs.
-                stagnation_temperature              [K]  
-                stagnation_pressure                 [Pa]
-                stagnation_enthalpy                 [J/kg]
-                mach_number                         [Unitless]
-                static_temperature                  [K]
-                static_enthalpy                     [J/kg]
-                velocity                            [m/s]
-                static_pressure                     [Pa]
-                area_ratio                          [Unitless]
+          self.outputs.
+            stagnation_temperature              [K]  
+            stagnation_pressure                 [Pa]
+            stagnation_enthalpy                 [J/kg]
+            mach_number                         [Unitless]
+            static_temperature                  [K]
+            static_enthalpy                     [J/kg]
+            velocity                            [m/s]
+            static_pressure                     [Pa]
+            area_ratio                          [Unitless]
+                
+        Properties Used:
+          self.
+            pressure_ratio                      [Unitless]
+            polytropic_efficiency               [Unitless]
             """           
         
         #unpack the values

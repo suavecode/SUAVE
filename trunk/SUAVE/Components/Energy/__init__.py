@@ -1,5 +1,6 @@
 ## @defgroup Energy
-# Energy components are used in energy networks.
+# Components used in energy networks.
+# The classes representing these components typically contain input and output data as part of the class structure.
 ## @ingroup Components
 
 # classes

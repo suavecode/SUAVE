@@ -1,4 +1,3 @@
-"""Components are classes that represent objects that are put together to form a vehicle."""
 ## @defgroup Components
 # Components are classes that represent objects that are put together to form a vehicle.
 # They contain default variables and may contain functions that operate on these variables.
