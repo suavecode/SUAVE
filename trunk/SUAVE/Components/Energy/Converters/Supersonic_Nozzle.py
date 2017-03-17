@@ -1,4 +1,4 @@
-## @ingroup Converters
+## @ingroup components-energy-converters
 # Supersonic_Nozzle.py
 #
 # Created:  May 2015, T. MacDonald
@@ -24,7 +24,7 @@ from SUAVE.Methods.Propulsion.fm_id import fm_id
 #  Expansion Nozzle Component
 # ----------------------------------------------------------------------
 
-## @ingroup Converters
+## @ingroup components-energy-converters
 class Supersonic_Nozzle(Energy_Component):
     """ This is a nozzle component that allows for supersonic outflow.
     Calling this class calls the compute function.

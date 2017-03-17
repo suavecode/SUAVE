@@ -1,3 +1,7 @@
+## @defgroup analyses-aerodynamics Aerodynamics
+# description
+## @ingroup Analyses
+
 
 from Aerodynamics     import Aerodynamics
 from AVL              import AVL

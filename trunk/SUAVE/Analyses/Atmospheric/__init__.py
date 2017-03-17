@@ -1,4 +1,4 @@
-## @defgroup Atmospheric
+## @defgroup analyses-atmospheric Atmospheric
 # Classes that represent the different types of atmospheres that may be used for analysis.
 ## @ingroup Analyses
 from Atmospheric import Atmospheric

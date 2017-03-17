@@ -1,4 +1,4 @@
-## @ingroup Atmospheric
+## @ingroup analyses-atmospheric
 # Constant_Temperature.py
 #
 # Created:  Mar 2014, SUAVE Team
@@ -27,7 +27,7 @@ from SUAVE.Methods.Utilities import atleast_2d_col
 # ----------------------------------------------------------------------
 #  Classes
 # ----------------------------------------------------------------------
-## @ingroup Atmospheric
+## @ingroup analyses-atmospheric
 class Constant_Temperature(Atmospheric):
 
     """ Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure

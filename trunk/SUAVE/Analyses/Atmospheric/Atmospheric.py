@@ -1,4 +1,4 @@
-## @ingroup Atmospheric
+## @ingroup analyses-atmospheric
 # Atmospheric.py
 #
 # Created:  Feb 2015, T. MacDonald
@@ -17,7 +17,7 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
-## @ingroup Atmospheric
+## @ingroup analyses-atmospheric
 class Atmospheric(Analysis):
     """ This is the base class for atmospheric analyses. It contains functions
     that are build the default class.

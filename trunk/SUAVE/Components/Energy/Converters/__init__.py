@@ -1,7 +1,7 @@
-## @defgroup Converters
+## @defgroup components-energy-converters Converters
 # Energy components meant to be used within an energy network.
 # They typically contain functions operating on class specific input variables.
-## @ingroup Energy
+## @ingroup components-energy
 
 from Combustor import Combustor
 from Compression_Nozzle import Compression_Nozzle

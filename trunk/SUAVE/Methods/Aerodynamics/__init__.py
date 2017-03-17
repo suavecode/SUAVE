@@ -1,4 +1,4 @@
-## @defgroup Aerodynamics
+## @defgroup methods-aerodynamics Aerodynamics
 # Aerodynamic methods contain the functions for the aerodynamic analyses.
 # @ingroup Methods
 

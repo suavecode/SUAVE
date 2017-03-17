@@ -1,4 +1,4 @@
-## @ingroup Fuselages
+## @ingroup components-fuselages
 # Fuselage.py
 # 
 # Created:  Mar 2014, T. Lukacyzk
@@ -15,7 +15,7 @@ from SUAVE.Components import Physical_Component, Lofted_Body
 #  Fuselage
 # ------------------------------------------------------------
 
-## @ingroup Fuselages
+## @ingroup components-fuselages
 class Fuselage(Lofted_Body):
     """ This is a standard fuselage for a tube and wing aircraft.
     

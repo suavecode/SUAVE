@@ -1,3 +1,4 @@
+## @ingroup analyses-aerodynamics
 # SU2_Euler.py
 #
 # Created:  Sep 2016, E. Botero
@@ -28,9 +29,12 @@ from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
+## @ingroup analyses-aerodynamics
 class SU2_Euler(Markup):
+    """grouping test"""
     
     def __defaults__(self):
+        """grouping test"""
         
         self.tag    = 'SU2_Euler_markup'       
     
@@ -82,6 +86,7 @@ class SU2_Euler(Markup):
         
         
     def initialize(self):
+        """grouping test"""
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag
