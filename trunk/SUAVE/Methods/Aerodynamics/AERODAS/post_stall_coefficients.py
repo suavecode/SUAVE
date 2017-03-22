@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-AERODAS
 # post_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -15,11 +16,36 @@ from SUAVE.Analyses import Results
 #  Post Stall Coefficients
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-AERODAS
 def post_stall_coefficients(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    Using the equations 11 and 12"""
+    """Uses the AERODAS method to determine poststall parameters for lift and drag for a single wing
+
+    Assumptions:
+    None
+
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    settings.section_zero_lift_angle_of_attack      [radians]
+    geometry.
+      aspect_ratio                                  [Unitless]
+      thickness_to_chord                            [Unitless]
+      section.angle_attack_max_prestall_lift        [radians]
+      pre_stall_maximum_lift_drag_coefficient       [Unitless]
+      pre_stall_maximum_drag_coefficient_angle      [Unitless]
+    state.conditions.aerodynamics.angle_of_attack   [radians]
+      
+
+    Outputs:
+    CL2 (coefficient of lift)                       [Unitless]
+    CD2 (coefficient of drag)                       [Unitless]
+    (packed in state.conditions.aerodynamics.post_stall_coefficients[geometry.tag])
+
+    Properties Used:
+    N/A
+    """  
     
     # unpack inputs
     wing   = geometry
