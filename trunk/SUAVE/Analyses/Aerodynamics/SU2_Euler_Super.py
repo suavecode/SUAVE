@@ -90,8 +90,10 @@ class SU2_Euler_Super(Markup):
         tag = self.geometry.tag
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            if settings.skip_VSP_mesh is False:
+            if self.settings.skip_VSP_mesh is False:
                 write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            else:
+                print 'Skipping VSP mesh step, will use existing file: ' + tag + '.stl'
             write_geo_file(tag)
             mesh_geo_file(tag)
         
