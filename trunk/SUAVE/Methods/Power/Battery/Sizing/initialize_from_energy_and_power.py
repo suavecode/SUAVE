@@ -1,3 +1,5 @@
+## @ingroup methods-power-battery-sizing
+
 # initialize_from_energy_and_power.py
 # 
 # Created:  Feb 2015, M. Vegh
@@ -14,8 +16,24 @@ from SUAVE.Methods.Utilities.soft_max import soft_max
 # ----------------------------------------------------------------------
 #  Initialize from Energy and Power
 # ----------------------------------------------------------------------
-
+## @ingroup methods-power-battery-sizing
 def initialize_from_energy_and_power(battery, energy, power, max='hard'):
+    """
+    Uses a soft_max function to calculate the batter mass, maximum energy, and maximum power
+    from the energy and power requirements, as well as the specific energy and specific power
+    
+    Assumptions:
+    None
+    
+    Inputs:
+    energy            [J]
+    power             [W]
+    battery.
+      specific_energy [J/kg]               
+      specific_power  [W/kg]
+    
+    
+    """
     
     energy_mass = energy/battery.specific_energy
     power_mass  = power/battery.specific_power

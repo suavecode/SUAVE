@@ -54,11 +54,12 @@ def format_input_data(data):
    
         line=line.replace('[','')
         line=line.replace(']','')
-        line=line.replace(',','')
-    
+        line=line.replace(',',' ')
+        line=line.replace('  ',' ')
         numbers = line.split(' ')
         numbers_out=[]
         for number in numbers:
+            
             if number != ' ' or number != '\t':
                 numbers_out.append(float(number))
         

@@ -36,18 +36,20 @@ class Sizing_Loop(Data):
         
         #parameters that may only apply to certain methods
         self.iteration_options     = Data()
-        self.iteration_options.newton_raphson_tolerance     = 5E-2             #threshhold of convergence when you start using newton raphson
-        self.iteration_options.max_newton_raphson_tolerance = 2E-3             #threshhold at which newton raphson is no longer used (to prevent overshoot and extra iterations)
-        self.iteration_options.h                            = 1E-6             #finite difference step for Newton iteration
-        self.iteration_options.initialize_jacobian          = 'newton-raphson' #how Jacobian is initialized for broyden; newton-raphson by default
-        self.iteration_options.max_initial_step             = 1.               #maximum distance at which interpolation is allowed
-        self.iteration_options.min_fix_point_iterations     = 2                #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
-        self.iteration_options.min_surrogate_step           = .011             #minimum distance at which SVR is used (if closer, table lookup is used)
-        self.iteration_options.min_write_step               = .011             #minimum distance at which sizing data are written
-        self.iteration_options.min_surrogate_length         = 4                #minimum number data points needed before SVR is used
-        self.iteration_options.number_of_surrogate_calls    = 0
-        self.iteration_options.minimum_training_samples     = 1E6
+        self.iteration_options.newton_raphson_tolerance          = 5E-2             #threshhold of convergence when you start using newton raphson
+        self.iteration_options.max_newton_raphson_tolerance      = 2E-3             #threshhold at which newton raphson is no longer used (to prevent overshoot and extra iterations)
+        self.iteration_options.h                                 = 1E-6             #finite difference step for Newton iteration
+        self.iteration_options.initialize_jacobian               = 'newton-raphson' #how Jacobian is initialized for broyden; newton-raphson by default
+        self.iteration_options.max_initial_step                  = 1.               #maximum distance at which interpolation is allowed
+        self.iteration_options.min_fix_point_iterations          = 2                #minimum number of iterations to perform fixed-point iteration before starting newton-raphson
+        self.iteration_options.min_surrogate_step                = .011             #minimum distance at which SVR is used (if closer, table lookup is used)
+        self.iteration_options.min_write_step                    = .011             #minimum distance at which sizing data are written
+        self.iteration_options.min_surrogate_length              = 4                #minimum number data points needed before SVR is used
+        self.iteration_options.number_of_surrogate_calls         = 0
+        #self.iteration_options.minimum_training_samples         = 1E6
+        self.iteration_options.newton_raphson_damping_threshhold = 5E-5
         
+
     def evaluate(self, nexus):
         
         if nexus.optimization_problem != None: #make it so you can run sizing without an optimization problem
@@ -101,10 +103,18 @@ class Sizing_Loop(Data):
 
                 if min_norm<iteration_options.max_initial_step: #make sure data is close to current guess
                     if self.initial_step == 'Table' or min_norm<iteration_options.min_surrogate_step or len(data_outputs[:,0])< iteration_options.min_surrogate_length:
-                        print 'running table'
-                        interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
-                        y      = interp[0]  #different data type here
-                
+                        regr    = neighbors.KNeighborsRegressor( n_neighbors = 1)
+                        '''
+                        '''
+                        #interp = interpolate.griddata(data_inputs, data_outputs, scaled_inputs, method = 'nearest') 
+                        #y      = interp[0]  #different data type here
+                        '''
+                        y = []
+                        for j in range(len(data_outputs[0,:])):
+                            y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
+                            y.append(y_surrogate.predict(scaled_inputs)[0])
+                        y = np.array(y)
+                        '''
                     else:
                         print 'running surrogate method'
                         if self.initial_step == 'SVR':
@@ -153,14 +163,14 @@ class Sizing_Loop(Data):
                                 regr    = neighbors.KNeighborsRegressor( n_neighbors = n_neighbors)
                         
                         #now run the fits/guesses  
-                        y = []    
-                        for j in range(len(data_outputs[0,:])):
-                            y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
-                            y.append(y_surrogate.predict(scaled_inputs)[0])
-                               
-                        y = np.array(y)
+                    
                         iteration_options.number_of_surrogate_calls += 1
-             
+                    y = []    
+                    for j in range(len(data_outputs[0,:])):
+                        y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
+                        y.append(y_surrogate.predict(scaled_inputs)[0])    
+                    y = np.array(y)
+                    
         # initialize previous sizing values
         y_save   = 2*y  #save values to detect oscillation
         y_save2  = 3*y
@@ -175,20 +185,25 @@ class Sizing_Loop(Data):
             if self.update_method == 'successive_substitution':
                 err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
-            elif self.update_method == 'newton-raphson':
+            elif self.update_method == 'newton-raphson' or self.update_method =='damped_newton':
                 if i==0:
                     nr_start=0  
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
 
-                else:
-                    
+                else:          
                     if nr_start==0:
-                        err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        if self.update_method == 'newton-raphson':
+                            err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        elif self.update_method == 'damped_newton':
+                            err,y, i   = self.damped_newton_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start   = 1
                     else:
-                        err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        if self.update_method == 'newton-raphson':
+                            err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        elif self.update_method == 'damped_newton':
+                            err,y, i   = self.damped_newton_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start   = 1
             
             elif self.update_method == 'broyden':
@@ -345,7 +360,47 @@ class Sizing_Loop(Data):
         
         return err_out, y_update, iter
         
- 
+    def damped_newton_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        #uses newton raphson, does backtracking linesearch if it goes too far
+        tol = self.tolerance
+        h = iteration_options.h
+        print '###begin Finite Differencing###'
+        J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
+        try:  
+            Jinv =np.linalg.inv(J)  
+            p = -np.dot(Jinv,err)
+            y_update = y + p
+            
+            
+            '''
+            for i in range(len(y_update)):  #handle variable bounds
+                if y_update[i]<self.min_y[i]:
+                    y_update[i] = self.min_y[i]*1.
+                elif y_update[i]>self.max_y[i]:
+                    y_update[i] = self.max_y[i]*1.
+            '''
+            err_out, y_out = sizing_evaluation(y_update, nexus, scaling)
+            iter += 1 
+            norm_error =np.linalg.norm(err_out)
+            
+            if norm_error<self.iteration_options.newton_raphson_damping_threshhold:
+                    old_norm = np.linalg.norm(err)
+                    ydamp = y+.5*p #halve the step
+                    err_out, y_out = sizing_evaluation(ydamp, nexus, scaling)
+                    y_update = ydamp
+            #save these values in case of Broyden update
+            iteration_options.Jinv     = Jinv 
+            iteration_options.y_save   = y
+            iteration_options.err_save = err
+            
+            print 'err_out=', err_out
+                
+        except np.linalg.LinAlgError:
+            print 'singular Jacobian detected, use successive_substitution'
+            err_out, y_update, iter = self.successive_substitution_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
+        
+        
+        return err_out, y_update, iter
         
 
     __call__ = evaluate

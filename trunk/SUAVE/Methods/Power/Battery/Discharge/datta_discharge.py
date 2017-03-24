@@ -1,3 +1,4 @@
+## @ingroup methods-power-battery-discharge
 # datta_discharge.py
 # 
 # Created:  ### ####, M. Vegh
@@ -13,10 +14,38 @@ import numpy as np
 #  Datta Discharge
 # ----------------------------------------------------------------------
 
+## @ingroup methods-power-battery-discharge
 def datta_discharge(battery,numerics): 
     """models discharge losses based on an empirical correlation
        Based on method taken from Datta and Johnson: 
-       "Requirements for a Hydrogen Powered All-Electric Manned Helicopter"""""
+       
+       Assumptions: 
+       Constant Peukart coefficient
+       
+       Source:
+       "Requirements for a Hydrogen Powered All-Electric Manned Helicopter" by Datta and Johnson
+      
+       voltage model from from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
+       # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
+       
+       Inputs:
+       battery.
+        resistance                      [Ohms]
+        max_energy                      [Joules]
+        current_energy (to be modified) [Joules]
+        inputs.
+            current                     [amps]
+            power_in                    [Watts]
+       
+       Outputs:
+       battery.
+        current energy                  [Joules]
+        resistive_losses                [Watts]
+        voltage_open_circuit            [Volts]
+        voltage_under_load              [Volts]
+        
+        
+    """
     
     Ibat  = battery.inputs.current
     pbat  = battery.inputs.power_in
