@@ -1,3 +1,5 @@
+## @ingroup methods-power-fuel_cell-chemistry
+
 # hydrogen.py
 #
 # Created : ### 2015, M. Vegh 
@@ -8,10 +10,40 @@
 #  Hydrogen
 # ----------------------------------------------------------------------
 
+## @ingroup methods-power-fuel_cell-chemistry
 def hydrogen(fuel_cell,conditions,numerics):
-    """ Calculates chemical properties of fuel cell exhaust """
+    """ Calculates chemical properties of fuel cell exhaust
+     
+       Assumptions: 
+       Stoichiometric reaction
+       
+   
+       Inputs:
+       fuel_cell.
+         efficiency                     [dimensionless]
+         inputs.
+           power_in                     [Watts]
+         propellant.
+           tag
+           specific_energy              [J/kg]
+         oxidizer.
+           Composition.
+             O2
+       thermo.
+         gamma                          [dimensionless]
+         cp                             [J/kg-K]
+         Tt(to be modified)             [K]
+         Pt(to be modified)             [Pa]
+       
+       Outputs:
+         mdot                           [kg/s]
+         mdot+mdot_air                  [kg/s]
+        
+
+
+    """
     power  = fuel_cell.inputs.power_in
-    
+    thermo = conditions.thermo
     if fuel_cell.active:
         if power.any()>fuel_cell.max_power:
             print "Warning, maximum power output of fuel cell exceeded"
