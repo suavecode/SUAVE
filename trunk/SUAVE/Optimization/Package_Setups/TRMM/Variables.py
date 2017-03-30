@@ -21,10 +21,10 @@ class Variables():
             self.lower_bound = np.array([])
             self.upper_bound = np.array([])
                     
-    def addVariable(self,varType,**kwargs):
+    def add_variable(self,variable_type,**kwargs):
     
         # Assign attributes specific to each variable type
-    	if( varType == 'continuous' ):
+    	if( variable_type == 'continuous' ):
     	
     	    if( type(kwargs['value']) is np.ndarray ):
     	        self.value = np.hstack((self.value,np.squeeze(kwargs['value'])))
@@ -42,7 +42,7 @@ class Variables():
     	    self.type = self.type + ['continuous']*s
     	    self.info = self.info + [0]*s
     	    
-    	elif( varType == 'lognormal' ):
+    	elif( variable_type == 'lognormal' ):
     	
     	    if( type(kwargs['mean']) is np.ndarray ):
     	        mean = list(np.squeeze(kwargs['mean'])) # mean of underlying normal distribution
@@ -77,7 +77,7 @@ class Variables():
     	            value[i] = np.exp(mean[i] + variance[i]/2) # evaluate at mean
     	        self.value = np.hstack((self.value,value))
     	
-    	elif( varType == 'uniform' ):
+    	elif( variable_type == 'uniform' ):
     	
     	    if( type(kwargs['lower_bound']) is np.ndarray ):
     	        lb = list(np.squeeze(kwargs['lower_bound']))
@@ -114,7 +114,7 @@ class Variables():
     	        
     	
     	else:
-            raise NotImplementedError('Variable type %s not implemented.' % varType)
+            raise NotImplementedError('Variable type %s not implemented.' % variable_type)
     	
     	# Assign general attributes here
     	if( 'name' in kwargs ):

@@ -107,7 +107,7 @@ def checkForDuplicateEvals(xlist,ylist,level,flow,surrHist,trhistory,k):
     return evalFlag
     
     
-def modelEvalSetup(xval,yitem,data,level,dirname,link_files, my_function):
+def model_evaluation_setup(xval,yitem,data,level,dirname,link_files, my_function):
 
     # yitem can be a variables class instance or a numpy array
 
@@ -132,13 +132,13 @@ def modelEvalSetup(xval,yitem,data,level,dirname,link_files, my_function):
                 except:
                     os.link(os.path.join('..',f),f)
                 
-        output = my_function.modelEval(xval,yitem,data,level)
+        output = my_function.model_evaluation(xval,yitem,data,level)
         
         os.chdir('..')
         
     else:
     
-        output = my_function.modelEval(xval,yitem,data,level)
+        output = my_function.model_evaluation(xval,yitem,data,level)
         
     return output
 
@@ -273,11 +273,11 @@ def function(xval,y,flow,opt,level,ret, my_function):
                     
                     # Finite difference hands x values and y definition over
                     if( flow.gradient_evaluation[level-1] == 'FD' ):
-                        rEval[i], hEval[i] = modelEvalSetup(xEval[i],y,data, \
+                        rEval[i], hEval[i] = model_evaluation_setup(xEval[i],y,data, \
                                          level,dirname,flow.link_files, my_function)       
                     # Smart-pce hands x values and y value at CDF threshold over             
                     elif( flow.gradient_evaluation[level-1] == 'smart-pce' ):
-                        rEvalLocal[i], hEval[i] = modelEvalSetup(xEvalLocal[i],yEvalLocal[i],data, \
+                        rEvalLocal[i], hEval[i] = model_evaluation_setup(xEvalLocal[i],yEvalLocal[i],data, \
                                          level,dirname,flow.link_files)
                                          
                 else: 
@@ -304,11 +304,11 @@ def function(xval,y,flow,opt,level,ret, my_function):
                         
                     # Finite difference hands x values and y definition over    
                     if( flow.gradient_evaluation[level-1] == 'FD' ):
-                        mEval[i] = pool.apply_async(modelEvalSetup, \
+                        mEval[i] = pool.apply_async(model_evaluation_setup, \
                         (xEval[i],y,data,level,dirname,flow.link_files))
                     # Smart-pce hands x values and y value at CDF threshold over
                     elif( flow.gradient_evaluation[level-1] == 'smart-pce' ):
-                        mEval[i] = pool.apply_async(modelEvalSetup, \
+                        mEval[i] = pool.apply_async(model_evaluation_setup, \
                         (xEvalLocal[i],yEvalLocal[i],data,level,dirname,flow.link_files))
                         
                 else:
@@ -361,7 +361,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
                         dirname = os.path.join(os.getcwd(), 'F' + str(level) + '_' + str(iEval2))
                     else:
                         dirname = 0
-                    rEval[0], hEval[-1] = modelEvalSetup(xEval[0],y,data,level,dirname,flow.link_files)
+                    rEval[0], hEval[-1] = model_evaluation_setup(xEval[0],y,data,level,dirname,flow.link_files)
                     
                 else:
                 
@@ -435,7 +435,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
             else:
                 dirname = 0
                 
-            rEval[0], hEval[0] = modelEvalSetup(xEval[0],y,data,level,dirname,flow.link_files, my_function)
+            rEval[0], hEval[0] = model_evaluation_setup(xEval[0],y,data,level,dirname,flow.link_files, my_function)
             
         else:
         

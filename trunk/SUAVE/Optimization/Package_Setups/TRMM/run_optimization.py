@@ -22,7 +22,7 @@ import market as M
 import user_setup
 #from userFcns import linearInequalityConstraints
 
-def setupSharedModelData(x,y,log_file,flow):
+def setup_shared_model_data(x,y,log_file,flow):  #setupSharedModelData
     
     # Increment global variables
     s = M.incrementSharedDataIndex()
@@ -353,7 +353,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         k += 1
         M.incrementIteration()
         M.assignToTrustRegionHistory(k,t,trc,tr.size)
-        tr.setCenter(trc)
+        tr.set_center(trc)
         
         # Create new directory if necessary 
         if( flow.function_evals_in_unique_directory ):
@@ -649,10 +649,10 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
                     
         # Calculate ratio
         offset = 0.
-        hiCenter = tr.meritFunction(f[-1],gviol,k,offset)
-        hiOptim = tr.meritFunction(fOpt_hi,gviol2_hi,k,offset)
-        loCenter = tr.meritFunction(f[-1],gviol,k,offset) # assume correction
-        loOptim = tr.meritFunction(fOpt,gviol2_lo,k,offset)       
+        hiCenter = tr.evaluate_function(f[-1],gviol,k,offset)
+        hiOptim = tr.evaluate_function(fOpt_hi,gviol2_hi,k,offset)
+        loCenter = tr.evaluate_function(f[-1],gviol,k,offset) # assume correction
+        loOptim = tr.evaluate_function(fOpt,gviol2_lo,k,offset)       
         if( np.abs(loCenter - loOptim) < 1e-12 ):
             rho = 1.
         else:

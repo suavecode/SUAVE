@@ -29,10 +29,10 @@ class Trust_Region():
         self.correction_type = 'additive'
         self.correction_order = 1
         
-    def setCenter(self,trc):
+    def set_center(self,trc):
         self.center = copy.copy(trc)
             
-    def meritFunction(self,f,gviol,*args):
+    def evaluate_function(self,f,gviol,*args):
         # Previously calculated values of objective function, inequality constraints, and 
         # equality constraints at some x are used as inputs. Only active inequality constraints
         # are handed to this function through gviol which is the Euclidean 2-norm of the 
