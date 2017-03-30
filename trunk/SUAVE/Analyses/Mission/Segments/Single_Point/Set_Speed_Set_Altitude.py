@@ -1,7 +1,7 @@
-# Constant_Speed_Constant_Altitude.py
+# Set_Speed_Set_Altitude.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Mar 2017, T. MacDonald
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports

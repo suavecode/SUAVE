@@ -1,7 +1,7 @@
-# Constant_Speed_Constant_Altitude.py
+# Set_Speed_Set_Altitude.py
 # 
-# Created:  Jul 2014, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Created:  Mar 2017, T. MacDonald
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -24,14 +24,13 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    #state.conditions.frames.inertial.time                 = conditions.frames.inertial.time
     
 def update_weights(segment,state):
     
     # unpack
     conditions = state.conditions
-    m0        = conditions.weights.total_mass[0,0]
-    g         = conditions.freestream.gravity
+    m0         = conditions.weights.total_mass[0,0]
+    g          = conditions.freestream.gravity
 
     # weight
     W = m0*g
