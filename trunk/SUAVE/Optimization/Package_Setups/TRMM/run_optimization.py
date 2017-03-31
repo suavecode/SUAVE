@@ -311,13 +311,13 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
     
     # Global variables
     M.init()
-    M.setupHistory(flow.history_tags) # history for truth functions
-    M.setupSurrogateHistory(range(1,flow.fidelity_levels+1)) # history for each surrogate function
-    M.setupTrustRegionHistory() # history for trust region
+    M.setup_history(flow.history_tags) # history for truth functions
+    M.setup_surrogate_history(range(1,flow.fidelity_levels+1)) # history for each surrogate function
+    M.setup_trust_region_history() # history for trust region
     
     # Local variables
-    t = M.incrementTrustRegionCenterIndex() # trust region center index
-    trc = M.setTrustRegionCenter(np.hstack((x.value,y.value))) # center of trust region    
+    t = M.increment_trust_region_center_index() # trust region center index
+    trc = M.set_trust_region_center(np.hstack((x.value,y.value))) # center of trust region    
     k = M.K # counter for number of iterations
     xi = copy.copy(x.value)
     
@@ -351,8 +351,8 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
     while k < tr.max_iterations:
     
         k += 1
-        M.incrementIteration()
-        M.assignToTrustRegionHistory(k,t,trc,tr.size)
+        M.increment_iteration()
+        M.assign_to_trust_region_history(k,t,trc,tr.size)
         tr.set_center(trc)
         
         # Create new directory if necessary 
@@ -799,13 +799,13 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         # =========================================================================            
         if( accepted ):
             x.value[:] = copy.copy(xOpt)
-            t = M.incrementTrustRegionCenterIndex()
-            trc = M.setTrustRegionCenter(np.hstack((x.value,y.value)))            
+            t = M.increment_trust_region_center_index()
+            trc = M.set_trust_region_center(np.hstack((x.value,y.value)))            
             log = open(log_file,'a')
             log.write('Trust region center updated\n\n')
             log.close()
         else:
-            M.revertUserDataUpdate()
+            M.revert_user_data_update()
             log = open(log_file,'a')
             log.write('Changes to user global shared variables reverted\n\n')
             log.close()   
