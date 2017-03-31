@@ -75,7 +75,7 @@ def setup_shared_model_data(x,y,log_file,flow):  #setupSharedModelData
     
     return 0
     
-def evalModel(xval,y,log_file,flow,opt,level,ret, my_function):
+def evaluate_model(xval,y,log_file,flow,opt,level,ret, my_function):
 
     if( ret == 'all' ):
         f, g, df, dg = user_setup.function(xval,y,flow,opt,level,ret, my_function)
@@ -103,7 +103,7 @@ def evalModel(xval,y,log_file,flow,opt,level,ret, my_function):
         return df, dg
         
         
-def evalCorrectedModel(xval,y=None,corr=None,flow=None,opt=None,tr=None,level=None,ret='all', my_function = None,**kwargs):
+def evaluate_corrected_model(xval,y=None,corr=None,flow=None,opt=None,tr=None,level=None,ret='all', my_function = None,**kwargs):
 
     fail = 0
     
@@ -390,7 +390,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         df = [None]*flow.fidelity_levels
         dg = [None]*flow.fidelity_levels
         for level in flow.evaluation_order: # evaluate model fidelities in order
-            results = evalModel(x.value,y,log_file,flow,opt,level,'all', my_function)
+            results = evaluate_model(x.value,y,log_file,flow,opt,level,'all', my_function)
             f[level-1] = results[0]
             g[level-1] = results[1]
             df[level-1] = results[2]
@@ -477,7 +477,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         xTrLower = np.max(np.vstack((x.lower_bound,x.value-tr.size)),axis=0)
         xTrUpper = np.min(np.vstack((x.upper_bound,x.value+tr.size)),axis=0)
         
-        opt_prob = Optimization('TRMM Subproblem',evalCorrectedModel)
+        opt_prob = Optimization('TRMM Subproblem',evaluate_corrected_model)
         for i in range(x.n):
             variableName = 'x' + str(i)
             opt_prob.addVar(variableName,'c',lower=xTrLower[i],upper=xTrUpper[i],value=x.value[i])
@@ -631,7 +631,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
 
             os.chdir(dirname) 
                    
-        fOpt_hi, gOpt_hi = evalModel(xOpt,y,log_file,flow,opt,np.max(flow.fidelity_levels),'val', my_function)
+        fOpt_hi, gOpt_hi = evaluate_model(xOpt,y,log_file,flow,opt,np.max(flow.fidelity_levels),'val', my_function)
         
         if( flow.function_evals_in_unique_directory ):
             os.chdir('..') 
