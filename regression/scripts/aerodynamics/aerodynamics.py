@@ -5,12 +5,14 @@
 #
 # Modified to match compressibility drag updates
 
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
+
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-
-
-from mission_B737 import vehicle_setup
 
 import numpy as np
 import pylab as plt
@@ -18,6 +20,11 @@ import pylab as plt
 import copy, time
 import random
 from SUAVE.Attributes.Gases.Air import Air
+import sys
+#import vehicle file
+sys.path.append('../Vehicles')
+from Boeing_737 import vehicle_setup
+
 
 def main():
     
@@ -114,9 +121,11 @@ def main():
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift = state.conditions.aerodynamics.lift_coefficient
-    lift_r = np.array([-2.42489437, -0.90696416, -0.53991953, -0.3044834 ,  -0.03710598,
-                       0.31061936 ,  0.52106899,  0.77407765,  1.22389024,  1.86240501,
-                       1.54587835])[:,None]
+    lift_r = np.array( [ -2.17753919,  -0.7768714 ,  -0.41862788,  -0.16569318,0.1949377 ,
+                        0.49528782,  0.67624325,  0.93239723,   1.41834084,  2.1078681 ,
+                        1.72191103,])[:,None]
+    
+    print 'lift = ', lift
     
     lift_test = np.abs((lift-lift_r)/lift)
     
@@ -145,8 +154,11 @@ def main():
     cd_p_fuse      = drag_breakdown.parasite['fuselage'].parasite_drag_coefficient
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
+   
+    print 'cd_m =', cd_m
     
     
+   
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
     
     drag_tests = Data()
@@ -162,32 +174,30 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print '\nCompute Drag Test Results\n'
-
+    print '\nCompute Drag Test Results\n'    
     print 'cd_tot=', cd_tot
    
     for i, tests in drag_tests.items(): 
-        
+       
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
         
     #return conditions, configuration, geometry, test_num
       
 
 def reg_values():
-    cd_c_r = np.array([  2.08459463e-09,   1.08648911e-09,   4.40666169e-23,   1.88258599e-09,
-                         3.71806409e-04,   6.07658788e-05,   2.38156998e-09,   4.35875057e-11,
-                         7.93890380e-05,   2.19714380e-03,   6.81119259e-14])
+    cd_c_r = np.array( [  8.08247570e-09,  2.32439492e-09,  8.72099506e-23,  3.95356534e-09,
+                         1.12715582e-03,  1.25533189e-04,  3.95906799e-09,  6.25239791e-11,
+                         8.18124461e-05,  1.10331600e-03,   5.40850166e-14])
     
-    cd_i_r = np.array([  2.37606971e-01,   3.36408758e-02,   1.29448918e-02,
-                         3.77624250e-03,   5.67648335e-05,   3.85180176e-03,
-                         1.11343681e-02,   2.55300027e-02,   6.13235115e-02,
-                         1.40112822e-01,   9.81455047e-02])
+    cd_i_r = np.array([  0.19128965,  0.02465096,   0.00777093,   0.00111688,   
+                         0.00156422,   0.00978113,   0.01873018,   0.03699081,   
+                         0.0822499 ,   0.17923674,   0.12162074 ])
                              
                         
                      
-    cd_m_r = np.array([  0.00116061,     0.00116061,  0.00116061, 0.00116061,
-                         0.00116061,  0.00116061, 0.00116061,0.00116061,
-                         0.00116061, 0.00116061,0.00116061])
+    cd_m_r = np.array([  0.0011513,     0.0011513,  0.0011513, 0.0011513,
+                         0.0011513,  0.0011513, 0.0011513,0.0011513,
+                         0.0011513, 0.0011513,0.0011513])
     
     
     
@@ -213,9 +223,9 @@ def reg_values():
                                  0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
                                  0.00583051])
     
-    cd_tot_r        = np.array([ 0.25924093,  0.05201668,  0.04032639,  0.02111216,  0.01914386,
-                                 0.01908016,  0.02936072,  0.04833489,  0.08044945,  0.16153605,
-                                 0.11827559])
+    cd_tot_r        = np.array([ 0.21162067, 0.04269817,   0.03486839,   0.01825581,   0.02122359, 
+                                 0.0250517 ,   0.03696244,   0.05986016,    0.10164356,   0.20016137,  
+                                 0.14207549,  ])
     
     
     

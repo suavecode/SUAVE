@@ -135,8 +135,8 @@ class SU2_inviscid_Super(Aerodynamics):
                     #CL[count],CD[count] = call_SU2(konditions, settings, geometry)
                     #count += 1
             for ii in xrange(np.shape(t_set)[0]):
-                konditions.aerodynamics.angle_of_attack = t_set[ii,1]
-                konditions.aerodynamics.mach            = t_set[ii,2]
+                konditions.aerodynamics.angle_of_attack = t_set[ii,0]
+                konditions.aerodynamics.mach            = t_set[ii,1]
                 CL[ii],CD[ii] = call_SU2(konditions, settings, geometry)
             
             time1 = time.time()

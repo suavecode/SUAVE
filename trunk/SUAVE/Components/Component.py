@@ -9,7 +9,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
-
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Component
@@ -22,7 +22,7 @@ class Component(Data):
     def __defaults__(self):
         self.tag    = 'Component'
         self.origin = [[0.0,0.0,0.0]]
-    
+
     
 # ----------------------------------------------------------------------
 #  Component Container

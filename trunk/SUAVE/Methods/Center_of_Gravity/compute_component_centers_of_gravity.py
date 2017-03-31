@@ -59,10 +59,10 @@ def compute_component_centers_of_gravity(vehicle):
     control_systems.origin                                  = wing.origin
     control_systems.mass_properties.center_of_gravity[0]    = .4*wing.chords.mean_aerodynamic+mac_le_offset
     fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total
-    propulsor.origin[0]                                     = wing.origin[0]+mac_le_offset/2.-(3./4.)*propulsor.engine_length
+    propulsor.origin[0][0]                                  = wing.origin[0]+mac_le_offset/2.-(3./4.)*propulsor.engine_length
     propulsor.mass_properties.center_of_gravity[0]          = propulsor.engine_length*.5
-    electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0]+\
-                .5*fuselage.lengths.total)+.25*(propulsor.origin[0]+propulsor.mass_properties.center_of_gravity[0])
+    electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0][0]+\
+                .5*fuselage.lengths.total)+.25*(propulsor.origin[0][0]+propulsor.mass_properties.center_of_gravity[0])
     
     
     avionics.origin                                         = fuselage.origin
