@@ -32,7 +32,7 @@ def init():
     USER_DATA = {} # user can add shared data to this dictionary
     ROOT_DIR = os.getcwd()
         
-def addUserData(key,value):
+def add_user_data(key,value):
     global USER_DATA
     if key in USER_DATA: # if data already exists, make a copy of it
         USER_DATA['_'+key] = copy.copy(USER_DATA[key])
@@ -40,7 +40,7 @@ def addUserData(key,value):
     else:
         USER_DATA[key] = copy.copy(value)
     
-def assignToHistory(tag,x,y,val):
+def assign_to_history(tag,x,y,val):
     '''Record response for truth function evaluation 
     at x and y for truth function specified by tag'''
     global HIST, EVAL
@@ -49,7 +49,7 @@ def assignToHistory(tag,x,y,val):
     HIST[tag]['response'].append(copy.copy(val))
     EVAL[tag] += 1
 
-def assignToSurrogateHistory(l,k,x,y,obj,con):
+def assign_to_surrogate_history(l,k,x,y,obj,con):
     '''Record response of objective and constraints
     for evaluation of surrogate function of level l
     at x and y, increment function evaluation'''
@@ -61,7 +61,7 @@ def assignToSurrogateHistory(l,k,x,y,obj,con):
     SURR_HIST[l]['constraints'].append(copy.copy(con))
     SURR_EVAL[l] += 1
         
-def assignToTrustRegionHistory(k,t,center,size):
+def assign_to_trust_region_history(k,t,center,size):
     '''Record trust region information at iteration
     k including center index t, center and size'''
     global TR_HIST
@@ -70,63 +70,63 @@ def assignToTrustRegionHistory(k,t,center,size):
     TR_HIST['center'].append(copy.copy(center))
     TR_HIST['trSize'].append(copy.copy(size))
     
-def getSharedDataIndex():
+def get_shared_data_index():
     global S
     return copy.copy(S)
     
-def getTrustRegionCenter():
+def get_trust_region_center():
     global TRC
     return copy.copy(TRC)
   
-def getTrustRegionCenterIndex():
+def get_trust_region_center_index():
     global T
     return copy.copy(T)
         
-def getUserData(key):
+def get_user_data(key):
     global USER_DATA
     if key in USER_DATA:
         return copy.copy(USER_DATA[key])
     else:
         raise KeyError('key %s not found' % key)
         
-def incrementIteration():
+def increment_iteration():
     global K
     K += 1
     return copy.copy(K)
     
-def incrementSharedDataIndex():
+def increment_shared_data_index():
     global S
     S += 1
     return copy.copy(S)
     
-def incrementTrustRegionCenterIndex():
+def increment_trust_region_center_index():
     global T
     T += 1
     return copy.copy(T)
  
-def revertUserDataUpdate():
+def revert_user_data_update():
     global USER_DATA
     for key in USER_DATA: # update all keys from keys prefixed with '_'
         if( '_' + key in USER_DATA ):
             USER_DATA[key] = USER_DATA['_'+key]
     
-def setTrustRegionCenter(nparray):
+def set_trust_region_center(nparray):
     global TRC
     TRC = nparray
     return copy.copy(TRC)
     
-def setupHistory(tagList):
+def setup_history(tagList):
     global HIST, EVAL
     for tag in tagList:
         HIST[tag] = {'x': [], 'y': [], 'response': []}
         EVAL[tag] = 0
 
-def setupSurrogateHistory(levelList):
+def setup_surrogate_history(levelList):
     global SURR_HIST, SURR_EVAL
     for level in levelList:
         SURR_HIST[level] = {'iter': [], 'x': [], 'y': [], 'objective': [], 'constraints': []}
         SURR_EVAL[level] = 0
     
-def setupTrustRegionHistory():
+def setup_trust_region_history():
     global TR_HIST 
     TR_HIST = {'iter': [], 'center_index': [], 'center': [], 'trSize': []}

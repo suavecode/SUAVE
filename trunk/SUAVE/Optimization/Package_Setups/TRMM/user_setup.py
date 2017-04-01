@@ -15,21 +15,20 @@ import market as M
 
 # Setup function called to prep function evaluations    
 def setup(x,y,nCores, my_function):
-
-    h, hs, d = my_function.modelSetup(x,y,nCores)
+    h, hs, d = my_function.model_setup(x,y,nCores)
 
     # Add evaluations to history so they not be forgotten, arr!
     for tag in h:
         for e in range(len(h[tag]['x'])):
-            M.assignToHistory(tag,h[tag]['x'][e],h[tag]['y'][e],h[tag]['response'][e])
+            M.assign_to_history(tag,h[tag]['x'][e],h[tag]['y'][e],h[tag]['response'][e])
             
     # Add evaluations to history so they not be forgotten, arr!
     for e in range(len(hs['x'])):
-        M.assignToSurrogateHistory(hs['level'][e],M.K,hs['x'][e],hs['y'][e],hs['objective'][e],hs['constraints'][e])
+        M.assign_to_surrogate_history(hs['level'][e],M.K,hs['x'][e],hs['y'][e],hs['objective'][e],hs['constraints'][e])
             
     # Add shared user data to global market M
     for key in d:
-        M.addUserData(key,d[key])
+        M.add_user_data(key,d[key])
     
     return 0
     
@@ -459,12 +458,12 @@ def function(xval,y,flow,opt,level,ret, my_function):
     # =========================================================================    
     
     for p in range(len(xEval)):
-        M.assignToSurrogateHistory(level,k,xEval[p],y.value,rEval[p][0],rEval[p][1:])
+        M.assign_to_surrogate_history(level,k,xEval[p],y.value,rEval[p][0],rEval[p][1:])
     
     for h in hEval:
         if h: # skip assignment of duplicate values
             for tag in h:
                 for e in range(len(h[tag]['x'])):
-                    M.assignToHistory(tag,h[tag]['x'][e],h[tag]['y'][e],h[tag]['response'][e])
+                    M.assign_to_history(tag,h[tag]['x'][e],h[tag]['y'][e],h[tag]['response'][e])
             
     return f, g, df, dg
