@@ -164,7 +164,7 @@ def drag_total(state,settings,geometry):
     state.conditions.aerodynamics.drag_coefficient [Unitless]
 
     Outputs:
-    CD (coefficient of lift)                       [Unitless]
+    CD (coefficient of drag)                       [Unitless]
 
     Properties Used:
     N/A
