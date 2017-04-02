@@ -87,6 +87,11 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         
         
     def initialize(self):
+        import os
+        try:
+            os.remove('volume_drag_data.npy')  
+        except:
+            pass
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         

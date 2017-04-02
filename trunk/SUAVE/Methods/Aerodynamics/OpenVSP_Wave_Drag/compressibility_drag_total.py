@@ -146,17 +146,19 @@ def compressibility_drag_total(state,settings,geometry):
     # Use wave drag equations at supersonic values. The cutoff for this function is 1.05
     # Only the supsonic results are returned with nonzero values
 
-    # this step is very sketch, must be changed before release
         
-    old_array = np.load('volume_drag_data.npy')
-    if np.any(old_array[:,0]==conditions.freestream.mach_number[0,0]):
-        cd_c_v = np.array([[float(old_array[old_array[:,0]==conditions.freestream.mach_number[0,0],1])]])      
-    else:
-        cd_c_v = wave_drag_volume(conditions, geometry, False)
-        new_save_row = np.array([[conditions.freestream.mach_number[0,0],cd_c_v]])
-        comb_array = np.append(old_array,new_save_row,axis=0)       
-        np.save('volume_drag_data.npy', comb_array)
-    cd_c[Mc >= 1.05] = cd_c_l[Mc >= 1.05] + cd_c_v[Mc >= 1.05]
+    cd_c_v = wave_drag_volume(conditions, geometry, False)
+        
+    ## this step is sketch, should be changed before release
+    #old_array = np.load('volume_drag_data.npy')
+    #if np.any(old_array[:,0]==conditions.freestream.mach_number[0,0]):
+        #cd_c_v = np.array([[float(old_array[old_array[:,0]==conditions.freestream.mach_number[0,0],1])]])      
+    #else:
+        #cd_c_v = wave_drag_volume(conditions, geometry, False)
+        #new_save_row = np.array([[conditions.freestream.mach_number[0,0],cd_c_v]])
+        #comb_array = np.append(old_array,new_save_row,axis=0)       
+        #np.save('volume_drag_data.npy', comb_array)
+    #cd_c[Mc >= 1.05] = cd_c_l[Mc >= 1.05] + cd_c_v[Mc >= 1.05]
 
     
 

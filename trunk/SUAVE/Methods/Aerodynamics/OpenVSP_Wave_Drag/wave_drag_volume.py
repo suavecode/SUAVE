@@ -53,10 +53,17 @@ def wave_drag_volume(conditions,geometry,flag105):
     
     for ii,mach in enumerate(Mc):
         if mach >= 1.05:
-            vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [float(mach)])
-            ridwd = vsp.ExecAnalysis('WaveDrag') 
-            cd_w = vsp.GetDoubleResults(ridwd,'CDWave')
-            cd_w = cd_w[0]*100./ref_area
+            old_array = np.load('volume_drag_data.npy')
+            if np.any(old_array[:,0]==mach):
+                cd_w = np.array([[float(old_array[old_array[:,0]==mach,1])]])
+            else:
+                vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [float(mach)])
+                ridwd = vsp.ExecAnalysis('WaveDrag') 
+                cd_w = vsp.GetDoubleResults(ridwd,'CDWave')
+                cd_w = cd_w[0]*100./ref_area
+                new_save_row = np.array([[mach,cd_w]])
+                comb_array = np.append(old_array,new_save_row,axis=0)
+                np.save('volume_drag_data.npy', comb_array)
             cd_w_all[ii] = cd_w
     
     return cd_w_all
