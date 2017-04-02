@@ -61,7 +61,7 @@ class Propulsor_Surrogate(Propulsor):
             thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))   
         
         F    = thr
-        mdot = thr*sfc*self.number_of_engines
+        mdot = -thr*sfc*self.number_of_engines
         
         # Save the output
         results = Data()
@@ -80,13 +80,17 @@ class Propulsor_Surrogate(Propulsor):
         
         # Clean up to remove redundant lines
         # Section 1
-        col1 = my_data[1:,:1]
-        col2 = my_data[1:,1:2]
-        col3 = my_data[1:,2:3]
-        for ii in xrange(0, len(col1)-1):
-            if (col1[ii] == col1[ii+1])&(col2[ii] == col2[ii+1])&(col3[ii] == col3[ii+1]):
-                np.delete(my_data,(ii), axis=0)
+        #col1 = my_data[1:,:1]
+        #col2 = my_data[1:,1:2]
+        #col3 = my_data[1:,2:3]
+        #for ii in xrange(0, len(col1)-1):
+            #if (col1[ii] == col1[ii+1])&(col2[ii] == col2[ii+1])&(col3[ii] == col3[ii+1]):
+                #np.delete(my_data,(ii), axis=0)
 
+        b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
+        _, idx = np.unique(b, return_index=True)
+        
+        my_data = my_data[idx]                
                 
     
         xy  = my_data[1:,:3] # Altitude, Mach, Throttle
@@ -95,8 +99,8 @@ class Propulsor_Surrogate(Propulsor):
         
 
         # Pick the type of process
-        regr_sfc = gaussian_process.GaussianProcess(theta0=.3)
-        regr_thr = gaussian_process.GaussianProcess(theta0=.3)      
+        regr_sfc = gaussian_process.GaussianProcess(theta0=.5)
+        regr_thr = gaussian_process.GaussianProcess(theta0=.5)      
         thr_surrogate = regr_thr.fit(xy, thr)
         sfc_surrogate = regr_sfc.fit(xy, sfc)          
         
