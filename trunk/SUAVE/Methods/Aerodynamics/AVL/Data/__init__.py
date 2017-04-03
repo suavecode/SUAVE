@@ -7,6 +7,7 @@
 from Aircraft import Aircraft
 from Body import Body
 from Wing import Wing,Section,Control_Surface
+#from Engine import Engine  # Matthew 
 from Cases import Run_Case
 from Configuration import Configuration
 from Settings import Settings

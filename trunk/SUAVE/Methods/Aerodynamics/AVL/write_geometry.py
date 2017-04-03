@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 from purge_files import purge_files
-from create_avl_datastructure import translate_avl_wing, translate_avl_body
+from create_avl_datastructure import translate_avl_wing, translate_avl_body  #, translate_avl_engine
 
 
 def write_geometry(avl_object):
@@ -35,7 +35,10 @@ def write_geometry(avl_object):
             avl_body = translate_avl_body(b)
             body_text = make_body_text(avl_body)
             geometry.write(body_text)
-
+#       for e in aircraft.engines:
+#           avl_engine = translate_avl_engine(e)
+#           engine_text = make_engine_text(avl_engine)
+#           geometry.write(engine_text)
     return
 
 
@@ -154,7 +157,31 @@ SURFACE
     body_text = horizontal_text + vertical_text
     return body_text
 
-
+#def make_engine_text(avl_engine):
+#    # Template for a surface
+#    surface_base = \
+#'''#=============================================
+#SURFACE
+#{0}
+##Nchordwise  Cspace   Nspanwise  Sspace
+#6            1.0      15           0
+#
+#'''
+#    # Unpack inputs
+#    symm = avl_engine.symmetric
+#    name = avl_engine.tag
+#
+#    if symm:
+#        ydup = '\nYDUPLICATE\n0.0\n'
+#    else:
+#        ydup     = ' '
+#    engine_text = surface_base.format(name,ydup)
+#
+#    for s in avl_engine.sections:
+#        section_text    = make_section_text(s)
+#        engine_text = engine_text + section_text
+#
+#   return engine_text
 
 def make_section_text(avl_section):
     # Template for a section

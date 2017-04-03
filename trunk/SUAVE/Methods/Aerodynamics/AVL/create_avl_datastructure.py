@@ -17,6 +17,7 @@ from SUAVE.Core import Data
 from .Data.Inputs   import Inputs
 from .Data.Wing     import Wing, Section, Control_Surface
 from .Data.Body     import Body
+#from .Data.Engine   import Engine
 from .Data.Aircraft import Aircraft
 from .Data.Cases    import Run_Case
 from .Data.Configuration import Configuration
@@ -50,6 +51,9 @@ def translate_avl_geometry(geometry):
 	for body in geometry.fuselages:
 		b = translate_avl_body(body)
 		aircraft.append_body(b)
+#	for engine in geometry.engines:
+#            e = transpate_avl_engine(engine)
+#            aircraft.append_engine(e)
 	
 	return aircraft
 
@@ -60,8 +64,6 @@ def translate_avl_wing(suave_wing):
 	w.tag       = suave_wing.tag
 	w.symmetric = suave_wing.symmetric
 	w.vertical  = suave_wing.vertical
-	w.sweep     = suave_wing.sweeps.quarter_chord
-	w.dihedral  = suave_wing.dihedral
 	w = populate_wing_sections(w,suave_wing)
 	
 	return w
@@ -81,90 +83,127 @@ def translate_avl_body(suave_body):
 	
 	return b
 
+# def translate_avl_engine(suave_engine):
+#	
+#	e = Engine()
+#	e.tag       = suave_engine.tag
+#	e.symmetric = True #engine.symmetric
+#	e.engine_length = suave_body.engine_length
+#	e.nacelle_diameter  = suave_body.nacelle_diameter
+#	e = populate_engine_sections(e,suave_body)
+#	
+#	return e
 
-def populate_wing_sections(avl_wing,suave_wing):
-	symm     = avl_wing.symmetric
-	sweep    = avl_wing.sweeps.quarter_chord
-	dihedral = avl_wing.dihedral
-	span     = suave_wing.spans.projected
-	semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
-	origin   = suave_wing.origin
-	root_section = Section()
-	root_section.tag    = 'root_section'
-	root_section.origin = origin
-	root_section.chord  = suave_wing.chords.root
-	root_section.twist  = suave_wing.twists.root
-	
-	tip_section = Section()
-	tip_section.tag  = 'tip_section'
-	tip_section.chord = suave_wing.chords.tip
-	tip_section.twist = suave_wing.twists.tip
-	tip_section.origin = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
-	
-	if avl_wing.vertical:
-		temp = tip_section.origin[2]
-		tip_section.origin[2] = tip_section.origin[1]
-		tip_section.origin[1] = temp
-	
-	avl_wing.append_section(root_section)
-	avl_wing.append_section(tip_section)
-	
-	if suave_wing.control_surfaces:
-		for ctrl in suave_wing.control_surfaces:
-			num = 1
-			for section in ctrl.sections:
-				semispan_fraction = (span/semispan) * section.origins.span_fraction
-				s = Section()
-				s.chord  = scipy.interp(semispan_fraction,[0.,1.],[root_section.chord,tip_section.chord])
-				s.tag    = '{0}_section{1}'.format(ctrl.tag,num)
-				s.origin = section.origins.dimensional
-				s.origin[0] = s.origin[0] - s.chord*section.origins.chord_fraction
-				s.twist  = scipy.interp(semispan_fraction,[0.,1.],[root_section.twist,tip_section.twist])
-				c = Control_Surface()
-				c.tag     = ctrl.tag
-				c.x_hinge = 1. - section.chord_fraction
-				c.sign_duplicate = ctrl.deflection_symmetry
-				
-				s.append_control_surface(c)
-				avl_wing.append_section(s)
-				num += 1
-	
-	return avl_wing
+def populate_wing_sections(avl_wing,suave_wing):  
+	 
+      symm     = avl_wing.symmetric
+      span     = suave_wing.spans.projected
+      semispan = suave_wing.spans.projected*0.5 * (2 - symm)
+      origin   = suave_wing.origin
+      root_chord =  suave_wing.chords.root
+      absolute_percent_chord = 0; 
+     
+      for segment in suave_wing.Segments:
 
+          section = Section()
+          section.section_tag = segment.tag 
+          absolute_percent_chord =  segment.percent_span_location - absolute_percent_chord
+          section.sweep = segment.sweeps.quarter_chord
+          section.dihedral = segment.dihedral_outboard
+          
+          if avl_wing.vertical:
+              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(section.sweep),
+                       origin[1] + semispan*absolute_percent_chord*np.tan(section.dihedral)  ,\
+                       origin[2] + semispan*absolute_percent_chord]
+
+          origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(section.sweep) ,\
+                    origin[1] + semispan*absolute_percent_chord,\
+                    origin[2] + semispan*absolute_percent_chord*np.tan(section.dihedral)]
+          
+          section.origin = origin
+          section.chord  = root_chord*segment.root_chord_percent 
+          section.twist  = segment.twist
+       
+          avl_wing.append_section(section)
+          
+          
+#      if suave_wing.control_surfaces:
+#		for ctrl in suave_wing.control_surfaces:
+#			num = 1
+#			for section in ctrl.sections:
+#				semispan_fraction = (span/semispan) * section.origins.span_fraction
+#				s = Section()
+#				s.chord  = scipy.interp(semispan_fraction,[0.,1.],[root_section.chord,tip_section.chord])
+#				s.tag    = '{0}_section{1}'.format(ctrl.tag,num)
+#				s.origin = section.origins.dimensional
+#				s.origin[0] = s.origin[0] - s.chord*section.origins.chord_fraction
+#				s.twist  = scipy.interp(semispan_fraction,[0.,1.],[root_section.twist,tip_section.twist])
+#				c = Control_Surface()
+#				c.tag     = ctrl.tag
+#				c.x_hinge = 1. - section.chord_fraction
+#				c.sign_duplicate = ctrl.deflection_symmetry
+#				
+#				s.append_control_surface(c)
+#				avl_wing.append_section(s)
+#				num += 1
+    
+
+      return avl_wing
 
 def populate_body_sections(avl_body,suave_body):
-
-	symm = avl_body.symmetric
-	semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
-	semispan_v = avl_body.heights.maximum * 0.5
-	origin = suave_body.origin
-	root_section = Section()
-	root_section.tag    = 'center_horizontal_section'
-	root_section.origin = origin
-	root_section.chord  = avl_body.lengths.total
+      
+      symm = avl_body.symmetric
+      semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
+      semispan_v = avl_body.heights.maximum * 0.5
+      origin = suave_body.origin
+      fuselage_fineness_nose = suave_body.fineness.nose
+      fuselage_fineness_tail = suave_body.fineness.tail
+      section_index = 0
+      height_array = np.linspace(0, semispan_v, num=5)
+      for section_height in height_array :
+          fuselage_v_section = Section()
+          fuselage_v_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+          fuselage_v_section_nose_length= ((1 - ((abs(height_array/semispan_v))^fuselage_fineness_nose ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_tail_length = ((1 - ((abs(height_array/semispan_v))^fuselage_fineness_tail ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_nose_origin = avl_body.lengths.nose - fuselage_v_section_nose_length
+          fuselage_v_section.tag = 'fuselage_vertical_section_%s'(section_index)
+          fuselage_v_section.origin = [origin[0] + fuselage_v_section_nose_origin, origin[1], origin[2]+section_height ]
+          fuselage_v_section.chord = fuselage_v_section_cabin_length + fuselage_v_section_nose_length + fuselage_v_section_tail_length
+          avl_body.append_section(fuselage_v_section,'vertical')
+          section_index = section_index + 1
+          
+      section_index = 0     
+      width_array = np.linspace(0, semispan_h, num=5)
+      for section_width in width_array:
+          fuselage_h_section = Section()
+          fuselage_h_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+          fuselage_h_section_nose_length = ((1 - ((abs(width_array/semispan_h))^fuselage_fineness_nose ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_h_section_tail_length = ((1 - ((abs(width_array/semispan_h))^fuselage_fineness_tail ))^(1/fuselage_fineness_tail))*avl_body.lengths.tail
+          fuselage_h_section_nose_origin  = avl_body.lengths.nose - fuselage_h_section_nose_length
+          fuselage_h_section.tag = 'fuselage_horizontal_section_%s'(section_index)
+          fuselage_h_section.origin = [origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
+          fuselage_h_section.chord = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
+          avl_body.append_section(fuselage_h_section,'horizontal')
+          section_index = section_index + 1
+      
+      return avl_body
 	
-	tip_section = Section()
-	tip_section.tag  = 'outer_horizontal_section'
-	nl = avl_body.lengths.nose
-	tl = avl_body.lengths.tail
-	tip_section.origin = [origin[0]+nl,origin[1]+semispan_h,origin[2]]
-	tip_section.chord = root_section.chord - nl - tl
-	
-	avl_body.append_section(root_section,'horizontal')
-	avl_body.append_section(tip_section,'horizontal')
-	tip_sectionv1 = deepcopy(tip_section)
-	tip_sectionv1.origin[1] = origin[1]
-	tip_sectionv1.origin[2] = origin[2] - semispan_v
-	tip_sectionv1.tag       = 'lower_vertical_section'
-	avl_body.append_section(tip_sectionv1,'vertical')
-	avl_body.append_section(root_section,'vertical')
-	tip_sectionv2 = deepcopy(tip_section)
-	tip_sectionv2.origin[1] = origin[1]
-	tip_sectionv2.origin[2] = origin[2] + semispan_v
-	tip_sectionv2.tag       = 'upper_vertical_section'
-	avl_body.append_section(tip_sectionv2,'vertical')
-	
-	return avl_body
+   
+# def populate_engine_sections(avl_engine,suave_engine):
+#
+#      symm = avl_body.symmetric
+#      origin = [0, 0, 0]
+#      angle_array = np.linspace(0, 360 , num=30)
+#      nacelle_radius = suave_engine.nacelle_diameter
+#      section_index = 0
+#      for section_angle in angle_array  
+#          engine = Section()
+#          engine.tag = 'section_index_%s'(section_index)
+#          engine.chord = suave_engine.engine_length
+#          engine.nacelle_section_origin = [suave_engine.origin[0],  suave_engine.origin[1] + np.sin(section_angle)*nacelle_radius , suave_engine.origin[1] + np.cos(section_angle)*nacelle_radius] 
+#          avl_body.append_section(engine)
+#          section_index = section_index + 1
+#	return avl_engine
 	
 
 def translate_avl_configuration(geometry,conditions):

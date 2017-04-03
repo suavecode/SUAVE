@@ -12,7 +12,7 @@ from SUAVE.Core import Data
 
 from Wing import Wing
 from Body import Body
-
+#from Engine import Engine
 
 # ------------------------------------------------------------
 #   Aircraft
@@ -44,4 +44,12 @@ class Aircraft(Data):
 		# store data
 		self.bodies.append(body)
 		return
-
+  
+#  	def append_engine(self,engine):
+#		# assert database type
+#		if not isinstance(engine,Engine):
+#			raise Component_Exception, 'input component must be of type AVL.Data.Engine()'
+#
+#		# store data
+#		self.wings.append(engine)
+#		return
