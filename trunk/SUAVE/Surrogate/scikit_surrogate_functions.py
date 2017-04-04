@@ -33,7 +33,6 @@ def build_scikit_models(surrogate_optimization, obj_values, inputs, constraints)
         constraints_surrogates.append(constraint_surrogate)
      
     t2=time.time()
-    print 'time to set up = ', t2-t1
     surrogate_function                        = Surrogate_Problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates
