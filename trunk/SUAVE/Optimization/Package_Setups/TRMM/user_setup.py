@@ -33,7 +33,7 @@ def setup(x,y,nCores, my_function):
     return 0
     
     
-def checkForDuplicateEvals(xlist,ylist,level,flow,surrHist,trhistory,k):
+def check_for_duplicate_evaluations(xlist,ylist,level,flow,surrHist,trhistory,k):
 
     # What to search
     scope = flow.function_dependency[level-1]
@@ -57,7 +57,7 @@ def checkForDuplicateEvals(xlist,ylist,level,flow,surrHist,trhistory,k):
         if( scope == 'evaluation_point' ):
         
             for i in range(len(history['x'])):
-                if( np.sum(np.isclose(history['x'][i],xval,rtol=1e-15,atol=1e-14)) == xval.size  and np.sum(np.isclose(history['y'][i],yval,rtol=1e-15,atol=1e-14)) == yval.size ):
+                if( np.sum(np.isclose(history['x'][i].astype(np.float64),xval.astype(np.float64),rtol=1e-15,atol=1e-14)) == xval.size  and np.sum(np.isclose(history['y'][i].astype(np.float64),yval.astype(np.float64),rtol=1e-15,atol=1e-14)) == yval.size ):
                     evalFlag.append([history['objective'][i],history['constraints'][i]])
                     print 'Duplicate evaluation found for {}'.format([e for e in xval])
                     dup = 1
@@ -85,12 +85,12 @@ def checkForDuplicateEvals(xlist,ylist,level,flow,surrHist,trhistory,k):
             candidates = []
             center = trhistory['center'][k-1]
             for i in range(len(trhistory['iter'])):
-                if( np.sum(np.isclose(trhistory['center'][k-1],trhistory['center'][i],rtol=1e-14,atol=1e-12)) == trhistory['center'][i].size ):
+                if( np.sum(np.isclose(trhistory['center'][k-1].astype(np.float64),trhistory['center'][i].astype(np.float64),rtol=1e-14,atol=1e-12)) == trhistory['center'][i].size ):
                     candidates.append(i+1)
         
             for i in range(len(history['x'])):
                 if( history['iter'][i] in candidates ): # same trust region center
-                    if( np.sum(np.isclose(history['x'][i],xval,rtol=1e-15,atol=1e-14)) == xval.size and np.sum(np.isclose(history['y'][i],yval,rtol=1e-15,atol=1e-14)) == yval.size ):
+                    if( np.sum(np.isclose(history['x'][i].astype(np.float64),xval.astype(np.float64),rtol=1e-15,atol=1e-14)) == xval.size and np.sum(np.isclose(history['y'][i].astype(np.float64),yval.astype(np.float64),rtol=1e-15,atol=1e-14)) == yval.size ):
                         evalFlag.append([history['objective'][i],history['constraints'][i]])
                         print 'Duplicate evaluation found for {}'.format([e for e in xval])
                         dup = 1
@@ -138,11 +138,12 @@ def model_evaluation_setup(xval,yitem,data,level,dirname,link_files, my_function
     else:
     
         output = my_function.model_evaluation(xval,yitem,data,level)
-        
+
     return output
 
 
 # Function called to evaluate responses (& derivatives) given inputs
+
 def function(xval,y,flow,opt,level,ret, my_function):
 
     # Obtain necessary global variables
@@ -250,7 +251,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
         # =========================================================================    
         #print 'Checking for duplicate evalutions of function level %i' % level
         if( flow.gradient_evaluation[level-1] == 'FD' ):
-            duplicate = checkForDuplicateEvals(xEval,[y.value],level,flow,surrHistory,trHistory,k)
+            duplicate = check_for_duplicate_evaluations(xEval,[y.value],level,flow,surrHistory,trHistory,k)
         elif( flow.gradient_evaluation[level-1] == 'smart-pce' ):
             duplicate = [0]*len(iEval) # disable duplicate evaluation checking
         
@@ -350,7 +351,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
                 
                 # Check for duplicate evaluations
                 #print 'Checking for duplicate evalutions of function level %i' % level
-                duplicate = checkForDuplicateEvals(xEval,[y.value],level,flow,surrHistory,trHistory,k)
+                duplicate = check_for_duplicate_evaluations(xEval,[y.value],level,flow,surrHistory,trHistory,k)
         
                 if not duplicate[0]:
                 
@@ -395,6 +396,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
         if( flow.gradient_evaluation[level-1] == 'FD' ):
         
             for i in range(df.size):
+
                 df[0,i] = (rEval[i+1][0] - f)/fd_step
                 
             for i in range(df.size):
@@ -425,7 +427,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
 
         # Check for duplicate evaluations
         #print 'Checking for duplicate evalutions of function level %i' % level
-        duplicate = checkForDuplicateEvals(xEval,[y.value[:]],level,flow,surrHistory,trHistory,k)
+        duplicate = check_for_duplicate_evaluations(xEval,[y.value[:]],level,flow,surrHistory,trHistory,k)
         
         if not duplicate[0]:
         
@@ -442,6 +444,7 @@ def function(xval,y,flow,opt,level,ret, my_function):
             hEval[0] = 0
         
         # Put together evaluations
+
         f = rEval[0][0]
         g = rEval[0][1:]
         df = 0
@@ -465,5 +468,5 @@ def function(xval,y,flow,opt,level,ret, my_function):
             for tag in h:
                 for e in range(len(h[tag]['x'])):
                     M.assign_to_history(tag,h[tag]['x'][e],h[tag]['y'][e],h[tag]['response'][e])
-            
+      
     return f, g, df, dg

@@ -76,7 +76,6 @@ def setup_shared_model_data(x,y,log_file,flow):  #setupSharedModelData
     return 0
     
 def evaluate_model(xval,y,log_file,flow,opt,level,ret, my_function):
-
     if( ret == 'all' ):
         f, g, df, dg = user_setup.function(xval,y,flow,opt,level,ret, my_function)
     elif( ret == 'val' ):
@@ -126,7 +125,7 @@ def evaluate_corrected_model(xval,y=None,corr=None,flow=None,opt=None,tr=None,le
         
             f, g = user_setup.function(xval,y,flow,opt,level,ret, my_function)[0:2]
             f = f + np.dot(A[0,:],(xval-x0)) + b[0]
-            g = g + np.matmul(A[1:,:],(xval-x0)) + b[1:]       
+            g = g + np.dot(A[1:,:],(xval-x0)) + b[1:]    #g + np.matmul(A[1:,:],(xval-x0)) + b[1:]       
             
             return f, g, fail     
                     
@@ -165,7 +164,7 @@ def evaluate_corrected_model(xval,y=None,corr=None,flow=None,opt=None,tr=None,le
     
         
         
-def calcCorrection(f,g,df,dg,tr):
+def calculate_correction(f,g,df,dg,tr):
 
     nf = len(f) # number of fidelity levels
     nr = 1 + g[0].size
@@ -202,7 +201,7 @@ def calcCorrection(f,g,df,dg,tr):
     return corr
     
     
-def calcConstraintViolation(gval,opt):
+def calculate_constraint_violation(gval,opt):
     
     # For nonlinear inequality constraints only
 
@@ -210,14 +209,14 @@ def calcConstraintViolation(gval,opt):
     ub = opt.constraint_upper_bounds
 
     gdiff = []
-    
+
     for i in range(len(gval)):
-    
-        if( gval[i] < lb[i] ):
-            gdiff.append(lb[i] - gval[i])
-            
-        if( gval[i] > ub[i] ):
-            gdiff.append(gval[i] - ub[i])
+        if len(lb) > 0:
+            if( gval[i] < lb[i] ):
+                gdiff.append(lb[i] - gval[i])
+        if len(ub) > 0:    
+            if( gval[i] > ub[i] ):
+                gdiff.append(gval[i] - ub[i])
 
     return np.linalg.norm(gdiff) # 2-norm of violation
         
@@ -395,7 +394,6 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
             g[level-1] = results[1]
             df[level-1] = results[2]
             dg[level-1] = results[3]
-         
         log = open(log_file,'a')
         log.write('Evaluation history to date:\n\n')
         for key in M.EVAL:
@@ -433,7 +431,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         log.write('Calculating correction for all responses\n\n')
         log.close()
         
-        corr = calcCorrection(f,g,df,dg,tr)
+        corr = calculate_correction(f,g,df,dg,tr)
         
         log = open(log_file,'a')
         if( tr.correction_type == 'additive' ):
@@ -461,7 +459,9 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
             log.close()
         '''
         if( mi + me > 0 ):
-            gviol = calcConstraintViolation(g[-1],opt)
+            print 'f=', f
+            print 'g= ', g
+            gviol = calculate_constraint_violation(g[-1],opt)
             log = open(log_file,'a')
             log.write('Nonlinear constraint violation at trust region center: %f\n\n' % gviol)
             log.close()
@@ -485,8 +485,11 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
 #        for i in range(mi+1,r_lo.size-1):
 #            constraintName = 'ge' + str(i)
 #            opt_prob.addCon(constraintName,'e',equal=0.,value=r_lo[i])
+        
         for i in range(mi):
             constraintName = 'gi' + str(i)
+            print 'g=', g
+            print g[-1][i]
             opt_prob.addCon(constraintName,'i',lower=opt.constraint_lower_bounds[i], \
                             upper=opt.constraint_upper_bounds[i],value=g[-1][i])
         if( ai > 0 ):            
@@ -570,7 +573,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         '''    
         # Check nonlinear constraint violation for low-fidelity model
         if( mi + me > 0 ):
-            gviol2_lo = calcConstraintViolation(gOpt,opt)     
+            gviol2_lo = calculate_constraint_violation(gOpt,opt)     
             log = open(log_file,'a')
             log.write('Nonlinear constraint violation at optimum (lo-fi): %f\n\n' % gviol2_lo)
             log.close()  
@@ -642,7 +645,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
                     
         # Calculate constraint violation for high-fidelity model
         if( mi + me > 0 ):
-            gviol2_hi = calcConstraintViolation(gOpt_hi,opt)
+            gviol2_hi = calculate_constraint_violation(gOpt_hi,opt)
             log = open(log_file,'a')
             log.write('Nonlinear constraint violation at optimum (hi-fi): %f\n\n' % gviol2_hi)
             log.close()  
@@ -894,7 +897,11 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         history = open('history_%s.dat' % tag,'w')
         history.write('{},'.format(','.join('x'+str(i) for i in range(len(x.value))))+'{},'.format(','.join('y'+str(i) for i in range(len(y.value))))+'response\n')
         for i in range(len(M.HIST[tag]['x'])):
+            #print tag
+            #print 'M.HIST[tag][response][i] = ', M.HIST[tag]['response'][i]
+            #print 'type(M.HIST[tag][response][i]) = ', type(M.HIST[tag]['response'][i])
             history.write('{},'.format(','.join(str(e) for e in M.HIST[tag]['x'][i])))
             history.write('{},'.format(','.join(str(e) for e in M.HIST[tag]['y'][i])))
-            history.write('%f\n' % M.HIST[tag]['response'][i])
+            #history.write('%f\n' % M.HIST[tag]['response'][i])
+            history.write(str(M.HIST[tag]['response'][i]))
         history.close()        
