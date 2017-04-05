@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 import scipy
 import numpy as np
+
 from copy import deepcopy
 
 # SUAVE Imports
@@ -42,8 +43,8 @@ def translate_avl_geometry(geometry):
 
 	aircraft = Aircraft()
 	aircraft.tag = geometry.tag
-	
-	# FOR NOW, ASSUMING THAT CONTROL SURFACES ARE NOT ALIGNED WITH WING SECTIONS (IN THIS CASE, ROOT AND TIP SECTIONS)
+      
+      # FOR NOW, ASSUMING THAT CONTROL SURFACES ARE NOT ALIGNED WITH WING SECTIONS (IN THIS CASE, ROOT AND TIP SECTIONS)
 	for wing in geometry.wings:
 		w = translate_avl_wing(wing)
 		aircraft.append_wing(w)
@@ -51,23 +52,25 @@ def translate_avl_geometry(geometry):
 	for body in geometry.fuselages:
 		b = translate_avl_body(body)
 		aircraft.append_body(b)
+# ----------------------------------------------------------------------------
+# This code refers to the addition of engine geometry to the aircraft 
+#     
 #	for engine in geometry.engines:
 #            e = transpate_avl_engine(engine)
 #            aircraft.append_engine(e)
-	
+# ----------------------------------------------------------------------------	
 	return aircraft
 
 
 def translate_avl_wing(suave_wing):
-	
+	#change to segments **
 	w = Wing()
-	w.tag       = suave_wing.tag
+	w.tag = suave_wing.tag
 	w.symmetric = suave_wing.symmetric
 	w.vertical  = suave_wing.vertical
 	w = populate_wing_sections(w,suave_wing)
 	
 	return w
-
 
 def translate_avl_body(suave_body):
 	
@@ -83,6 +86,9 @@ def translate_avl_body(suave_body):
 	
 	return b
 
+ # ----------------------------------------------------------------------------
+# This code refers to the addition of engine geometry to the aircraft 
+#   
 # def translate_avl_engine(suave_engine):
 #	
 #	e = Engine()
@@ -93,40 +99,80 @@ def translate_avl_body(suave_body):
 #	e = populate_engine_sections(e,suave_body)
 #	
 #	return e
-
+# ----------------------------------------------------------------------------
 def populate_wing_sections(avl_wing,suave_wing):  
-	 
+    
       symm     = avl_wing.symmetric
       span     = suave_wing.spans.projected
       semispan = suave_wing.spans.projected*0.5 * (2 - symm)
       origin   = suave_wing.origin
       root_chord =  suave_wing.chords.root
       absolute_percent_chord = 0; 
-     
-      for segment in suave_wing.Segments:
+      
 
-          section = Section()
-          section.section_tag = segment.tag 
-          absolute_percent_chord =  segment.percent_span_location - absolute_percent_chord
-          section.sweep = segment.sweeps.quarter_chord
-          section.dihedral = segment.dihedral_outboard
-          
-          if avl_wing.vertical:
-              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(section.sweep),
-                       origin[1] + semispan*absolute_percent_chord*np.tan(section.dihedral)  ,\
-                       origin[2] + semispan*absolute_percent_chord]
+      
+      # Check to see if segments are defined. Get count
+      if len(suave_wing.Segments.keys())>0:
+          n_segments = len(suave_wing.Segments.keys())
+      else:
+          n_segments = 0      
+         
+      for i_segs in xrange(n_segments):  
 
-          origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(section.sweep) ,\
-                    origin[1] + semispan*absolute_percent_chord,\
-                    origin[2] + semispan*absolute_percent_chord*np.tan(section.dihedral)]
-          
-          section.origin = origin
-          section.chord  = root_chord*segment.root_chord_percent 
-          section.twist  = segment.twist
-       
-          avl_wing.append_section(section)
-          
-          
+#----------------------------------------------------------------
+# this commented code relates to the presence of control surfaces 
+#                       
+#          Check to see if segment has control surfaces but count the number of instances of type control surface           
+#          if num_control_surfaces == 0: 
+#----------------------------------------------------------------          
+              # TO DO: find a way to convert the instance "section" of the class Section () to a unique object using the segment tag of the wing in the loop
+              section = Section()
+              absolute_percent_chord =  suave_wing.Segments[i_segs].percent_span_location - absolute_percent_chord
+              sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
+              dihedral = suave_wing.Segments[i_segs].dihedral_outboard
+
+              # define object properties 
+              section.tag = suave_wing.Segments[i_segs].tag
+              section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
+              section.twist  = suave_wing.Segments[i_segs].twist
+              section.origin = origin
+              
+              avl_wing.append_section(section)
+              
+              # update origin for next segment 
+              if avl_wing.vertical:
+                  origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep),\
+                           origin[1] + semispan*absolute_percent_chord*np.tan(dihedral) ,\
+                           origin[2] + semispan*absolute_percent_chord]
+              else:
+                  origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep) ,\
+                        origin[1] + semispan*absolute_percent_chord,\
+                        origin[2] + semispan*absolute_percent_chord*np.tan(dihedral)]
+#----------------------------------------------------------------
+# this commented code relates to the presence of control surfaces        
+#  
+#              else 
+#              append the first section (root) of segment
+#              for each control surface:
+#                   # Start of control surface
+#                   # find a way to convert a string describing the start of the control surface to an instance of a class 
+#                   creat a name for this section using 'control_surface_%d_start' index number of the control surface
+#                   find location of the start of the control surface (span distance)
+#                   find the chord,twist,origin at that span distance
+#                   make a section instance 
+#                   append a section onto the alv_wing
+#                   append a section onto control surface    
+#                   # End of control surface 
+#                   # find a way to convert a string describing the start of the control surface to an instance of a class 
+#                   creat a name for this section using 'control_surface_%d_end' index number of the control surface
+#                   find location of the start of the control surface (span distance)
+#                   make a section instance 
+#                   find the chord,twist,origin at that span distance 
+#                   append a section onto the alv_wing
+#                   append a section onto control surface               
+#              append the last section (tip) of the segment
+#
+# Emilio's code is below 
 #      if suave_wing.control_surfaces:
 #		for ctrl in suave_wing.control_surfaces:
 #			num = 1
@@ -146,7 +192,8 @@ def populate_wing_sections(avl_wing,suave_wing):
 #				s.append_control_surface(c)
 #				avl_wing.append_section(s)
 #				num += 1
-    
+#--------------------------------------------------------------------------                            
+      
 
       return avl_wing
 
@@ -158,37 +205,46 @@ def populate_body_sections(avl_body,suave_body):
       origin = suave_body.origin
       fuselage_fineness_nose = suave_body.fineness.nose
       fuselage_fineness_tail = suave_body.fineness.tail
-      section_index = 0
-      height_array = np.linspace(0, semispan_v, num=5)
+      
+      # Vertical Sections of Fuselage       
+      height_array = np.linspace(-semispan_v, semispan_v, num=10)
       for section_height in height_array :
+          # find a way to change name of fuselage_v_section instance of the Class called Section to a unique object using section_index
           fuselage_v_section = Section()
           fuselage_v_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
-          fuselage_v_section_nose_length= ((1 - ((abs(height_array/semispan_v))^fuselage_fineness_nose ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
-          fuselage_v_section_tail_length = ((1 - ((abs(height_array/semispan_v))^fuselage_fineness_tail ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_nose_length= ((1 - ((abs(section_height/semispan_v))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_tail_length = ((1 - ((abs(section_height/semispan_v))**fuselage_fineness_tail ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
           fuselage_v_section_nose_origin = avl_body.lengths.nose - fuselage_v_section_nose_length
-          fuselage_v_section.tag = 'fuselage_vertical_section_%s'(section_index)
+          
+          # define object properties 
+          fuselage_v_section.tag = 'fuselage_vertical_section_at_s%m'% height_array
           fuselage_v_section.origin = [origin[0] + fuselage_v_section_nose_origin, origin[1], origin[2]+section_height ]
           fuselage_v_section.chord = fuselage_v_section_cabin_length + fuselage_v_section_nose_length + fuselage_v_section_tail_length
           avl_body.append_section(fuselage_v_section,'vertical')
-          section_index = section_index + 1
-          
-      section_index = 0     
+
+      
+      # Horizontal Sections of Fuselage
       width_array = np.linspace(0, semispan_h, num=5)
       for section_width in width_array:
+          # find a way to change name of fuselage_v_section instance of the Class called Section using section_index
           fuselage_h_section = Section()
           fuselage_h_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
-          fuselage_h_section_nose_length = ((1 - ((abs(width_array/semispan_h))^fuselage_fineness_nose ))^(1/fuselage_fineness_nose))*avl_body.lengths.nose
-          fuselage_h_section_tail_length = ((1 - ((abs(width_array/semispan_h))^fuselage_fineness_tail ))^(1/fuselage_fineness_tail))*avl_body.lengths.tail
+          fuselage_h_section_nose_length = ((1 - ((abs(section_width/semispan_h))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_h_section_tail_length = ((1 - ((abs(section_width/semispan_h))**fuselage_fineness_tail ))**(1/fuselage_fineness_tail))*avl_body.lengths.tail
           fuselage_h_section_nose_origin  = avl_body.lengths.nose - fuselage_h_section_nose_length
-          fuselage_h_section.tag = 'fuselage_horizontal_section_%s'(section_index)
+          
+          # define object properties 
+          fuselage_h_section.tag = 'fuselage_horizontal_section_at_%sm'% width_array
           fuselage_h_section.origin = [origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
           fuselage_h_section.chord = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
           avl_body.append_section(fuselage_h_section,'horizontal')
-          section_index = section_index + 1
-      
+
+          
       return avl_body
 	
-   
+# ----------------------------------------------------------------------------
+# This code refers to the addition of engine geometry to the aircraft 
+#   
 # def populate_engine_sections(avl_engine,suave_engine):
 #
 #      symm = avl_body.symmetric
@@ -204,7 +260,7 @@ def populate_body_sections(avl_body,suave_body):
 #          avl_body.append_section(engine)
 #          section_index = section_index + 1
 #	return avl_engine
-	
+# ----------------------------------------------------------------------------	
 
 def translate_avl_configuration(geometry,conditions):
 	

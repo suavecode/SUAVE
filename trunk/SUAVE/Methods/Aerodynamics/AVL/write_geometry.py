@@ -27,14 +27,17 @@ def write_geometry(avl_object):
 
         header_text = make_header_text(avl_object)
         geometry.write(header_text)
+        
         for w in aircraft.wings:
             avl_wing = translate_avl_wing(w)
             wing_text = make_surface_text(avl_wing)
             geometry.write(wing_text)
+                      
         for b in aircraft.fuselages:
             avl_body = translate_avl_body(b)
             body_text = make_body_text(avl_body)
             geometry.write(body_text)
+            
 #       for e in aircraft.engines:
 #           avl_engine = translate_avl_engine(e)
 #           engine_text = make_engine_text(avl_engine)
@@ -157,6 +160,9 @@ SURFACE
     body_text = horizontal_text + vertical_text
     return body_text
 
+# ----------------------------------------------------------------------------
+# This code refers to the addition of engine geometry to the aircraft 
+# 
 #def make_engine_text(avl_engine):
 #    # Template for a surface
 #    surface_base = \
@@ -182,6 +188,7 @@ SURFACE
 #        engine_text = engine_text + section_text
 #
 #   return engine_text
+# ----------------------------------------------------------------------------
 
 def make_section_text(avl_section):
     # Template for a section
