@@ -117,7 +117,8 @@ def populate_wing_sections(avl_wing,suave_wing):
       else:
           n_segments = 0      
          
-      for i_segs in xrange(n_segments):  
+      for i_segs in xrange(n_segments):
+          
 
 #----------------------------------------------------------------
 # this commented code relates to the presence of control surfaces 
@@ -125,29 +126,39 @@ def populate_wing_sections(avl_wing,suave_wing):
 #          Check to see if segment has control surfaces but count the number of instances of type control surface           
 #          if num_control_surfaces == 0: 
 #----------------------------------------------------------------          
-              # TO DO: find a way to convert the instance "section" of the class Section () to a unique object using the segment tag of the wing in the loop
-              section = Section()
-              absolute_percent_chord =  suave_wing.Segments[i_segs].percent_span_location - absolute_percent_chord
-              sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
-              dihedral = suave_wing.Segments[i_segs].dihedral_outboard
+         
+# TO DO: find a way to convert the instance "section" of the class Section () 
+# to a unique object using the segment tag of the wing in the loop
+# example: I want to generate 'root_section'and 'tip_section' objects in a loop 
+#  
+#  i.e. change the following: 
+#	avl_wing.append_section(root_section)
+#	avl_wing.append_section(tip_section)
+#  to:
+#      avl_wing.append_section(changing_variable)
+      
+          section = Section()
+          absolute_percent_chord =  suave_wing.Segments[i_segs].percent_span_location - absolute_percent_chord
+          sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
+          dihedral = suave_wing.Segments[i_segs].dihedral_outboard
 
-              # define object properties 
-              section.tag = suave_wing.Segments[i_segs].tag
-              section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
-              section.twist  = suave_wing.Segments[i_segs].twist
-              section.origin = origin
-              
-              avl_wing.append_section(section)
-              
-              # update origin for next segment 
-              if avl_wing.vertical:
-                  origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep),\
-                           origin[1] + semispan*absolute_percent_chord*np.tan(dihedral) ,\
-                           origin[2] + semispan*absolute_percent_chord]
-              else:
-                  origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep) ,\
-                        origin[1] + semispan*absolute_percent_chord,\
-                        origin[2] + semispan*absolute_percent_chord*np.tan(dihedral)]
+          # define object properties 
+          section.tag = suave_wing.Segments[i_segs].tag
+          section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
+          section.twist  = suave_wing.Segments[i_segs].twist
+          section.origin = origin
+          
+          avl_wing.append_section(section)
+          
+          # update origin for next segment 
+          if avl_wing.vertical:
+              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep),\
+                       origin[1] + semispan*absolute_percent_chord*np.tan(dihedral) ,\
+                       origin[2] + semispan*absolute_percent_chord]
+          else:
+              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep) ,\
+                    origin[1] + semispan*absolute_percent_chord,\
+                    origin[2] + semispan*absolute_percent_chord*np.tan(dihedral)]
 #----------------------------------------------------------------
 # this commented code relates to the presence of control surfaces        
 #  
