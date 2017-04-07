@@ -597,7 +597,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         # If optimizer terminates successfully at initial value of design variables
         # then we have convergence
         if( optInformValue == 1 and \
-            np.sum(np.isclose(xOpt,x.value,rtol=1e-14,atol=1e-12)) == x.value.size ):
+            np.sum(np.isclose(xOpt.astype(np.float64),x.value.astype(np.float64),rtol=1e-14,atol=1e-12)) == x.value.size ):
             
             log = open(log_file,'a')
             log.write('Optimization converged - hard convergence limit reached\n\n')  
@@ -788,7 +788,7 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
             
         # Terminate if solution is infeasible, no change is detected, and trust region does not expand
         if( optInformValue == 13 and tr_action < 3 and \
-            np.sum(np.isclose(xOpt,x.value,rtol=1e-15,atol=1e-14)) == x.value.size ):
+            np.sum(np.isclose(xOpt.astype(np.float64),x.value.astype(np.float64),rtol=1e-15,atol=1e-14)) == x.value.size ):
             
             log = open(log_file,'a')
             log.write('Solution infeasible, no improvement can be made\n\n')  
