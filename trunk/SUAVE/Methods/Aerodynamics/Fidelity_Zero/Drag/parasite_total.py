@@ -29,6 +29,7 @@ def parasite_total(state,settings,geometry):
     geometry.wings.areas.reference                      [m^2]
     geometry.fuselages.areas.front_projected            [m^2]
     geometry.propulsors.number_of_engines               [Unitless]
+    geometry.propulsors.nacelle_diameter                [m]
     conditions.aerodynamics.drag_breakdown.
       parasite[wing.tag].parasite_drag_coefficient      [Unitless]
       parasite[fuselage.tag].parasite_drag_coefficient  [Unitless]
@@ -36,7 +37,7 @@ def parasite_total(state,settings,geometry):
 
 
     Outputs:
-    total_parasite_drag                                                                      [Unitless]
+    total_parasite_drag                                 [Unitless]
 
     Properties Used:
     N/A

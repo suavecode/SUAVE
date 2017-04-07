@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 # miscellaneous_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -16,24 +17,28 @@ import numpy as np
 #  Miscellaneous Drag Aircraft
 # ----------------------------------------------------------------------
 
-
+## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 def miscellaneous_drag_aircraft(state,settings,geometry):
-    """ SUAVE.Methods.miscellaneous_drag_aircraft(Wing,segment)
-        computes the miscellaneous drag associated with an aircraft
-        
-        Inputs:
-            aircraft- An aircraft object is passed in
-            segment - the segment object contains information regarding the mission segment
-            Cl - wing Cl
-        Outpus:
-            cd_misc  - returns the miscellaneous drag assoicated with the wing
-            
-            >> try to minimize outputs
-            >> pack up outputs into Data() if needed
-        
-        Assumptions:
-            if needed
-        
+    """Computes the miscellaneous drag associated with an aircraft
+
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    configuration.trim_drag_correction_factor  [Unitless]
+    geometry.propulsors.nacelle_diameter       [m]
+    geometry.reference_area                    [m^2]
+    geometry.wings['main_wing'].aspect_ratio   [Unitless]
+    state.conditions.freestream.mach_number    [Unitless] (actual values are not used)
+
+    Outputs:
+    total_miscellaneous_drag                   [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs
