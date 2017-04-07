@@ -47,8 +47,10 @@ def compressibility_drag_total(state,settings,geometry):
     """
 
     # Unpack
-    conditions    = state.conditions
-    configuration = settings
+    conditions       = state.conditions
+    configuration    = settings
+    number_slices    = settings.number_slices
+    number_rotations = settings.number_rotations
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
@@ -147,7 +149,7 @@ def compressibility_drag_total(state,settings,geometry):
     # Only the supsonic results are returned with nonzero values
 
         
-    cd_c_v = wave_drag_volume(conditions, geometry, False)
+    cd_c_v = wave_drag_volume(conditions, geometry, False,num_slices=number_slices,num_rots=number_rotations)
         
     ## this step is sketch, should be changed before release
     #old_array = np.load('volume_drag_data.npy')
@@ -158,7 +160,9 @@ def compressibility_drag_total(state,settings,geometry):
         #new_save_row = np.array([[conditions.freestream.mach_number[0,0],cd_c_v]])
         #comb_array = np.append(old_array,new_save_row,axis=0)       
         #np.save('volume_drag_data.npy', comb_array)
-    #cd_c[Mc >= 1.05] = cd_c_l[Mc >= 1.05] + cd_c_v[Mc >= 1.05]
+        
+        
+    cd_c[Mc >= 1.05] = cd_c_l[Mc >= 1.05] + cd_c_v[Mc >= 1.05]
 
     
 

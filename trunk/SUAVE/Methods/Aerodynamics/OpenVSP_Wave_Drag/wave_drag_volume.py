@@ -15,7 +15,7 @@ import numpy as np
 #   Wave Drag Volume
 # ----------------------------------------------------------------------
 
-def wave_drag_volume(conditions,geometry,flag105):
+def wave_drag_volume(conditions,geometry,flag105,num_slices=30,num_rots=15):
     """ SUAVE.Methods.wave_drag_volume(conditions,configuration,fuselage)
         computes the wave drag due to lift 
         Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
@@ -41,8 +41,8 @@ def wave_drag_volume(conditions,geometry,flag105):
     cd_w_all = np.zeros(np.shape(Mc))
     vsp.ClearVSPModel()
     vsp.ReadVSPFile(tag+'.vsp3')
-    vsp.SetIntAnalysisInput('WaveDrag', 'NumSlices', [30])
-    vsp.SetIntAnalysisInput('WaveDrag', 'NumRotSects', [15]) 
+    vsp.SetIntAnalysisInput('WaveDrag', 'NumSlices', [num_slices])
+    vsp.SetIntAnalysisInput('WaveDrag', 'NumRotSects', [num_rots]) 
     
     if flag105 is True:
         vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [1.05])    
@@ -51,6 +51,8 @@ def wave_drag_volume(conditions,geometry,flag105):
         cd_w = cd_w[0]*100./ref_area # default ref area in VSP doesn't seem to have an easy change
         return cd_w
     
+    # the file below is effectively a global variable
+    # different method should be used for a release version
     for ii,mach in enumerate(Mc):
         if mach >= 1.05:
             old_array = np.load('volume_drag_data.npy')

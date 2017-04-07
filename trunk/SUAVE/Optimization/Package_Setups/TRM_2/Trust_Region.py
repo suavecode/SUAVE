@@ -3,10 +3,10 @@ import copy
 
 class Trust_Region():
     
-    def __defaults__(self):
+    def initialize(self):
         
         self.initial_size = 0.5
-        self.size = 0.5
+        self.size = 0.05
         self.minimum_size = 1e-15
         self.contract_threshold = 0.25
         self.expand_threshold = 0.75
@@ -24,3 +24,10 @@ class Trust_Region():
     
         self.correction_type = 'additive'
         self.correction_order = 1
+        
+    def set_center(self,x):
+        self.center = x
+        
+    def evaluate_function(self,f,gviol):
+        phi = f + gviol**2
+        return phi        
