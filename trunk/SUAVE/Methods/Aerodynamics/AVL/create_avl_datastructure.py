@@ -76,7 +76,7 @@ def translate_avl_body(suave_body):
 	
 	b = Body()
 	b.tag       = suave_body.tag
-	b.symmetric = True #body.symmetric
+	b.symmetric = True #suave_body.symmetric
 	b.lengths.total = suave_body.lengths.total
 	b.lengths.nose  = suave_body.lengths.nose
 	b.lengths.tail  = suave_body.lengths.tail
@@ -101,88 +101,102 @@ def translate_avl_body(suave_body):
 #	return e
 # ----------------------------------------------------------------------------
 def populate_wing_sections(avl_wing,suave_wing):  
-    
+     
       symm     = avl_wing.symmetric
-      span     = suave_wing.spans.projected
       semispan = suave_wing.spans.projected*0.5 * (2 - symm)
       origin   = suave_wing.origin
       root_chord =  suave_wing.chords.root
-      absolute_percent_chord = 0; 
-      
-
-      
+      segment_percent_span = 0;
+          
       # Check to see if segments are defined. Get count
       if len(suave_wing.Segments.keys())>0:
           n_segments = len(suave_wing.Segments.keys())
       else:
           n_segments = 0      
-         
-      for i_segs in xrange(n_segments):
-          
 
-#----------------------------------------------------------------
-# this commented code relates to the presence of control surfaces 
-#                       
-#          Check to see if segment has control surfaces but count the number of instances of type control surface           
-#          if num_control_surfaces == 0: 
-#----------------------------------------------------------------          
-         
-# TO DO: find a way to convert the instance "section" of the class Section () 
-# to a unique object using the segment tag of the wing in the loop
-# example: I want to generate 'root_section'and 'tip_section' objects in a loop 
-#  
-#  i.e. change the following: 
-#	avl_wing.append_section(root_section)
-#	avl_wing.append_section(tip_section)
-#  to:
-#      avl_wing.append_section(changing_variable)
-      
-          section = Section()
-          absolute_percent_chord =  suave_wing.Segments[i_segs].percent_span_location - absolute_percent_chord
+      for i_segs in xrange(n_segments):
           sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
           dihedral = suave_wing.Segments[i_segs].dihedral_outboard
-
-          # define object properties 
+          section = Section() 
           section.tag = suave_wing.Segments[i_segs].tag
           section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
           section.twist  = suave_wing.Segments[i_segs].twist
           section.origin = origin
-          
           avl_wing.append_section(section)
           
-          # update origin for next segment 
+          # update origin for next segment
+          if (i_segs == n_segments-1):
+              return avl_wing      
+          segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - segment_percent_span       
           if avl_wing.vertical:
-              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep),\
-                       origin[1] + semispan*absolute_percent_chord*np.tan(dihedral) ,\
-                       origin[2] + semispan*absolute_percent_chord]
+              origin = [origin[0] + semispan*segment_percent_span*np.tan(sweep), origin[1] + semispan*segment_percent_span*np.tan(dihedral) , origin[2] + semispan*segment_percent_span]
           else:
-              origin = [origin[0]+ semispan*absolute_percent_chord*np.tan(sweep) ,\
-                    origin[1] + semispan*absolute_percent_chord,\
-                    origin[2] + semispan*absolute_percent_chord*np.tan(dihedral)]
-#----------------------------------------------------------------
-# this commented code relates to the presence of control surfaces        
-#  
-#              else 
-#              append the first section (root) of segment
-#              for each control surface:
-#                   # Start of control surface
-#                   # find a way to convert a string describing the start of the control surface to an instance of a class 
-#                   creat a name for this section using 'control_surface_%d_start' index number of the control surface
-#                   find location of the start of the control surface (span distance)
-#                   find the chord,twist,origin at that span distance
-#                   make a section instance 
-#                   append a section onto the alv_wing
-#                   append a section onto control surface    
-#                   # End of control surface 
-#                   # find a way to convert a string describing the start of the control surface to an instance of a class 
-#                   creat a name for this section using 'control_surface_%d_end' index number of the control surface
-#                   find location of the start of the control surface (span distance)
-#                   make a section instance 
-#                   find the chord,twist,origin at that span distance 
-#                   append a section onto the alv_wing
-#                   append a section onto control surface               
-#              append the last section (tip) of the segment
-#
+              origin = [origin[0] + semispan*segment_percent_span*np.tan(sweep) , origin[1] + semispan*segment_percent_span, origin[2] + semispan*segment_percent_span*np.tan(dihedral)]
+
+#----------------------------------------------------------------          
+#   Matthew The code contains the addition of control surfaces  
+#    
+#      symm     = avl_wing.symmetric
+#      span     = suave_wing.spans.projected
+#      semispan = suave_wing.spans.projected*0.5 * (2 - symm)
+#      origin   = suave_wing.origin
+#      root_chord =  suave_wing.chords.root
+#      segment_percent_span = 0;
+#      if len(suave_wing.Segments.keys())>0:
+#          n_segments = len(suave_wing.Segments.keys())
+#      else:
+#          n_segments = 0      
+#         
+#      for i_segs in xrange(n_segments-1):
+#          segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+#          section_spans = []
+#          segment_span_orgin = origin[1] # spand distance at beginning of segment
+#          section_spans.append(segment_span_orgin)
+#          num_control_surface = len(suave_wing.Segments.control_surfaces.keys())  #append control surfaces on each segment of each NOT wing directly
+#          for control_surface_count in xrange(num_control_surface):
+#              control_surface_start = segment_span_orgin + suave_wing.Segment[i_segs].percent_span_location*suave_wing.Segment[i_segs].control_surfaces[control_surface_count].span_fractions[1]
+#              control_surface_end = segment_span_orgin  + suave_wing.Segment[i_segs].percent_span_location*suave_wing.Segment[i_segs].control_surfaces[control_surface_count].span_fractions[2]
+#              sections_spans.append(control_surface_start)
+#              sections_spans.append(control_surface_end)
+#          segment_span_end = segment_span_orgin + semispan*segment_percent_span # spand distance at end of segment           
+#          section_spans.append(segment_span_end)         
+#          segment_span_origin = segment_span_end   #reset orgin for next segment
+#          section_spans.sort() #sort the section_spans in order to create sections 
+#          
+#          num_sections = len(section_spans)       # count the number of sections that the segment will be divided into
+#          for section_count in xrange(num_sections):   
+#              section = Section  ()
+#              section.tag = suave_wing.Segments[i_segs].tag
+#              root_section_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+#              tip_section_chord - root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
+#              semispan_fraction = section_spans[section_count]/(semispan*segment_percent_span*np.tan(sweep))
+#              section.chord  =  scipy.interp(semispan_fraction,[0.,1.],[root_section_chord,tip_section_chord])
+#              root_section_twist = suave_wing.Segments[i_segs].twist
+#              tip_section_twist - root_chord*suave_wing.Segments[i_segs+1].twist
+#              section.twist  = scipy.interp(semispan_fraction,[0.,1.],[root_section.twist,tip_section.twist]) 
+#              section.origin = origin
+#              
+#              if suave_wing.Segments.control_surfaces: 
+#                  for control_surface_count in xrange(num_control_surface):   
+#                      control_surface_start = segment_span*suave_wing.Segments[i_segs].control_surfaces[control_surface_count].span_fractions[1]              
+#                      control_surface_end = segment_span*suave_wing.Segments[i_segs].control_surfaces[control_surface_count].span_fractions[2]
+#                      if (control_surface_start  == section_spans[section_count]) or (control_surface_end  == section_spans[section_count]):
+#                          c = Control_Surface()
+#				   c.tag     = ctrl.tag
+#				   c.x_hinge = 1. - section.chord_fraction
+#				   c.sign_duplicate = ctrl.deflection_symmetry
+#                          section.append_control_surface(c)
+#              avl_wing.append_section(section)
+#                        
+#                  # update origin for next segment       
+#                  segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - segment_percent_span #              if avl_wing.vertical:
+#                  origin = [origin[0]+ semispan*segment_percent_span*np.tan(sweep), origin[1] + semispan*segment_percent_span*np.tan(dihedral) , origin[2] + semispan*segment_percent_span]
+#              else:
+#                  origin = [origin[0]+ semispan*segment_percent_span*np.tan(sweep) , origin[1] + semispan*segment_percent_span, origin[2] + semispan*segment_percent_span*np.tan(dihedral)]
+
+      
+              
+              
 # Emilio's code is below 
 #      if suave_wing.control_surfaces:
 #		for ctrl in suave_wing.control_surfaces:
@@ -204,53 +218,57 @@ def populate_wing_sections(avl_wing,suave_wing):
 #				avl_wing.append_section(s)
 #				num += 1
 #--------------------------------------------------------------------------                            
-      
-
       return avl_wing
 
 def populate_body_sections(avl_body,suave_body):
-      
-      symm = avl_body.symmetric
+    
+      symm = avl_body.symmetric   
       semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
       semispan_v = avl_body.heights.maximum * 0.5
-      origin = suave_body.origin
+      origin = [0, 0, 0]
       fuselage_fineness_nose = suave_body.fineness.nose
       fuselage_fineness_tail = suave_body.fineness.tail
-      
-      # Vertical Sections of Fuselage       
-      height_array = np.linspace(-semispan_v, semispan_v, num=10)
-      for section_height in height_array :
-          # find a way to change name of fuselage_v_section instance of the Class called Section to a unique object using section_index
-          fuselage_v_section = Section()
-          fuselage_v_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
-          fuselage_v_section_nose_length= ((1 - ((abs(section_height/semispan_v))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
-          fuselage_v_section_tail_length = ((1 - ((abs(section_height/semispan_v))**fuselage_fineness_tail ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
-          fuselage_v_section_nose_origin = avl_body.lengths.nose - fuselage_v_section_nose_length
-          
-          # define object properties 
-          fuselage_v_section.tag = 'fuselage_vertical_section_at_s%m'% height_array
-          fuselage_v_section.origin = [origin[0] + fuselage_v_section_nose_origin, origin[1], origin[2]+section_height ]
-          fuselage_v_section.chord = fuselage_v_section_cabin_length + fuselage_v_section_nose_length + fuselage_v_section_tail_length
-          avl_body.append_section(fuselage_v_section,'vertical')
 
-      
       # Horizontal Sections of Fuselage
-      width_array = np.linspace(0, semispan_h, num=5)
+      width_array = np.linspace(0, semispan_h, num=5,endpoint=True)
       for section_width in width_array:
-          # find a way to change name of fuselage_v_section instance of the Class called Section using section_index
           fuselage_h_section = Section()
           fuselage_h_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
           fuselage_h_section_nose_length = ((1 - ((abs(section_width/semispan_h))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
           fuselage_h_section_tail_length = ((1 - ((abs(section_width/semispan_h))**fuselage_fineness_tail ))**(1/fuselage_fineness_tail))*avl_body.lengths.tail
           fuselage_h_section_nose_origin  = avl_body.lengths.nose - fuselage_h_section_nose_length
-          
-          # define object properties 
-          fuselage_h_section.tag = 'fuselage_horizontal_section_at_%sm'% width_array
-          fuselage_h_section.origin = [origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
+          fuselage_h_section.tag =  'fuselage_horizontal_section_at_' +  str(section_width) + '_m'
+          fuselage_h_section.origin = [ origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
           fuselage_h_section.chord = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
           avl_body.append_section(fuselage_h_section,'horizontal')
-
           
+      # Top Vertical Sections of Fuselage       
+      height_array_top = np.linspace(0, semispan_v, num=5,endpoint=True)
+      for section_height_top in height_array_top :
+          fuselage_v_section_top = Section()
+          fuselage_v_section_cabin_length_top  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+          fuselage_v_section_nose_length_top = ((1 - ((abs(section_height_top/semispan_v))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_tail_length_top = ((1 - ((abs(section_height_top/semispan_v))**fuselage_fineness_tail ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_nose_origin_top = avl_body.lengths.nose - fuselage_v_section_nose_length_top
+          fuselage_v_section_top.tag = 'fuselage_vertical_top_section_at_' +  str(section_height_top) + '_m'        
+          fuselage_v_section_top.origin = [ origin[0] + fuselage_v_section_nose_origin_top,  origin[1],  origin[2] + section_height_top ]
+          fuselage_v_section_top.chord = fuselage_v_section_cabin_length_top + fuselage_v_section_nose_length_top + fuselage_v_section_tail_length_top
+          avl_body.append_section(fuselage_v_section_top,'vertical')
+
+
+      # Bottom Vertical Sections of Fuselage   
+      height_array_bottom = np.linspace(-semispan_v,0, num=5,endpoint=True)
+      for section_height_bottom in height_array_bottom :
+          fuselage_v_section_bottom = Section()
+          fuselage_v_section_cabin_length_bottom  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+          fuselage_v_section_nose_length_bottom= ((1 - ((abs(section_height_bottom/semispan_v))**fuselage_fineness_nose ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_tail_length_bottom = ((1 - ((abs(section_height_bottom/semispan_v))**fuselage_fineness_tail ))**(1/fuselage_fineness_nose))*avl_body.lengths.nose
+          fuselage_v_section_nose_origin_bottom = avl_body.lengths.nose - fuselage_v_section_nose_length_bottom
+          fuselage_v_section_bottom.tag = 'fuselage_vertical_bottom_section_at_' +  str(section_height_bottom) + '_m'        
+          fuselage_v_section_bottom.origin = [ origin[0] + fuselage_v_section_nose_origin_bottom,  origin[1],  origin[2] + section_height_bottom ]
+          fuselage_v_section_bottom.chord = fuselage_v_section_cabin_length_bottom + fuselage_v_section_nose_length_bottom + fuselage_v_section_tail_length_bottom
+          avl_body.append_section(fuselage_v_section_bottom,'vertical')
+       
       return avl_body
 	
 # ----------------------------------------------------------------------------
