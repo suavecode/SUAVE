@@ -11,7 +11,7 @@ class Trust_Region_Optimization():
     def initialize(self):
         
         self.tag                          = 'TR_Opt'
-        self.max_iterations               = 50
+        self.max_iterations               = 30
         self.max_function_evaluations     = 1000
         self.convergence_tolerance        = 1e-6
         self.constraint_tolerance         = 1e-6
@@ -127,17 +127,18 @@ class Trust_Region_Optimization():
             
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model)
             for ii in xrange(len(obj)):
-                opt_prob.addObj(obj[ii,0]) 
+                #opt_prob.addObj(obj[ii,0],1) 
+                opt_prob.addObj('f',1) 
             for ii in xrange(0,len(inp)):
                 vartype = 'c'
-                opt_prob.addVar(nam[ii],vartype,lower=lbd[ii],upper=ubd[ii],value=x[ii])    
-            #for ii in xrange(0,len(con)):
-                #if con[ii][1]=='<':
-                    #opt_prob.addCon(name, type='i', upper=edge[ii])
-                #elif con[ii][1]=='>':
-                    #opt_prob.addCon(name, type='i', lower=edge[ii],upper=np.inf)
-                #elif con[ii][1]=='=':
-                    #opt_prob.addCon(name, type='e', equal=edge[ii])      
+                opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
+            for ii in xrange(0,len(con)):
+                if con[ii][1]=='<':
+                    opt_prob.addCon(name, type='i', upper=edge[ii])
+                elif con[ii][1]=='>':
+                    opt_prob.addCon(name, type='i', lower=edge[ii],upper=np.inf)
+                elif con[ii][1]=='=':
+                    opt_prob.addCon(name, type='e', equal=edge[ii])      
                     
             opt = pyOpt.pySNOPT.SNOPT()
             #CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
@@ -153,34 +154,36 @@ class Trust_Region_Optimization():
             problem.fidelity_level = 1
             outputs = opt(opt_prob, sens_type='FD',problem=problem,corrections=corrections,tr=tr)#, sens_step = sense_step)  
             
-            xOpt_lo = outputs[0]
-            fOpt_lo = outputs[1]
-            gOpt_lo = outputs[5] # need to get constraints in here
+            fOpt_lo = outputs[0]
+            xOpt_lo = outputs[1]
+            gOpt_lo = np.zeros([1,len(con)])[0]
+            for ii in xrange(len(con)):
+                gOpt_lo[ii] = opt_prob._solutions[0]._constraints[ii].value
             
             g_violation_opt_lo = self.calculate_constraint_violation(gOpt,lbd,ubd)
             
             success_indicator = outputs[2]['value'][0]
             # hard convergence check
-            if (success_indicator==1 and np.sum(np.isclose(x,xOpt))==len(x)):
+            if (success_indicator==1 and np.sum(np.isclose(xOpt_lo,xOpt,rtol=1e-14,atol=1e-12))==len(x)):
                 print 'Hard convergence reached'
                 return outputs
             
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
-            fOpt_hi, gOpt_hi = evaluate_model(problem,x)
+            fOpt_hi, gOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=False)
             
             self.objective_history.append(fOpt_hi)
-            self.constraint_history.apped(gOpt_hi)
+            self.constraint_history.append(gOpt_hi)
             
             g_violation_opt_hi = self.calculate_constraint_violation(gOpt_hi,lbd,ubd)
             
             # Calculate ratio
             offset = 0.
             problem.fidelity_level = 2
-            high_fidelity_center  = self.evaluate_function(f[-1],g_violation_hi_center)
-            high_fidelity_optimum = self.evaluate_function(fOpt_hi,g_violation_opt_hi)
-            low_fidelity_center   = self.evaluate_function(f[-1],g_violation_hi_center)
-            low_fidelity_optimum  = self.evaluate_function(fOpt_lo,g_violation_opt_lo)
+            high_fidelity_center  = tr.evaluate_function(f[-1],g_violation_hi_center)
+            high_fidelity_optimum = tr.evaluate_function(fOpt_hi,g_violation_opt_hi)
+            low_fidelity_center   = tr.evaluate_function(f[-1],g_violation_hi_center)
+            low_fidelity_optimum  = tr.evaluate_function(fOpt_lo,g_violation_opt_lo)
             if ( np.abs(low_fidelity_center-low_fidelity_optimum) < 1e-12):
                 rho = 1.
             else:
@@ -196,7 +199,7 @@ class Trust_Region_Optimization():
             self.relative_difference_history.append(relative_diff)
             diff_hist = self.relative_difference_history
             
-            ind1 = max(0,k-1-tr.soft_convergence_limit)
+            ind1 = max(0,iterations-1-tr.soft_convergence_limit)
             ind2 = len(diff_hist) - 1
             converged = 1
             while ind2 >= ind1:
@@ -204,7 +207,7 @@ class Trust_Region_Optimization():
                     converged = 0
                     break
                 ind1 += 1
-            if( converged and len(relative_diff) >= tr.soft_convergence_limit):
+            if( converged and len(self.relative_difference_history) >= tr.soft_convergence_limit):
                 print 'Soft convergence reached'
                 return outputs     
             
@@ -258,17 +261,23 @@ class Trust_Region_Optimization():
             
             # Update Trust Region Center
             if accepted == 1:
-                x = xOpt
+                x = xOpt_lo
                 t = self.increment_trust_region_center_index()
-                trc = self.set_trust_region_center(x)
+                trc = xOpt_lo
             else:
+                aa = 0
                 pass
+            
+            print iterations
+            print x
+            print fOpt_hi
+            aa = 0
             
         print 'Max iteration limit reached'
         return (fOpt,xOpt)
             
         
-    def evaluate_model(self,problem,x,cons):
+    def evaluate_model(self,problem,x,cons,der_flag=True):
         #duplicate_flag, obj, gradient = self.check_for_duplicate_evals(x)
         duplicate_flag = False
         f  = np.array(0.)
@@ -279,6 +288,9 @@ class Trust_Region_Optimization():
         
         f  = problem.objective(x)
         g  = problem.all_constraints(x)
+        
+        if der_flag == False:
+            return f,g
         
         # build derivatives
         fd_step = self.difference_interval
@@ -304,15 +316,15 @@ class Trust_Region_Optimization():
         if duplicate_flag == False:
             obj   = problem.objective(x)
             const = problem.all_constraints(x).tolist()
-            const = []
+            #const = []
             fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
         
             A, b = corrections
             x0   = tr.center
         
             obj   = obj + np.dot(A[0,:],(x-x0))+b[0]
-            #const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
-            #const = const.tolist()
+            const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
+            const = const.tolist()
         
             print 'Inputs'
             print x
@@ -388,11 +400,11 @@ class Trust_Region_Optimization():
     def increment_iteration(self):
         self.iteration_index += 1
         
-    def increment_shared_data_index():
+    def increment_shared_data_index(self):
         self.shared_data_index += 1
         
-    def increment_trust_region_center_index():
-        self.trust_region_center_index
+    def increment_trust_region_center_index(self):
+        self.trust_region_center_index += 1
         
     # do not allow revert user data update
     
