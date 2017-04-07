@@ -11,22 +11,36 @@
 import numpy as np
 
 def linear_supersonic_lift(conditions,configuration,wing):
-    """ Computes lift using linear supersonic theory
-        Adapted from vortex lattice code to strip theory
+    """Computes wing lift base on simple linear theory
 
-        Inputs:
-            wing - geometry dictionary with fields:
-            Sref - reference area
+    Assumptions:
+    Linear airfoil theory
 
-        Outputs:
-            Cl - lift coefficient
+    Source:
+    Linear airfoil theory
 
-        Assumptions:
-            - Reference area of the passed wing is the desired 
-            reference area for Cl
-            - Compressibility effects are not handled
-        
-    """
+    Inputs:
+    wing.
+      spans.projected                        [m]
+      chords.root                            [m]
+      chords.tip                             [m]
+      sweeps.quarter_chord                   [radians]
+      taper                                  [Unitless]
+      twists.root                            [radians]
+      twists.tip                             [radians]
+      symmetric                              [Boolean]
+      aspect_ratio                           [Unitless]
+      areas.reference                        [m^2]
+      vertical                               [Boolean]
+    conditions.aerodynamics.angle_of_attack  [radians]
+    configuration.number_panels_spanwise     [radians]
+
+    Outputs:
+    Cl                                       [Unitless]
+
+    Properties Used:
+    N/A
+    """ 
 
     # Unpack
     span        = wing.spans.projected

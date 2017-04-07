@@ -1,5 +1,5 @@
-## @defgroup methods-aerodynamics-Fidelity_Zero-Drag
-# Functions to perform calculations according to AERODAS models.
+## @defgroup methods-aerodynamics-Fidelity_Zero-Drag Drag
+# Functions to perform low-fidelity drag calculations
 # @ingroup methods-aerodynamics-Fidelity_Zero
 
 from parasite_drag_propulsor import parasite_drag_propulsor

@@ -1,4 +1,4 @@
-## @defgroup methods-aerodynamics-AERODAS
+## @defgroup methods-aerodynamics-AERODAS AERODAS
 # Functions to perform calculations according to AERODAS models.
 # @ingroup methods-aerodynamics
 

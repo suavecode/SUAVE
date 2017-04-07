@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_propulsor.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -22,17 +23,31 @@ import numpy as np
 #   Parasite Drag Propulsor
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_propulsor(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
-        computes the parasite drag associated with a propulsor 
-        
-        Inputs:
+    """Computes the parasite drag due to the propulsor
 
-        Outputs:
+    Assumptions:
+    Basic fit
 
-        Assumptions:
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        
+    Inputs:
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    geometry.      
+      nacelle_diameter                           [m^2]
+      areas.wetted                               [m^2]
+      engine_length                              [m]
+
+    Outputs:
+    propulsor_parasite_drag                      [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs

@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 # compute_flap_lift.py
 #
 # Created:  Dec 2013, A. Varyar
@@ -14,26 +15,32 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  compute_flap_lift
 # ----------------------------------------------------------------------
+
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 def compute_flap_lift(t_c,flap_type,flap_chord,flap_angle,sweep,wing_Sref,wing_affected_area):
-    """ SUAVE.Methods.Aerodynamics.compute_flap_lift(vehicle):
-        Computes the increase of lift due to trailing edge flap deployment
+    """Computes the increase of lift due to trailing edge flap deployment
 
-        Inputs:
-            t_c                 - wing thickness ratio
-            flap_c_chord        - flap chord as fraction of wing chord
-            flap_angle          - flap deflection               - [rad]
-            sweep               - Wing sweep angle              - [rad]
-            wing_Sref           - Wing reference area           - [m?]
-            wing_affected_area  - Wing area affected by flaps   - [m?]
-                                  NOTE.: do not confuse with flap area
+    Assumptions:
+    None
 
-        Outputs:
-            dcl_flap    - Lift coefficient increase due to trailing edge flap
+    Source:
+    Unknown
 
-        Assumptions:
-            if needed
+    Inputs:
+    t_c                 (wing thickness ratio)                 [Unitless]
+    flap_type                                                  [string]
+    flap_c_chord        (flap chord as fraction of wing chord) [Unitless]
+    flap_angle          (flap deflection)                      [radians]
+    sweep               (Wing sweep angle)                     [radians]
+    wing_Sref           (Wing reference area)                  [m^2]
+    wing_affected_area  (Wing area affected by flaps)          [m^2]
 
-    """
+    Outputs:
+    dcl_max_flaps       (Lift coefficient increase)            [Unitless]
+
+    Properties Used:
+    N/A
+    """          
 
     #unpack
     tc_r  = t_c

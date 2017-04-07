@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 # vortex_lift.py
 # 
 # Created:  Jub 2014, T. MacDonald
@@ -14,23 +15,26 @@ import numpy as np
 #   Vortex Lift
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 def vortex_lift(AoA,configuration,wing):
-    """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
-        computes the vortex lift on highly swept wings
-        
-        Based on http://adg.stanford.edu/aa241/highlift/sstclmax.html
-        
-        Inputs:
-        - SUave wing and angles of attack
+    """Computes vortex lift
 
-        Outputs:
-        - CL due to vortex lift
+    Assumptions:
+    wing capable of vortex lift
 
-        Assumptions:
-        - Wing with high sweep
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    
+    Inputs:
+    wing.aspect_ratio         [Unitless]
+    wing.sweeps.quarter_chord [radians]
 
-        
-    """
+    Outputs:
+    CL_prime  (added CL)      [Unitless]
+
+    Properties Used:
+    N/A
+    """  
     
     AR    = wing.aspect_ratio
     GAMMA = wing.sweeps.quarter_chord

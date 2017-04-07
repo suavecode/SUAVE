@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 # compute_max_lift_coeff.py
 #
 # Created:  Dec 2013, A. Variyar
@@ -21,33 +22,42 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import comp
 #  compute_max_lift_coeff
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 def compute_max_lift_coeff(vehicle,conditions=None):
-    """ SUAVE.Methods.Aerodynamics.compute_max_lift_coeff(vehicle):
-        Computes the maximum lift coefficient associated with an aircraft high lift system
+    """Computes the maximum lift coefficient associated with an aircraft high lift system
 
-        Inputs:
-            vehicle - SUave type vehicle
+    Assumptions:
+    None
 
-            conditions - data dictionary with fields:
-                mach_number - float or 1D array of freestream mach numbers
-                airspeed    - float or 1D array of freestream airspeed
-                rho         - air density
-                mu          - air dynamic_viscosity
+    Source:
+    Unknown
 
+    Inputs:
+    vehicle.max_lift_coefficient_factor [Unitless]
+    vehicle.reference_area              [m^2]
+    vehicle.wings. 
+      areas.reference                   [m^2]
+      thickness_to_chord                [Unitless]
+      chords.mean_aerodynamic           [m]
+      sweeps.quarter_chord              [radians]
+      taper                             [Unitless]
+      flaps.chord                       [m]
+      flaps.angle                       [radians]
+      slats.angle                       [radians]
+      areas.affected                    [m^2]
+      flaps.type                        [string]
+    conditions.freestream.
+      velocity                          [m/s]
+      density                           [kg/m^3]
+      dynamic_viscosity                 [N s/m^2]
 
+    Outputs:
+    Cl_max_ls (maximum CL)              [Unitless]
+    Cd_ind    (induced drag)            [Unitless]
 
-            geometry - Not used
-
-
-        Outputs:
-            Cl_max_ls - maximum lift coefficient
-            Cd_ind    - induced drag increment due to high lift device
-
-
-        Assumptions:
-            if needed
-
-    """
+    Properties Used:
+    N/A
+    """    
 
 
     # initializing Cl and CDi

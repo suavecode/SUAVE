@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_total.py
 #
 # Created:  Jan 2014, T. Orra
@@ -13,21 +14,32 @@ import numpy as np
 #  Total Parasite Drag
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 def parasite_total(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
-        Simplified estimation, considering pylon drag a fraction of the nacelle drag
+    """Sums component parasite drag
 
-        Inputs:
-            conditions      - data dictionary for output dump
-            configuration   - not in use
-            geometry        - SUave type vehicle
+    Assumptions:
+    None
 
-        Outpus:
-            cd_misc  - returns the miscellaneous drag associated with the vehicle
+    Source:
+    None
 
-        Assumptions:
-            simplified estimation, considering pylon drag a fraction of the nacelle drag
+    Inputs:
+    geometry.reference_area                             [m^2]
+    geometry.wings.areas.reference                      [m^2]
+    geometry.fuselages.areas.front_projected            [m^2]
+    geometry.propulsors.number_of_engines               [Unitless]
+    conditions.aerodynamics.drag_breakdown.
+      parasite[wing.tag].parasite_drag_coefficient      [Unitless]
+      parasite[fuselage.tag].parasite_drag_coefficient  [Unitless]
+      parasite[propulsor.tag].parasite_drag_coefficient [Unitless]
 
+
+    Outputs:
+    total_parasite_drag                                                                      [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack

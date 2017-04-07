@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 # wing_compressibility_correction.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -15,8 +16,29 @@ import numpy as np
 #  The Function
 # ----------------------------------------------------------------------
 
+## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
 def wing_compressibility_correction(state,settings,geometry):
-  
+    """Corrects a wings lift based on compressibility
+
+    Assumptions:
+    wing capable of vortex lift
+
+    Source:
+    https://stanford.edu/~cantwell/AA200_Course_Material/AA200_Course_Notes/
+    
+    Inputs:
+    settings.fuselage_lift_correction  [Unitless]
+    state.conditions.
+      freestream.mach_number           [Unitless]
+      aerodynamics.angle_of_attack     [radians]
+      aerodynamics.lift_coefficient    [Unitless]
+
+    Outputs:
+    wings_lift_comp                    [Unitless]
+
+    Properties Used:
+    N/A
+    """     
    
     # unpack
     fus_correction = settings.fuselage_lift_correction

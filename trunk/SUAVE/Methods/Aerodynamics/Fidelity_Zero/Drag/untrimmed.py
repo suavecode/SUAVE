@@ -1,3 +1,4 @@
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 # untrimmed.py
 #
 # Created:  Jan 2014, T. Orra
@@ -10,7 +11,30 @@
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
+
+## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
 def untrimmed(state,settings,geometry):
+    """Sums aircraft drag before trim correction
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    state.conditions.aerodynamics.drag_breakdown.
+      parasite.total                              [Unitless]
+      induced.total                               [Unitless]
+      compressible.total                          [Unitless]
+      miscellaneous.total                         [Unitless]
+
+    Outputs:
+    aircraft_untrimmed                            [Unitless]
+
+    Properties Used:
+    N/A
+    """       
 
     # unpack inputs
     conditions     = state.conditions
