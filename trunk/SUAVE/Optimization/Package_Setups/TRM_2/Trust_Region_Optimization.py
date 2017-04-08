@@ -56,17 +56,23 @@ class Trust_Region_Optimization():
         scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
         x   = ini/scl        
         # need to make this into a vector of some sort that can be added later
-        lbd  = np.zeros(np.shape(bnd[:][1]))
-        ubd  = np.zeros(np.shape(bnd[:][1]))
-        edge = np.zeros(np.shape(bnd[:][1]))
-        name = [None]*len(bnd[:][1])
+        lbd  = []#np.zeros(np.shape(bnd[:][1]))
+        ubd  = []#np.zeros(np.shape(bnd[:][1]))
+        edge = []#np.zeros(np.shape(bnd[:][1]))
+        name = []#[None]*len(bnd[:][1])
+
+        #bnd[1000]
         for ii in xrange(0,len(inp)):
-            lbd[ii] = (bnd[ii][0]/scl[ii])
-            ubd[ii] = (bnd[ii][1]/scl[ii])        
+            lbd.append(bnd[ii][0]/scl[ii])
+            ubd.append(bnd[ii][1]/scl[ii])
+
         for ii in xrange(0,len(con)):
-            name[ii] = con[ii][0]
-            edge[ii] = scaled_constraints[ii]
-        
+            name.append(con[ii][0])
+            edge.append(scaled_constraints[ii])
+
+        lbd = np.array(lbd)
+        ubd = np.array(ubd)
+        edge = np.array(edge)
         # ---------------------------
         # Trust region specific code
         # ---------------------------
