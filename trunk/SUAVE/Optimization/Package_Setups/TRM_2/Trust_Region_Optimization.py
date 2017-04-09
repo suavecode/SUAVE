@@ -124,7 +124,6 @@ class Trust_Region_Optimization():
             
             for level in self.evaluation_order:
                 problem.fidelity_level = level
-                print 'level =', level
                 res = self.evaluate_model(problem,x,scaled_constraints)
                 f[level-1]  = res[0]    # objective value
                 df[level-1] = res[1]    # objective derivate vector
@@ -148,7 +147,7 @@ class Trust_Region_Optimization():
             
             # Setup SNOPT 
             #opt_wrap = lambda x:self.evaluate_corrected_model(problem,x,corrections=corrections,tr=tr)
-            
+            print 'evaluating corrected model'
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model)
             
             for ii in xrange(len(obj)):
@@ -175,7 +174,7 @@ class Trust_Region_Optimization():
             #opt.setOption('Function precision', sense_step**2.)
             #opt.setOption('Difference interval', sense_step)
             #opt.setOption('Central difference interval', CD_step)   
-            print 'self.difference_interval =', self.difference_interval 
+
             opt.setOption('Major iterations limit',self.max_iterations)
             opt.setOption('Major optimality tolerance',self.convergence_tolerance)
             opt.setOption('Major feasibility tolerance',self.constraint_tolerance)
@@ -184,7 +183,6 @@ class Trust_Region_Optimization():
             
             problem.fidelity_level = 1
             outputs = opt(opt_prob, sens_type='FD',problem=problem,corrections=corrections,tr=tr)#, sens_step = sense_step)  
-            
             fOpt_lo = outputs[0]
             xOpt_lo = outputs[1]
             gOpt_lo = np.zeros([1,len(con)])[0]
@@ -206,7 +204,7 @@ class Trust_Region_Optimization():
             self.objective_history.append(fOpt_hi)
             self.constraint_history.append(gOpt_hi)
             
-            g_violation_opt_hi = self.calculate_constraint_violation(gOpt_hi,lbd,ubd)
+            g_violation_opt_hi = self.calculate_constraint_violation(gOpt_hi,low_edge,up_edge)
             
             # Calculate ratio
             offset = 0.
@@ -324,7 +322,7 @@ class Trust_Region_Optimization():
         
         # build derivatives
         fd_step = self.difference_interval
-        
+        print 'fd_step = ', fd_step
         for ii in xrange(len(x)):
             x_fd = x*1.
             x_fd[ii] = x_fd[ii] + fd_step
@@ -332,9 +330,11 @@ class Trust_Region_Optimization():
             grad_cons = problem.all_constraints(x_fd)
 
             df[ii] = (obj - f)/fd_step
+            print 'f=', f
+            print 'grad_cons =', grad_cons
+            print 'g=', g
+            print 'x=', x
             for jj in xrange(len(cons)):
-  
-                
                 
                 dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step   
      
@@ -372,11 +372,7 @@ class Trust_Region_Optimization():
         
     def calculate_constraint_violation(self,gval,lb,ub):
         gdiff = []
-   
-        print 'gval = ', gval
-        print 'len(gval) =', len(gval)
-        print 'lb = ', lb
-        print 'ub = ', ub
+  
         for i in range(len(gval)):
             if len(lb) > 0:
                 if( gval[i] < lb[i] ):
