@@ -144,11 +144,11 @@ class Trust_Region_Optimization():
             tr_size = tr.size
             tr.lower_bound = np.max(np.vstack([lbd,x-tr_size]),axis=0)
             tr.upper_bound = np.min(np.vstack([ubd,x+tr_size]),axis=0)
-            
+            print 'tr_size = ', tr_size
             # Setup SNOPT 
             #opt_wrap = lambda x:self.evaluate_corrected_model(problem,x,corrections=corrections,tr=tr)
             print 'evaluating corrected model'
-            opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model)
+            opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
             
             for ii in xrange(len(obj)):
                 #opt_prob.addObj(obj[ii,0],1) 
