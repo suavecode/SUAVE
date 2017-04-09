@@ -54,13 +54,17 @@ class Trust_Region_Optimization():
         # Pull out the constraints and scale them
         bnd_constraints = help_fun.scale_const_bnds(con)
         scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
+
         x   = ini/scl        
         # need to make this into a vector of some sort that can be added later
         lbd  = []#np.zeros(np.shape(bnd[:][1]))
         ubd  = []#np.zeros(np.shape(bnd[:][1]))
         edge = []#np.zeros(np.shape(bnd[:][1]))
         name = []#[None]*len(bnd[:][1])
-
+        up_edge  = []
+        low_edge = []
+        
+        
         #bnd[1000]
         for ii in xrange(0,len(inp)):
             lbd.append(bnd[ii][0]/scl[ii])
@@ -69,10 +73,23 @@ class Trust_Region_Optimization():
         for ii in xrange(0,len(con)):
             name.append(con[ii][0])
             edge.append(scaled_constraints[ii])
-
+            if con[ii][1]=='<':
+                up_edge.append(edge[ii])
+                low_edge.append(-np.inf)
+            elif con[ii][1]=='>':
+                up_edge.append(np.inf)
+                low_edge.append(edge[ii])
+                
+            elif con[ii][1]=='=':
+                up_edge.append(edge[ii])
+                low_edge.append(edge[ii])
+            
         lbd = np.array(lbd)
         ubd = np.array(ubd)
         edge = np.array(edge)
+        up_edge  = np.array(up_edge)         
+        low_edge = np.array(low_edge)    
+        
         # ---------------------------
         # Trust region specific code
         # ---------------------------
@@ -107,6 +124,7 @@ class Trust_Region_Optimization():
             
             for level in self.evaluation_order:
                 problem.fidelity_level = level
+                print 'level =', level
                 res = self.evaluate_model(problem,x,scaled_constraints)
                 f[level-1]  = res[0]    # objective value
                 df[level-1] = res[1]    # objective derivate vector
@@ -121,7 +139,7 @@ class Trust_Region_Optimization():
             corrections = self.calculate_correction(f,df,g,dg,tr)
             
             # Calculate constraint violations
-            g_violation_hi_center = self.calculate_constraint_violation(g[-1],lbd,ubd)
+            g_violation_hi_center = self.calculate_constraint_violation(g[-1],low_edge,up_edge)
             
             # Subproblem
             tr_size = tr.size
@@ -132,6 +150,7 @@ class Trust_Region_Optimization():
             #opt_wrap = lambda x:self.evaluate_corrected_model(problem,x,corrections=corrections,tr=tr)
             
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model)
+            
             for ii in xrange(len(obj)):
                 #opt_prob.addObj(obj[ii,0],1) 
                 opt_prob.addObj('f',1) 
@@ -141,16 +160,22 @@ class Trust_Region_Optimization():
             for ii in xrange(0,len(con)):
                 if con[ii][1]=='<':
                     opt_prob.addCon(name, type='i', upper=edge[ii])
+                    
                 elif con[ii][1]=='>':
                     opt_prob.addCon(name, type='i', lower=edge[ii],upper=np.inf)
+               
+                    
                 elif con[ii][1]=='=':
                     opt_prob.addCon(name, type='e', equal=edge[ii])      
                     
+               
             opt = pyOpt.pySNOPT.SNOPT()
+            
             #CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
             #opt.setOption('Function precision', sense_step**2.)
             #opt.setOption('Difference interval', sense_step)
-            #opt.setOption('Central difference interval', CD_step)                
+            #opt.setOption('Central difference interval', CD_step)   
+            print 'self.difference_interval =', self.difference_interval 
             opt.setOption('Major iterations limit',self.max_iterations)
             opt.setOption('Major optimality tolerance',self.convergence_tolerance)
             opt.setOption('Major feasibility tolerance',self.constraint_tolerance)
@@ -166,7 +191,7 @@ class Trust_Region_Optimization():
             for ii in xrange(len(con)):
                 gOpt_lo[ii] = opt_prob._solutions[0]._constraints[ii].value
             
-            g_violation_opt_lo = self.calculate_constraint_violation(gOpt,lbd,ubd)
+            g_violation_opt_lo = self.calculate_constraint_violation(gOpt,low_edge,up_edge)
             
             success_indicator = outputs[2]['value'][0]
             # hard convergence check
@@ -294,7 +319,6 @@ class Trust_Region_Optimization():
         
         f  = problem.objective(x)
         g  = problem.all_constraints(x)
-        
         if der_flag == False:
             return f,g
         
@@ -305,17 +329,21 @@ class Trust_Region_Optimization():
             x_fd = x*1.
             x_fd[ii] = x_fd[ii] + fd_step
             obj = problem.objective(x_fd)
-            df[ii] = (obj - f)/fd_step
-            
-        for ii in xrange(len(x)):
-            x_fd = x*1.
-            x_fd[ii] = x_fd[ii] + fd_step
             grad_cons = problem.all_constraints(x_fd)
+
+            df[ii] = (obj - f)/fd_step
             for jj in xrange(len(cons)):
-                dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step                
+  
+                
+                
+                dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step   
+     
+                         
         
         return (f,df,g,dg)
-    
+    def check_for_duplicate_evals(self, problem, x):
+        
+        return None
     def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None):
         #duplicate_flag, obj, gradient = self.check_for_duplicate_evals(x)
         duplicate_flag = False
@@ -323,7 +351,7 @@ class Trust_Region_Optimization():
             obj   = problem.objective(x)
             const = problem.all_constraints(x).tolist()
             #const = []
-            fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+            fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)
         
             A, b = corrections
             x0   = tr.center
@@ -344,7 +372,11 @@ class Trust_Region_Optimization():
         
     def calculate_constraint_violation(self,gval,lb,ub):
         gdiff = []
-    
+   
+        print 'gval = ', gval
+        print 'len(gval) =', len(gval)
+        print 'lb = ', lb
+        print 'ub = ', ub
         for i in range(len(gval)):
             if len(lb) > 0:
                 if( gval[i] < lb[i] ):
