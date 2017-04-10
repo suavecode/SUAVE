@@ -50,7 +50,9 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.oswald_efficiency_factor           = None
-        settings.maximum_lift_coefficient           = np.inf 
+        settings.maximum_lift_coefficient           = np.inf
+        settings.number_slices                      = 30
+        settings.number_rotations                   = 15
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5

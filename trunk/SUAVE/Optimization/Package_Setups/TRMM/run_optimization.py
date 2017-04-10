@@ -229,7 +229,16 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
                 xOpt[i] = opt_prob._solutions[0]._variables[i].value
             for i in range(mi+me):
                 gOpt[i] = opt_prob._solutions[0]._constraints[i].value
-
+            print 'tr.size = ', tr.size
+            
+            
+            
+            
+            print 'xOpt =', xOpt
+            print 'fOpt = ', fOpt
+            print 'gOpt = ', gOpt
+            
+            
         else:
             raise NotImplementedError('Only SNOPT (using pyOpt) is currently implemented')        
          
@@ -244,12 +253,12 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
         # If optimizer terminates successfully at initial value of design variables
         # then we have convergence
         if( optInformValue == 1 and \
-            np.sum(np.isclose(xOpt,x.value,rtol=1e-14,atol=1e-12)) == x.value.size ):
-
-            fHistory.append(fOpt)
-            gHistory.append(gOpt)
-            fRelDiff.append(0.0)
-            terminateMessage = 'hard convergence limit reached'
+            np.sum(np.isclose(xOpt.astype(np.float64),x.value.astype(np.float64),rtol=1e-14,atol=1e-12)) == x.value.size ):
+            
+            log = open(log_file,'a')
+            log.write('Optimization converged - hard convergence limit reached\n\n')  
+            log.flush()
+            log.close()
             break
             
         # =========================================================================

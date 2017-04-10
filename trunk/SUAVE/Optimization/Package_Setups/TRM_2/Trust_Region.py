@@ -1,21 +1,22 @@
+import SUAVE
+from SUAVE.Core import Data
 import numpy as np
 import copy
 
-class Trust_Region():
+class Trust_Region(Data):
     
     def __defaults__(self):
         
         self.initial_size = 0.5
-        self.size = 0.5
+        self.size = 0.05
         self.minimum_size = 1e-15
         self.contract_threshold = 0.25
         self.expand_threshold = 0.75
         self.contraction_factor = 0.25
-        self.expansion_factor = 2.
+        self.expansion_factor = 1.5
     
-        self.max_iterations = 50
-        self.soft_convergence_limit = 5
-        self.convergence_tolerance = 1e-6
+        self.soft_convergence_limit = 3
+        self.convergence_tolerance = 0.0001
         self.constraint_tolerance = 1e-6
     
         self.approx_subproblem = 'direct'
@@ -24,3 +25,10 @@ class Trust_Region():
     
         self.correction_type = 'additive'
         self.correction_order = 1
+        
+    def set_center(self,x):
+        self.center = x
+        
+    def evaluate_function(self,f,gviol):
+        phi = f + gviol**2
+        return phi        

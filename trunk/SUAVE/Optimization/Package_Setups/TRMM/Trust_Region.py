@@ -3,11 +3,12 @@ Define the trust region class.
 
 Rick Fenrich 8/9/16
 '''
-
+import SUAVE
+from SUAVE.Core import Data
 import numpy as np
 import copy
 
-class Trust_Region():
+class Trust_Region(Data):
     def __init__(self):
         self.initial_size = 0.5
         self.size = 0.5

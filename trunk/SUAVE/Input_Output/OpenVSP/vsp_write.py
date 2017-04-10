@@ -311,6 +311,9 @@ def write(vehicle,tag):
 
             vals = fuselage.OpenVSP_values
             
+            # for wave drag testing
+            fuselage.OpenVSP_ID = fuse_id
+            
             # Nose
             vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
             vsp.SetParmVal(fuse_id,"TopLStrength","XSec_0",vals.nose.top.strength)
@@ -349,7 +352,8 @@ def write(vehicle,tag):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
     
-    
+    # for wave drag testing
+    vsp.SetParmVal(fuse_id,"Tess_W","Shape",33)
     # Write the vehicle to the file
     
     vsp.WriteVSPFile(tag + ".vsp3")
