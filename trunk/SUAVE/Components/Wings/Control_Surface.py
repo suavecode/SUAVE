@@ -20,6 +20,8 @@ class Control_Surface(Lofted_Body):
         self.tag                   = 'control_surface'
         self.span                  = 0.0
         self.span_fraction         = 0.0
+        self.chord_fraction        = 0  # Added by Matthew 
+        self.gain                  = 0  # Added by Matthew
         self.deflection_symmetry   = 1.0
         self.origin                = [0.0,0.0,0.0]
         self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]

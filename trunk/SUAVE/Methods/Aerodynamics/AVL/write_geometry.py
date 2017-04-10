@@ -86,7 +86,9 @@ def make_header_text(avl_object):
 def make_surface_text(avl_wing):
     # Template for a surface
     surface_base = \
-'''#=============================================
+'''
+
+#---------------------------------------------------------
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
@@ -99,101 +101,61 @@ SURFACE
     name = avl_wing.tag
 
     if symm:
-        ydup = '\nYDUPLICATE\n0.0\n'
+        ydup = '\n\nYDUPLICATE\n0.0\n'
     else:
         ydup     = ' '
     surface_text = surface_base.format(name,ydup)
     
-    ordered_tags = []
+    ordered_tags = []         
     if avl_wing.vertical:
-        for s in avl_wing.sections:
-            if len(ordered_tags)==0:
-                ordered_tags.append(s.tag)
-            else:
-                for i in range(len(ordered_tags)+1):
-                    if i == len(ordered_tags):
-                        ordered_tags.append(s.tag)
-                    elif s.origin[2] < avl_wing.sections[ordered_tags[i]].origin[2]:
-                        ordered_tags.insert(i,s.tag)
-                        break      
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
+        for i in xrange(len(ordered_tags)):
+            section_text    = make_wing_section_text(ordered_tags[i])
+            surface_text = surface_text + section_text 
     else:
-        for s in avl_wing.sections:
-            if len(ordered_tags)==0:
-                ordered_tags.append(s.tag)
-            else:
-                for i in range(len(ordered_tags)+1):
-                    if i == len(ordered_tags):
-                        ordered_tags.append(s.tag)
-                    elif s.origin[1] < avl_wing.sections[ordered_tags[i]].origin[1]:
-                        ordered_tags.insert(i,s.tag)
-                        break
-                
-    for t in ordered_tags:
-        section_text = make_wing_section_text(avl_wing.sections[t])
-        surface_text = surface_text + section_text
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
+        for i in xrange(len(ordered_tags)):
+            section_text    = make_wing_section_text(ordered_tags[i])
+            surface_text = surface_text + section_text
 
     return surface_text
-
-
 
 def make_body_text(avl_body):
     
     # Template for a surface
     surface_base = \
-'''#----------------------------------------------
+'''
+
+#---------------------------------------------------------
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
 20           1.0      
-
 '''
     # Unpack inputs
-    symm = avl_body.symmetric
     name = avl_body.tag
-
     
-    # Form the horizontal part of the + shaped fuselage
-    if symm:
-        ydup = '\nYDUPLICATE\n0.0\n'
-    else:
-        ydup     = ' '
+    # Form the horizontal part of the + shaped fuselage    
     hname           = name + '_horizontal'
-    horizontal_text = surface_base.format(hname,ydup)               
+    horizontal_text = surface_base.format(hname,'  ')   
+       
     ordered_tags = []
-    for s in avl_body.sections.horizontal:
-        if len(ordered_tags)==0:
-            ordered_tags.append(s.tag)
-        else:
-            for i in range(len(ordered_tags)+1):
-                print ordered_tags
-                if i == len(ordered_tags):
-                    ordered_tags.append(s.tag)
-                elif s.origin[1] < avl_body.sections.horizontal[ordered_tags[i]].origin[1]:
-                    ordered_tags.insert(i,s.tag)
-                    break
-    for t in ordered_tags:
-        section_text    = make_body_section_text(t)
+    ordered_tags = sorted(avl_body.sections.horizontal, key = lambda x: x.origin[1])
+    for i in xrange(len(ordered_tags)):
+        section_text    = make_body_section_text(ordered_tags[i])
         horizontal_text = horizontal_text + section_text
-   
-        
         
     # Form the vertical part of the + shaped fuselage
     vname         = name + '_vertical'
     vertical_text = surface_base.format(vname,' ')   
     ordered_tags = []
-    for s in avl_body.sections.vertical:
-        if len(ordered_tags)==0:
-            ordered_tags.append(s.tag)
-        else:
-            for i in range(len(ordered_tags)+1):
-                if i == len(ordered_tags):
-                    ordered_tags.append(s.tag)
-                elif s.origin[2] < avl_body.sections.vertical[ordered_tags[i]].origin[2]:
-                    ordered_tags.insert(i,s.tag)
-                    break
-    for t in ordered_tags:
-        section_text  = make_body_section_text(t)
+    ordered_tags = sorted(avl_body.sections.vertical, key = lambda x: x.origin[2])
+    for i in xrange(len(ordered_tags)):
+        section_text    = make_body_section_text(ordered_tags[i])
         vertical_text = vertical_text + section_text
+        
+    body_text = horizontal_text + vertical_text
+    return body_text  
 
 # ----------------------------------------------------------------------------
 # Matthew: This code refers to the addition of engine geometry to the aircraft (to be added later once code is running)
@@ -230,23 +192,21 @@ def make_wing_section_text(avl_section):
     section_base = \
 '''
 SECTION
-#Xle  Yle  Zle  Chord  Ainc  Nspanwise  Sspace
-{0}   {1}  {2}  {3}    {4}     
-
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+{0}  {1}    {2}    {3}    {4}      
 '''
     airfoil_base = \
 '''
 AFILE
 {}
-
 '''
 
     # Unpack inputs
-    x_le    = avl_section.origin[0]
-    y_le    = avl_section.origin[1]
-    z_le    = avl_section.origin[2]
-    chord   = avl_section.chord
-    ainc    = avl_section.twist
+    x_le    = round(avl_section.origin[0], 3)
+    y_le    = round(avl_section.origin[1], 3)
+    z_le    = round(avl_section.origin[2], 3)
+    chord   = round(avl_section.chord, 3)
+    ainc    = round(avl_section.twist, 3)
     airfoil = avl_section.airfoil_coord_file
 
     section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
@@ -260,34 +220,32 @@ AFILE
 
 
     
-def make_body_section_text(avl_section):
+def make_body_section_text(avl_body_section):
     # Template for a section
     section_base = \
 '''
 SECTION
-#Xle  Yle  Zle  Chord  Ainc  Nspanwise  Sspace
-{0}   {1}  {2}  {3}    {4}       1        0
-
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+{0}    {1}     {2}     {3}     {4}      1        0
 '''
     airfoil_base = \
 '''
 AFILE
 {}
-
 '''
 
     # Unpack inputs
-    x_le    = avl_section.origin[0]
-    y_le    = avl_section.origin[1]
-    z_le    = avl_section.origin[2]
-    chord   = avl_section.chord
-    ainc    = avl_section.twist
-    airfoil = avl_section.airfoil_coord_file
+    x_le    = round(avl_body_section.origin[0], 3)
+    y_le    = round(avl_body_section.origin[1], 3)
+    z_le    = round(avl_body_section.origin[2], 3)
+    chord   = round(avl_body_section.chord, 3)
+    ainc    = avl_body_section.twist
+    airfoil = avl_body_section.airfoil_coord_file
 
     section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
         section_text = section_text + airfoil_base.format(airfoil)
-    for cs in avl_section.control_surfaces:
+    for cs in avl_body_section.control_surfaces:
         control_text = make_controls_text(cs)
         section_text = section_text + control_text
 
@@ -299,18 +257,16 @@ def make_controls_text(avl_control_surface):
     # Template for a control surface
     control_base = \
 '''CONTROL
-#Name gain Xhinge hinge_vector SgnDup
-{0}   {1}  {2}    {3} {4} {5}  {6}
-
+{0}   {1}   {2}   {3}   {4}
 '''
 
     # Unpack inputs
     name     = avl_control_surface.tag
     gain     = avl_control_surface.gain
-    xhinge   = avl_control_surface.x_hinge
+    xhinge   = round(avl_control_surface.x_hinge, 3)
     hv       = avl_control_surface.hinge_vector
     sign_dup = avl_control_surface.sign_duplicate
 
-    control_text = control_base.format(name,gain,xhinge,hv[0],hv[1],hv[2],sign_dup)
+    control_text = control_base.format(name,gain,xhinge,hv,sign_dup)
 
     return control_text

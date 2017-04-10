@@ -63,3 +63,4 @@ class Body(Data):
 			raise KeyError('No key, "{}". Use "Horizontal" or "Vertical".'.format(orientation))
 		return
 
+  
