@@ -159,17 +159,20 @@ class Trust_Region_Optimization(Data):
                 opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
             for ii in xrange(0,len(con)):
                 if con[ii][1]=='<':
-                    opt_prob.addCon(name, type='i', upper=edge[ii])
+                    opt_prob.addCon(name[ii], type='i', upper=edge[ii])
                     
                 elif con[ii][1]=='>':
-                    opt_prob.addCon(name, type='i', lower=edge[ii],upper=np.inf)
+                    opt_prob.addCon(name[ii], type='i', lower=edge[ii],upper=np.inf)
                
                     
                 elif con[ii][1]=='=':
-                    opt_prob.addCon(name, type='e', equal=edge[ii])      
+                    opt_prob.addCon(name[ii], type='e', equal=edge[ii])      
                     
                
             opt = pyOpt.pySNOPT.SNOPT()
+            opt.max_iterations = 15
+            opt.max_function_evaluations = 300
+            opt.setOption('Major iterations limit',opt.max_iterations)
             
             #CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
             #opt.setOption('Function precision', sense_step**2.)
@@ -190,6 +193,10 @@ class Trust_Region_Optimization(Data):
             fOpt_lo = outputs[0]
             xOpt_lo = outputs[1]
             gOpt_lo = np.zeros([1,len(con)])[0]
+            
+            
+           
+            
             for ii in xrange(len(con)):
                 gOpt_lo[ii] = opt_prob._solutions[0]._constraints[ii].value
        
@@ -200,8 +207,11 @@ class Trust_Region_Optimization(Data):
             if (success_indicator==1 and np.sum(np.isclose(xOpt_lo,xOpt,rtol=1e-14,atol=1e-12))==len(x)):
                 print 'Hard convergence reached'
                 return outputs
+            print 'fOpt_lo = ', fOpt_lo
+            print 'xOpt_lo = ', xOpt_lo
+            print 'gOpt_lo = ', gOpt_lo
            
-           
+            
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
             fOpt_hi, gOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=False)
