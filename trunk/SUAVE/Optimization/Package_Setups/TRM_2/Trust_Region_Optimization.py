@@ -6,7 +6,7 @@ import pyOpt
 from SUAVE.Core import Units, Data
 from SUAVE.Optimization import helper_functions as help_fun
 
-class Trust_Region_Optimization():
+class Trust_Region_Optimization(Data):
         
     def initialize(self):
         
@@ -43,7 +43,7 @@ class Trust_Region_Optimization():
         inp = problem.optimization_problem.inputs
         obj = problem.optimization_problem.objective
         con = problem.optimization_problem.constraints 
-    
+        tr = problem.tr
         # Set inputs
         nam = inp[:,0] # Names
         ini = inp[:,1] # Initials
@@ -96,11 +96,12 @@ class Trust_Region_Optimization():
         
         iterations = 0
         max_iterations = self.max_iterations
-        tr = Trust_Region.Trust_Region()
-        tr.initialize()
+        #tr = Trust_Region.Trust_Region()
+        #tr.initialize()
         x = np.array(x,dtype='float')
         tr.set_center(x)
         tr_size = tr.size
+
         trc = x # trust region center
         x_initial = x*1.
         g_violation = 0 # pre subproblem constraint violation
@@ -144,10 +145,10 @@ class Trust_Region_Optimization():
             tr_size = tr.size
             tr.lower_bound = np.max(np.vstack([lbd,x-tr_size]),axis=0)
             tr.upper_bound = np.min(np.vstack([ubd,x+tr_size]),axis=0)
-            print 'tr_size = ', tr_size
+
             # Setup SNOPT 
             #opt_wrap = lambda x:self.evaluate_corrected_model(problem,x,corrections=corrections,tr=tr)
-            print 'evaluating corrected model'
+
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
             
             for ii in xrange(len(obj)):
@@ -174,21 +175,24 @@ class Trust_Region_Optimization():
             #opt.setOption('Function precision', sense_step**2.)
             #opt.setOption('Difference interval', sense_step)
             #opt.setOption('Central difference interval', CD_step)   
-
+            
+            '''
             opt.setOption('Major iterations limit',self.max_iterations)
             opt.setOption('Major optimality tolerance',self.convergence_tolerance)
             opt.setOption('Major feasibility tolerance',self.constraint_tolerance)
             opt.setOption('Function precision',self.function_precision)
             opt.setOption('Verify level',self.verify_level)            
+            '''
             
             problem.fidelity_level = 1
+           
             outputs = opt(opt_prob, sens_type='FD',problem=problem,corrections=corrections,tr=tr)#, sens_step = sense_step)  
             fOpt_lo = outputs[0]
             xOpt_lo = outputs[1]
             gOpt_lo = np.zeros([1,len(con)])[0]
             for ii in xrange(len(con)):
                 gOpt_lo[ii] = opt_prob._solutions[0]._constraints[ii].value
-            
+       
             g_violation_opt_lo = self.calculate_constraint_violation(gOpt,low_edge,up_edge)
             
             success_indicator = outputs[2]['value'][0]
@@ -196,7 +200,8 @@ class Trust_Region_Optimization():
             if (success_indicator==1 and np.sum(np.isclose(xOpt_lo,xOpt,rtol=1e-14,atol=1e-12))==len(x)):
                 print 'Hard convergence reached'
                 return outputs
-            
+           
+           
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
             fOpt_hi, gOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=False)
@@ -322,7 +327,7 @@ class Trust_Region_Optimization():
         
         # build derivatives
         fd_step = self.difference_interval
-        print 'fd_step = ', fd_step
+
         for ii in xrange(len(x)):
             x_fd = x*1.
             x_fd[ii] = x_fd[ii] + fd_step
@@ -330,10 +335,7 @@ class Trust_Region_Optimization():
             grad_cons = problem.all_constraints(x_fd)
 
             df[ii] = (obj - f)/fd_step
-            print 'f=', f
-            print 'grad_cons =', grad_cons
-            print 'g=', g
-            print 'x=', x
+
             for jj in xrange(len(cons)):
                 
                 dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step   
@@ -352,10 +354,10 @@ class Trust_Region_Optimization():
             const = problem.all_constraints(x).tolist()
             #const = []
             fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)
-        
+            
             A, b = corrections
             x0   = tr.center
-        
+            
             obj   = obj + np.dot(A[0,:],(x-x0))+b[0]
             const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
             const = const.tolist()
@@ -366,7 +368,7 @@ class Trust_Region_Optimization():
             print obj
             print 'Con'
             print const
-        
+            
         return obj,const,fail
         
         

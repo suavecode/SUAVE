@@ -269,9 +269,7 @@ class Sizing_Loop(Data):
         results=nexus.results
         
     
-        print 'number of function calls=', i
-        print 'number of iterations total=', nexus.total_number_of_iterations
-
+     
         nexus.distance_to_closest_point = min_norm
         nexus.sizing_loop.converged     = converged
         nexus.sizing_loop.norm_error    = np.linalg.norm(err)
@@ -364,7 +362,7 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
         xu[i]=x[i]+h *x[i]  #use FD step of H*x
         fu, y_out = my_function(xu, inputs,scaling)
         
-        print 'fbase=', f
+
         J[:,i] = (fu-f)/(xu[i]-x[i])
         iter=iter+1
         

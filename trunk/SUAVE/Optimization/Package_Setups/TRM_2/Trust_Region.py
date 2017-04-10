@@ -1,7 +1,9 @@
+import SUAVE
+from SUAVE.Core import Data
 import numpy as np
 import copy
 
-class Trust_Region():
+class Trust_Region(Data):
     
     def initialize(self):
         
