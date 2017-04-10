@@ -5,7 +5,7 @@ import copy
 
 class Trust_Region(Data):
     
-    def initialize(self):
+    def __defaults__(self):
         
         self.initial_size = 0.5
         self.size = 0.05

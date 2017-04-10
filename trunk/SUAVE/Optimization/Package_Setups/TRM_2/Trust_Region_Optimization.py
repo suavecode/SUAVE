@@ -8,7 +8,7 @@ from SUAVE.Optimization import helper_functions as help_fun
 
 class Trust_Region_Optimization(Data):
         
-    def initialize(self):
+    def __defaults__(self):
         
         self.tag                          = 'TR_Opt'
         self.max_iterations               = 30
@@ -43,7 +43,7 @@ class Trust_Region_Optimization(Data):
         inp = problem.optimization_problem.inputs
         obj = problem.optimization_problem.objective
         con = problem.optimization_problem.constraints 
-        tr = problem.tr
+        tr = problem.trust_region
         # Set inputs
         nam = inp[:,0] # Names
         ini = inp[:,1] # Initials
@@ -257,6 +257,7 @@ class Trust_Region_Optimization(Data):
                 print 'Trust region update rejected (filter)\n'        
             
             # Update Trust Region Size
+            print tr
             tr_size_previous = tr.size
             tr_action = 0 # 1: shrink, 2: no change, 3: expand
             if( not accepted ): # shrink trust region
