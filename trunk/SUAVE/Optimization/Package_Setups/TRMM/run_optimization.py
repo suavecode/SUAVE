@@ -547,16 +547,14 @@ def run(x,y,log_file_rel,tr,opt,flow,mi,me,ai, my_function):
                 xOpt[i] = opt_prob._solutions[0]._variables[i].value
             for i in range(mi+me):
                 gOpt[i] = opt_prob._solutions[0]._constraints[i].value
-            print 'tr.size = ', tr.size
-            
+           
             
             
             
             print 'xOpt =', xOpt
             print 'fOpt = ', fOpt
             print 'gOpt = ', gOpt
-            
-            
+       
         else:
             raise NotImplementedError('Only SNOPT (using pyOpt) is currently implemented')        
         
