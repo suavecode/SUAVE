@@ -59,9 +59,25 @@ class Propulsor_Surrogate(Propulsor):
         for ii,_ in enumerate(altitude):
             sfc[ii] = sfc_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))    
             thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))   
+            
+        ## Test plot, run a range of throttles
+        #throttles = np.linspace(0.,1.)
+        #alts  = 10000.*np.ones_like(throttles)
+        #machs = 0.9*np.ones_like(throttles)
+        
+        #thrusts = thr_surrogate.predict(np.array([alts,machs,throttles]).T)   
+        
+        #import pylab as plt
+        
+        #plt.figure("throttles")
+        #axes = plt.gca()  
+        #axes.plot(throttles,thrusts)
+        
+        #plt.show()
+        
         
         F    = thr
-        mdot = -thr*sfc*self.number_of_engines
+        mdot = thr*sfc*self.number_of_engines
         
         # Save the output
         results = Data()
@@ -99,8 +115,10 @@ class Propulsor_Surrogate(Propulsor):
         
 
         # Pick the type of process
-        regr_sfc = gaussian_process.GaussianProcess(theta0=.5)
-        regr_thr = gaussian_process.GaussianProcess(theta0=.5)      
+        regr_sfc = gaussian_process.GaussianProcess(theta0=0.4)
+        regr_thr = gaussian_process.GaussianProcess(theta0=0.4)             
+        #regr_sfc = gaussian_process.GaussianProcess(theta0=0.5)
+        #regr_thr = gaussian_process.GaussianProcess(theta0=0.5)      
         thr_surrogate = regr_thr.fit(xy, thr)
         sfc_surrogate = regr_sfc.fit(xy, sfc)          
         
