@@ -10,34 +10,39 @@ class Trust_Region_Optimization(Data):
         
     def __defaults__(self):
         
-        self.tag                          = 'TR_Opt'
-        self.max_iterations               = 30
-        self.max_function_evaluations     = 1000
-        self.convergence_tolerance        = 1e-6
-        self.constraint_tolerance         = 1e-6
-        self.difference_interval          = 1e-6
-        self.function_precision           = 1e-12
-        self.fidelity_levels              = 2
-        self.verify_level                 = 0
-        self.evaluation_order             = [1,2]
-        self.mutual_setup_step            = 0
-        self.function_dependency          = 0
-        self.number_cores                 = 1        
-        self.iteration_index              = 0
-        self.trust_region_center_index    = 0
-        self.trust_region_center          = None
-        self.shared_data_index            = 0 
-        self.truth_history                = dict() # history for truth function evaluations
-        self.surrogate_history            = dict() # history for evaluation of surrogate models (all fidelity levels)
-        self.trust_region_history         = None
-        self.number_truth_evals           = dict()
-        self.number_duplicate_truth_evals = 0
-        self.number_surrogate_evals       = 0
-        self.user_data                    = Data()
-        self.root_directory               = None
-        self.objective_history            = []
-        self.constraint_history           = []
-        self.relative_difference_history  = []
+        self.tag                                = 'TR_Opt'
+        self.trust_region_max_iterations        = 30
+        self.optimizer_max_iterations           = 30
+        #self.max_optimizer_function_evaluations = 1000
+        
+        self.soft_convergence_tolerance         = 1E-6
+        self.hard_convergence_tolerance         = 1E-6
+        self.optimizer_convergence_tolerance    = 1E-6  #used in SNOPT
+        self.optimizer_constraint_tolerance     = 1E-6  #used in SNOPT only
+        self.difference_interval                = 1E-6  #used in evaluating high fidelity case
+        self.optimizer_function_precision       = 1E-12 #used in SNOPT only
+        self.trust_region_function_precision    = 1E-12
+        self.optimizer_verify_level             = 0
+        self.fidelity_levels                    = 2  
+        self.evaluation_order                   = [1,2]
+        self.mutual_setup_step                  = 0
+        self.function_dependency                = 0
+        self.number_cores                       = 1        
+        self.iteration_index                    = 0
+        self.trust_region_center_index          = 0
+        self.trust_region_center                = None
+        self.shared_data_index                  = 0 
+        self.truth_history                      = dict() # history for truth function evaluations
+        self.surrogate_history                  = dict() # history for evaluation of surrogate models (all fidelity levels)
+        self.trust_region_history               = None
+        self.number_truth_evals                 = dict()
+        self.number_duplicate_truth_evals       = 0
+        self.number_surrogate_evals             = 0
+        self.user_data                          = Data()
+        self.root_directory                     = None
+        self.objective_history                  = []
+        self.constraint_history                 = []
+        self.relative_difference_history        = []
         
     def optimize(self,problem):
         inp = problem.optimization_problem.inputs
@@ -95,7 +100,7 @@ class Trust_Region_Optimization(Data):
         # ---------------------------
         
         iterations = 0
-        max_iterations = self.max_iterations
+        max_iterations = self.trust_region_max_iterations
         #tr = Trust_Region.Trust_Region()
         #tr.initialize()
         x = np.array(x,dtype='float')
@@ -153,7 +158,8 @@ class Trust_Region_Optimization(Data):
             
             for ii in xrange(len(obj)):
                 #opt_prob.addObj(obj[ii,0],1) 
-                opt_prob.addObj('f',1) 
+                #opt_prob.addObj('f',1) 
+                opt_prob.addObj('f',f[-1]) 
             for ii in xrange(0,len(inp)):
                 vartype = 'c'
                 opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
@@ -170,22 +176,27 @@ class Trust_Region_Optimization(Data):
                     
                
             opt = pyOpt.pySNOPT.SNOPT()
-            opt.max_iterations = 15
-            opt.max_function_evaluations = 300
-            opt.setOption('Major iterations limit',opt.max_iterations)
+            #opt.max_iterations = 15
+            #opt.max_function_evaluations = 300
+            #opt.setOption('Major iterations limit',opt.max_iterations)
             
             #CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
-            #opt.setOption('Function precision', sense_step**2.)
-            #opt.setOption('Difference interval', sense_step)
-            #opt.setOption('Central difference interval', CD_step)   
             
             '''
-            opt.setOption('Major iterations limit',self.max_iterations)
-            opt.setOption('Major optimality tolerance',self.convergence_tolerance)
-            opt.setOption('Major feasibility tolerance',self.constraint_tolerance)
-            opt.setOption('Function precision',self.function_precision)
-            opt.setOption('Verify level',self.verify_level)            
+            sense_step = 1E-6
+            CD_step    = (sense_step**2.)**(1./3.)
+            #opt.setOption('Function precision', sense_step**2.)
+            opt.setOption('Difference interval', sense_step)
+            opt.setOption('Central difference interval', CD_step)   
             '''
+            
+            
+            opt.setOption('Major iterations limit'     , self.optimizer_max_iterations)
+            opt.setOption('Major optimality tolerance' , self.optimizer_convergence_tolerance)
+            opt.setOption('Major feasibility tolerance', self.optimizer_constraint_tolerance)
+            opt.setOption('Function precision'         , self.optimizer_function_precision)
+            opt.setOption('Verify level'               , self.optimizer_verify_level) 
+            
             
             problem.fidelity_level = 1
            
@@ -228,15 +239,15 @@ class Trust_Region_Optimization(Data):
             high_fidelity_optimum = tr.evaluate_function(fOpt_hi,g_violation_opt_hi)
             low_fidelity_center   = tr.evaluate_function(f[-1],g_violation_hi_center)
             low_fidelity_optimum  = tr.evaluate_function(fOpt_lo,g_violation_opt_lo)
-            if ( np.abs(low_fidelity_center-low_fidelity_optimum) < 1e-12):
+            if ( np.abs(low_fidelity_center-low_fidelity_optimum) < self.trust_region_function_precision):
                 rho = 1.
             else:
                 rho = (high_fidelity_center-high_fidelity_optimum)/(low_fidelity_center-low_fidelity_optimum)
             
             # Soft convergence test
-            if( np.abs(fOpt_hi) <= 1e-12 and np.abs(f[-1]) <= 1e-12 ):
+            if( np.abs(fOpt_hi) <= self.trust_region_function_precision and np.abs(f[-1]) <= self.trust_region_function_precision ):
                 relative_diff = 0
-            elif( np.abs(fOpt_hi) <= 1e-12 ):
+            elif( np.abs(fOpt_hi) <= self.trust_region_function_precision):
                 relative_diff = (fOpt_hi - f[-1])/f[-1]
             else:
                 relative_diff = (fOpt_hi - f[-1])/fOpt_hi
@@ -247,11 +258,11 @@ class Trust_Region_Optimization(Data):
             ind2 = len(diff_hist) - 1
             converged = 1
             while ind2 >= ind1:
-                if( np.abs(diff_hist[ind1]) > tr.convergence_tolerance ):
+                if( np.abs(diff_hist[ind1]) > self.soft_convergence_tolerance ):
                     converged = 0
                     break
                 ind1 += 1
-            if( converged and len(self.relative_difference_history) >= tr.soft_convergence_limit):
+            if( converged and len(self.relative_difference_history) >= self.soft_convergence_limit):
                 print 'Soft convergence reached'
                 return outputs     
             
