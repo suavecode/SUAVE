@@ -84,35 +84,79 @@ def make_header_text(avl_object):
 
 
 def make_surface_text(avl_wing):
-    # Template for a surface
-    surface_base = \
-'''
+#    # Template for a surface
+#    surface_base = \
+#'''
+#
+##---------------------------------------------------------
+#SURFACE
+#{0}
+##Nchordwise  Cspace   Nspanwise  Sspace
+#20           1.0      26         -1.1
+#'''
+
+#    # Unpack inputs
+#    symm = avl_wing.symmetric
+##	vert = avl_wing.vertical
+#    name = avl_wing.tag
+#
+#    if symm:
+#        ydup = '\n\nYDUPLICATE\n0.0\n'
+#    else:
+#        ydup     = ' '
+#    
+#    surface_text = surface_base.format(name,ydup)
+#    
+   
+
+    ordered_tags = []         
+    
+    if avl_wing.vertical:
+        # Template for a surface
+        surface_base = \
+ '''
 
 #---------------------------------------------------------
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
-20           1.0      15         1.0 {1}
-'''
-
-    # Unpack inputs
-    symm = avl_wing.symmetric
-#	vert = avl_wing.vertical
-    name = avl_wing.tag
-
-    if symm:
-        ydup = '\n\nYDUPLICATE\n0.0\n'
-    else:
-        ydup     = ' '
-    surface_text = surface_base.format(name,ydup)
+20           1.0         20           1 {1}
+'''        
+        # Unpack inputs
+        symm = avl_wing.symmetric
+        name = avl_wing.tag
     
-    ordered_tags = []         
-    if avl_wing.vertical:
+        if symm:
+            ydup = '\n\nYDUPLICATE\n0.0\n'
+        else:
+            ydup     = ' '
+        
+        surface_text = surface_base.format(name,ydup)     
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
         for i in xrange(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text = surface_text + section_text 
     else:
+        # Template for a surface
+        surface_base = \
+'''
+        
+#---------------------------------------------------------
+SURFACE
+{0}
+#Nchordwise  Cspace   Nspanwise  Sspace
+15         1.0      50      -1.0 {1}
+'''      
+        # Unpack inputs
+        symm = avl_wing.symmetric
+        name = avl_wing.tag
+    
+        if symm:
+            ydup = '\n\nYDUPLICATE\n0.0\n'
+        else:
+            ydup     = ' '
+        
+        surface_text = surface_base.format(name,ydup)
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
         for i in xrange(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
@@ -192,7 +236,7 @@ def make_wing_section_text(avl_section):
     section_base = \
 '''
 SECTION
-#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 {0}  {1}    {2}    {3}    {4}      
 '''
     airfoil_base = \
@@ -257,7 +301,7 @@ def make_controls_text(avl_control_surface):
     # Template for a control surface
     control_base = \
 '''CONTROL
-{0}   {1}   {2}   {3}   {4}
+{0}    {1}   {2}   {3}  {4}
 '''
 
     # Unpack inputs

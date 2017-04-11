@@ -23,6 +23,7 @@ class Segment(Lofted_Body.Segment):
         self.dihedral_outboard     = 0.0
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
+        self.sweeps.leading_edge   = 0.0 # Added by Matthew
         self.Airfoil               = Data()
         self.control_surfaces       = Data()  # Added by Matthew 
         

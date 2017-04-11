@@ -117,7 +117,19 @@ def populate_wing_sections(avl_wing,suave_wing):
 
       # obtain the geometry for each segment in a loop
       for i_segs in xrange(n_segments):
-          sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
+          # convert quarter chord sweeps to leading edge sweeps 
+          if (i_segs == n_segments-1):
+              sweep = 0
+          else: 
+              if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
+                  sweep = suave_wing.Segments[i_segs].sweeps.sweeps.leading_edge
+              else:          
+                  sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
+                  chord_fraction = 0.25 # quarter chord
+                  segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+                  segment_tip_chord = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
+                  segment_span = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
+                  sweep = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
           dihedral = suave_wing.Segments[i_segs].dihedral_outboard
           section = Section() 
           section.tag = suave_wing.Segments[i_segs].tag
@@ -125,65 +137,102 @@ def populate_wing_sections(avl_wing,suave_wing):
           section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
           section.origin =  origin[i_segs]
           avl_wing.append_section(section)
+          
           # update origin for next segment
           if (i_segs == n_segments-1):
               return avl_wing
               break
+          
           segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
           if avl_wing.vertical:
               origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep), origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) , origin[i_segs][2] + semispan*segment_percent_span])
           else:
               origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , origin[i_segs][1] + semispan*segment_percent_span, origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)])
   
-                            
+#----------------------------------------------------------------------------
+#       The following code below includes the addition of control surfaces  
+#----------------------------------------------------------------------------                          
 #      # obtain the geometry for each segment in a loop
+#      sweep = []
+#      dihedral = []
 #      for i_segs in xrange(n_segments):
 #          #condition for the absence of control surfaces in segment
+#          
 #          if not suave_wing.Segments[i_segs].control_surfaces:
-#              sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
-#              dihedral = suave_wing.Segments[i_segs].dihedral_outboard
+#              # convert quarter chord sweeps to leading edge sweeps 
+#              if (i_segs == n_segments-1):
+#                  sweep.append(0)
+#              else: 
+#                  if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
+#                      sweep.append(suave_wing.Segments[i_segs].sweeps.sweeps.leading_edge)
+#                  else:          
+#                      sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
+#                      chord_fraction = 0.25 # quarter chord
+#                      segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+#                      segment_tip_chord = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
+#                      segment_span = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
+#                      sweep.append(np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span))
+#              dihedral.append(suave_wing.Segments[i_segs].dihedral_outboard)
 #              section = Section() 
 #              section.tag = suave_wing.Segments[i_segs].tag
 #              section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
 #              section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
 #              section.origin = origin[i_segs]
+#              
 #              #append section onto avl wing
 #              avl_wing.append_section(section)
 #              
 #              # break condition for segment tip
 #              if (i_segs == n_segments-1):
 #                  return avl_wing
-#                  #break      
+#                  break      
+#              
 #              # update origin for next segment              
 #              segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
 #              if avl_wing.vertical:
-#                  origin.append( [ origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep), origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) , origin[i_segs][2] + semispan*segment_percent_span] )
+#                  origin.append( [ origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep[i_segs]),\
+#                                  origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral[i_segs]) ,\
+#                                  origin[i_segs][2] + semispan*segment_percent_span] )
 #              else:
-#                  origin.append( [ origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , origin[i_segs][1] + semispan*segment_percent_span, origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)] )
+#                  origin.append( [ origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep[i_segs]) ,\
+#                                  origin[i_segs][1] + semispan*segment_percent_span,\
+#                                  origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral[i_segs])] )
 #          
 #          #condition for the presence of control surfaces in segment
 #          elif suave_wing.Segments[i_segs].control_surfaces:
-#              sweep = suave_wing.Segments[i_segs].sweeps.quarter_chord
-#              dihedral = suave_wing.Segments[i_segs].dihedral_outboard
+#              # convert quarter chord sweeps to leading edge sweeps 
+#              if (i_segs == n_segments-1):
+#                  sweep.append(0)
+#              else: 
+#                  if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
+#                      sweep.append(suave_wing.Segments[i_segs].sweeps.sweeps.leading_edge)
+#                  else:          
+#                      sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
+#                      chord_fraction = 0.25 # quarter chord
+#                      segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+#                      segment_tip_chord = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
+#                      segment_span = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
+#                      sweep.append(np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span))
+#              
+#              dihedral.append(suave_wing.Segments[i_segs].dihedral_outboard)
 #
 #              #create a vector if all the sections to be made in each segment
 #              section_spans = []
-#              # span distance at beginning of segment
 #              for cs in suave_wing.Segments[i_segs].control_surfaces:
 #                  control_surface_start = semispan*cs.span_fraction[0]
 #                  control_surface_end = semispan*cs.span_fraction[1]
 #                  section_spans.append(control_surface_start)
 #                  section_spans.append(control_surface_end)
-#              # spand distance at end of segment           
-#              segment_span_end = semispan*suave_wing.Segments[i_segs].percent_span_location  
-#              section_spans.append(segment_span_end)
-#              # sort the section_spans in order to create sections 
+#              #segment_span_end = semispan*suave_wing.Segments[i_segs].percent_span_location   # span distance at end of segment  
+#              #section_spans.append(segment_span_end)
+#              
+#              # sort the section_spans in order to create sections in chronological order 
 #              ordered_section_spans = sorted(list(set(section_spans))) 
-#              print ordered_section_spans
+#
 #              # count the number of sections that the segment will contain
 #              num_sections = len(ordered_section_spans)       
 #
-#              # creating and appending sections onto avl wing structure  
+#              # create and append sections onto avl wing structure  
 #              for section_count in xrange(num_sections-1):
 #                  section = Section ()
 #                  section.tag = suave_wing.Segments[i_segs].tag + '_section_at'+ str(ordered_section_spans[section_count]) + '_m'
@@ -194,17 +243,18 @@ def populate_wing_sections(avl_wing,suave_wing):
 #                  root_section_twist = suave_wing.Segments[i_segs-1].twist
 #                  tip_section_twist = root_chord*suave_wing.Segments[i_segs].twist
 #                  section.twist  = scipy.interp(semispan_section_fraction,[0.,1.],[root_section_twist,tip_section_twist]) 
-#
-#                  #get origin of control surface section  
+#  
+#                  # get origin of control surface section  
 #                  if avl_wing.vertical:
-#                      section.origin = [origin[i_segs-1][0] + (ordered_section_spans[section_count] - origin[i_segs-1][1] )*np.tan(suave_wing.Segments[i_segs-1].sweeps.quarter_chord),\
-#                                        origin[i_segs-1][1] +  (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location)*np.tan(dihedral),\
+#                      section.origin = [origin[i_segs-1][0] + (ordered_section_spans[section_count] - origin[i_segs-1][1] )*np.tan(sweep[i_segs-1]),\
+#                                        origin[i_segs-1][1] +  (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location)*np.tan(dihedral[i_segs-1] ),\
 #                                        ordered_section_spans[section_count]]
 #                  else:
-#                      section.origin = [origin[i_segs-1][0] + (ordered_section_spans[section_count] - origin[i_segs-1][1] )*np.tan(suave_wing.Segments[i_segs-1].sweeps.quarter_chord),\
+#                      section.origin = [origin[i_segs-1][0] + (ordered_section_spans[section_count] - origin[i_segs-1][1] )*np.tan(sweep[i_segs-1]),\
 #                                        ordered_section_spans[section_count],\
-#                                        origin[i_segs-1][2] + (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location)*np.tan(dihedral)]
-#
+#                                        origin[i_segs-1][2] + (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location)*np.tan(dihedral[i_segs-1])]
+#                  
+#                  # append control surfaces at thier corresponding sections of the wing
 #                  for crtl_surf in suave_wing.Segments[i_segs].control_surfaces:
 #                      if (semispan*crtl_surf.span_fraction[0]  <= ordered_section_spans[section_count]) and (semispan*crtl_surf.span_fraction[1]  >= ordered_section_spans[section_count]):
 #                          c                     = Control_Surface()
@@ -219,10 +269,10 @@ def populate_wing_sections(avl_wing,suave_wing):
 #                          
 #                          c.sign_duplicate      = crtl_surf.deflection_symmetry
 #                          section.append_control_surface(c)
-#                          # append control surface section onto avlwing        
+#                  
+#                  # append control surface section onto avlwing        
 #                  avl_wing.append_section(section)
-#     
-#              
+#    
 #              # append segment section onto avl wing
 #              section = Section() 
 #              section.tag = suave_wing.Segments[i_segs].tag
@@ -235,13 +285,18 @@ def populate_wing_sections(avl_wing,suave_wing):
 #              if (i_segs == n_segments-1):
 #                  return avl_wing
 #                  break        
-#              # update origin for next segment
+#              
+#                  # update origin for next segment
 #              segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
 #       
 #              if avl_wing.vertical:
-#                  origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep), origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) , origin[i_segs][2] + semispan*segment_percent_span])
+#                  origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep[i_segs]),\
+#                                  origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral[i_segs]),\
+#                                  origin[i_segs][2] + semispan*segment_percent_span])
 #              else:
-#                  origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , origin[i_segs][1] + semispan*segment_percent_span, origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)])
+#                  origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep[i_segs]) ,\
+#                                  origin[i_segs][1] + semispan*segment_percent_span,\
+#                                  origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral[i_segs])])
 #              
       return avl_wing
 
