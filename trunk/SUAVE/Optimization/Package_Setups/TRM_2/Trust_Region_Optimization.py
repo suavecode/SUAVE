@@ -153,7 +153,7 @@ class Trust_Region_Optimization(Data):
             
             for ii in xrange(len(obj)):
                 #opt_prob.addObj(obj[ii,0],1) 
-                opt_prob.addObj('f',1) 
+                opt_prob.addObj('f',f[-1]) 
             for ii in xrange(0,len(inp)):
                 vartype = 'c'
                 opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
@@ -178,14 +178,13 @@ class Trust_Region_Optimization(Data):
             #opt.setOption('Function precision', sense_step**2.)
             #opt.setOption('Difference interval', sense_step)
             #opt.setOption('Central difference interval', CD_step)   
-            
-            '''
+
             opt.setOption('Major iterations limit',self.max_iterations)
             opt.setOption('Major optimality tolerance',self.convergence_tolerance)
             opt.setOption('Major feasibility tolerance',self.constraint_tolerance)
             opt.setOption('Function precision',self.function_precision)
             opt.setOption('Verify level',self.verify_level)            
-            '''
+
             
             problem.fidelity_level = 1
            
