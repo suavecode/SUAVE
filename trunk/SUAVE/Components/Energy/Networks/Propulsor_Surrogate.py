@@ -115,10 +115,8 @@ class Propulsor_Surrogate(Propulsor):
         
 
         # Pick the type of process
-        regr_sfc = gaussian_process.GaussianProcess(theta0=0.4)
-        regr_thr = gaussian_process.GaussianProcess(theta0=0.4)             
-        #regr_sfc = gaussian_process.GaussianProcess(theta0=0.5)
-        #regr_thr = gaussian_process.GaussianProcess(theta0=0.5)      
+        regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
+        regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
         thr_surrogate = regr_thr.fit(xy, thr)
         sfc_surrogate = regr_sfc.fit(xy, sfc)          
         
