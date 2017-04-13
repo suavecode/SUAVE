@@ -1,7 +1,7 @@
 # weissinger_vortex_lattice.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -185,7 +185,7 @@ def whav(x1,y1,x2,y2):
             if needed
 
     """  
-    if x1==x2:
+    if np.isclose(x1,x2):
         whv=1/(y1-y2)
     else:  
         whv=1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))
