@@ -250,7 +250,7 @@ class Trust_Region_Optimization(Data):
             ind2 = len(diff_hist) - 1
             converged = 1
             while ind2 >= ind1:
-                if( np.abs(diff_hist[ind1]) > tr.soft_convergence_tolerance ):
+                if( np.abs(diff_hist[ind1]) > self.soft_convergence_tolerance ):
                     converged = 0
                     break
                 ind1 += 1
