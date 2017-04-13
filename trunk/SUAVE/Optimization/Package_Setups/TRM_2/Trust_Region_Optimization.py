@@ -367,7 +367,7 @@ class Trust_Region_Optimization(Data):
             obj   = problem.objective(x)
             const = problem.all_constraints(x).tolist()
             #const = []
-            fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)
+            fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
             
             A, b = corrections
             x0   = tr.center
