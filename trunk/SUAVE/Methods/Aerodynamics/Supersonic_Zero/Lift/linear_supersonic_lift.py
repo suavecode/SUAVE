@@ -30,7 +30,7 @@ def linear_supersonic_lift(conditions,configuration,wing):
 
     # Unpack
     span        = wing.spans.projected
-    root_chord  = wing.chords.root
+    root_chord  = 13.4
     tip_chord   = wing.chords.tip
     sweep       = wing.sweeps.quarter_chord
     taper       = wing.taper

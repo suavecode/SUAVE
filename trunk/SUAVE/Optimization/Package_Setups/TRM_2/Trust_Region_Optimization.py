@@ -157,11 +157,6 @@ class Trust_Region_Optimization(Data):
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
             
             for ii in xrange(len(obj)):
-                #opt_prob.addObj(obj[ii,0],1) 
-<<<<<<< HEAD
-=======
-                #opt_prob.addObj('f',1) 
->>>>>>> a023a766755c4ec5f25ae5601aa99f69da1d8ed6
                 opt_prob.addObj('f',f[-1]) 
             for ii in xrange(0,len(inp)):
                 vartype = 'c'
