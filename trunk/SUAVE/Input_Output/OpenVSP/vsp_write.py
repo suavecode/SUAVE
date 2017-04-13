@@ -299,7 +299,8 @@ def write(vehicle,tag):
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
         x1 = n_fine*width/length
-        x2 = (w_origin[0]+w_c_4)/length
+        #x2 = (w_origin[0]+w_c_4)/length
+        x2 = 0.5
         x3 = 1-t_fine*width/length
         
         fuse_id = vsp.AddGeom("FUSELAGE") 
@@ -353,7 +354,7 @@ def write(vehicle,tag):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
     
     # for wave drag testing
-    vsp.SetParmVal(fuse_id,"Tess_W","Shape",33)
+    vsp.SetParmVal(fuse_id,"Tess_W","Shape",17)
     # Write the vehicle to the file
     
     vsp.WriteVSPFile(tag + ".vsp3")

@@ -157,8 +157,6 @@ class Trust_Region_Optimization(Data):
             opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
             
             for ii in xrange(len(obj)):
-                #opt_prob.addObj(obj[ii,0],1) 
-                #opt_prob.addObj('f',1) 
                 opt_prob.addObj('f',f[-1]) 
             for ii in xrange(0,len(inp)):
                 vartype = 'c'
@@ -181,15 +179,9 @@ class Trust_Region_Optimization(Data):
             #opt.setOption('Major iterations limit',opt.max_iterations)
             
             #CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
-            
-            '''
-            sense_step = 1E-6
-            CD_step    = (sense_step**2.)**(1./3.)
             #opt.setOption('Function precision', sense_step**2.)
-            opt.setOption('Difference interval', sense_step)
-            opt.setOption('Central difference interval', CD_step)   
-            '''
-            
+            #opt.setOption('Difference interval', sense_step)
+            #opt.setOption('Central difference interval', CD_step)         
             
             opt.setOption('Major iterations limit'     , self.optimizer_max_iterations)
             opt.setOption('Major optimality tolerance' , self.optimizer_convergence_tolerance)
@@ -375,7 +367,7 @@ class Trust_Region_Optimization(Data):
             obj   = problem.objective(x)
             const = problem.all_constraints(x).tolist()
             #const = []
-            fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)
+            fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
             
             A, b = corrections
             x0   = tr.center
