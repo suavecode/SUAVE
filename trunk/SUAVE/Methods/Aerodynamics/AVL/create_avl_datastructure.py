@@ -28,7 +28,7 @@ def create_avl_datastructure(geometry,conditions):
 	
 	avl_aircraft      = translate_avl_geometry(geometry)
 	avl_configuration = translate_avl_configuration(geometry,conditions)
-	avl_cases         = translate_avl_cases(conditions,settings.run_cases)
+	#avl_cases         = translate_avl_cases(conditions,settings.run_cases)
 	#avl_cases         = setup_test_cases(conditions)
 
 	# pack results in a new AVL inputs structure
@@ -388,46 +388,46 @@ def translate_avl_configuration(geometry,conditions):
 	return config
 
 
-def translate_avl_cases(conditions,suave_cases):
-	
-	runcases = Run_Case.Container()
-	
-	for case in suave_cases:
-		kase = Run_Case()
-		kase.tag = case.tag
-		kase.conditions.mach  = case.conditions.freestream.mach
-		kase.conditions.v_inf = case.conditions.freestream.velocity
-		kase.conditions.rho   = case.conditions.freestream.density
-		kase.conditions.g     = case.conditions.freestream.gravitational_acceleration
-		kase.angles.alpha     = case.conditions.aerodynamics.angle_of_attack
-		kase.angles.beta      = case.conditions.aerodynamics.side_slip_angle
-		kase.parasite_drag    = case.conditions.aerodynamics.parasite_drag
-		
-		for deflect in case.conditions.stability_and_control.control_surface_deflections:
-			kase.append_control_deflection(deflect.tag,deflect.magnitude)
-		
-		runcases.append_case(case)
-	
-	return runcases
+#def translate_avl_cases(conditions,suave_cases):
+#	
+#	runcases = Run_Case.Container()
+#	
+#	for case in suave_cases:
+#		kase = Run_Case()
+#		kase.tag = case.tag
+#		kase.conditions.mach  = case.conditions.freestream.mach
+#		kase.conditions.v_inf = case.conditions.freestream.velocity
+#		kase.conditions.rho   = case.conditions.freestream.density
+#		kase.conditions.g     = case.conditions.freestream.gravitational_acceleration
+#		kase.angles.alpha     = case.conditions.aerodynamics.angle_of_attack
+#		kase.angles.beta      = case.conditions.aerodynamics.side_slip_angle
+#		kase.parasite_drag    = case.conditions.aerodynamics.parasite_drag
+#		
+#		for deflect in case.conditions.stability_and_control.control_surface_deflections:
+#			kase.append_control_deflection(deflect.tag,deflect.magnitude)
+#		
+#		runcases.append_case(case)
+#	
+#	return runcases
 
 
-def setup_test_cases(conditions):
-	
-	runcases = Run_Case.Container()
-	
-	alphas = [-10,-5,-2,0,2,5,10,20]
-	mach   = conditions.freestream.mach
-	v_inf  = conditions.freestream.velocity
-	rho    = conditions.density
-	g      = conditions.g
-	for alpha in alphas:
-		case = Run_Case()
-		case.tag = 'Alpha={}'.format(alpha)
-		case.conditions.mach  = mach
-		case.conditions.v_inf = v_inf
-		case.conditions.rho   = rho
-		case.conditions.gravitation_acc = g
-		case.angles.alpha     = alpha
-		runcases.append_case(case)
-	
-	return runcases
+#def setup_test_cases(conditions):
+#	
+#	runcases = Run_Case.Container()
+#	
+#	alphas = [-10,-5,-2,0,2,5,10,20]
+#	mach   = conditions.freestream.mach
+#	v_inf  = conditions.freestream.velocity
+#	rho    = conditions.density
+#	g      = conditions.g
+#	for alpha in alphas:
+#		case = Run_Case()
+#		case.tag = 'Alpha={}'.format(alpha)
+#		case.conditions.mach  = mach
+#		case.conditions.v_inf = v_inf
+#		case.conditions.rho   = rho
+#		case.conditions.gravitation_acc = g
+#		case.angles.alpha     = alpha
+#		runcases.append_case(case)
+#	
+#	return runcases

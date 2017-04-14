@@ -24,7 +24,7 @@ def read_results(avl_object):
             case_res.aerodynamics.pitch_moment_coefficient = float(lines[20][32:42].strip())
             case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
             case_res.aerodynamics.total_lift_coefficient   = float(lines[23][10:20].strip())
-            #case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
+            case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
             case_res.aerodynamics.induced_drag_coefficient = float(lines[25][32:42].strip())
             case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
 

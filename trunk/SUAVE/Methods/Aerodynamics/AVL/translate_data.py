@@ -20,19 +20,33 @@ def translate_conditions_to_cases(avl,conditions):
     # set up aerodynamic Conditions object
     cases = Run_Case.Container()
 
-    for i in range(conditions._size):
-        case = Run_Case()
-        case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
-        case.mass = conditions.weights.total_mass[i][0]
-        case.conditions.freestream.mach     = conditions.freestream.mach_number[i][0]
-        case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
-        case.conditions.freestream.density  = conditions.freestream.density[i][0]
-        case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
-        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]/Units.deg
-        case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
-        case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
-        cases.append_case(case)
-
+    # Matthew: This script handles one specific case at a time to build surrogate ** 
+    case = Run_Case()
+    case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,conditions.freestream.mach_number,conditions.aerodynamics.angle_of_attack)
+    case.mass = conditions.weights.total_mass
+    case.conditions.freestream.mach     = conditions.freestream.mach_number
+    case.conditions.freestream.velocity = conditions.freestream.velocity
+    case.conditions.freestream.density  = conditions.freestream.density
+    case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
+    case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack/Units.deg
+    case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle
+    case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
+    cases.append_case(case)
+        
+     # Matthew: This is the old script that handles multiple cases
+#    for i in range(conditions._size):      
+#        case = Run_Case()
+#        case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
+#        case.mass = conditions.weights.total_mass[i][0]
+#        case.conditions.freestream.mach     = conditions.freestream.mach_number[i][0]
+#        case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
+#        case.conditions.freestream.density  = conditions.freestream.density[i][0]
+#        case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
+#        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]/Units.deg
+#        case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
+#        case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
+#        cases.append_case(case)
+        
     return cases
 
 def translate_results_to_conditions(cases,results):
