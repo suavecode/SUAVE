@@ -15,7 +15,7 @@ from create_avl_datastructure import translate_avl_wing, translate_avl_body  #, 
 def write_geometry(avl_object):
 
     # unpack inputs
-    aircraft      = avl_object.features
+    aircraft      = avl_object.geometry
     geometry_file = avl_object.settings.filenames.features
 
     # Open the geometry file after purging if it already exists
@@ -66,13 +66,13 @@ def make_header_text(avl_object):
     Iysym = avl_object.settings.flow_symmetry.xz_plane
     Izsym = avl_object.settings.flow_symmetry.xy_parallel
     Zsym  = avl_object.settings.flow_symmetry.z_symmetry_plane
-    Sref  = avl_object.features.wings['main_wing'].areas.reference
-    Cref  = avl_object.features.wings['main_wing'].chords.mean_aerodynamic
-    Bref  = avl_object.features.wings['main_wing'].spans.projected
-    Xref  = avl_object.features.mass_properties.center_of_gravity[0]
-    Yref  = avl_object.features.mass_properties.center_of_gravity[1]
-    Zref  = avl_object.features.mass_properties.center_of_gravity[2]
-    name  = avl_object.features.tag
+    Sref  = avl_object.geometry.wings['main_wing'].areas.reference
+    Cref  = avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic
+    Bref  = avl_object.geometry.wings['main_wing'].spans.projected
+    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0]
+    Yref  = avl_object.geometry.mass_properties.center_of_gravity[1]
+    Zref  = avl_object.geometry.mass_properties.center_of_gravity[2]
+    name  = avl_object.geometry.tag
 
     mach = 0.0
 

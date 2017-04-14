@@ -15,7 +15,7 @@ def write_run_cases(avl_object):
 
     # unpack avl_inputs
     batch_filename = avl_object.current_status.batch_file
-    aircraft       = avl_object.features
+    aircraft       = avl_object.geometry
 
     base_case_text = \
 '''
@@ -67,9 +67,9 @@ def write_run_cases(avl_object):
     purge_files([batch_filename])
     with open(batch_filename,'w') as runcases:
 
-        x_cg = avl_object.features.mass_properties.center_of_gravity[0]
-        y_cg = avl_object.features.mass_properties.center_of_gravity[1]
-        z_cg = avl_object.features.mass_properties.center_of_gravity[2]
+        x_cg = avl_object.geometry.mass_properties.center_of_gravity[0]
+        y_cg = avl_object.geometry.mass_properties.center_of_gravity[1]
+        z_cg = avl_object.geometry.mass_properties.center_of_gravity[2]
         mass = 0 #avl_object.default_case.mass TODO: FIGURE OUT WHAT TO DEFAULT MASS TO, AND WHERE TO STORE IT BEFORE ANALYSIS.
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]
