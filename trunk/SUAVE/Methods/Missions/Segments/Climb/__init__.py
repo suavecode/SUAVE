@@ -1,3 +1,6 @@
+## @defgroup methods-missions-climb Climb
+# Climb mission methods containing the functions for setting up and solving a mission.
+# @ingroup Methods
 
 import Common
 import Constant_Speed_Constant_Rate

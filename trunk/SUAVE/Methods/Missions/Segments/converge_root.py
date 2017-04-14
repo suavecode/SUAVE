@@ -1,3 +1,4 @@
+## @ingroup methods-mission-segments
 # converge_root.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -16,7 +17,31 @@ from SUAVE.Core.Arrays import array_type
 #  Converge Root
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments
 def converge_root(segment,state):
+    
+    """Interfaces the mission to a numerical solver. The solver may be changed by using root_finder.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns                     [Data]
+    segment                            [Data]
+    state                              [Data]
+    segment.settings.root_finder       [Data]
+    state.numerics.tolerance_solution  [Unitless]
+
+    Outputs:
+    state.unknowns                     [Any]
+    segment.state.numerics.converged   [Unitless]
+
+    Properties Used:
+    N/A
+    """       
     
     unknowns = state.unknowns.pack_array()
     
@@ -44,8 +69,28 @@ def converge_root(segment,state):
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
-    
+
+## @ingroup methods-mission-segments
 def iterate(unknowns,(segment,state)):
+    
+    """Runs one iteration of of all analyses for the mission.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns                [Data]
+    segment.process.iterate       [Data]
+
+    Outputs:
+    residuals                     [Unitless]
+
+    Properties Used:
+    N/A
+    """       
 
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
