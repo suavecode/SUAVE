@@ -12,6 +12,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Data, Units
 from .Data.Cases import Run_Case
+from copy import deepcopy
 
 def translate_conditions_to_cases(avl,conditions):
     """ Takes SUAVE Conditions() data structure and translates to a Container of
@@ -21,31 +22,31 @@ def translate_conditions_to_cases(avl,conditions):
     cases = Run_Case.Container()
 
     # Matthew: This script handles one specific case at a time to build surrogate ** 
-    case = Run_Case()
-    case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,conditions.freestream.mach_number,conditions.aerodynamics.angle_of_attack)
-    case.mass = conditions.weights.total_mass
-    case.conditions.freestream.mach     = conditions.freestream.mach_number
-    case.conditions.freestream.velocity = conditions.freestream.velocity
-    case.conditions.freestream.density  = conditions.freestream.density
-    case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
-    case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack/Units.deg
-    case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle
-    case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
-    cases.append_case(case)
+    #case = Run_Case()
+    #case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,conditions.freestream.mach_number,conditions.aerodynamics.angle_of_attack)
+    #case.mass = conditions.weights.total_mass
+    #case.conditions.freestream.mach     = conditions.freestream.mach_number
+    #case.conditions.freestream.velocity = conditions.freestream.velocity
+    #case.conditions.freestream.density  = conditions.freestream.density
+    #case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
+    #case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack/Units.deg
+    #case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle
+    #case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
+    #cases.append_case(case)
         
      # Matthew: This is the old script that handles multiple cases
-#    for i in range(conditions._size):      
-#        case = Run_Case()
-#        case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
-#        case.mass = conditions.weights.total_mass[i][0]
-#        case.conditions.freestream.mach     = conditions.freestream.mach_number[i][0]
-#        case.conditions.freestream.velocity = conditions.freestream.velocity[i][0]
-#        case.conditions.freestream.density  = conditions.freestream.density[i][0]
-#        case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity[i][0]
-#        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i][0]/Units.deg
-#        case.conditions.aerodynamics.side_slip_angle = conditions.aerodynamics.side_slip_angle[i][0]
-#        case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
-#        cases.append_case(case)
+    for i in range(len(conditions.aerodynamics.angle_of_attack)):      
+        case = Run_Case()
+        case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
+        case.mass = conditions.weights.total_mass
+        case.conditions.freestream.mach     = conditions.freestream.mach_number
+        case.conditions.freestream.velocity = conditions.freestream.velocity
+        case.conditions.freestream.density  = conditions.freestream.density
+        case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
+        case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i]/Units.deg
+        case.conditions.aerodynamics.side_slip_angle = 0#conditions.aerodynamics.side_slip_angle[i][0]
+        case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
+        cases.append_case(case)
         
     return cases
 
@@ -76,16 +77,27 @@ def translate_results_to_conditions(cases,results):
     res.aerodynamics.neutral_point            = ones_1col * 0
 
     res.expand_rows(len(cases))
+    
+    #ordered_tags = sorted(cases.keys(),key=lambda x: x[])
+    
+    #inds = [0]*len(results.keys())
+    
+    #for i,case_num in enumerate(results.keys()):
+        #inds[i] = int(l[i][-2:])
+    mach_case = results.keys()[0][5:8]
 
     # Move results data to the Conditions data structure       
-    for i,case_res in enumerate(results):
-        res.freestream.velocity[i][0]          = cases[i].conditions.freestream.velocity
-        res.freestream.mach_number[i][0]       = cases[i].conditions.freestream.mach
-        res.freestream.gravity[i][0]           = cases[i].conditions.freestream.gravitational_acceleration
-        res.freestream.density[i][0]           = cases[i].conditions.freestream.density
-        res.aerodynamics.angle_of_attack[i][0] = cases[i].conditions.aerodynamics.angle_of_attack * Units.deg
-        res.aerodynamics.side_slip_angle[i][0] = cases[i].conditions.aerodynamics.side_slip_angle * Units.deg      
-        res.weights.total_mass[i][0]           = cases[i].mass
+    for i in xrange(len(results.keys())):
+        aoa_case = '{:02d}'.format(i+1)
+        tag = 'case_' + mach_case + '_' + aoa_case
+        case_res = results[tag]
+        #res.freestream.velocity[i][0]          = cases[i].conditions.freestream.velocity
+        #res.freestream.mach_number[i][0]       = cases[i].conditions.freestream.mach
+        #res.freestream.gravity[i][0]           = cases[i].conditions.freestream.gravitational_acceleration
+        #res.freestream.density[i][0]           = cases[i].conditions.freestream.density
+        #res.aerodynamics.angle_of_attack[i][0] = cases[i].conditions.aerodynamics.angle_of_attack * Units.deg
+        #res.aerodynamics.side_slip_angle[i][0] = cases[i].conditions.aerodynamics.side_slip_angle * Units.deg      
+        #res.weights.total_mass[i][0]           = cases[i].mass
 
         res.aerodynamics.roll_moment_coefficient[i][0] = case_res.aerodynamics.roll_moment_coefficient
         res.aerodynamics.pitch_moment_coefficient[i][0] = case_res.aerodynamics.pitch_moment_coefficient

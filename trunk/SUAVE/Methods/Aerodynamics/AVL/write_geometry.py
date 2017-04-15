@@ -145,7 +145,7 @@ SURFACE
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
-15         1.0      50      -1.0 {1}
+12         1.0      26      -1.0 {1}
 '''      
         # Unpack inputs
         symm = avl_wing.symmetric
