@@ -338,24 +338,35 @@ class Trust_Region_Optimization(Data):
         g  = problem.all_constraints(x)
         if der_flag == False:
             return f,g
+        df, dg = problem.evaluate_derivatives(x)
+        #problem.evaluate_d
         
+        '''
+        if problem.fidelity_level == 2:
+            #let SUAVE handle it, including gradients
+            problem.finite_difference_step = self.difference_interval    
+            df, dg, flag = problem.finite_difference(x)
+        
+        elif problem.fidelity_level == 1:
+
         # build derivatives
-        fd_step = self.difference_interval
-
-        for ii in xrange(len(x)):
-            x_fd = x*1.
-            x_fd[ii] = x_fd[ii] + fd_step
-            obj = problem.objective(x_fd)
-            grad_cons = problem.all_constraints(x_fd)
-
-            df[ii] = (obj - f)/fd_step
-
-            for jj in xrange(len(cons)):
-                
-                dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step   
-     
-                         
         
+            fd_step = self.difference_interval
+            
+            for ii in xrange(len(x)):
+                x_fd = x*1.
+                x_fd[ii] = x_fd[ii] + fd_step
+                obj = problem.objective(x_fd)
+                grad_cons = problem.all_constraints(x_fd)
+    
+                df[ii] = (obj - f)/fd_step
+    
+                for jj in xrange(len(cons)):
+                    
+                    dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step   
+        
+                         
+        '''
         return (f,df,g,dg)
     def check_for_duplicate_evals(self, problem, x):
         
@@ -400,23 +411,28 @@ class Trust_Region_Optimization(Data):
         return np.linalg.norm(gdiff) # 2-norm of violation  
     
     def calculate_correction(self,f,df,g,dg,tr):
-        nr = 1 + g[0].size
-        nc = df[0].size
-            
+        print 'f = ', f
+        print 'df = ', df
+        print 'g = ', g
+        print 'dg = ', dg
+        nr = 1 + len(g[0])
+        nc = len(df[0])
+        
         A = np.empty((nr,nc))
         b = np.empty(nr)
             
         # objective correction
-        A[0,:] = df[1] - df[0]
-        b[0] = f[1] - f[0]
+        #handle data typing
+        A[0,:] = np.array(df[1]) - np.array(df[0])
+        b[0] = np.array(f[1]) - np.array(f[0])
             
         # constraint corrections
-        A[1:,:] = dg[1] - dg[0]
-        b[1:] = g[1] - g[0]
+        A[1:,:] = np.array(dg[1]) - np.array(dg[0])
+        b[1:] = np.array(g[1]) - np.array(g[0])
             
         corr = (A,b)
-        
-        
+        print 'corr = ', corr
+
         return corr        
         
     def add_user_data(self,value):
