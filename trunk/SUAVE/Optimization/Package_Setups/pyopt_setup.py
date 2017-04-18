@@ -16,8 +16,8 @@ from SUAVE.Optimization import helper_functions as help_fun
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
-def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderivative_line_search=False):
-   
+def Pyopt_Solve(problem,solver='SNOPT',FD='single', sens_type = 'fd', sense_step=1.0E-6,  nonderivative_line_search=False):
+    
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
    

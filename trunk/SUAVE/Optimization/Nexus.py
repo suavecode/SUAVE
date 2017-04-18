@@ -31,7 +31,12 @@ class Nexus(Data):
         self.optimization_problem   = None
         self.last_inputs            = None
         self.evaluation_count       = 0
-    
+        self.finite_difference_step = 1E-8
+        self.gradient_values        = None
+        self.write_gradients       = True
+        
+        
+        
     def evaluate(self,x = None):
         
         self.unpack_inputs(x)
@@ -155,10 +160,14 @@ class Nexus(Data):
     def constraints_individual(self,x = None):
         pass     
 
-    def finite_difference(self,x):
-        
-        obj = self.objective(x)
-        con = self.all_constraints(x)
+    def finite_difference(self,x = None):
+        inputs = self.optimization_problem.inputs
+        if x == None:
+            x = inputs[:,1] / inputs[:,3] #unscale input values
+            
+        fd_step = self.finite_difference_step
+        obj     = self.objective(x)
+        con     = self.all_constraints(x)
         
         inpu  = self.optimization_problem.inputs
         const = self.optimization_problem.constraints
@@ -173,19 +182,37 @@ class Nexus(Data):
         
         for ii in xrange(0,inplen):
             newx     = np.asarray(x)*1.0
-            newx[ii] = newx[ii]+ 1e-8
+            newx[ii] = newx[ii]+ fd_step
             
             grad_obj[ii]  = self.objective(newx)
             jac_con[ii,:] = self.all_constraints(newx)
         
-        grad_obj = (grad_obj - obj)/(1e-8)
+        grad_obj = (grad_obj - obj)/(fd_step)
         
-        jac_con = (jac_con - con2).T/(1e-8)
+        jac_con = (jac_con - con2).T/(fd_step)
         
-        grad_obj = grad_obj.astype(float)
-        jac_con  = jac_con.astype(float)
+        grad_obj             = grad_obj.astype(float)
+        jac_con              = jac_con.astype(float)
+        self.gradient_values = [grad_obj, jac_con]
         
-        return grad_obj, jac_con
+        if self.write_gradients == True:
+            grad_filename = 'gradient_results.txt'
+            file = open(grad_filename, 'ab')
+            file.write('inputs = ')
+            file.write(str(x.tolist()))
+            file.write(', objective = ')
+            file.write(str(grad_obj.tolist()))
+            file.write(', constraints = ')
+            file.write(str(jac_con.tolist()))
+            file.write('\n') 
+            file.close()    
+     
+     
+     
+        fail                 = 0
+        print 'grad_obj = ', grad_obj
+        print 'jac_con = ', jac_con
+        return grad_obj, jac_con, fail
     
     
     def translate(self,x = None):

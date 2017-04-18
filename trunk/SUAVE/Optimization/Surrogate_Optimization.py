@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
+from SUAVE.Optimization.helper_functions import get_values
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
 from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
 from SUAVE.Surrogate.scikit_surrogate_functions import build_scikit_models
@@ -74,6 +75,11 @@ class Surrogate_Optimization(Data):
                 opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
             
                 problem.objective()
+                if problem.constraint_violation_exceeded == 0:
+                    i = i-1; #run another point
+                #constraints = problem.optimization_problem.constraints
+                #aliases     = problem.optimization_problem.aliases
+                #constraint_values  = get_values(nexus,constraints,aliases) 
         return 
         
         
