@@ -1,7 +1,7 @@
 # weissinger_vortex_lattice.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
