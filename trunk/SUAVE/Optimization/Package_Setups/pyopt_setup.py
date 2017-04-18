@@ -16,8 +16,8 @@ from SUAVE.Optimization import helper_functions as help_fun
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
-def Pyopt_Solve(problem,solver='SNOPT',FD='single', sens_type = 'fd', sense_step=1.0E-6,  nonderivative_line_search=False):
-    
+def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_type = 'SUAVE', sense_step=1.0E-6,  nonderivative_line_search=False):
+ 
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
    
@@ -119,7 +119,10 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sens_type = 'fd', sense_step
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
-        outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)
+        if sense_type == 'SUAVE':
+            outputs = opt(opt_prob, sens_type = problem.finite_difference, sens_step = sense_step)
+        else:
+            outputs = opt(opt_prob, sens_type = sense_type, sens_step = sense_step)
   
     else:
         outputs = opt(opt_prob)        
@@ -146,3 +149,4 @@ def PyOpt_Problem(problem,x):
     print const
    
     return obj,const,fail
+

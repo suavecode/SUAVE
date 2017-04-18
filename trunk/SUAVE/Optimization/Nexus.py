@@ -33,7 +33,7 @@ class Nexus(Data):
         self.evaluation_count       = 0
         self.finite_difference_step = 1E-8
         self.gradient_values        = None
-        self.write_gradients       = True
+        self.write_gradients        = True
         
         
         
@@ -160,7 +160,7 @@ class Nexus(Data):
     def constraints_individual(self,x = None):
         pass     
 
-    def finite_difference(self,x = None):
+    def finite_difference(self,x = None, f= None, g = None): #f and g not used; just used to allow common interface for pyOpt
         inputs = self.optimization_problem.inputs
         if x == None:
             x = inputs[:,1] / inputs[:,3] #unscale input values
@@ -212,6 +212,8 @@ class Nexus(Data):
         fail                 = 0
         print 'grad_obj = ', grad_obj
         print 'jac_con = ', jac_con
+        grad_obj = grad_obj.tolist()
+        jac_con  = jac_con.tolist()
         return grad_obj, jac_con, fail
     
     
