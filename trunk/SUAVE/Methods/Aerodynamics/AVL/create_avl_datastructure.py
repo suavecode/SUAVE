@@ -35,7 +35,7 @@ def create_avl_datastructure(geometry,conditions):
 	avl_inputs = Inputs()
 	avl_inputs.aircraft      = avl_aircraft
 	avl_inputs.configuration = avl_configuration
-	avl_inputs.cases         = avl_cases
+	#avl_inputs.cases         = avl_cases
 	return avl_inputs
 
 
@@ -136,6 +136,10 @@ def populate_wing_sections(avl_wing,suave_wing):
           section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
           section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
           section.origin =  origin[i_segs]
+          if suave_wing.Segments[i_segs].Airfoil:
+              section.airfoil_coord_file = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
+
+          #append section to wing 
           avl_wing.append_section(section)
           
           # update origin for next segment
