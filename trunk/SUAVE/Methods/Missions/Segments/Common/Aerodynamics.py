@@ -1,3 +1,4 @@
+## @ingroup methods-mission-segments-common
 # Aerodynamics.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -9,21 +10,26 @@
 
 import numpy as np
 
-
 # ----------------------------------------------------------------------
 #  Update Altitude
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments-common
 def update_altitude(segment,state):
-    """ Aerodynamics.update_altitude(segment,state)
-        updates freestream altitude from inertial position
+    """ Updates freestream altitude from inertial position
+        
+        Assumptions:
+        N/A
         
         Inputs:
             state.conditions:
-                frames.inertial.position_vector
+                frames.inertial.position_vector [meters]
         Outputs:
             state.conditions:
-                freestream.altitude[
+                freestream.altitude             [meters]
+      
+        Properties Used:
+        N/A
                     
     """    
     altitude = -state.conditions.frames.inertial.position_vector[:,2]
@@ -34,22 +40,29 @@ def update_altitude(segment,state):
 #  Update Atmosphere
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments-common
 def update_atmosphere(segment,state):
-    """ Aerodynamics.update_atmosphere(segment,state)
-        computes conditions of the atmosphere at given altitudes
+    """ Computes conditions of the atmosphere at given altitudes
+    
+        Assumptions:
+        N/A
         
         Inputs:
             state.conditions:
-                freestream.altitude
-            segment.analyses.atmoshere - an atmospheric model
+                freestream.altitude    [meters]
+            segment.analyses.atmoshere [Function]
+            
         Outputs:
             state.conditions:
-                freestream.pressure
-                freestream.temperature
-                freestream.density
-                freestream.speed_of_sound
-                freestream.dynamic_viscosity
-                    
+                freestream.pressure          [pascals]
+                freestream.temperature       [kelvin]
+                freestream.density           [kilogram/meter^3]
+                freestream.speed_of_sound    [meter/second]
+                freestream.dynamic_viscosity [pascals-seconds]
+                
+        Properties Used:
+        N/A
+                                
     """
     
     # unpack
@@ -75,22 +88,28 @@ def update_atmosphere(segment,state):
 #  Update Freestream
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments-common
 def update_freestream(segment,state):
-    """ compute_freestream(condition)
-        computes freestream values
+    """ Computes freestream values
+        
+        Assumptions:
+        N/A
 
         Inputs:
             state.conditions:
-                frames.inertial.velocity_vector
-                freestream.density
-                freestream.speed_of_sound
-                freestream.dynamic_viscosity
+                frames.inertial.velocity_vector [meter/second]
+                freestream.density              [kilogram/meter^3]
+                freestream.speed_of_sound       [meter/second]
+                freestream.dynamic_viscosity    [pascals-seconds]
 
         Outputs:
             state.conditions:
-                freestream.dynamic pressure
-                freestream.mach number
-                freestream.reynolds number - DIMENSIONAL - PER UNIT LENGTH - MUST MULTIPLY BY REFERENCE LENGTH
+                freestream.dynamic pressure     [pascals]
+                freestream.mach number          [Unitless]
+                freestream.reynolds number      [1/meter]
+                               
+        Properties Used:
+        N/A
     """
     
     # unpack
@@ -126,22 +145,29 @@ def update_freestream(segment,state):
 #  Update Aerodynamics
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments-common
 def update_aerodynamics(segment,state):
-    """ compute_aerodynamics()
-        gets aerodynamics conditions
+    """ Gets aerodynamics conditions
+    
+        Assumptions:
+        +X out nose
+        +Y out starboard wing
+        +Z down
 
-        Inputs -
-            segment.analyses.aerodynamics_model - a callable that will receive ...
-            state.conditions - passed directly to the aerodynamics model
+        Inputs:
+            segment.analyses.aerodynamics_model                  [Function]
+            aerodynamics_model.settings.maximum_lift_coefficient [unitless]
+            aerodynamics_model.geometry.reference_area           [meter^2]
+            state.conditions.freestream.dynamic_pressure         [pascals]
 
-        Outputs -
-            lift, drag coefficient, lift drag force, stores to body axis data
+        Outputs:
+            conditions.aerodynamics.lift_coefficient [unitless]
+            conditions.aerodynamics.drag_coefficient [unitless]
+            conditions.frames.wind.lift_force_vector [newtons]
+            conditions.frames.wind.drag_force_vector [newtons]
 
-        Assumptions -
-            +X out nose
-            +Y out starboard wing
-            +Z down
-
+        Properties Used:
+        N/A
     """
     
     # unpack
@@ -187,7 +213,24 @@ def update_aerodynamics(segment,state):
 #  Update Stability
 # ----------------------------------------------------------------------
 
+## @ingroup methods-mission-segments-common
 def update_stability(segment,state):
+    
+    """ Initiates the stability model
+    
+        Assumptions:
+        N/A
+
+        Inputs:
+            state.conditions           [Data]
+            segment.analyses.stability [function]
+
+        Outputs:
+        N/A
+    
+        Properties Used:
+        N/A
+    """    
 
     # unpack
     conditions = state.conditions

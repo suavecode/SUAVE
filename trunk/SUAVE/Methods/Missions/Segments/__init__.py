@@ -1,4 +1,4 @@
-## @defgroup methods-missions-Segments Missions Segments
+## @defgroup methods-missions-Segments Segments
 # Mission Segment methods containing the functions for setting up and solving a mission.
 # @ingroup Methods
 
