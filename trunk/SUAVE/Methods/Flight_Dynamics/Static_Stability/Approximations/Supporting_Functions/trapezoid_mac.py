@@ -1,3 +1,4 @@
+## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions
 # trapezoid_mac.py
 #
 # Created:  Mar 2014, T. Momose
@@ -7,26 +8,27 @@
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup methods-flight_dynamics-static_stability-approximations-supporting_functions
 def trapezoid_mac(wing):
     """ mac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac(wing)
-        This method computes the mean aerodynamic chord of a linearly tapered
-        trapezoidal aerodynamic surface
-        
-        Inputs:
-            wing - a data dictionary with the fields:
-                areas.reference - the planform area of the trapezoidal wing [meters**2]
-                spans.projected - wing span [meters]
-                chords.root - the wing root chord [meters]
-                {One of the following}
-                chords.tip - the wing tip chord [meters]
-                taper - taper ratio of the wing [dimensionless]
-               
-        Outputs:
-            mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)
-            [meters]
-              
-        Assumptions:
-            Assumes a simple trapezoidal wing shape.
+    This method computes the mean aerodynamic chord of a linearly tapered
+    trapezoidal aerodynamic surface
+
+    Assumptions:
+        Assumes a simple trapezoidal wing shape.
+
+    Inputs:
+        wing - a data dictionary with the fields:
+            areas.reference - the planform area of the trapezoidal wing [meters**2]
+            spans.projected - wing span [meters]
+            chords.root - the wing root chord [meters]
+            {One of the following}
+            chords.tip - the wing tip chord [meters]
+            taper - taper ratio of the wing [dimensionless]
+
+    Outputs:
+        mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)
+        [meters]
     """                 
 
     #Unpack inputs
