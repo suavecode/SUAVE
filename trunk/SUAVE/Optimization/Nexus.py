@@ -14,7 +14,8 @@ from SUAVE.Analyses import Process
 from copy import deepcopy
 import helper_functions as help_fun
 import numpy as np
-
+from SUAVE.Optimization.read_gradient_outputs import read_gradient_outputs
+from SUAVE.Optimization.write_gradient_outputs import write_gradient_outputs
 # ----------------------------------------------------------------------
 #  Nexus Class
 # ----------------------------------------------------------------------
@@ -22,19 +23,20 @@ import numpy as np
 class Nexus(Data):
     
     def __defaults__(self):
-        self.vehicle_configurations = SUAVE.Components.Configs.Config.Container()
-        self.analyses               = SUAVE.Analyses.Analysis.Container()
-        self.missions               = None
-        self.procedure              = Process()
-        self.results                = SUAVE.Analyses.Results()
-        self.summary                = Data()
-        self.optimization_problem   = None
-        self.last_inputs            = None
-        self.evaluation_count       = 0
-        self.finite_difference_step = 1E-8
-        self.gradient_values        = None
-        self.write_gradients        = True
-        
+        self.vehicle_configurations      = SUAVE.Components.Configs.Config.Container()
+        self.analyses                    = SUAVE.Analyses.Analysis.Container()
+        self.missions                    = None
+        self.procedure                   = Process()
+        self.results                     = SUAVE.Analyses.Results()
+        self.summary                     = Data()
+        self.optimization_problem        = None
+        self.last_inputs                 = None
+        self.evaluation_count            = 0
+        self.finite_difference_step      = 1E-8
+        self.gradient_values             = None
+        self.write_gradients             = True
+        self.minimum_gradient_write_step = 1E-4
+        self.gradient_filename           = 'gradient_results.txt'
         
         
     def evaluate(self,x = None):
@@ -196,6 +198,23 @@ class Nexus(Data):
         self.gradient_values = [grad_obj, jac_con]
         
         if self.write_gradients == True:
+            filename = self.gradient_filename
+            data_inputs, obj_grads, con_grads, read_success = read_gradient_outputs(filename, x, con)
+            #determine the initial step
+            min_norm = 1000.
+            diff = np.subtract(x, data_inputs)
+            imin_dist = -1 
+            if read_success:
+                for k in range(len(diff[:,-1])):
+                    row = diff[k,:]
+                    row_norm = np.linalg.norm(row)
+                    if row_norm < min_norm:
+                        min_norm = row_norm
+                        imin_dist = k*1 
+
+            if read_success == 0 or min_norm > self.minimum_gradient_write_step:
+                write_gradient_outputs(x, grad_obj, jac_con, filename)
+            '''
             grad_filename = 'gradient_results.txt'
             file = open(grad_filename, 'ab')
             file.write('inputs = ')
@@ -206,7 +225,7 @@ class Nexus(Data):
             file.write(str(jac_con.tolist()))
             file.write('\n') 
             file.close()    
-     
+            '''
      
      
         fail                 = 0
