@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # trapezoid_mac.py
 #
 # Created:  Mar 2014, T. Momose
@@ -8,7 +8,7 @@
 #  Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def trapezoid_mac(wing):
     """ mac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac(wing)
     This method computes the mean aerodynamic chord of a linearly tapered

@@ -1,3 +1,3 @@
-## @defgroup methods-flight_dynamics-static_stability Static_Stability
-# @ingroup methods-flight_dynamics
+## @defgroup Methods-Flight_Dynamics-Static_Stability Static_Stability
+# @ingroup Methods-Flight_Dynamics
 import Approximations

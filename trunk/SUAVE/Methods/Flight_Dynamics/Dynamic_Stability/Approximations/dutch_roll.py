@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 # dutch_roll.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -13,24 +14,11 @@ from SUAVE.Core import Data
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 def dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r)
         Calculate the natural frequency and damping ratio for the approximate dutch roll characteristics       
-        
-        Inputs:
-            velocity - flight velocity at the condition being considered [meters/seconds]
-            Cn_Beta - coefficient for change in yawing moment due to sideslip [dimensionless]
-            S_gross_w - area of the wing [meters**2]
-            density - flight density at condition being considered [kg/meters**3]
-            span - wing span of the aircraft [meters]
-            I_z - moment of interia about the body z axis [kg * meters**2]
-            Cn_r - coefficient for change in yawing moment due to yawing velocity [dimensionless]
-        
-        Outputs:
-            output - a data dictionary with fields:
-                dutch_w_n - natural frequency of the dutch roll mode [radian/second]
-                dutch_zeta - damping ratio of the dutch roll mode [dimensionless]
-            
+
         Assumptions:
             Major effect of rudder deflection is the generation of the Dutch roll mode.
             Dutch roll mode only consists of sideslip and yaw
@@ -46,6 +34,20 @@ def dutch_roll(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r):
             Perturbations from equilibrium are small
             Flow is Quasisteady
             
+        Inputs:
+            velocity - flight velocity at the condition being considered [meters/seconds]
+            Cn_Beta - coefficient for change in yawing moment due to sideslip [dimensionless]
+            S_gross_w - area of the wing [meters**2]
+            density - flight density at condition being considered [kg/meters**3]
+            span - wing span of the aircraft [meters]
+            I_z - moment of interia about the body z axis [kg * meters**2]
+            Cn_r - coefficient for change in yawing moment due to yawing velocity [dimensionless]
+        
+        Outputs:
+            output - a data dictionary with fields:
+                dutch_w_n - natural frequency of the dutch roll mode [radian/second]
+                dutch_zeta - damping ratio of the dutch roll mode [dimensionless]
+                       
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 132-134.
     """ 

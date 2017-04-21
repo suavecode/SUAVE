@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cy_psi.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -7,6 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 import numpy as np
 
 # ----------------------------------------------------------------------

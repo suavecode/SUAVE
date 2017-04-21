@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cz_alpha.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -7,6 +8,7 @@
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cz_alpha(cD, cL_alpha):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cz_alpha(cD, cL_alpha) 
         Calculating the coefficient of force in the z-direction with respect to alpha of attack of the aircraft        

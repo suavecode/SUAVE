@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # ep_alpha.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -13,6 +14,7 @@ import numpy as np
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def ep_alpha(cL_w_alpha, Sref, span):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.ep_alpha(cL_w_alpha, Sref, span, e) 
         Calculating the change in the downwash with change in angle of attack         

@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 # longitudinal.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -15,6 +16,7 @@ import numpy.polynomial.polynomial as P
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha)
         Calculate the natural frequency and damping ratio for the full linearized short period and phugoid modes        

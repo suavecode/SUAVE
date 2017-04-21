@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 # phugoid.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -13,21 +14,11 @@ from SUAVE.Core import Data
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 def phugoid(g, velocity, CD, CL):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.phugoid(g, velocity, CD, CL)
         Calculate the natural frequency and damping ratio for the approximate phugoid characteristics       
-        
-        Inputs:
-            g - gravitational constant [meters/second**2]
-            velocity - flight velocity at the condition being considered [meters/seconds]
-            CD - coefficient of drag [dimensionless]
-            CL - coefficient of lift [dimensionless]
 
-        Outputs:
-            output - a data dictionary with fields:
-                phugoid_w_n - natural frequency of the phugoid mode [radian/second]
-                phugoid_zeta - damping ratio of the phugoid mode [dimensionless]
-            
         Assumptions:
             constant angle of attack
             theta changes very slowly
@@ -42,6 +33,17 @@ def phugoid(g, velocity, CD, CL):
             Perturbations from equilibrium are small
             Flow is Quasisteady 
             
+        Inputs:
+            g - gravitational constant [meters/second**2]
+            velocity - flight velocity at the condition being considered [meters/seconds]
+            CD - coefficient of drag [dimensionless]
+            CL - coefficient of lift [dimensionless]
+
+        Outputs:
+            output - a data dictionary with fields:
+                phugoid_w_n - natural frequency of the phugoid mode [radian/second]
+                phugoid_zeta - damping ratio of the phugoid mode [dimensionless]
+                       
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 50-53.
     """ 

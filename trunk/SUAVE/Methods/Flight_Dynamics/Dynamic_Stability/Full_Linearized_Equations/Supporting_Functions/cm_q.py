@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cm_q.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -7,6 +8,7 @@
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cm_q(cm_i, l_t, mac):
     # Generating Stability derivative
     

@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cn_r.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -7,6 +8,7 @@
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cn_r(cDw, Sv, Sref, l_v, span, eta_v, cLv_alpha):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions(cDw, Sv, Sref, l_v, span, eta_v, cLv_alpha) 
         Calculating the yawing moment coefficient with respect to perturbational angular rate around the z-body-axis        

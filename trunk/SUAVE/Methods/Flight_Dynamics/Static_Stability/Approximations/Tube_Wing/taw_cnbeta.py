@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-tube_wing
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_Wing
 # taw_cnbeta.py
 #
 # Created:  Mar 2014, T. Momose
@@ -22,7 +22,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 # ----------------------------------------------------------------------
 #  Method
 # ----------------------------------------------------------------------
-## @ingroup methods-flight_dynamics-static_stability-approximations-tube_wing
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_Wing
 def taw_cnbeta(geometry,conditions,configuration):
     """ CnBeta = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta(configuration,conditions)
     This method computes the static directional stability derivative for a

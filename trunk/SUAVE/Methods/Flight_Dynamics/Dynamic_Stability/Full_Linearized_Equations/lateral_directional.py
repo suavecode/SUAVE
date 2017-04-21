@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 # lateral_directional.py
 # 
 # Created:  Apr 2014, A. Wendorff 
@@ -15,6 +16,7 @@ import numpy.polynomial.polynomial as P
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 def lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, I_x, Cl_p, J_xz, Cl_r, Cl_Beta, Cn_p, Cy_phi, Cy_psi, Cy_Beta, mass):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, I_x, Cl_p, J_xz, Cl_r, Cl_Beta, Cn_p, Cy_phi, Cy_psi, Cy_Beta)
         Calculate the natural frequency and damping ratio for the full linearized dutch roll mode along with the time constants for the roll and spiral modes        

@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # extend_to_ref_area.py
 #
 # Created:  Mar 2014, T. Momose
@@ -16,7 +16,7 @@ from SUAVE.Core import Data
 #  Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def extend_to_ref_area(surface):
     """ref_surface = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area(wing,)
     This method takes inputs describing the exposed portion of a trapezoidal

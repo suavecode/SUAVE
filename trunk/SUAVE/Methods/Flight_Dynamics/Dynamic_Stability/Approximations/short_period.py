@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 # short_period.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -13,10 +14,23 @@ from SUAVE.Core import Data
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 def short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot)
         Calculate the natural frequency and damping ratio for the approximate short period characteristics        
-        
+            
+        Assumptions:
+            X-Z axis is plane of symmetry
+            Constant mass of aircraft
+            Origin of axis system at c.g. of aircraft
+            Aircraft is a rigid body
+            Earth is inertial reference frame
+            Perturbations from equilibrium are small
+            Flow is Quasisteady
+            Constant forward airspeed
+            Neglect Cz_alpha_dot and Cz_q
+            Theta = 0
+            
         Inputs:
             velocity - flight velocity at the condition being considered [meters/seconds]
             density - flight density at condition being considered [kg/meters**3]
@@ -33,20 +47,7 @@ def short_period(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alp
             output - a data dictionary with fields:
                 w_n - natural frequency of the short period mode [radian/second]
                 zeta - damping ratio of the short period mode [dimensionless]
-            
-            
-        Assumptions:
-            X-Z axis is plane of symmetry
-            Constant mass of aircraft
-            Origin of axis system at c.g. of aircraft
-            Aircraft is a rigid body
-            Earth is inertial reference frame
-            Perturbations from equilibrium are small
-            Flow is Quasisteady
-            Constant forward airspeed
-            Neglect Cz_alpha_dot and Cz_q
-            Theta = 0
-            
+                
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 46-50.
     """ 

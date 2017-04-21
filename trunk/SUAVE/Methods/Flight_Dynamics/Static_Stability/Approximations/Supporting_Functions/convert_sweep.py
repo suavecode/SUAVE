@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # convert_sweep.py
 #
 # Created:  Feb 2014, T. Momose
@@ -13,7 +13,7 @@ import numpy as np
 #  Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25):
     """ new_sweep = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)
     This method converts the sweep of a wing planform to refer to a new

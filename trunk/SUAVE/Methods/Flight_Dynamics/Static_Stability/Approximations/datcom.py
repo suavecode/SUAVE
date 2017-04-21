@@ -1,4 +1,4 @@
-## @ingroup methods-flight_dynamics-static_stability-Approximations
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 # datcom.py
 #
 # Created:  Feb 2014, T. Momose
@@ -21,7 +21,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 #  Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-flight_dynamics-static_stability-Approximations
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 def datcom(wing,mach):
     """ cL_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom(wing,mach)
     This method uses the DATCOM formula to compute dCL/dalpha without 

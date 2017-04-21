@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cm_alphadot.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -6,7 +7,7 @@
 # ----------------------------------------------------------------------
 #   Method
 # ----------------------------------------------------------------------
-
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cm_alphadot(cm_i, ep_alpha, l_t, mac):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cm_alphadot(cm_i, ep_alpha, l_t, mac) 
         Calculating the pitching moment coefficient with respect to the rate of change of the alpha of attack of the aircraft        

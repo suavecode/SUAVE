@@ -1,5 +1,5 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions Supporting_Functions 
-# @ingroup methods-flight_dynamics-static_stability-approximations
+## @defgroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions Supporting_Functions 
+# @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 from convert_sweep import convert_sweep
 from extend_to_ref_area import extend_to_ref_area
 from trapezoid_ac_x import trapezoid_ac_x

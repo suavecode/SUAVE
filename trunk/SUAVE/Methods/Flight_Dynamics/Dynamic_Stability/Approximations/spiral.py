@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 # spiral.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -7,10 +8,21 @@
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 def spiral(mass, velocity, density, S_gross_w, Cl_p, Cn_Beta, Cy_phi, Cl_Beta, Cn_r, Cl_r):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.spiral()
         Calculate the approximate time constant for the spiral mode         
-        
+  
+        Assumptions:
+            Linearized equations of motion
+            X-Z axis is plane of symmetry
+            Constant mass of aircraft
+            Origin of axis system at c.g. of aircraft
+            Aircraft is a rigid body
+            Earth is inertial reference frame
+            Perturbations from equilibrium are small
+            Flow is Quasisteady
+            
         Inputs:
             mass - mass of the aircraft [kilograms]
             velocity - flight velocity at the condition being considered [meters/seconds]
@@ -25,17 +37,7 @@ def spiral(mass, velocity, density, S_gross_w, Cl_p, Cn_Beta, Cy_phi, Cl_Beta, C
         
         Outputs:
             spiral_tau - time constant for the spiral mode [seconds] (positive values are bad)
-            
-        Assumptions:
-            Linearized equations of motion
-            X-Z axis is plane of symmetry
-            Constant mass of aircraft
-            Origin of axis system at c.g. of aircraft
-            Aircraft is a rigid body
-            Earth is inertial reference frame
-            Perturbations from equilibrium are small
-            Flow is Quasisteady
-            
+                       
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 142.
     """ 

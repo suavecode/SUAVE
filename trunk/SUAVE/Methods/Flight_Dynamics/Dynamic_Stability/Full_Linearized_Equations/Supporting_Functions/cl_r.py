@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cl_r.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -6,7 +7,7 @@
 # ----------------------------------------------------------------------
 #   Method
 # ----------------------------------------------------------------------
-
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cl_r(cLw):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions(CLw) 
         Calculating the rolling moment coefficient with respect to perturbational angular rate around the z-body-axis        

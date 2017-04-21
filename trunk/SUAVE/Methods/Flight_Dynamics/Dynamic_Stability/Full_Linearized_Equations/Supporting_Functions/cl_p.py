@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cl_p.py
 #
 # Created:  Aug 2016, A. van Korlaar
@@ -7,6 +8,7 @@
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cl_p(cl_alpha, geometry):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cl_p(cl_alpha, geometry)
         Calculating the derivative of rolling moment with respect to roll rate

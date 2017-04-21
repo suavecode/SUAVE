@@ -1,3 +1,4 @@
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cx_u.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -8,6 +9,7 @@
 #   Method
 # ----------------------------------------------------------------------
 
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cx_u(cD):
     """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cx_u(cD) 
         Calculating the coefficient of force in the x direction with respect to the change in forward velocity of the aircraft        

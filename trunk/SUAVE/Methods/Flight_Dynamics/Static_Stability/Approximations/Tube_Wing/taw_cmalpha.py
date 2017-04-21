@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-tube_wing
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_wing
 # taw_cmalpha.py
 #
 # Created:  Apr 2014, T. Momose
@@ -15,7 +15,7 @@ from SUAVE.Methods.Center_of_Gravity.compute_mission_center_of_gravity import co
 #  Method
 # ----------------------------------------------------------------------
 
-## @defgroup methods-flight_dynamics-static_stability-approximations-tube_wing
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_wing
 def taw_cmalpha(geometry,mach,conditions,configuration):
     """ cm_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha(configuration,conditions)
         This method computes the static longitudinal stability derivative for a

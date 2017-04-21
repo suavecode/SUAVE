@@ -1,4 +1,4 @@
-## @defgroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # trapezoid_ac_x.py
 #
 # Created:  Mar 2014, T. Momose
@@ -14,7 +14,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 #  Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-flight_dynamics-static_stability-approximations-supporting_functions
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def trapezoid_ac_x(wing):
     """ dx_ac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x(wing)
     This method computes the aerodynamic center x-position of a linearly

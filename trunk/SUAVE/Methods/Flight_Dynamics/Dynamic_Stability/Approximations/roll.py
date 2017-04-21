@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 # roll.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -13,21 +14,11 @@ from SUAVE.Core import Data
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Approximations
 def roll(I_x, S_gross_w, density, velocity, span, Cl_p):
     """ roll_tau = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Approximations.roll(I_x, S_gross_w, density, velocity, span, Cl_p)
         Calculate the approximate time constant for the roll mode       
-        
-        Inputs:
-            I_x -  moment of interia about the body x axis [kg * meters**2]
-            S_gross_w - area of the wing [meters**2]
-            density - flight density at condition being considered [kg/meters**3]
-            span - wing span of the aircraft [meters]
-            velocity - flight velocity at the condition being considered [meters/seconds]
-            Cl_p - change in rolling moment due to the rolling velocity [dimensionless]
-        
-        Outputs:
-            roll_tau - approximation of the time constant of the roll mode of an aircraft [seconds] (positive values are bad)
-            
+
         Assumptions:
             Only the rolling moment equation is needed from the Lateral-Directional equations
             Sideslip and yaw angle are being neglected and thus set to be zero.
@@ -39,6 +30,17 @@ def roll(I_x, S_gross_w, density, velocity, span, Cl_p):
             Earth is inertial reference frame
             Perturbations from equilibrium are small
             Flow is Quasisteady
+            
+        Inputs:
+            I_x -  moment of interia about the body x axis [kg * meters**2]
+            S_gross_w - area of the wing [meters**2]
+            density - flight density at condition being considered [kg/meters**3]
+            span - wing span of the aircraft [meters]
+            velocity - flight velocity at the condition being considered [meters/seconds]
+            Cl_p - change in rolling moment due to the rolling velocity [dimensionless]
+        
+        Outputs:
+            roll_tau - approximation of the time constant of the roll mode of an aircraft [seconds] (positive values are bad)
             
         Source:
             J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 134-135.
