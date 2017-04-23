@@ -174,7 +174,12 @@ class AVL_Inviscid(Aerodynamics):
                 CL[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.lift_coefficient[:,0]
                 CD[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.drag_breakdown.induced.total[:,0]
                 CM[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.pitch_moment_coefficient[:,0]
-
+                
+#                print mach[j]
+#                print AoA[count]
+#                Coef_lift = results.aerodynamics.lift_coefficient[:,0]
+#                print Coef_lift
+#                
                 count += 1
             
             time1 = time.time()

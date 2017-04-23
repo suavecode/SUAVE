@@ -97,8 +97,9 @@ class AVL(Markup):
     finalize = initialize
     
     
-      
-
+#------------------------------------------------------------------------
+# Old AVL function call by Tim Momose & Andrew Wendroff      
+#------------------------------------------------------------------------
 ## AVL.py
 ##
 ## Created:  Tim Momose, Dec 2014 
