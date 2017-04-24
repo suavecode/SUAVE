@@ -9,7 +9,7 @@ class Greedy_Optimization(Data):
         
     def __defaults__(self):
         
-        self.tag                                = 'TR_Opt'
+        self.tag                                = 'Greedy_Opt'
         self.gradients                          = 'FD'
         self.trust_region_max_iterations        = 30
         self.optimizer_max_iterations           = 30
@@ -110,6 +110,9 @@ class Greedy_Optimization(Data):
         g_violation2_hi = 0 # post subproblem constraint violation (high fidelity)
         g_violation2_lo = 0 # post subproblem constraint violation (low fidelity)
      
+        xOpt = np.zeros(np.shape(x))
+        fOpt = None
+        gOpt = np.zeros(np.shape(scaled_constraints))
         
         while iterations < max_iterations:
             iterations += 1
@@ -117,9 +120,8 @@ class Greedy_Optimization(Data):
 
 
             
-            xOpt = np.zeros(np.shape(x))
-            fOpt = None
-            gOpt = np.zeros(np.shape(scaled_constraints))
+            
+            
             f    = [None]*self.fidelity_levels
             df   = [None]*self.fidelity_levels
             g    = [None]*self.fidelity_levels
@@ -189,10 +191,7 @@ class Greedy_Optimization(Data):
             gOpt_lo = np.zeros([1,len(con)])[0]
             
           
-            x_diff = xOpt_lo-x
-            if np.linalg.norm(x_diff)< self.soft_convergence_tolerance: 
-                print 'soft convergence reached'
-            
+           
             for ii in xrange(len(con)):
                 gOpt_lo[ii] = opt_prob._solutions[0]._constraints[ii].value
        
@@ -253,15 +252,29 @@ class Greedy_Optimization(Data):
                 print 'Update rejected (filter)\n'        
           
             
+            
+            '''
             # Terminate if solution is infeasible, no change is detected, and trust region does not expand
             if( success_indicator == 13 and tr_action < 3 and \
                 np.sum(np.isclose(xOpt,x,rtol=1e-15,atol=1e-14)) == len(x) ):
                 print 'Solution infeasible, no improvement can be made'
                 return -1       
-         
+            '''
+            
             print iterations
-            print x
-            print fOpt_hi
+            x_diff = xOpt_lo-xOpt
+            print 'x_diff = ', x_diff
+            print 'xOpt_lo = ', xOpt_lo
+            print 'xOpt = ', xOpt
+            xOpt = xOpt_lo*1.
+            if np.linalg.norm(x_diff)< self.soft_convergence_tolerance: 
+                print 'soft convergence reached'
+                return (fOpt,xOpt_lo)
+           
+           
+            #update
+            
+           
             aa = 0
             
         print 'Max iteration limit reached'
