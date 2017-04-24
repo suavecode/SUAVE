@@ -347,7 +347,10 @@ class Trust_Region_Optimization(Data):
         g  = problem.all_constraints(x)
         if der_flag == False:
             return f,g
-        df, dg = problem.evaluate_derivatives(x)
+        if self.gradients == 'FD':
+            df, dg, fail_flag = problem.finite_difference(x)
+        else:
+            df, dg = problem.evaluate_derivatives(x)
         #problem.evaluate_d
         
         '''

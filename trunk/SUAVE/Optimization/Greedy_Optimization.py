@@ -44,6 +44,7 @@ class Greedy_Optimization(Data):
         self.objective_history                  = []
         self.constraint_history                 = []
         self.relative_difference_history        = []
+        self.derivative_flag                    = False #tells you whether to evaluate derivatves
         
     def optimize(self,problem):
         inp = problem.optimization_problem.inputs
@@ -129,12 +130,16 @@ class Greedy_Optimization(Data):
             
             for level in self.evaluation_order:
                 problem.fidelity_level = level
-                res = self.evaluate_model(problem,x,scaled_constraints)
-                f[level-1]  = res[0]    # objective value
-                df[level-1] = res[1]    # objective derivate vector
-                g[level-1]  = res[2]    # constraints vector
-                dg[level-1] = res[3]    # constraints jacobian
-                
+                der_flag = self.derivative_flag
+                res = self.evaluate_model(problem,x,scaled_constraints, der_flag = der_flag )
+                if der_flag == True:
+                    f[level-1]  = res[0]    # objective value
+                    df[level-1] = res[1]    # objective derivate vector
+                    g[level-1]  = res[2]    # constraints vector
+                    dg[level-1] = res[3]    # constraints jacobian
+                else:
+                    f[level-1]  = res[0]
+                    g[level-1]  = res[1]
             if iterations == 0:
                 self.objective_history.append(f[0])
                 self.constraint_history.append(g[0])
@@ -209,7 +214,13 @@ class Greedy_Optimization(Data):
                        
             # Evaluate high-fidelity at optimum (including derivatives)
             problem.fidelity_level = np.max(self.fidelity_levels)
-            fOpt_hi, gOpt_hi, dfOpt_hi, dgOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=True)
+            if der_flag == True:
+                fOpt_hi, gOpt_hi, dfOpt_hi, dgOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=der_flag)
+            else:
+                fOpt_hi, gOpt_hi = self.evaluate_model(problem,xOpt_lo,scaled_constraints,der_flag=der_flag)
+            
+            
+            
             
             self.objective_history.append(fOpt_hi)
             self.constraint_history.append(gOpt_hi)

@@ -34,7 +34,7 @@ class Nexus(Data):
         self.evaluation_count            = 0
         self.finite_difference_step      = 1E-8
         self.gradient_values             = None
-        self.write_gradients             = True
+        self.write_gradients             = False
         self.minimum_gradient_write_step = 1E-4
         self.gradient_filename           = 'gradient_results.txt'
         

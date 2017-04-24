@@ -74,8 +74,8 @@ class Surrogate_Optimization(Data):
         
                 opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
             
-                #problem.objective()
-                problem.finite_difference()
+                problem.objective()
+                #problem.finite_difference()
                 
                 if problem.constraint_violation_exceeded == 0:
                     i = i-1; #run another point
