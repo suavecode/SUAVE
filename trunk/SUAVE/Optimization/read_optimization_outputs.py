@@ -46,17 +46,27 @@ def format_input_data(data):
 def read_optimization_outputs(filename, base_inputs, constraint_inputs):
     #need vector of initial inputs to determine where to separate 
     #inputs from constraints in text file
-    file_in = open(filename)
-    data = file_in.readlines()
-    file_in.close()
-    data = format_input_data(data)
-    
-    #unpack data
-    iterations    = data[:,0]
-    obj_values    = data[:,1]
-    inp_end_idx   = len(base_inputs)+2
-    const_end_idx = len(constraint_inputs)+inp_end_idx
-    inputs        = data[:,2:inp_end_idx]
-    constraints   = data[:,inp_end_idx:const_end_idx] #cannot use [-1] because it takes second to last value in list
-    return iterations, obj_values, inputs, constraints
+    try:
+        file_in = open(filename)
+        read_success   = 1
+    except IOError:
+        read_success   = 0    
+    if read_success:   
+        data = file_in.readlines()
+        file_in.close()
+        data = format_input_data(data)
+        
+        #unpack data
+        iterations    = data[:,0]
+        obj_values    = data[:,1]
+        inp_end_idx   = len(base_inputs)+2
+        const_end_idx = len(constraint_inputs)+inp_end_idx
+        inputs        = data[:,2:inp_end_idx]
+        constraints   = data[:,inp_end_idx:const_end_idx] #cannot use [-1] because it takes second to last value in list
+    else:
+        iterations  = 0
+        obj_values  = 0
+        inputs      = 0
+        constraints = 0 
+    return iterations, obj_values, inputs, constraints, read_success
     

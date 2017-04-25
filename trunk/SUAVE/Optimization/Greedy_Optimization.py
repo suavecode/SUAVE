@@ -209,7 +209,7 @@ class Greedy_Optimization(Data):
             print 'fOpt_lo = ', fOpt_lo
             print 'xOpt_lo = ', xOpt_lo
             print 'gOpt_lo = ', gOpt_lo
-           
+            x = 1.*xOpt_lo #restart problem from previous optimum
                        
             # Evaluate high-fidelity at optimum (including derivatives)
             problem.fidelity_level = np.max(self.fidelity_levels)
