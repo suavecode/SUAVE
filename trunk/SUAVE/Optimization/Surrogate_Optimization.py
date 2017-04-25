@@ -77,8 +77,9 @@ class Surrogate_Optimization(Data):
                 problem.objective()
                 #problem.finite_difference()
                 
-                if problem.constraint_violation_exceeded == 0:
-                    i = i-1; #run another point
+                if problem.has_key('constraint_violation_exceeded'):
+                    if problem.constraint_violation_exceeded == 0:
+                        i = i-1; #run another point
                 #constraints = problem.optimization_problem.constraints
                 #aliases     = problem.optimization_problem.aliases
                 #constraint_values  = get_values(nexus,constraints,aliases) 

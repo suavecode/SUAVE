@@ -182,8 +182,7 @@ class Greedy_Optimization(Data):
             opt.setOption('Major feasibility tolerance', self.optimizer_constraint_tolerance)
             opt.setOption('Function precision'         , self.optimizer_function_precision)
             opt.setOption('Verify level'               , self.optimizer_verify_level) 
-            
-            print 'self.gradients = ', self.gradients
+
             problem.fidelity_level = 1
             if self.gradients == 'FD':
                 outputs = opt(opt_prob, sens_type='FD',problem=problem)#, sens_step = sense_step)  
@@ -345,7 +344,7 @@ class Greedy_Optimization(Data):
             obj   = problem.objective(x)
             const = problem.all_constraints(x).tolist()
             #const = []
-            fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
+            fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)
             
 
             
