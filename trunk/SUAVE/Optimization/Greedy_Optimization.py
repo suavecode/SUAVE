@@ -209,7 +209,7 @@ class Greedy_Optimization(Data):
             print 'fOpt_lo = ', fOpt_lo
             print 'xOpt_lo = ', xOpt_lo
             print 'gOpt_lo = ', gOpt_lo
-            x = 1.*xOpt_lo #restart problem from previous optimum
+            #x = 1.*xOpt_lo #restart problem from previous optimum
                        
             # Evaluate high-fidelity at optimum (including derivatives)
             problem.fidelity_level = np.max(self.fidelity_levels)
@@ -229,7 +229,7 @@ class Greedy_Optimization(Data):
             problem.fidelity_level = 2
  
             # Soft convergence test
-            if( np.abs(fOpt_hi) <= self.function_precision and np.abs(f[-1]) <= self.trust_region_function_precision ):
+            if( np.abs(fOpt_hi) <= self.function_precision and np.abs(f[-1]) <= self.function_precision ):
                 relative_diff = 0
                 
             elif( np.abs(fOpt_hi) <= self.function_precision):
