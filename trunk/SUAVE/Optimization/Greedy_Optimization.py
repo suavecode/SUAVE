@@ -11,7 +11,7 @@ class Greedy_Optimization(Data):
         
         self.tag                                = 'Greedy_Opt'
         self.gradients                          = 'FD'
-        self.trust_region_max_iterations        = 30
+        self.max_iterations                     = 30
         self.optimizer_max_iterations           = 30
         #self.max_optimizer_function_evaluations = 1000
         
@@ -102,7 +102,7 @@ class Greedy_Optimization(Data):
         # ---------------------------
         
         iterations = 0
-        max_iterations = self.trust_region_max_iterations
+        max_iterations = self.max_iterations
 
         x = np.array(x,dtype='float')
 

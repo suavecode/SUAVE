@@ -268,7 +268,7 @@ class Sizing_Loop(Data):
             j+=1
             
             if i>max_iter: #
-                err=float('nan')*np.ones(np.size(err))
+                #err=float('nan')*np.ones(np.size(err))
                 print "###########sizing loop did not converge##########"
                 break
     
