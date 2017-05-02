@@ -48,8 +48,9 @@ def translate_avl_geometry(geometry):
 		aircraft.append_wing(w)
 
 	for body in geometry.fuselages:
-		b = translate_avl_body(body)
-		aircraft.append_body(b)
+		if body.configuration == 'tube_and_wing': # appends fuselage geometry for tube and wing configurations 
+			b = translate_avl_body(body)
+		        aircraft.append_body(b)
 
 	return aircraft
 
@@ -79,50 +80,6 @@ def translate_avl_body(suave_body):
 
 def populate_wing_sections(avl_wing,suave_wing): 
 
-#-----------------------------------------------------------------------
-#  Old AVL Wing Script by Emilio 2016
-#-----------------------------------------------------------------------
-#
-#      symm     = avl_wing.symmetric
-#      dihedral = avl_wing.dihedral
-#      semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
-#      origin   = suave_wing.origin
-#      sweep_quarter_chord    = 25. * (np.pi/180)
-#      chord_fraction = 0.25 # quarter chord
-#      segment_root_chord = suave_wing.chords.root
-#      segment_tip_chord = suave_wing.chords.tip
-#      sweep = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*semispan - chord_fraction*segment_tip_chord)) /semispan)
-#
-#      
-#      section = Section()
-#      section.tag    = 'root_section'
-#      section.origin = origin
-#      section.chord  = suave_wing.chords.root
-#      section.twist  = suave_wing.twists.root
-#      avl_wing.append_section(section)
-#      
-#      
-#      section = Section()
-#      section.tag  = 'tip_section'
-#      section.chord = suave_wing.chords.tip
-#      section.twist = suave_wing.twists.tip
-#      section.origin = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
-#    
-#      if avl_wing.vertical:
-#		temp = section.origin[2]
-#		section.origin[2] = section.origin[1]
-#		section.origin[1] = temp
-#                            
-#      
-#      avl_wing.append_section(section)
-#      return avl_wing
-
-
-
-
-#-----------------------------------------------------------------------
-#  New AVL Wing Script by Matthew 2017
-#-----------------------------------------------------------------------
 	symm     = avl_wing.symmetric
 	semispan = suave_wing.spans.projected*0.5 * (2 - symm)
 	origin = []
@@ -394,27 +351,3 @@ def translate_avl_configuration(geometry,conditions):
 	#No Iysym, Izsym assumed for now
 
 	return config
-
-
-#def translate_avl_cases(conditions,suave_cases):
-#	
-#	runcases = Run_Case.Container()
-#	
-#	for case in suave_cases:
-#		kase = Run_Case()
-#		kase.tag = case.tag
-#		kase.conditions.mach  = case.conditions.freestream.mach
-#		kase.conditions.v_inf = case.conditions.freestream.velocity
-#		kase.conditions.rho   = case.conditions.freestream.density
-#		kase.conditions.g     = case.conditions.freestream.gravitational_acceleration
-#		kase.angles.alpha     = case.conditions.aerodynamics.angle_of_attack
-#		kase.angles.beta      = case.conditions.aerodynamics.side_slip_angle
-#		kase.parasite_drag    = case.conditions.aerodynamics.parasite_drag
-#		
-#		for deflect in case.conditions.stability_and_control.control_surface_deflections:
-#			kase.append_control_deflection(deflect.tag,deflect.magnitude)
-#		
-#		runcases.append_case(case)
-#	
-#	return runcases
-

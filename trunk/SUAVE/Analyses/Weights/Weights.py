@@ -24,15 +24,20 @@ class Weights(Analysis):
         self.vehicle  = Data()
         
         self.settings = Data()
-        self.settings.empty_weight_method = \
-            SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        
+        #self.settings.empty_weight_method = \
+            #SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
         
         
     def evaluate(self,conditions=None):
         
         # unpack
         vehicle = self.vehicle
-        empty   = self.settings.empty_weight_method
+        
+        if vehicle.configuration == 'Tube_Wing':
+            empty   = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        elif vehicle.configuration == 'BWB':
+            empty   = SUAVE.Methods.Weights.Correlations.BWB.empty
         
         # evaluate
         results = empty(vehicle)

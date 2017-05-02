@@ -28,6 +28,7 @@ class Vehicle(Data):
 
     def __defaults__(self):
         self.tag = 'vehicle'
+        self.configuration          = 'Tube_Wing'  #default configuration
         self.fuselages              = Components.Fuselages.Fuselage.Container()
         self.wings                  = Components.Wings.Wing.Container()
         self.propulsors             = Components.Propulsors.Propulsor.Container()

@@ -123,7 +123,9 @@ class Fidelity_Zero(Stability):
         
         # Static Stability Methods
         static_stability.cm_alpha = taw_cmalpha(geometry,mach,conditions,configuration)
-        static_stability.cn_beta  = taw_cnbeta(geometry,conditions,configuration)
+	print static_stability.cm_alpha[0][0]
+        if geometry.wings['vertical_stabilizer']:
+	    static_stability.cn_beta  = taw_cnbeta(geometry,conditions,configuration)
         
         # Dynamic Stability
         if np.count_nonzero(configuration.mass_properties.moments_of_inertia.tensor) > 0:    

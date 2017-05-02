@@ -53,6 +53,10 @@ class Fuselage(Lofted_Body):
         
         self.differential_pressure = 0.0
         
+        # for flying wings 
+        self.aft_centerbody_area  = 0.0
+        self.aft_centerbody_taper = 0.0
+        self.cabin_area           = 0.0
         
 class Container(Physical_Component.Container):
     pass

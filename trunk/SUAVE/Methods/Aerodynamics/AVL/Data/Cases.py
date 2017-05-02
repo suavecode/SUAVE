@@ -47,6 +47,7 @@ class Run_Case(Data):
         self.conditions.aerodynamics = aero
 
         self.result_filename = None
+        self.eigen_result_filename = None
 
 
     def append_control_deflection(self,control_tag,deflection):
