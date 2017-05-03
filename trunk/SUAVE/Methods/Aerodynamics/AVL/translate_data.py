@@ -2,6 +2,7 @@
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -94,7 +95,6 @@ def translate_results_to_conditions(cases,results):
    
     res.aerodynamics.neutral_point            = ones_1col * 0
     
-    
     res.aerodynamics.roll_mode                   = ones_1col * 0  
     res.aerodynamics.dutch_roll_mode_1_real      = ones_1col * 0
     res.aerodynamics.dutch_roll_mode_1_imag      = ones_1col * 0
@@ -109,8 +109,6 @@ def translate_results_to_conditions(cases,results):
     res.aerodynamics.phugoid_mode_mode_1_imag    = ones_1col * 0
     res.aerodynamics.phugoid_mode_mode_2_real    = ones_1col * 0
     res.aerodynamics.phugoid_mode_mode_2_imag    = ones_1col * 0       
-
-    
 
     res.expand_rows(len(cases))
 
@@ -136,14 +134,6 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.Cmtot[i][0] = case_res.aerodynamics.Cmtot 
         res.aerodynamics.Cntot[i][0] = case_res.aerodynamics.Cntot        
     
-        #case_res.aerodynamics.roll_moment_coefficient  = float(lines[19][32:42].strip())
-        #case_res.aerodynamics.pitch_moment_coefficient = float(lines[20][32:42].strip())
-        #case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
-        #case_res.aerodynamics.total_lift_coefficient   = float(lines[23][10:20].strip())
-        #case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
-        #case_res.aerodynamics.induced_drag_coefficient = float(lines[25][32:42].strip())
-        #case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
-
         res.aerodynamics.roll_moment_coefficient[i][0] = case_res.aerodynamics.roll_moment_coefficient
         res.aerodynamics.pitch_moment_coefficient[i][0] = case_res.aerodynamics.pitch_moment_coefficient
         res.aerodynamics.yaw_moment_coefficient[i][0] = case_res.aerodynamics.yaw_moment_coefficient
@@ -178,8 +168,10 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.Cn_r[i][0] = case_res.stability.Cn_r 
         
         res.aerodynamics.neutral_point[i][0] = case_res.stability.neutral_point
-
-
+        
+        #-----------------------------------------------------------------------------------------------
+        #                         SUAVE-AVL dynamic stability analysis under development
+        #  
         #res.aerodynamics.roll_mode[i][0]                = case_res.stability.roll_mode_real        
         #res.aerodynamics.dutch_roll_mode_1_real[i][0]   = case_res.stability.dutch_roll_mode_1_real
         #res.aerodynamics.dutch_roll_mode_1_imag[i][0]   = case_res.stability.dutch_roll_mode_1_imag 
@@ -194,6 +186,7 @@ def translate_results_to_conditions(cases,results):
         #res.aerodynamics.phugoid_mode_mode_1_imag[i][0] = case_res.stability.phugoid_mode_1_imag
         #res.aerodynamics.phugoid_mode_mode_2_real[i][0] = case_res.stability.phugoid_mode_2_real 
         #res.aerodynamics.phugoid_mode_mode_2_imag[i][0] = case_res.stability.phugoid_mode_2_imag      
-
+        #
+        #-----------------------------------------------------------------------------------------------
 
     return res

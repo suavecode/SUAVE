@@ -2,7 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-
+# Modified: Arp 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -44,12 +44,4 @@ class Aircraft(Data):
 		# store data
 		self.bodies.append(body)
 		return
-  
-#  	def append_engine(self,engine):
-#		# assert database type
-#		if not isinstance(engine,Engine):
-#			raise Component_Exception, 'input component must be of type AVL.Data.Engine()'
-#
-#		# store data
-#		self.wings.append(engine)
-#		return
+

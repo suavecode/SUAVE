@@ -1,7 +1,6 @@
-# AVL.py
+# AVL_Inviscid.py
 #
-# Created:  Tim Momose, Dec 2014 
-# Modified: Feb 2016, Andrew Wendorff
+# Created: Apr 2017, M. Clarke 
 
 
 # ----------------------------------------------------------------------
@@ -87,7 +86,12 @@ class AVL_Inviscid(Aerodynamics):
         self.tag      = 'avl_analysis_of_{}'.format(geometry.tag)
 
         run_folder = self.settings.filenames.run_folder
-              
+        #if os.path.exists(run_folder):
+            #if self.keep_files:
+                #warn('deleting old avl run files',Warning)
+            #rmtree(run_folder)
+        #os.mkdir(run_folder)
+        
         # Sample training data
         self.sample_training()
     
@@ -124,7 +128,7 @@ class AVL_Inviscid(Aerodynamics):
         
         return inviscid_lift, inviscid_drag
        
-        
+       
         
 
     def sample_training(self):
@@ -170,8 +174,7 @@ class AVL_Inviscid(Aerodynamics):
                 CD[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.drag_breakdown.induced.total[:,0]
                 CM[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.pitch_moment_coefficient[:,0]
            
-                
-       
+           
                 count += 1
             
             time1 = time.time()
@@ -275,7 +278,7 @@ class AVL_Inviscid(Aerodynamics):
         output_template = self.settings.filenames.output_template
         batch_template  = self.settings.filenames.batch_template
         deck_template   = self.settings.filenames.deck_template
-        stability_output_template = self.settings.filenames.stability_output_template
+        #stability_output_template = self.settings.filenames.stability_output_template # SUAVE-AVL dynamic stability under development 
         
         # update current status
         self.current_status.batch_index += 1
@@ -291,7 +294,7 @@ class AVL_Inviscid(Aerodynamics):
         for case in cases:
             case.result_filename = output_template.format(case.tag)
         
-        case.eigen_result_filename = stability_output_template.format(batch_index)
+        #case.eigen_result_filename = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
 
             
     

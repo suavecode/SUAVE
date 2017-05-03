@@ -2,13 +2,13 @@
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from purge_files import purge_files
-#from SUAVE.Methods.Aerodynamics.AVL.write_run_cases import make_controls_case_text
 
 def write_run_cases(avl_object):
 

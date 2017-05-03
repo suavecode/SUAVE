@@ -1,7 +1,6 @@
 # AVL.py
 #
-# Created:  Sep 2016, E. Botero
-# Modified: Jan 2017, T. MacDonald
+# Created: Apr 2017, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,8 +44,7 @@ class AVL(Markup):
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
         settings.vsp_mesh_growth_limiting_flag      = False
-        
-        
+                
         # Build the evaluation process
         compute = self.process.compute
         compute.lift = Process()

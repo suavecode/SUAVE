@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Arp 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,6 +40,6 @@ class Configuration(Data):
 		
 		self.symmetry_settings = Data()
 		self.symmetry_settings.Iysym = 0	# Assumed y-symmetry of solution 
-											# (1: symmetric, -1: antisymmetric, 0: no symmetry assumed)
+							# (1: symmetric, -1: antisymmetric, 0: no symmetry assumed)
 		self.symmetry_settings.Izsym = 0	# Assumed z-symmetry of solution
 		self.symmetry_settings.Zsym = 0.0	# z-coordinate of plane of z-symmetry

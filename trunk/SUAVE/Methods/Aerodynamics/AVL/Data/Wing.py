@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Arp 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -83,7 +84,7 @@ class Control_Surface(Data):
 		self.x_hinge        = 0.0
 		self.hinge_vector   = '0. 0. 0.'
 		self.sign_duplicate = '+1'	# sign_duplicate: 1.0 or -1.0 - the sign of
-									# the duplicate control on the mirror wing.
-									# Use 1.0 for a mirrored control surface,
-									# like an elevator. Use -1.0 for an aileron.
+						# the duplicate control on the mirror wing.
+						# Use 1.0 for a mirrored control surface,
+						# like an elevator. Use -1.0 for an aileron.
 

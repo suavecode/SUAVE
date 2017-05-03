@@ -2,6 +2,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+# Modified: Apr 2017, Matthew Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,9 +35,9 @@ class Weights(Analysis):
         # unpack
         vehicle = self.vehicle
         
-        if vehicle.configuration == 'Tube_Wing':
+        if vehicle.fuselages.has_key('fuselage'):
             empty   = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
-        elif vehicle.configuration == 'BWB':
+        elif vehicle.fuselages.has_key('fuselage_bwb'):
             empty   = SUAVE.Methods.Weights.Correlations.BWB.empty
         
         # evaluate

@@ -2,14 +2,14 @@
 # 
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero
-
+# Modified: Apr 2017, M. Clarke
 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 from purge_files import purge_files
-from create_avl_datastructure import translate_avl_wing, translate_avl_body  #, translate_avl_engine
+from create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 
 def write_geometry(avl_object):
@@ -32,11 +32,13 @@ def write_geometry(avl_object):
             avl_wing = translate_avl_wing(w)
             wing_text = make_surface_text(avl_wing)
             geometry.write(wing_text)
-                      
+        
+                     
         for b in aircraft.fuselages:
-            avl_body = translate_avl_body(b)
-            body_text = make_body_text(avl_body)
-            geometry.write(body_text)
+            if b.tag == 'fuselage':
+                avl_body = translate_avl_body(b)
+                body_text = make_body_text(avl_body)
+                geometry.write(body_text)
             
     return
 
@@ -78,37 +80,11 @@ def make_header_text(avl_object):
     return header_text
 
 
-
 def make_surface_text(avl_wing):
-#    # Template for a surface
-#    surface_base = \
-#'''
-#
-##---------------------------------------------------------
-#SURFACE
-#{0}
-##Nchordwise  Cspace   Nspanwise  Sspace
-#20           1.0      26         -1.1
-#'''
-
-#    # Unpack inputs
-#    symm = avl_wing.symmetric
-##	vert = avl_wing.vertical
-#    name = avl_wing.tag
-#
-#    if symm:
-#        ydup = '\n\nYDUPLICATE\n0.0\n'
-#    else:
-#        ydup     = ' '
-#    
-#    surface_text = surface_base.format(name,ydup)
-#    
-   
-
+    # Template for a surface
     ordered_tags = []         
     
     if avl_wing.vertical:
-        # Template for a surface
         surface_base = \
  '''
 
@@ -132,8 +108,8 @@ SURFACE
         for i in xrange(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text = surface_text + section_text 
+            
     else:
-        # Template for a surface
         surface_base = \
 '''
         
@@ -160,8 +136,8 @@ SURFACE
 
     return surface_text
 
-def make_body_text(avl_body):
-    
+
+def make_body_text(avl_body):    
     # Template for a surface
     surface_base = \
 '''
@@ -197,6 +173,7 @@ SURFACE
     body_text = horizontal_text + vertical_text
     return body_text  
 
+
 def make_wing_section_text(avl_section):
     # Template for a section
     section_base = \
@@ -227,7 +204,6 @@ AFILE
         section_text = section_text + control_text
 
     return section_text
-
 
     
 def make_body_section_text(avl_body_section):
@@ -262,7 +238,6 @@ AFILE
     return section_text
 
     
-
 def make_controls_text(avl_control_surface):
     # Template for a control surface
     control_base = \

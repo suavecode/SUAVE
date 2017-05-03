@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -33,9 +34,15 @@ def write_input_deck(avl_object):
             case_command = make_case_command(avl_object,case)
             input_deck.write(case_command)
             
+        #-----------------------------------------------------------------
+        #          SUAVE-AVL dynamic stability analysis under development
+        #          
         # write store dynamics stability result files 
-        #em_case_command = make_eigen_mode_case_command(avl_object,case)
-        #input_deck.write(em_case_command)
+        # em_case_command = make_eigen_mode_case_command(avl_object,case)
+        # input_deck.write(em_case_command)
+        #
+        #-----------------------------------------------------------------
+         
         input_deck.write('\n\nQUIT\n')
 
     return

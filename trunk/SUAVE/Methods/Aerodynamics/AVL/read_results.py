@@ -2,6 +2,7 @@
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -74,6 +75,10 @@ def read_results(avl_object):
             case_res.stability.neutral_point  = float(lines[50+13*(num_ctrl>0)][22:33].strip())
 
             results.append(case_res)
+       
+        #------------------------------------------------------------------------------------------
+        #          SUAVE-AVL dynamic stability analysis under development
+        #          
         #with open(case.eigen_result_filename,'r') as eigen_res_file:
             #lines   = eigen_res_file.readlines()
             #index = i*8
@@ -94,5 +99,6 @@ def read_results(avl_object):
             
         #i += 1
         #results.append(case_res)
-
+        #
+        #------------------------------------------------------------------------------------------
     return results

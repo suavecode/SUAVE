@@ -81,9 +81,9 @@ def empty(vehicle):
     ac_type    = vehicle.systems.accessories
      
     num_seats  = vehicle.passengers
-    bwb_aft_centerbody_area= vehicle.fuselages['fuselage'].aft_centerbody_area
-    bwb_aft_centerbody_taper = vehicle.fuselages['fuselage'].aft_centerbody_taper
-    bwb_cabin_area = vehicle.fuselages['fuselage'].cabin_area
+    bwb_aft_centerbody_area= vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
+    bwb_aft_centerbody_taper = vehicle.fuselages['fuselage_bwb'].aft_centerbody_taper
+    bwb_cabin_area = vehicle.fuselages['fuselage_bwb'].cabin_area
     
   
     
@@ -121,6 +121,7 @@ def empty(vehicle):
         sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
+        S_h        = vehicle.wings['main_wing'].areas.reference*0.01 # control surface area on bwb
         wt_wing    = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
     
@@ -129,11 +130,11 @@ def empty(vehicle):
     wt_landing_gear    = landing_gear(TOW)
     wt_cabin        = cabin(bwb_cabin_area, TOW)
     wt_aft_centerbody = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
-    output_2           = systems(num_seats, ctrl_type, S_gross_w, ac_type)
+    output_2           = systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
 
     # Calculate the equipment empty weight of the aircraft
     wt_empty           = (wt_wing + wt_cabin + wt_aft_centerbody + wt_landing_gear + wt_propulsion + output_2.wt_systems)
-    vehicle.fuselages['fuselage'].mass_properties.mass = wt_cabin 
+    vehicle.fuselages['fuselage_bwb'].mass_properties.mass = wt_cabin 
 
     
     # packup outputs
@@ -144,7 +145,7 @@ def empty(vehicle):
     output.landing_gear      = wt_landing_gear
     output.systems                   = output_2.wt_systems       
     output.systems_breakdown = Data()
-    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
+    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl 
     output.systems_breakdown.apu               = output_2.wt_apu         
     output.systems_breakdown.hydraulics        = output_2.wt_hyd_pnu     
     output.systems_breakdown.instruments       = output_2.wt_instruments 
