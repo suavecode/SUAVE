@@ -33,7 +33,7 @@ def section_properties(state,settings,geometry):
     
     # Calculate 2-D CLmax
     # From 241 A/B notes
-    Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+    Cl_max_ref = -0.0009*tc**3. + 0.0217*tc**2. - 0.0442*tc + 0.7005
     Re_ref     = 9.*10**6
     #CL1maxp = Cl_max_ref * ( RE / Re_ref ) **0.1
     CL1maxp = 1.5 * np.ones_like(state.conditions.freestream.altitude)

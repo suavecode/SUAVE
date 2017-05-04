@@ -507,11 +507,11 @@ class Propeller(Energy_Component):
         # unpack
         surrogate = self.surrogate
         altitude  = conditions.freestream.altitude
-        Vv     = conditions.frames.inertial.velocity_vector
+        Vv        = conditions.frames.inertial.velocity_vector
         rho       = conditions.freestream.density[:,0,None]        
         omega     = self.inputs.omega
         R         = self.tip_radius 
-        theta  = self.thrust_angle
+        theta     = self.thrust_angle
         
         
         # Velocity in the Body frame
