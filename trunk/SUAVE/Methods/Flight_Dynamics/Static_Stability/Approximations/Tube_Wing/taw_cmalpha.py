@@ -84,6 +84,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
 
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
+    Cm0_surf     = []
     for surf in geometry.wings:
         #Unpack inputs
         s         = surf.areas.reference
@@ -93,11 +94,21 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
         vertical  = surf.vertical
+        twist_r   = surf.twists.root
+        twist_t   = surf.twists.tip     
+        al0       = surf.zero_angle_lift_coefficient
+        taper     = surf.taper
+        cmac      = surf.zero_angle_moment_coefficient
+        
+        # Average out the incidence angles to ge the zero angle lift
+        CL0_surf   = CL_alpha * ((twist_r+taper*twist_t)/2. -al0)
         
         #Calculate Cm_alpha contributions
         l_surf    = x_surf + x_ac_surf - x_cg
         Cma       = -l_surf*s/(mac*Sref)*(CL_alpha*eta*downw)*(1. - vertical)
+        cmo       = cmac+ s*eta*CL0_surf*l_surf*downw(1. - vertical)/(mac*Sref)
         CmAlpha_surf.append(Cma)
+        Cm0_surf.append(cmo)
     
     #Evaluate the effect of the fuselage on the stability derivative
     p  = x_rqc/l_f
@@ -106,7 +117,9 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     
     cm_alpha = sum(CmAlpha_surf) + CmAlpha_body
     
-    return cm_alpha
+    CM0 = sum(CmAlpha_surf)
+    
+    return cm_alpha, CM0
 
 # ----------------------------------------------------------------------
 #   Module Tests

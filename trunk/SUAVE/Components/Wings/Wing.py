@@ -82,6 +82,8 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
+        self.Airfoil.zero_angle_moment_coefficient = 0.0
+        self.Airfoil.zero_angle_lift_coefficient   = 0.0
 
     def append_segment(self,segment):
         """ adds a segment to the wing """
