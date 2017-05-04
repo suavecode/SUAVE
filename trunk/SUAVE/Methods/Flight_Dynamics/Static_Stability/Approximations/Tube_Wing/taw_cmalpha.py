@@ -112,10 +112,11 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     
     #Evaluate the effect of the fuselage on the stability derivative
     if geometry.fuselages.has_key('fuselage'):
-        
-        x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
         w_f   = geometry.fuselages['fuselage'].width
-        l_f   = geometry.fuselages['fuselage'].lengths.total    
+        l_f   = geometry.fuselages['fuselage'].lengths.total
+        x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
+        
+            
         p  = x_rqc/l_f
         Kf = 1.5012*p**2. + 0.538*p + 0.0331
         CmAlpha_body = Kf*w_f*w_f*l_f/Sref/mac   #NEGLECTS TAIL EFFECT ON CL_ALPHA

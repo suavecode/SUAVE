@@ -15,7 +15,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_loc
 #  Computer Aircraft Center of Gravity
 # ----------------------------------------------------------------------
 
-def compute_component_centers_of_gravity(vehicle):
+def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = True):
     
 
     #computes the CG of all of the vehicle components based on correlations from AA241
@@ -58,7 +58,9 @@ def compute_component_centers_of_gravity(vehicle):
     control_systems.origin                                  = wing.origin
     control_systems.mass_properties.center_of_gravity[0]    = .4*wing.chords.mean_aerodynamic+mac_le_offset
     
-    propulsor.origin[0][0]                                  = wing.origin[0]+mac_le_offset/2.-(3./4.)*propulsor.engine_length
+    
+    if compute_propulsor_origin == True:
+        propulsor.origin[0][0]                               = wing.origin[0]+mac_le_offset/2.-(3./4.)*propulsor.engine_length
     propulsor.mass_properties.center_of_gravity[0]          = propulsor.engine_length*.5
     
     
@@ -66,31 +68,34 @@ def compute_component_centers_of_gravity(vehicle):
     fuel.origin                                             = wing.origin
     fuel.mass_properties.center_of_gravity                  = wing.mass_properties.center_of_gravity 
     
-     
+       
+    fuse_key           = vehicle.fuselages.keys()[0] #['fuselage']
+    fuselage           = vehicle.fuselages[fuse_key]
+    fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total
+    electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0][0]+  .5*fuselage.lengths.total)+.25*(propulsor.origin[0][0]+propulsor.mass_properties.center_of_gravity[0])      
+    avionics.origin                                         = fuselage.origin
+    avionics.mass_properties.center_of_gravity[0]           = .4*fuselage.lengths.nose
     
-    if  vehicle.fuselages['fuselage']:   
-        fuselage           = vehicle.fuselages['fuselage']
-        fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total
-        electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0][0]+  .5*fuselage.lengths.total)+.25*(propulsor.origin[0][0]+propulsor.mass_properties.center_of_gravity[0])      
-        avionics.origin                                         = fuselage.origin
-        avionics.mass_properties.center_of_gravity[0]           = .4*fuselage.lengths.nose
-        
-        furnishings.origin                                      = fuselage.origin
-        furnishings.mass_properties.center_of_gravity[0]        = .51*fuselage.lengths.total
-        
-        passenger_weights.origin                                = fuselage.origin
-        passenger_weights.mass_properties.center_of_gravity[0]  = .51*fuselage.lengths.total
-        
-        air_conditioner.origin                                  = fuselage.origin
-        air_conditioner.mass_properties.center_of_gravity[0]    = fuselage.lengths.nose
-        
-        #assumption that it's at 90% of fuselage length (not from notes)
-        apu.origin                                              = fuselage.origin
-        apu.mass_properties.center_of_gravity[0]                = .9*fuselage.lengths.total 
-                
-        optionals.origin                                        = fuselage.origin
-        optionals.mass_properties.center_of_gravity[0]          = .51*fuselage.lengths.total
-        
-        hydraulics.origin                                       = fuselage.origin
-        hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity) +.25*(propulsor.origin+propulsor.mass_properties.center_of_gravity)       
+    furnishings.origin                                      = fuselage.origin
+    furnishings.mass_properties.center_of_gravity[0]        = .51*fuselage.lengths.total
+    
+    passenger_weights.origin                                = fuselage.origin
+    passenger_weights.mass_properties.center_of_gravity[0]  = .51*fuselage.lengths.total
+    
+    air_conditioner.origin                                  = fuselage.origin
+    air_conditioner.mass_properties.center_of_gravity[0]    = fuselage.lengths.nose
+    
+    #assumption that it's at 90% of fuselage length (not from notes)
+    apu.origin                                              = fuselage.origin
+    apu.mass_properties.center_of_gravity[0]                = .9*fuselage.lengths.total 
+            
+    optionals.origin                                        = fuselage.origin
+    optionals.mass_properties.center_of_gravity[0]          = .51*fuselage.lengths.total
+    
+    hydraulics.origin                                       = fuselage.origin
+    
+    
+    
+    
+    hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity) +.25*(propulsor.origin[0]+propulsor.mass_properties.center_of_gravity)       
     return 0
