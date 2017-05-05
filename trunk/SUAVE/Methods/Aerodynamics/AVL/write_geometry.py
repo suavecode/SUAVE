@@ -189,11 +189,11 @@ AFILE
 '''
 
     # Unpack inputs
-    x_le    = round(avl_section.origin[0], 3)
-    y_le    = round(avl_section.origin[1], 3)
-    z_le    = round(avl_section.origin[2], 3)
-    chord   = round(avl_section.chord, 3)
-    ainc    = round(avl_section.twist, 3)
+    x_le    = avl_section.origin[0]
+    y_le    = avl_section.origin[1]
+    z_le    = avl_section.origin[2]
+    chord   = avl_section.chord
+    ainc    = avl_section.twist
     airfoil = avl_section.airfoil_coord_file
 
     section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
@@ -221,10 +221,10 @@ AFILE
 '''
 
     # Unpack inputs
-    x_le    = round(avl_body_section.origin[0], 3)
-    y_le    = round(avl_body_section.origin[1], 3)
-    z_le    = round(avl_body_section.origin[2], 3)
-    chord   = round(avl_body_section.chord, 3)
+    x_le    = avl_body_section.origin[0]
+    y_le    = avl_body_section.origin[1]
+    z_le    = avl_body_section.origin[2]
+    chord   = avl_body_section.chord
     ainc    = avl_body_section.twist
     airfoil = avl_body_section.airfoil_coord_file
 
@@ -248,7 +248,7 @@ def make_controls_text(avl_control_surface):
     # Unpack inputs
     name     = avl_control_surface.tag
     gain     = avl_control_surface.gain
-    xhinge   = round(avl_control_surface.x_hinge, 3)
+    xhinge   = avl_control_surface.x_hinge
     hv       = avl_control_surface.hinge_vector
     sign_dup = avl_control_surface.sign_duplicate
 
