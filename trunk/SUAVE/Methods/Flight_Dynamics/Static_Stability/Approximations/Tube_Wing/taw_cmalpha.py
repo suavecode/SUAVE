@@ -126,7 +126,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     
     cm_alpha = sum(CmAlpha_surf) + CmAlpha_body
     
-    CM0 = sum(CmAlpha_surf)
+    CM0 = sum(Cm0_surf)
     
     CM = cm_alpha*alpha + CM0
     

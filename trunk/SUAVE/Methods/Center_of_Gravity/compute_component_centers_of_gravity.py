@@ -41,14 +41,14 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Tru
     mac_le_offset                              = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
     wing.mass_properties.center_of_gravity[0]   = .3*wing.chords.mean_aerodynamic + mac_le_offset
     
-    if vehicle.wings['horizontal_stabilizer']:
+    if vehicle.wings.has_key('horizontal_stabilizer'):
         h_tail             = vehicle.wings['horizontal_stabilizer']
         chord_length_h_tail_35_percent_semi_span   = compute_chord_length_from_span_location(h_tail,.35*h_tail.spans.projected*.5)
         h_tail_35_percent_semi_span_offset         =.8*np.sin(h_tail.sweeps.quarter_chord)*.35*.5*h_tail.spans.projected   
         h_tail.mass_properties.center_of_gravity[0] = .3*chord_length_h_tail_35_percent_semi_span + \
         h_tail_35_percent_semi_span_offset
         
-    if vehicle.wings['vertical_stabilizer']:
+    if vehicle.wings.has_key('vertical_stabilizer'):
         v_tail             = vehicle.wings['vertical_stabilizer']
         chord_length_v_tail_35_percent_semi_span   = compute_chord_length_from_span_location(v_tail,.35*v_tail.spans.projected*.5)
         v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweeps.quarter_chord)*.35*.5*v_tail.spans.projected
