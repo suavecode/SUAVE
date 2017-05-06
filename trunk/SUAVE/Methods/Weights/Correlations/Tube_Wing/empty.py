@@ -119,7 +119,6 @@ def empty(vehicle):
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     
     S_gross_w  = vehicle.reference_area
-    #S_gross_w  = vehicle.wings['main_wing'].Areas.reference
     if not vehicle.wings.has_key('main_wing'):
         wt_wing = 0.0
         wing_c_r = 0.0
@@ -175,8 +174,9 @@ def empty(vehicle):
         
     # Calculating Empty Weight of Aircraft
     wt_landing_gear    = landing_gear(TOW)
-    wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r)
-    output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
+    
+    wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r) 
+    output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)  
 
     # Calculate the equipment empty weight of the aircraft
     wt_empty           = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
@@ -194,7 +194,7 @@ def empty(vehicle):
     output.horizontal_tail   = wt_tail_horizontal
     output.vertical_tail     = output_3.wt_tail_vertical
     output.rudder            = output_3.wt_rudder
-    output.systems                   = output_2.wt_systems       
+    output.systems           = output_2.wt_systems       
     output.systems_breakdown = Data()
     output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
     output.systems_breakdown.apu               = output_2.wt_apu         

@@ -288,7 +288,7 @@ class AVL(Stability):
 	    Cn_beta    = data_array[:,4:5]
 	    NP         = data_array[:,5:6] 
         # Save the data
-        np.savetxt(geometry.tag+'_data.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='AoA Mach CL CD')
+        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='AoA Mach CM Cm_alpha Cn_beta NP ')
 
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])

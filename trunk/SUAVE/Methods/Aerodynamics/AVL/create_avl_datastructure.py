@@ -78,61 +78,87 @@ def translate_avl_body(suave_body):
 
 def populate_wing_sections(avl_wing,suave_wing): 
 
-        symm     = avl_wing.symmetric
-        semispan = suave_wing.spans.projected*0.5 * (2 - symm)
-        origin = []
-        origin.append(suave_wing.origin)
-
-        root_chord =  suave_wing.chords.root
-        segment_percent_span = 0;
 
         # Check to see if segments are defined. Get count
         if len(suave_wing.Segments.keys())>0:
+                symm     = avl_wing.symmetric
+                semispan = suave_wing.spans.projected*0.5 * (2 - symm)
+                origin = []
+                origin.append(suave_wing.origin)
+        
+                root_chord =  suave_wing.chords.root
+                segment_percent_span = 0;   
                 n_segments = len(suave_wing.Segments.keys())
-        else:
-                n_segments = 0      
-
-        # obtain the geometry for each segment in a loop
-        for i_segs in xrange(n_segments):
-                # convert quarter chord sweeps to leading edge sweeps 
-                if (i_segs == n_segments-1):
-                        sweep = 0
-                else: 
-                        if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
-                                sweep = suave_wing.Segments[i_segs].sweeps.sweeps.leading_edge
-                        else:          
-                                sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
-                                chord_fraction = 0.25 # quarter chord
-                                segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
-                                segment_tip_chord = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
-                                segment_span = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
-                                sweep = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
-                dihedral = suave_wing.Segments[i_segs].dihedral_outboard
-                section = Section() 
-                section.tag = suave_wing.Segments[i_segs].tag
-                section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
-                section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
-                section.origin =  origin[i_segs]
-                if suave_wing.Segments[i_segs].Airfoil:
-                        section.airfoil_coord_file = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
-
-                #append section to wing 
-                avl_wing.append_section(section)
-
-                # update origin for next segment
-                if (i_segs == n_segments-1):
-                        return avl_wing
-
-
-                segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
+                
+                # obtain the geometry for each segment in a loop
+                for i_segs in xrange(n_segments):
+                        # convert quarter chord sweeps to leading edge sweeps 
+                        if (i_segs == n_segments-1):
+                                sweep = 0
+                        else: 
+                                if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
+                                        sweep = suave_wing.Segments[i_segs].sweeps.leading_edge
+                                else:          
+                                        sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
+                                        chord_fraction = 0.25 # quarter chord
+                                        segment_root_chord = root_chord*suave_wing.Segments[i_segs].root_chord_percent
+                                        segment_tip_chord = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
+                                        segment_span = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
+                                        sweep = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
+                        dihedral = suave_wing.Segments[i_segs].dihedral_outboard
+                        section = Section() 
+                        section.tag = suave_wing.Segments[i_segs].tag
+                        section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
+                        section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
+                        section.origin =  origin[i_segs]
+                        if suave_wing.Segments[i_segs].Airfoil:
+                                section.airfoil_coord_file = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
+        
+                        #append section to wing 
+                        avl_wing.append_section(section)
+        
+                        # update origin for next segment
+                        if (i_segs == n_segments-1):
+                                return avl_wing
+        
+        
+                        segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
+                        if avl_wing.vertical:
+                                origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep),\
+                                                origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) ,\
+                                                origin[i_segs][2] + semispan*segment_percent_span])
+                        else:
+                                origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , \
+                                                origin[i_segs][1] + semispan*segment_percent_span,\
+                                                origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)])                
+        else:    
+                symm     = avl_wing.symmetric
+                sweep    = suave_wing.sweeps.quarter_chord
+                dihedral = suave_wing.dihedral
+                span     = suave_wing.spans.projected
+                semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
+                origin   = suave_wing.origin
+                
+                root_section = Section()
+                root_section.tag    = 'root_section'
+                root_section.origin = origin
+                root_section.chord  = suave_wing.chords.root
+                root_section.twist  = suave_wing.twists.root
+        
+                tip_section = Section()
+                tip_section.tag  = 'tip_section'
+                tip_section.chord = suave_wing.chords.tip
+                tip_section.twist = suave_wing.twists.tip
+                tip_section.origin = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
+                
                 if avl_wing.vertical:
-                        origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep),\
-                                        origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) ,\
-                                        origin[i_segs][2] + semispan*segment_percent_span])
-                else:
-                        origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , \
-                                        origin[i_segs][1] + semispan*segment_percent_span,\
-                                        origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)])
+                        temp = tip_section.origin[2]
+                        tip_section.origin[2] = tip_section.origin[1]
+                        tip_section.origin[1] = temp
+        
+                avl_wing.append_section(root_section)
+                avl_wing.append_section(tip_section)
+
         return avl_wing
 
 
