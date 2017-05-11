@@ -62,6 +62,9 @@ def lift_drag_total(state,settings,geometry):
         # Equation 3b
         CL[alpha<=A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
         
+        ## TTHIS LINE SHOULD NOT BE HERE EVER!
+        #CL[alpha>= .3] = np.fmin(CL1[alpha>= .3],0.)
+        
         # Equation 3c
         CD            = np.fmax(CD1,CD2)
         
@@ -73,13 +76,19 @@ def lift_drag_total(state,settings,geometry):
         else:
             pass
         
+    #print 'Alpha'
+    #print alpha
+    #print 'CL'
+    #print CL_total
+
+        
     CD_total = CD_total + settings.drag_coefficient_increment
         
     # Pack outputs
     state.conditions.aerodynamics.lift_coefficient = CL_total
     state.conditions.aerodynamics.drag_coefficient = CD_total
     
-    return CL, CD
+    return CL, CD_total
 
 # ----------------------------------------------------------------------
 #  Lift Total
@@ -89,7 +98,7 @@ def lift_total(state,settings,geometry):
     """"""
     
     CL = state.conditions.aerodynamics.lift_coefficient     
-    
+
     return CL
 
 # ----------------------------------------------------------------------

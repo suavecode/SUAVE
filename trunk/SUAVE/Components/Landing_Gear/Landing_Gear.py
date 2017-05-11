@@ -27,10 +27,10 @@ class Landing_Gear(Physical_Component):
 
 
 
+class Container(Physical_Component.Container):
+    pass
         
 
-        
-        
         
         
         
