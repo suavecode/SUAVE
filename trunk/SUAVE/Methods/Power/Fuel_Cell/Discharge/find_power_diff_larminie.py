@@ -1,3 +1,4 @@
+## @ingroup methods-power-fuel_cell-discharge
 # find_power_diff_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -13,11 +14,24 @@ from find_power_larminie import find_power_larminie
 # ----------------------------------------------------------------------
 #  Find Power Difference Larminie
 # ----------------------------------------------------------------------
-
+## @ingroup methods-power-fuel_cell-discharge
 def find_power_diff_larminie(current_density, fuel_cell, power_desired):
-                                    
+    '''
+    function that determines the power difference between the actual power
+    and a desired input power, based on an input current density
+
+    Inputs:
+    current_density                [Amps/m**2]
+    power_desired                  [Watts]
+      fuel_cell
+      
+    
+    Outputs
+    (power_desired-power_out)**2   [Watts**2]
+    '''
     #obtain power output in W
+    
     power_out     = find_power_larminie(current_density, fuel_cell)              
     
     #want to minimize
-    return abs(power_desired-power_out)
+    return (power_desired-power_out)**2.#abs(power_desired-power_out)

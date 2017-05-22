@@ -32,6 +32,13 @@ def initialize_from_energy_and_power(battery, energy, power, max='hard'):
       specific_energy [J/kg]               
       specific_power  [W/kg]
     
+    Outputs:
+     battery.
+       max_energy
+       max_power
+       mass_properties.
+        mass
+    
     
     """
     
