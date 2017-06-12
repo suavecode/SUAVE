@@ -14,7 +14,7 @@ from SUAVE.Core import (
     Data, Container,
     )
 
-def Empty(vehicle):
+def empty(vehicle):
     
     """
     Structural Weight correlation from all 415 samples of fixed-wing UAVs and sailplanes
