@@ -131,6 +131,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_fuel        = 0.0
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
+        self.center_of_gravity = [0.0,0.0,0.0]
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
 
 

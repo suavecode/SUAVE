@@ -22,7 +22,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction):
         #computes the CG for the vehicle from the assigned vehicle mass properties and locations
         
         #unpack components
-        wing               = vehicle.wings['main_wing']\
+        wing               = vehicle.wings['main_wing']
           
         #compute moments from each component about the nose of the aircraft
         # Wing
@@ -59,13 +59,14 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction):
         # configurations with fuselages (BWB, Tube and Wing)  
         # ---------------------------------------------------------------------------------
         if vehicle.fuselages.keys() != []: 
+                # fuel
                 fuel_cg                   = fuel.mass_properties.center_of_gravity
                 fuel_moment               = (fuel.origin+fuel_cg)*fuel.mass_properties.mass                
                 fuse_key           = vehicle.fuselages.keys()[0] #['fuselage']
                 fuselage           = vehicle.fuselages[fuse_key]            
                 
-                control_systems    = vehicle.control_systems
                 # Control Sytems
+                control_systems    = vehicle.control_systems                
                 control_systems_cg        = control_systems.mass_properties.center_of_gravity
                 control_systems_moment    = (control_systems.origin+control_systems_cg )*control_systems.mass_properties.mass
                 

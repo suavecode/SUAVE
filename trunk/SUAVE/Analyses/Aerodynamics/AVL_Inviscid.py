@@ -69,9 +69,16 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.err_filename = sys.stderr
         
         # Conditions table, used for surrogate model training
-        self.training = Data()        
-        self.training.angle_of_attack  = np.array([-2.,3.,8.]) * Units.deg
-        self.training.Mach             = np.array([0.3,0.7,0.85])
+        self.training = Data()   
+        
+        #HALE UAV Cruise
+        self.training.angle_of_attack  = np.array([0 , 2, 4, 6 ,8, 10]) * Units.deg
+        self.training.Mach             = np.array([0.075, 0.1, 0.125 ,0.15,0.175, 0.2])       
+    
+        # Standard subsonic/transolic aircarft
+        #self.training.angle_of_attack  = np.array([-2.,3.,8.])
+        #self.training.Mach             = np.array([0.3,0.7,0.85]) 
+        
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
         self.training_file             = None
@@ -221,10 +228,15 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates.drag_coefficient = cd_surrogate
         self.surrogates.moment_coefficient = cm_surrogate
         
-        # Standard subsonic test case
-        AoA_points = np.linspace(-1.,7.,100)*Units.deg
-        mach_points = np.linspace(.25,.9,100)      
-        
+
+        # HALE UAV Cruise
+        AoA_points  = np.linspace(-1.,11.,100)*Units.deg 
+        mach_points = np.linspace(.05,.225,100)  
+    
+        # Standard subsonic/transolic aircarft
+        #AoA_points  = np.linspace(-1.,7.,100)*Units.deg  # Transonic Aircraft 
+        #mach_points = np.linspace(.25,.9,100)         
+            
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
         CL_sur = np.zeros(np.shape(AoA_mesh))
