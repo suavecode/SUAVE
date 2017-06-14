@@ -1,5 +1,5 @@
-## @defgroup methods- power Power
-# Power methods containt the functions for electric systems such as batteries and fuel cells.
+## @defgroup methods-power Power
+# Power methods contain the functions for electric systems such as batteries and fuel cells.
 # @ingroup Methods
 
 import Battery

@@ -1,8 +1,6 @@
-
-""" SUAVE.Methods.Weights.Correlations.Propulsion
-    contains some useful methods or attributes
-    for estimating weights with zero-order correlations
-"""
+## @defgroup methods-weights-correlations-propulsion Propulsion
+# Contains some methods for calculating different propulsion system weights
+# @ingroup methods-weights-correlations
 
 from air_cooled_motor import air_cooled_motor
 from engine_jet import engine_jet
