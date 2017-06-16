@@ -49,6 +49,9 @@ class SU2_Euler_Super(Markup):
         settings.parallel                           = False
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
+        settings.vsp_mesh_growth_limiting_flag      = False
+        settings.use_CFD_drag                       = False
+        settings.skip_VSP_mesh                      = False # can be used if a mesh already exists for use
         
         # Build the evaluation process
         compute = self.process.compute
@@ -61,7 +64,8 @@ class SU2_Euler_Super(Markup):
         # Do a traditional drag buildup
         compute.drag = Process()
         compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
+        if settings.use_CFD_drag is False:
+            compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
         compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing
@@ -71,7 +75,8 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
         compute.drag.parasite.total                = Methods.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        if settings.use_CFD_drag is False:
+            compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
         compute.drag.trim                          = Methods.Drag.trim
@@ -85,7 +90,10 @@ class SU2_Euler_Super(Markup):
         tag = self.geometry.tag
         # Mesh the geometry in prepartion for CFD if no training file exists
         if self.process.compute.lift.inviscid.training_file is None:
-            write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            if self.settings.skip_VSP_mesh is False:
+                write_vsp_mesh(self.geometry,tag,self.settings.half_mesh_flag,self.settings.vsp_mesh_growth_ratio,self.settings.vsp_mesh_growth_limiting_flag)
+            else:
+                print 'Skipping VSP mesh step, will use existing file: ' + tag + '.stl'
             write_geo_file(tag)
             mesh_geo_file(tag)
         

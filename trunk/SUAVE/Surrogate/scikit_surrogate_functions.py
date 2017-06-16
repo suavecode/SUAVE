@@ -14,7 +14,7 @@ from Surrogate_Problem import Surrogate_Problem
 
 import numpy as np
 import time
-
+import copy
 # ----------------------------------------------------------------------
 #  read_sizing_inputs
 # ----------------------------------------------------------------------
@@ -23,17 +23,17 @@ import time
 def build_scikit_models(surrogate_optimization, obj_values, inputs, constraints):
     #now build surrogates based on these
     t1=time.time()
-    regr = surrogate_optimization.surrogate_model()
+    main_regr = surrogate_optimization.surrogate_model
+    regr      = copy.copy(main_regr)
     obj_surrogate = regr.fit(inputs, obj_values)
     constraints_surrogates = []
     #now run every constraint
     for j in range(len(constraints[0,:])):
-        regr = surrogate_optimization.surrogate_model()
+        regr = copy.copy(main_regr)
         constraint_surrogate = regr.fit(inputs, constraints[:,j]) 
         constraints_surrogates.append(constraint_surrogate)
      
     t2=time.time()
-    print 'time to set up = ', t2-t1
     surrogate_function                        = Surrogate_Problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates

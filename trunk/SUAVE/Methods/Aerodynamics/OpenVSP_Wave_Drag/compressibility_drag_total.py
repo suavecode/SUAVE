@@ -47,8 +47,10 @@ def compressibility_drag_total(state,settings,geometry):
     """
 
     # Unpack
-    conditions    = state.conditions
-    configuration = settings
+    conditions       = state.conditions
+    configuration    = settings
+    number_slices    = settings.number_slices
+    number_rotations = settings.number_rotations
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
@@ -64,6 +66,9 @@ def compressibility_drag_total(state,settings,geometry):
     # Use main wing reference area for drag coefficients
     Sref_main = wings.main_wing.areas.reference
     
+
+    drag99_total  = np.zeros(np.shape(Mc))
+    drag105_total = np.zeros(np.shape(Mc))
 
     # Iterate through wings
     for k in wings.keys():
@@ -89,79 +94,87 @@ def compressibility_drag_total(state,settings,geometry):
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
         (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
-        (drag105,a,b,c,d) = wave_drag(conditions, 
+        cdc_l = lift_wave_drag(conditions, 
                                   configuration, 
-                                  main_fuselage, 
-                                  propulsor, 
                                   wing, 
-                                  num_engines,k,Sref_main,True)
-
-        # For subsonic mach numbers, use drag divergence correlations to find the drag
-        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
-
-        # For mach numbers close to 1, use an interpolation to avoid intensive calculations
-        cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
-
-        # Use wave drag equations at supersonic values. The cutoff for this function is 1.05
-        # Only the supsonic results are returned with nonzero values
-        (cd_c_sup,mcc_sup,MDiv_sup,cd_c_l,cd_c_v) = wave_drag(conditions, 
-                                                configuration, 
-                                                main_fuselage, 
-                                                propulsor, 
-                                                wing, 
-                                                num_engines,k,Sref_main,False)
-
-        # Incorporate supersonic results into total compressibility drag coefficient
-        (cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
-
-        # Dump data to conditions
-        wing_results = Results(
-            compressibility_drag      = cd_c    ,
-            volume_wave_drag          = cd_c_v  ,
-            lift_wave_drag            = cd_c_l  ,
-            crest_critical            = mcc     ,
-            divergence_mach           = MDiv    ,
-        )
-        drag_breakdown.compressible[k] = wing_results        
+                                  k,Sref_main,True)
+        
+        drag99_total  = drag99_total + drag99
+        drag105_total = drag105_total + cdc_l
+        
+    try:
+        old_array = np.load('volume_drag_data.npy')
+        file_exists = True
+    except:
+        file_exists = False
+        old_array = np.array([[-1,-1]]) 
+          
+    if np.any(old_array[:,0]==1.05):
+        cd_c_v = np.array([[float(old_array[old_array[:,0]==1.05,1])]])
+    else:    
+        cd_c_v = wave_drag_volume(conditions,geometry, True)
     
-    # Initialize arrays
-    mach       = conditions.freestream.mach_number
-    prop_drag = np.array([[0.0]] * len(mach))
-    fuse_drag = np.array([[0.0]] * len(mach))
-
-    # Fuselage wave drag
-    if len(main_fuselage) > 0:
-        fuse_drag[mach >= 1.05] = wave_drag_body_of_rev(main_fuselage.lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
+    if file_exists:
+        pass
     else:
-        raise ValueError('Main fuselage does not have a total length')
+        new_save_row = np.array([[1.05,cd_c_v]])
+        np.save('volume_drag_data.npy', new_save_row)    
+    
+    
+    
+    
+    
+    drag105 = drag105_total + cd_c_v*np.ones(np.shape(Mc))
+    drag99  = drag99_total
+    cd_c_l  = np.array([[0.0]] * len(Mc))
 
-    # Propulsor wave drag	
-    prop_drag[mach >= 1.05] = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_diameter/2.0,Sref_main)*propulsor.number_of_engines
-
-    # Pack values
-    #cd_c[mach >= 1.05] = cd_c[mach >= 1.05] + fuse_drag[mach >= 1.05]
-    #cd_c[mach >= 1.05] = cd_c[mach >= 1.05] + prop_drag[mach >= 1.05]   
-    drag_breakdown.compressible[main_fuselage.tag] = fuse_drag
-    drag_breakdown.compressible[propulsor.tag] = prop_drag
-
-    # Dump total comp drag
-    total_compressibility_drag = 0.0
-    total_volume_wave_drag     = 0.0
-    total_lift_wave_drag       = 0.0
-        
+    # For subsonic mach numbers, use drag divergence correlations to find the drag
     for k in wings.keys():
-        total_compressibility_drag = drag_breakdown.compressible[k].compressibility_drag + total_compressibility_drag
-        total_volume_wave_drag     = drag_breakdown.compressible[k].volume_wave_drag + total_volume_wave_drag
-        total_lift_wave_drag       = drag_breakdown.compressible[k].lift_wave_drag + total_lift_wave_drag
-        
-    total_compressibility_drag = total_compressibility_drag + fuse_drag
-    total_compressibility_drag = total_compressibility_drag + prop_drag
-    total_volume_wave_drag     = total_volume_wave_drag + fuse_drag + prop_drag
-    drag_breakdown.compressible.total = total_compressibility_drag
-    drag_breakdown.compressible.total_volume = total_volume_wave_drag
-    drag_breakdown.compressible.total_lift   = total_lift_wave_drag
+        wing = wings[k]    
+        (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
+        cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a
+        mcc[Mc <= 0.99]  = b
+        MDiv[Mc <= 0.99] = c
+        drag_breakdown.compressible[wing.tag]    = Data()
+        drag_breakdown.compressible[wing.tag].divergence_mach = MDiv
+        cd_c_l = lift_wave_drag(conditions, 
+                                configuration, 
+                                wing, 
+                                k,Sref_main,False) + cd_c_l     
 
-    return total_compressibility_drag
+    # For mach numbers close to 1, use an interpolation to avoid intensive calculations
+    cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
+
+    # Use wave drag equations at supersonic values. The cutoff for this function is 1.05
+    # Only the supsonic results are returned with nonzero values
+
+        
+    cd_c_v = wave_drag_volume(conditions, geometry, False,num_slices=number_slices,num_rots=number_rotations)
+        
+    ## this step is sketch, should be changed before release
+    #old_array = np.load('volume_drag_data.npy')
+    #if np.any(old_array[:,0]==conditions.freestream.mach_number[0,0]):
+        #cd_c_v = np.array([[float(old_array[old_array[:,0]==conditions.freestream.mach_number[0,0],1])]])      
+    #else:
+        #cd_c_v = wave_drag_volume(conditions, geometry, False)
+        #new_save_row = np.array([[conditions.freestream.mach_number[0,0],cd_c_v]])
+        #comb_array = np.append(old_array,new_save_row,axis=0)       
+        #np.save('volume_drag_data.npy', comb_array)
+        
+        
+    cd_c[Mc >= 1.05] = cd_c_l[Mc >= 1.05] + cd_c_v[Mc >= 1.05]
+
+    
+
+    
+    # Compute volume drag here
+
+    drag_breakdown.compressible.total = cd_c
+    drag_breakdown.compressible.total_volume = cd_c_v
+    drag_breakdown.compressible.total_lift   = cd_c_l
+    
+
+    return cd_c
 
 
 def drag_div(Mc_ii,wing,k,cl,Sref_main):
@@ -223,7 +236,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     return (cd_c,mcc,MDiv)
 
-def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,k,Sref_main,flag105):
+def lift_wave_drag(conditions,configuration,wing,k,Sref_main,flag105):
     # Use wave drag to determine compressibility drag for supersonic speeds
 
     # Unpack mach number
@@ -239,41 +252,20 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
         mach = conditions.freestream.mach_number
 
     # Initalize cd arrays
-    cd_c = np.array([[0.0]] * len(mach))
     cd_c_l = np.array([[0.0]] * len(mach)) # lift wave drag
-    cd_c_v = np.array([[0.0]] * len(mach)) # vol wave drag
 
     # Calculate wing values at all mach numbers
     # Note that these functions arrange the supersonic values at the beginning of the array
     cd_lift_wave = wave_drag_lift(conditions,configuration,wing)
-    cd_volume_wave = wave_drag_volume(conditions,configuration,wing)
 
     # Pack supersonic results into correct elements
-    cd_c[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
     cd_c_l[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0]
-    cd_c_v[mach >= 1.05] = cd_volume_wave[0:len(mach[mach >= 1.05]),0]
 
     # Convert coefficient to full aircraft value
     if k != 'main_wing':
-        cd_c = cd_c*wing.areas.reference/Sref_main
         cd_c_l = cd_c_l*wing.areas.reference/Sref_main
-        cd_c_v = cd_c_v*wing.areas.reference/Sref_main
-
-    # Include fuselage and propulsors for one iteration
-
-    # Return dummy values for mcc and MDiv
-    mcc = np.array([[0.0]] * len(mach))
-    MDiv = np.array([[0.0]] * len(mach))
 
     # Reset mach number to real values
     conditions.freestream.mach_number = Mc
 
-    return (cd_c,mcc,MDiv,cd_c_l,cd_c_v)
-
-def wave_drag_body_of_rev(total_length,Rmax,Sref):
-
-    # Computations - takes drag of Sears-Haack and use wing reference area for CD
-    wave_drag_body_of_rev = (9.0*(np.pi)**3.0*Rmax**4.0/(4.0*total_length**2.0))/(0.5*Sref)  
-
-    # Apply correction for imperfect body
-    return wave_drag_body_of_rev*1.15
+    return cd_c_l

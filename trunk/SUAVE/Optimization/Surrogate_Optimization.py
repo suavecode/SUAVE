@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
+from SUAVE.Optimization.helper_functions import get_values
 from SUAVE.Surrogate.svr_surrogate_functions import build_svr_models
 from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
 from SUAVE.Surrogate.scikit_surrogate_functions import build_scikit_models
@@ -16,6 +17,7 @@ from SUAVE.Optimization.Package_Setups.pyopt_surrogate_setup import pyopt_surrog
 from read_optimization_outputs import read_optimization_outputs
 import numpy as np
 import time
+import copy
 
 # ----------------------------------------------------------------------
 #  Surrogate_Optimization
@@ -73,6 +75,14 @@ class Surrogate_Optimization(Data):
                 opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
             
                 problem.objective()
+                #problem.finite_difference()
+                
+                if problem.has_key('constraint_violation_exceeded'):
+                    if problem.constraint_violation_exceeded == 0:
+                        i = i-1; #run another point
+                #constraints = problem.optimization_problem.constraints
+                #aliases     = problem.optimization_problem.aliases
+                #constraint_values  = get_values(nexus,constraints,aliases) 
         return 
         
         
@@ -88,11 +98,19 @@ class Surrogate_Optimization(Data):
         
         base_inputs       = opt_prob.inputs
         scl               = base_inputs[:,3] # Scaling
-        base_constraints  = opt_prob.constraints
+        base_constraints  = copy.copy(opt_prob.constraints)
+       
         base_units        = base_inputs[:,-1]*1.0
         base_inputs[:,-1] = base_units #keeps it from overwriting 
         
-
+        if optimizer.name == 'SLSQP':
+            for j in range(len(base_constraints[:,0])):
+                if base_constraints[j,1] != '=':
+                    if base_constraints[j,1] == '<':
+                        base_constraints[j,1] = '>'
+                    else:
+                        base_constraints[j,1] = '<'
+                 
         
         for j in range(0,self.max_iterations):
             if j ==0 or self.surrogate_model != 'Kriging':
@@ -126,6 +144,7 @@ class Surrogate_Optimization(Data):
             print 'j=', j
             print 'surrogate_outputs[0]=',surrogate_outputs[0]
             print 'x_out=', surrogate_outputs[1]
+            
             
             
             if j>1:
