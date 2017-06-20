@@ -104,7 +104,8 @@ class Lift_Forward(Propulsor):
         propeller_forward.thrust_angle = self.thrust_angle_forward   
         
         # Run the propeller
-        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
+        #F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -153,8 +154,8 @@ class Lift_Forward(Propulsor):
         propeller_lift.thrust_angle = self.thrust_angle_lift
         
         # Run the propeller
-        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
-        #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
+        #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.lift_throttle
