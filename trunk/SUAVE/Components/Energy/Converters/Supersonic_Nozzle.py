@@ -103,6 +103,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_enthalpy     = ht_out
         self.outputs.mach_number             = Mach
         self.outputs.static_temperature      = T_out
+        self.outputs.density                 = rho_out
         self.outputs.static_enthalpy         = h_out
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
