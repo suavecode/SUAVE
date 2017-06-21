@@ -31,10 +31,11 @@ class Propulsor_Surrogate(Propulsor):
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag               = 'network'
+        self.tag               = 'Engine_Deck_Surrogate'
         self.input_file        = None
         self.sfc_surrogate     = None
         self.thrust_surrogate  = None
+        self.thrust_angle      = 0.0
         self.areas             = Data()
     
     # manage process with a driver function
@@ -81,7 +82,7 @@ class Propulsor_Surrogate(Propulsor):
         
         # Save the output
         results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [1,0,0] 
+        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]     
         results.vehicle_mass_rate   = mdot
     
         return results          
