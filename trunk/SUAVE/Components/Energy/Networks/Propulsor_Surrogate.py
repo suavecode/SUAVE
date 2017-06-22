@@ -37,6 +37,7 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_surrogate  = None
         self.thrust_angle      = 0.0
         self.areas             = Data()
+        self.surrogate         = 'gaussian'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -60,22 +61,6 @@ class Propulsor_Surrogate(Propulsor):
         for ii,_ in enumerate(altitude):
             sfc[ii] = sfc_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))    
             thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))   
-            
-        ## Test plot, run a range of throttles
-        #throttles = np.linspace(0.,1.)
-        #alts  = 10000.*np.ones_like(throttles)
-        #machs = 0.9*np.ones_like(throttles)
-        
-        #thrusts = thr_surrogate.predict(np.array([alts,machs,throttles]).T)   
-        
-        #import pylab as plt
-        
-        #plt.figure("throttles")
-        #axes = plt.gca()  
-        #axes.plot(throttles,thrusts)
-        
-        #plt.show()
-        
         
         F    = thr
         mdot = thr*sfc*self.number_of_engines
@@ -96,14 +81,6 @@ class Propulsor_Surrogate(Propulsor):
         my_data = np.genfromtxt(file_name, delimiter=',')
         
         # Clean up to remove redundant lines
-        # Section 1
-        #col1 = my_data[1:,:1]
-        #col2 = my_data[1:,1:2]
-        #col3 = my_data[1:,2:3]
-        #for ii in xrange(0, len(col1)-1):
-            #if (col1[ii] == col1[ii+1])&(col2[ii] == col2[ii+1])&(col3[ii] == col3[ii+1]):
-                #np.delete(my_data,(ii), axis=0)
-
         b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
         _, idx = np.unique(b, return_index=True)
         
@@ -116,22 +93,23 @@ class Propulsor_Surrogate(Propulsor):
         
 
         # Pick the type of process
-        regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
-        regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
-        thr_surrogate = regr_thr.fit(xy, thr)
-        sfc_surrogate = regr_sfc.fit(xy, sfc)          
-        
-        ## KNN
-        #regr_sfc = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-        #regr_thr = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-        #sfc_surrogate = regr_sfc.fit(xy, sfc)
-        #thr_surrogate = regr_thr.fit(xy, thr)  
+        if self.surrogate == 'gaussian':
+            regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
+            regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
+            thr_surrogate = regr_thr.fit(xy, thr)
+            sfc_surrogate = regr_sfc.fit(xy, sfc)  
+            
+        elif self.surrogate == 'knn':
+            regr_sfc = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+            regr_thr = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
+            sfc_surrogate = regr_sfc.fit(xy, sfc)
+            thr_surrogate = regr_thr.fit(xy, thr)  
     
-        ## SVR
-        #regr_thr = svm.SVR(C=500.)
-        #regr_sfc = svm.SVR(C=500.)
-        #sfc_surrogate  = regr_sfc.fit(xy, sfc)
-        #thr_surrogate  = regr_thr.fit(xy, thr)           
+        elif self.surrogate == 'svr':
+            regr_thr = svm.SVR(C=500.)
+            regr_sfc = svm.SVR(C=500.)
+            sfc_surrogate  = regr_sfc.fit(xy, sfc)
+            thr_surrogate  = regr_thr.fit(xy, thr)           
         
         
         # Save the output
