@@ -1,4 +1,4 @@
-# translate_data.py
+# write_geometry.py
 # 
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero

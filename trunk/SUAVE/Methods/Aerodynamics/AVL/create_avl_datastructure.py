@@ -123,18 +123,14 @@ def populate_wing_sections(avl_wing,suave_wing):
         
                         segment_percent_span =    suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location     
                         if avl_wing.vertical:
-                                origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep),\
-                                                origin[i_segs][1] + semispan*segment_percent_span*np.tan(dihedral) ,\
-                                                origin[i_segs][2] + semispan*segment_percent_span])
+
                                 dz = semispan*segment_percent_span
                                 dy = dz*np.tan(dihedral)
                                 l  = dz/np.cos(dihedral)
                                 dx = l*np.tan(sweep)
                                 origin.append( [origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])              
                         else:
-                                origin.append( [origin[i_segs][0] + semispan*segment_percent_span*np.tan(sweep) , \
-                                                origin[i_segs][1] + semispan*segment_percent_span,\
-                                                origin[i_segs][2] + semispan*segment_percent_span*np.tan(dihedral)])                
+             
                                 dy = semispan*segment_percent_span
                                 dz = dy*np.tan(dihedral)
                                 l  = dy/np.cos(dihedral)
