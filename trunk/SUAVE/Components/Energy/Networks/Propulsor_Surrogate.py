@@ -1,4 +1,4 @@
-# propulsor_surrogate.py
+# Propulsor_Surrogate.py
 #
 # Created:  Mar 2017, E. Botero
 # Modified:
@@ -37,7 +37,7 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_surrogate  = None
         self.thrust_angle      = 0.0
         self.areas             = Data()
-        self.surrogate         = 'gaussian'
+        self.surrogate_type    = 'gaussian'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -93,19 +93,19 @@ class Propulsor_Surrogate(Propulsor):
         
 
         # Pick the type of process
-        if self.surrogate == 'gaussian':
+        if self.surrogate_type  == 'gaussian':
             regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
             regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
             thr_surrogate = regr_thr.fit(xy, thr)
             sfc_surrogate = regr_sfc.fit(xy, sfc)  
             
-        elif self.surrogate == 'knn':
+        elif self.surrogate_type  == 'knn':
             regr_sfc = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
             regr_thr = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
             sfc_surrogate = regr_sfc.fit(xy, sfc)
             thr_surrogate = regr_thr.fit(xy, thr)  
     
-        elif self.surrogate == 'svr':
+        elif self.surrogate_type  == 'svr':
             regr_thr = svm.SVR(C=500.)
             regr_sfc = svm.SVR(C=500.)
             sfc_surrogate  = regr_sfc.fit(xy, sfc)
