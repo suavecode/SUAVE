@@ -32,6 +32,9 @@ def initialize_conditions(segment,state):
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
     
+    # pack conditions
+    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
+    
     # determine airspeed from equivalent airspeed
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state) # get density for airspeed
     density   = conditions.freestream.density[:,0]   
@@ -47,4 +50,3 @@ def initialize_conditions(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = v_x
     conditions.frames.inertial.velocity_vector[:,2] = v_z
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
