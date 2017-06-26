@@ -80,7 +80,7 @@ def lift_drag_total(state,settings,geometry):
     state.conditions.aerodynamics.lift_coefficient = CL_total
     state.conditions.aerodynamics.drag_coefficient = CD_total
     
-    return CL, CD_total
+    return CL_total, CD_total
 
 # ----------------------------------------------------------------------
 #  Lift Total
