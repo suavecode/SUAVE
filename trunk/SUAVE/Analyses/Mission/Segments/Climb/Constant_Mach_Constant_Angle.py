@@ -1,7 +1,8 @@
 # Constant_Mach_Constant_Angle.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  June 2017, E. Botero 
+# Modified:
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------

@@ -1,20 +1,19 @@
+# Constant_Mach_Linear_Altitude.py
+#
+# Created:  June 2017, E. Botero
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions
 from SUAVE.Analyses.Mission.Segments.Cruise import Constant_Speed_Linear_Altitude
 
 from SUAVE.Methods.Missions import Segments as Methods
 
-from SUAVE.Analyses import Process
-
 # Units
 from SUAVE.Core import Units
-
 
 # ----------------------------------------------------------------------
 #  Segment

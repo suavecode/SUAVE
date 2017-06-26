@@ -1,7 +1,7 @@
-# Constant_Mach_Constant_Altitude_Loiter.py
+# Constant_Speed_Constant_Altitude_Loiter.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Jun 2017, E. Botero 
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,7 +1,7 @@
-# Constant_Dynamic_Pressure_Constant_Rate.py
+# Constant_Dynamic_Pressure_Constant_Angle.py
 # 
-# Created:  Jul 2014, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Created:  Jun 2017, E. Botero
+# Modified:          
 
 # ----------------------------------------------------------------------
 #  Imports

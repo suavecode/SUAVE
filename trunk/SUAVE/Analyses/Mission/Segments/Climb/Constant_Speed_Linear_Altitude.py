@@ -1,3 +1,7 @@
+# Constant_Speed_Constant_Angle.py
+#
+# Created:  June 2017, E. Botero
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,4 +1,4 @@
-# Constant_Dynamic_Pressure_Constant_Rate.py
+# Constant_Dynamic_Pressure_Constant_Angle.py
 #
 # Created:  Jun 2017, E. Botero
 # Modified: 
