@@ -10,7 +10,6 @@ from Turbofan import Turbofan
 from Turbojet_Super import Turbojet_Super
 from Solar_Low_Fidelity import Solar_Low_Fidelity
 from Dual_Battery_Ducted_Fan import Dual_Battery_Ducted_Fan
-
 from Turbofan_3 import Turbofan_3
 from Turbojet_Super_AB import Turbojet_Super_AB
 
@@ -26,3 +25,4 @@ from Battery_Propeller import Battery_Propeller
 from Internal_Combustion_Propeller import Internal_Combustion_Propeller
 from Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_Low_Fidelity
 from Battery_Propeller_Low_Fidelity import Battery_Propeller_Low_Fidelity
+from Propulsor_Surrogate import Propulsor_Surrogate

@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # regression
+    'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/dynamic_stability/dynamicstability.py',
