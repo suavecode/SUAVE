@@ -2,7 +2,7 @@
 #
 # Created:  Dec 2013, A. Variyar
 # Modified: Feb 2014, T. Orra
-#           Jan 2016, E. Botero         
+#           Jun 2017, E. Botero         
 
 # ----------------------------------------------------------------------
 #  Imports
