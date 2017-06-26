@@ -2,7 +2,7 @@
 #
 # Created:  Dec 2013, A. Variyar
 # Modified: Feb 2014, T. Orra
-#           Jun 2017, E. Botero         
+#           Jan 2016, E. Botero         
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -111,11 +111,6 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Cd_ind += ( 0.01 ) * Swing / Sref
 
     Cl_max_ls = Cl_max_ls * max_lift_coefficient_factor
-
-    output = Data()
-    output.Cl_max_ls = Cl_max_ls
-    output.Cd_ind = Cd_ind
-    
     return Cl_max_ls, Cd_ind
 
 
