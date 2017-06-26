@@ -1,7 +1,7 @@
 # AERODAS_setup.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -66,14 +66,21 @@ def lift_drag_total(state,settings,geometry):
         CD            = np.fmax(CD1,CD2)
         
         # Add to the total
-        CL_total      = CL_total + CL*area/ref
         CD_total      = CD_total + CD*area/ref
+
+        if wing.vertical == False:
+            CL_total      = CL_total + CL*area/ref
+        else:
+            pass
+
+        
+    CD_total = CD_total + settings.drag_coefficient_increment
         
     # Pack outputs
-    state.conditions.aerodynamics.lift_coefficient = CL   
-    state.conditions.aerodynamics.drag_coefficient = CD
+    state.conditions.aerodynamics.lift_coefficient = CL_total
+    state.conditions.aerodynamics.drag_coefficient = CD_total
     
-    return CL, CD
+    return CL_total, CD_total
 
 # ----------------------------------------------------------------------
 #  Lift Total
@@ -83,7 +90,7 @@ def lift_total(state,settings,geometry):
     """"""
     
     CL = state.conditions.aerodynamics.lift_coefficient     
-    
+
     return CL
 
 # ----------------------------------------------------------------------
