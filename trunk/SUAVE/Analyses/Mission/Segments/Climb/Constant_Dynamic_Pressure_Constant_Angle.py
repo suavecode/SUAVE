@@ -1,7 +1,8 @@
 # Constant_Dynamic_Pressure_Constant_Rate.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Jun 2017, E. Botero
+# Modified: 
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -26,8 +27,8 @@ class Constant_Dynamic_Pressure_Constant_Angle(Unknown_Throttle):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude_start   = None # Optional
-        self.altitude_end     = 10. * Units.km
-        self.climb_angle      = 3.  * Units.degrees
+        self.altitude_end     = 10.  * Units.km
+        self.climb_angle      = 3.   * Units.degrees
         self.dynamic_pressure = 1600 * Units.pascals
         
         # --------------------------------------------------------------
@@ -44,7 +45,6 @@ class Constant_Dynamic_Pressure_Constant_Angle(Unknown_Throttle):
         # --------------------------------------------------------------
         initialize = self.process.initialize
         initialize.conditions = Methods.Climb.Constant_Dynamic_Pressure_Constant_Angle.initialize_conditions_unpack_unknowns
-        
         
         # Unpack Unknowns
         iterate = self.process.iterate
