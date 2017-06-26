@@ -80,6 +80,9 @@ class Propulsor_Surrogate(Propulsor):
         # Load the CSV file
         my_data = np.genfromtxt(file_name, delimiter=',')
         
+        # Remove the header line
+        my_data = np.delete(my_data,np.s_[0],axis=0)
+        
         # Clean up to remove redundant lines
         b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
         _, idx = np.unique(b, return_index=True)
