@@ -17,8 +17,8 @@ def unpack_unknowns(segment,state):
     
     # unpack unknowns and givens
     throttle = state.unknowns.throttle
-    theta1   = state.unknowns.body_angle
-    gamma1   = state.unknowns.flight_path_angle
+    theta    = state.unknowns.body_angle
+    gamma    = state.unknowns.flight_path_angle
     vel      = state.unknowns.velocity
     alt0     = segment.altitude_start
     altf     = segment.altitude_end
@@ -31,16 +31,9 @@ def unpack_unknowns(segment,state):
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
     
-    
-    gamma = gamma1 * Units.degree
-    
     # process velocity vector
     v_x   =  v_mag * np.cos(gamma)
     v_z   = -v_mag * np.sin(gamma)    
-    
-    theta =  theta1 * Units.degrees
-    
-    #print v_mag
 
     # apply unknowns and pack conditions   
     state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
@@ -54,7 +47,7 @@ def initialize_unknowns(segment,state):
     gamma    = state.unknowns.flight_path_angle
     vel      = state.unknowns.velocity 
     v0       = segment.air_speed_start
-    velf     = segment.air_speed_end 
+    vf       = segment.air_speed_end 
     ones     = state.ones_row(1)
     ones_m1  = state.ones_row_m1(1)
     ones_m2  = state.ones_row_m2(1)
@@ -66,7 +59,7 @@ def initialize_unknowns(segment,state):
     if segment.air_speed_end is None:
         state.unknowns.velocity          = ones_m1 * vel[0]
     elif segment.air_speed_end is not None:
-        state.unknowns.velocity          = ones_m2 * vel[0]
+        state.unknowns.velocity          = np.reshape(np.linspace(v0,vf,len(ones_m2)),np.shape(ones_m2))
 
         
 def update_differentials(segment,state):
