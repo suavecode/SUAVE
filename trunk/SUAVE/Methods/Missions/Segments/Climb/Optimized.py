@@ -26,11 +26,12 @@ def unpack_unknowns(segment,state):
     velf     = segment.air_speed_end 
 
     # Overide the speeds   
-    #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
-    #v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
-    v_mag =  np.concatenate([[[vel0]],vel*vel0])
-    #gamma = np.concatenate([[[0]],gamma1,[[0]]])
-    #gamma = np.concatenate([gamma1* Units.degree,[[0]]])
+    if segment.air_speed_end is None:
+        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+    elif segment.air_speed_end is not None:
+        v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+    
+    
     gamma = gamma1 * Units.degree
     
     # process velocity vector
@@ -53,14 +54,21 @@ def initialize_unknowns(segment,state):
     gamma    = state.unknowns.flight_path_angle
     vel      = state.unknowns.velocity 
     v0       = segment.air_speed_start
+    velf     = segment.air_speed_end 
     ones     = state.ones_row(1)
     ones_m1  = state.ones_row_m1(1)
     ones_m2  = state.ones_row_m2(1)
     
     # repack
-    state.unknowns.velocity          = ones_m1 * vel[0]
     state.unknowns.flight_path_angle = ones * gamma[0]
     
+    # Depending if the final airspeed is specified
+    if segment.air_speed_end is None:
+        state.unknowns.velocity          = ones_m1 * vel[0]
+    elif segment.air_speed_end is not None:
+        state.unknowns.velocity          = ones_m2 * vel[0]
+
+        
 def update_differentials(segment,state):
 
     # unpack
