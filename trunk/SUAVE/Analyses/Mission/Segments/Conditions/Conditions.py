@@ -1,7 +1,8 @@
 # Conditions.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2016, A. Wendorff
+#           Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

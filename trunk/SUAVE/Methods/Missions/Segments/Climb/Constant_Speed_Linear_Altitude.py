@@ -1,8 +1,9 @@
-
-
+# Constant_Speed_Linear_Altitude.py 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  initialize conditions
 # ----------------------------------------------------------------------
 
 def initialize_conditions(segment,state):

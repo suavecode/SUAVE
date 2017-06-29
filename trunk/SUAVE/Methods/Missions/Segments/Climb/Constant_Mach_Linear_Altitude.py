@@ -1,10 +1,18 @@
+# Constant_Mach_Linear_Altitude.py 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jun 2017, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+
 import SUAVE
 
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  initialize conditions
 # ----------------------------------------------------------------------
-
 def initialize_conditions(segment,state):
     
     # unpack
@@ -26,8 +34,7 @@ def initialize_conditions(segment,state):
     if alt0 is None:
         if not state.initials: raise AttributeError('altitude not set')
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        #segment.altitude = alt
-        
+
     # compute speed, constant with constant altitude
     air_speed = mach * a
     
