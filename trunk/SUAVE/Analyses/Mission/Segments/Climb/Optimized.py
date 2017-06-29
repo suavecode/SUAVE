@@ -47,9 +47,9 @@ class Optimized(Aerodynamic):
         self.state.conditions.update( Conditions.Aerodynamics() )
         # initials and unknowns
         ones_row    = self.state.ones_row
-        self.state.unknowns.throttle          = ones_row(1) * 0.5
-        self.state.unknowns.body_angle        = ones_row(1) * 10.0
-        self.state.unknowns.flight_path_angle = ones_row(1) * 5.0
+        self.state.unknowns.throttle          = ones_row(1) * 0.8
+        self.state.unknowns.body_angle        = ones_row(1) * 5.0 * Units.degrees
+        self.state.unknowns.flight_path_angle = ones_row(1) * 3.0 * Units.degrees
         self.state.unknowns.velocity          = ones_row(1) * 1.0
         self.state.residuals.forces           = ones_row(2) * 0.0
         self.state.inputs_last                = None
