@@ -84,6 +84,8 @@ class Internal_Combustion_Engine(Energy_Component):
         # applying throttle setting
         output_power = Pavailable * throttle
         
+        output_power[output_power<0.] = 0.
+        
         SFC = BSFC * Units['lb/hp/hr']
 
         #fuel flow rate

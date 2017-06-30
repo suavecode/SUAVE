@@ -134,6 +134,6 @@ class Motor_Lo_Fid(Energy_Component):
         self.outputs.current = i
         
         return power_out, i
-         
+    
         
         
