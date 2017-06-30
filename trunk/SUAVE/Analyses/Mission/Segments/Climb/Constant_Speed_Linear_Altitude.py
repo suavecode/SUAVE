@@ -1,3 +1,8 @@
+# Constant_Speed_Linear_Altitude.py
+#
+# Created:  
+# Modified: Jun 2017,E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports

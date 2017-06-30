@@ -1,3 +1,8 @@
+# Constant_Mach_Linear_Altitude.py
+#
+# Created:  
+# Modified: Feb 2016, A. Wendorff
+#           Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
