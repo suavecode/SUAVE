@@ -55,12 +55,14 @@ def initialize_conditions_unpack_unknowns(segment,state):
     
 def residual_total_forces(segment,state):
     
+    # Unpack results
     FT = state.conditions.frames.inertial.total_force_vector
     a  = state.conditions.frames.inertial.acceleration_vector
     m  = state.conditions.weights.total_mass    
     alt_in  = state.unknowns.altitudes[:,0] 
     alt_out = state.conditions.freestream.altitude[:,0] 
     
+    # Residual in X and Z, as well as a residual on the guess altitude
     state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
     state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]
     state.residuals.forces[:,2] = (alt_in - alt_out)/alt_out[-1]

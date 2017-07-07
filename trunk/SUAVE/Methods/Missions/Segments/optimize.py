@@ -103,16 +103,16 @@ def get_ieconstraints(unknowns,(segment,state)):
     
     # Time goes forward, not backward
     t_final = state.conditions.frames.inertial.time[-1,0]
-    constraints = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
+    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
     CL_limit = segment.CL_limit 
-    constraints2 = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
+    CL_con   = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
     # Altitudes are greater than 0
-    constraints3 = state.conditions.freestream.altitude[:,0]/segment.altitude_end
+    alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
-    constraints = np.concatenate((constraints,constraints2,constraints3))
+    constraints = np.concatenate((tim_con,CL_con,alt_con))
     
     return constraints
 

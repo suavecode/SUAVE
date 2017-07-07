@@ -48,6 +48,8 @@ def initialize_unknowns(segment,state):
     vel      = state.unknowns.velocity 
     v0       = segment.air_speed_start
     vf       = segment.air_speed_end 
+    
+    # Ones, N sized vector, and N-1 as well as N-2 vectors
     ones     = state.ones_row(1)
     ones_m1  = state.ones_row_m1(1)
     ones_m2  = state.ones_row_m2(1)
@@ -102,6 +104,7 @@ def update_differentials(segment,state):
 
 def objective(segment,state):
     
+    # If you have an objective set, either maximize or minimize
     if segment.objective is not None:
         if segment.minimize ==True:
             objective = eval('state.'+segment.objective)
@@ -109,6 +112,7 @@ def objective(segment,state):
             objective = -eval('state.'+segment.objective)
     else:
         objective = 0.
+    # No objective is just solved constraint like a normal mission   
         
     state.objective_value = objective
         

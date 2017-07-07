@@ -1,7 +1,7 @@
-# Constant_Speed_Constant_Angle.py
+# Constant_Speed_Linear_Altitude.py
 #
-# Created:  June 2017, E. Botero
-# Modified: 
+# Created:  
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
