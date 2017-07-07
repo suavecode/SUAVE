@@ -196,7 +196,6 @@ def update_aerodynamics(segment,state):
     conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
     conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
 
-
 # ----------------------------------------------------------------------
 #  Update Stability
 # ----------------------------------------------------------------------
