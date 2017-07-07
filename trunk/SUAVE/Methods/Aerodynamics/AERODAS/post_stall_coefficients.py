@@ -1,7 +1,7 @@
 # post_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports

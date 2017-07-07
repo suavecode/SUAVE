@@ -1,7 +1,7 @@
 # AERODAS_setup.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,12 +75,6 @@ def lift_drag_total(state,settings,geometry):
             CL_total      = CL_total + CL*area/ref
         else:
             pass
-        
-    #print 'Alpha'
-    #print alpha
-    #print 'CL'
-    #print CL_total
-
         
     CD_total = CD_total + settings.drag_coefficient_increment
         
