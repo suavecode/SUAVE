@@ -112,7 +112,7 @@ def get_ieconstraints(unknowns,(segment,state)):
     # Altitudes are greater than 0
     alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
-    constraints = np.concatenate((tim_con,CL_con,alt_con))
+    constraints = np.concatenate((time_con,CL_con,alt_con))
     
     return constraints
 

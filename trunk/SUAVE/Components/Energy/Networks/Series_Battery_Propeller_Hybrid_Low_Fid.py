@@ -112,11 +112,12 @@ class Series_Battery_Propeller_Hybrid_Low_Fid(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
 
-        conditions.propulsion.current              = current
+        conditions.propulsion.current              = battery.inputs.current
         conditions.propulsion.battery_draw         = battery_draw
         conditions.propulsion.battery_energy       = battery_energy
         conditions.propulsion.voltage_open_circuit = self.voltage
         conditions.propulsion.generator_power      = Pgen
+        conditions.propulsion.power                = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
