@@ -42,28 +42,6 @@ def unpack_unknowns(segment,state):
     state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
     state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
 
-#def initialize_unknowns(segment,state):
-    
-    ## unpack unknowns and givens
-    #gamma    = state.unknowns.flight_path_angle
-    #vel      = state.unknowns.velocity 
-    #v0       = segment.air_speed_start
-    #vf       = segment.air_speed_end 
-    
-    ## Ones, N sized vector, and N-1 as well as N-2 vectors
-    #ones     = state.ones_row(1)
-    #ones_m1  = state.ones_row_m1(1)
-    #ones_m2  = state.ones_row_m2(1)
-    
-    ## repack
-    #state.unknowns.flight_path_angle = ones * gamma[0]
-    
-    ## Depending if the final airspeed is specified
-    #if segment.air_speed_end is None:
-        #state.unknowns.velocity          = ones_m1 * vel[0]
-    #elif segment.air_speed_end is not None:
-        #state.unknowns.velocity          = np.reshape(np.linspace(v0,vf,len(ones_m2)),np.shape(ones_m2))
-
         
 def update_differentials(segment,state):
 
@@ -145,6 +123,7 @@ def solve_linear_speed_constant_rate(segment,state):
     LSCR.climb_rate       = segment.seed_climb_rate
     LSCR.analyses         = segment.analyses
     LSCR.state.conditions = state.conditions
+    LSCR.state.numerics   = state.numerics
     mini_mission.append_segment(LSCR)
     
     results = mini_mission.evaluate()
