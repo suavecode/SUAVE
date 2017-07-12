@@ -37,6 +37,7 @@ class Optimized(Aerodynamic):
         self.objective       = None # This will be a key
         self.minimize        = True
         self.CL_limit        = 1.e20 
+        self.seed_climb_rate = 100. * Units['feet/min']
         
         
         # --------------------------------------------------------------
@@ -64,9 +65,9 @@ class Optimized(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        
         initialize.expand_state            = Methods.expand_state
-        initialize.unknowns                = Methods.Climb.Optimized.initialize_unknowns
+        initialize.solved_mission          = Methods.Climb.Optimized.solve_linear_speed_constant_rate
+        #initialize.unknowns                = Methods.Climb.Optimized.initialize_unknowns
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = SUAVE.Methods.skip
 
