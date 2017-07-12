@@ -28,7 +28,7 @@ def unpack_unknowns(segment,state):
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+        v_mag =  np.concatenate([[[vel0]],vel])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
     
