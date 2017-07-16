@@ -33,7 +33,7 @@ class Weights(Analysis):
         vehicle = self.vehicle
         
         if vehicle.fuselages.keys() == []:
-            empty   = SUAVE.Methods.Weights.Correlations.UAV.empty     #UAV correlations are for flying wing. Need to correct    
+            empty   = SUAVE.Methods.Weights.Correlations.UAV.empty     
         elif vehicle.fuselages.has_key('fuselage'):
             empty   = SUAVE.Methods. Weights.Correlations.Tube_Wing.empty
         elif vehicle.fuselages.has_key('fuselage_bwb'):

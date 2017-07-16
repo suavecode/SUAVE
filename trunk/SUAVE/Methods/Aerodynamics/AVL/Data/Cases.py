@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+#           Jun 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

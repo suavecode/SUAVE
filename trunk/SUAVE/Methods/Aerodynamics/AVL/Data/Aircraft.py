@@ -12,7 +12,6 @@ from SUAVE.Core import Data
 
 from Wing import Wing
 from Body import Body
-#from Engine import Engine
 
 # ------------------------------------------------------------
 #   Aircraft

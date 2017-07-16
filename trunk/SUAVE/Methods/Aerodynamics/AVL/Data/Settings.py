@@ -2,7 +2,7 @@
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-# Modified: Arp 2017, M. Clarke
+#           Arp 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,7 +35,7 @@ class Settings(Data):
                 self.discretization.defaults.fuselage.nose_interpolation = 'parabolic'
                 self.discretization.defaults.fuselage.tail_interpolation = 'linear'
 
-                self.filenames.avl_bin_name    = 'C:/Users/Matthew/Documents/AVL/avl.exe' # previously 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
+                self.filenames.avl_bin_name    = 'home/matthew-linux/Documents/Avl/bin/avl' # previously 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
                 self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
                 self.filenames.features        = 'aircraft.avl'
                 self.filenames.mass_file       = 'aircraft.mass'

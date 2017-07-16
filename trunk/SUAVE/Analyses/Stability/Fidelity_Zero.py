@@ -127,7 +127,7 @@ class Fidelity_Zero(Stability):
         if geometry.wings.has_key('vertical_stabilizer'):
 	    static_stability.cn_beta  = taw_cnbeta(geometry,conditions,configuration)
 	else:
-	    static_stability.Cn_beta = np.zeros_like(mach)
+	    static_stability.cn_beta = np.zeros_like(mach)
 	    
 	# calculate the static margin
 	static_stability.static_margin = -static_stability.Cm_alpha/conditions.lift_curve_slope

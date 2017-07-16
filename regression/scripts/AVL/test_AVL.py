@@ -52,36 +52,10 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
 
-    # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
-
-    # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
-
-    # print parasite drag data into file
-    # define reference condition for parasite drag
     ref_condition = Data()
     ref_condition.mach_number = 0.3
     ref_condition.reynolds_number = 12e6     
-    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
 
-    # print compressibility drag data into file
-    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
-
-    # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
-
-    #load older results
-    #save_results(results)
-    #old_results = load_results()   
-
-    # plt the old results
-    # plot_mission(results)
-    # plot_mission(old_results,'k-')
-    # plt.show(block=True)
-    # check the results
-    #check_results(results,old_results)
-    
     lift_coefficient = results.conditions.climb_1.aerodynamics.lift_coefficient[0]
     lift_coefficient_true = 0.64576527
     print lift_coefficient

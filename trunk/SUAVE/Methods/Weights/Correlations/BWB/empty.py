@@ -21,7 +21,7 @@ import warnings
 # ----------------------------------------------------------------------
 
 def empty(vehicle):
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
+    """ output = SUAVE.Methods.Weights.Correlations.BWB.empty(engine,wing,aircraft,fuselage)
         This is for a BWB aircraft configuration.        
 
         Inputs:
@@ -49,7 +49,6 @@ def empty(vehicle):
                 ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
                 ac - determines type of instruments, electronics, and operating items based on types: 
                     "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst" [dimensionless]
-                w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
 
              fuselage - a data dictionary with the fields:
                 area - fuselage wetted area [meters**2]
@@ -88,7 +87,7 @@ def empty(vehicle):
   
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key f
-    #or the propulsor for assignment purposes
+    #for the propulsor for assignment purposes
     
     propulsors     = vehicle.propulsors[propulsor_name]
     num_eng    = propulsors.number_of_engines
@@ -108,7 +107,7 @@ def empty(vehicle):
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     
     S_gross_w  = vehicle.reference_area
-    #S_gross_w  = vehicle.wings['main_wing'].Areas.reference
+
     if not vehicle.wings.has_key('main_wing'):
         wt_wing = 0.0
         wing_c_r = 0.0

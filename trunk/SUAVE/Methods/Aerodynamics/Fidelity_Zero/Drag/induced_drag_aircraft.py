@@ -1,8 +1,9 @@
 
 # induced_drag_aircraft.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
+# Created:  Dec 2013, SUAVE Team
+# Modified: Jan 2016, E. Botero
+          
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,7 +1,7 @@
 # Segment.py
 # 
 # Created:  Sep 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,7 +9,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
-from SUAVE.Components.Wings.Control_Surface import Control_Surface  #Added by Matthew 
+from SUAVE.Components.Wings.Control_Surface import Control_Surface 
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
@@ -23,9 +23,9 @@ class Segment(Lofted_Body.Segment):
         self.dihedral_outboard     = 0.0
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
-        self.sweeps.leading_edge   = 0.0 # Added by Matthew
+        self.sweeps.leading_edge   = 0.0
         self.Airfoil               = Data()
-        self.control_surfaces       = Data()  # Added by Matthew 
+        self.control_surfaces       = Data()  
         
     def append_airfoil(self,airfoil):
         """ adds an airfoil to the segment """

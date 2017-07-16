@@ -2,6 +2,7 @@
 # 
 # Created:  Mar 2014, T. Lukacyzk
 # Modified: Sep 2016, E. Botero
+#           Jun 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -53,7 +54,7 @@ class Fuselage(Lofted_Body):
         
         self.differential_pressure = 0.0
         
-        # for flying wings 
+        # for BWB 
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0

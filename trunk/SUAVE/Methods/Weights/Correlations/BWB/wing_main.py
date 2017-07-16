@@ -2,7 +2,8 @@
 #
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero  
+#           Feb 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

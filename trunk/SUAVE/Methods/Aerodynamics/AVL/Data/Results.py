@@ -18,7 +18,5 @@ class Results(Data):
         self.aerodynamics = Data()
         self.stability    = Data()
 
-        self.stability.alpha_derivatives = Data()
-        self.stability.beta_derivatives  = Data()
         
         

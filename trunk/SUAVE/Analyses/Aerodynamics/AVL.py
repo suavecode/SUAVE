@@ -51,7 +51,7 @@ class AVL(Markup):
 
         # Run SU2 to determine lift
         compute.lift.inviscid                         = AVL_Inviscid()
-        compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
+        compute.lift.total                            = compute.lift.inviscid
         
         # Do a traditional drag buildup
         compute.drag = Process()

@@ -30,7 +30,7 @@ def write_input_deck(avl_object):
         input_deck.write(base_input)
         for case in avl_object.current_status.cases:
             
-            # write and store erodynamic and static stability result files 
+            # write and store aerodynamic and static stability result files 
             case_command = make_case_command(avl_object,case)
             input_deck.write(case_command)
             

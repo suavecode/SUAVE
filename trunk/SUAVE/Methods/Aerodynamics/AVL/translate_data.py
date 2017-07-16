@@ -146,7 +146,7 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.cm_alpha[i][0] = case_res.stability.alpha_derivatives.pitch_moment_derivative
         res.aerodynamics.cn_alpha[i][0] = case_res.stability.alpha_derivatives.yaw_moment_derivative
         res.aerodynamics.cz_beta[i][0] = -case_res.stability.beta_derivatives.lift_coefficient_derivative
-        res.aerodynamics.cl_beta[i][0] = case_res.stability.beta_derivatives.side_force_derivative
+        res.aerodynamics.cy_beta[i][0] = case_res.stability.beta_derivatives.side_force_derivative
         res.aerodynamics.cl_beta[i][0] = case_res.stability.beta_derivatives.roll_moment_derivative
         res.aerodynamics.cm_beta[i][0] = case_res.stability.beta_derivatives.pitch_moment_derivative
         res.aerodynamics.cn_beta[i][0] = case_res.stability.beta_derivatives.yaw_moment_derivative

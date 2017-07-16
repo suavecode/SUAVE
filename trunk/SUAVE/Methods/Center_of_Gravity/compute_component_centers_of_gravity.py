@@ -2,6 +2,7 @@
 #
 # Created:  Oct 2015, M. Vegh
 # Modified: Jan 2016, E. Botero
+# Mofified: Jun 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,10 +21,6 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Tru
 
     #computes the CG of all of the vehicle components based on correlations from AA241
     wing               = vehicle.wings['main_wing']
-
-    
-
-
     span_location_mac                          = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     
     #assume that 80% of the chord difference is from leading edge sweep
@@ -46,17 +43,14 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Tru
         v_tail_35_percent_semi_span_offset         =.8*np.sin(v_tail.sweeps.quarter_chord)*.35*.5*v_tail.spans.projected
         v_tail.mass_properties.center_of_gravity[0] = .3*chord_length_v_tail_35_percent_semi_span + \
             v_tail_35_percent_semi_span_offset
-    else: 
-        print "no vertical stabilizer"
-   
-    # need to correct calculations for propulsor center of gravity
-    #propulsor_name     = vehicle.propulsors.keys()[0]
-    #propulsor          = vehicle.propulsors[propulsor_name]    
-    #if compute_propulsor_origin == True:
-        #propulsor.origin[0][0]                               = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
-    #propulsor.mass_properties.center_of_gravity[0]          = propulsor.engine_length*.5
 
-    
+    # need to correct calculations for propulsor center of gravity
+    propulsor_name     = vehicle.propulsors.keys()[0]
+    propulsor          = vehicle.propulsors[propulsor_name]    
+    if compute_propulsor_origin == True:
+        propulsor.origin[0][0]                               = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
+    propulsor.mass_properties.center_of_gravity[0]          = propulsor.engine_length*.5
+ 
    
     # ---------------------------------------------------------------------------------
     # configurations with fuselages (BWB, Tube and Wing)  
