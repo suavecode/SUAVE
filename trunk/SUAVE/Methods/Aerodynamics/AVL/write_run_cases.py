@@ -41,21 +41,21 @@ def write_run_cases(avl_object):
  elevation =   0.00000     deg
  heading   =   0.00000     deg
  Mach      =   {5}
- velocity  =   {6}     m/s
- density   =   {7}     kg/m^3
- grav.acc. =   {8}     m/s^2
+ velocity  =   0.0000     m/s
+ density   =   {6}     kg/m^3
+ grav.acc. =   {7}     m/s^2
  turn_rad. =   0.00000     m
  load_fac. =   0.00000
- X_cg      =   {9}     m
- Y_cg      =   {10}     m
- Z_cg      =   {11}     m
- mass      =   {12}     kg
- Ixx       =   {13}     kg-m^2
- Iyy       =   {14}     kg-m^2
- Izz       =   {15}     kg-m^2
- Ixy       =   {16}     kg-m^2
- Iyz       =   {17}     kg-m^2
- Izx       =   {18}     kg-m^2
+ X_cg      =   {8}     m
+ Y_cg      =   {9}     m
+ Z_cg      =   {10}     m
+ mass      =   {11}     kg
+ Ixx       =   {12}     kg-m^2
+ Iyy       =   {13}     kg-m^2
+ Izz       =   {14}     kg-m^2
+ Ixy       =   {15}     kg-m^2
+ Iyz       =   {16}     kg-m^2
+ Izx       =   {17}     kg-m^2
  visc CL_a =   0.00000
  visc CL_u =   0.00000
  visc CM_a =   0.00000
@@ -70,7 +70,7 @@ def write_run_cases(avl_object):
         x_cg = aircraft.mass_properties.center_of_gravity[0]
         y_cg = aircraft.mass_properties.center_of_gravity[1]
         z_cg = aircraft.mass_properties.center_of_gravity[2]
-        mass = aircraft.mass_properties.max_takeoff 
+        mass = 0 
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]
         Iyy  = moments_of_inertia[1][1]
@@ -86,7 +86,6 @@ def write_run_cases(avl_object):
             alpha = case.conditions.aerodynamics.angle_of_attack
             beta  = case.conditions.aerodynamics.side_slip_angle
             mach  = case.conditions.freestream.mach
-            v     = case.conditions.freestream.velocity
             rho   = case.conditions.freestream.density
             g     = case.conditions.freestream.gravitational_acceleration
 
@@ -98,7 +97,7 @@ def write_run_cases(avl_object):
                     controls.append(cs_text)
             controls_text = ''.join(controls)
             case_text = base_case_text.format(index,name,alpha,beta,controls_text,
-                                              mach,v,rho,g,x_cg,y_cg,z_cg,mass,
+                                              mach,rho,g,x_cg,y_cg,z_cg,mass,
                                               Ixx,Iyy,Izz,Ixy,Iyz,Izx)
             runcases.write(case_text)
 

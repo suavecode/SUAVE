@@ -373,7 +373,7 @@ def translate_avl_configuration(geometry,conditions):
         config.reference_values.bref             = geometry.wings['Main Wing'].spans.projected
         config.reference_values.cref             = geometry.wings['Main Wing'].chords.mean_aerodynamic
         config.reference_values.cg_coords        = geometry.mass_properties.center_of_gravity
-        config.mass_properties.mass              = geometry.mass_properties.max_takeoff 
+        config.mass_properties.mass              = 0 
         moment_tensor                            = geometry.mass_properties.moments_of_inertia.tensor
         config.mass_properties.inertial.Ixx      = moment_tensor[0][0]
         config.mass_properties.inertial.Iyy      = moment_tensor[1][1]

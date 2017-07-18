@@ -26,7 +26,6 @@ def translate_conditions_to_cases(avl,conditions):
         case.tag  = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
         case.mass = conditions.weights.total_mass
         case.conditions.freestream.mach     = conditions.freestream.mach_number
-        case.conditions.freestream.velocity = conditions.freestream.velocity
         case.conditions.freestream.density  = conditions.freestream.density
         case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
         case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i]/Units.deg

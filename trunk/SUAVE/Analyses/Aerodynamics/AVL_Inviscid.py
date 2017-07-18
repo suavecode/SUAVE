@@ -159,7 +159,6 @@ class AVL_Inviscid(Aerodynamics):
                 run_conditions.freestream.gravity           = 9.81          
                 run_conditions.aerodynamics.angle_of_attack = AoA
                 run_conditions.freestream.mach_number       = mach[j]
-                run_conditions.freestream.velocity          = mach[j] * 340 #speed_of_sound
                 
                 #Run Analysis at AoA[i] and mach[j]
                 results =  self.evaluate_conditions(run_conditions)
