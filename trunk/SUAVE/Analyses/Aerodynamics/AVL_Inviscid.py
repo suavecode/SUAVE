@@ -29,6 +29,8 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 import time
 import pylab as plt
 import os
+import sklearn
+from sklearn import gaussian_process
 import numpy as np
 import sys
 from shutil import rmtree
@@ -68,8 +70,9 @@ class AVL_Inviscid(Aerodynamics):
         self.training = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])
-        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])  
+        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
+        
         
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
@@ -272,7 +275,7 @@ class AVL_Inviscid(Aerodynamics):
         
         # case filenames
         for case in cases:
-            case.result_filename = output_template.format(case.tag)
+            cases[case].result_filename = output_template.format(case)
           
     
         # write the input files

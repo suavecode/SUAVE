@@ -2,7 +2,7 @@
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
-# Modified: Apr 2017, M. Clarke
+#           Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -33,7 +33,7 @@ def translate_conditions_to_cases(avl,conditions):
         case.conditions.aerodynamics.side_slip_angle = 0 #conditions.aerodynamics.side_slip_angle[i][0]
         case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
         cases.append_case(case)
-        
+    
     return cases
 
 def translate_results_to_conditions(cases,results):

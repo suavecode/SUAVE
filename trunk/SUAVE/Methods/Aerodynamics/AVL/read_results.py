@@ -2,7 +2,7 @@
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
-# Modified: Apr 2017, M. Clarke
+#           Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,8 +14,9 @@ from .Data.Results import Results
 def read_results(avl_object):
 
     results = Data()
-    i = 0
-    for case in avl_object.current_status.cases:
+    #i = 0 Used in the dynamic stability module (under development)
+    for case_name in avl_object.current_status.cases:
+        case = avl_object.current_status.cases[case_name]
         num_ctrl = case.stability_and_control.control_deflections.size
         with open(case.result_filename,'r') as res_file:
             case_res = Results()

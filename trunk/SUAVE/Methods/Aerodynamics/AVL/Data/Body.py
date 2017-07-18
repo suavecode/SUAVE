@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,29 +23,29 @@ class Body(Data):
 
 	def __defaults__(self):
 		
-		self.tag = 'body'
-		self.symmetric = True
-		self.origin    = [0.,0.,0.]
+		self.tag                      = 'body'
+		self.symmetric                = True
+		self.origin                   = [0.,0.,0.]
 
-		self.lengths = Data()
-		self.lengths.total = 0.0
-		self.lengths.nose  = 0.0
-		self.lengths.tail  = 0.0
+		self.lengths                  = Data()
+		self.lengths.total            = 0.0
+		self.lengths.nose             = 0.0
+		self.lengths.tail             = 0.0
 
-		self.widths  = Data()
-		self.widths.maximum = 0.0
-		self.heights = Data()
-		self.heights.maximum = 0.0
+		self.widths                   = Data()
+		self.widths.maximum           = 0.0
+		self.heights                  = Data()
+		self.heights.maximum          = 0.0
 
-		self.sections = Data()
-		self.sections.vertical = Data()
-		self.sections.horizontal = Data()
-		self.configuration = Data()
+		self.sections                 = Data()
+		self.sections.vertical        = Data()
+		self.sections.horizontal      = Data()
+		self.configuration            = Data()
         
-		self.configuration.nspanwise = 10
+		self.configuration.nspanwise  = 10
 		self.configuration.nchordwise = 5
-		self.configuration.sspace = 1.0
-		self.configuration.cspace = 1.0
+		self.configuration.sspace     = 1.0
+		self.configuration.cspace     = 1.0
 
 
 	def append_section(self,section,orientation='Horizontal'):
@@ -62,5 +63,4 @@ class Body(Data):
 		else:
 			raise KeyError('No key, "{}". Use "Horizontal" or "Vertical".'.format(orientation))
 		return
-
-  
+	

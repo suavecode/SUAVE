@@ -1,7 +1,7 @@
 # Segment.py
 # 
 # Created:  Sep 2016, E. Botero
-# Modified: Jun 2017, M. Clarke 
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -25,7 +25,7 @@ class Segment(Lofted_Body.Segment):
         self.sweeps.quarter_chord  = 0.0
         self.sweeps.leading_edge   = 0.0
         self.Airfoil               = Data()
-        self.control_surfaces       = Data()  
+        self.control_surfaces      = Data()  
         
     def append_airfoil(self,airfoil):
         """ adds an airfoil to the segment """

@@ -81,8 +81,8 @@ class AVL(Stability):
         self.training = Data()        
 
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])
-        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])  
+        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
 
         self.training.lift_coefficient = None
         self.training.drag_coefficient = None
@@ -398,8 +398,8 @@ class AVL(Stability):
 
         # case filenames
         for case in cases:
-            case.result_filename = output_template.format(case.tag)
-        #case.eigen_result_filename = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
+            cases[case].result_filename = output_template.format(case)
+            #case.eigen_result_filename = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
 
 
         # write the input files

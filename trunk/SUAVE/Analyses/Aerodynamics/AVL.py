@@ -39,19 +39,15 @@ class AVL(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
-        settings.half_mesh_flag                     = True
-        settings.parallel                           = False
-        settings.processors                         = 1
-        settings.vsp_mesh_growth_ratio              = 1.3
-        settings.vsp_mesh_growth_limiting_flag      = False
+        
                 
         # Build the evaluation process
         compute = self.process.compute
         compute.lift = Process()
 
-        # Run SU2 to determine lift
+        # Run AVL to determine lift
         compute.lift.inviscid                         = AVL_Inviscid()
-        compute.lift.total                            = compute.lift.inviscid
+        compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
         
         # Do a traditional drag buildup
         compute.drag = Process()

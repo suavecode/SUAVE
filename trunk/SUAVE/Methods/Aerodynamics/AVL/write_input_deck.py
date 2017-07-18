@@ -2,7 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-# Modified: Apr 2017, M. Clarke
+#           Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -28,9 +28,10 @@ def write_input_deck(avl_object):
     with open(deck_filename,'w') as input_deck:
         input_deck.write(open_runs.format(batch))
         input_deck.write(base_input)
-        for case in avl_object.current_status.cases:
+        for case_name in avl_object.current_status.cases:
             
             # write and store aerodynamic and static stability result files 
+            case = avl_object.current_status.cases[case_name]
             case_command = make_case_command(avl_object,case)
             input_deck.write(case_command)
             
@@ -66,20 +67,20 @@ x
     return case_command
 
 
-def make_eigen_mode_case_command(avl_object,case):
+#def make_eigen_mode_case_command(avl_object,case):
 
-    em_base_case_command = \
-'''
-MODE
-n
-w
-{0}
-'''
-    em_results_file = case.eigen_result_filename
-    purge_files([em_results_file])
-    em_case_command = em_base_case_command.format(em_results_file)
+    #em_base_case_command = \
+#'''
+#MODE
+#n
+#w
+#{0}
+#'''
+    #em_results_file = case.eigen_result_filename
+    #purge_files([em_results_file])
+    #em_case_command = em_base_case_command.format(em_results_file)
 
-    return em_case_command
+    #return em_case_command
 
 
      

@@ -2,7 +2,7 @@
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-# Modified: Apr 2017, M. Clarke
+#           Apr 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,7 +79,8 @@ def write_run_cases(avl_object):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case in avl_object.current_status.cases:
+        for case_name in avl_object.current_status.cases:
+            case  = avl_object.current_status.cases[case_name]
             index = case.index
             name  = case.tag
             alpha = case.conditions.aerodynamics.angle_of_attack
