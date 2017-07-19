@@ -29,8 +29,8 @@ def translate_conditions_to_cases(avl,conditions):
         case.conditions.freestream.density  = conditions.freestream.density
         case.conditions.freestream.gravitational_acceleration = conditions.freestream.gravity
         case.conditions.aerodynamics.angle_of_attack = conditions.aerodynamics.angle_of_attack[i]/Units.deg
-        case.conditions.aerodynamics.side_slip_angle = 0 #conditions.aerodynamics.side_slip_angle[i][0]
-        case.stability_and_control.control_deflections = np.array([[]]) # TODO How to do this from the SUAVE side?
+        case.conditions.aerodynamics.side_slip_angle = 0 
+        case.stability_and_control.control_deflections = np.array([[]]) 
         cases.append_case(case)
     
     return cases

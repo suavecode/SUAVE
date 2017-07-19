@@ -2,19 +2,20 @@
 # 
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2016, M. Vegh
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
-from tube import tube
-from landing_gear import landing_gear
-from payload import payload
-from systems import systems
+from SUAVE.Core      import Units, Data
+from tube            import tube
+from systems         import systems
 from tail_horizontal import tail_horizontal
-from tail_vertical import tail_vertical
-from wing_main import wing_main
+from tail_vertical   import tail_vertical
+from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
+from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
+from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import warnings
 
@@ -102,7 +103,7 @@ def empty(vehicle):
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
     
     propulsors     = vehicle.propulsors[propulsor_name]
-    num_eng    = propulsors.number_of_engines
+    num_eng        = propulsors.number_of_engines
     if propulsor_name=='turbofan' or propulsor_name=='Turbofan':
         # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
         # weight estimation. Engine sizing should return this value.
@@ -131,7 +132,7 @@ def empty(vehicle):
         sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
-        wt_wing    = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
+        wt_wing    = wing_main.wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
 
     S_fus      = vehicle.fuselages['fuselage'].areas.wetted
@@ -152,15 +153,15 @@ def empty(vehicle):
         mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
-        l_w2h      = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
+        l_w2h          = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
         wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)                
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
 
     if not vehicle.wings.has_key('vertical_stabilizer'):   
-        output_3 = Data()
+        output_3                  = Data()
         output_3.wt_tail_vertical = 0.0
-        output_3.wt_rudder = 0.0
-        S_v = 0.0
+        output_3.wt_rudder        = 0.0
+        S_v                       = 0.0
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
         
     else:     
@@ -173,7 +174,7 @@ def empty(vehicle):
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
         
     # Calculating Empty Weight of Aircraft
-    wt_landing_gear    = landing_gear(TOW)
+    wt_landing_gear    = landing_gear.landing_gear(TOW)
     
     wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r) 
     output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)  
@@ -186,7 +187,7 @@ def empty(vehicle):
 
     
     # packup outputs
-    output                   = payload(TOW, wt_empty, num_pax,wt_cargo)
+    output                   = payload.payload(TOW, wt_empty, num_pax,wt_cargo)
     output.wing              = wt_wing
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion

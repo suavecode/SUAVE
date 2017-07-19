@@ -36,9 +36,9 @@ import sys
 from shutil import rmtree
 from warnings import warn
 
-## ----------------------------------------------------------------------
-##  Class
-## ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+#  Class
+# ----------------------------------------------------------------------
 
 class AVL_Inviscid(Aerodynamics):
     """ SUAVE.Analyses.Aerodynamics.AVL
@@ -208,8 +208,8 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate  
 
-        AoA_points  = np.linspace(-1.,11.,100)*Units.deg 
-        mach_points = np.linspace(.05,.9,100)         
+        AoA_points  = np.linspace(-3.,11.,100)*Units.deg 
+        mach_points = np.linspace(.02,.9,100)         
             
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
         
@@ -222,7 +222,6 @@ class AVL_Inviscid(Aerodynamics):
                 CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         
-
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
         cbar = plt.colorbar()

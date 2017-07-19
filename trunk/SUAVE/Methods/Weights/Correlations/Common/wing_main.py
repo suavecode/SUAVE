@@ -17,7 +17,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.wing_main\
+    """ weight = SUAVE.Methods.Weights.Correlations.Common.wing_main\
     (S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
         Calculate the wing weight of the aircraft based on the fully-stressed 
         bending weight of the wing box        

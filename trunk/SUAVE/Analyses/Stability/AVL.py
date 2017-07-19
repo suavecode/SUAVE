@@ -328,8 +328,8 @@ class AVL(Stability):
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate
         self.surrogates.neutral_point               = neutral_point_surrogate
 
-        AoA_points  = np.linspace(-1.,11.,100)*Units.deg 
-        mach_points = np.linspace(.05,.9,100)           
+        AoA_points  = np.linspace(-3.,11.,100)*Units.deg 
+        mach_points = np.linspace(.02,.9,100)           
 
         AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
 
@@ -348,7 +348,6 @@ class AVL(Stability):
 
         fig = plt.figure('Coefficient of Moment Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CM_sur,levels=None)
-        #plt.clabel(plt_handle, inline=1, fontsize=10)
         cbar = plt.colorbar()
         plt.scatter(xy[:,0]/Units.deg,xy[:,1])
         plt.xlabel('Angle of Attack (deg)')

@@ -1,8 +1,6 @@
 # Weights.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
-# Modified: Apr 2017, Matthew Clarke
+# Created: Apr 2017, Matthew Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +9,7 @@
 import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
+
 
 
 # ----------------------------------------------------------------------
@@ -22,40 +21,17 @@ class Weights(Analysis):
     """
     def __defaults__(self):
         self.tag = 'weights'
+        
         self.vehicle  = Data()
-        
         self.settings = Data()
+               
         
+    def evaluate(self,state):
         
-    def evaluate(self,conditions=None):
-        
-        # unpack
-        vehicle = self.vehicle
-        
-        if vehicle.fuselages.keys() == []:
-            empty   = SUAVE.Methods.Weights.Correlations.UAV.empty     
-        elif vehicle.fuselages.has_key('fuselage'):
-            empty   = SUAVE.Methods. Weights.Correlations.Tube_Wing.empty
-        elif vehicle.fuselages.has_key('fuselage_bwb'):
-            empty   = SUAVE.Methods.Weights.Correlations.BWB.empty
-
-        
-        # evaluate
-        results = empty(vehicle)
-        
-        # storing weigth breakdown into vehicle
-        vehicle.weight_breakdown = results 
-
-        # updating empty weight
-        vehicle.mass_properties.operating_empty = results.empty
-              
-        # done!
-        return results
-    
+        return 
     
     def finalize(self):
         
-        self.mass_properties = self.vehicle.mass_properties
-        
-        return
+        return     
+    
         

@@ -6,13 +6,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
-from cabin import cabin
+from SUAVE.Core     import Units, Data
+from cabin          import cabin
 from aft_centerbody import aft_centerbody
-from landing_gear import landing_gear
-from payload import payload
-from systems import systems
-from wing_main import wing_main
+from systems        import systems
+from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
+from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
+from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import warnings
 
@@ -101,7 +101,7 @@ def empty(vehicle):
         propulsors.mass_properties.mass  = wt_propulsion 
         
     else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
-        wt_propulsion                   = propulsors.mass_properties.mass
+        wt_propulsion                    = propulsors.mass_properties.mass
 
         if wt_propulsion==0:
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
@@ -121,14 +121,14 @@ def empty(vehicle):
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         S_h        = vehicle.wings['main_wing'].areas.reference*0.01 # control surface area on bwb
-        wt_wing    = wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
+        wt_wing    = wing_main.wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
     
 
     # Calculating Empty Weight of Aircraft
-    wt_landing_gear    = landing_gear(TOW)
-    wt_cabin        = cabin(bwb_cabin_area, TOW)
-    wt_aft_centerbody = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
+    wt_landing_gear    = landing_gear.landing_gear(TOW)
+    wt_cabin           = cabin(bwb_cabin_area, TOW)
+    wt_aft_centerbody  = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
     output_2           = systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
 
     # Calculate the equipment empty weight of the aircraft
@@ -137,7 +137,7 @@ def empty(vehicle):
 
     
     # packup outputs
-    output                   = payload(TOW, wt_empty, num_pax,wt_cargo)
+    output                   = payload.payload(TOW, wt_empty, num_pax,wt_cargo)
     output.wing              = wt_wing
     output.fuselage          = wt_cabin + wt_aft_centerbody
     output.propulsion        = wt_propulsion
