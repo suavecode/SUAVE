@@ -1,9 +1,8 @@
-# mission_B737.py
+# test_AVL.py
 # 
-# Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Created:  May 2017, M. Clarke
 
-""" setup file for a mission with a 737
+""" setup file for a mission with a 737 using AVL
 """
 
 import SUAVE

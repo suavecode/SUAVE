@@ -25,16 +25,8 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Results     import Results
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
-# local imports
+# local imports 
 from Stability import Stability
-
-# import SUAVE methods
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta import taw_cnbeta
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Approximations as Approximations
-from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Full_Linearized_Equations as Full_Linearized_Equations
-from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.Full_Linearized_Equations import Supporting_Functions as Supporting_Functions
 
 # Package imports
 import time
@@ -44,8 +36,6 @@ import numpy as np
 import sys
 import sklearn
 from sklearn import gaussian_process
-from sklearn import neighbors
-from sklearn import svm
 from shutil import rmtree
 from warnings import warn
 

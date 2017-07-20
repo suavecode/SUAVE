@@ -1,7 +1,8 @@
 # propeller_design.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Feb 2016. E. Botero
+# Modified: Feb 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -102,7 +103,7 @@ def propeller_design(prop_attributes):
         
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
-        Cdval = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
+        Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
 
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma**2)
@@ -110,7 +111,7 @@ def propeller_design(prop_attributes):
         Tp      = Tp_Tinf*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        Cd      = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
         alpha   = Cl/(2.*np.pi)
         epsilon = Cd/Cl
@@ -188,12 +189,6 @@ def propeller_design(prop_attributes):
     else:
         print('Power and thrust are both specified!')    
         
-    #efficiency = Tc/Pc
-    #Cp         = np.pi*Pc/(8.*(J**3.))
-    #Ct         = np.pi*Tc/(8.*(J**2.))
-    #eta        = Ct*J/Cp 
-    
-    
     # Calculate mid-chord alignment angle, MCA
     # This is the distance from the mid chord to the line axis out of the center of the blade
     # In this case the 1/4 chords are all aligned
@@ -211,10 +206,5 @@ def propeller_design(prop_attributes):
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller
-    #print(2*Pc)
-    #print(2*Tc)
-    #print(V/(omega*R))
-    #print(eta)
-    #print(efficiency)
     
     return prop_attributes
