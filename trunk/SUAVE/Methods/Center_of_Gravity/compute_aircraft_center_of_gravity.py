@@ -16,7 +16,7 @@ import numpy as np
 #  Computer Aircraft Center of Gravity
 # ----------------------------------------------------------------------
 
-def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction):
+def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
     
 
         #computes the CG for the vehicle from the assigned vehicle mass properties and locations

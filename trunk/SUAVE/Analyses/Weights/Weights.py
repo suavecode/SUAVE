@@ -26,7 +26,7 @@ class Weights(Analysis):
         self.settings = Data()
                
         
-    def evaluate(self,state):
+    def evaluate(self):
         
         return 
     
