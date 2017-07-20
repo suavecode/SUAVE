@@ -29,7 +29,7 @@ class Weights_Tube_Wing(Weights):
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods. Weights.Correlations.Tube_Wing.empty
+        empty   = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
 
         
         # evaluate
