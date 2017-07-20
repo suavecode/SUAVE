@@ -154,7 +154,7 @@ class AVL_Inviscid(Aerodynamics):
                 # Set training conditions
 
                 run_conditions = Aerodynamics()
-                run_conditions.weights.total_mass           = geometry.mass_properties.max_takeoff
+                run_conditions.weights.total_mass           = 0
                 run_conditions.freestream.density           = 1.225
                 run_conditions.freestream.gravity           = 9.81          
                 run_conditions.aerodynamics.angle_of_attack = AoA

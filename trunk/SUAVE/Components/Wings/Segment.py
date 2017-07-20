@@ -1,7 +1,7 @@
 # Segment.py
 # 
 # Created:  Sep 2016, E. Botero
-#           Jul 2017, M. Clarke
+# Modified: Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

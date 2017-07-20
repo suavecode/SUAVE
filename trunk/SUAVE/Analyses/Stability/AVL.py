@@ -262,12 +262,12 @@ class AVL(Stability):
                 # Set training conditions
 
                 run_conditions = Aerodynamics()
-                run_conditions.weights.total_mass               = geometry.mass_properties.max_takeoff
+                run_conditions.weights.total_mass               = 0 
                 run_conditions.freestream.density               = 1.225
                 run_conditions.freestream.gravity               = 9.81          
                 run_conditions.aerodynamics.angle_of_attack     = AoA
                 run_conditions.freestream.mach_number           = mach[j]
-                run_conditions.freestream.velocity              = mach[j] * 340.29 #speed of sound
+                
 
                 #Run Analysis at AoA[i] and mach[j]
                 results =  self.evaluate_conditions(run_conditions)
