@@ -44,7 +44,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         else:
                 v_tail_moment = 0
     
-<<<<<<< HEAD
+
         # Propulsion
         propulsor_name                    = vehicle.propulsors.keys()[0]
         propulsor                         = vehicle.propulsors[propulsor_name]        
@@ -52,18 +52,10 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         propulsor_cg                      = 0
         for j in range(len(propulsor.origin)):
                 propulsor_cg += np.array(propulsor_cg_base) + np.array(propulsor.origin[j])
-=======
-        # need to correct calculations for propulsor center of gravity
-        #propulsor_cg_base         = propulsor.mass_properties.center_of_gravity
-        #propulsor_cg              = np.zeros_like(control_systems_cg)
-        #for j in range(len(propulsor.origin)):
-                #propulsor_cg += np.array(propulsor_cg_base) + np.array(propulsor.origin[j])
-        
-        #propulsor_cg = propulsor_cg/(j+1.)       
-        #propulsor_moment          = propulsor_cg*propulsor.mass_properties.mass
+
+        propulsor_cg = propulsor_cg/(j+1.)       
+        propulsor_moment          = propulsor_cg*propulsor.mass_properties.mass
   
-        propulsor_moment = 0
->>>>>>> 2e2720bd7023ce2755f4f78f80e3c21ffa1f1755
         
         # ---------------------------------------------------------------------------------
         # configurations with fuselages (BWB, Tube and Wing)  
