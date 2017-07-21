@@ -32,7 +32,6 @@ class Turbofan(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 1.0
-        self.origin            = [[0.0, 0.0, 0.0]]
         #areas needed for drag; not in there yet
         self.areas             = Data()
         self.areas.wetted      = 0.0

@@ -48,7 +48,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         propulsor_cg_base                 = propulsor.mass_properties.center_of_gravity
         propulsor_cg                      = 0
         for j in range(len(propulsor.origin)):
-                propulsor_cg += propulsor_cg_base + propulsor.origin[j]
+                propulsor_cg += np.array(propulsor_cg_base) + np.array(propulsor.origin[j])
         
         propulsor_cg                      = propulsor_cg/(j+1.)       
         propulsor_moment                  = propulsor_cg*propulsor.mass_properties.mass

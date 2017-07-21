@@ -16,7 +16,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_loc
 #  Computer Aircraft Center of Gravity
 # ---------------origin-------------------------------------------------------
 
-def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = True):
+def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = False):
     
 
     #computes the CG of all of the vehicle components based on correlations from AA241
@@ -44,11 +44,11 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Tru
         v_tail.mass_properties.center_of_gravity[0]             = .3*chord_length_v_tail_35_percent_semi_span + \
                                                                     v_tail_35_percent_semi_span_offset
 
-    # need to correct calculations for propulsor center of gravity
+    # computes the CG of propulsors. If origin not specified in vehicle set up, change compute_propulsor_origin boolean to True
     propulsor_name                                              = vehicle.propulsors.keys()[0]
     propulsor                                                   = vehicle.propulsors[propulsor_name]    
     if compute_propulsor_origin == True:
-        propulsor.origin                                        = propulsor.origin  
+        propulsor.origin[0][0]                                  = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
     propulsor.mass_properties.center_of_gravity[0]              = propulsor.engine_length*.5
  
    

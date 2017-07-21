@@ -50,22 +50,22 @@ def main():
     results                       = mission.evaluate()
 
     # lift coefficient check
-    lift_coefficient              = results.conditions.climb_1.aerodynamics.lift_coefficient[0]
-    lift_coefficient_true         = 0.64125075
+    lift_coefficient              = results.conditions.cruise.aerodynamics.lift_coefficient[0]
+    lift_coefficient_true         = 0.59703152 
     print lift_coefficient
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print 'CL difference'
     print diff_CL
-    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-3
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
     
     # moment coefficient check
-    moment_coefficient            = results.conditions.climb_1.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.73594278837902694
+    moment_coefficient            = results.conditions.cruise.stability.static.CM[0][0]
+    moment_coefficient_true       = 0.0196910850858
     print moment_coefficient
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
     print 'CM difference'
     print diff_CM
-    assert np.abs(moment_coefficient - moment_coefficient_true) < 1e-3    
+    assert np.abs(moment_coefficient - moment_coefficient_true) < 1e-6    
  
     return
 
