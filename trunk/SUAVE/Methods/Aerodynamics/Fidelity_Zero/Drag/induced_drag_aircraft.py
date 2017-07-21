@@ -53,7 +53,7 @@ def induced_drag_aircraft(state,settings,geometry):
     tc            = geometry.wings['main_wing'].thickness_to_chord
     
     
-    # Base SUAVE implementation --------
+    ## Base SUAVE implementation --------
     #e             = configuration.oswald_efficiency_factor
     #K             = configuration.viscous_lift_dependent_drag_factor 
     #wing_e        = geometry.wings['main_wing'].span_efficiency 

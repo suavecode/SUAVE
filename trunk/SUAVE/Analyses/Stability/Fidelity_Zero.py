@@ -122,7 +122,7 @@ class Fidelity_Zero(Stability):
             surf.ep_alpha = Supporting_Functions.ep_alpha(surf.CL_alpha, sref, span)
         
         # Static Stability Methods
-        static_stability.Cm_alpha,static_stability.cm0, static_stability.CM  = taw_cmalpha(geometry,mach,conditions,configuration)
+        static_stability.cm_alpha,static_stability.cm0, static_stability.CM  = taw_cmalpha(geometry,mach,conditions,configuration)
 	#print static_stability.cm_alpha[0][0]
         if geometry.wings.has_key('vertical_stabilizer'):
 	    static_stability.cn_beta  = taw_cnbeta(geometry,conditions,configuration)
@@ -130,7 +130,7 @@ class Fidelity_Zero(Stability):
 	    static_stability.cn_beta = np.zeros_like(mach)
 	    
 	# calculate the static margin
-	static_stability.static_margin = -static_stability.Cm_alpha/conditions.lift_curve_slope
+	static_stability.static_margin = -static_stability.cm_alpha/conditions.lift_curve_slope
         
         # Dynamic Stability
         if np.count_nonzero(configuration.mass_properties.moments_of_inertia.tensor) > 0:    

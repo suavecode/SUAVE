@@ -73,7 +73,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     
     # getting engine y position and calculating thrust
     for idx,propulsor in enumerate(propulsors):
-        y_engine = propulsor.position[1]             
+        y_engine = propulsor.origin[0][1]             
         # Getting engine thrust
         results = propulsor(state) # total thrust
         thrust  = results.thrust_force_vector[0,0] / propulsor.number_of_engines
