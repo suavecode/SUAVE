@@ -72,7 +72,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 apu                = vehicle.apu
                 hydraulics         = vehicle.hydraulics
                 optionals          = vehicle.optionals     
-                control_systems           = vehicle.control_systems 
+                control_systems    = vehicle.control_systems 
                 
                 # Control Sytems               
                 control_systems_cg        = control_systems.mass_properties.center_of_gravity
