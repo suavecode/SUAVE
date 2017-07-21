@@ -44,29 +44,25 @@ def main():
 
     configs.finalize()
     analyses.finalize()
-
-  
  
     # mission analysis
-    mission = analyses.missions.base
-    results = mission.evaluate()
+    mission                       = analyses.missions.base
+    results                       = mission.evaluate()
 
-    ref_condition = Data()
-    ref_condition.mach_number = 0.3
-    ref_condition.reynolds_number = 12e6     
-
-    lift_coefficient = results.conditions.climb_1.aerodynamics.lift_coefficient[0]
-    lift_coefficient_true = 0.64576527
+    # lift coefficient check
+    lift_coefficient              = results.conditions.climb_1.aerodynamics.lift_coefficient[0]
+    lift_coefficient_true         = 0.64125075
     print lift_coefficient
-    diff_CL = np.abs(lift_coefficient  - lift_coefficient_true) 
+    diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print 'CL difference'
     print diff_CL
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-3
     
-    moment_coefficient = results.conditions.climb_1.stability.static.CM[0][0]
-    moment_coefficient_true = 0.018348545647711226
+    # moment coefficient check
+    moment_coefficient            = results.conditions.climb_1.stability.static.CM[0][0]
+    moment_coefficient_true       = -0.73594278837902694
     print moment_coefficient
-    diff_CM = np.abs(moment_coefficient - moment_coefficient_true)
+    diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
     print 'CM difference'
     print diff_CM
     assert np.abs(moment_coefficient - moment_coefficient_true) < 1e-3    
@@ -75,13 +71,13 @@ def main():
 
 def modify_analyses(analyses,configs):
     
-    aerodynamics = SUAVE.Analyses.Aerodynamics.AVL()
-    stability = SUAVE.Analyses.Stability.AVL()
-    aerodynamics.geometry = copy.deepcopy(configs.base)
-    stability.geometry = copy.deepcopy(configs.base)
+    aerodynamics              = SUAVE.Analyses.Aerodynamics.AVL()
+    stability                 = SUAVE.Analyses.Stability.AVL()
+    aerodynamics.geometry     = copy.deepcopy(configs.base)
+    stability.geometry        = copy.deepcopy(configs.base)
     
     aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data_aerodynamics.txt'
-    stability.training_file        = 'base_data_stability.txt'
+    stability.training_file                                        = 'base_data_stability.txt'
     
     analyses.append(aerodynamics)
     analyses.append(stability)

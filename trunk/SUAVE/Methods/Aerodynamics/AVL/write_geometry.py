@@ -116,9 +116,9 @@ SURFACE
     # Horizontal Wings        
     else:        
         # Define precision of analysis. See AVL documentation for reference 
-        chordwise_vortices       = 12  
+        chordwise_vortices       = 20  
         chordwise_vortex_spacing = 1.0
-        spanwise_vortices        = 26
+        spanwise_vortices        = 30
         spanwise_vortex_spacing  = -1.0 
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
     

@@ -5,7 +5,6 @@
 # Modified: Apr 2017, M. Clarke
 
 
-
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -17,61 +16,60 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
-    
 
-        #computes the CG for the vehicle from the assigned vehicle mass properties and locations
-        
+        #computes the CG for the vehicle from the assigned vehicle mass properties and locations 
         #unpack components
-        wing               = vehicle.wings['main_wing']
+        wing                              = vehicle.wings['main_wing']
           
         #compute moments from each component about the nose of the aircraft
         # Wing
-        wing_cg                   = wing.mass_properties.center_of_gravity
-        wing_moment               = (wing.origin+wing_cg)*wing.mass_properties.mass
+        wing_cg                           = wing.mass_properties.center_of_gravity
+        wing_moment                       = (wing.origin+wing_cg)*wing.mass_properties.mass
         
         # Horizontal Tail
         if vehicle.wings.has_key('horizontal_stabilizer'):
-                h_tail             = vehicle.wings['horizontal_stabilizer']
+                h_tail                    = vehicle.wings['horizontal_stabilizer']
                 h_tail_cg                 = h_tail.mass_properties.center_of_gravity
                 h_tail_moment             = (h_tail.origin+h_tail_cg)*h_tail.mass_properties.mass
         else:
-                h_tail_moment = 0
+                h_tail_moment             = 0
+        
         # Verical Tail
         if vehicle.wings.has_key('vertical_stabilizer'):
-                v_tail             = vehicle.wings['vertical_stabilizer']  
+                v_tail                    = vehicle.wings['vertical_stabilizer']  
                 v_tail_cg                 = v_tail.mass_properties.center_of_gravity
                 v_tail_moment             = (v_tail.origin+ v_tail_cg)*(v_tail.mass_properties.mass+v_tail.rudder.mass_properties.mass)
         else:
-                v_tail_moment = 0
+                v_tail_moment             = 0
     
-        # need to correct calculations for propulsor center of gravity
-        #propulsor_cg_base         = propulsor.mass_properties.center_of_gravity
-        #propulsor_cg              = np.zeros_like(control_systems_cg)
-        #for j in range(len(propulsor.origin)):
-                #propulsor_cg += np.array(propulsor_cg_base) + np.array(propulsor.origin[j])
+        # Propulsion
+        propulsor_name                    = vehicle.propulsors.keys()[0]
+        propulsor                         = vehicle.propulsors[propulsor_name]        
+        propulsor_cg_base                 = propulsor.mass_properties.center_of_gravity
+        propulsor_cg                      = 0
+        for j in range(len(propulsor.origin)):
+                propulsor_cg += propulsor_cg_base + propulsor.origin[j]
         
-        #propulsor_cg = propulsor_cg/(j+1.)       
-        #propulsor_moment          = propulsor_cg*propulsor.mass_properties.mass
-  
-        propulsor_moment = 0
-        
+        propulsor_cg                      = propulsor_cg/(j+1.)       
+        propulsor_moment                  = propulsor_cg*propulsor.mass_properties.mass
+
+           
         # ---------------------------------------------------------------------------------
         # configurations with fuselages (BWB, Tube and Wing)  
         # ---------------------------------------------------------------------------------
         if vehicle.fuselages.keys() != []: 
                 
-                landing_gear       = vehicle.landing_gear
-                propulsor_name     = vehicle.propulsors.keys()[0]
-                propulsor          = vehicle.propulsors[propulsor_name]
-                electrical_systems = vehicle.electrical_systems
-                avionics           = vehicle.avionics
-                furnishings        = vehicle.furnishings
-                passenger_weights  = vehicle.passenger_weights
-                air_conditioner    = vehicle.air_conditioner
-                fuel               = vehicle.fuel
-                apu                = vehicle.apu
-                hydraulics         = vehicle.hydraulics
-                optionals          = vehicle.optionals     
+                landing_gear              = vehicle.landing_gear
+
+                electrical_systems        = vehicle.electrical_systems
+                avionics                  = vehicle.avionics
+                furnishings               = vehicle.furnishings
+                passenger_weights         = vehicle.passenger_weights
+                air_conditioner           = vehicle.air_conditioner
+                fuel                      = vehicle.fuel
+                apu                       = vehicle.apu
+                hydraulics                = vehicle.hydraulics
+                optionals                 = vehicle.optionals     
                 control_systems           = vehicle.control_systems 
                 
                 # Control Sytems               
