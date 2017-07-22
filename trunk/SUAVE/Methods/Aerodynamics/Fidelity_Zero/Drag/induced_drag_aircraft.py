@@ -2,6 +2,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified:     2016, A. Variyar
+#           Jul 2017, T. MacDonald
           
 
 # ----------------------------------------------------------------------
@@ -52,12 +53,15 @@ def induced_drag_aircraft(state,settings,geometry):
     tc            = geometry.wings['main_wing'].thickness_to_chord
     
     
-    ## Base SUAVE implementation --------
+    ##Base SUAVE implementation --------
     #e             = configuration.oswald_efficiency_factor
     #K             = configuration.viscous_lift_dependent_drag_factor 
     #wing_e        = geometry.wings['main_wing'].span_efficiency 
     #if e == None:
         #e = 1/((1/wing_e)+np.pi*ar*K*CDp)
+        
+    #total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    #e_tot = e
     
     
     # Start the result
@@ -114,7 +118,7 @@ def induced_drag_aircraft(state,settings,geometry):
     
     
     
-    ##given e
+    ###given e
     #e_tot = geometry.wings['main_wing'].span_efficiency
     #wing_e = e_tot
     #total_induced_drag = aircraft_lift**2.0 / (np.pi*ar*e_tot)

@@ -46,9 +46,14 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
 
     # computes the CG of propulsors. If origin not specified in vehicle set up, change compute_propulsor_origin boolean to True
     propulsor_name                                              = vehicle.propulsors.keys()[0]
-    propulsor                                                   = vehicle.propulsors[propulsor_name]    
+    propulsor                                                   = vehicle.propulsors[propulsor_name]   
+    
     if compute_propulsor_origin == True:
-        propulsor.origin[0][0]                                  = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
+        propulsor.origin = [[0,0,0]]
+        propulsor.origin[0][0] = wing.origin[0] + mac_le_offset/2.-(3./4.)*propulsor.engine_length
+        propulsor.origin[0][1] = 0.
+        propulsor.origin[0][2] = 0.
+        
     propulsor.mass_properties.center_of_gravity[0]              = propulsor.engine_length*.5
  
    
