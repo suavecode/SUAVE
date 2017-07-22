@@ -39,14 +39,7 @@ def compressibility_drag_wing(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings    
     
-    wing = geometry
-    if wing.tag == 'main_wing':
-        wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
-    elif wing.vertical:
-        wing_lifts = 0
-    else:
-        wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
-        
+    wing           = geometry        
     mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
     
