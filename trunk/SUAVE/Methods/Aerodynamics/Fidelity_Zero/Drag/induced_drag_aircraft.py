@@ -12,21 +12,14 @@
 # suave imports
 from SUAVE.Analyses import Results
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
 
 # package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
-#  The Function
+#  Induced Drag Aircraft
 # ----------------------------------------------------------------------
 
-#def induced_drag_aircraft(conditions,configuration,geometry):
 def induced_drag_aircraft(state,settings,geometry):
     """ SUAVE.Methods.induced_drag_aircraft(conditions,configuration,geometry)
         computes the induced drag associated with a wing 
@@ -126,10 +119,10 @@ def induced_drag_aircraft(state,settings,geometry):
         
     # Store data
     conditions.aerodynamics.drag_breakdown.induced = Results(
-        total             = total_induced_drag ,
-        aspect_ratio      = ar                 ,
-        e_total           = e_tot            ,
-        e_inviscid        = wing_e          ,
+        total                   = total_induced_drag ,
+        aspect_ratio            = ar                 ,
+        efficiency_factor_total = e_tot            ,
+        e_inviscid_wing         = wing_e          ,
     )
     
     # done!
