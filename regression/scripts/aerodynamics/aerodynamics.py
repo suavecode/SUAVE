@@ -157,12 +157,14 @@ def main():
    
     print 'cd_m =', cd_m
     
-    
    
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
     
     drag_tests = Data()
     drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
+    for ii,cd in enumerate(drag_tests.cd_c):
+        if np.isnan(cd):
+            drag_tests.cd_c[ii] = np.abs((cd_c[ii]-cd_c_r[ii])/np.min(cd_c[cd_c!=0]))
     drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
     drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
     ## Commented lines represent values not set by current drag functions, but to be recreated in the future
@@ -185,29 +187,29 @@ def main():
       
 
 def reg_values():
-    cd_c_r = np.array([[  8.08247570e-09],
-       [  2.32439492e-09],
-       [  8.72099506e-23],
-       [  3.95356534e-09],
-       [  1.12715582e-03],
-       [  1.25533189e-04],
-       [  3.95906799e-09],
-       [  6.25239791e-11],
-       [  8.18124461e-05],
-       [  1.10331600e-03],
-       [  5.40850166e-14]])
+    cd_c_r = np.array([[  1.26269614e-05],
+       [  0.00000000e+00],
+       [  0.00000000e+00],
+       [  0.00000000e+00],
+       [  2.16130726e-04],
+       [  3.08816664e-05],
+       [  0.00000000e+00],
+       [  0.00000000e+00],
+       [  4.57752306e-05],
+       [  2.57289093e-01],
+       [  0.00000000e+00]])
     
-    cd_i_r = np.array([[ 0.19128965],
-       [ 0.02465096],
-       [ 0.00777093],
-       [ 0.00111688],
-       [ 0.00156422],
-       [ 0.00978113],
-       [ 0.01873018],
-       [ 0.03699081],
-       [ 0.0822499 ],
-       [ 0.17923674],
-       [ 0.12162074]])
+    cd_i_r = np.array([[ 0.18419661],
+       [ 0.02381409],
+       [ 0.0076612 ],
+       [ 0.00107784],
+       [ 0.00151415],
+       [ 0.00938912],
+       [ 0.01810731],
+       [ 0.03610754],
+       [ 0.07947848],
+       [ 0.17258859],
+       [ 0.11762186]])
                              
                         
                      
@@ -225,7 +227,7 @@ def reg_values():
     
     
     
-    cd_m_fuse_base_r = array([[ 0.],
+    cd_m_fuse_base_r = np.array([[ 0.],
        [ 0.],
        [ 0.],
        [ 0.],
@@ -237,7 +239,7 @@ def reg_values():
        [ 0.],
        [ 0.]])
     
-    cd_m_fuse_up_r   = array([[  4.80530506e-05],
+    cd_m_fuse_up_r   = np.array([[  4.80530506e-05],
        [  4.80530506e-05],
        [  4.80530506e-05],
        [  4.80530506e-05],
@@ -249,7 +251,7 @@ def reg_values():
        [  4.80530506e-05],
        [  4.80530506e-05]])
     
-    cd_m_nac_base_r = array([[ 0.00033128],
+    cd_m_nac_base_r = np.array([[ 0.00033128],
        [ 0.00033128],
        [ 0.00033128],
        [ 0.00033128],
@@ -261,7 +263,7 @@ def reg_values():
        [ 0.00033128],
        [ 0.00033128]])
     
-    cd_m_ctrl_r     = array([[ 0.0001],
+    cd_m_ctrl_r     = np.array([[ 0.0001],
        [ 0.0001],
        [ 0.0001],
        [ 0.0001],
@@ -273,7 +275,7 @@ def reg_values():
        [ 0.0001],
        [ 0.0001]])
     
-    cd_p_fuse_r     = array([[ 0.00573221],
+    cd_p_fuse_r     = np.array([[ 0.00573221],
        [ 0.00669671],
        [ 0.01034335],
        [ 0.00656387],
@@ -285,7 +287,7 @@ def reg_values():
        [ 0.0060046 ],
        [ 0.00697051]])
     
-    cd_p_wing_r     = array([[ 0.00568318],
+    cd_p_wing_r     = np.array([[ 0.00568318],
        [ 0.00574321],
        [ 0.00911242],
        [ 0.00555159],
@@ -297,22 +299,22 @@ def reg_values():
        [ 0.0054087 ],
        [ 0.00583051]])
     
-    cd_tot_r        = array([[ 0.21162067],
-       [ 0.04269817],
-       [ 0.03486839],
-       [ 0.01825581],
-       [ 0.02122359],
-       [ 0.0250517 ],
-       [ 0.03696244],
-       [ 0.05986016],
-       [ 0.10164356],
-       [ 0.20016137],
-       [ 0.14207549]])
+    cd_tot_r        = np.array([[ 0.20417124],
+       [ 0.04184454],
+       [ 0.03475646],
+       [ 0.01821598],
+       [ 0.02019493],
+       [ 0.02455641],
+       [ 0.03632711],
+       [ 0.05895923],
+       [ 0.09878038],
+       [ 0.45468408],
+       [ 0.13799663]])
     
     
     
-    return cd_c_r[:,None], cd_i_r[:,None], cd_m_r[:,None], cd_m_fuse_base_r[:,None], cd_m_fuse_up_r[:,None], \
-           cd_m_nac_base_r[:,None], cd_m_ctrl_r[:,None], cd_p_fuse_r[:,None], cd_p_wing_r[:,None], cd_tot_r[:,None]
+    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
+           cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
 if __name__ == '__main__':
 

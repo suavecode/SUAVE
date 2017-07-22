@@ -53,5 +53,5 @@ def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
              * (1.+2.*taper)/(t_c_w*(np.cos(sweep))**2. * area*(1.+taper) )
     weight = weight * Units.lb # Convert lb to kg
  
-    print 'weight: ' + str(weight)
+    #print 'weight: ' + str(weight)
     return weight
