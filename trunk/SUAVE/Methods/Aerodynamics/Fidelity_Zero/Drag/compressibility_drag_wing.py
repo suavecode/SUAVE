@@ -53,7 +53,7 @@ def compressibility_drag_wing(state,settings,geometry):
     
     # Currently uses vortex lattice model on all wings
     if wing.tag=='main_wing':
-        cl_w = wing_lifts
+        cl_w = conditions.aerodynamics.lift_breakdown.compressible_wings
     else:
         cl_w = 0
         
