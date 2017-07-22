@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jan 2017, T. MacDonald
+#           Jul 2017, M. Clarke
 
 
 # ----------------------------------------------------------------------
@@ -53,7 +54,7 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 563356.60640792653 # this is in lb
+    final_mass_true = 581693.79338040575 # this is in lb
     
     print final_mass
     
@@ -117,7 +118,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_BWB()
     weights.vehicle = vehicle
     analyses.append(weights)
 
