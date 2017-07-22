@@ -1,8 +1,8 @@
 # compressibility_drag_wing.py
 # 
-# Created:  Your Name, Dec 2013
-# Modified:         
-
+# Created:  Dec 2013, SUAVE Team
+# Modified: Nov 2016, T. MacDonald
+#        
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------

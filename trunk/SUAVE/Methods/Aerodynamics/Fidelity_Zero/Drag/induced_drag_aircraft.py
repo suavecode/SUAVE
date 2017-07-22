@@ -1,4 +1,3 @@
-
 # induced_drag_aircraft.py
 # 
 # Created:  Dec 2013, SUAVE Team

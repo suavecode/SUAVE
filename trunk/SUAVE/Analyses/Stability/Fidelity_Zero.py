@@ -123,7 +123,7 @@ class Fidelity_Zero(Stability):
         
         # Static Stability Methods
         static_stability.cm_alpha,static_stability.cm0, static_stability.CM  = taw_cmalpha(geometry,mach,conditions,configuration)
-	#print static_stability.cm_alpha[0][0]
+	
         if geometry.wings.has_key('vertical_stabilizer'):
 	    static_stability.cn_beta  = taw_cnbeta(geometry,conditions,configuration)
 	else:
