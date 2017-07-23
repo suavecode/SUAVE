@@ -84,9 +84,9 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
-    #plt.show(block=True)
+    plot_mission(results)
+    plot_mission(old_results,'k-')
+    plt.show(block=True)
     # check the results
     check_results(results,old_results)
     
@@ -379,7 +379,7 @@ def simple_sizing(configs, analyses):
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base)
+    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     compute_aircraft_center_of_gravity(base)
     
     # diff the new data
@@ -677,7 +677,7 @@ def check_results(new_results,old_results):
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
-        new_val = np.min( new_results.deep_get(k) )
+        new_val = np.min( new_results.deep_get(k) )        
         err = (new_val-old_val)/old_val
         print 'Error at Min:' , err
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        

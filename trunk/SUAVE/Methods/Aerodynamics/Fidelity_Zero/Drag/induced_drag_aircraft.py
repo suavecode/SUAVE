@@ -2,6 +2,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified:     2016, A. Variyar
+#           Jul 2017, T. MacDonald
           
 
 # ----------------------------------------------------------------------
@@ -11,21 +12,14 @@
 # suave imports
 from SUAVE.Analyses import Results
 
-# python imports
-import os, sys, shutil
-from copy import deepcopy
-from warnings import warn
 
 # package imports
 import numpy as np
-import scipy as sp
-
 
 # ----------------------------------------------------------------------
-#  The Function
+#  Induced Drag Aircraft
 # ----------------------------------------------------------------------
 
-#def induced_drag_aircraft(conditions,configuration,geometry):
 def induced_drag_aircraft(state,settings,geometry):
     """ SUAVE.Methods.induced_drag_aircraft(conditions,configuration,geometry)
         computes the induced drag associated with a wing 
@@ -52,12 +46,15 @@ def induced_drag_aircraft(state,settings,geometry):
     tc            = geometry.wings['main_wing'].thickness_to_chord
     
     
-    ## Base SUAVE implementation --------
+    ##Base SUAVE implementation --------
     #e             = configuration.oswald_efficiency_factor
     #K             = configuration.viscous_lift_dependent_drag_factor 
     #wing_e        = geometry.wings['main_wing'].span_efficiency 
     #if e == None:
         #e = 1/((1/wing_e)+np.pi*ar*K*CDp)
+        
+    #total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    #e_tot = e
     
     
     # Start the result
@@ -114,7 +111,7 @@ def induced_drag_aircraft(state,settings,geometry):
     
     
     
-    ##given e
+    ###given e
     #e_tot = geometry.wings['main_wing'].span_efficiency
     #wing_e = e_tot
     #total_induced_drag = aircraft_lift**2.0 / (np.pi*ar*e_tot)
@@ -122,10 +119,10 @@ def induced_drag_aircraft(state,settings,geometry):
         
     # Store data
     conditions.aerodynamics.drag_breakdown.induced = Results(
-        total             = total_induced_drag ,
-        aspect_ratio      = ar                 ,
-        e_total           = e_tot            ,
-        e_inviscid        = wing_e          ,
+        total                   = total_induced_drag ,
+        aspect_ratio            = ar                 ,
+        efficiency_factor_total = e_tot            ,
+        e_inviscid_wing         = wing_e          ,
     )
     
     # done!

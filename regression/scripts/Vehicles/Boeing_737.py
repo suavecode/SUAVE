@@ -246,6 +246,7 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
+    # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
     
     #compute engine areas

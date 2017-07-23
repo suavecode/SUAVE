@@ -64,7 +64,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.conditions.cruise.stability.static.CM[0][0]
-    moment_coefficient_true       = 0.0196910850858
+    moment_coefficient_true       = 0.0593026203735
     print moment_coefficient
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
     print 'CM difference'
