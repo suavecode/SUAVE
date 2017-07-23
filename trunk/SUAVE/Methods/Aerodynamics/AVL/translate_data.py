@@ -13,7 +13,6 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Data, Units
 from .Data.Cases import Run_Case
-from copy import deepcopy
 
 def translate_conditions_to_cases(avl,conditions):
     """ Takes SUAVE Conditions() data structure and translates to a Container of

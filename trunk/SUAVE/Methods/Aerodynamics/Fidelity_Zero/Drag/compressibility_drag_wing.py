@@ -2,6 +2,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
+#           Jul 2017, M. Clarke
 #        
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,9 +62,7 @@ def compressibility_drag_wing(state,settings,geometry):
 
     # start result
     total_compressibility_drag = 0.0
-    #drag_breakdown.compressible = Results()
 
-    
         
     # unpack wing
     t_c_w   = wing.thickness_to_chord
@@ -110,23 +109,6 @@ def compressibility_drag_wing(state,settings,geometry):
     cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
     
     #-----------------------------------------------------------------
-
-
-
-
-
-
-
-    ##----------------------------------------------------------------------------------
-
-
-
-
-
-
-    
-    
-    ##modified implementation -------------------------------------------------------
     
     supercrit = 1.0    
     
@@ -164,16 +146,10 @@ def compressibility_drag_wing(state,settings,geometry):
 
     MDiv  = mdiv    
 
-    
-    ##----------------------------------------------------------------------------------
-
-    
-    
-    
+      
     
     # increment
-    #total_compressibility_drag += cd_c
-    
+   
     # dump data to conditions
     wing_results = Results(
         compressibility_drag      = cd_c    ,
@@ -184,12 +160,4 @@ def compressibility_drag_wing(state,settings,geometry):
     )
     drag_breakdown.compressible[wing.tag] = wing_results
 
-    
-
-
-    # dump total comp drag
-    #drag_breakdown.compressible.total = total_compressibility_drag
-    #conditions.aerodynamics.drag_breakdown.compressible[wing.tag] = wing_results
-    #conditions.aerodynamics.drag_breakdown.compressible.total = total_compressibility_drag
-    
     return total_compressibility_drag

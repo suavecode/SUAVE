@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Core import DataOrdered as Container_Base
+from SUAVE.Core import DataOrdered 
 
 # ------------------------------------------------------------
 #  AVL Case
@@ -62,7 +62,7 @@ class Run_Case(Data):
 
         return
 
-class Container(Container_Base):
+class Container(DataOrdered):
 
     def append_case(self,case):
         """ adds a case to the set of run cases """

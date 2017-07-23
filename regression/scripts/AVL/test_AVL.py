@@ -1,9 +1,13 @@
 # test_AVL.py
 # 
 # Created:  May 2017, M. Clarke
-
+#
 """ setup file for a mission with a 737 using AVL
 """
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
 
 import SUAVE
 from SUAVE.Core import Units
@@ -16,10 +20,6 @@ import copy, time
 from SUAVE.Core import (
 Data, Container,
 )
-
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
 import sys
 
@@ -34,6 +34,10 @@ sys.path.append('../B737')
 
 
 from mission_B737 import full_setup, simple_sizing 
+
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
 
 def main(): 
    
