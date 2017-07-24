@@ -55,21 +55,21 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.conditions.cruise.aerodynamics.lift_coefficient[0]
-    lift_coefficient_true         = 0.59703152 
+    lift_coefficient_true         = 0.59667265401768055
     print lift_coefficient
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print 'CL difference'
     print diff_CL
-    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
+    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-6
     
     # moment coefficient check
     moment_coefficient            = results.conditions.cruise.stability.static.CM[0][0]
-    moment_coefficient_true       = 0.0593026203735
+    moment_coefficient_true       = 0.059358495174851242
     print moment_coefficient
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
     print 'CM difference'
     print diff_CM
-    assert np.abs(moment_coefficient - moment_coefficient_true) < 1e-6    
+    assert np.abs((moment_coefficient - moment_coefficient_true)/moment_coefficient_true) < 1e-6    
  
     return
 
