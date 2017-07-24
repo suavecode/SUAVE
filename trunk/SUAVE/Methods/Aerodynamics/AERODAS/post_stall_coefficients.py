@@ -1,7 +1,7 @@
 # post_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -30,6 +30,9 @@ def post_stall_coefficients(state,settings,geometry):
     CD1max = wing.pre_stall_maximum_lift_drag_coefficient
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
     alpha  = state.conditions.aerodynamics.angle_of_attack
+    
+    if wing.vertical == True:
+        alpha = 0. * np.ones_like(alpha)    
             
     # Equation 9a and b
     F1        = 1.190*(1.0-(t_c*t_c))
