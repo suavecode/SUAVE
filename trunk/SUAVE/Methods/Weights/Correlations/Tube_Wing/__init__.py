@@ -5,16 +5,8 @@
 """
 
 # Attributes
-from empty import empty
-from landing_gear import landing_gear
-from payload import payload
-from systems import systems
+from empty           import empty
+from systems         import systems
 from tail_horizontal import tail_horizontal
-from tail_vertical import tail_vertical
-from tube import tube
-from wing_main import wing_main
-
-
-# Packages
-
-
+from tail_vertical   import tail_vertical
+from tube            import tube

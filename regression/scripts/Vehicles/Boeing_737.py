@@ -1,7 +1,7 @@
 # Boeing_737.py
 #
 # Created:  Feb 2017, M. Vegh (taken from data originally in B737/mission_B737.py, noise_optimization/Vehicles.py, and Boeing 737 tutorial script
-# Modified: 
+# Modified: Jul 2017, M. Clarke
 
 """ setup file for the Boeing 737 vehicle
 """
@@ -144,7 +144,7 @@ def vehicle_setup():
     wing.twists.tip              = 3.0 * Units.degrees  
     
     wing.origin                  = [32.83,0,1.14]
-    wing.aerodynamic_center      = [0,0,0] #[2,0,0] from before
+    wing.aerodynamic_center      = [0,0,0]
     
     wing.vertical                = False 
     wing.symmetric               = True
@@ -246,6 +246,8 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05
+    # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
     
     #compute engine areas
     Awet    = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length 

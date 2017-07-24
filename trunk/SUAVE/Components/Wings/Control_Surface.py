@@ -2,6 +2,7 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
+#           Jun 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,6 +21,7 @@ class Control_Surface(Lofted_Body):
         self.tag                   = 'control_surface'
         self.span                  = 0.0
         self.span_fraction         = 0.0
+        self.chord_fraction        = 0  
         self.deflection_symmetry   = 1.0
         self.origin                = [0.0,0.0,0.0]
         self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]

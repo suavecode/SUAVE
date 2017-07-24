@@ -2,6 +2,7 @@
 #
 # Created:  Jan 2014, T. Orra
 # Modified: Jan 2016, E. Botero 
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -48,6 +49,8 @@ def parasite_total(state,settings,geometry):
  
     # from fuselage
     for fuselage in fuselages.values():
+        if fuselage.tag == 'fuselage_bwb':
+            continue
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area

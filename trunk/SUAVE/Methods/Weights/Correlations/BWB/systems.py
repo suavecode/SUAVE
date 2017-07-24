@@ -14,15 +14,14 @@ from SUAVE.Core import Units, Data
 #   Systems
 # ----------------------------------------------------------------------
 
-def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
+def systems(num_seats,  ctrl_type,S_h,S_gross_w, ac_type):
+    """ output = SUAVE.Methods.Weights.Correlations.BWB.systems(num_seats, ctrl_type,S_h, S_gross_w, ac_type)
         Calculate the weight of the different engine systems on the aircraft
     
         Inputs:
             num_seats - total number of seats on the aircraft [dimensionless]
             ctrl_type - specifies if the control system is fully power, partially powered, or not powered [dimensionless]
-            S_h - area of the horizontal tail [meters**2]
-            S_v - area of the vertical tail [meters**2]
+            S_h - area of the BWB outer aileron [meters**2]
             S_gross_w - area of the wing [meters**2]
             ac_type - determines type of instruments, electronics, and operating items based on type of vehicle [dimensionless]
         
@@ -44,7 +43,6 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     # unpack inputs
     sref   = S_gross_w / Units.ft**2 # Convert meters squared to ft squared
     area_h = S_h / Units.ft**2 # Convert meters squared to ft squared
-    area_v = S_v / Units.ft**2 # Convert meters squared to ft squared
     
     # process
     # Flight Controls Group Wt
@@ -54,8 +52,8 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
         flt_ctrl_scaler = 2.5
     else:
         flt_ctrl_scaler = 1.7 # fully aerodynamic controls
-    flt_ctrl_wt = (flt_ctrl_scaler*(area_h + area_v)) * Units.lb
-    
+    flt_ctrl_wt = (flt_ctrl_scaler*area_h) * Units.lb
+
     # APU Group Wt   
     if num_seats >= 6.:
         apu_wt = 7.0 * num_seats *Units.lb
@@ -116,7 +114,7 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     
     # packup outputs
     output = Data()   
-    output.wt_flt_ctrl    = flt_ctrl_wt 
+    output.wt_flt_ctrl    = flt_ctrl_wt
     output.wt_apu         = apu_wt 
     output.wt_hyd_pnu     = hyd_pnu_wt
     output.wt_instruments = instruments_wt
@@ -124,7 +122,7 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     output.wt_opitems     = opitems_wt
     output.wt_elec        = elec_wt
     output.wt_ac          = ac_wt
-    output.wt_furnish     = furnish_wt
+    output.wt_furnish     = furnish_wt    
     output.wt_systems     = output.wt_flt_ctrl + output.wt_apu + output.wt_hyd_pnu \
                             + output.wt_ac + output.wt_avionics + output.wt_elec \
                             + output.wt_furnish + output.wt_instruments + output.wt_opitems

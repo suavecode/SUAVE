@@ -3,6 +3,7 @@
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2014, A. Wendorff
 #           Feb 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,7 +16,7 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 
 def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_baggage = 30*Units.lbs):
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.payload(TOW, empty, num_pax, wt_cargo)
+    """ output = SUAVE.Methods.Weights.Correlations.Common.payload(TOW, empty, num_pax, wt_cargo)
         Calculate the weight of the payload and the resulting fuel mass
     
         Inputs:
