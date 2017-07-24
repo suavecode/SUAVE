@@ -62,7 +62,7 @@ def main():
     results = nexus.results
 
     err = nexus.sizing_loop.norm_error
-    err_true = 0.00975078 #for 1E-2 tol
+    err_true =  0.00765154 #for 1E-2 tol
     error = abs((err-err_true)/err)
     print 'error = ', error
     assert(error<1e-5), 'sizing loop regression failed'    
