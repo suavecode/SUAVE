@@ -1,7 +1,7 @@
 # vsp_write.py
 # 
 # Created:  Jul 2016, T. MacDonald
-# Modified: Jan 2017, T. MacDonald
+# Modified: Jun 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -239,6 +239,12 @@ def write(vehicle,tag):
         origins   = turbofan.origin
         bpr       = turbofan.bypass_ratio
         
+        # True will make a biconvex body, false will make a flow-through subsonic nacelle
+        if turbofan.has_key('OpenVSP_simple'):
+            simple_flag = turbofan.OpenVSP_simple
+        else:
+            simple_flag = False
+        
         for ii in xrange(0,int(n_engines)):
 
             origin = origins[ii]
@@ -250,28 +256,44 @@ def write(vehicle,tag):
             nac_id = vsp.AddGeom( "FUSELAGE")
             vsp.SetGeomName(nac_id, 'turbofan')
             
-            
-            # Length and overall diameter
-            vsp.SetParmVal(nac_id,"Length","Design",length)
-            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
-            vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.)
+            # Origin
             vsp.SetParmVal(nac_id,'X_Location','XForm',x)
             vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-            vsp.SetParmVal(nac_id,'Z_Location','XForm',z) 
-            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)
-            vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
             
-            xsecsurf = vsp.GetXSecSurf(nac_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
-            vsp.Update()
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
+            if simple_flag == True:
+                vsp.CutXSec(nac_id,3)
+                vsp.CutXSec(nac_id,1)
+                angle = np.arctan(width/length) / Units.deg
+                vsp.SetParmVal(nac_id,"TopLAngle","XSec_0",angle)
+                vsp.SetParmVal(nac_id,"TopLAngle","XSec_2",-angle)
+                vsp.SetParmVal(nac_id,"AllSym","XSec_0",1)
+                vsp.SetParmVal(nac_id,"AllSym","XSec_1",1)
+                vsp.SetParmVal(nac_id,"AllSym","XSec_2",1)
+                vsp.SetParmVal(nac_id,"Length","Design",length)
+                vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+                
+            else:
+            
+                # Length and overall diameter
+                vsp.SetParmVal(nac_id,"Length","Design",length)
+                vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.) 
+                vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
+                
+                xsecsurf = vsp.GetXSecSurf(nac_id,0)
+                vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
+                vsp.Update()
+                vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
+                vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
+                vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
+                vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
             
             vsp.Update()
     
@@ -306,10 +328,14 @@ def write(vehicle,tag):
         vsp.SetGeomName(fuse_id, fuselage.tag)
         area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
     
+        tail_z_pos = 0.02 # default value
         if fuselage.has_key('OpenVSP_values'):
             
 
             vals = fuselage.OpenVSP_values
+            
+            # for wave drag testing
+            fuselage.OpenVSP_ID = fuse_id
             
             # Nose
             vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
@@ -332,7 +358,7 @@ def write(vehicle,tag):
             if vals.tail.has_key('z_pos'):
                 tail_z_pos = vals.tail.z_pos
             else:
-                tail_z_pos = 0.02
+                pass # use above default
                 
             vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
     
@@ -348,7 +374,6 @@ def write(vehicle,tag):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
-    
     
     # Write the vehicle to the file
     
