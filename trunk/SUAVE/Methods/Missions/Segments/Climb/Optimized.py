@@ -31,6 +31,12 @@ def unpack_unknowns(segment,state):
         v_mag =  np.concatenate([[[vel0]],vel*vel0])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+        
+    #if np.all(gamma == 0.):
+        #gamma[gamma==0.] = 1.e-16
+        
+    #if np.all(vel == 0.):
+        #vel[vel==0.] = 1.e-16
     
     # process velocity vector
     v_x   =  v_mag * np.cos(gamma)
@@ -75,7 +81,7 @@ def update_differentials(segment,state):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[:,0]            = t_initial + x[:,0] 
+    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0] 
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 
