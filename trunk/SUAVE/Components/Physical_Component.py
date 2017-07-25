@@ -22,7 +22,7 @@ class Physical_Component(Component):
     def __defaults__(self):
         self.tag = 'Component'
         self.mass_properties = Mass_Properties()
-        self.position  = [0.0,0.0,0.0]
+        self.origin  = [[0.0,0.0,0.0]]
         self.symmetric = False
     
 class Container(Component.Container):

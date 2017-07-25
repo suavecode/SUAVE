@@ -2,6 +2,7 @@
 # 
 # Created:  Jan 2015, T. Momose
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,6 +18,7 @@ class Results(Data):
 
         self.aerodynamics = Data()
         self.stability    = Data()
-
+        
         self.stability.alpha_derivatives = Data()
         self.stability.beta_derivatives  = Data()
+        

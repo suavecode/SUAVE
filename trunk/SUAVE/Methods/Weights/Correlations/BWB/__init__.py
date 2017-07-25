@@ -1,5 +1,17 @@
+<<<<<<< HEAD
 ## @defgroup methods-weights-correlations-bwb BWB
 # Provides structural weight correlations for a BWB concept
 # @ingroup methods-weights-correlations
+=======
+
+""" SUAVE.Methods.Weights.Correlations.BWB
+    contains some useful methods or attributes
+    for estimating weights with zero-order correlations
+"""
+
+# Attributes
+from empty          import empty
+from systems        import systems
+>>>>>>> develop
 from aft_centerbody import aft_centerbody
 from cabin          import cabin

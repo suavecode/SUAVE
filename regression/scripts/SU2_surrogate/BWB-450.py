@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jan 2017, T. MacDonald
+#           Jul 2017, M. Clarke
 
 
 # ----------------------------------------------------------------------
@@ -117,7 +118,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_BWB()
     weights.vehicle = vehicle
     analyses.append(weights)
 

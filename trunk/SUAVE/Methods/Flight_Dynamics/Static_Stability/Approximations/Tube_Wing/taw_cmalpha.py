@@ -4,6 +4,7 @@
 # Created:  Apr 2014, T. Momose
 # Modified: Nov 2015, M. Vegh
 #           Jan 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -65,27 +66,41 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     """
 
     # Unpack inputs
-    Sref  = geometry.reference_area
-    mac   = geometry.wings['main_wing'].chords.mean_aerodynamic
-    c_root= geometry.wings['main_wing'].chords.root
-    taper = geometry.wings['main_wing'].taper
-    c_tip = taper*c_root
-    span  = geometry.wings['main_wing'].spans.projected
-    sweep = geometry.wings['main_wing'].sweeps.quarter_chord
-    C_Law = conditions.lift_curve_slope
-    w_f   = geometry.fuselages['fuselage'].width
-    l_f   = geometry.fuselages['fuselage'].lengths.total
+    Sref   = geometry.reference_area
+    mac    = geometry.wings['main_wing'].chords.mean_aerodynamic
+    c_root = geometry.wings['main_wing'].chords.root
+    taper  = geometry.wings['main_wing'].taper
+    c_tip  = taper*c_root
+    span   = geometry.wings['main_wing'].spans.projected
+    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
+    C_Law  = conditions.lift_curve_slope
+    alpha  = conditions.aerodynamics.angle_of_attack
+
     x_cg  = configuration.mass_properties.center_of_gravity[0]
-    x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))
+
     M     = mach
     
     weights      = conditions.weights.total_mass
     fuel_weights = weights-configuration.mass_properties.max_zero_fuel
-    cg           = compute_mission_center_of_gravity(configuration,fuel_weights)
-    x_cg         = cg[:,0] #get cg location at every point in the mission
+    cg           = compute_mission_center_of_gravity(configuration,fuel_weights)		
+    x_cg         = cg[:,0] #get cg location at every point in the mission    
+
+    #Evaluate the effect of the fuselage on the stability derivative
+    if geometry.fuselages.has_key('fuselage'):
+        w_f   = geometry.fuselages['fuselage'].width
+        l_f   = geometry.fuselages['fuselage'].lengths.total
+        x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
+        
+            
+        p  = x_rqc/l_f
+        Kf = 1.5012*p**2. + 0.538*p + 0.0331
+        CmAlpha_body = Kf*w_f*w_f*l_f/Sref/mac   #NEGLECTS TAIL EFFECT ON CL_ALPHA
+    else:
+        CmAlpha_body = 0.
 
     #Evaluate the effect of each lifting surface in turn
     CmAlpha_surf = []
+    Cm0_surf     = []
     for surf in geometry.wings:
         #Unpack inputs
         s         = surf.areas.reference
@@ -95,20 +110,30 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         downw     = 1 - surf.ep_alpha
         CL_alpha  = surf.CL_alpha
         vertical  = surf.vertical
+        twist_r   = surf.twists.root
+        twist_t   = surf.twists.tip     
+        al0       = surf.Airfoil.zero_angle_lift_coefficient
+        taper     = surf.taper
+        cmac      = surf.Airfoil.zero_angle_moment_coefficient
+        
+        # Average out the incidence angles to ge the zero angle lift
+        CL0_surf   = CL_alpha * ((twist_r+taper*twist_t)/2. -al0)
         
         #Calculate Cm_alpha contributions
         l_surf    = x_surf + x_ac_surf - x_cg
         Cma       = -l_surf*s/(mac*Sref)*(CL_alpha*eta*downw)*(1. - vertical)
+        cmo       = cmac+ s*eta*CL0_surf*l_surf*downw*(1. - vertical)/(mac*Sref)
         CmAlpha_surf.append(Cma)
-    
-    #Evaluate the effect of the fuselage on the stability derivative
-    p  = x_rqc/l_f
-    Kf = 1.5012*p**2. + 0.538*p + 0.0331
-    CmAlpha_body = Kf*w_f*w_f*l_f/Sref/mac   #NEGLECTS TAIL EFFECT ON CL_ALPHA
+        Cm0_surf.append(cmo)
+        
     
     cm_alpha = sum(CmAlpha_surf) + CmAlpha_body
     
-    return cm_alpha
+    CM0 = sum(Cm0_surf)
+    
+    CM = cm_alpha*alpha + CM0
+    
+    return cm_alpha, CM0, CM
 
 # ----------------------------------------------------------------------
 #   Module Tests
