@@ -79,13 +79,14 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(results)
+    plot_mission(old_results,'k-')
+    plt.show()
+    
 
     # check the results
     check_results(results,old_results)
     
-    #plt.show()
 
     return
 
@@ -152,7 +153,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -241,7 +242,7 @@ def mission_setup(analyses):
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 250.0 * Units.knots
-    segment.throttle       = 1.0
+    segment.throttle       = 1.0        
 
     # add to misison
     mission.append_segment(segment)
@@ -266,6 +267,9 @@ def mission_setup(analyses):
 
     # dummy for post process script
     segment.climb_rate   = 0.1
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg     
 
     # add to mission
     mission.append_segment(segment)

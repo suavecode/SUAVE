@@ -2,13 +2,14 @@
 # 
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #   Landing Gear
 # ----------------------------------------------------------------------
 
 def landing_gear(TOW, landing_gear_wt_factor = 0.04):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.landing_gear(TOW)
+    """ weight = SUAVE.Methods.Weights.Correlations.Common.landing_gear(TOW)
         Calculate the weight of the landing gear assuming that the gear 
         weight is 4 percent of the takeoff weight        
         
