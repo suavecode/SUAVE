@@ -68,7 +68,6 @@ class Optimized(Aerodynamic):
         initialize = self.process.initialize
         initialize.expand_state            = Methods.expand_state
         initialize.solved_mission          = Methods.Climb.Optimized.solve_linear_speed_constant_rate
-        #initialize.unknowns                = Methods.Climb.Optimized.initialize_unknowns
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = SUAVE.Methods.skip
 
