@@ -133,9 +133,12 @@ class Vortex_Lattice(Aerodynamics):
         
         AoA = training.angle_of_attack
         CL  = np.zeros_like(AoA)
-        wing_CLs = Data() 
-        for wing in geometry.wings.values():
-            wing_CLs[wing.tag] = np.zeros_like(AoA)
+        
+        wing_CLs = Data.fromkeys(geometry.wings.keys(), np.zeros_like(AoA))
+        # The above performs the function of:
+        #wing_CLs = Data() 
+        #for wing in geometry.wings.values():
+        #    wing_CLs[wing.tag] = np.zeros_like(AoA)
 
         # condition input, local, do not keep
         konditions              = Data()
