@@ -240,7 +240,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
         mach = conditions.freestream.mach_number
 
     # Initalize cd arrays
-    cd_c = np.array([[0.0]] * len(mach))
+    cd_c   = np.array([[0.0]] * len(mach))
     cd_c_l = np.array([[0.0]] * len(mach)) # lift wave drag
     cd_c_v = np.array([[0.0]] * len(mach)) # vol wave drag
 
@@ -276,4 +276,6 @@ def wave_drag_body_of_rev(total_length,Rmax,Sref):
     wave_drag_body_of_rev = (9.0*(np.pi)**3.0*Rmax**4.0/(4.0*total_length**2.0))/(0.5*Sref)  
 
     # Apply correction for imperfect body
-    return wave_drag_body_of_rev*1.15
+    wave_drag_body_of_rev_corrected = wave_drag_body_of_rev*1.15
+    
+    return wave_drag_body_of_rev_corrected

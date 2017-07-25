@@ -15,15 +15,6 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
-    """ SUAVE.Methods.wave_drag_volume(conditions,configuration,fuselage)
-        computes the wave drag due to lift 
-        Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-        
-        Inputs: total_length, Sref, t/c, Mach
-        Outputs:
-        Assumptions:
-        
-    """
     
     import vsp
 
@@ -55,11 +46,11 @@ def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
                 cd_w = np.array([[float(old_array[old_array[:,0]==mach[0],1])]])
             else:
                 vsp.SetDoubleAnalysisInput('WaveDrag', 'Mach', [float(mach)])
-                ridwd = vsp.ExecAnalysis('WaveDrag') 
-                cd_w = vsp.GetDoubleResults(ridwd,'CDWave')
-                cd_w = cd_w[0]*100./ref_area
+                ridwd        = vsp.ExecAnalysis('WaveDrag') 
+                cd_w         = vsp.GetDoubleResults(ridwd,'CDWave')
+                cd_w         = cd_w[0]*100./ref_area
                 new_save_row = np.array([[mach[0],cd_w]])
-                comb_array = np.append(old_array,new_save_row,axis=0)
+                comb_array   = np.append(old_array,new_save_row,axis=0)
                 np.save('volume_drag_data_' + geometry.tag + '.npy', comb_array)
             cd_w_all[ii] = cd_w
     

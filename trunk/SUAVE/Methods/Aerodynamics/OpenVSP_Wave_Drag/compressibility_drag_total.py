@@ -71,7 +71,7 @@ def compressibility_drag_total(state,settings,geometry):
 
         # initialize array to correct length
         cd_c = np.array([[0.0]] * len(Mc))
-        mcc = np.array([[0.0]] * len(Mc))
+        mcc  = np.array([[0.0]] * len(Mc))
         MDiv = np.array([[0.0]] * len(Mc))     
 
 
@@ -87,7 +87,8 @@ def compressibility_drag_total(state,settings,geometry):
         cl = conditions.aerodynamics.lift_breakdown.compressible_wings
 
         # Calculate compressibility drag at Mach 0.99 and 1.05 for interpolation between
-        (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
+        # dummy variables are unused function outputs
+        (drag99,dummy1,dummy2) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
         cdc_l = lift_wave_drag(conditions, 
                                   configuration, 
                                   wing, 
@@ -147,7 +148,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     # Save drag breakdown
 
-    drag_breakdown.compressible.total = cd_c
+    drag_breakdown.compressible.total        = cd_c
     drag_breakdown.compressible.total_volume = cd_c_v
     drag_breakdown.compressible.total_lift   = cd_c_l
     
@@ -178,22 +179,23 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
             cl_w = 0
 
         # Get effective Cl and sweep
-        tc = t_c_w /(np.cos(sweep_w))
-        cl = cl_w / (np.cos(sweep_w))**2
+        cos_sweep = np.cos(sweep_w)
+        tc = t_c_w / cos_sweep
+        cl = cl_w / (cos_sweep*cos_sweep)
 
         # Compressibility drag based on regressed fits from AA241
         mcc_cos_ws = 0.922321524499352       \
             - 1.153885166170620*tc    \
             - 0.304541067183461*cl    \
-            + 0.332881324404729*tc**2 \
+            + 0.332881324404729*tc*tc \
             + 0.467317361111105*tc*cl \
-            + 0.087490431201549*cl**2
+            + 0.087490431201549*cl*cl
 
         # Crest-critical mach number, corrected for wing sweep
-        mcc = mcc_cos_ws / np.cos(sweep_w)
+        mcc = mcc_cos_ws / cos_sweep
 
         # Divergence mach number
-        MDiv = mcc * ( 1.02 + 0.08*(1 - np.cos(sweep_w)) )        
+        MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )        
 
     # Divergence ratio
     mo_mc = Mc_ii/mcc
@@ -220,7 +222,7 @@ def lift_wave_drag(conditions,configuration,wing,k,Sref_main,flag105):
     mach       = conditions.freestream.mach_number
 
     # Create a copy that can be modified
-    Mc         = copy.copy(mach)
+    Mc         = mach*1.
 
     # This flag is for the interpolation mode
     if flag105 is True:

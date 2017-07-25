@@ -33,7 +33,8 @@ sys.path.append('../B737')
 # the analysis functions
 
 
-from mission_B737 import full_setup, simple_sizing 
+from mission_B737 import vehicle_setup, configs_setup, analyses_setup, mission_setup, missions_setup, simple_sizing
+import copy
 
 # ----------------------------------------------------------------------
 #   Main
@@ -41,16 +42,37 @@ from mission_B737 import full_setup, simple_sizing
 
 def main(): 
    
-    configs, analyses = full_setup()
+    # vehicle data
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
+
+    # vehicle analyses
+    configs_analyses = analyses_setup(configs)
     
-    modify_analyses(analyses,configs)
+    aerodynamics          = SUAVE.Analyses.Aerodynamics.AVL()
+    stability             = SUAVE.Analyses.Stability.AVL()
+    aerodynamics.geometry = copy.deepcopy(configs.cruise)
+    stability.geometry    = copy.deepcopy(configs.cruise)
+    aerodynamics.process.compute.lift.inviscid.training_file = 'base_data_aerodynamics.txt'
+    stability.training_file                                  = 'base_data_stability.txt'    
+    configs_analyses.cruise.append(aerodynamics)
+    configs_analyses.cruise.append(stability)
+
+    # mission analyses
+    mission  = mission_setup(configs_analyses)
+    missions_analyses = missions_setup(mission)
+
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.configs  = configs_analyses
+    analyses.missions = missions_analyses
+
     simple_sizing(configs, analyses)
 
     configs.finalize()
     analyses.finalize()
  
     # mission analysis
-    mission                       = analyses.missions.base
+    mission = analyses.missions.base    
     results                       = mission.evaluate()
 
     # lift coefficient check
