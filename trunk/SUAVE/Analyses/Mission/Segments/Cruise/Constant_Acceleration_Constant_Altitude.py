@@ -1,3 +1,7 @@
+# Constant_Acceleration_Constant_Altitude.py
+#
+# Created:  Jan 2016, E. Botero
+# Modified: Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -28,8 +32,8 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude  = None
         self.acceleration      = 1.  * Units['m/s/s']
-        self.air_speed_final   = 0.0 * Units['m/s']
-        self.air_speed_initial = 1.0 * Units['m/s']
+        self.air_speed_start   = 0.0 * Units['m/s']
+        self.air_speed_end     = 1.0 * Units['m/s']
         
         
         # --------------------------------------------------------------

@@ -1,7 +1,7 @@
 # Set_Speed_Set_Altitude.py
 #
 # Created:  Mar 2017, T. MacDonald
-# Modified: 
+# Modified: May 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
