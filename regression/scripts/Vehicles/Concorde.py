@@ -82,6 +82,61 @@ def vehicle_setup(source_ratio=1.):
     
     wing.dynamic_pressure_ratio  = 1.0
     
+    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil.coordinate_file = 'NACA65-203.dat' 
+    
+    wing.append_airfoil(wing_airfoil)  
+    
+    # set root sweep with inner section
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_1'
+    segment.percent_span_location = 0.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 33.8/33.8
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 67. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 1./source_ratio
+    segment.vsp_mesh.outer_radius    = 1./source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .044/source_ratio
+    segment.vsp_mesh.matching_TE     = False
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)
+    
+    # set mid section start point
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_2'
+    segment.percent_span_location = 6.15/(25.6/2) + wing.Segments['section_1'].percent_span_location
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 13.8/33.8
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 48. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 1./source_ratio
+    segment.vsp_mesh.outer_radius    = .88/source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .044/source_ratio 
+    segment.vsp_mesh.matching_TE     = False
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)
+    
+    # set tip section start point
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'section_3'
+    segment.percent_span_location = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 4.4/33.8
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 71. * Units.deg 
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = .88/source_ratio
+    segment.vsp_mesh.outer_radius    = .22/source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .011/source_ratio 
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)    
+    
     # add to vehicle
     vehicle.append_component(wing)
     
@@ -121,6 +176,43 @@ def vehicle_setup(source_ratio=1.):
     
     wing.dynamic_pressure_ratio  = 1.0
     
+    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil.coordinate_file = 'supertail_refined.dat' 
+    
+    wing.append_airfoil(tail_airfoil)  
+
+    # set root sweep with inner section
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_1'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 14.5/14.5
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 63. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 2.9/source_ratio
+    segment.vsp_mesh.outer_radius    = 1.5/source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .044/source_ratio
+    segment.append_airfoil(tail_airfoil)
+    wing.Segments.append(segment)
+    
+    # set mid section start point
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_2'
+    segment.percent_span_location = 2.4/(6.0) + wing.Segments['section_1'].percent_span_location
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 7.5/14.5
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 40. * Units.deg
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = 1.5/source_ratio
+    segment.vsp_mesh.outer_radius    = .54/source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .027/source_ratio 
+    segment.append_airfoil(tail_airfoil)
+    wing.Segments.append(segment)
+    
     # add to vehicle
     vehicle.append_component(wing)    
 
@@ -132,6 +224,7 @@ def vehicle_setup(source_ratio=1.):
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
+    #fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
     fuselage.seat_pitch            = 1
     
@@ -155,7 +248,11 @@ def vehicle_setup(source_ratio=1.):
     
     fuselage.effective_diameter    = 3.1
     
-    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure   
+    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
+    
+    fuselage.vsp_mesh              = Data()
+    fuselage.vsp_mesh.radius       = 12
+    fuselage.vsp_mesh.length       = 0.02
     
     fuselage.OpenVSP_values = Data() # VSP uses degrees directly
     
@@ -174,8 +271,13 @@ def vehicle_setup(source_ratio=1.):
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.0    
-    
+    fuselage.OpenVSP_values.tail.top.strength = 0.0
+    # after this doesn't matter in current setup
+    #fuselage.OpenVSP_values.tail.side.angle = -10.0
+    #fuselage.OpenVSP_values.tail.side.strength = 0.75  
+    #fuselage.OpenVSP_values.tail.TB_Sym = False 
+    #fuselage.OpenVSP_values.tail.bottom.angle = -20.0
+    #fuselage.OpenVSP_values.tail.bottom.strength = 0.75        
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -185,9 +287,9 @@ def vehicle_setup(source_ratio=1.):
     #   Turbojet Network
     # ------------------------------------------------------------------    
     
-    # instantiate the gas turbine network
+    #instantiate the gas turbine network
     turbojet = SUAVE.Components.Energy.Networks.Turbojet_Super()
-    turbojet.tag = 'turbojet'
+    turbojet.tag = 'turbofan'
     
     # setup
     turbojet.number_of_engines = 4.0
@@ -195,6 +297,7 @@ def vehicle_setup(source_ratio=1.):
     turbojet.nacelle_diameter  = 1.60
     turbojet.areas             = Data()
     turbojet.areas.wetted      = 12.5*1.6*8. # essentially rectangles attached to the wings
+    turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]]
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -320,17 +423,22 @@ def vehicle_setup(source_ratio=1.):
     # add to network
     turbojet.append(nozzle)
     
+    # ------------------------------------------------------------------
+    #  Component 9 - Divergening Nozzle
+    
+    
+    
     
     # ------------------------------------------------------------------
-    #Component 9 : thrust (to compute the thrust)
+    #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
  
-    # total design thrust (includes all the engines)
+    #total design thrust (includes all the engines)
     thrust.total_design             = 4*140000. * Units.N #Newtons
  
     # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
-    # Design sizing conditions
+    #design sizing conditions
     altitude      = 0.0*Units.ft
     mach_number   = 0.01
     isa_deviation = 0.
