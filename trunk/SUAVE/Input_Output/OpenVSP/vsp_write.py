@@ -117,6 +117,7 @@ def write(vehicle,tag):
         
         if n_segments==0:
             if len(wing.Airfoil) != 0:
+                print wing.Airfoil
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
                 vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
                 vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
@@ -260,7 +261,7 @@ def write(vehicle,tag):
             vsp.SetParmVal(nac_id,'X_Location','XForm',x)
             vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
             vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
             vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
             
             if simple_flag == True:

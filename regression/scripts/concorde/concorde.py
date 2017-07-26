@@ -40,7 +40,7 @@ from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
-
+from SUAVE.Input_Output.OpenVSP import write
 
 # ----------------------------------------------------------------------
 #   Main
@@ -57,6 +57,9 @@ def main():
     # Here we finalize the configuration and analysis settings
     configs.finalize()
     analyses.finalize()
+    
+    for key in configs.keys():
+        write(configs[key], key)
 
     # These functions analyze the mission
     mission = analyses.missions.base
@@ -136,8 +139,9 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_OpenVSP_Wave_Drag()
     aerodynamics.geometry = vehicle
+    vehicle.propulsors.turbojet.OpenVSP_simple = True
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
