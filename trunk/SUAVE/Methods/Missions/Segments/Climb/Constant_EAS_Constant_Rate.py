@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_EAS_Constant_Rate.py
 # 
 # Created:  Aug 2016, T. MacDonald
@@ -15,7 +15,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
     

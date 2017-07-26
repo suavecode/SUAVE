@@ -1,4 +1,4 @@
-## @defgroup methods-missions Missions
+## @defgroup Methods-Missions Missions
 # Mission methods contain the functions for setting up and solving a mission.
 # @ingroup Methods
 

@@ -1,4 +1,4 @@
-## @defgroup methods-missions-climb Climb
+## @defgroup Methods-Missions-Segments-Climb Climb
 # Climb mission methods containing the functions for setting up and solving a mission.
 # @ingroup Methods-Missions-Segments
 

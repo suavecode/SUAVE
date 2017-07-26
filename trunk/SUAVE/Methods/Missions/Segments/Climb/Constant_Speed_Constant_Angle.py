@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Speed_Constant_Angle.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -12,7 +12,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
     

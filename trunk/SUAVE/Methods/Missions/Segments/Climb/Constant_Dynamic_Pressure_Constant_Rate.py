@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Dynamic_Pressure_Constant_Rate.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +13,7 @@ import SUAVE
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
 

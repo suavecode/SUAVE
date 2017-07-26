@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Speed_Constant_Angle_Noise.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -12,7 +12,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Expand State
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def expand_state(segment,state):
     
     """Makes all vectors in the state the same size. Determines the minimum amount of points needed to get data for noise certification.
@@ -58,7 +58,7 @@ def expand_state(segment,state):
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup methods-missions-segments-climb
 def initialize_conditions(segment,state):
     """Gets the overall time step for the segment type.
     

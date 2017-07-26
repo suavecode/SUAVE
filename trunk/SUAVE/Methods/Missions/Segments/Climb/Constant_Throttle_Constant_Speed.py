@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Throttle_Constant_Speed.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -14,7 +14,7 @@ import numpy as np
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def unpack_body_angle(segment,state):
     """Unpacks and sets the proper value for body angle
 
@@ -45,7 +45,7 @@ def unpack_body_angle(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
     
@@ -88,7 +88,7 @@ def initialize_conditions(segment,state):
     conditions.propulsion.throttle[:,0] = throttle
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
 
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def update_differentials_altitude(segment,state):
     """On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
     
@@ -153,7 +153,7 @@ def update_differentials_altitude(segment,state):
 #  Update Velocity Vector from Wind Angle
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def update_velocity_vector_from_wind_angle(segment,state):
     
     # unpack

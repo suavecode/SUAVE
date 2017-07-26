@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 # Common.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +13,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def unpack_unknowns(segment,state):
     """Unpacks the unknowns set in the mission to be available for the mission.
 
@@ -47,7 +47,7 @@ def unpack_unknowns(segment,state):
 #  Residual Total Forces
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-climb
+## @ingroup Methods-Missions-Segments-Climb
 def residual_total_forces(segment,state):
     """Takes the summation of forces and makes a residual from the accelerations.
 
@@ -78,7 +78,7 @@ def residual_total_forces(segment,state):
 
     return
       
-## @ingroup methods-mission-segments-climb 
+## @ingroup Methods-Missions-Segments-Climb 
 def update_differentials_altitude(segment,state):
     """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
 
