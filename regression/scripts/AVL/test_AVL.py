@@ -73,7 +73,7 @@ def main():
  
     # mission analysis
     mission = analyses.missions.base    
-    results                       = mission.evaluate()
+    results = mission.evaluate()
 
     # lift coefficient check
     lift_coefficient              = results.conditions.cruise.aerodynamics.lift_coefficient[0]
@@ -94,21 +94,6 @@ def main():
     assert np.abs((moment_coefficient - moment_coefficient_true)/moment_coefficient_true) < 1e-6    
  
     return
-
-def modify_analyses(analyses,configs):
-    
-    aerodynamics              = SUAVE.Analyses.Aerodynamics.AVL()
-    stability                 = SUAVE.Analyses.Stability.AVL()
-    aerodynamics.geometry     = copy.deepcopy(configs.base)
-    stability.geometry        = copy.deepcopy(configs.base)
-    
-    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data_aerodynamics.txt'
-    stability.training_file                                        = 'base_data_stability.txt'
-    
-    analyses.append(aerodynamics)
-    analyses.append(stability)
-     
-    return 
 
 if __name__ == '__main__': 
     main()    
