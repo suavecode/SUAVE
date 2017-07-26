@@ -112,7 +112,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     # getting induced drag efficiency factor
     state.conditions.aerodynamics.lift_coefficient = 0.5 # dummy value
     compute.induced(state,settings,vehicle)
-    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor_total
+    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
     # reynolds number
     
     Re_w = rho * Mc * a * mean_aerodynamic_chord/mew
