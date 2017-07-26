@@ -224,7 +224,6 @@ def vehicle_setup(source_ratio=1.):
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
-    #fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
     fuselage.seat_pitch            = 1
     
@@ -258,9 +257,9 @@ def vehicle_setup(source_ratio=1.):
     #   Turbojet Network
     # ------------------------------------------------------------------    
     
-    #instantiate the gas turbine network
+    # instantiate the gas turbine network
     turbojet = SUAVE.Components.Energy.Networks.Turbojet_Super()
-    turbojet.tag = 'turbofan'
+    turbojet.tag = 'turbojet'
     
     # setup
     turbojet.number_of_engines = 4.0
