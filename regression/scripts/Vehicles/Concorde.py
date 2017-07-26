@@ -250,35 +250,6 @@ def vehicle_setup(source_ratio=1.):
     
     fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
     
-    fuselage.vsp_mesh              = Data()
-    fuselage.vsp_mesh.radius       = 12
-    fuselage.vsp_mesh.length       = 0.02
-    
-    fuselage.OpenVSP_values = Data() # VSP uses degrees directly
-    
-    fuselage.OpenVSP_values.nose = Data()
-    fuselage.OpenVSP_values.nose.top = Data()
-    fuselage.OpenVSP_values.nose.side = Data()
-    fuselage.OpenVSP_values.nose.top.angle = 20.0
-    fuselage.OpenVSP_values.nose.top.strength = 0.75
-    fuselage.OpenVSP_values.nose.side.angle = 20.0
-    fuselage.OpenVSP_values.nose.side.strength = 0.75  
-    fuselage.OpenVSP_values.nose.TB_Sym = True
-    fuselage.OpenVSP_values.nose.z_pos = -.01
-    
-    fuselage.OpenVSP_values.tail = Data()
-    fuselage.OpenVSP_values.tail.top = Data()
-    fuselage.OpenVSP_values.tail.side = Data()    
-    fuselage.OpenVSP_values.tail.bottom = Data()
-    fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.0
-    # after this doesn't matter in current setup
-    #fuselage.OpenVSP_values.tail.side.angle = -10.0
-    #fuselage.OpenVSP_values.tail.side.strength = 0.75  
-    #fuselage.OpenVSP_values.tail.TB_Sym = False 
-    #fuselage.OpenVSP_values.tail.bottom.angle = -20.0
-    #fuselage.OpenVSP_values.tail.bottom.strength = 0.75        
-    
     # add to vehicle
     vehicle.append_component(fuselage)
     

@@ -139,9 +139,8 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_OpenVSP_Wave_Drag()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    vehicle.propulsors.turbofan.OpenVSP_simple = True
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)

@@ -117,7 +117,6 @@ def write(vehicle,tag):
         
         if n_segments==0:
             if len(wing.Airfoil) != 0:
-                print wing.Airfoil
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
                 vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
                 vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
