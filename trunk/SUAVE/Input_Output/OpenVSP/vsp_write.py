@@ -238,7 +238,6 @@ def write(vehicle,tag):
         length    = turbofan.engine_length
         width     = turbofan.nacelle_diameter
         origins   = turbofan.origin
-        bpr       = turbofan.bypass_ratio
         
         # True will make a biconvex body, false will make a flow-through subsonic nacelle
         if turbofan.has_key('OpenVSP_simple'):
