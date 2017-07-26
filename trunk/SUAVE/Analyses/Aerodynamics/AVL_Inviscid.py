@@ -114,7 +114,6 @@ class AVL_Inviscid(Aerodynamics):
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift

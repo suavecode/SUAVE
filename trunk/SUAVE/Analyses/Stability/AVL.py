@@ -74,11 +74,9 @@ class AVL(Stability):
         self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
         self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
 
-        self.training.moment_coefficient          = None
-        self.training.Cm_alpha_moment_coefficient = None
-        self.training.Cn_beta_moment_coefficient  = None
-        self.training.neutral_point               = None
-        self.training_file                        = None
+        self.training.lift_coefficient = None
+        self.training.drag_coefficient = None
+        self.training_file             = None
 
         # Surrogate model
         self.surrogates = Data()
@@ -131,7 +129,7 @@ class AVL(Stability):
 
         return
 
-    def initialize(self,conditions):
+    def __call__(self,conditions):
 
         # Unpack
         surrogates = self.surrogates  
