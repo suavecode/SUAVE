@@ -1,4 +1,4 @@
-# Set_Speed_Set_Altitude.py
+# Set_Speed_Set_Throttle.py
 # 
 # Created:  Mar 2017, T. MacDonald
 # Modified: Jul 2017, T. MacDonald
@@ -13,7 +13,8 @@ def initialize_conditions(segment,state):
     
     # unpack
     alt        = segment.altitude
-    air_speed  = segment.air_speed       
+    air_speed  = segment.air_speed
+    throttle   = segment.throttle
     conditions = state.conditions 
     
     # check for initial altitude
@@ -26,7 +27,8 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    state.conditions.frames.inertial.acceleration_vector  = np.array([[segment.x_accel,0.0,segment.z_accel]])
+    state.conditions.propulsion.throttle[:,0]             = throttle
+    state.conditions.frames.inertial.acceleration_vector = np.array([[state.unknowns.x_accel,0.0,segment.z_accel]])
     
 def update_weights(segment,state):
     
@@ -42,3 +44,13 @@ def update_weights(segment,state):
     conditions.frames.inertial.gravity_force_vector[:,2] = W
 
     return
+
+def unpack_unknowns(segment,state):
+    
+    # unpack unknowns
+    x_accel    = state.unknowns.x_accel
+    body_angle = state.unknowns.body_angle
+    
+    # apply unknowns
+    state.conditions.frames.inertial.acceleration_vector[0,0] = x_accel
+    state.conditions.frames.body.inertial_rotations[:,1]      = body_angle[:,0]      
