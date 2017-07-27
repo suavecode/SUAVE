@@ -4,5 +4,4 @@ from load_plugin import load_plugin
 # the python path to account for potential absolute
 # package imports
 
-ADiPy = load_plugin('ADiPy')
 pint = load_plugin('pint')

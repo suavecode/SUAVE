@@ -83,9 +83,9 @@ class SU2_inviscid_Super(Aerodynamics):
                 inviscid_lift[ii] = lift_model_sub.predict(np.array([AoA[ii][0],mach[ii][0]]))
             else:
                 inviscid_lift[ii] = lift_model_sup.predict(np.array([AoA[ii][0],mach[ii][0]]))
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
+        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag = np.zeros([data_len,1])

@@ -1,4 +1,4 @@
-# Set_Speed_Set_Altitude.py
+# Set_Speed_Set_Throttle.py
 #
 # Created:  Mar 2017, T. MacDonald
 # Modified: Jul 2017, T. MacDonald
@@ -25,7 +25,7 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
-class Set_Speed_Set_Altitude(Aerodynamic):
+class Set_Speed_Set_Throttle(Aerodynamic):
     
     def __defaults__(self):
         
@@ -34,8 +34,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude  = None
         self.air_speed = 10. * Units['km/hr']
-        self.distance  = 10. * Units.km
-        self.x_accel   = 0.
+        self.throttle  = 1.
         self.z_accel   = 0. # note that down is positive
         self.state.numerics.number_control_points = 1
         
@@ -48,8 +47,8 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         self.state.conditions.update( Conditions.Aerodynamics() )
         
         # initials and unknowns
-        self.state.unknowns.throttle   = np.array([[0.5]])
-        self.state.unknowns.body_angle = np.array([[0.0]])
+        self.state.unknowns.x_accel    = np.array([[0.0]])
+        self.state.unknowns.body_angle = np.array([[0.5]])
         self.state.residuals.forces    = np.array([[0.0,0.0]])
         
         
@@ -64,7 +63,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         
         initialize.expand_state            = skip
         initialize.differentials           = skip
-        initialize.conditions              = Methods.Single_Point.Set_Speed_Set_Altitude.initialize_conditions
+        initialize.conditions              = Methods.Single_Point.Set_Speed_Set_Throttle.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -87,7 +86,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         
         # Unpack Unknowns
         iterate.unknowns = Process()
-        iterate.unknowns.mission           = Methods.Cruise.Common.unpack_unknowns
+        iterate.unknowns.mission           = Methods.Single_Point.Set_Speed_Set_Throttle.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()
@@ -100,7 +99,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
-        iterate.conditions.weights         = Methods.Single_Point.Set_Speed_Set_Altitude.update_weights
+        iterate.conditions.weights         = Methods.Single_Point.Set_Speed_Set_Throttle.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = skip
 

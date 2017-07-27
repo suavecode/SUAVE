@@ -66,7 +66,7 @@ def compute_aircraft_lift(conditions,configuration,geometry):
     wing = geometry.wings['main_wing']
     
     # Subsonic setup
-    wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
+    wings_lift = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total
     compress_corr[Mc < 0.95] = 1./(np.sqrt(1.-Mc[Mc < 0.95]**2.))
     compress_corr[Mc >= 0.95] = 1./(np.sqrt(1.-0.95**2)) # Values for Mc > 1.05 are update after this assignment
 

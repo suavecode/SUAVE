@@ -110,6 +110,7 @@ class AVL_Inviscid(Aerodynamics):
             
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
+
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
