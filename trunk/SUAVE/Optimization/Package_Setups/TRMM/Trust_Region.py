@@ -3,10 +3,16 @@
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import SUAVE
 from SUAVE.Core import Data
-import numpy as np
-import copy
+
+# ----------------------------------------------------------------------
+#  Trust Region Class
+# ----------------------------------------------------------------------
 
 class Trust_Region(Data):
     

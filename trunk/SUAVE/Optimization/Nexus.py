@@ -30,6 +30,7 @@ class Nexus(Data):
         self.results                = SUAVE.Analyses.Results()
         self.summary                = Data()
         self.optimization_problem   = None
+        self.fidelity_level         = 1
         self.last_inputs            = None
         self.last_fidelity          = None
         self.evaluation_count       = 0
@@ -37,19 +38,13 @@ class Nexus(Data):
     def evaluate(self,x = None):
         
         self.unpack_inputs(x)
-        # This function calls really_evaluate
+        
         # Check if last call was the same
-        if self.has_key('fidelity_level'):
-            if np.all(self.optimization_problem.inputs==self.last_inputs) \
-               and self.last_fidelity == self.fidelity_level:
-                pass
-            else:
-                self._really_evaluate()
+        if np.all(self.optimization_problem.inputs==self.last_inputs) \
+           and self.last_fidelity == self.fidelity_level:
+            pass
         else:
-            if np.all(self.optimization_problem.inputs==self.last_inputs):
-                pass
-            else:
-                self._really_evaluate()
+            self._really_evaluate()
         
     
     def _really_evaluate(self):
@@ -66,9 +61,8 @@ class Nexus(Data):
             self = nexus
                 
         # Store to cache
-        self.last_inputs = deepcopy(self.optimization_problem.inputs)
-        if self.has_key('fidelity_level'):
-            self.last_fidelity = self.fidelity_level
+        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
+        self.last_fidelity = self.fidelity_level
           
     
     def objective(self,x = None):
@@ -167,7 +161,7 @@ class Nexus(Data):
     def constraints_individual(self,x = None):
         pass     
 
-    def finite_difference(self,x):
+    def finite_difference(self,x,diff_interval=1e-8):
         
         obj = self.objective(x)
         con = self.all_constraints(x)
@@ -185,14 +179,14 @@ class Nexus(Data):
         
         for ii in xrange(0,inplen):
             newx     = np.asarray(x)*1.0
-            newx[ii] = newx[ii]+ 1e-8
+            newx[ii] = newx[ii] + diff_interval
             
             grad_obj[ii]  = self.objective(newx)
             jac_con[ii,:] = self.all_constraints(newx)
         
-        grad_obj = (grad_obj - obj)/(1e-8)
+        grad_obj = (grad_obj - obj)/diff_interval
         
-        jac_con = (jac_con - con2).T/(1e-8)
+        jac_con = (jac_con - con2).T/diff_interval
         
         grad_obj = grad_obj.astype(float)
         jac_con  = jac_con.astype(float)

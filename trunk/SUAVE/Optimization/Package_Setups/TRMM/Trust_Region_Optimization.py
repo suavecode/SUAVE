@@ -3,19 +3,24 @@
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
-import copy
 import SUAVE
-import Trust_Region
 try:
     import pyOpt
 except:
     pass
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 import os
 import sys
-import scipy as sp
+
+# ----------------------------------------------------------------------
+#  Trust Region Optimization Class
+# ----------------------------------------------------------------------
 
 class Trust_Region_Optimization(Data):
         
@@ -271,27 +276,15 @@ class Trust_Region_Optimization(Data):
             
         
     def evaluate_model(self,problem,x,cons,der_flag=True):
-        f  = np.array(0.)
-        g  = np.zeros(np.shape(cons))
-        df = np.zeros(np.shape(x))
-        dg = np.zeros([np.size(cons),np.size(x)])
-        
         f  = problem.objective(x)
         g  = problem.all_constraints(x)
+        
         if der_flag == False:
             return f,g
         
         # build derivatives
         fd_step = self.difference_interval
-
-        for ii in xrange(len(x)):
-            x_fd = x*1.
-            x_fd[ii] = x_fd[ii] + fd_step
-            obj = problem.objective(x_fd)
-            grad_cons = problem.all_constraints(x_fd)
-            df[ii] = (obj - f)/fd_step
-            for jj in xrange(len(cons)):
-                dg[jj,ii] = (grad_cons[jj] - g[jj])/fd_step
+        df, dg  = problem.finite_difference(x,diff_interval=fd_step)
         
         return (f,df,g,dg)
 
