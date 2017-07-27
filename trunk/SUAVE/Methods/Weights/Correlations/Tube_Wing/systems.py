@@ -55,7 +55,7 @@ def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
     else:
         flt_ctrl_scaler = 1.7 # fully aerodynamic controls
     flt_ctrl_wt = (flt_ctrl_scaler*(area_h + area_v)) * Units.lb
-     
+    
     # APU Group Wt   
     if num_seats >= 6.:
         apu_wt = 7.0 * num_seats *Units.lb

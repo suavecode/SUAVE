@@ -32,9 +32,11 @@ def main():
     conditions.weights            = Data()
     conditions.lift_curve_slope   = configs.base.wings['main_wing'].CL_alpha 
     conditions.weights.total_mass = np.array([[vehicle.mass_properties.max_takeoff]]) 
+    conditions.aerodynamics       = Data()
+    conditions.aerodynamics.angle_of_attack = 0.
    
     #print configuration
-    cm_a           = taw_cmalpha(vehicle,Mach,conditions,configs.base)
+    cm_a           = taw_cmalpha(vehicle,Mach,conditions,configs.base)[0]
     expected       = -1.56222373 #Should be -1.45
     error          = Data()
     error.cm_a_747 = (cm_a - expected)/expected
@@ -50,11 +52,13 @@ def main():
     conditions.weights            = Data()
     conditions.lift_curve_slope   = configs.base.wings['main_wing'].CL_alpha 
     conditions.weights.total_mass = np.array([[vehicle.mass_properties.max_takeoff]]) 
+    conditions.aerodynamics       = Data()
+    conditions.aerodynamics.angle_of_attack = 0.    
    
     
     #Method Test   
     #print configuration
-    cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)
+    cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)[0]
     expected = -2.48843437 #Should be -2.08
     error.cm_a_beech_99 = (cm_a - expected)/expected   
     
@@ -68,10 +72,12 @@ def main():
     conditions.weights            = Data()
     conditions.lift_curve_slope   = configs.base.wings['main_wing'].CL_alpha 
     conditions.weights.total_mass = np.array([[vehicle.mass_properties.max_takeoff]]) 
+    conditions.aerodynamics       = Data()
+    conditions.aerodynamics.angle_of_attack = 0.    
    
     
     
-    cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)
+    cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)[0]
    
     expected = -0.54071741 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected

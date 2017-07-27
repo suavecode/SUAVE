@@ -2,7 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +13,6 @@ from SUAVE.Core import Data
 from Wing import Wing
 from Body import Body
 
-
 # ------------------------------------------------------------
 #   Aircraft
 # ------------------------------------------------------------
@@ -22,8 +21,8 @@ class Aircraft(Data):
 	
 	def __defaults__(self):
 		
-		self.tag = 'aircraft'
-		self.wings = Data()
+		self.tag    = 'aircraft'
+		self.wings  = Data()
 		self.bodies = Data()
 	
 	def append_wing(self,wing):

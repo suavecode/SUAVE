@@ -1,7 +1,7 @@
 # Set_Speed_Set_Altitude.py
 #
 # Created:  Mar 2017, T. MacDonald
-# Modified: 
+# Modified: Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -49,8 +49,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         
         # initials and unknowns
         self.state.unknowns.throttle   = np.array([[0.5]])
-        self.state.unknowns.body_angle = np.array([[0.5]])
-        self.state.conditions.frames.inertial.acceleration_vector = np.array([[self.x_accel,0.0,self.z_accel]])
+        self.state.unknowns.body_angle = np.array([[0.0]])
         self.state.residuals.forces    = np.array([[0.0,0.0]])
         
         

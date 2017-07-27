@@ -2,7 +2,8 @@
 #
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero  
+#           Feb 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,7 +17,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.wing_main\
+    """ weight = SUAVE.Methods.Weights.Correlations.Common.wing_main\
     (S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
         Calculate the wing weight of the aircraft based on the fully-stressed 
         bending weight of the wing box        
@@ -52,4 +53,5 @@ def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
              * (1.+2.*taper)/(t_c_w*(np.cos(sweep))**2. * area*(1.+taper) )
     weight = weight * Units.lb # Convert lb to kg
  
+    #print 'weight: ' + str(weight)
     return weight

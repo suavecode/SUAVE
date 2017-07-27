@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,11 +80,11 @@ class Section(Data):
 class Control_Surface(Data):
 	def __defaults__(self):
 		self.tag            = 'control_surface'
-		self.gain           = 1.0
+		self.gain           = 0.0
 		self.x_hinge        = 0.0
-		self.hinge_vector   = [0.,0.,0.]
-		self.sign_duplicate = 1.0	# sign_duplicate: 1.0 or -1.0 - the sign of
-									# the duplicate control on the mirror wing.
-									# Use 1.0 for a mirrored control surface,
-									# like an elevator. Use -1.0 for an aileron.
+		self.hinge_vector   = '0. 0. 0.'
+		self.sign_duplicate = '+1'	# sign_duplicate: 1.0 or -1.0 - the sign of
+						# the duplicate control on the mirror wing.
+						# Use 1.0 for a mirrored control surface,
+						# like an elevator. Use -1.0 for an aileron.
 

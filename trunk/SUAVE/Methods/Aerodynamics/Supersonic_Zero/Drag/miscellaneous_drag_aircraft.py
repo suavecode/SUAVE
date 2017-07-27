@@ -56,7 +56,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     #f_gapst = f_gaps_w + f_gaps_h + f_gaps_v
     
     # TODO: do this correctly
-    total_gap_drag = 0.0001
+    total_gap_drag = 0.000
 
     # ------------------------------------------------------------------
     #   Nacelle base drag

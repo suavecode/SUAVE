@@ -26,10 +26,8 @@ def wave_drag_lift(conditions,configuration,wing):
         - Mc - mach number
         - CL - coefficient of lift
         - total_length - length of the wing root
-
         Outputs:
         - CD due to wave drag from the wing
-
         Assumptions:
         - Supersonic mach numbers
         - Reference area of passed wing is desired for CD
@@ -48,7 +46,11 @@ def wave_drag_lift(conditions,configuration,wing):
     ARL = total_length**2/Sref
     
     # Lift coefficient
-    CL = conditions.aerodynamics.lift_coefficient * 1.0
+    if wing.vertical:
+        CL = np.zeros_like(conditions.aerodynamics.lift_coefficient)
+    else:
+        # get wing specific CL
+        CL = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
     
     # Computations
     x = np.pi*ARL/4
@@ -60,9 +62,9 @@ def wave_drag_lift(conditions,configuration,wing):
     
     # Dump data to conditions
     wave_lift_result = Results(
-        reference_area            = Sref   , 
+        reference_area             = Sref   , 
         wave_drag_lift_coefficient = wave_drag_lift ,
-        length_AR                 = ARL,
+        length_AR                  = ARL,
     )
 
     return wave_drag_lift

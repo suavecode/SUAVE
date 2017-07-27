@@ -83,8 +83,8 @@ class Linear_Lift(Aerodynamics):
         
         # pack
         inviscid_wings_lift = CL
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
-        conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift
+        conditions.aerodynamics.lift_coefficient                         = inviscid_wings_lift
 
         return inviscid_wings_lift
 
