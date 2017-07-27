@@ -44,50 +44,39 @@ class AVL_Inviscid(Aerodynamics):
     """ SUAVE.Analyses.Aerodynamics.AVL
         aerodynamic model that performs a vortex lattice analysis using AVL
         (Athena Vortex Lattice, by Mark Drela of MIT).
-
-        this class is callable, see self.__call__
-
     """
 
     def __defaults__(self):
-        self.tag        = 'avl'
-        self.keep_files = True
-
-        self.settings = Settings()
-
-        self.current_status = Data()
-        self.current_status.batch_index = 0
-        self.current_status.batch_file  = None
-        self.current_status.deck_file   = None
-        self.current_status.cases       = None
-        
-        self.geometry = None
-        
+        self.tag                             = 'avl'
+        self.keep_files                      = True
+        self.settings                        = Settings()
+        self.current_status                  = Data()
+        self.current_status.batch_index      = 0
+        self.current_status.batch_file       = None
+        self.current_status.deck_file        = None
+        self.current_status.cases            = None      
+        self.geometry                        = None     
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr
         
         # Conditions table, used for surrogate model training
-        self.training = Data()   
+        self.training                        = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
-        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
-        
-        
-        self.training.lift_coefficient = None
-        self.training.drag_coefficient = None
-        self.training_file             = None
+        self.training.angle_of_attack        = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])                 
+        self.training.lift_coefficient       = None
+        self.training.drag_coefficient       = None
+        self.training_file                   = None
         
         # Surrogate model
-        self.surrogates = Data()
+        self.surrogates                      = Data()
 
     def initialize(self):
 
-        geometry = self.geometry
-        self.tag      = 'avl_analysis_of_{}'.format(geometry.tag)
-
-        run_folder = self.settings.filenames.run_folder
-
+        geometry     = self.geometry
+        self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
+        run_folder   = self.settings.filenames.run_folder
         
         # Sample training data
         self.sample_training()
@@ -95,58 +84,54 @@ class AVL_Inviscid(Aerodynamics):
         # Build surrogate
         self.build_surrogate()
 
-
         return
 
     def evaluate(self,state,settings,geometry):
 
         # Unpack
-        surrogates = self.surrogates        
-        conditions = state.conditions
+        surrogates    = self.surrogates        
+        conditions    = state.conditions
         
-        mach = conditions.freestream.mach_number
-        AoA  = conditions.aerodynamics.angle_of_attack
-        lift_model = surrogates.lift_coefficient
-        drag_model = surrogates.drag_coefficient
+        mach          = conditions.freestream.mach_number
+        AoA           = conditions.aerodynamics.angle_of_attack
+        lift_model    = surrogates.lift_coefficient
+        drag_model    = surrogates.drag_coefficient
         
         # Inviscid lift
-        data_len = len(AoA)
+        data_len      = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient             = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
+        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag = np.zeros([data_len,1])        
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        inviscid_drag                                                    = np.zeros([data_len,1])        
+        state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
         
         return inviscid_lift, inviscid_drag
-       
-       
         
 
     def sample_training(self):
         
         # Unpack
         geometry = self.geometry
-        training = self.training
-        
-        AoA  = training.angle_of_attack
-        mach = training.Mach
-        
-        CL   = np.zeros([len(AoA)*len(mach),1])
-        CD   = np.zeros([len(AoA)*len(mach),1])
+        training = self.training       
+        AoA      = training.angle_of_attack
+        mach     = training.Mach        
+        CL       = np.zeros([len(AoA)*len(mach),1])
+        CD       = np.zeros([len(AoA)*len(mach),1])
 
         
         if self.training_file is None:
             # Calculate aerodynamics for table
             table_size = len(AoA)*len(mach)
-            xy = np.zeros([table_size,2])
-            count = 0
-            time0 = time.time()
+            xy         = np.zeros([table_size,2])
+            count      = 0
+            time0      = time.time()
             
             for i,_ in enumerate(mach):
                 for j,_ in enumerate(AoA):
@@ -165,9 +150,8 @@ class AVL_Inviscid(Aerodynamics):
                 results =  self.evaluate_conditions(run_conditions)
                 
                 # Obtain CD and CL # Store other variables here as well 
-                CL[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.lift_coefficient[:,0]
-                CD[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.drag_breakdown.induced.total[:,0]
-           
+                CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
+                CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
            
                 count += 1
             
@@ -181,7 +165,7 @@ class AVL_Inviscid(Aerodynamics):
             CD         = data_array[:,3:4]
 
         # Save the data
-        np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='AoA Mach CL CD ')
+        np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
 
         # Store training data
         training.coefficients = np.hstack([CL,CD])
@@ -193,29 +177,28 @@ class AVL_Inviscid(Aerodynamics):
     def build_surrogate(self):
 
         # Unpack data
-        training  = self.training
-        AoA_data  = training.angle_of_attack
-        mach_data = training.Mach
-        CL_data   = training.coefficients[:,0]
-        CD_data   = training.coefficients[:,1]
-        xy        = training.grid_points 
+        training                         = self.training
+        AoA_data                         = training.angle_of_attack
+        mach_data                        = training.Mach
+        CL_data                          = training.coefficients[:,0]
+        CD_data                          = training.coefficients[:,1]
+        xy                               = training.grid_points 
         
         # Gaussian Process New
-        regr_cl = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcess()
-        cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)
-   
+        regr_cl                          = gaussian_process.GaussianProcess()
+        regr_cd                          = gaussian_process.GaussianProcess()
+        cl_surrogate                     = regr_cl.fit(xy, CL_data)
+        cd_surrogate                     = regr_cd.fit(xy, CD_data)
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate  
 
-        AoA_points  = np.linspace(-3.,11.,100)*Units.deg 
-        mach_points = np.linspace(.02,.9,100)         
+        AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
+        mach_points                      = np.linspace(.02,.9,100)         
             
-        AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
+        AoA_mesh,mach_mesh               = np.meshgrid(AoA_points,mach_points)
         
-        CL_sur = np.zeros(np.shape(AoA_mesh))
-        CD_sur = np.zeros(np.shape(AoA_mesh))
+        CL_sur                           = np.zeros(np.shape(AoA_mesh))
+        CD_sur                           = np.zeros(np.shape(AoA_mesh))
         
         
         for jj in range(len(AoA_points)):
@@ -257,10 +240,10 @@ class AVL_Inviscid(Aerodynamics):
         """
         
         # unpack
-        run_folder      = os.path.abspath(self.settings.filenames.run_folder)
-        output_template = self.settings.filenames.output_template
-        batch_template  = self.settings.filenames.batch_template
-        deck_template   = self.settings.filenames.deck_template
+        run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
+        output_template                  = self.settings.filenames.output_template
+        batch_template                   = self.settings.filenames.batch_template
+        deck_template                    = self.settings.filenames.deck_template
  
         # update current status
         self.current_status.batch_index += 1
@@ -269,12 +252,12 @@ class AVL_Inviscid(Aerodynamics):
         self.current_status.deck_file    = deck_template.format(batch_index)
         
         # translate conditions
-        cases                     = translate_conditions_to_cases(self,run_conditions)
-        self.current_status.cases = cases        
+        cases                            = translate_conditions_to_cases(self,run_conditions)
+        self.current_status.cases        = cases        
         
         # case filenames
         for case in cases:
-            cases[case].result_filename = output_template.format(case)
+            cases[case].result_filename  = output_template.format(case)
           
     
         # write the input files
