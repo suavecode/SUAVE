@@ -12,7 +12,6 @@ branches:
     only:
         - master
         - develop
-        - feature-test_coveralls 
 
 before_install:
     - sudo apt-get update
