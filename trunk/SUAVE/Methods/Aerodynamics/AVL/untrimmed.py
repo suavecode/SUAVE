@@ -1,7 +1,7 @@
 # untrimmed.py
 #
-# Created:  Jan 2014, T. Orra
-# Modified: Jun 2017, T. MacDonald  
+# Created:  Jan 2014, T. Orra (base file in low fidelity)
+# Modified: May 2017, T. MacDonald  
 
 def untrimmed(state,settings,geometry):
 

@@ -127,7 +127,7 @@ class AVL(Stability):
 
         return
 
-    def initialize(self,conditions):
+    def __call__(self,conditions):
 
         # Unpack
         surrogates          = self.surrogates  

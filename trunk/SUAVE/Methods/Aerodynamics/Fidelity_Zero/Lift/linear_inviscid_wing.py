@@ -23,9 +23,9 @@ def linear_inviscid_wing(state,settings,geometry):
     
     # inviscid lift of wings only
     inviscid_wings_lift = 2*np.pi*AoA 
-    state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_wings_lift
+    state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift
          
-    wings_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift
+    wings_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total
     
     state.conditions.aerodynamics.lift_coefficient= wings_lift
 
