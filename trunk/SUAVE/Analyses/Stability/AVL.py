@@ -143,10 +143,12 @@ class AVL(Stability):
         mac                 = geometry.wings['main_wing'].chords.mean_aerodynamic        
         mach                = conditions.freestream.mach_number
         AoA                 = conditions.aerodynamics.angle_of_attack
+        
         moment_model        = surrogates.moment_coefficient
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient
         neutral_point_model = surrogates.neutral_point
+        
         configuration       = self.configuration
         stability_model     = self.stability_model
 
