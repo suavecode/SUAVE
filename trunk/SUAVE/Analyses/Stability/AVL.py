@@ -53,12 +53,15 @@ class AVL(Stability):
     def __defaults__(self):
         self.tag                                            = 'avl'
         self.keep_files                                     = True
+        
         self.settings                                       = Settings()
+        
         self.current_status                                 = Data()
         self.current_status.batch_index                     = 0
         self.current_status.batch_file                      = None
         self.current_status.deck_file                       = None
         self.current_status.cases                           = None
+        
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
 
@@ -68,6 +71,7 @@ class AVL(Stability):
         # Standard subsonic/transolic aircarft
         self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
         self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
+        
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
         self.training.Cn_beta_moment_coefficient            = None
@@ -84,6 +88,7 @@ class AVL(Stability):
         # Initialize quantities
         self.configuration                                  = Data()    
         self.geometry                                       = Data()
+        
         self.stability_model                                = Data()
         self.stability_model.short_period                   = Data()
         self.stability_model.short_period.natural_frequency = 0.0
@@ -128,7 +133,8 @@ class AVL(Stability):
         surrogates          = self.surrogates  
         configuration       = self.configuration
         geometry            = self.geometry
-        stability_model     = self.stability_model	
+        stability_model     = self.stability_model
+        
         q                   = conditions.freestream.dynamic_pressure
         Sref                = geometry.reference_area    
         velocity            = conditions.freestream.velocity
@@ -218,8 +224,10 @@ class AVL(Stability):
         # Unpack
         geometry = self.geometry
         training = self.training
+        
         AoA      = training.angle_of_attack
         mach     = training.Mach
+        
         CM       = np.zeros([len(AoA)*len(mach),1])
         Cm_alpha = np.zeros([len(AoA)*len(mach),1])
         Cn_beta  = np.zeros([len(AoA)*len(mach),1]) 

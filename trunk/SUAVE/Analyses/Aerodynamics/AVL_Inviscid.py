@@ -49,13 +49,17 @@ class AVL_Inviscid(Aerodynamics):
     def __defaults__(self):
         self.tag                             = 'avl'
         self.keep_files                      = True
+        
         self.settings                        = Settings()
+        
         self.current_status                  = Data()
+        
         self.current_status.batch_index      = 0
         self.current_status.batch_file       = None
         self.current_status.deck_file        = None
         self.current_status.cases            = None      
-        self.geometry                        = None     
+        self.geometry                        = None   
+        
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr
         
@@ -64,7 +68,8 @@ class AVL_Inviscid(Aerodynamics):
         
         # Standard subsonic/transolic aircarft
         self.training.angle_of_attack        = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
-        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])                 
+        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+        
         self.training.lift_coefficient       = None
         self.training.drag_coefficient       = None
         self.training_file                   = None
@@ -119,9 +124,11 @@ class AVL_Inviscid(Aerodynamics):
         
         # Unpack
         geometry = self.geometry
-        training = self.training       
+        training = self.training   
+        
         AoA      = training.angle_of_attack
-        mach     = training.Mach        
+        mach     = training.Mach   
+        
         CL       = np.zeros([len(AoA)*len(mach),1])
         CD       = np.zeros([len(AoA)*len(mach),1])
 
@@ -138,7 +145,6 @@ class AVL_Inviscid(Aerodynamics):
                     xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
             for j,_ in enumerate(mach):
                 # Set training conditions
-
                 run_conditions = Aerodynamics()
                 run_conditions.weights.total_mass           = 0 # Currently set to zero. Used for dynamic analysis which is under development
                 run_conditions.freestream.density           = 1.225
