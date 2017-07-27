@@ -1,7 +1,8 @@
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
-# Modified: Feb 2015, M. Vegh
+# Modified: Feb 2016, M. Vegh
+#           Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -30,16 +31,25 @@ class Nexus(Data):
         self.summary                = Data()
         self.optimization_problem   = None
         self.last_inputs            = None
+        self.last_fidelity          = None
         self.evaluation_count       = 0
     
     def evaluate(self,x = None):
         
         self.unpack_inputs(x)
         # This function calls really_evaluate
-        if np.all(self.optimization_problem.inputs==self.last_inputs):
-            pass
+        # Check if last call was the same
+        if self.has_key('fidelity_level'):
+            if np.all(self.optimization_problem.inputs==self.last_inputs) \
+               and self.last_fidelity == self.fidelity_level:
+                pass
+            else:
+                self._really_evaluate()
         else:
-            self._really_evaluate()
+            if np.all(self.optimization_problem.inputs==self.last_inputs):
+                pass
+            else:
+                self._really_evaluate()
         
     
     def _really_evaluate(self):
@@ -57,6 +67,8 @@ class Nexus(Data):
                 
         # Store to cache
         self.last_inputs = deepcopy(self.optimization_problem.inputs)
+        if self.has_key('fidelity_level'):
+            self.last_fidelity = self.fidelity_level
           
     
     def objective(self,x = None):
