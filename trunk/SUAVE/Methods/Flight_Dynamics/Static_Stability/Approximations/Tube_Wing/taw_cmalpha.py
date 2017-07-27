@@ -112,9 +112,19 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         vertical  = surf.vertical
         twist_r   = surf.twists.root
         twist_t   = surf.twists.tip     
-        al0       = surf.Airfoil.zero_angle_lift_coefficient
         taper     = surf.taper
-        cmac      = surf.Airfoil.zero_angle_moment_coefficient
+        if surf.has_key('Airfoil'):
+            if surf.Airfoil.has_key('zero_angle_lift_coefficient'):
+                al0 = surf.Airfoil.zero_angle_lift_coefficient
+            else:
+                al0 = 0.
+            if surf.Airfoil.has_key('zero_angle_moment_coefficient'):
+                cmac = surf.Airfoil.zero_angle_moment_coefficient
+            else:
+                cmac = 0.
+        else:
+            al0  = 0.
+            cmac = 0.
         
         # Average out the incidence angles to ge the zero angle lift
         CL0_surf   = CL_alpha * ((twist_r+taper*twist_t)/2. -al0)

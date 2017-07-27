@@ -1,9 +1,7 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 # wave_drag_lift.py
 # 
 # Created:  Jun 2014, T. Macdonald
-# Modified: Jul 2014, T. Macdonald
-#           Jan 2016, E. Botero
+# Modified: May 2017, T. Macdonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,48 +14,7 @@ from SUAVE.Analyses import Results
 #   Wave Drag Lift
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 def wave_drag_lift(conditions,configuration,wing):
-<<<<<<< HEAD
-    """Computes wave drag due to lift
-
-    Assumptions:
-    Simplified equations
-
-    Source:
-    http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-
-    Inputs:
-    conditions.freestream.mach_number        [Unitless]
-    conditions.aerodynamics.lift_coefficient [Unitless]
-    wing.total_length                        [m]
-    wing.areas.reference                     [m^2]
-
-    Outputs:
-    wave_drag_lift                           [Unitless]
-
-    Properties Used:
-    N/A
-    """  
-=======
-    """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
-        computes the wave drag due to lift 
-        Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-        
-        Inputs:
-        - SUave wing
-        - Sref - wing reference area
-        - Mc - mach number
-        - CL - coefficient of lift
-        - total_length - length of the wing root
-        Outputs:
-        - CD due to wave drag from the wing
-        Assumptions:
-        - Supersonic mach numbers
-        - Reference area of passed wing is desired for CD
-        
-    """
->>>>>>> develop
 
     # Unpack
     freestream = conditions.freestream
@@ -70,11 +27,9 @@ def wave_drag_lift(conditions,configuration,wing):
     # Length-wise aspect ratio
     ARL = total_length**2/Sref
     
-    # Lift coefficient
     if wing.vertical:
         CL = np.zeros_like(conditions.aerodynamics.lift_coefficient)
     else:
-        # get wing specific CL
         CL = conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
     
     # Computations

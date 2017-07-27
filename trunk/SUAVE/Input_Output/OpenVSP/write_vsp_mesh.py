@@ -2,6 +2,7 @@
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Feb 2017, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -74,7 +75,7 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     vsp.WriteVSPFile(tag + '_premesh.vsp3')
     
-    print 'Starting mesh for ' + tag
+    print 'Starting mesh for ' + tag + ' (This may take several minutes)'
     ti = time.time()
     vsp.ComputeCFDMesh(set_int,file_type)
     tf = time.time()

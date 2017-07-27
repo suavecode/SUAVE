@@ -9,8 +9,8 @@ def initialize_conditions(segment,state):
     
     # unpack
     alt = segment.altitude 
-    v0  = segment.air_speed_initial
-    vf  = segment.air_speed_final 
+    v0  = segment.air_speed_start
+    vf  = segment.air_speed_end
     ax  = segment.acceleration   
     conditions = state.conditions 
     
