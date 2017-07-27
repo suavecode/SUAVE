@@ -95,7 +95,7 @@ class Trust_Region_Optimization(Data):
                 f_out.write('f        : ' + str(res[0][0]) + '\n')
                 f_out.write('df       : ' + str(res[1].tolist()) + '\n')
             # assumes high fidelity is last
-            f_center = f[-1][0][0]
+            f_center = f[-1][0]
                 
             # Calculate correction
             corrections = self.calculate_correction(f,df,g,dg,tr)
@@ -148,39 +148,7 @@ class Trust_Region_Optimization(Data):
                 gOpt_corr = np.zeros([1,len(con)])[0]  
                 for ii in xrange(len(con)):
                     gOpt_corr[ii] = opt_prob._solutions[0]._constraints[ii].value  
-                    
-            elif self.optimizer == 'SLSQP':
-                wrapper  = lambda x:self.evaluate_corrected_model(x,problem=problem,corrections=corrections,tr=tr)[0][0]
-                # Modify constraints for SLSQP requirements (eq == 0, ieq >= 0)
-                eqs       = []
-                ieqs      = []
-                ieqs_sign = []
-                for ci in con:
-                    if ci[1] == '=':
-                        eqs.append(ci[2])
-                    elif ci[1] == '>':
-                        ieqs.append(ci[2])
-                        ieqs_sign.append(1.)
-                    else:
-                        ieqs.append(ci[2])
-                        ieqs_sign.append(-1.)
-                eqs       = np.array(eqs)
-                ieqs      = np.array(ieqs)
-                ieqs_sign = np.array(ieqs_sign)
-                eq_cons   = lambda x:problem.equality_constraint(x) - eqs
-                ieq_cons  = lambda x:problem.inequality_constraint(x)*ieqs_sign - ieqs*ieqs_sign
-                
-                sense_step = 1.4901161193847656e-08 # based on SLSQP default
-                slsqp_bnds = np.transpose(np.vstack([tr.lower_bound,tr.upper_bound]))
-                outputs, fx, iters, imode, smode = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=eq_cons,f_ieqcons=ieq_cons,bounds=slsqp_bnds,iter=200, epsilon = sense_step, acc  = sense_step**2, full_output=True)
-                # SLSQP may break down in infeasible regions, which is the reason for using (imode == 9 and np.isnan(fx[0]))
-                if (imode == 2 or imode == 4) or (imode == 9 and np.isnan(fx[0])):
-                    feasible_flag = False
-                else:
-                    feasible_flag = True
-                fOpt_corr = fx[0]
-                xOpt_corr = outputs
-                gOpt_corr = problem.all_constraints(outputs)
+
             else:
                 raise ValueError('Selected optimizer not implemented')
             success_flag = feasible_flag            
@@ -215,19 +183,6 @@ class Trust_Region_Optimization(Data):
                     gOpt_corr = np.zeros([1,len(con)])[0]   
                     for ii in xrange(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]
-                elif self.optimizer == 'SLSQP':
-                    wrapper  = lambda x:self.evaluate_constraints(x,problem=problem,corrections=corrections,tr=tr,lb=con_low_edge,ub=con_up_edge)[0]
-                    sense_step = 1.4901161193847656e-08
-                    slsqp_bnds = np.transpose(np.vstack([tr.lower_bound,tr.upper_bound]))
-                    outputs, fx, its, imode, smode = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=None,f_ieqcons=None,bounds=slsqp_bnds,iter=200, epsilon = sense_step, acc  = sense_step**2, full_output=True)  
-                    
-                    xOpt_corr = outputs
-                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
-                    fOpt_corr = new_outputs[0][0][0]
-                    gOpt_corr = np.zeros([1,len(con)])[0]   
-                    for ii in xrange(len(con)):
-                        gOpt_corr[ii] = new_outputs[1][ii]
-                    pass
                 else:
                     raise ValueError('Selected optimizer not implemented')
                 
@@ -241,7 +196,7 @@ class Trust_Region_Optimization(Data):
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
             fOpt_hi, gOpt_hi = self.evaluate_model(problem,xOpt_corr,scaled_constraints,der_flag=False)
-            fOpt_hi = fOpt_hi[0][0]
+            fOpt_hi = fOpt_hi[0]
         
             g_violation_opt_corr = self.calculate_constraint_violation(gOpt_corr,con_low_edge,con_up_edge)
             g_violation_opt_hi = self.calculate_constraint_violation(gOpt_hi,con_low_edge,con_up_edge)
@@ -275,8 +230,7 @@ class Trust_Region_Optimization(Data):
                 return (fOpt_corr,xOpt_corr,'Trust region too small')
             
             # Terminate if solution is infeasible, no change is detected, and trust region does not expand
-            # SLSQP is not sufficiently robust for this check
-            if( success_flag == False and tr_action < 3 and self.optimizer != 'SLSQP' and\
+            if( success_flag == False and tr_action < 3 and\
                 np.sum(np.isclose(xOpt_corr,x,rtol=1e-15,atol=1e-14)) == len(x) ):
                 print 'Solution infeasible, no improvement can be made'
                 f_out.write('Solution infeasible, no improvement can be made')

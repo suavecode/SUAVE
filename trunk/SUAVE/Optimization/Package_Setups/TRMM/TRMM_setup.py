@@ -17,7 +17,7 @@ from SUAVE.Optimization.Package_Setups.TRMM.Trust_Region import Trust_Region
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
-def TRMM_Solve(problem,tr=None,tr_opt=None):
+def TRMM_Solve(problem,tr=None,tr_opt=None,print_output=False):
 
     if tr == None:
         tr = Trust_Region()
@@ -26,6 +26,6 @@ def TRMM_Solve(problem,tr=None,tr_opt=None):
         TRM_opt = tro.Trust_Region_Optimization()
     else:
         TRM_opt = tr_opt
-    TRM_opt.optimize(problem)
+    TRM_opt.optimize(problem,print_output=print_output)
 
     return
