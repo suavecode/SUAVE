@@ -6,8 +6,7 @@ python:
 
 notifications:
     email:
-      #  - suave-developers@lists.stanford.edu
-        - ebotero@stanford.edu
+        - suave-developers@lists.stanford.edu
   
 branches:
     only:
