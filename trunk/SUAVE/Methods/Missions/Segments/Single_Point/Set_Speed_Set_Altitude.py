@@ -1,7 +1,9 @@
 # Set_Speed_Set_Altitude.py
 # 
 # Created:  Mar 2017, T. MacDonald
-# Modified: 
+# Modified: Jul 2017, T. MacDonald
+
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -24,6 +26,7 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    state.conditions.frames.inertial.acceleration_vector  = np.array([[segment.x_accel,0.0,segment.z_accel]])
     
 def update_weights(segment,state):
     

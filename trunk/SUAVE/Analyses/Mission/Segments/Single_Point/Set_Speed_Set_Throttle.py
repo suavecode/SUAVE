@@ -1,7 +1,7 @@
 # Set_Speed_Set_Throttle.py
 #
 # Created:  Mar 2017, T. MacDonald
-# Modified: Jun 2017, T. MacDonald
+# Modified: Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -49,8 +49,6 @@ class Set_Speed_Set_Throttle(Aerodynamic):
         # initials and unknowns
         self.state.unknowns.x_accel    = np.array([[0.0]])
         self.state.unknowns.body_angle = np.array([[0.5]])
-        self.state.conditions.propulsion.throttle = np.array([[self.throttle]])
-        self.state.conditions.frames.inertial.acceleration_vector = np.array([[self.state.unknowns.x_accel,0.0,self.z_accel]])
         self.state.residuals.forces    = np.array([[0.0,0.0]])
         
         
