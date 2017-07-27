@@ -57,20 +57,20 @@ def wiring(fLength, fHeight, wings, wingspan, xMotor, P_max):
 
     """
 
-nMotors = max(len(xMotor),1)    # No. of motors on each wing, defaults to 1
+    nMotors = max(len(xMotor),1)    # No. of motors on each wing, defaults to 1
 
 # Determine mass of Power Cables
 
-cablePower      = P_max/nMotors      # Power draw through each cable
-cableLength     = nMotors * (fLength/2 + fHeight/2) + np.sum(xMotor) * wingspan/2
-cableDensity    = mats.PowerCable.powerDensity
-massCables      = cableDensity * cablePower * cableLength
+    cablePower      = P_max/nMotors      # Power draw through each cable
+    cableLength     = nMotors * (fLength/2 + fHeight/2) + np.sum(xMotor) * wingspan/2
+    cableDensity    = mats.PowerCable.powerDensity
+    massCables      = cableDensity * cablePower * cableLength
 
 # Determine mass of sensor/communicatiion wires
 
-wiresPerBundle  = 6
-wireDensity     = mats.FiberOptics.density
-wireLength      = cableLength + (10 * fLength) + (wings * wingspan)
-massWires       = 2 * wireDensity * wiresPerBundle * wireLength
+    wiresPerBundle  = 6
+    wireDensity     = mats.FiberOptics.density
+    wireLength      = cableLength + (10 * fLength) + (wings * wingspan)
+    massWires       = 2 * wireDensity * wiresPerBundle * wireLength
 
-weight = massCables + massWires
+    weight = massCables + massWires

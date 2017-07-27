@@ -68,7 +68,7 @@ def prop(rProp, maxThrust, nBlades):
     coordMAT = np.concatenate((coord**0.5,coord,coord**2,coord**3,coord**4),axis=1)
     nacaMAT = coordMAT.dot(NACA)
     coord = np.concatenate((coord,nacaMAT),axis=1)
-    coord = np.concatenate((coord[-1:1f:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
+    coord = np.concatenate((coord[-1:1:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
     coord[:,0] = coord[:,0] - xShear
 
 #-------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ def prop(rProp, maxThrust, nBlades):
         skinLength*Solids.BiCF.minThk*dx*Solids.BiCF.density
     m = m*np.ones(N)
     error = 1               # Initialize Error
-    tolerance = 1e=8        # Mass Tolerance
+    tolerance = 1e-8        # Mass Tolerance
     massOld = np.sum(m)
 
 #-------------------------------------------------------------------------------

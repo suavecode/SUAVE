@@ -4,7 +4,7 @@ from BiCF import BiCF
 from Honeycomb import Honeycomb
 from Epoxy import Epoxy
 from Rib import Rib
-From Paint import Paint
-From Aluminum import Aluminum
+from Paint import Paint
+from Aluminum import Aluminum
 from Acrylic import Acrylic
 from Steel import Steel
