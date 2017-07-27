@@ -27,7 +27,7 @@ install:
   
 # run test
 script:  
-     coverage run --source=suave automatic_regression.py test
+     coverage run --source=SUAVE automatic_regression.py test
     
 after_success:
   coveralls
