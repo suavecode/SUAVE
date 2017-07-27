@@ -1,7 +1,8 @@
 # Conditions.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2016, A. Wendorff
+#           Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -25,6 +26,15 @@ class Conditions(Data):
     def ones_row(self,cols):
         """ returns a row vector of ones with given number of columns """
         return np.ones([self._size,cols])
+    
+    def ones_row_m1(self,cols):
+        """ returns a row vector of ones with given number of columns """
+        return np.ones([self._size-1,cols])    
+    
+    def ones_row_m2(self,cols):
+        """ returns a row vector of ones with given number of columns """
+        return np.ones([self._size-2,cols])
+    
     
     def expand_rows(self,rows):
         
