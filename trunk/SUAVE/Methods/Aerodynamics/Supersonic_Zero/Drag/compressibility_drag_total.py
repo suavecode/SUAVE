@@ -27,7 +27,6 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total
 # ----------------------------------------------------------------------
-<<<<<<< HEAD
 
 ## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 def compressibility_drag_total(state,settings,geometry):
@@ -58,23 +57,6 @@ def compressibility_drag_total(state,settings,geometry):
     Properties Used:
     N/A
     """     
-=======
-def compressibility_drag_total(state,settings,geometry):
-    """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
-        computes the compressibility drag on a full aircraft
-        Inputs:
-            wings
-    fuselages
-    propulsors
-    freestream conditions
-        Outputs:
-    compressibility drag coefficient
-        Assumptions:
-            drag is only calculated for the wings, main fuselage, and propulsors
-    main fuselage must have tag 'fuselage'
-    no lift on wings other than main wing
-    """
->>>>>>> develop
 
     # Unpack
     conditions    = state.conditions

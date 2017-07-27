@@ -18,7 +18,6 @@ from SUAVE.Analyses import Results
 
 ## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
 def wave_drag_lift(conditions,configuration,wing):
-<<<<<<< HEAD
     """Computes wave drag due to lift
 
     Assumptions:
@@ -39,25 +38,6 @@ def wave_drag_lift(conditions,configuration,wing):
     Properties Used:
     N/A
     """  
-=======
-    """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
-        computes the wave drag due to lift 
-        Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-        
-        Inputs:
-        - SUave wing
-        - Sref - wing reference area
-        - Mc - mach number
-        - CL - coefficient of lift
-        - total_length - length of the wing root
-        Outputs:
-        - CD due to wave drag from the wing
-        Assumptions:
-        - Supersonic mach numbers
-        - Reference area of passed wing is desired for CD
-        
-    """
->>>>>>> develop
 
     # Unpack
     freestream = conditions.freestream

@@ -2,11 +2,7 @@
 # untrimmed.py
 #
 # Created:  Jan 2014, T. Orra
-<<<<<<< HEAD
-# Modified: Oct 2016, T. MacDonald 
-=======
 # Modified: Jun 2017, T. MacDonald  
->>>>>>> develop
 
 import numpy as np # should be removed, need to determine how to handle this so create by dates dont appear
 
