@@ -27,7 +27,7 @@ def initialize_conditions(segment,state):
     Inputs:
     segment.climb_rate                          [meters/second]
     segment.air_speed_start                     [meters/second]
-    segment.air_speed_end                       [[meters/second]
+    segment.air_speed_end                       [meters/second]
     segment.altitude_end                        [meters]
     state.numerics.dimensionless.control_points [Unitless]
     conditions.freestream.density               [kilograms/meter^3]

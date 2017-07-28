@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Mach_Linear_Altitude.py 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jun 2017, E. Botero
@@ -6,14 +7,38 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-
 import SUAVE
-
 
 # ----------------------------------------------------------------------
 #  initialize conditions
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constrant dynamic pressure and constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.mach                                [unitless]
+    segment.dynamic_pressure                    [pascals]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    segment.distance                            [meters]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """        
     
     # unpack
     alt0       = segment.altitude_start 
@@ -50,7 +75,7 @@ def initialize_conditions(segment,state):
     segment.altitude = 0.5*(alt0 + altf)
     
     # pack
-    state.conditions.freestream.altitude[:,0] = alt[:,0]
+    state.conditions.freestream.altitude[:,0]             = alt[:,0]
     state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
+    state.conditions.frames.inertial.time[:,0]            = time[:,0]

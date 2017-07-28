@@ -25,7 +25,7 @@ def unpack_body_angle(segment,state):
     N/A
 
     Inputs:
-    state.unknowns.body_angle [Radians]
+    state.unknowns.body_angle                      [Radians]
 
     Outputs:
     state.conditions.frames.body.inertial_rotation [Radians]
