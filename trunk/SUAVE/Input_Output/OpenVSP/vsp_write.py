@@ -176,7 +176,10 @@ def write(vehicle,tag):
             adjust = 1
         
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments+1):            
+        for i_segs in xrange(1,n_segments+1):  
+            
+            if wing.Segments[i_segs-1].percent_span_location == 1.:
+                break
             
             # Unpack
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
@@ -210,7 +213,12 @@ def write(vehicle,tag):
             
             vsp.Update()
        
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+        if wing.Segments[-1].percent_span_location == 1.:
+            tip_chord = root_chord*wing.Segments[-1].root_chord_percent
+            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1],tip_chord)
+        else:
+            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+        vsp.Update()
         vsp.SetParmVal(wing_id,'CapUMaxOption','EndCap',2.)
         vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
         
