@@ -140,7 +140,10 @@ def compressibility_drag_total(state,settings,geometry):
         raise ValueError('Main fuselage does not have a total length')
 
     # Propulsor wave drag	
-    effective_radius        = (propulsor.nacelle_diameter - propulsor.inlet_diameter)/2.
+    Dn                      = propulsor.nacelle_diameter
+    Di                      = propulsor.inlet_diameter
+    effective_area          = (Dn*Dn-Di*Di)/4.*np.pi
+    effective_radius        = np.sqrt(effective_area/np.pi)
     prop_wave               = wave_drag_body_of_rev(propulsor.engine_length,effective_radius,Sref_main)*propulsor.number_of_engines
     prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/1.05
     prop_drag[mach >= 1.05] = prop_wave    
