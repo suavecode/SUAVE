@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
+#           Jul 2017, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -426,12 +427,6 @@ def simple_sizing(configs):
     
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
-    
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
     
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
