@@ -1,7 +1,8 @@
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
-# Modified: Feb 2015, M. Vegh
+# Modified: Feb 2016, M. Vegh
+#           Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -29,14 +30,18 @@ class Nexus(Data):
         self.results                = SUAVE.Analyses.Results()
         self.summary                = Data()
         self.optimization_problem   = None
+        self.fidelity_level         = 1
         self.last_inputs            = None
+        self.last_fidelity          = None
         self.evaluation_count       = 0
     
     def evaluate(self,x = None):
         
         self.unpack_inputs(x)
-        # This function calls really_evaluate
-        if np.all(self.optimization_problem.inputs==self.last_inputs):
+        
+        # Check if last call was the same
+        if np.all(self.optimization_problem.inputs==self.last_inputs) \
+           and self.last_fidelity == self.fidelity_level:
             pass
         else:
             self._really_evaluate()
@@ -56,7 +61,8 @@ class Nexus(Data):
             self = nexus
                 
         # Store to cache
-        self.last_inputs = deepcopy(self.optimization_problem.inputs)
+        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
+        self.last_fidelity = self.fidelity_level
           
     
     def objective(self,x = None):
@@ -155,7 +161,7 @@ class Nexus(Data):
     def constraints_individual(self,x = None):
         pass     
 
-    def finite_difference(self,x):
+    def finite_difference(self,x,diff_interval=1e-8):
         
         obj = self.objective(x)
         con = self.all_constraints(x)
@@ -173,14 +179,14 @@ class Nexus(Data):
         
         for ii in xrange(0,inplen):
             newx     = np.asarray(x)*1.0
-            newx[ii] = newx[ii]+ 1e-8
+            newx[ii] = newx[ii] + diff_interval
             
             grad_obj[ii]  = self.objective(newx)
             jac_con[ii,:] = self.all_constraints(newx)
         
-        grad_obj = (grad_obj - obj)/(1e-8)
+        grad_obj = (grad_obj - obj)/diff_interval
         
-        jac_con = (jac_con - con2).T/(1e-8)
+        jac_con = (jac_con - con2).T/diff_interval
         
         grad_obj = grad_obj.astype(float)
         jac_con  = jac_con.astype(float)

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 ## @ingroup Methods-Missions-Segments-Climb
 # Linear_Mach_Constant_Rate.py
+=======
+# Linear_Speed_Constant_Rate.py
+>>>>>>> develop
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
@@ -44,9 +48,9 @@ def initialize_conditions(segment,state):
     
     # unpack
     # unpack user inputs
-    climb_rate = self.climb_rate
-    Vo         = self.air_speed_start
-    Vf         = self.air_speed_end
+    climb_rate = segment.climb_rate
+    Vo         = segment.air_speed_start
+    Vf         = segment.air_speed_end
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = state.numerics.dimensionless.control_points
@@ -66,7 +70,7 @@ def initialize_conditions(segment,state):
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = v_x
+    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
     conditions.frames.inertial.velocity_vector[:,2] = v_z
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context

@@ -1,8 +1,8 @@
 ## @ingroup Methods-Missions-Segments-Climb
 # Constant_Dynamic_Pressure_Constant_Rate.py
 # 
-# Created:  Jul 2014, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Created:  Jan 2016, E. Botero
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -62,7 +62,7 @@ def initialize_conditions(segment,state):
     alt = t_nondim * (altf-alt0) + alt0
     
     # process velocity vector
-    v_mag = np.sqrt(q/rho)
+    v_mag = np.sqrt(2*q/rho)
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     
