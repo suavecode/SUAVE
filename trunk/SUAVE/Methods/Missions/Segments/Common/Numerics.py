@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Common
 # Numerics.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,6 +14,7 @@ from SUAVE.Core.Arrays import atleast_2d_col
 #  Initialize Differentials
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_differentials_dimensionless(segment,state):
     
     # unpack
@@ -35,6 +37,7 @@ def initialize_differentials_dimensionless(segment,state):
 #  Update Differentials
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_differentials_time(segment,state):
     
     # unpack

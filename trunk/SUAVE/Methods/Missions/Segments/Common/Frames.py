@@ -1,7 +1,9 @@
+## @ingroup Methods-Missions-Segments-Common
 # Frames.py
 # 
 # Created:  Jul 2014, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Jul 2016, E. Botero
+#           Jul 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,7 +19,27 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 #  Initialize Inertial Position
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_inertial_position(segment,state):
+    """ Sets the initial location of the vehicle at the start of the segment
+    
+        Assumptions:
+        Only used if there is an initial condition
+        
+        Inputs:
+            state.initials.conditions:
+                frames.inertial.position_vector   [meters]
+            state.conditions:           
+                frames.inertial.position_vector   [meters]
+            
+        Outputs:
+            state.conditions:           
+                frames.inertial.position_vector   [meters]
+
+        Properties Used:
+        N/A
+                                
+    """    
     
     if state.initials:
         r_initial = state.initials.conditions.frames.inertial.position_vector
@@ -32,7 +54,30 @@ def initialize_inertial_position(segment,state):
 #  Initialize Time
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_time(segment,state):
+    """ Sets the initial time of the vehicle at the start of the segment
+    
+        Assumptions:
+        Only used if there is an initial condition
+        
+        Inputs:
+            state.initials.conditions:
+                frames.inertial.time     [seconds]
+                frames.planet.start_time [seconds]
+            state.conditions:           
+                frames.inertial.time     [seconds]
+            segment.start_time           [seconds]
+            
+        Outputs:
+            state.conditions:           
+                frames.inertial.time     [seconds]
+                frames.planet.start_time [seconds]
+
+        Properties Used:
+        N/A
+                                
+    """        
     
     if state.initials:
         t_initial = state.initials.conditions.frames.inertial.time
@@ -56,7 +101,27 @@ def initialize_time(segment,state):
 #  Initialize Planet Position
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_planet_position(segment,state):
+    """ Sets the initial location of the vehicle at the start of the segment
+    
+        Assumptions:
+        Only used if there is an initial condition
+        
+        Inputs:
+            state.initials.conditions:
+                frames.inertial.position_vector   [meters]
+            state.conditions:           
+                frames.inertial.position_vector   [meters]
+            
+        Outputs:
+            state.conditions:           
+                frames.inertial.position_vector   [meters]
+
+        Properties Used:
+        N/A
+                                
+    """        
     
     if state.initials:
         longitude_initial = state.initials.conditions.frames.planet.longitude[-1,0]
@@ -79,6 +144,7 @@ def initialize_planet_position(segment,state):
 #  Update Planet Position
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_planet_position(segment,state):
     
     # unpack
@@ -122,6 +188,7 @@ def update_planet_position(segment,state):
 #  Update Orientations
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_orientations(segment,state):
 
     # unpack
@@ -194,6 +261,7 @@ def update_orientations(segment,state):
 #  Update Forces
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_forces(segment,state):
 
     # unpack
@@ -228,6 +296,7 @@ def update_forces(segment,state):
 #  Integrate Position
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def integrate_inertial_horizontal_position(segment,state):
 
     # unpack
@@ -248,6 +317,7 @@ def integrate_inertial_horizontal_position(segment,state):
 #  Update Acceleration
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_acceleration(segment,state):
     
     # unpack conditions

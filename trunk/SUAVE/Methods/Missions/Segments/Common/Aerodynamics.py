@@ -1,8 +1,9 @@
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 # Aerodynamics.py
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +15,7 @@ import numpy as np
 #  Update Altitude
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 def update_altitude(segment,state):
     """ Updates freestream altitude from inertial position
         
@@ -40,7 +41,7 @@ def update_altitude(segment,state):
 #  Update Atmosphere
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 def update_atmosphere(segment,state):
     """ Computes conditions of the atmosphere at given altitudes
     
@@ -88,7 +89,7 @@ def update_atmosphere(segment,state):
 #  Update Freestream
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 def update_freestream(segment,state):
     """ Computes freestream values
         
@@ -145,7 +146,7 @@ def update_freestream(segment,state):
 #  Update Aerodynamics
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 def update_aerodynamics(segment,state):
     """ Gets aerodynamics conditions
     
@@ -213,7 +214,7 @@ def update_aerodynamics(segment,state):
 #  Update Stability
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments-common
+## @ingroup Methods-Missions-Segments-Common
 def update_stability(segment,state):
     
     """ Initiates the stability model

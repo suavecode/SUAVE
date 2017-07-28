@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Common
 # Sub_Segments.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -42,6 +43,7 @@ def expand_sub_segments(segment,state):
 #  Update Sub Segments
 # ----------------------------------------------------------------------        
 
+## @ingroup Methods-Missions-Segments-Common
 def update_sub_segments(segment,state):
     for tag,sub_segment in segment.segments.items():
         sub_segment.initialize(state.segments[tag])
@@ -52,6 +54,7 @@ def update_sub_segments(segment,state):
 #  Finalize Sub Segments
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def finalize_sub_segments(segment,state):
     
     from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
@@ -64,6 +67,7 @@ def finalize_sub_segments(segment,state):
 #  Sequential Sub Segments
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def sequential_sub_segments(segment,state):
     
     for tag,sub_segment in segment.segments.items():

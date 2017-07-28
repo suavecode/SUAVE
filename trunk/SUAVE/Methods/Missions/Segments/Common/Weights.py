@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Common
 # Weights.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -14,6 +15,7 @@ import numpy as np
 #  Initialize Weights
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_weights(segment,state):
  
     if state.initials:
@@ -32,6 +34,7 @@ def initialize_weights(segment,state):
 #  Update Gravity
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_gravity(segment,state):
 
     # unpack
@@ -50,6 +53,7 @@ def update_gravity(segment,state):
 #  Update Weights
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_weights(segment,state):
     
     # unpack
