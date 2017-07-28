@@ -64,7 +64,7 @@ def vehicle_setup(source_ratio=1.):
     wing.chords.root             = 33.8
     wing.total_length            = 33.8
     wing.chords.tip              = 1.1
-    wing.chords.mean_aerodynamic = 16.6
+    wing.chords.mean_aerodynamic = 18.4
     
     wing.areas.reference         = 358.25 
     wing.areas.wetted            = 653. - 12.*2.4*2 # 2.4 is engine area on one side
@@ -162,7 +162,7 @@ def vehicle_setup(source_ratio=1.):
     wing.chords.root             = 14.5
     wing.total_length            = 14.5
     wing.chords.tip              = 2.7
-    wing.chords.mean_aerodynamic = 6.9
+    wing.chords.mean_aerodynamic = 8.66
     
     wing.areas.reference         = 33.91    #
     wing.areas.wetted            = 76. 
