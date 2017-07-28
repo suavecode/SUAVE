@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 ## @ingroup Methods-Missions-Segments-Climb
-# Linear_Mach_Constant_Rate.py
-=======
 # Linear_Speed_Constant_Rate.py
->>>>>>> develop
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
@@ -20,7 +16,6 @@ import numpy as np
 
 ## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
-    
     """Sets the specified conditions which are given for the segment type.
     
     Assumptions:

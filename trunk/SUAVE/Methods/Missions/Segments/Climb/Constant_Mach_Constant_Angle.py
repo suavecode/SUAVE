@@ -14,7 +14,6 @@ import SUAVE
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-<<<<<<< HEAD
 ## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
@@ -41,11 +40,6 @@ def initialize_conditions(segment,state):
     Properties Used:
     N/A
     """       
-=======
-
-def initialize_conditions_unpack_unknowns(segment,state):
->>>>>>> develop
-    
     # unpack user inputs
     climb_angle = segment.climb_angle
     mach_number = segment.mach
