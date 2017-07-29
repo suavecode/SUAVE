@@ -186,6 +186,7 @@ def write(vehicle,tag):
             chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
             twist_i    = wing.Segments[i_segs-1].twist / Units.deg
             sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+            tc_i       = wing.Segments[i_segs-1].thickness_to_chord
             
             # Calculate the local span
             if i_segs == n_segments:
@@ -209,15 +210,19 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+adjust],sweep_loc)      
             vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+adjust],chord_i)
             vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
-            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tip_tc)
+            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tc_i)
             
             vsp.Update()
        
-        if wing.Segments[-1].percent_span_location == 1.:
+        if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
             tip_chord = root_chord*wing.Segments[-1].root_chord_percent
             vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1],tip_chord)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[n_segments-1],wing.Segments[-1].twist / Units.deg)
+            vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1],wing.Segments[-1].thickness_to_chord)
         else:
             vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[-1-(1-adjust)],tip_twist)
+            # a single trapezoidal wing is assumed to have constant thickness to chord
         vsp.Update()
         vsp.SetParmVal(wing_id,'CapUMaxOption','EndCap',2.)
         vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
