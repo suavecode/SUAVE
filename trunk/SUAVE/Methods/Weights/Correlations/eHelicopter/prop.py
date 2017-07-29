@@ -63,8 +63,8 @@ def prop(rProp, maxThrust, nBlades):
 # Airfoil
 #-------------------------------------------------------------------------------
 
-    NACA = np.multiply(5 * toc, [0.2969, -0.1260, -0.3516, -0.1015])
-    coord = np.unique(fwdWeb+aftWeb+np.linspace(0,1,N).tolist())[:,np.newaxis]
+    NACA = np.multiply(5 * toc, [0.2969, -0.1260, -0.3516, 0.2843, -0.1015])
+    coord = np.unique(fwdWeb+np.linspace(0,1,N).tolist())[:,np.newaxis]
     coordMAT = np.concatenate((coord**0.5,coord,coord**2,coord**3,coord**4),axis=1)
     nacaMAT = coordMAT.dot(NACA)
     coord = np.concatenate((coord,nacaMAT),axis=1)

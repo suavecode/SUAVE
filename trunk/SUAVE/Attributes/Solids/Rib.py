@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 # Solid Data Class
 #-------------------------------------------------------------------------------
 
-class Solid(Data):
+class Rib(Solid):
 
     """ Physical Constants of a Solid"""
 
