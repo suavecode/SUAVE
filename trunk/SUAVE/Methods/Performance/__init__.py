@@ -1,3 +1,6 @@
+## @defgroup Methods-Performance Performance
+# Description
+# @ingroup Methods
 
 from estimate_take_off_field_length import estimate_take_off_field_length
 from payload_range import payload_range

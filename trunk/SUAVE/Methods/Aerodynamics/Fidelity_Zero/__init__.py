@@ -1,5 +1,6 @@
-## @defgroup methods-aerodynamics-Fidelity_Zero Fidelity_Zero
+## @defgroup Methods-Aerodynamics-Fidelity_Zero Fidelity_Zero
 # Functions to perform low-fidelity calculations
-# @ingroup methods-aerodynamics
+# @ingroup Methods-Aerodynamics
+
 import Drag
 import Lift

@@ -1,6 +1,6 @@
-## @defgroup methods-weights-correlations-propulsion Propulsion
+## @defgroup Methods-Weights-Correlations-Propulsion Propulsion
 # Contains some methods for calculating different propulsion system weights
-# @ingroup methods-weights-correlations
+# @ingroup Methods-Weights-Correlations
 
 from air_cooled_motor      import air_cooled_motor
 from engine_jet            import engine_jet
