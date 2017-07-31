@@ -3,6 +3,7 @@
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
 #           Apr 2017, M. Clarke
+#           Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -92,19 +93,25 @@ def populate_wing_sections(avl_wing,suave_wing):
                 # obtain the geometry for each segment in a loop
                 for i_segs in xrange(n_segments):
                         # convert quarter chord sweeps to leading edge sweeps 
+                        dihedral = suave_wing.Segments[i_segs].dihedral_outboard
                         if (i_segs == n_segments-1):
                                 sweep = 0
                         else: 
                                 if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
                                         sweep               = suave_wing.Segments[i_segs].sweeps.leading_edge
+                                        segment_span        = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
+                                        span_no_dihedral    = segment_span/np.cos(dihedral)
                                 else:          
                                         sweep_quarter_chord = suave_wing.Segments[i_segs].sweeps.quarter_chord
                                         chord_fraction      = 0.25 # quarter chord
                                         segment_root_chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent
                                         segment_tip_chord   = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
                                         segment_span        = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
-                                        sweep               = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
-                        dihedral       = suave_wing.Segments[i_segs].dihedral_outboard
+                                        span_no_dihedral    = segment_span/np.cos(dihedral)
+                                        dx_quarter          = span_no_dihedral*np.tan(sweep_quarter_chord) + segment_root_chord/4.
+                                        dx_leading_edge     = dx_quarter - segment_tip_chord/4.
+                                        sweep               = np.arctan(dx_leading_edge/span_no_dihedral)
+                                        
                         section        = Section() 
                         section.tag    = suave_wing.Segments[i_segs].tag
                         section.chord  = root_chord*suave_wing.Segments[i_segs].root_chord_percent 
@@ -125,23 +132,21 @@ def populate_wing_sections(avl_wing,suave_wing):
 
                                 dz = semispan*segment_percent_span
                                 dy = dz*np.tan(dihedral)
-                                l  = dz/np.cos(dihedral)
-                                dx = l*np.tan(sweep)
+                                dx = span_no_dihedral*np.tan(sweep)
                                 origin.append( [origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])              
                         else:
              
                                 dy = semispan*segment_percent_span
                                 dz = dy*np.tan(dihedral)
-                                l  = dy/np.cos(dihedral)
-                                dx = l*np.tan(sweep)
+                                dx = span_no_dihedral*np.tan(sweep)
                                 origin.append( [origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])               
         else:    
-                symm     = avl_wing.symmetric
-                sweep    = suave_wing.sweeps.quarter_chord
-                dihedral = suave_wing.dihedral
-                span     = suave_wing.spans.projected
-                semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
-                origin   = suave_wing.origin
+                symm                 = avl_wing.symmetric
+                sweep_quarter_chord  = suave_wing.sweeps.quarter_chord
+                dihedral             = suave_wing.dihedral
+                span                 = suave_wing.spans.projected
+                semispan             = suave_wing.spans.projected * 0.5 * (2 - symm)
+                origin               = suave_wing.origin
                 
                 root_section        = Section()
                 root_section.tag    = 'root_section'
@@ -153,7 +158,14 @@ def populate_wing_sections(avl_wing,suave_wing):
                 tip_section.tag     = 'tip_section'
                 tip_section.chord   = suave_wing.chords.tip
                 tip_section.twist   = suave_wing.twists.tip
-                tip_section.origin  = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
+                
+                semispan_no_dihedral = semispan/np.cos(dihedral)
+                dx_quarter           = semispan_no_dihedral*np.tan(sweep_quarter_chord) + root_section.chord/4.
+                dx_leading_edge      = dx_quarter - tip_section.chord/4.
+                sweep                = np.arctan(dx_leading_edge/semispan_no_dihedral)                
+                dx                   = semispan_no_dihedral*np.tan(sweep)     
+                
+                tip_section.origin   = [origin[0]+dx, origin[1]+semispan, origin[2]+semispan*np.tan(dihedral)]
                 
                 if avl_wing.vertical:
                         temp                  = tip_section.origin[2]
