@@ -106,6 +106,8 @@ def write(vehicle,tag):
         else:
             vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
             vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
+            
+            
         # Figure out if there is an airfoil provided
         
         # Airfoils should be in Lednicer format
