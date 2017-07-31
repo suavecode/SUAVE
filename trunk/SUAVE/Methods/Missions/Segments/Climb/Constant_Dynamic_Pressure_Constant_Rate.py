@@ -18,7 +18,7 @@ def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
-    Constrant dynamic pressure and constant rate of climb
+    Constant dynamic pressure and constant rate of climb
 
     Source:
     N/A
