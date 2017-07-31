@@ -1,6 +1,7 @@
-## @defgroup methods-weights-correlations-human_powered Human_Powered
+## @defgroup Methods-Weights-Correlations-Human_Powered Human_Powered
 # Provides structural weight correlations for a human-powered aircraft; applicable to solar-UAVs
-# @ingroup methods-weights-correlations
+# @ingroup Methods-Weights-Correlations
+
 from empty import empty
 from fuselage import fuselage
 from tail     import tail

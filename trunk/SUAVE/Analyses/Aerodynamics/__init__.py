@@ -1,6 +1,6 @@
-## @defgroup analyses-aerodynamics Aerodynamics
+## @defgroup Analyses-Aerodynamics Aerodynamics
 # description
-## @ingroup Analyses
+# @ingroup Analyses
 
 
 from Aerodynamics     import Aerodynamics

@@ -1,6 +1,6 @@
-## @defgroup methods-weights-correlations-tube_wing Tube_Wing
+## @defgroup Methods-Weights-Correlations-Tube_Wing Tube_Wing
 # Provides structural weight correlations for a tube and wing aircraft
-# @ingroup methods-weights-correlations
+# @ingroup Methods-Weights-Correlations
 
 """ SUAVE.Methods.Weights.Correlations.Tube_Wing
     contains some useful methods or attributes
