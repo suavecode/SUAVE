@@ -1,7 +1,7 @@
 # Concorde.py
 #
 # Created:  Feb 2017, M. Vegh (created from data taken from concorde/concorde.py)
-# Modified: 
+# Modified: Jul 2017, T. MacDonald
 
 """ setup file for the Concorde 
 """
@@ -54,10 +54,10 @@ def vehicle_setup(source_ratio=1.):
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 1.83
-    wing.sweeps.quarter_chord     = 59.5 * Units.deg
+    wing.sweeps.quarter_chord    = 59.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = 0.74
+    wing.span_efficiency         = .8
     
     wing.spans.projected         = 25.6    
     
@@ -67,6 +67,9 @@ def vehicle_setup(source_ratio=1.):
     wing.chords.mean_aerodynamic = 18.4
     
     wing.areas.reference         = 358.25 
+    wing.areas.wetted            = 653. - 12.*2.4*2 # 2.4 is engine area on one side
+    wing.areas.exposed           = 326.5
+    wing.areas.affected          = .6*wing.areas.reference
     
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
@@ -162,6 +165,9 @@ def vehicle_setup(source_ratio=1.):
     wing.chords.mean_aerodynamic = 8.66
     
     wing.areas.reference         = 33.91    #
+    wing.areas.wetted            = 76. 
+    wing.areas.exposed           = 38.
+    wing.areas.affected          = 33.91
     
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
@@ -241,8 +247,8 @@ def vehicle_setup(source_ratio=1.):
     fuselage.heights.at_wing_root_quarter_chord     = 3.32    #
     fuselage.heights.at_three_quarters_length       = 3.32    #
 
-    fuselage.areas.wetted          = 523.
-    fuselage.areas.front_projected = 7.55
+    fuselage.areas.wetted          = 447.
+    fuselage.areas.front_projected = 11.9
     
     
     fuselage.effective_diameter    = 3.1
@@ -263,10 +269,11 @@ def vehicle_setup(source_ratio=1.):
     
     # setup
     turbojet.number_of_engines = 4.0
-    turbojet.engine_length     = 12.5
-    turbojet.nacelle_diameter  = 1.60
+    turbojet.engine_length     = 12.0
+    turbojet.nacelle_diameter  = 1.3
+    turbojet.inlet_diameter    = 1.1
     turbojet.areas             = Data()
-    turbojet.areas.wetted      = 12.5*1.6*8. # essentially rectangles attached to the wings
+    turbojet.areas.wetted      = 12.5*4.7*2. # 4.7 is outer perimeter on one side
     turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]]
     
     # working fluid
