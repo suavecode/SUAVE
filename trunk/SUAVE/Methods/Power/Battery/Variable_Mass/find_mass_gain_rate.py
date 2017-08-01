@@ -1,4 +1,4 @@
-## @ingroup methods-power-battery-variable_mass
+## @ingroup Methods-Power-Battery-Variable_Mass 
 # find_mass_gain_rate.py
 # 
 # Created:  ### 2104, M. Vegh
@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Find Mass Gain Rate
 # ----------------------------------------------------------------------
-## @ingroup methods-power-battery-variable_mass
+## @ingroup Methods-Power-Battery-Variable_Mass 
 def find_mass_gain_rate(battery,power):
     """finds the mass gain rate of the battery from the ambient air
     Assumptions:

@@ -1,6 +1,6 @@
-## @defgroup methods-power-battery-ragone
+## @defgroup Methods-Power-Battery Battery
 # Functions pertaining to battery discharge and sizing
-# @ingroup methods-power-battery
+# @ingroup Methods-Power
 
 import Discharge
 import Ragone

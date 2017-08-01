@@ -1,4 +1,4 @@
-## @ingroup methods-power-battery-ragone
+## @ingroup Methods-Power-Battery-Ragone
 # find_specific_power.py
 # 
 # Created:  ### 2104, M. Vegh
@@ -9,7 +9,7 @@
 #  Find Specific Power
 # ----------------------------------------------------------------------
 
-## @ingroup methods-power-battery-ragone
+## @ingroup Methods-Power-Battery-Ragone
 def find_specific_power(battery, specific_energy):
     """determines specific specific power from a ragone curve correlation
     Assumptions:
