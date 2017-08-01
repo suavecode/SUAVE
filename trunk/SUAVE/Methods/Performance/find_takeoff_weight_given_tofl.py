@@ -41,27 +41,6 @@ def find_takeoff_weight_given_tofl(vehicle,analyses,airport,target_tofl):
     Properties Used:
     N/A
     """       
-    """ SUAVE.Methods.Perfomance.find_takeoff_weight_given_tofl(vehicle,takeoff_config,airport,target_tofl)
-        This routine estimates the takeoff weight given a certain takeoff field lenght
-
-        Inputs:
-            analyses - ? ?  ? 
-
-            vehicle - data dictionary containing:
-                 mass_properties.operating_empty
-                 mass_properties.max_takeoff
-
-            airport   - SUAVE type airport data, with followig fields:
-                atmosphere                  - Airport atmosphere (SUAVE type)
-                altitude                    - Airport altitude
-                delta_isa                   - ISA Temperature deviation
-
-            target_tofl - The available field lenght for takeoff
-
-        Outputs:
-            max_tow - Maximum takeoff weight for a given field lenght
-
-    """
 
     #unpack
     tow_lower = vehicle.mass_properties.operating_empty
