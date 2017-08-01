@@ -62,8 +62,7 @@ def residual_total_forces(segment,state):
                 weights.total_mass                 [kg]
             
         Outputs:
-            state.conditions:
-                state.residuals.forces [meters/second^2]
+            state.residuals.forces [meters/second^2]
 
         Properties Used:
         N/A
