@@ -1,4 +1,4 @@
-## @ingroup methods-power-fuel_cell-discharge
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # find_power_diff_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -14,7 +14,7 @@ from find_power_larminie import find_power_larminie
 # ----------------------------------------------------------------------
 #  Find Power Difference Larminie
 # ----------------------------------------------------------------------
-## @ingroup methods-power-fuel_cell-discharge
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 def find_power_diff_larminie(current_density, fuel_cell, power_desired):
     '''
     function that determines the power difference between the actual power

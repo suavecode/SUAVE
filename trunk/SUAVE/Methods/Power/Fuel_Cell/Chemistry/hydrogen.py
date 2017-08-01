@@ -1,4 +1,4 @@
-## @ingroup methods-power-fuel_cell-chemistry
+## @ingroup Methods-Power-Fuel_Cell-Chemistry
 
 # hydrogen.py
 #
@@ -10,7 +10,7 @@
 #  Hydrogen
 # ----------------------------------------------------------------------
 
-## @ingroup methods-power-fuel_cell-chemistry
+## @ingroup Methods-Power-Fuel_Cell-Chemistry
 def hydrogen(fuel_cell,conditions,numerics):
     """ Calculates chemical properties of fuel cell exhaust
      
