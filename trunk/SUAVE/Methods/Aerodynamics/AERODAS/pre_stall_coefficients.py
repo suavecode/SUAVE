@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 # pre_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -15,7 +15,7 @@ from SUAVE.Analyses import Results
 #  Pre Stall Coefficients
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 def pre_stall_coefficients(state,settings,geometry):
     """Uses the AERODAS method to determine prestall parameters for lift and drag for a single wing
 

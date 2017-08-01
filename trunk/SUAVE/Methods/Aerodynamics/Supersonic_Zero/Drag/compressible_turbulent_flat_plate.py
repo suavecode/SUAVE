@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # compressible_turbulent_flat_plate.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -10,7 +10,7 @@ import numpy as np
 #  Simple Method
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def compressible_turbulent_flat_plate(Re,Ma,Tc):
     """Computes the coefficient of friction for a flat plate given the 
     input parameters. Also returns the correction terms used in the

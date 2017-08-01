@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # wing_compressibility_correction.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -16,7 +16,7 @@ import numpy as np
 #  The Function
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def wing_compressibility_correction(state,settings,geometry):
     """Corrects a wings lift based on compressibility
 

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # untrimmed.py
 #
 # Created:  Jan 2014, T. Orra
@@ -12,7 +12,7 @@
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def untrimmed(state,settings,geometry):
     """Sums aircraft drag before trim correction
 

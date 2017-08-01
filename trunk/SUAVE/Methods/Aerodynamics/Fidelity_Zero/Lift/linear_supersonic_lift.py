@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # linear_supersonic_lift.py
 # 
 # Created:  Jul 2014, T. MacDonald
@@ -15,7 +15,7 @@ import numpy as np
 #  Adapted from vortex lattice code to strip theory
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def linear_supersonic_lift(conditions,configuration,wing):
     """This function is outdated and not used in Fidelity_Zero
     """   

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # total_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
@@ -14,7 +14,7 @@
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def total_aircraft(state,settings,geometry):
     """Computes the total drag for an aircraft
 

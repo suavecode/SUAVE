@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_volume.py
 # 
 # Created:  Tim MacDonald, 6/24/14
@@ -16,7 +16,7 @@ import numpy as np
 #   Wave Drag Volume
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_volume(conditions,configuration,wing):
     """Computes wave drag due to volume
 

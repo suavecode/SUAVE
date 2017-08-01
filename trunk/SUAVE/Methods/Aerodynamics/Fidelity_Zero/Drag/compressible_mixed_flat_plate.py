@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # compressible_mixed_flat_plate.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -17,7 +17,7 @@ import numpy as np
 #  Compressible Mixed Flat Plate
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
     """Computes the coefficient of friction for a flat plate given the 
     input parameters. Also returns the correction terms used in the

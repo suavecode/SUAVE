@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # trim.py
 #
 # Created:  Jan 2014, T. Orra
@@ -13,7 +13,7 @@
 #  Computes the trim drag
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def trim(state,settings,geometry):
     """Adjusts aircraft drag based on a trim correction
 

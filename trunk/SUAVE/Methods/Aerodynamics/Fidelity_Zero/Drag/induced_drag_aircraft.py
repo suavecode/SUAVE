@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # induced_drag_aircraft.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -19,7 +19,7 @@ import numpy as np
 #  Induced Drag Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def induced_drag_aircraft(state,settings,geometry):
     """Determines induced drag for the full aircraft
 

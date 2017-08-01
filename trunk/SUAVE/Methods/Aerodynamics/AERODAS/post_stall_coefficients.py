@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 # post_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -16,7 +16,7 @@ from SUAVE.Analyses import Results
 #  Post Stall Coefficients
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 def post_stall_coefficients(state,settings,geometry):
     """Uses the AERODAS method to determine poststall parameters for lift and drag for a single wing
 

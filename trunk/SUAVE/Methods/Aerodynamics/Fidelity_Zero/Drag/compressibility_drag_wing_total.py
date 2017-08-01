@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # compressibility_drag_wing_total.py
 # 
 # Created:  Jan 2014, SUAVE Team
@@ -16,7 +16,7 @@ import numpy as np
 #  Computes the compressibility drag of the wings
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def compressibility_drag_wing_total(state,settings,geometry):
     """Sums compressibility drag for all wings combined
 

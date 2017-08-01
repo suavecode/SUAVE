@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # miscellaneous_drag_aircraft_ESDU.py
 # 
 # Created:  Jan 2014, T. Orra
@@ -14,7 +14,7 @@ from SUAVE.Analyses import Results
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     """Computes the miscellaneous drag associated with an aircraft
 

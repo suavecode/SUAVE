@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_fuselage.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -17,7 +17,7 @@ import numpy as np
 #   Parasite Drag Fuselage
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_fuselage(state,settings,geometry):
     """Computes the parasite drag due to the fuselage
 
