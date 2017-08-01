@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # find_takeoff_weight_given_tofl.py
 #
 # Created:  Sep 2014, C. Ilario, T. Orra 
@@ -16,7 +17,30 @@ import numpy as np
 #  Find Takeoff Weight Given TOFL
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def find_takeoff_weight_given_tofl(vehicle,analyses,airport,target_tofl):
+    """Estimates the takeoff weight given a certain takeoff field length.
+
+    Assumptions:
+    assumptions per estimate_take_off_field_length()
+
+    Source:
+    N/A
+
+    Inputs:
+    vehicle.mass_properties.
+      operating_empty         [kg]
+      max_takeoff             [kg]
+      analyses                [SUAVE data structure]
+      airport                 [SUAVE data structure]
+      target_tofl             [m]
+      
+    Outputs:
+    max_tow                   [kg]
+
+    Properties Used:
+    N/A
+    """       
     """ SUAVE.Methods.Perfomance.find_takeoff_weight_given_tofl(vehicle,takeoff_config,airport,target_tofl)
         This routine estimates the takeoff weight given a certain takeoff field lenght
 
