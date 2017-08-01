@@ -141,6 +141,5 @@ class Ground(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
-        finalize.post_process.ground            = Methods.Ground.Common.post_process
 
         return
