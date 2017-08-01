@@ -1,5 +1,6 @@
 ## @defgroup Methods-Performance Performance
-# Description
+# This is a set of basic aircraft performance estimation functions. It
+# includes field length and range calculations.
 # @ingroup Methods
 
 from estimate_take_off_field_length import estimate_take_off_field_length

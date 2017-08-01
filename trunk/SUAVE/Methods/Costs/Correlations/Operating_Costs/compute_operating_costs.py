@@ -1,3 +1,4 @@
+## @ingroup Methods-Costs-Operating_Costs
 # compute_operating_costs.py
 #
 # Created:  
@@ -9,9 +10,9 @@ from SUAVE.Analyses import Results
 #  Compute operating costs
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Costs-Operating_Costs
 def compute_operating_costs(vehicle):
-    """ SUAVE.Methods.Costs.Correlations.Operating_Costs.compute_operating_costs(vehicle):
-"""
+    """ This is a stub. It is called by the default costs analysis, but does nothing."""
     pass
 
     return

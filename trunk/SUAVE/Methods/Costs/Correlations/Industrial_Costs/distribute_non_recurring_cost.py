@@ -1,3 +1,4 @@
+## @ingroup Methods-Costs-Industrial_Costs
 # distribute_non_recurring_cost.py
 #
 # Created:  Sep 2016, T. Orra
@@ -13,41 +14,46 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Distribute non recurring costs, for cash flow proposes
 # ----------------------------------------------------------------------
+## @ingroup Methods-Costs-Industrial_Costs
 def distribute_non_recurring_cost(costs):
-    """ SUAVE.Methods.Costs.Correlations.Development_Costs.distribute_non_recurring_cost(costs):
+    """Distributes the non-recurring costs over the appropriate time period
 
-        Inputs:
-            costs.industrial.development_total_years: Total development years
-            costs.industrial.non_recurring.breakdown: Data dictionary with non-recurring costs:
-                .airframe_engineering
-                .flight_test
-                .engines
-                .avionics
-                .manufacturing_labor
-                .manufacturing_material
-                .tooling_development
-                .tooling_production
-                .development_support
-                .quality_control
-                .test_facilities
-                .manufacturing_facilities
+    Assumptions:
+    None
 
-        Outputs:
-            costs.industrial.non_recurring.cash_flow: Data dictionary with cash flow data:
-                    .total     = Total cash flow for non-recurring costs
-                    .breakdown = Cash flow for each non-recurring cost component:
-                                .engineering
-                                .manufacturing
-                                .tooling_design
-                                .tooling_production
-                                .support
-                                .facilities
+    Source:
+    Markish, J., 'Valuation Techniques for Commercial Aircraft Program Design'
 
-        Assumptions:
-            Non-dimentional distributions according to Markish, J., 'Valuation Techniques
-            for Commercial Aircraft Program Design'
-"""
+    Inputs:
+    cost.industrial.
+      development_total_years        [-]        
+      non_recurring.breakdown.
+        airframe_engineering         [$]
+        development_support          [$]
+        flight_test                  [$]
+        engines                      [$]
+        avionics                     [$]
+        tooling_development          [$]
+        tooling_production           [$]
+        manufacturing_labor          [$]
+        manufacturing_material       [$]
+        quality_control              [$]
+        test_facilities              [$]
+        manufacturing_facilities     [$]
 
+    Outputs:
+    costs.industrial.non_recurring.cash_flow.:
+      breakdown.engineering          [$]
+      breakdown.manufacturing        [$]
+      breakdown.tooling_design       [$]
+      breakdown.tooling_production   [$]
+      breakdown.support              [$]
+      breakdown.facilities           [$]
+      total                          [$]
+
+    Properties Used:
+    N/A
+    """      
     # unpack
     nrec                    = costs.industrial.non_recurring.breakdown
     nrec_engineering        = nrec.airframe_engineering + nrec.flight_test + nrec.engines + nrec.avionics

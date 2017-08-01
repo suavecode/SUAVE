@@ -1,3 +1,4 @@
+## @ingroup Methods-Costs-Industrial_Costs
 # estimate_hourly_rates.py
 #
 # Created:  Sep 2016, T. Orra
@@ -9,25 +10,31 @@ from SUAVE.Core import Data
 #  Estimate hourly rates according to a trend line
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Costs-Industrial_Costs
 def estimate_hourly_rates(year):
-    """ SUAVE.Methods.Costs.Correlations.Industrial_Costs.estimate_hourly_rates(year):
-        Estimate hourly rates according to a trend line
+    """Estimates the hourly rate according to a trend line.
 
-        Inputs:
-            reference_year - year for cost estimation
+    Assumptions:
+    None
 
-        Outputs:
-            hourly_rate.engineering
-            hourly_rate.tooling
-            hourly_rate.manufacturing
-            hourly_rate.quality_control
+    Source:
+    Trends in hourly rates according to "Fundamentals of Aircraft Design", 
+      vol 1, Nicolai Figure 24.4.
 
-        Assumptions:
-            Trends in hourly rates according to "Fundamentals of Aircraft Design", vol 1, Nicolai
-            Figure 24.4.
-"""
+    Inputs:
+    year              [-]
 
-	# Unpack
+    Outputs:
+    hourly_rates.
+      engineering     [$/hr]
+      tooling         [$/hr]
+      manufacturing   [$/hr]
+      quality_control [$/hr]
+
+    Properties Used:
+    N/A
+    """
+    # Unpack
     reference_year = year
 
     hourly_rates = Data()
