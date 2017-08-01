@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
 # engine_geometry.py
 #
 # Created:  Jun 15, A. Variyar 
@@ -18,13 +19,37 @@ from math import pi, sqrt
 #  Correlation-based methods to compute engine geometry
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
 def compute_ducted_fan_geometry(ducted_fan, conditions):
-    """ SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing):
-        Estimates wing fuel capacity based in correlation methods.
+    """Estimates geometry for a ducted fan.
+    
+    Assumptions:
+    None
 
+    Source:
+    None
 
+    Inputs:
+    ducted_fan.thrust.
+      mass_flow_rate_design [kg/s]
+    ducted_fan.fan_nozzle.
+      outputs.velocity      [m/s]
+      outputs.density       [kg/m^3]
+      outputs.area_ratio    [-]
+    conditions.freestream.
+      velocity              [m/s]
+      density               [kg/m^3]
 
-    """
+    Outputs:
+    ducted_fan.
+      areas.maximum         [m^2]
+      areas.wetted          [m^2]
+      nacelle_diameter      [m]
+      engine_length         [m]
+
+    Properties Used:
+    N/A
+    """      
 
     # unpack
     thrust            = ducted_fan.thrust

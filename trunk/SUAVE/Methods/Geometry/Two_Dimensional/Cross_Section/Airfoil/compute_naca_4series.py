@@ -1,23 +1,30 @@
-# @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 from math import sqrt, sin, cos, atan
 import numpy as np
 
-# @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_naca_4series(camber,camber_loc,thickness,npoints=200):
-    """ upper,lower = compute_naca_4series(camber,camber_loc,thickness,npoints=200)
-        computes points of a naca 4-series airfoil
-        
-        Inputs:
-            camber     - max camber, in fraction of chord
-            camber_loc - max camber location, in fraction of chord
-            thickness  - max thickness, in fraction of chord
-            npoints    - total number of points
-            
-        Outputs:
-            upper, lower - list of list of x-y coordinates
-                           for upper and lower surface
-    
-    """
+    """Computes the points of NACA 4-series airfoil
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    camber      [-] Maximum camber as a fraction of chord
+    camber_loc  [-] Maximum camber location as a fraction of chord
+    thickness   [-] Maximum thickness as a fraction of chord
+    npoints     [-] Total number of points
+
+    Outputs:
+    upper       [-] numpy array of x-y coordinates on the upper surface
+    lower       [-] numpy array of x-y coordinates on the lower surface
+
+    Properties Used:
+    N/A
+    """        
 
     half_pnts = int(npoints)/2
     
@@ -50,8 +57,30 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=200):
     return upper, lower
 
 
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_naca_4series_lines(x,camber,camber_loc,thickness):
+    """Computes the camber, thickness, and the angle of the camber line
+    at a given point along the airfoil.
+
+    Assumptions:
+    None
+
+    Source:
+    Similar to http://airfoiltools.com/airfoil/naca4digit
+
+    Inputs:
+    camber      [-]       Maximum camber as a fraction of chord
+    camber_loc  [-]       Maximum camber location as a fraction of chord
+    thickness   [-]       Maximum thickness as a fraction of chord
+
+    Outputs:
+    zt          [-]       Thickness
+    zc          [-]       Camber
+    th          [radians] Angle of the camber line
+
+    Properties Used:
+    N/A
+    """          
 
     xx = x*x
 
