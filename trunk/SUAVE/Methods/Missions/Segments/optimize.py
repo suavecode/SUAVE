@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments
 # optimize.py
 # 
 # Created:  Dec 2016, E. Botero
@@ -17,7 +18,28 @@ from SUAVE.Core import Units
 #  Converge Root
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments
 def converge_opt(segment,state):
+    """Interfaces the mission to an optimization algorithm
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns                     [Data]
+    segment                            [Data]
+    state                              [Data]
+    segment.algorithm                  [string]
+
+    Outputs:
+    state.unknowns                     [Any]
+
+    Properties Used:
+    N/A
+    """     
     
     # pack up the array
     unknowns = state.unknowns.pack_array()
@@ -73,8 +95,23 @@ def converge_opt(segment,state):
 #  Helper Functions
 # ----------------------------------------------------------------------
     
-
+## @ingroup Methods-Missions-Segments
 def get_objective(unknowns,(segment,state)):
+    """ Runs the mission if the objective value is needed
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        state.unknowns      [Data]
+    
+        Outputs:
+        objective           [float]
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -88,7 +125,23 @@ def get_objective(unknowns,(segment,state)):
     
     return objective
 
+## @ingroup Methods-Missions-Segments
 def get_econstraints(unknowns,(segment,state)):
+    """ Runs the mission if the equality constraint values are needed
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        state.unknowns      [Data]
+            
+        Outputs:
+        constraints          [array]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -102,8 +155,25 @@ def get_econstraints(unknowns,(segment,state)):
     
     return constraints
 
-
+## @ingroup Methods-Missions-Segments
 def make_bnds(unknowns,(segment,state)):
+    """ Automatically sets the bounds of the optimization.
+    
+        Assumptions:
+        Restricts throttle to between 0 and 100%
+        Restricts body angle from 0 to pi/2 radians
+        Restricts flight path angle from 0 to pi/2 radians
+        
+        Inputs:
+        none
+            
+        Outputs:
+        bnds
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     ones    = state.ones_row(1)
     ones_m1 = state.ones_row_m1(1)
@@ -124,8 +194,25 @@ def make_bnds(unknowns,(segment,state)):
     
     return bnds
 
-
+## @ingroup Methods-Missions-Segments
 def get_ieconstraints(unknowns,(segment,state)):
+    """ Runs the mission if the inequality constraint values are needed
+    
+        Assumptions:
+        Time only goes forward
+        CL is less than a specified limit
+        All altitudes are greater than zero
+        
+        Inputs:
+        state.unknowns      [Data]
+            
+        Outputs:
+        constraints          [array]
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -150,7 +237,27 @@ def get_ieconstraints(unknowns,(segment,state)):
     
     return constraints
 
+## @ingroup Methods-Missions-Segments
 def get_problem_pyopt(unknowns,(segment,state)):
+    """ Runs the mission and obtains the objective and all constraints. This is formatted for pyopt
+    
+        Assumptions:
+        Time only goes forward
+        CL is less than a specified limit
+        All altitudes are greater than zero
+        
+        Inputs:
+        state.unknowns      [Data]
+    
+        Outputs:
+        obj                 [float]
+        con                 [array]
+        fail                [boolean]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
