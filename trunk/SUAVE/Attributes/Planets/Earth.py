@@ -1,3 +1,4 @@
+## @ingroup Attributes-Planets
 # Earth.py
 # 
 # Created:  Unk, 2013, J. Sinsay
@@ -12,10 +13,34 @@ from Planet import Planet
 # ----------------------------------------------------------------------
 #  Earth Constant Class
 # ----------------------------------------------------------------------
- 
+## @ingroup Attributes-Planets
 class Earth(Planet):
-    """ Physical constants specific to Earth"""
+    """Holds constants for Earth
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
     def __defaults__(self):
+        """This sets the default values.
+
+        Assumptions:
+        None
+
+        Source:
+        Values commonly available
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """         
         self.tag = 'Earth'
         self.mass              = 5.98e24  # kg
         self.mean_radius       = 6.371e6  # m

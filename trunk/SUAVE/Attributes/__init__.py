@@ -1,3 +1,5 @@
+## @defgroup Attributes
+# Attributes provide objects that can be attached to various analyses.
 
 # classes
 from Analysis import Analysis
