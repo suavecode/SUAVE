@@ -2,5 +2,4 @@
 # Geometry functions for two dimensional cross sections.
 # @ingroup Methods-Geometry-Two_Dimensional
 import Airfoil
-import Fuselage
 import Propulsion
