@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_clean_wing.py
 # 
 # Created:  Jun 2015, Carlos
@@ -14,6 +15,7 @@ from SUAVE.Core import Units
 # Compute the clean wing noise
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distance,frequency):
     """ SUAVE.Methods.Noise.Fidelity_One.noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,phi,theta,distance,frequency):
             Computes the 1/3 octave band sound pressure level and the overall sound pressure level from the clean wing,

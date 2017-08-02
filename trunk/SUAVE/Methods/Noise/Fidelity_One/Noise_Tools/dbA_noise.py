@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # dbA_noise.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -13,6 +14,7 @@ import numpy as np
 #  dbA Noise
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def dbA_noise(SPL):
     """This method calculates de A-weighted level from a 1/3 octave band noise spectra
 
