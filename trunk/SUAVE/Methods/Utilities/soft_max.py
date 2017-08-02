@@ -1,3 +1,4 @@
+## @ingroup Methods-Utilities
 #soft_max.py
 #Created:  Feb 2016, M. Vegh
 
@@ -11,18 +12,26 @@ import numpy as np
 # ----------------------------------------------------------------------
 # soft_max Method
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Utilities
 def soft_max(x1,x2):
+    """Computes the soft maximum of two inputs.
 
-    """ f=soft_max(x1,x2)
-        computes the soft_maximum of two inputs, so that it is differentiable
-        uses the method from http://www.johndcook.com/blog/2010/01/20/how-to-compute-the-soft-maximum/
-        to prevent potential overflow issues
-         Inputs:    x1
-                    x2
+    Assumptions:
+    None
 
-         Outputs:   f                                                 
-        """
+    Source:
+    http://www.johndcook.com/blog/2010/01/20/how-to-compute-the-soft-maximum/
+
+    Inputs:
+    x1   [-]
+    x2   [-]
+
+    Outputs:             
+    f    [-] The soft max
+
+    Properties Used:
+    N/A
+    """    
     max=np.maximum(x1,x2)
     min=np.minimum(x1,x2)
     f=max+np.log(1+np.exp(min-max))
