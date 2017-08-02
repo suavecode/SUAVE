@@ -4,7 +4,7 @@
 # Created : Apr 2015, M. Vegh 
 # Modified: Sep 2015, M. Vegh
 #           Feb 2016, E. Botero
-
+#           Aug 2017, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -27,8 +27,17 @@ def setup_larminie(fuel_cell):
        fuel cell
     
    Outputs:
-       fuel_cell
-  
+       fuel_cell.
+           number_of_cells
+           interface_area       [m**2]
+           r                    [ohms*m**2]
+           Eoc                  [V]
+           A1                   [V]
+           m                    [V]
+           n                    [m**2/A]
+           ideal_voltage        [V]
+           cell_density         [kg/m^3]
+           porousity_coeffient  
 
 
    """   

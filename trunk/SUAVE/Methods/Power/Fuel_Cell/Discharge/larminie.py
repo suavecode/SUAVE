@@ -23,6 +23,9 @@ def larminie(fuel_cell,conditions,numerics):
     '''
     function that determines the mass flow rate based on a required power input
     
+    Assumptions:
+    None (calls other functions)
+    
     Inputs:
     fuel_cell.
         inputs.

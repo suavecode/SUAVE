@@ -20,7 +20,11 @@ from find_voltage_larminie import find_voltage_larminie
 ## @ingroup Methods-Power-Fuel_Cell-Discharge
 def find_power_larminie(current_density, fuel_cell, sign=1.0):
     '''
-    Function that determines the power output per cell, based on in input current density
+    Function that determines the power output per cell, based on in 
+    input current density
+    
+    Assumptions:
+    None(calls other functions)
     
     Inputs:
     current_density      [Amps/m**2]

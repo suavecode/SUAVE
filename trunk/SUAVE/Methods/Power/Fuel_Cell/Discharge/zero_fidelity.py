@@ -11,6 +11,23 @@
 
 ## @ingroup Methods-Power-Fuel_Cell-Discharge
 def zero_fidelity(fuel_cell,conditions,numerics):
+    '''
+    Assumptions:
+    constant efficiency
+    
+    Inputs:
+        fuel_cell.
+            inputs.
+                power_in              [W]
+            propellant.
+                specific_energy       [J/kg]
+            efficiency    
+    
+    Outputs:
+        mdot                          [kg/s]
+    
+    '''
+    
     
     power       = fuel_cell.inputs.power_in
     

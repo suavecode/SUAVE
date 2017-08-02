@@ -22,6 +22,10 @@ def find_voltage_larminie(fuel_cell,current_density):
     current density and some semi-empirical values to describe the voltage
     drop off with current
     
+    Assumptions:
+    voltage curve is a function of current density of the form
+    v = Eoc-r*i1-A1*np.log(i1)-m*np.exp(n*i1)
+    
     Inputs:
     current_density           [A/m**2]
     fuel_cell.
