@@ -39,20 +39,20 @@ class Supersonic_Nozzle(Energy_Component):
     def __defaults__(self):
         """ This sets the default values for the component to function.
         
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        None
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            None
+        
+            Outputs:
+            None
+        
+            Properties Used:
+            None
         """        
         
         #set the defaults
