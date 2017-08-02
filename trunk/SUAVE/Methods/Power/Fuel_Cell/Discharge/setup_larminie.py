@@ -21,7 +21,17 @@ from larminie import larminie
 #default values representative of a hydrogen fuel cell
 def setup_larminie(fuel_cell):                     
    """ sets up additional values of fuel cell to run method from Larminie and 
-   Dicks (Fuel Cell Systems Explained) """   
+   Dicks (Fuel Cell Systems Explained)
+   
+   Inputs:
+       fuel cell
+    
+   Outputs:
+       fuel_cell
+  
+
+
+   """   
    
    fuel_cell.number_of_cells       = 0.0                                  #number of fuel cells in the stack
    fuel_cell.interface_area        = 875.*(Units.cm**2.)                  # area of the fuel cell interface
