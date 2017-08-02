@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # find_power_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -16,6 +17,7 @@ from find_voltage_larminie import find_voltage_larminie
 #  Find Power Larminie
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 def find_power_larminie(current_density, fuel_cell, sign=1.0):
     
     # sign variable is used so that you can maximize the power, by minimizing the -power

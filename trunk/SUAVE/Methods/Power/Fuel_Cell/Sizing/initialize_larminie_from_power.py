@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Sizing
 # initialize_larminie_from_power.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -17,6 +18,7 @@ from SUAVE.Methods.Power.Fuel_Cell.Discharge.find_power_larminie import find_pow
 #  Initialize Larminie from Power
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Sizing
 def initialize_larminie_from_power(fuel_cell,power): 
     
     fc                      = fuel_cell

@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # find_voltage_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -14,6 +15,7 @@ from SUAVE.Core import Units
 #  Find Voltage Larminie
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 def find_voltage_larminie(fuel_cell,current_density):
     
     r   = fuel_cell.r/(Units.kohm*(Units.cm**2))

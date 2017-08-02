@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # zero_fidelity.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -8,6 +9,7 @@
 #  Zero Fidelity
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 def zero_fidelity(fuel_cell,conditions,numerics):
     
     power       = fuel_cell.inputs.power_in

@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -17,6 +18,7 @@ from find_power_diff_larminie import find_power_diff_larminie
 #  Larminie
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 def larminie(fuel_cell,conditions,numerics):
 
     power           = fuel_cell.inputs.power_in  

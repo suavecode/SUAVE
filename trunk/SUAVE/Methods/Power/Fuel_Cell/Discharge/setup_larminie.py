@@ -1,3 +1,4 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # setup_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
@@ -16,6 +17,7 @@ from larminie import larminie
 #  Setup Larminie
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 #default values representative of a hydrogen fuel cell
 def setup_larminie(fuel_cell):                     
    """ sets up additional values of fuel cell to run method from Larminie and 
