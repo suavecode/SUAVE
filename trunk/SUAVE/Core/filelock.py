@@ -1,3 +1,4 @@
+## @ingroup Core
 # filelock.py
 #
 # Created:  Aug 2015, T. Lukacyzk
@@ -12,7 +13,8 @@ from random import random
 
 # -------------------------------------------------------------------
 #  File Lock Class
-# -------------------------------------------------------------------  
+# ------------------------------------------------------------------- 
+## @ingroup Core
 class filelock(object):
     """ A file locking mechanism that has context-manager support so 
         you can use it in a with statement. 
@@ -28,14 +30,31 @@ class filelock(object):
             delay     - default 0.05sec, delay between each attempt to lock
                         number incremented with a random perturbation
            
-        original source: Evan Fosmark, BSD license
+        Source: Evan Fosmark, BSD license
         http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/
     """
  
     def __init__(self, file_name, timeout=10, delay=.05):
         """ Prepare the file locker. Specify the file to lock and optionally
             the maximum timeout and the delay between each attempt to lock.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            file_name  [str]
+            timeout    [seconds]
+            delay      [seconds]
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """  
         self.is_locked = False
         self.lockfile = os.path.join(os.getcwd(), "%s.lock" % file_name)
         self.file_name = file_name
@@ -48,7 +67,22 @@ class filelock(object):
             every `wait` seconds. It does this until it either gets the lock or
             exceeds `timeout` number of seconds, in which case it throws 
             an exception.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """  
         start_time = time.time()
         while True:
             try:
@@ -68,7 +102,22 @@ class filelock(object):
         """ Get rid of the lock by deleting the lockfile. 
             When working in a `with` statement, this gets automatically 
             called at the end.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """ 
         if self.is_locked:
             os.close(self.fd)
             os.unlink(self.lockfile)
@@ -78,7 +127,22 @@ class filelock(object):
     def __enter__(self):
         """ Activated when used in the with statement. 
             Should automatically acquire a lock to be used in the with block.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """ 
         if not self.is_locked:
             self.acquire()
         return self
@@ -87,7 +151,22 @@ class filelock(object):
     def __exit__(self, type, value, traceback):
         """ Activated at the end of the with statement.
             It automatically releases the lock if it isn't locked.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+            
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """ 
         if self.is_locked:
             self.release()
  
@@ -95,7 +174,22 @@ class filelock(object):
     def __del__(self):
         """ Make sure that the FileLock instance doesn't leave a lockfile
             lying around.
-        """
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+            
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """ 
         self.release()
         
 class FileLockException(Exception):

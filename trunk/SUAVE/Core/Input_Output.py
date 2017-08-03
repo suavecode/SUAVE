@@ -1,3 +1,4 @@
+## @ingroup Core
 # Input_Output.py
 #
 # Created:  Aug 2015, T. Lukacyzk
@@ -17,6 +18,7 @@ from filelock import filelock
 #  Load a Dictionary of Data
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def load_data( file_name, 
                file_format = 'infer'       ,
                core_name   = 'python_data'  ):
@@ -93,6 +95,7 @@ def load_data( file_name,
 #  Save a Dictionary of Data
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def save_data( data_dict, file_name, append=False ,
                file_format = 'infer'              ,
                core_name='python_data'             ):
@@ -183,6 +186,7 @@ def save_data( data_dict, file_name, append=False ,
 #  Load Pickle
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def load_pickle(file_name):
     """ data = load_pickle(file_name)
         loads a pickle with core_data dictionaries
@@ -205,6 +209,7 @@ def load_pickle(file_name):
 #  Save Pickle
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def save_pickle(file_name,data_dict):
     """ save_pickle(file_name,data_dict)
         saves a core data dictionary
@@ -224,6 +229,7 @@ def save_pickle(file_name,data_dict):
 #  Convert Record Array to Dictionary
 # -------------------------------------------------------------------
  
+ ## @ingroup Core
 def rec2dict(array_in):
     """ converts numpy record array to dictionary of lists 
         needed for loading matlab data
@@ -275,6 +281,7 @@ def rec2dict(array_in):
 #  Flatten a List
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def flatten_list(input_list): 
     ''' flatten an irregular list of lists of any depth
     '''  
@@ -294,6 +301,7 @@ def flatten_list(input_list):
 #  Append Lists in a Nested Dictionary
 # -------------------------------------------------------------------
 
+## @ingroup Core
 def append_nestdict(base_dict,add_dict):
     """ append_nestdict(base_dict,add_dict)
         appends base_dict with add_dict, allowing for 
@@ -341,6 +349,7 @@ def append_nestdict(base_dict,add_dict):
 #  Matlab Bunch Class
 # ------------------------------------------------------------------- 
 
+## @ingroup Core
 class mat_bunch:
     """ replicates dictionary functionality with class dot structure
         for output of dictionaries to matlab

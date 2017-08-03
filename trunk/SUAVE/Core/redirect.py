@@ -1,3 +1,4 @@
+## @ingroup Core
 # redirect.py
 #
 # Created:  Aug 2015, T. Lukacyzk
@@ -12,11 +13,10 @@ import os, sys, shutil, copy
 # -------------------------------------------------------------------
 #  Output Redirection 
 # -------------------------------------------------------------------
-# original source: http://stackoverflow.com/questions/6796492/python-temporarily-redirect-stdout-stderr
+
+## @ingroup Core
 class output(object):
-    ''' redirect.output(stdout,stderr)
-    
-        Temporarily redirects sys.stdout and sys.stderr when used in
+    """ Temporarily redirects sys.stdout and sys.stderr when used in
         a 'with' contextmanager
         
         Example:
@@ -29,10 +29,30 @@ class output(object):
         Inputs:
             stdout - None, a filename, or a file stream
             stderr - None, a filename, or a file stream
-        None will not redirect outptu
+        None will not redirect outptut
         
-    '''
+        Source:
+        http://stackoverflow.com/questions/6796492/python-temporarily-redirect-stdout-stderr
+        
+    """
     def __init__(self, stdout=None, stderr=None):
+        """ Initializes a new output() class
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """         
         
         _newout = False
         _newerr = False
@@ -64,16 +84,14 @@ class output(object):
         if self._newerr:
             self._stderr.close()           
 
-#: class output()
-
 
 # -------------------------------------------------------------------
 #  Folder Redirection 
 # -------------------------------------------------------------------
+
+## @ingroup Core
 class folder(object):
-    ''' redirect.folder(folder,pull,link,force) as push
-    
-        Temporarily redirects to a working folder, pulling 
+    """ Temporarily redirects to a working folder, pulling 
         and pushing needed files
         
         Example:
@@ -109,7 +127,7 @@ class folder(object):
         Notes:
             push must be appended or extended, not overwritten
             links in Windows not supported, will simply copy
-    '''
+    """
     
     def __init__(self, folder, pull=None, link=None, force=True ):
         ''' folder redirection initialization
@@ -216,8 +234,6 @@ class folder(object):
         # change directory
         os.chdir(origin)
         
-#: class folder()
-
   
 def make_link(src,dst):
     """ make_link(src,dst)
