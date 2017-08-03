@@ -1,3 +1,4 @@
+## @ingroup Input_Output-OpenVSP
 # get_vsp_areas.py
 # 
 # Created:  --- 2016, T. MacDonald
@@ -9,7 +10,25 @@ except ImportError:
     pass # This allows SUAVE to build without OpenVSP
 import numpy as np
 
+## @ingroup Input_Output-OpenVSP
 def get_vsp_areas(tag):
+    """This calls OpenVSP to compute the wetted areas of a previously written vehicle.
+    
+    Assumptions:
+    Vehicle must be open in OpenVSP (via recently used vsp_write)
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    wetted_areas   [m^2] - Dictionary with wetted areas for each component, with component tags as the keys.
+
+    Properties Used:
+    N/A
+    """        
     
     half_mesh = False # Note that this does not affect the Gmsh/SU2 meshing process
     # it only affects how much area of a component is included in the output
