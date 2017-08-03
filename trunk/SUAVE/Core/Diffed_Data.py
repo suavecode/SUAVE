@@ -174,7 +174,7 @@ class Diffed_Data(Data):
 # ----------------------------------------------------------------------
 
 class Container(ContainerBase):
-        """ A dict-type container with attribute, item and index style access
+    """ A dict-type container with attribute, item and index style access
         intended to hold a attribute-accessible list of Data(). This is unordered.
         
         Assumptions:
