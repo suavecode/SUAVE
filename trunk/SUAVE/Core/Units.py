@@ -1,3 +1,4 @@
+## @ingroup Core
 # Units.py
 #
 # Created:  Feb 2014, T. Lukacyzk
@@ -23,7 +24,25 @@ Units = UnitRegistry()
 # ------------------------------------------------------------
  
 # multiplication covnverts in to base unit
+## @ingroup Core
 def __rmul__(self,other):
+    """ Override the basic python multiplication for Units
+
+        Assumptions:
+        N/A
+
+        Source:
+        N/A
+
+        Inputs:
+        Other
+
+        Outputs:
+        Converted into Base Units!
+
+        Properties Used:
+        N/A    
+    """      
     if isinstance(other,_Quantity):
         return _Quantity.__rmul__(self,other)
     else:
@@ -32,7 +51,25 @@ def __rmul__(self,other):
         return self.magnitude
 
 # division converts out of base unit
+## @ingroup Core
 def __rdiv__(self,other):
+    """ Override the basic python division for Units
+
+        Assumptions:
+        N/A
+
+        Source:
+        N/A
+
+        Inputs:
+        Other
+
+        Outputs:
+        Converted from Base Units!
+
+        Properties Used:
+        N/A    
+    """       
     if isinstance(other,_Quantity):
         return _Quantity.__truediv__(self,other)
     else:
@@ -129,5 +166,3 @@ if __name__ == '__main__':
     print b
     print v
     print t
-    
-    

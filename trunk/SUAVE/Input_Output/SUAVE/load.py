@@ -10,7 +10,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core.Input_Output import load_data
 import json
 from SUAVE.Core import Data, DataOrdered
 import numpy as np
