@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Human_Powered
 # tail.py
 # 
 # Created:  Jun 2014, E. Botero
@@ -7,32 +8,37 @@
 #  Tail
 # ----------------------------------------------------------------------
 
-def tail(Sts,bts,cts,Ntsr,t_cts,qm):      
+## @ingroup Methods-Weights-Correlations-Human_Powered
+def tail(Sts,bts,cts,Ntsr,t_cts,qm):        
+    """ Compute weight of human-powered aircraft tail     
     
-    """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.tail(Sts,bts,cts,deltats,Ntsr,t_cts)     
-        
-        Inputs:
-            Sts -      tail surface area (m)
-            bts -      tail surface span (m)
-            cts -      average tail surface chord (m)
-            deltats -  average rib spacing to average chord ratio
-            Ntsr -     number of tail surface ribs (bts^2)/(deltats*Sts)
-            t_cts -    tail airfoil thickness to chord ratio
-            qm -       dynamic pressure at maneuvering speed (N/m2)
-    
-        Outputs:
-            Wtss -     weight of tail surface spar (kg)
-            Wtsr -     weight of tail surface ribs (kg)
-            WtsLE -    weight of tail surface leading edge (kg)
-            Wtsc -     weight of tail surface covering (kg)
+    Assumptions:
+       All of this is from AIAA 89-2048, units are in kg. These weight estimates
+       are from the MIT Daedalus and are valid for very lightweight
+       carbon fiber composite structures. This may need to be solved iteratively since
+       gross weight is an input.
+       
+    Source: 
+        MIT Daedalus
                 
-        Assumptions:
-            All of this is from AIAA 89-2048, units are in kg. These weight estimates
-            are from the MIT Daedalus and are valid for very lightweight
-            carbon fiber composite structures. This may need to be solved iteratively since
-            gross weight is an input.
+    Inputs:
+        Sts -      tail surface area                                [meters]
+        bts -      tail surface span                                [meters]
+        cts -      average tail surface chord                       [meters]
+        deltats -  average rib spacing to average chord ratio       [dimensionless]
+        Ntsr -     number of tail surface ribs (bts^2)/(deltats*Sts)[dimensionless]
+        t_cts -    tail airfoil thickness to chord ratio            [dimensionless]
+        qm -       dynamic pressure at maneuvering speed            [Pascals]
+    
+    Outputs:
+        Wtss -     weight of tail surface spar                      [kilogram]
+        Wtsr -     weight of tail surface ribs                      [kilogram]
+        WtsLE -    weight of tail surface leading edge              [kilogram]
+        Wtsc -     weight of tail surface covering                  [kilogram]
             
-    """    
+    Properties Used:
+        N/A
+    """     
     deltats = (bts**2)/(Sts*Ntsr)
     
     #Rudder & Elevator Primary Structure:

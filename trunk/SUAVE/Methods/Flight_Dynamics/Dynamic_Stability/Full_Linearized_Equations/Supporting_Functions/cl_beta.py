@@ -21,7 +21,7 @@ def cl_beta (geometry, cl_p):
     
     Inputs:
     dihedral    [radians]
-    taper       [radians]
+    taper       [dimensionless]
 
     Outputs:
     cl_beta     [dimensionless]

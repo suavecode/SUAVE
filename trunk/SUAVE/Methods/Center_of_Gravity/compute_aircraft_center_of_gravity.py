@@ -1,4 +1,5 @@
-# compute_aircraft_center_of_gravity.py
+## @ingroup Methods-Center_of_Gravity
+#compute_aircraft_center_of_gravity.py
 # 
 # Created:  Oct 2015, M. Vegh
 # Modified: Jan 2016, E. Botero
@@ -16,10 +17,27 @@ import numpy as np
 #  Computer Aircraft Center of Gravity
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Center_of_Gravity
 def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
-
-
-        #computes the CG for the vehicle from the assigned vehicle mass properties and locations
+        """ This computes the CG for the vehicle from the assigned vehicle mass 
+        properties and locations
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        vehicle
+        nose_load_fraction
+    
+        Outputs:
+        vehicle.mass_properties.center_of_gravity      [meters]
+    
+        Properties Used:
+        N/A
+        """  
 
         #unpack components
         wing               = vehicle.wings['main_wing']

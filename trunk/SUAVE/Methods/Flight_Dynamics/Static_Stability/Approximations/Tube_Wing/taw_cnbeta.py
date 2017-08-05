@@ -59,8 +59,7 @@ def taw_cnbeta(geometry,conditions,configuration):
                 sweep - leading edge sweep of the aerodynamic surface                     [radians]
                 chords.root - chord length at the junction between the tail and 
                  the fuselage                                                             [meters]
-                chords.tip - chord length at the tip of the aerodynamic surface
-                                                                                          [meters]
+                chords.tip - chord length at the tip of the aerodynamic surface           [meters]
                 symmetric - Is the wing symmetric across the fuselage centerline?
                 origin - the position of the vertical tail root in the aircraft body frame[meters]
                 exposed_root_chord_offset - the displacement from the fuselage

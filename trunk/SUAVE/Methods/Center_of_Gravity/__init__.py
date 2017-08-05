@@ -1,4 +1,4 @@
-## @defgroup Methods-of_Gravity Center_of_Gravity
+## @defgroup Methods-Center_of_Gravity Center_of_Gravity
 # Description
 # @ingroup Methods
 

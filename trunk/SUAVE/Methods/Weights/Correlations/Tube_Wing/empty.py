@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 # empty.py
 # 
 # Created:  Jan 2014, A. Wendorff
@@ -23,69 +24,75 @@ import warnings
 #  Empty
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 def empty(vehicle):
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
-        This is for a standard Tube and Wing aircraft configuration.        
+    """ This is for a standard Tube and Wing aircraft configuration.        
 
-        Inputs:
-            engine - a data dictionary with the fields:                    
-                thrust_sls - sea level static thrust of a single engine [Newtons]
+    Assumptions:
+        calculated aircraft weight from correlations created per component of historical aircraft
+    
+    Source:
+        N/A
+        
+    Inputs:
+      engine - a data dictionary with the fields:                    
+          thrust_sls - sea level static thrust of a single engine                [Newtons]
 
-            wing - a data dictionary with the fields:
-                gross_area - wing gross area [meters**2]
-                span - span of the wing [meters]
-                taper - taper ratio of the wing [dimensionless]
-                t_c - thickness-to-chord ratio of the wing [dimensionless]
-                sweep - sweep angle of the wing [radians]
-                mac - mean aerodynamic chord of the wing [meters]
-                r_c - wing root chord [meters]
+      wing - a data dictionary with the fields:
+          gross_area - wing gross area                                           [meters**2]
+          span - span of the wing                                                [meters]
+          taper - taper ratio of the wing                                        [dimensionless]
+          t_c - thickness-to-chord ratio of the wing                             [dimensionless]
+          sweep - sweep angle of the wing                                        [radians]
+          mac - mean aerodynamic chord of the wing                               [meters]
+          r_c - wing root chord                                                  [meters]
 
-            aircraft - a data dictionary with the fields:                    
-                Nult - ultimate load of the aircraft [dimensionless]
-                Nlim - limit load factor at zero fuel weight of the aircraft [dimensionless]
-                TOW - maximum takeoff weight of the aircraft [kilograms]
-                zfw - maximum zero fuel weight of the aircraft [kilograms]
-                num_eng - number of engines on the aircraft [dimensionless]
-                num_pax - number of passengers on the aircraft [dimensionless]
-                wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
-                num_seats - number of seats installed on the aircraft [dimensionless]
-                ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
-                ac - determines type of instruments, electronics, and operating items based on types: 
-                    "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst" [dimensionless]
-                w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
+      aircraft - a data dictionary with the fields:                    
+          Nult - ultimate load of the aircraft                                   [dimensionless]
+          Nlim - limit load factor at zero fuel weight of the aircraft           [dimensionless]
+          TOW - maximum takeoff weight of the aircraft                           [kilograms]
+          zfw - maximum zero fuel weight of the aircraft                         [kilograms]
+          num_eng - number of engines on the aircraft                            [dimensionless]
+          num_pax - number of passengers on the aircraft                         [dimensionless]
+          wt_cargo - weight of the bulk cargo being carried on the aircraft      [kilograms]
+          num_seats - number of seats installed on the aircraft                  [dimensionless]
+          ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
+          ac - determines type of instruments, electronics, and operating items based on types: 
+              "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst"        [dimensionless]
+          w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center)  [meters]
 
-            fuselage - a data dictionary with the fields:
-                area - fuselage wetted area [meters**2]
-                diff_p - Maximum fuselage pressure differential [Pascal]
-                width - width of the fuselage [meters]
-                height - height of the fuselage [meters]
-                length - length of the fuselage [meters]                     
+      fuselage - a data dictionary with the fields:
+          area - fuselage wetted area                                            [meters**2]
+          diff_p - Maximum fuselage pressure differential                        [Pascal]
+          width - width of the fuselage                                          [meters]
+          height - height of the fuselage                                        [meters]
+          length - length of the fuselage                                        [meters]                     
 
-            horizontal
-                area - area of the horizontal tail [meters**2]
-                span - span of the horizontal tail [meters]
-                sweep - sweep of the horizontal tail [radians]
-                mac - mean aerodynamic chord of the horizontal tail [meters]
-                t_c - thickness-to-chord ratio of the horizontal tail [dimensionless]
-                exposed - exposed area ratio for the horizontal tail [dimensionless]
+      horizontal
+          area - area of the horizontal tail                                     [meters**2]
+          span - span of the horizontal tail                                     [meters]
+          sweep - sweep of the horizontal tail                                   [radians]
+          mac - mean aerodynamic chord of the horizontal tail                    [meters]
+          t_c - thickness-to-chord ratio of the horizontal tail                  [dimensionless]
+          exposed - exposed area ratio for the horizontal tail                   [dimensionless]
 
-            vertical
-                area - area of the vertical tail [meters**2]
-                span - sweight = weight * Units.lbpan of the vertical [meters]
-                t_c - thickness-to-chord ratio of the vertical tail [dimensionless]
-                sweep - sweep angle of the vertical tail [radians]
-                t_tail - factor to determine if aircraft has a t-tail, "yes" [dimensionless]
+      vertical
+          area - area of the vertical tail                                       [meters**2]
+          span - sweight = weight * Units.lbpan of the vertical                  [meters]
+          t_c - thickness-to-chord ratio of the vertical tail                    [dimensionless]
+          sweep - sweep angle of the vertical tail                               [radians]
+          t_tail - factor to determine if aircraft has a t-tail, "yes"           [dimensionless]
 
-        Outputs:
-            output - a data dictionary with fields:
-                wt_payload - weight of the passengers plus baggage and paid cargo [kilograms]
-                wt_pax - weight of all the passengers [kilogram]
-                wt_bag - weight of all the baggage [kilogram]
-                wt_fuel - weight of the fuel carried[kilogram]
-                wt_empty - operating empty weight of the aircraft [kilograms]
-
-        Assumptions:
-            calculated aircraft weight from correlations created per component of historical aircraft
+    Outputs:
+        output - a data dictionary with fields:
+            wt_payload - weight of the passengers plus baggage and paid cargo    [kilograms]
+            wt_pax - weight of all the passengers                                [kilogram]
+            wt_bag - weight of all the baggage                                   [kilogram]
+            wt_fuel - weight of the fuel carried                                 [kilogram]
+            wt_empty - operating empty weight of the aircraft                    [kilograms]
+ 
+    Properties Used:
+        N/A
     """     
 
     # Unpack inputs

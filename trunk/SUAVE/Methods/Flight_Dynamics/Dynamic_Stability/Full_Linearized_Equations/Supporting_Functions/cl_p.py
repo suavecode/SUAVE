@@ -21,7 +21,7 @@ def cl_p(cl_alpha, geometry):
     Laboratory, Wright-Patterson Air Force Base, Ohio (1972)
     
     Inputs:
-    taper        [radians]
+    taper        [dimensionless]
     cl_alpha     [dimensionless]   
 
     Outputs:

@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Common 
 # payload.py
 # 
 # Created:  Jan 2014, A. Wendorff
@@ -15,29 +16,35 @@ from SUAVE.Core import Units, Data
 #   Payload
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Common 
 def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_baggage = 30*Units.lbs):
-    """ output = SUAVE.Methods.Weights.Correlations.Common.payload(TOW, empty, num_pax, wt_cargo)
-        Calculate the weight of the payload and the resulting fuel mass
+    """ Calculate the weight of the payload and the resulting fuel mass
     
-        Inputs:
-            TOW -  [kilograms]
-            wt_empty - Operating empty weight of the aircraft [kilograms]
-            num_pax - number of passengers on the aircraft [dimensionless]
-            wt_cargo - weight of cargo being carried on the aircraft [kilogram]
-            wt_passenger - weight of each passenger on the aircraft [kilogram]
-            wt_baggage - weight of the baggage for each passenger [kilogram]
+    Assumptions:
+        based on FAA guidelines for weight of passengers
         
-        Outputs:
-            output - a data dictionary with fields:
-                payload - weight of the passengers plus baggage and paid cargo [kilograms]
-                pax - weight of all the passengers [kilogram]
-                bag - weight of all the baggage [kilogram]
-                fuel - weight of the fuel carried[kilogram]
-                empty - operating empty weight of the aircraft [kilograms]
-            
-        Assumptions:
-            based on FAA guidelines for weight of passengers 
-    """
+    Source: 
+        N/A
+        
+    Inputs:
+        TOW -                                                              [kilograms]
+        wt_empty - Operating empty weight of the aircraft                  [kilograms]
+        num_pax - number of passengers on the aircraft                     [dimensionless]
+        wt_cargo - weight of cargo being carried on the aircraft           [kilogram]
+        wt_passenger - weight of each passenger on the aircraft            [kilogram]
+        wt_baggage - weight of the baggage for each passenger              [kilogram]
+    
+    Outputs:
+        output - a data dictionary with fields:
+            payload - weight of the passengers plus baggage and paid cargo [kilograms]
+            pax - weight of all the passengers                             [kilogram]
+            bag - weight of all the baggage                                [kilogram]
+            fuel - weight of the fuel carried                              [kilogram]
+            empty - operating empty weight of the aircraft                 [kilograms]
+               
+    Properties Used:
+        N/A
+    """ 
     
     # process
     wt_pax     = wt_passenger * num_pax
