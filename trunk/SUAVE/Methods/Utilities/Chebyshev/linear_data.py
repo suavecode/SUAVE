@@ -1,3 +1,4 @@
+## @ingroup Methods-Utilities-Chebyshev
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -8,70 +9,38 @@ import numpy as np
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Utilities-Chebyshev
 def linear_data(N = 16, integration = True, **options):
-    """ x, D, I = linear_data(N,integration=True)
-        calcualtes differentiation and integration matricies
-        using chebychev's pseudospectral algorithm, based on
-        cosine spaced samples in x.
+    """Calculates the differentiation and integration matricies
+    using chebyshev's pseudospectral algorithm, based on linearly
+    spaced samples in x.
+    
+    D and I are not symmetric
+    get derivatives with df_dy = np.dot(D,f)
+    get integral with    int_f = np.dot(I,f)
+        where f is either a 1-d vector or 2-d column array
         
-        Inputs:
-            N - number of control points, 
-                default 16 is quite accurate for most cases
-            integration - optional, if false, skips the calculation of I, 
-                and returns None
-        
-        Outputs:
-            x - N-number of cosine spaced control points, in range [0,1]
-            D - differentiation operation matrix
-            I - integration operation matrix, or None if integration=False
-            
-        Usage Notes - 
-            D and I are not symmetric
-            get derivatives with df_dy = np.dot(D,f)
-            get integral with    int_f = np.dot(I,f)
-                where f is either a 1-d vector or 2-d column array
-        
-        Example:
-            How to calculate derivatives and integrals
-            
-            # get the data
-            x,D,I = linear_data(16)
-            
-            # the function
-            def func(x):
-                return x ** 2. + 1.
-            
-            # scaling and offsets from nondimensional x to dimensional y
-            dy_dx = 10. 
-            y0    = -4.
-            
-            # scale to dimensional
-            y = x * dy_dx + y0
-            D = D / dy_dx # yup, divide
-            I = I * dy_dx
-            
-            # the function
-            f = func(y)  
-            
-            # the derivative and integrals
-            df_dy = np.dot(D,f)
-            int_f = np.dot(I,f)
-            
-            # plot
-            import pylab as plt
-            plt.subplot(3,1,1)
-            plt.plot(y,f)
-            plt.ylabel('f(y)')
-            plt.subplot(3,1,2)
-            plt.plot(y,df_dy)
-            plt.ylabel('df/dy')
-            plt.subplot(3,1,3)
-            plt.plot(y,int_f)    
-            plt.ylabel('int(f(y))')
-            plt.xlabel('y')
-            plt.show()
-            
-    """
+    A full example of how these operators are used is available in 
+    the chebyshev_data.py (same folder)
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    N                      [-]        Number of points
+    integration (optional) <boolean>  Determines if the integration operator is calculated
+
+    Outputs:
+    x                      [-]        N-number of cosine spaced control points, in range [0,1]
+    D                      [-]        Differentiation operation matrix
+    I                      [-]        Integration operation matrix, or None if integration = False
+
+    Properties Used:
+    N/A
+    """           
     
     # setup
     N = int(N)

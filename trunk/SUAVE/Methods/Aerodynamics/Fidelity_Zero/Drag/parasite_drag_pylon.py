@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_pylon.py
 # 
 # Created:  Jan 2014, T. Orra
@@ -16,7 +16,7 @@ from SUAVE.Analyses import Results
 #  Computes the pyloan parasite drag
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_pylon(state,settings,geometry):
     """Computes the parasite drag due to pylons as a proportion of the propulsor drag
 

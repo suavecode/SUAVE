@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # windmilling_drag_coefficient.py
 #
 # Created:  Jul 2014, T. Orra, C. Ilario, 
@@ -19,7 +19,7 @@ from  SUAVE.Analyses import Results
 #  Compute drag of turbofan in windmilling condition
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def windmilling_drag(geometry,state):
     """Computes windmilling drag for turbofan engines
 

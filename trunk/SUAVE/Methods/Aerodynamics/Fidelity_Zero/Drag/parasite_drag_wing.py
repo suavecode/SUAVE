@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_wing.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -21,7 +21,7 @@ import numpy as np
 #   Parasite Drag Wing
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_wing(state,settings,geometry):
     """Computes the parasite drag due to wings
 

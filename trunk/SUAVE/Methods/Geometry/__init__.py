@@ -1,5 +1,6 @@
 ## @defgroup Methods-Geometry Geometry
-# Description
+# These methods are primarily used for sizing. Anything that modifies geometry
+# belong here.
 # @ingroup Methods
 
 import Two_Dimensional

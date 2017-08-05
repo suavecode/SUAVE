@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_body_of_rev.py
 # 
 # Created:  Jun 2014, T. Macdonald
@@ -12,7 +12,7 @@
 #   wave drag body of rev
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_body_of_rev(total_length,Rmax,Sref):
     """Use wave drag to determine compressibility drag a body of revolution
 

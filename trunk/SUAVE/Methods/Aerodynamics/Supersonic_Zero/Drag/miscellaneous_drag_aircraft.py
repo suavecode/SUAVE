@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # miscellaneous_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -17,7 +17,7 @@ import numpy as np
 #  Miscellaneous Drag Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def miscellaneous_drag_aircraft(state,settings,geometry):
     """Computes the miscellaneous drag associated with an aircraft
 

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_propulsor.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -23,7 +23,7 @@ import numpy as np
 #   Parasite Drag Propulsor
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_propulsor(state,settings,geometry):
     """Computes the parasite drag due to the propulsor
 

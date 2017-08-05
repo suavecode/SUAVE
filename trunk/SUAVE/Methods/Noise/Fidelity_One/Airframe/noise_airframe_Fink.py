@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_airframce_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
@@ -32,6 +33,7 @@ import numpy as np
 #  Noise Airframce Fink
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
     """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):

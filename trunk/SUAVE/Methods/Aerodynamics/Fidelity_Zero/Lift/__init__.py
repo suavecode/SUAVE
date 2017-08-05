@@ -1,6 +1,6 @@
-## @defgroup methods-aerodynamics-Fidelity_Zero-Lift Lift
+## @defgroup Methods-Aerodynamics-Fidelity_Zero-Lift Lift
 # Functions to perform low-fidelity lift calculations
-# @ingroup methods-aerodynamics-Fidelity_Zero
+# @ingroup Methods-Aerodynamics-Fidelity_Zero
 
 from weissinger_vortex_lattice import weissinger_vortex_lattice
 

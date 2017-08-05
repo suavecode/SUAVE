@@ -1,3 +1,4 @@
+## @ingroup Attributes-Propellants
 #Gaseous_H2.py
 #
 # Created:  Unk 2013, SUAVE TEAM
@@ -10,13 +11,35 @@ from SUAVE.Attributes.Constants import Composition
 # ----------------------------------------------------------------------
 #  Gaseous_H2 Propellant Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Propellants
 class Gaseous_H2(Propellant):
-
-    """ Physical properties of gaseous H2 for propulsion use; reactant = O2 """
+    """Holds values for this propellant
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
 
     def __defaults__(self):
+        """This sets the default values.
 
+        Assumptions:
+        None
+
+        Source:
+        Values commonly available
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """    
         self.tag                       = 'H2 Gas'
         self.reactant                  = 'O2'
         self.specific_energy           = 141.86e6                           # J/kg

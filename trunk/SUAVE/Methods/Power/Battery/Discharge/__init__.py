@@ -1,6 +1,5 @@
-## @defgroup methods-power-battery-discharge Discharge
+## @defgroup Methods-Power-Battery-Discharge Discharge
 # Functions to evaluate battery discharge losses and voltage requirements
-# @ingroup methods-power-battery
-
+# @ingroup Methods-Power-Battery
 
 from datta_discharge import datta_discharge

@@ -1,4 +1,4 @@
-## @ingroup methods-power-battery-discharge
+## @ingroup Methods-Power-Battery-Discharge
 # datta_discharge.py
 # 
 # Created:  ### ####, M. Vegh
@@ -14,7 +14,7 @@ import numpy as np
 #  Datta Discharge
 # ----------------------------------------------------------------------
 
-## @ingroup methods-power-battery-discharge
+## @ingroup Methods-Power-Battery-Discharge
 def datta_discharge(battery,numerics): 
     """models discharge losses based on an empirical correlation
        Based on method taken from Datta and Johnson: 

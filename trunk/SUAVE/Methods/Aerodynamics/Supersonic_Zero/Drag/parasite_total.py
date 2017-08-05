@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_pylon.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -15,7 +15,7 @@ import numpy as np
 #  Parasite Total
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_total(state,settings,geometry):
     """Sums component parasite drag
 

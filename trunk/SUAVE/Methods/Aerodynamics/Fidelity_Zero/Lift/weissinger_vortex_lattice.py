@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # weissinger_vortex_lattice.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -15,7 +15,7 @@ import numpy as np
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def weissinger_vortex_lattice(conditions,configuration,wing):
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # linear_inviscid_wing.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -16,7 +16,7 @@ import numpy as np
 #  Linear Inviscid Wing
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def linear_inviscid_wing(state,settings,geometry):
     """Computes wing lift base on simple linear theory
 

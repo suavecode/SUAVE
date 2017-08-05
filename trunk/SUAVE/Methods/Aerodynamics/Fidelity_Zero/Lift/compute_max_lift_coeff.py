@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # compute_max_lift_coeff.py
 #
 # Created:  Dec 2013, A. Variyar
@@ -22,7 +22,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import comp
 #  compute_max_lift_coeff
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def compute_max_lift_coeff(vehicle,conditions=None):
     """Computes the maximum lift coefficient associated with an aircraft high lift system
 

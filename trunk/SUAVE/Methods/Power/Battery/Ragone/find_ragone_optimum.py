@@ -1,4 +1,4 @@
-## @ingroup methods-power-battery-ragone
+## @ingroup Methods-Power-Battery-Ragone
 # find_ragone_optimimum.py
 # 
 
@@ -16,7 +16,7 @@ from find_ragone_properties import find_ragone_properties
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-## @ingroup methods-power-battery-ragone
+## @ingroup Methods-Power-Battery-Ragone
 def find_ragone_optimum(battery, energy, power): #adds a battery that is optimized based on power and energy requirements and technology
     """
     Uses Brent's Bracketing Method to find an optimum-mass battery based on the 

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # miscellaneous_drag_aircraft.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -18,7 +18,7 @@ import numpy as np
 #  Miscellaneous Drag Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     """Computes the miscellaneous drag associated with an aircraft
 

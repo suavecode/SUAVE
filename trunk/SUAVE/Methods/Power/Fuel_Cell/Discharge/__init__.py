@@ -1,8 +1,6 @@
-## @defgroup methods-power-fuel_cell-discharge Discharge
+## @defgroup Methods-Power-Fuel_Cell-Discharge Discharge
 # Functions to evaluate fuel cell discharge losses and voltage requirements
-# @ingroup methods-power-fuel_cell
-
-
+# @ingroup Methods-Power-Fuel_Cell
 
 from zero_fidelity import zero_fidelity
 from larminie import larminie

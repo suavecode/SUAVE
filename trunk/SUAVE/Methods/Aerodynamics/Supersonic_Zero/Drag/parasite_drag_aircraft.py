@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_wing.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -20,7 +20,7 @@ import numpy as np
 #   The Function
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_aircraft(conditions,configuration,geometry):   
     """Sums component parasite drag
 

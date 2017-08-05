@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # vortex_lift.py
 # 
 # Created:  Jub 2014, T. MacDonald
@@ -15,7 +15,7 @@ import numpy as np
 #   Vortex Lift
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def vortex_lift(AoA,configuration,wing):
     """Computes vortex lift
 

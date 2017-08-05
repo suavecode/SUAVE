@@ -1,4 +1,4 @@
-## @ingroup methods-power-battery-variable_mass
+## @ingroup Methods-Power-Battery-Variable_Mass 
 # find_total_mass_gain.py
 # 
 # Created:  ### 2104, M. Vegh
@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Find Total Mass Gain
 # ----------------------------------------------------------------------
-## @ingroup methods-power-battery-variable_mass
+## @ingroup Methods-Power-Battery-Variable_Mass 
 def find_total_mass_gain(battery):
     """finds the total mass of air that the battery 
     accumulates when discharged fully

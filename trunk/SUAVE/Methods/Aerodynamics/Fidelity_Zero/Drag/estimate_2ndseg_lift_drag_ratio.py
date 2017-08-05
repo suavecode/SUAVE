@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # estimate_2ndseg_lift_drag_ratio.py
 # 
 # Created:  Jun 2013, C. Ilario & T. Orra
@@ -17,7 +17,7 @@ from SUAVE.Core import Data, Units
 #  Compute 2nd segment lift to drag ratio
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def estimate_2ndseg_lift_drag_ratio(config):
     """Estimates the 2nd segment climb lift to drag ratio (all engine operating)
     

@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-SU2_Euler
 # total_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-SU2_Euler
 def total_aircraft_drag(state,settings,geometry):
     """ This computes the total drag of an aircraft and stores
     that data in the conditions structure.

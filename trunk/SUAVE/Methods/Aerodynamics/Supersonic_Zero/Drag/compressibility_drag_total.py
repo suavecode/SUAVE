@@ -1,8 +1,9 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # compressibility_drag_total.py
 # 
 # Created:  Aug 2014, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -28,7 +29,7 @@ import numpy as np
 #  Compressibility Drag Total
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def compressibility_drag_total(state,settings,geometry):
     """Computes compressibility drag for full aircraft
 
@@ -155,7 +156,11 @@ def compressibility_drag_total(state,settings,geometry):
         raise ValueError('Main fuselage does not have a total length')
 
     # Propulsor wave drag	
-    prop_wave               = wave_drag_body_of_rev(propulsor.engine_length,propulsor.nacelle_diameter/2.0,Sref_main)*propulsor.number_of_engines
+    Dn                      = propulsor.nacelle_diameter
+    Di                      = propulsor.inlet_diameter
+    effective_area          = (Dn*Dn-Di*Di)/4.*np.pi
+    effective_radius        = np.sqrt(effective_area/np.pi)
+    prop_wave               = wave_drag_body_of_rev(propulsor.engine_length,effective_radius,Sref_main)*propulsor.number_of_engines
     prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/1.05
     prop_drag[mach >= 1.05] = prop_wave    
     
@@ -182,7 +187,7 @@ def compressibility_drag_total(state,settings,geometry):
     return total_compressibility_drag
 
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def drag_div(Mc_ii,wing,k,cl,Sref_main):
     """Use drag divergence mach number to determine drag for subsonic speeds
 
@@ -263,7 +268,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     return (cd_c,mcc,MDiv)
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,k,Sref_main,flag105):
     """Use wave drag to determine compressibility drag for supersonic speeds
 
@@ -337,7 +342,7 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
 
     return (cd_c,mcc,MDiv,cd_c_l,cd_c_v)
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_body_of_rev(total_length,Rmax,Sref):
     """Use wave drag to determine compressibility drag a body of revolution
 

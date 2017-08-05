@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # induced_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -16,7 +16,7 @@ import numpy as np
 #  Induced Drag Aicraft
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def induced_drag_aircraft(state,settings,geometry):
     """Determines induced drag for the full aircraft
 

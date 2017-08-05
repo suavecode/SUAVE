@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # compute_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
@@ -17,7 +17,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
 #  The Function
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def compute_aircraft_drag(conditions,configuration,geometry=None):
     """ Unused function
     """    

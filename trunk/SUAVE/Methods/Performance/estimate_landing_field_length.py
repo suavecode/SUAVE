@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # estimate_landing_field_length.py
 #
 # Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
@@ -18,36 +19,33 @@ import numpy as np
 #  Compute field length required for landing
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def estimate_landing_field_length(vehicle,analyses,airport):
-    """ SUAVE.Methods.Performance.estimate_landing_field_length(vehicle,config,airport):
-        Computes the landing field length for a given vehicle condition in a given airport
+    """ Computes the landing field length for a given vehicle configuration in a given airport.
 
-        Inputs:
-            vehicle	 - SUAVE type vehicle
+    Assumptions:
+    See source
+    Two wheel trucks (code needed for four wheel trucks also included)
 
-            config   - data dictionary with fields:
-                Mass_Properties.landing    - Landing weight to be evaluated
-                S                          - Wing Area
-                Vref_VS_ratio              - Ratio between Approach Speed and Stall speed
-                                             [optional. Default value = 1.23]
-                maximum_lift_coefficient   - Maximum lift coefficient for the config
-                                             [optional. Calculated if not informed]
+    Source:
+    Torenbeek, E., "Advanced Aircraft Design", 2013 (equation 9.25)
 
-    airport   - SUAVE type airport data, with followig fields:
-                atmosphere                  - Airport atmosphere (SUAVE type)
-                altitude                    - Airport altitude
-                delta_isa                   - ISA Temperature deviation
+    Inputs:
+    airport.
+      atmosphere                           [SUAVE data type]
+      altitude                             [m]
+      delta_isa                            [K]
+    vehicle.
+      mass_properties.landing              [kg]
+      reference_area                       [m^2]
+      maximum_lift_coefficient (optional)  [Unitless]
 
+    Outputs:
+    landing_field_length                   [m]
 
-        Outputs:
-            landing_field_length            - Landing field length
-
-
-        Assumptions:
-      		- Landing field length calculated according to Torenbeek, E., "Advanced
-    Aircraft Design", 2013 (equation 9.25)
-            - Considering average aav/g values of two-wheel truck (0.40)
-    """
+    Properties Used:
+    N/A
+    """       
    
     # ==============================================
     # Unpack

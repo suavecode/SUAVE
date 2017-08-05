@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # aircraft_total.py
 # 
 # Created:  Dec 2013, A. Variyar,
@@ -11,7 +11,7 @@
 #  Aircraft Total
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def aircraft_total(state,settings,geometry):
     """Returns total aircraft lift and stores values
 

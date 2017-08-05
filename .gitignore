@@ -74,3 +74,5 @@ nosetests.xml
 ide/Wing/SUAVE.wpr
 html
 latex
+
+!/doc/suave_logo.png

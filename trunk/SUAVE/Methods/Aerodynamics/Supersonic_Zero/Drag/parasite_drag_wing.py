@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_wing.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -17,7 +17,7 @@ import numpy as np
 #   Parasite Drag Wing
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_wing(state,settings,geometry):
     """Computes the parasite drag due to wings
 

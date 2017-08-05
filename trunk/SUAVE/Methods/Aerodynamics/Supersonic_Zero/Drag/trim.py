@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # trim.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -14,7 +14,7 @@ from SUAVE.Analyses import Results
 #  Computes the trim drag
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def trim(state,settings,geometry):
     """Adjusts aircraft drag based on a trim correction
 

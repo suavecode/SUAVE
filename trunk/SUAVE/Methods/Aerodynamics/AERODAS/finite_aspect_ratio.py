@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 # finite_aspect_ratio.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -15,7 +15,7 @@ from SUAVE.Core import Units
 #  Finite Aspect Ratio
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-AERODAS
 def finite_aspect_ratio(state,settings,geometry):
     """Uses the AERODAS method to prestall parameters for lift and drag.
 

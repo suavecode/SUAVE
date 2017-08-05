@@ -1,4 +1,4 @@
-## @ingroup methods-mission-segments
+## @ingroup Methods-Missions-Segments
 # converge_root.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -17,9 +17,8 @@ from SUAVE.Core.Arrays import array_type
 #  Converge Root
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments
+## @ingroup Methods-Missions-Segments
 def converge_root(segment,state):
-    
     """Interfaces the mission to a numerical solver. The solver may be changed by using root_finder.
 
     Assumptions:
@@ -70,7 +69,7 @@ def converge_root(segment,state):
 #  Helper Functions
 # ----------------------------------------------------------------------
 
-## @ingroup methods-mission-segments
+## @ingroup Methods-Missions-Segments
 def iterate(unknowns,(segment,state)):
     
     """Runs one iteration of of all analyses for the mission.

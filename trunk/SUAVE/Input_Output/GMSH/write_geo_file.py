@@ -1,3 +1,4 @@
+## @ingroup Input_Output-GMSH
 # write_geo_file.py
 #
 # Created:  Oct 2016, T. MacDonald
@@ -6,7 +7,26 @@
 from SUAVE.Core import Data
 import numpy as np
 
+## @ingroup Input_Output-GMSH
 def write_geo_file(tag):
+    """This reads an .stl file output from OpenVSP using the SUAVE interface and builds
+    a .geo file that can be read to GMSH to produce a volume mesh.
+
+    Assumptions:
+    The OpenVSP .stl has a farfield surface
+
+    Source:
+    N/A
+
+    Inputs:
+    tag        <string>  This corresponds to a configuration from SUAVE
+
+    Outputs:
+    <tag>.geo
+
+    Properties Used:
+    N/A
+    """      
     
     # Create .geo file
     # This is essentially a list of commands used to build a volume for meshing
@@ -52,8 +72,28 @@ def write_geo_file(tag):
     f.write('Volume(' + str(total_count) + ') = {' + surface_num_str + '};\n')
     f.close
     
+## @ingroup Input_Output-GMSH
 def read_keys(tag):
+    """This reads the corresponding OpenVSP .key file to check which surfaces
+    exist in the .stl file for the vehicle.
     
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    tag          <string>  This corresponds to a configuration from SUAVE
+
+    Outputs:
+    vehicle_nums [-] the numbers corresponding to surfaces on the vehicle
+    farfield_num [-] the number corresponding to the farfield, -1 if not available
+    symmetry_num [-] the number corresponding to the symmetry plane, -1 if not available
+
+    Properties Used:
+    N/A
+    """     
     # Read OpenVSP key file to determine which surfaces exist
     
     filename = tag + '.key'

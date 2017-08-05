@@ -1,4 +1,4 @@
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # compute_flap_lift.py
 #
 # Created:  Dec 2013, A. Varyar
@@ -16,7 +16,7 @@ import numpy as np
 #  compute_flap_lift
 # ----------------------------------------------------------------------
 
-## @ingroup methods-aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def compute_flap_lift(t_c,flap_type,flap_chord,flap_angle,sweep,wing_Sref,wing_affected_area):
     """Computes the increase of lift due to trailing edge flap deployment
 

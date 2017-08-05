@@ -13,28 +13,47 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 def wing_planform(wing):
-    """ err = SUAVE.Methods.Geometry.wing_planform(Wing)
-    
-        basic wing planform calculation
+    """Computes standard wing planform values.
+
+    Assumptions:
+    Trapezoidal wing with no leading/trailing edge extensions
+
+    Source:
+    None
+
+    Inputs:
+    wing.
+      areas.reference          [m^2]
+      taper                    [-]
+      sweeps.quarter_chord     [radians]
+      aspect_ratio             [-]
+      thickness_to_chord       [-]
+      dihedral                 [radians]
+      vertical                 <boolean> Determines if wing is vertical
+      symmetric                <boolean> Determines if wing is symmetric
+      origin                   [m]       x, y, and z position
+      high_lift                <boolean> Determines if wing is in a high lift configuration
+      flaps.                             Flap values are only used if high lift is True
+        span_start             [-]       Span start position (.1 is 10% span)
+        span_end               [-]       Span end position (.1 is 10% span)
+        chord                  [-]       Portion of wing chord used (.1 is 10% chord)
+
+    Outputs:
+    wing.
+      chords.root              [m]
+      chords.tip               [m]
+      chords.mean_aerodynamics [m]
+      areas.wetted             [m^2]
+      areas.affected           [m^2]
+      spans.projected          [m]
+      aerodynamic_center       [m]      x, y, and z location
+      flaps.chord_dimensional  [m]
+      flaps.area               [m^2]
         
-        Assumptions:
-            trapezoidal wing
-            no leading/trailing edge extensions
-            
-        Inputs:
-            Wing.sref
-            Wing.ar
-            Wing.taper
-            Wing.sweep
-            
-        Outputs:
-            Wing.chord_root
-            Wing.chord_tip
-            Wing.chord_mac
-            Wing.area_wetted
-            Wing.span
-        
-    """
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     sref        = wing.areas.reference

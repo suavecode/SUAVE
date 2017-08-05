@@ -1,3 +1,4 @@
+## @ingroup Core
 # DiffedData.py
 #
 # Created:  Feb 2015, T. Lukacyzk
@@ -17,32 +18,126 @@ import numpy as np
 #  Config
 # ----------------------------------------------------------------------
 
+## @ingroup Core
 class Diffed_Data(Data):
-    """ SUAVE.Core.DiffedData()
-    """
+    """ This is for creating a data new class where a different copy is saved.
+        This is useful for creating a new configuration of a vehicle.
+
+        Assumptions:
+        N/A
+
+        Source:
+        N/A
+    """    
+
     
     def __defaults__(self):
+        """ A stub for all classes that come later
+            
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """  
         self.tag    = 'config'
         self._base  = Data()
         self._diff  = Data()
         
     def __init__(self,base=None):
+        """ Initializes the new Diffed_Data() class through a deepcopy
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """  
         if base is None: base = Data()
         self._base = base
         this = deepcopy(base) # deepcopy is needed here to build configs - Feb 2016, T. MacDonald
         Data.__init__(self,this)
         
     def store_diff(self):
+        """ Finds the differences and saves them
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """          
         delta = diff(self,self._base)
         self._diff = delta
         
     def pull_base(self):
+        """ Updates the differences
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """          
         try: self._base.pull_base()
         except AttributeError: pass
         self.update(self._base)
         self.update(self._diff)
     
     def __str__(self,indent=''):
+        """ This function is used for printing the class.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """         
         try: 
             args = self._diff.__str__(indent)
             args += indent + '_base : ' + self._base.__repr__() + '\n'
@@ -52,6 +147,23 @@ class Diffed_Data(Data):
             return Data.__str__(self,indent)
     
     def finalize(self):
+        """ This just does a pull_base()
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """          
         ## dont do this here, breaks down stream dependencies
         # self.store_diff 
         
@@ -62,24 +174,100 @@ class Diffed_Data(Data):
 # ----------------------------------------------------------------------
 
 class Container(ContainerBase):
-    """ SUAVE.Core.Diffed_Data.Container()
+    """ A dict-type container with attribute, item and index style access
+        intended to hold a attribute-accessible list of Data(). This is unordered.
+        
+        Assumptions:
+        N/A
+        
+        Source:
+        N/A
+        
     """
     def append(self,value):
+        """ Appends the value to the containers
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+        
+            Outputs:
+            N/A
+            
+            Properties Used:
+            N/A
+        """         
         try: value.store_diff()
         except AttributeError: pass
         ContainerBase.append(self,value)
         
     def pull_base(self):
+        """ Updates the differences
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """          
         for config in self:
             try: config.pull_base()
             except AttributeError: pass
 
     def store_diff(self):
+        """ Finds the differences and saves them
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """          
         for config in self:
             try: config.store_diff()
             except AttributeError: pass
     
     def finalize(self):
+        """ This just does a pull_base()
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            N/A
+    
+            Outputs:
+            N/A
+    
+            Properties Used:
+            N/A    
+        """        
         for config in self:
             try: config.finalize()
             except AttributeError: pass
@@ -96,6 +284,24 @@ Diffed_Data.Container = Container
 # ------------------------------------------------------------
 
 def diff(A,B):
+    """ The magic diff function that makes Diffed_Data() work
+
+        Assumptions:
+        N/A
+
+        Source:
+        N/A
+
+        Inputs:
+        A
+        B
+
+        Outputs:
+        Result
+
+        Properties Used:
+        N/A    
+    """      
 
     keys = set([])
     keys.update( A.keys() )

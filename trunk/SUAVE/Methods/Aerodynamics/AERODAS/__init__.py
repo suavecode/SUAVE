@@ -1,6 +1,6 @@
-## @defgroup methods-aerodynamics-AERODAS AERODAS
+## @defgroup Methods-Aerodynamics-AERODAS AERODAS
 # Functions to perform calculations according to AERODAS models.
-# @ingroup methods-aerodynamics
+# @ingroup Methods-Aerodynamics
 
 import AERODAS_setup
 import finite_aspect_ratio
