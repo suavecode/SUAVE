@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Results.py
 # 
 # Created:  Jan 2015, T. Momose
@@ -13,7 +14,26 @@ from SUAVE.Core import Data
 #   Wing
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Results(Data):
+    """ A data class defining aerodynamics and stability results 
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        None
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
     def __defaults__(self):
 
         self.aerodynamics = Data()

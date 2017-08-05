@@ -18,8 +18,7 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def extend_to_ref_area(surface):
-    """ref_surface = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.extend_to_ref_area(wing,)
-    This method takes inputs describing the exposed portion of a trapezoidal
+    """ This method takes inputs describing the exposed portion of a trapezoidal
     aerodynamic surface and calculates the dimensions of a corresponding
     aerodynamic surface that extends all the way to the fuselage centerline.
     Particularly used to get the vertical tail reference area for lateral
@@ -30,35 +29,33 @@ def extend_to_ref_area(surface):
         Assumes a simple trapezoidal half-wing shape.
 
     Source:
-    Unknown
+        Unknown
     
     Inputs:
         surface - a SUAVE Wing object with the fields:
             spans.projected - projected span (height for a vertical tail) of
-             the exposed surface [meters]
-            sweep - leading edge sweep of the aerodynamic surface [radians]
+             the exposed surface                                                     [meters]
+            sweep - leading edge sweep of the aerodynamic surface                    [radians]
             chords.root - chord length at the junction between the tail and
-             the fuselage [meters]
-            chords.tip - chord length at the tip of the aerodynamic surface
-             [meters]
+             the fuselage                                                            [meters]
+            chords.tip - chord length at the tip of the aerodynamic surface          [meters]                                                                                   
             symmetric - Is the wing symmetric across the fuselage centerline?
             exposed_root_chord_offset - the displacement from the fuselage
-             centerline to the exposed area's physical root chordline [meters]
+             centerline to the exposed area's physical root chordline                [meters]
 
     Outputs:
         ref_surface - a data dictionary with the fields:
-            spans.projected - The span/height measured from the fuselage centerline
-            [meters]
-            area.reference - The area of the extended trapezoidal surface
-            [meters**2]
-            aspect_ratio - The aspect ratio of the extended surface
-            [meters]
+            spans.projected - The span/height measured from the fuselage centerline  [meters]                                                                                                
+            area.reference - The area of the extended trapezoidal surface            [meters**2]                                                                                                
+            aspect_ratio - The aspect ratio of the extended surface                  [meters]                                                                                               
             chords.root - The chord of the extended trapezoidal surface
-            where it meets the fuselage centerline [meters]
+            where it meets the fuselage centerline                                   [meters]
             root_LE_change - The change in the leading edge position of the
             surface compared to the smaller surface that only extended to the
-            fuselage surface. This value is negative for sweptback surfaces
-            [meters]
+            fuselage surface. This value is negative for sweptback surfaces          [meters]
+            
+    Properties Used:
+         N/A        
     """
     # Unpack inputs
     symm      = surface.symmetric

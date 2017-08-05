@@ -15,8 +15,7 @@ import numpy as np
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25):
-    """ new_sweep = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)
-    This method converts the sweep of a wing planform to refer to a new
+    """ This method converts the sweep of a wing planform to refer to a new
     chord fraction. Defaults to converting from leading-edge sweep to 
     quarter-chord sweep.
 
@@ -27,14 +26,14 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
         ratio, and taper ratio.
     
     Source:
-    Unknown
+        Unknown
     
     Inputs:
         wing - a data dictionary with the fields:
-            apsect_ratio - wing aspect ratio [dimensionless]
-            sweep        - wing sweep [radians]
-            taper        - wing taper ratio [dimensionless]
-
+            apsect_ratio - wing aspect ratio                            [dimensionless]
+            sweep        - wing sweep                                   [radians]
+            taper        - wing taper ratio                             [dimensionless]
+ 
         old_ref_chord_fraction - a float value between 0 and 1.0 that 
                                  tells what fraction of the local chord
                                  the sweep line follows. (For example, 
@@ -50,6 +49,9 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
 
     Defaults:
         Defaults to converting from leading edge sweep to quater-chord sweep.
+        
+     Properties Used:
+        N/A       
     """             
     # Unpack inputs
     sweep = wing.sweeps.quarter_chord

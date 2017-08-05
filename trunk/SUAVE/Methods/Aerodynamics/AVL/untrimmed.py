@@ -1,10 +1,31 @@
-# untrimmed.py
+## @ingroup Methods-Aerodynamics-AVL
+#untrimmed.py
 #
 # Created:  Jan 2014, T. Orra (base file in low fidelity)
 # Modified: May 2017, T. MacDonald  
 
+## @ingroup Methods-Aerodynamics-AVL
 def untrimmed(state,settings,geometry):
+    """ Computes untrimmed drag of the aircraft
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        state
+        settings
+        geometry
+
+    Outputs:
+        aircraft_untrimmed
+
+    Properties Used:
+        N/A
+    """    
+    
     # Unpack inputs
     conditions     = state.conditions
     configuration  = settings

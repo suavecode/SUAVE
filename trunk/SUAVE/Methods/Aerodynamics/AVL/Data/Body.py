@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Body.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -15,11 +16,28 @@ from Wing        import Section
 #   Body
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Body(Data):
 	"""	A data class defining the parameters of a fuselage or other body modeled
-		by side and planform projections arranged in a plus (+) shape (when
-		viewed from the front).
-	"""
+	by side and planform projections arranged in a plus (+) shape (when viewed from
+	the front).
+		    
+	Assumptions:
+	    None
+	    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
+
 
 	def __defaults__(self):
 		

@@ -1,4 +1,5 @@
-# Wing.py
+## @ingroup Methods-Aerodynamics-AVL-Data
+#Wing.py
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -14,7 +15,26 @@ from SUAVE.Core import Data
 #   Wing
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Wing(Data):
+	""" A class that defines parameters of the AVL aircraft wing
+
+	Assumptions:
+	    None
+    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
+	
 	def __defaults__(self):
 
 		self.tag = 'wing'

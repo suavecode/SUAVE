@@ -1,4 +1,5 @@
-# initialize_inputs.py
+## @ingroup Methods-Aerodynamics-AVL
+#initialize_inputs.py
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -15,9 +16,28 @@ from write_geometry           import write_geometry
 from write_run_cases          import write_run_cases
 from write_input_deck         import write_input_deck
 
-
+## @ingroup Methods-Aerodynamics-AVL
 def initialize_inputs(geometry,configuration,conditions):
+        """ This intializes the functions used in the AVL class
+
+	Assumptions:
+	    None
 	
+	Source:
+	    None
+	
+	Inputs:
+	    geometry
+	    conditions
+	    configuraton
+	
+	Outputs:
+	    avl_imputs
+	
+	Properties Used:
+	    N/A
+	"""    	
+    
 	avl_inputs = create_avl_datastructure(geometry,configuration,conditions)
 	avl_inputs = write_geometry(avl_inputs)
 	avl_inputs = write_run_cases(avl_inputs)
