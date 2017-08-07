@@ -1,3 +1,4 @@
+## @ingroup Input_Output-OpenVSP
 # write_vsp_mesh.py
 # 
 # Created:  Oct 2016, T. MacDonald
@@ -12,7 +13,29 @@ import numpy as np
 import time
 import fileinput
 
+## @ingroup Input_Output-OpenVSP
 def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
+    """This create an .stl surface mesh based on a vehicle stored in a .vsp3 file.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    geometry.                                 - Also passed to set_sources
+      wings.main_wing.chords.mean_aerodynamic [m]
+    half_mesh_flag                            <boolean>  determines if a symmetry plane is created
+    growth_ratio                              [-]        growth ratio for the mesh
+    growth_limiting_flag                      <boolean>  determines if 3D growth limiting is used
+
+    Outputs:
+    <tag>.stl                               
+
+    Properties Used:
+    N/A
+    """      
     
     # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
@@ -69,7 +92,7 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
     
     # vsp.AddDefaultSources()   
-    SetSources(geometry)
+    set_sources(geometry)
     
     vsp.Update()
     
@@ -82,7 +105,27 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     dt = tf-ti
     print 'VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s'
     
-def SetSources(geometry):
+## @ingroup Input_Output-OpenVSP
+def set_sources(geometry):
+    """This sets meshing sources in a way similar to the OpenVSP default.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    geometry.
+      wings.*.
+        
+
+    Outputs:
+    <tag>.stl                               
+
+    Properties Used:
+    N/A
+    """     
     # Extract information on geometry type (for some reason it seems VSP doesn't have a simple 
     # way to do this)
     comp_type_dict = dict()
