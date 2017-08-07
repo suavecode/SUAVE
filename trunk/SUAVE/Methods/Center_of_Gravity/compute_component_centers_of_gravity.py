@@ -1,3 +1,4 @@
+## @ingroup Methods-Center_of_Gravity
 # compute_component_centers_of_gravity.py
 #
 # Created:  Oct 2015, M. Vegh
@@ -16,10 +17,27 @@ from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_loc
 #  Computer Aircraft Center of Gravity
 # ---------------origin-------------------------------------------------------
 
+## @ingroup Methods-Center_of_Gravity
 def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = False):
-    
+    """ computes the CG of all of the vehicle components based on correlations 
+    from AA241
 
-    #computes the CG of all of the vehicle components based on correlations from AA241
+    Assumptions:
+    None
+
+    Source:
+    AA 241 Notes
+
+    Inputs:
+    vehicle
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """  
+    
     wing                                                        = vehicle.wings['main_wing']
     span_location_mac                                           = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     

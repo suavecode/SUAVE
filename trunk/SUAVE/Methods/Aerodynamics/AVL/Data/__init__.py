@@ -1,5 +1,5 @@
-# AVL/Data/__init__.py
-#
+## @defgroup Methods-Aerodynamics-AVL-Data Data
+# @ingroup Methods-Aerodynamics-AVL
 
 """ SUAVE AVL Data Package Setup
 """

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Aircraft.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -17,7 +18,25 @@ from Body import Body
 #   Aircraft
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Aircraft(Data):
+	"""A data class defining the entire AVL aircraft geometry
+
+	Assumptions:
+	    None
+
+	Source:
+	    None
+
+	Inputs:
+	    None
+
+	Outputs:
+	    None
+
+	Properties Used:
+	    N/A
+	"""    	
 	
 	def __defaults__(self):
 		

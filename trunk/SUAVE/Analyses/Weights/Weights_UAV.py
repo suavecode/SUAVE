@@ -1,3 +1,4 @@
+## @ingroup Analyses-Weights
 # Weights_UAV.py
 #
 # Created: Apr 2017, Matthew Clarke
@@ -15,8 +16,24 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Weights
 class Weights_UAV(Weights):
-    """ SUAVE.Analyses.Weights.Weights_UAV()
+    """ This is class that evaluates the weight of a UAV
+    
+    Assumptions:
+        None
+
+    Source:
+        N/A
+
+    Inputs:
+        None
+      
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
     """
     def __defaults__(self):
         self.tag = 'weights_uav'

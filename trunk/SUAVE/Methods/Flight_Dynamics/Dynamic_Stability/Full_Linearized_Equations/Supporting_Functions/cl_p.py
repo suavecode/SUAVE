@@ -1,4 +1,4 @@
-# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cl_p.py
 #
 # Created:  Aug 2016, A. van Korlaar
@@ -8,18 +8,27 @@
 #   Method
 # ----------------------------------------------------------------------
 
-# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cl_p(cl_alpha, geometry):
-    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cl_p(cl_alpha, geometry)
-        Calculating the derivative of rolling moment with respect to roll rate
-        Inputs:
+    """ This calculates the derivative of rolling moment with respect 
+    to roll rate
 
-        Outputs:
+    Assumptions:
+    None
+    
+    Source:
+    STABILITY, USAF. "Control Datcom." Air Force Flight Dynamics 
+    Laboratory, Wright-Patterson Air Force Base, Ohio (1972)
+    
+    Inputs:
+    taper        [dimensionless]
+    cl_alpha     [dimensionless]   
 
-        Assumptions:
-
-        Source:
-            STABILITY, USAF. "Control Datcom." Air Force Flight Dynamics Laboratory, Wright-Patterson Air Force Base, Ohio (1972)
+    Outputs:
+    cl_p         [dimensionless]
+    
+    Properties Used:
+    N/A
     """
 
     taper = geometry.wings['main_wing'].taper

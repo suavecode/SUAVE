@@ -1,4 +1,5 @@
-# translate_data.py
+## @ingroup Methods-Aerodynamics-AVL
+#translate_data.py
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -14,10 +15,26 @@ import SUAVE
 from SUAVE.Core import Data, Units
 from .Data.Cases import Run_Case
 
+## @ingroup Methods-Aerodynamics-AVL
 def translate_conditions_to_cases(avl,conditions):
     """ Takes SUAVE Conditions() data structure and translates to a Container of
-        avl Run_Case()s.
-    """
+    avl Run_Case()s.
+
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        conditions
+
+    Outputs:
+        cases
+
+    Properties Used:
+        N/A
+    """    
     # set up aerodynamic Conditions object
     cases = Run_Case.Container()
     for i in range(len(conditions.aerodynamics.angle_of_attack)):      

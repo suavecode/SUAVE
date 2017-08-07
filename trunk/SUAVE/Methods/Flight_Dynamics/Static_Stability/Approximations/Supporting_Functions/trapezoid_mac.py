@@ -10,25 +10,29 @@
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def trapezoid_mac(wing):
-    """ mac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac(wing)
-    This method computes the mean aerodynamic chord of a linearly tapered
+    """ This method computes the mean aerodynamic chord of a linearly tapered
     trapezoidal aerodynamic surface
 
     Assumptions:
         Assumes a simple trapezoidal wing shape.
+        
+    Source:
+        Unknown
 
     Inputs:
         wing - a data dictionary with the fields:
-            areas.reference - the planform area of the trapezoidal wing [meters**2]
-            spans.projected - wing span [meters]
-            chords.root - the wing root chord [meters]
+            areas.reference - the planform area of the trapezoidal wing               [meters**2]
+            spans.projected - wing span                                               [meters]
+            chords.root - the wing root chord                                         [meters]
             {One of the following}
-            chords.tip - the wing tip chord [meters]
-            taper - taper ratio of the wing [dimensionless]
+            chords.tip - the wing tip chord                                           [meters]
+            taper - taper ratio of the wing                                           [dimensionless]
 
     Outputs:
-        mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)
-        [meters]
+        mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)        [meters]
+
+    Properties Used:
+        N/A
     """                 
 
     #Unpack inputs

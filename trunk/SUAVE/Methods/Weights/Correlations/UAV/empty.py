@@ -1,4 +1,5 @@
-# UAV_weights.py
+## @ingroup Methods-Weights-Correlations-UAV
+# empty.py
 # 
 # Created:  Jan 2016, E. Botero
 # Modified: 
@@ -14,15 +15,32 @@ from SUAVE.Core import (
     Data, Container,
     )
 
+# ----------------------------------------------------------------------
+#  Empty
+# ----------------------------------------------------------------------
+
+## @ingroup Methods-Weights-Correlations-UAV
 def empty(vehicle):
+    """ This comoutes the weigt of a UAV   
     
-    """
-    Structural Weight correlation from all 415 samples of fixed-wing UAVs and sailplanes
-    Equation 3.16 from 'Design of Solar Powered Airplanes for Continuous Flight' by Andre Noth
-    Relatively valid for a wide variety of vehicles, may be optimistic
-    Assumes a 'main wing' is attached
-    
-    """
+    Assumptions:
+        Assumes a 'main wing' is attached
+
+    Source:
+        Structural Weight correlation from all 415 samples of fixed-wing UAVs and sailplanes
+        Equation 3.16 from 'Design of Solar Powered Airplanes for Continuous Flight' by Andre Noth
+        Relatively valid for a wide variety of vehicles, may be optimistic 
+
+    Inputs:
+        S                [meters**2]
+        AR               [dimensionless]
+        
+    Outputs:
+        weight           [kilograms]
+
+    Properties Used:
+        N/A
+    """    
     
     # Unpack
     S     = vehicle.reference_area

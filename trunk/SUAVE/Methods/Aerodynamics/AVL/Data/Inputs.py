@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Inputs.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -15,7 +16,26 @@ from SUAVE.Core import Data
 #   Configuration
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Inputs(Data):
+	""" A data class defining filenames for the AVL executable
+
+	Assumptions:
+	    None
+    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
+	
 
 	def __defaults__(self):
 		

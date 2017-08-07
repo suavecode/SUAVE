@@ -1,4 +1,5 @@
-# write_geometry.py
+## @ingroup Methods-Aerodynamics-AVL
+#write_geometry.py
 # 
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -11,9 +12,27 @@
 from purge_files import purge_files
 from create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
-
+## @ingroup Methods-Aerodynamics-AVL
 def write_geometry(avl_object):
+    """This function writes the translated aircraft geometry into text file read 
+    by AVL when it is called
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        avl_object
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
     # unpack inputs
     aircraft            = avl_object.geometry
     geometry_file       = avl_object.settings.filenames.features

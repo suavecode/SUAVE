@@ -16,8 +16,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def trapezoid_ac_x(wing):
-    """ dx_ac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_ac_x(wing)
-    This method computes the aerodynamic center x-position of a linearly
+    """ This method computes the aerodynamic center x-position of a linearly
     tapered trapezoidal aerodynamic surface
 
     Assumptions:
@@ -27,21 +26,24 @@ def trapezoid_ac_x(wing):
         chord of the MAC.
 
     Source:
-    Unknown 
+         Unknown 
 
     Inputs:
         wing - a data dictionary with the fields:
-            areas.reference - planform area of the trapezoidal wing [meters**2]
-            spans.projected - wing span [meters]
-            chords.root - wing root chord [meters]
-            taper - wing taper ratio [dimensionless]
-            sweep - wing leading edge sweep [radians]
-            symmetric - wing symmetry [Boolean]
+            areas.reference - planform area of the trapezoidal wing              [meters**2]
+            spans.projected - wing span                                          [meters]
+            chords.root - wing root chord                                        [meters]
+            taper - wing taper ratio                                             [dimensionless]
+            sweep - wing leading edge sweep                                      [radians]
+            symmetric - wing symmetry                                            [Boolean]
 
     Outputs:
         dx_ac - the x-direction distance of the aerodynamic center of the wing
         (or equivalent trapezoid) measured from the leading edge of the wing
-        root [meters]
+        root                                                                     [meters]
+
+    Properties Used:
+    N/A
     """
 
     #Unpack inputs

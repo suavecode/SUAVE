@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Cases.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -15,7 +16,27 @@ from SUAVE.Core import DataOrdered
 #  AVL Case
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Run_Case(Data):
+    """ A data class defining the parameters for the analysis cases 
+    including angle of attack and mach number 
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        None
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
     def __defaults__(self):
         """
         OUTPUTS:

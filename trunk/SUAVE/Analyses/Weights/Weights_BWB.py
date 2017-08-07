@@ -1,3 +1,4 @@
+## @ingroup Analyses-Weights 
 # Weights_BWB.py
 #
 # Created: Apr 2017, Matthew Clarke
@@ -15,8 +16,24 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Weights
 class Weights_BWB(Weights):
-    """ SUAVE.Analyses.Weights.Weights_BWB()
+    """ This is class that evaluates the weight of a BWB aircraft
+    
+    Assumptions:
+        None
+
+    Source:
+        N/A
+
+    Inputs:
+        None
+      
+    Outputs:
+        None
+
+    Properties Used:
+         N/A
     """
     def __defaults__(self):
         self.tag = 'weights_bwb'

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL
 # write_runcases.py
 # 
 # Created:  Dec 2014, T. Momose
@@ -10,8 +11,26 @@
 
 from purge_files import purge_files
 
+## @ingroup Methods-Aerodynamics-AVL
 def write_run_cases(avl_object):
+    """ This function writes the run cases used in the AVL batch analysis
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        avl_object
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
 
     # unpack avl_inputs
     batch_filename = avl_object.current_status.batch_file

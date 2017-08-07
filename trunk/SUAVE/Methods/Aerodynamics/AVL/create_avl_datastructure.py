@@ -1,4 +1,5 @@
-# create_avl_datastructure.py
+## @ingroup Methods-Aerodynamics-AVL
+#create_avl_datastructure.py
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -24,9 +25,25 @@ from .Data.Aircraft import Aircraft
 from .Data.Cases    import Run_Case
 from .Data.Configuration import Configuration
 
-
+## @ingroup Methods-Aerodynamics-AVL
 def create_avl_datastructure(geometry,conditions):
+        """ This translates the aircraft geometry into the format used in the AVL run file
 
+        Assumptions:
+            None
+    
+        Source:
+            Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avle
+    
+        Inputs:
+            geometry    
+    
+        Outputs:
+            avl_inputs
+    
+        Properties Used:
+            N/A
+        """    
         avl_aircraft             = translate_avl_geometry(geometry)
         avl_configuration        = translate_avl_configuration(geometry,conditions)
 

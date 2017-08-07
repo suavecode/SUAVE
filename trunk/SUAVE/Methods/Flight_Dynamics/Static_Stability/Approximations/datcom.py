@@ -23,8 +23,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 def datcom(wing,mach):
-    """ cL_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom(wing,mach)
-    This method uses the DATCOM formula to compute dCL/dalpha without 
+    """ This method uses the DATCOM formula to compute dCL/dalpha without 
     correlations for downwash of lifting surfaces further ahead on the 
     aircraft or upwash resulting from the position of the wing on the body.
 
@@ -34,7 +33,10 @@ def datcom(wing,mach):
 
     Assumptions:
     Mach number should not be transonic
-
+    
+    Source:
+        None
+         
     Inputs:
         wing - a data dictionary with the fields:
             effective_apsect_ratio - wing aspect ratio [dimensionless]. If 

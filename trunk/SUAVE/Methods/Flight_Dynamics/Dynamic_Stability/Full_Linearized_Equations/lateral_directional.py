@@ -18,47 +18,51 @@ import numpy.polynomial.polynomial as P
 
 ## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 def lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, I_x, Cl_p, J_xz, Cl_r, Cl_Beta, Cn_p, Cy_phi, Cy_psi, Cy_Beta, mass):
-    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.lateral_directional(velocity, Cn_Beta, S_gross_w, density, span, I_z, Cn_r, I_x, Cl_p, J_xz, Cl_r, Cl_Beta, Cn_p, Cy_phi, Cy_psi, Cy_Beta)
-        Calculate the natural frequency and damping ratio for the full linearized dutch roll mode along with the time constants for the roll and spiral modes        
-        Inputs:
-            velocity - flight velocity at the condition being considered [meters/seconds]
-            Cn_Beta - coefficient for change in yawing moment due to sideslip [dimensionless] (no simple relation)
-            S_gross_w - area of the wing [meters**2]
-            density - flight density at condition being considered [kg/meters**3]
-            span - wing span of the aircraft [meters]
-            I_z - moment of interia about the body z axis [kg * meters**2]
-            Cn_r - coefficient for change in yawing moment due to yawing velocity [dimensionless] ( - C_D(wing)/4 - 2 * Sv/S * (l_v/b)**2 * (dC_L/dalpha)(vert) * eta(vert))
-            I_x - moment of interia about the body x axis [kg * meters**2]
-            Cl_p - change in rolling moment due to the rolling velocity [dimensionless] (no simple relation for calculation)
-            J_xz - products of inertia in the x-z direction [kg * meters**2] (if X and Z lie in a plane of symmetry then equal to zero)
-            Cl_r - coefficient for change in rolling moment due to yawing velocity [dimensionless] (Usually equals C_L(wing)/4)
-            Cl_Beta - coefficient for change in rolling moment due to sideslip [dimensionless] 
-            Cn_p - coefficient for the change in yawing moment due to rolling velocity [dimensionless] (-C_L(wing)/8*(1 - depsilon/dalpha)) (depsilon/dalpha = 2/pi/e/AspectRatio dC_L(wing)/dalpha)
-            Cy_phi  - coefficient for change in sideforce due to aircraft roll [dimensionless] (Usually equals C_L)
-            Cy_psi - coefficient to account for gravity [dimensionless] (C_L * tan(Theta))
-            Cy_Beta - coefficient for change in Y force due to sideslip [dimensionless] (no simple relation)
-            mass - mass of the aircraft [kilograms]
+    """ This calculates the natural frequency and damping ratio for the full linearized dutch 
+    roll mode along with the time constants for the roll and spiral modes   
+    
+    Assumptions:
+        X-Z axis is plane of symmetry
+        Constant mass of aircraft
+        Origin of axis system at c.g. of aircraft
+        Aircraft is a rigid body
+        Earth is inertial reference frame
+        Perturbations from equilibrium are small
+        Flow is Quasisteady
+        Zero initial conditions
+        Neglect Cy_p and Cy_r
         
-        Outputs:
-            output - a data dictionary with fields:
-                dutch_w_n - natural frequency of the dutch roll mode [radian/second]
-                dutch_zeta - damping ratio of the dutch roll mode [dimensionless]
-                roll_tau - approximation of the time constant of the roll mode of an aircraft [seconds] (positive values are bad)
-                spiral_tau - time constant for the spiral mode [seconds] (positive values are bad)
-            
-        Assumptions:
-            X-Z axis is plane of symmetry
-            Constant mass of aircraft
-            Origin of axis system at c.g. of aircraft
-            Aircraft is a rigid body
-            Earth is inertial reference frame
-            Perturbations from equilibrium are small
-            Flow is Quasisteady
-            Zero initial conditions
-            Neglect Cy_p and Cy_r
-            
-        Source:
-            J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 118-124.
+    Source:
+        J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 118-124.
+        
+    Inputs:
+        velocity - flight velocity at the condition being considered                          [meters/seconds]
+        Cn_Beta - coefficient for change in yawing moment due to sideslip                     [dimensionless] (no simple relation)
+        S_gross_w - area of the wing                                                          [meters**2]
+        density - flight density at condition being considered                                [kg/meters**3]
+        span - wing span of the aircraft                                                      [meters]
+        I_z - moment of interia about the body z axis                                         [kg * meters**2]
+        Cn_r - coefficient for change in yawing moment due to yawing velocity                 [dimensionless] ( - C_D(wing)/4 - 2 * Sv/S * (l_v/b)**2 * (dC_L/dalpha)(vert) * eta(vert))
+        I_x - moment of interia about the body x axis                                         [kg * meters**2]
+        Cl_p - change in rolling moment due to the rolling velocity                           [dimensionless] (no simple relation for calculation)
+        J_xz - products of inertia in the x-z direction                                       [kg * meters**2] (if X and Z lie in a plane of symmetry then equal to zero)
+        Cl_r - coefficient for change in rolling moment due to yawing velocity                [dimensionless] (Usually equals C_L(wing)/4)
+        Cl_Beta - coefficient for change in rolling moment due to sideslip                    [dimensionless] 
+        Cn_p - coefficient for the change in yawing moment due to rolling velocity            [dimensionless] (-C_L(wing)/8*(1 - depsilon/dalpha)) (depsilon/dalpha = 2/pi/e/AspectRatio dC_L(wing)/dalpha)
+        Cy_phi  - coefficient for change in sideforce due to aircraft roll                    [dimensionless] (Usually equals C_L)
+        Cy_psi - coefficient to account for gravity                                           [dimensionless] (C_L * tan(Theta))
+        Cy_Beta - coefficient for change in Y force due to sideslip                           [dimensionless] (no simple relation)
+        mass - mass of the aircraft                                                           [kilograms]
+    
+    Outputs:
+        output - a data dictionary with fields:
+        dutch_w_n - natural frequency of the dutch roll mode                                  [radian/second]
+        dutch_zeta - damping ratio of the dutch roll mode                                     [dimensionless]
+        roll_tau - approximation of the time constant of the roll mode of an aircraft         [seconds] (positive values are bad)
+        spiral_tau - time constant for the spiral mode                                        [seconds] (positive values are bad)
+    
+    Properties Used:
+        N/A         
     """ 
     
     # constructing matrix of coefficients

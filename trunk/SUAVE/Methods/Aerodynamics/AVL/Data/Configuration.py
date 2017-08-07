@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Configuration.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -15,7 +16,27 @@ from SUAVE.Core import Data
 #   Configuration
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Configuration(Data):
+	"""A data class defining the reference parameters of the aircraft geoemtry and 
+	flight configuration 
+
+	Assumptions:
+	    None
+    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
+	
 	
 	def __defaults__(self):
 		

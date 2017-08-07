@@ -1,4 +1,5 @@
-# Settings.py
+## @ingroup Methods-Aerodynamics-AVL-Data
+#Settings.py
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -15,7 +16,26 @@ from Cases import Run_Case
 #   Configuration
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Settings(Data):
+        """ A class that defines important settings that call the AVL executable in addition to the 
+        format of the result, batch and geometry filenames
+        
+        Assumptions:
+            None
+    
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """    
 
         def __defaults__(self):
 
