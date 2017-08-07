@@ -1,3 +1,4 @@
+## @ingroup Input_Output-FreeMind
 # FreeMind.save.py
 #
 # Created: T. Lukaczyk Feb 2015
@@ -16,10 +17,26 @@ import time
 # ----------------------------------------------------------------------
 #  Save!
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-FreeMind
 def save(data,filename):
-    ''' filename extension should be *.mm
-    '''
+    """This creates a FreeMind file based on a SUAVE data structure.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    data       SUAVE data structure
+    filename   <string> name of the output file
+
+    Outputs:
+    FreeMind file with name as specified by filename
+
+    Properties Used:
+    N/A
+    """   
     
     try:
         tag = data.tag
@@ -55,7 +72,26 @@ def save(data,filename):
     
     return
 
+## @ingroup Input_Output-FreeMind
 def new_fm_node(node,text):
+    """This creates a FreeMind node.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    node    The node to be modified
+    text    <string> The text to be added
+
+    Outputs:
+    node    The modified node
+
+    Properties Used:
+    N/A
+    """     
     
     node = node.new_element('node')
     
