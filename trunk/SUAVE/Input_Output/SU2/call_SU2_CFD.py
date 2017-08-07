@@ -1,3 +1,4 @@
+## @ingroup Input_Output-SU2
 # call_SU2_CFD.py
 # 
 # Created:  Oct 2016, T. MacDonald
@@ -7,7 +8,29 @@ import subprocess
 from SUAVE.Core import Data
 import sys, os
 
+## @ingroup Input_Output-SU2
 def call_SU2_CFD(tag,parallel=False,processors=1):
+    """This calls SU2 to perform an analysis according to the related .cfg file.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    tag                          <string>  This determines what .cfg is used and what the output file is called.
+    parallel   (optional)        <boolean> This determines if SU2 will be run in parallel. This setting requires that SU2 has been built to allow this.
+    processors (optional)        [-]       The number of processors used for a parallel computation.
+
+    Outputs:
+    <tag>._forces_breakdown.dat  This file has standard SU2 run information.
+    CL                           [-]
+    CD                           [-]
+
+    Properties Used:
+    N/A
+    """       
     
     if parallel==True:
         sys.path.append(os.environ['SU2_HOME'])

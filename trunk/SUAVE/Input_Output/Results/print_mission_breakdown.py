@@ -1,3 +1,4 @@
+## @ingroup Input_Output-Results
 # print_mission_breakdown.py
 
 # Created:  SUAVE team
@@ -16,24 +17,35 @@ import datetime                 # importing library
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-Results
 def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imperial"):
-    """ SUAVE.Methods.Results.mission_breakdown(results,filename='mission_breakdown.dat'):
-        
-        Print output file with compressibility drag
-        
-        Inputs:
-            results - Data dictionary with the fields:
-                ? ?? ? ? ?
-            filename [optional] - Name of the file to be created
-            units - output units, either "imperial" or "si", default: imperial
+    """This creates a file showing mission information.
 
-        Outputs:
-            output file
+    Assumptions:
+    None
 
-        Assumptions:
+    Source:
+    N/A
 
-    """
+    Inputs:
+    results.segments.*.conditions.
+      frames.
+        inertial.position_vector     [m]
+        inertial.time                [s]
+      aerodynamics.lift_coefficient  [-]
+      weights.total                  [kg]
+      freestream.  
+        mach_number                  [-]
+        pressure                     [Pa]
+    filename (optional)       <string> Determines the name of the saved file
+    units (option)            <string> Determines the type of units used in the output, options are imperial and si
+
+    Outputs:
+    filename                  Saved file with name as above
+
+    Properties Used:
+    N/A
+    """           
     imperial = False
     SI = False
 
