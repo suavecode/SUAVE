@@ -1,12 +1,27 @@
-
+## @ingroup Plugins
 import os, sys
 __dir__ = os.path.abspath(os.path.dirname(__file__))
 
+## @ingroup Plugins
 def load_plugin(package_name):
-    """ This function loads a package that uses absolute package imports
-        by temporarily modifying the python sys.path.
-        Packages are assumed to be in the same folder as load_plugin.py
-    """
+    """This function loads a package that uses absolute package imports
+    by temporarily modifying the python sys.path.
+
+    Assumptions:
+    Packages are in the same folder as load_plugin.py
+
+    Source:
+    N/A
+
+    Inputs:
+    package_name   <string> name of the package to import
+
+    Outputs:
+    package        imported package
+
+    Properties Used:
+    N/A
+    """     
 
     # save current path
     saved_path = sys.path
