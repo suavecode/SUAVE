@@ -17,13 +17,18 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
-def empty(rProp, mBattery, mMotors, mPayload, MTOW):
+def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLength, fWidth, fHeight):
     """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.empty(
             rProp,
             mBattery,
             mMotors,
             mPayload,
             MTOW,
+            propBlades,
+            tailBlades,
+            fLength,
+            fWidth,
+            fHeight
         )
 
         Calculates the empty fuselage mass for an electric helicopter including
@@ -50,8 +55,8 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW):
             mMotors:    Total Motor Mass                [m]
             mPayload:   Payload Mass                    [m]
             MTOW:       Maximum TO Weight               [N]
-            propBlades: Number of Propeller Blades      [Dimensionless]
-            tailBlades: Number of Tail Rotor Blades     [Dimensionless]
+            propBlades: Number of Propeller Blades      [Unitless]
+            tailBlades: Number of Tail Rotor Blades     [Unitless]
             fLength:    Fuselage Length                 [m]
             fWidth:     Fuselage Width                  [m]
             fHeight:    Fuselage Height                 [m]
@@ -75,8 +80,8 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW):
     weight['Battery']       = mBattery
     weight['Servos']        = 5.2
     weight['BRS']           = 16.
-    weight['Hub']           = MTOW * 0.04
-    weight['Landing Gear']  = MTOW * 0.02
+    weight['Hub']           = MTOW/9.8 * 0.04
+    weight['Landing Gear']  = MTOW/9.8 * 0.02
 
 #-------------------------------------------------------------------------------
 # Calculated Weights
@@ -109,10 +114,10 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW):
     # Component Weight Calculations
 
     weight['Rotor']         = prop(rProp, maxThrust, propBlades)
-    weight['Tail Rotor']    = prop(rProp/5, 1.5*maxTorque/(1.25*rProp), tailBlades)
-    weight['Transmission']  = maxPower * 1.5873e-4      # From NASA OH-58 Study
+    weight['Tail Rotor']    = prop(rProp/5., 1.5*maxTorque/(1.25*rProp), tailBlades)
+    weight['Transmission']  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     weight['Fuselage']      = fuselage(fLength,fWidth,fHeight,0,MTOW)
-    weight['Wiring']        = wiring(fLength,fHeight,1,fLength/2,np.ones(8),maxPower/etaMotor)
+    weight['Wiring']        = wiring(fLength,fHeight,fLength/2,np.ones(8),maxPower/etaMotor)
 
 #-------------------------------------------------------------------------------
 # Weight Summations
@@ -127,7 +132,7 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW):
     weight['Total'] = 1.1 * (
                         weight['Structural'] +
                         weight['Payload'] +
-                        weight['Seat'] +
+                        weight['Seats'] +
                         weight['Avionics'] +
                         weight['Battery'] +
                         weight['Motors'] +
@@ -137,3 +142,13 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW):
                         )
 
     return weight
+
+
+#-------------------------------------------------------------------------------
+# Testing/Debugging
+#-------------------------------------------------------------------------------
+
+import pprint as pp
+
+pp.pprint(empty(1, 400, 100, 200, 9800, 4, 
+               4, 5, 3, 3))

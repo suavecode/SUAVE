@@ -15,17 +15,16 @@ import numpy as np
 # Wiring
 #-------------------------------------------------------------------------------
 
-def wiring(fLength, fHeight, wings, wingspan, xMotor, P_max):
+def wiring(fLength, fHeight, wingspan, xMotor, P_max):
     """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wiring(
             fLength,
             fHeight,
-            wings,
             wingspan,
             xMotor,
             P_max
         )
 
-        Calculates mass of wiring required for the vehicle, including DC power
+        Calculates mass of wiring required for a wing, including DC power
         cables and communication cables, assuming power cables run an average of
         half the fuselage length and height in addition to reaching the motor
         location on the wingspan, and that communication and sesor  wires run an
@@ -46,9 +45,8 @@ def wiring(fLength, fHeight, wings, wingspan, xMotor, P_max):
 
             fLength:    Fuselage Length             [m]
             fHeight:    Fuselage Height             [m]
-            wings:      Number of Wings             [Dimensionless]
             wingspan:   Wingspan                    [m]
-            xMotor:     Motor Semi-Span Fractions   [Dimensionless]
+            xMotor:     Motor Semi-Span Fractions   [Unitless]
             P_max:      Maximum DC Power Draw       [W]
 
         Outputs:
@@ -57,20 +55,22 @@ def wiring(fLength, fHeight, wings, wingspan, xMotor, P_max):
 
     """
 
-    nMotors = max(len(xMotor),1)    # No. of motors on each wing, defaults to 1
+    nMotors = max(len(xMotor),1)    # No. of motors on each half-wing, defaults to 1
 
 # Determine mass of Power Cables
 
     cablePower      = P_max/nMotors      # Power draw through each cable
-    cableLength     = nMotors * (fLength/2 + fHeight/2) + np.sum(xMotor) * wingspan/2
-    cableDensity    = mats.PowerCable.powerDensity
+    cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(xMotor) * wingspan/2)
+    cableDensity    = 1e-5
     massCables      = cableDensity * cablePower * cableLength
 
-# Determine mass of sensor/communicatiion wires
+# Determine mass of sensor/communication wires
 
     wiresPerBundle  = 6
-    wireDensity     = mats.FiberOptics.density
-    wireLength      = cableLength + (10 * fLength) + (wings * wingspan)
+    wireDensity     = 460e-5
+    wireLength      = cableLength + (10 * fLength) +  wingspan
     massWires       = 2 * wireDensity * wiresPerBundle * wireLength
 
     weight = massCables + massWires
+
+    return weight

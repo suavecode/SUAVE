@@ -14,13 +14,13 @@ import numpy as np
 # Wing
 #-------------------------------------------------------------------------------
 
-def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
+def wing(MTOW, wingspan, chord, thicknessToChord, wingletFraction,
             liftFraction, xMotor, maxThrust):
     """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wing(
             MTOW,
             wingspan,
             chord,
-            thickness-to-chord,
+            thicknessToChord,
             wingletFraction,
             liftFraction,
             xMotor,
@@ -46,10 +46,10 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
             MTOW:               Maximum TO Weight       [N]
             wingspan:           Wingspan                [m]
             chord:              Wing Chord              [m]
-            wingletFraction:    Winglet Length/Wingspan [Dimensionless]
-            thickness-to-chord: Wing t/c Ratio          [Dimensionless]
-            liftFraction:       Fraction of Total Lift  [Dimensionless]
-            xMotor:             Motor Span Fractions    [Dimensionless]
+            wingletFraction:    Winglet Length/Wingspan [Unitless]
+            thicknessToChord:   Wing t/c Ratio          [Unitless]
+            liftFraction:       Fraction of Total Lift  [Unitless]
+            xMotor:             Motor Span Fractions    [Unitless]
             maxThrust:          Maximum Motor Thrust    [N]
 
         Outputs:
@@ -74,12 +74,12 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
 # Airfoil
 #-------------------------------------------------------------------------------
 
-    NACA = np.multiply(5 * thickness-to-chord, [0.2969, -0.1260, -0.3516, -0.1015])
+    NACA = np.multiply(5 * thicknessToChord, [0.2969, -0.1260, -0.3516, 0.2843, -0.1015])
     coord = np.unique(fwdWeb+aftWeb+np.linspace(0,1,N).tolist())[:,np.newaxis]
     coordMAT = np.concatenate((coord**0.5,coord,coord**2,coord**3,coord**4),axis=1)
-    nacaMAT = coordMAT.dot(NACA)
+    nacaMAT = coordMAT.dot(NACA)[:, np.newaxis]
     coord = np.concatenate((coord,nacaMAT),axis=1)
-    coord = np.concatenate((coord[-1:1f:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
+    coord = np.concatenate((coord[-1:0:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
     coord[:,0] = coord[:,0] - xShear
 
 #-------------------------------------------------------------------------------
@@ -91,8 +91,8 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
     x = np.sort(np.concatenate((x,xMotor),axis=0))
     dx = x[1] - x[0]
     N = np.size(x)
-    fwdWeb = fwdWeb - xShear
-    aftWeb = aftWeb - xShear
+    fwdWeb[:] = [round(locFwd - xShear,2) for locFwd in fwdWeb]
+    aftWeb[:] = [round(locAft - xShear,2) for locAft in aftWeb]
 
 #-------------------------------------------------------------------------------
 # Loads
@@ -137,8 +137,8 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
     # Torsion
 
     box = coord                     # Box Initally Matches Airfoil
-    box = box[box[:,0]<aftWeb[1]]  # Inlcude Only Parts Fwd of Aftmost Spar
-    box = box[box[:,0]>fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
+    box = box[box[:,0]<=aftWeb[1]]   # Inlcude Only Parts Fwd of Aftmost Spar
+    box = box[box[:,0]>=fwdWeb[0]]   # Include Only Parts Aft of Fwdmost Spar
     box = box * chord               # Scale by Chord Length
 
         # Use Shoelace Formula to calculate box area
@@ -151,51 +151,51 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
     # Bending
 
     box = coord                     # Box Initally Matches Airfoil
-    box = box[box[:,0]<fwdWeb[1]]  # Inlcude Only Parts Fwd of Aft Fwd Spar
-    box = box[box[:,0]>fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
+    box = box[box[:,0]<=fwdWeb[1]]  # Inlcude Only Parts Fwd of Aft Fwd Spar
+    box = box[box[:,0]>=fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
     seg.append(box[box[:,1]>np.mean(box[:,1])]*chord)   # Upper Fwd Segment
     seg.append(box[box[:,1]<np.mean(box[:,1])]*chord)   # Lower Fwd Segment
 
     # Drag
 
     box = coord                     # Box Initally Matches Airfoil
-    box = box[box[:,0]<aftWeb[1]]  # Inlcude Only Parts Fwd of Aftmost Spar
-    box = box[box[:,0]>aftWeb[0]]  # Include Only Parts Aft of Fwd Aft Spar
+    box = box[box[:,0]<=aftWeb[1]]  # Inlcude Only Parts Fwd of Aftmost Spar
+    box = box[box[:,0]>=aftWeb[0]]  # Include Only Parts Aft of Fwd Aft Spar
     seg.append(box[box[:,1]>np.mean(box[:,1])]*chord)   # Upper Aft Segment
     seg.append(box[box[:,1]<np.mean(box[:,1])]*chord)   # Lower Aft Segment
 
     # Bending/Drag Inertia
 
     flapInertia = 0
-    flapLength = 0
+    flapLength  = 0
     dragInertia = 0
-    dragLength = 0
+    dragLength  = 0
 
     for i in range(0,4):
-        l = np.sqrt(np.sum(np.diff(seg[i],axis=0)^2,axis=1))   # Segment lengths
-        c = (seg[i][1::]+seg[i][0:-1])/2                # Segment centroids
+        l = np.sqrt(np.sum(np.diff(seg[i],axis=0)**2,axis=1))    # Segment lengths
+        c = (seg[i][1::]+seg[i][0:-1])/2                        # Segment centroids
 
         if i<2:
-            flapInertia += np.abs(np.sum(l*c[:,1]^2))   # Bending Inertia per Unit Thickness
+            flapInertia += np.abs(np.sum(l*c[:,1]**2))   # Bending Inertia per Unit Thickness
             flapLength  += np.sum(l)
         else:
-            dragInertia += np.abs(np.sum(l*c[:,0]^2))   # Drag Inertia per Unit Thickness
-            dragLength += np.sum(l)
+            dragInertia += np.abs(np.sum(l*c[:,0]**2))   # Drag Inertia per Unit Thickness
+            dragLength  += np.sum(l)
 
 
     # Shear
 
     box = coord                     # Box Initially Matches Airfoil
-    box = box[box[:,0]<fwdWeb[1]]  # Include Only Parts Fwd of Aft Fwd Spar
+    box = box[box[:,0]<=fwdWeb[1]]  # Include Only Parts Fwd of Aft Fwd Spar
     z = np.zeros(2)
     z[0] = np.interp(fwdWeb[0],box[box[:,1]>0,0],box[box[:,1]>0,1])*chord  # Upper Surface of Box at Fwdmost Spar
     z[1] = np.interp(fwdWeb[0],box[box[:,1]<0,0],box[box[:,1]<0,1])*chord  # Lower Surface of Box at Fwdmost Spar
-    h = z[0] - z[1]                 # Height of Box at Fwdmost Spar
+    h = np.abs(z[0] - z[1])                 # Height of Box at Fwdmost Spar
 
     # Skin
 
     box = coord * chord             # Box Initially is Airfoil Scaled by Chord
-    skinLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)^2,axis=1)))
+    skinLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
     A = 0.5*np.abs(np.dot(box[:,0],np.roll(box[:,1],1))-
         np.dot(box[:,1],np.roll(box[:,0],1)))   # Box Area via Shoelace Formula
 
@@ -205,33 +205,33 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
 
     # Calculate Skin Weight Based on Torsion
 
-    tTorsion = My*dx/(2*Solids.BiCF.USS*torsionArea)                                    # Torsion Skin Thickness
-    tTorsion = np.maximum(tTorsion,Solids.BiCF.minThk*np.ones(N))                       # Gage Constraint
-    mTorsion = tTorsion * torsionLength * Solids.BiCF*density                           # Torsion Mass
-    mCore = Solids.Honeycomb.minThk*torsionLength*Solids.Honeycomb.density*np.ones(N)   # Core Mass
-    mGlue = Solids.Epoxy.minThk*Solids.Epoxy.density*torsionLength*np.ones(N)           # Epoxy Mass
+    tTorsion = My*dx/(2*Solids.BiCF().USS*torsionArea)                                    # Torsion Skin Thickness
+    tTorsion = np.maximum(tTorsion,Solids.BiCF().minThk*np.ones(N))                       # Gage Constraint
+    mTorsion = tTorsion * torsionLength * Solids.BiCF().density                           # Torsion Mass
+    mCore = Solids.Honeycomb().minThk*torsionLength*Solids.Honeycomb().density*np.ones(N) # Core Mass
+    mGlue = Solids.Epoxy().minThk*Solids.Epoxy().density*torsionLength*np.ones(N)         # Epoxy Mass
 
     # Calculate Flap Mass Based on Bending
 
-    tFlap = Mx*np.maximum(seg[0][:,1])/(flapInertia*Solids.UniCF.UTS)                   # Bending Flap Thickness
-    mFlap = tFlap*flapLength*Solids.UniCF.density                                       # Bending Flap Mass
-    mGlue += Solids.Epoxy.minThk*Solids.Epoxy.density*flapLength*np.ones(N)             # Updated Epoxy Mass
+    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*Solids.UniCF().UTS)                   # Bending Flap Thickness
+    mFlap = tFlap*flapLength*Solids.UniCF().density                                       # Bending Flap Mass
+    mGlue += Solids.Epoxy().minThk*Solids.Epoxy().density*flapLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Drag Flap Mass
 
-    tDrag = Mz*np.maximum(seg[2][:,0])/(dragInertia*Solids.UniCF.UTS)                   # Drag Flap Thickness
-    mDrag = tDrag*dragLength*Solids.UniCF.density                                       # Drag Flap Mass
-    mGlue += Solids.Epoxy.minThk*Solids.Epoxy.density*dragLength*np.ones(N)             # Updated Epoxy Mass
+    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*Solids.UniCF().UTS)                   # Drag Flap Thickness
+    mDrag = tDrag*dragLength*Solids.UniCF().density                                       # Drag Flap Mass
+    mGlue += Solids.Epoxy().minThk*Solids.Epoxy().density*dragLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Shear Spar Mass
 
-    tShear = 1.5*Vz/(Solids.BiCF.USS*h)                                                 # Shear Spar Thickness
-    tShear = np.maximum(tShear, Solids.BiCF.minThk*np.ones(N))                          # Gage constraint
-    mShear = tShear*h*Solids.BiCF.density                                               # Shear Spar Mass
+    tShear = 1.5*Vz/(Solids.BiCF().USS*h)                                                 # Shear Spar Thickness
+    tShear = np.maximum(tShear, Solids.BiCF().minThk*np.ones(N))                          # Gage constraint
+    mShear = tShear*h*Solids.BiCF().density                                               # Shear Spar Mass
 
     # Paint
 
-    mPaint = skinLength*Solids.Paint.minThk*Solids.Paint.density*np.ones(N)             # Paint Mass
+    mPaint = skinLength*Solids.Paint().minThk*Solids.Paint().density*np.ones(N)           # Paint Mass
 
     # Section Mass Total
 
@@ -239,10 +239,10 @@ def wing(MTOW, wingspan, chord, thickness-to-chord, wingletFraction,
 
     # Rib Mass
 
-    mRib = (A+skinLength*Solids.Rib.minWidth)*Solids.Rib.minThk*Solids.Aluminum.density
+    mRib = (A+skinLength*Solids.Rib().minWidth)*Solids.Rib().minThk*Solids.Aluminum().density
 
     # Total Mass
 
-    mass = 2*(sum(m[0:-1]*np.diff(x)+nRibs*mRib))*grace
+    mass = 2*(sum(m[0:-1]*np.diff(x))+nRibs*mRib)*grace
 
     return mass

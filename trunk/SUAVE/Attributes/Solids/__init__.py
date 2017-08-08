@@ -8,3 +8,4 @@ from Paint import Paint
 from Aluminum import Aluminum
 from Acrylic import Acrylic
 from Steel import Steel
+from Nickel import Nickel

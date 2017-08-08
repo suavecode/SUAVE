@@ -15,12 +15,12 @@ import numpy as np
 # Fuselage
 #-------------------------------------------------------------------------------
 
-def fuselage(fLength, fWidth, fHeight, wingspan, MTOW):
+def fuselage(fLength, fWidth, fHeight, maxSpan, MTOW):
     """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.fuselage(
             fLength,
             fWidth,
             fHeight,
-            wingspan,
+            maxSpan,
             MTOW
         )
 
@@ -40,11 +40,11 @@ def fuselage(fLength, fWidth, fHeight, wingspan, MTOW):
 
         Inputs:
 
-            fLength:    Fuselage Length [m]
-            fWidth:     Fuselage Width  [m]
-            fHeight:    Fuselage Height [m]
-            wingspan:   Wingspan        [m]
-            MTOW:       Max TO weight   [kg]
+            fLength:    Fuselage Length     [m]
+            fWidth:     Fuselage Width      [m]
+            fHeight:    Fuselage Height     [m]
+            maxSpan:    Maximum Wingspan    [m]
+            MTOW:       Max TO weight       [kg]
 
         Outputs:
 
@@ -60,9 +60,9 @@ def fuselage(fLength, fWidth, fHeight, wingspan, MTOW):
     # Bi-directional Carbon Fiber, a Honeycomb Core, and Paint:
 
     arealWeight =(
-          mats.BiCF.minThk      * mats.BiCF.density
-        + mats.Honeycomb.minThk * mats.Honeycomb.density
-        + mats.Paint.minThk     * mats.Paint.density
+          Solids.BiCF().minThk      * Solids.BiCF().density
+        + Solids.Honeycomb().minThk * Solids.Honeycomb().density
+        + Solids.Paint().minThk     * Solids.Paint().density
         )
 
     # Calculate fuselage area (using assumption of ellipsoid), and weight:
@@ -78,37 +78,37 @@ def fuselage(fLength, fWidth, fHeight, wingspan, MTOW):
 
     # Calculate the mass of a canopy, assuming Acrylic:
 
-    canopyMass = S_wet/8 * mats.Acrylic.minThk * mats.Acrylic.density
+    canopyMass = S_wet/8 * Solids.Acrylic().minThk * Solids.Acrylic().density
 
     # Calculate keel mass needed to carry lifting moment, assuming
     # Uni-directional Carbon Fiber used to carry load
 
     L_max       = G_max * MTOW * SF       # Max Lifting Load
-    M_lift      = L_max * fLength/2       # Max Moment Due to Lift
-    beamWidth   = fWidth/3                # Allowable Keel Width
-    beamHeight  = fHeight/10              # Allowable Keel Height
+    M_lift      = L_max * fLength/2.       # Max Moment Due to Lift
+    beamWidth   = fWidth/3.                # Allowable Keel Width
+    beamHeight  = fHeight/10.              # Allowable Keel Height
 
-    beamArea    = M_lift * beamHeight/(4*mats.UniCF.UTS*(beamHeight/2)**2)
-    massKeel    = beamArea * fLength * mats.UniCF.density
+    beamArea    = M_lift * beamHeight/(4*Solids.UniCF().UTS*(beamHeight/2)**2)
+    massKeel    = beamArea * fLength * Solids.UniCF().density
 
     # Calculate keel mass needed to carry wing bending moment, assuming
     # thin walled Bi-directional Carbon Fiber used to carry load
 
-    M_bend      = 0.25 * L_max * wingspan/2                 # Max Bending Moment
-    beamArea    = beamHeight * beamWidth                    # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(mats.BiCF.USS*beamArea)     # Beam Thickness
-    massKeel   += 2*(beamHeight + beamWidth)*beamThk*mats.BiCF.density
+    M_bend      = L_max/2 * maxSpan/2                          # Max Bending Moment
+    beamArea    = beamHeight * beamWidth                       # Enclosed Beam Area
+    beamThk     = 0.5 * M_bend/(Solids.BiCF().USS*beamArea)    # Beam Thickness
+    massKeel   += 2*(beamHeight + beamWidth)*beamThk*Solids.BiCF().density
 
     # Calculate keel mass needed to carry landing impact load assuming
     # Steel bolts, and Bi-directional Carbon Fiber laminate pads used to carry
     # loads in a side landing
 
     F_landing   = SF * MTOW * LIF * 0.6403              # Side Landing Force
-    boltArea    = F_landing/mats.Steel.USS              # Required Bolt Area
+    boltArea    = F_landing/Solids.Steel().USS              # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
-    lamThk      = F_landing/(boltDiam*mats.BiCF.UBS)    # Laminate Thickness
+    lamThk      = F_landing/(boltDiam*Solids.BiCF().UBS)    # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
-    massKeel   += 4*lamVol*mats.BiCF.density            # Mass of 4 Pads
+    massKeel   += 4*lamVol*Solids.BiCF().density            # Mass of 4 Pads
 
     # Calculate total mass as the sum of skin mass, bulkhead mass, canopy pass,
     # and keel mass. Called weight by SUAVE convention
