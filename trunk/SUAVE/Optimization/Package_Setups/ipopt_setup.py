@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # ipopt_setup.py
 # 
 # Created:  Sep 2015, E. Botero 
@@ -14,6 +15,7 @@ import numpy as np
 #  Ipopt_Solve
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def Ipopt_Solve(problem):
     
     # Pull out the basic problem
@@ -88,6 +90,7 @@ def Ipopt_Solve(problem):
 #  Wrap the function and FD
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def eval_grad_f(x, problem):
     
     grad_f, jac_g = problem.finite_difference(x)
@@ -95,6 +98,7 @@ def eval_grad_f(x, problem):
 
     return grad
 
+## @ingroup Optimization-Package_Setups
 def eval_jac_g(x, flag, problem):
     
     if flag:
@@ -106,6 +110,7 @@ def eval_jac_g(x, flag, problem):
         jac_g = np.reshape(jac_g,np.size(jac_g))        
         return jac_g
 
+## @ingroup Optimization-Package_Setups
 def eval_f(x, problem):
     
     obj = problem.objective(x)
@@ -113,6 +118,7 @@ def eval_f(x, problem):
 
     return obj
 
+## @ingroup Optimization-Package_Setups
 def eval_g(x, problem):
     
     con = problem.all_constraints(x)
@@ -120,6 +126,7 @@ def eval_g(x, problem):
 
     return con
 
+## @ingroup Optimization-Package_Setups
 def make_structure(problem):
     
     # Pull out the basic problem
@@ -138,7 +145,7 @@ def make_structure(problem):
         val        = (np.floor(nn/nvar)).astype(int)
         toprow[nn] = val
     
-    # All of the coulumns
+    # All of the columns
     for nn in xrange(0,nvar*ncon):
         val        = (np.remainder(nn,nvar)).astype(int)
         botrow[nn] = val

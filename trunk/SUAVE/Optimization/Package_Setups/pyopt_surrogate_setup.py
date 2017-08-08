@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # surrogate_setup.py
 #
 # Created:  May 2016, M. Vegh
@@ -17,7 +18,7 @@ from SUAVE.Optimization import helper_functions as helper_functions
 #  pyopt_surrogate_setup
 # ----------------------------------------------------------------------
 
-
+## @ingroup Optimization-Package_Setups
 def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     #sets up a surrogate problem so it can be run by pyOpt
     

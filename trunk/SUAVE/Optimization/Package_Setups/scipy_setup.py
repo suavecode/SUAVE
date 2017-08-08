@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # scipy_setup.py
 # 
 # Created:  Aug 2015, E. Botero 
@@ -15,6 +16,7 @@ import scipy as sp
 #  Something that should become a class at some point
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #1.4901161193847656e-08 is SLSQP default FD step in scipy
     
     inp = problem.optimization_problem.inputs
@@ -45,7 +47,7 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #1
     
     return outputs
 
-
+## @ingroup Optimization-Package_Setups
 def SciPy_Problem(problem,x):
     
     print 'Inputs'

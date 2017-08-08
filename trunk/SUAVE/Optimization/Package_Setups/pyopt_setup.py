@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # pyopt_setup.py
 #
 # Created:  Jul 2015, E. Botero
@@ -16,6 +17,7 @@ from SUAVE.Optimization import helper_functions as help_fun
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderivative_line_search=False):
    
     # Have the optimizer call the wrapper
@@ -131,6 +133,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
 #  Problem Wrapper
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def PyOpt_Problem(problem,x):
    
     obj   = problem.objective(x)
