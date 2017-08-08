@@ -1,3 +1,4 @@
+## @ingroup Sizing
 #write_sizing_inputs.py
 # Created: Jun 2016, M. Vegh
 
@@ -15,7 +16,21 @@ import numpy as np
 
 
 def write_sizing_outputs(sizing_loop, y_save, opt_inputs):
+    """
+    This funtion writes out the optimization input variables and the 
+    solved sizing inputs at that point
+    
+    Inputs:
+    sizing_loop.
+        output_filename
+    
+    y_save
+    opt_inputs
 
+    Outputs:
+    None
+    
+    """
     file=open(sizing_loop.output_filename, 'ab')
     if len(opt_inputs) == 1:
         #weird python formatting issue when writing a 1 entry array

@@ -1,3 +1,4 @@
+## @ingroup Sizing
 #Sizing_Loop.py
 #Created:  Jun 2016, M. Vegh
 #Modified: Feb 2017, M. Vegh
@@ -21,6 +22,8 @@ import numpy as np
 import scipy as sp
 import time
 
+
+## @ingroup Sizing
 class Sizing_Loop(Data):
     def __defaults__(self):
         #parameters common to all methods
