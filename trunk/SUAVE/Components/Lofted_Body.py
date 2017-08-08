@@ -1,3 +1,4 @@
+## @ingroup Components
 # Lofted_Body.py
 # 
 # Created:  
@@ -16,8 +17,26 @@ from SUAVE.Core         import DataOrdered
 #  Lofted Body
 # ------------------------------------------------------------
 
+## @ingroup Components
 class Lofted_Body(Physical_Component):
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'Lofted_Body'
         self.Segments = DataOrdered() # think edges
         self.Sections = SectionContainer() # think nodes
@@ -27,8 +46,34 @@ class Lofted_Body(Physical_Component):
 #  Segment
 # ------------------------------------------------------------
 
+## @ingroup Components
 class Segment(Component):
+    """ A class that stubs out what a segment is
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """      
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'Segment'
         
         self.prev = None
@@ -39,8 +84,34 @@ class Segment(Component):
 #  Section
 # ------------------------------------------------------------
 
+## @ingroup Components
 class Section(Component):
+    """ A class that stubs out what a section is
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'Section'
         
         self.Curves = CurveContainer()
@@ -52,8 +123,34 @@ class Section(Component):
 #  Curve
 # ------------------------------------------------------------
 
+## @ingroup Components
 class Curve(Component):
+    """ A class that stubs out what a curve is
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """       
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'Curve'
         self.points = []
         
@@ -61,11 +158,28 @@ class Curve(Component):
 #  Containers
 # ------------------------------------------------------------
 
-
+## @ingroup Components
 class SectionContainer(Component.Container):
+    """ This does nothing
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """    
     pass
 
+## @ingroup Components
 class CurveContainer(Component.Container):
+    """ This does nothing
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """      
     pass
 
 
