@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups-TRMM
 # Trust_Region_Optimization.py
 #
 # Created:  Apr 2017, T. MacDonald
@@ -23,8 +24,33 @@ import sys
 # ----------------------------------------------------------------------
 
 class Trust_Region_Optimization(Data):
+    """A trust region optimization
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """      
         
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         self.tag                                = 'TR_Opt'
         self.trust_region_max_iterations        = 30
@@ -41,6 +67,29 @@ class Trust_Region_Optimization(Data):
         self.optimizer                          = 'SNOPT'
         
     def optimize(self,problem,print_output=False):
+        """ Optimizes the problem
+    
+            Assumptions:
+            Currently only works with SNOPT
+    
+            Source:
+            N/A
+    
+            Inputs:
+            self
+            problem      [nexus()]
+            print_output [bool]
+    
+            Outputs:
+            (fOpt_corr,xOpt_corr,str):
+                fOpt_corr [float]
+                xOpt_corr [array]
+                str       - varies depending on the result of the optimization
+                
+    
+            Properties Used:
+            None
+        """          
         if print_output == False:
             devnull = open(os.devnull,'w')
             sys.stdout = devnull
@@ -276,6 +325,38 @@ class Trust_Region_Optimization(Data):
             
         
     def evaluate_model(self,problem,x,cons,der_flag=True):
+        """ Evaluates the SUAVE nexus problem
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            self
+            problem  [nexus()]
+            x        [array]
+            cons     [not used]
+            der_flag [bool]
+    
+            Outputs:
+                if der_flag == False
+                    f,g
+                
+                else
+                    (f,df,g,dg)
+                    
+                where:
+                    f  - function value   [float]
+                    df - derivative of f  [array]
+                    g  - constraint value [array]
+                    dg - jacobian of g    [array]
+
+    
+            Properties Used:
+            None
+        """              
         f  = problem.objective(x)
         g  = problem.all_constraints(x)
         

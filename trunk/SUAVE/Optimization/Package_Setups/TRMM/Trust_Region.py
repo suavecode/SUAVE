@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups-TRMM
 # Trust_Region.py
 #
 # Created:  Apr 2017, T. MacDonald
@@ -14,9 +15,35 @@ from SUAVE.Core import Data
 #  Trust Region Class
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups-TRMM
 class Trust_Region(Data):
+    """A trust region class
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """    
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """         
         
         self.initial_size       = 0.05
         self.size               = 0.05
@@ -28,5 +55,24 @@ class Trust_Region(Data):
         
         
     def evaluate_function(self,f,gviol):
+        """ Evaluates the function
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            self    
+            f         []
+            gviol     []
+    
+            Outputs:
+            phi       []
+    
+            Properties Used:
+            None
+            """            
         phi = f + gviol**2
         return phi        
