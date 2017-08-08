@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # additive_setup.py
 #
 # Created:  Apr 2017, T. MacDonald
@@ -25,6 +26,7 @@ import sys
 #  Additive Solve Functions
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=10,
                    tolerance=1e-6,opt_type='basic',num_starts=3,print_output=True):
     
@@ -208,7 +210,7 @@ def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=1
         sys.stdout = sys.__stdout__     
     return (fOpt,xOpt)
     
-    
+## @ingroup Optimization-Package_Setups    
 def evaluate_model(problem,x,cons,der_flag=True):
     f  = np.array(0.)
     g  = np.zeros(np.shape(cons))
@@ -217,7 +219,8 @@ def evaluate_model(problem,x,cons,der_flag=True):
     g  = problem.all_constraints(x)
     
     return f,g
-    
+
+## @ingroup Optimization-Package_Setups    
 def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=None):
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
@@ -239,6 +242,7 @@ def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=No
         
     return obj,const,fail
 
+## @ingroup Optimization-Package_Setups
 def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surrogate=None,fstar=np.inf,cons=None):
 
     obj   = problem.objective(x)
@@ -275,6 +279,7 @@ def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surroga
         
     return -EI,const,fail
 
+## @ingroup Optimization-Package_Setups
 def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fstar,show_log_improvement=False):
 
     # Assumes 2D
@@ -331,7 +336,7 @@ def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fst
     
     plt.show()
     
-    
+## @ingroup Optimization-Package_Setups    
 def scale_vals(inp,con,ini,bnd,scl):
 
     # Pull out the constraints and scale them
@@ -368,7 +373,7 @@ def scale_vals(inp,con,ini,bnd,scl):
 
     return (x,scaled_constraints,x_low_bound,x_up_bound,con_up_edge,con_low_edge)    
 
-
+## @ingroup Optimization-Package_Setups
 def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval):
     
     for ii in xrange(len(obj)):
@@ -389,6 +394,7 @@ def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con
             
     return
 
+## @ingroup Optimization-Package_Setups
 def run_objective_optimization(opt_prob,problem,f_additive_surrogate,g_additive_surrogate,optimizer='SNOPT'):
     
     opt = pyOpt.pySNOPT.SNOPT()

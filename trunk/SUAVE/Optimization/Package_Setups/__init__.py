@@ -1,3 +1,6 @@
+## @defgroup Optimization-Package_Setups Package_Setups
+# Individual package setups that help you interface with other codes
+# @ingroup Optimization
 
 import pyopt_setup
 import scipy_setup
