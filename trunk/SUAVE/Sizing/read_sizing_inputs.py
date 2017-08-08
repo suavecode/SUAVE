@@ -1,4 +1,6 @@
+## @ingroup Sizing
 #read_sizing_inputs.py
+
 # Created: Jun 2016, M. Vegh
 
 # ----------------------------------------------------------------------
@@ -12,8 +14,26 @@ import numpy as np
 #  read_sizing_inputs
 # ----------------------------------------------------------------------
 
-
+## @ingroup Sizing
 def read_sizing_inputs(sizing_loop, opt_inputs):
+    """
+    This function reads a sizing loop outputs file and returns an array 
+    of design variables, an array of sizing variables, and an output 
+    flag to indicate whether the file was successfully read.
+    
+    Inputs:
+    sizing_loop.
+        output_filename
+    opt_inputs
+    
+    Outputs:
+    data_inputs
+    data_outputs
+    read_success
+    
+    """
+    
+    
     try:
         file_in        = open(sizing_loop.output_filename)
         read_success   = 1
@@ -46,9 +66,24 @@ def read_sizing_inputs(sizing_loop, opt_inputs):
         data_outputs = 0
         
     return data_inputs, data_outputs, read_success
-    
-def format_input_data(data):
 
+## @ingroup Sizing    
+def format_input_data(data):
+    """
+    Properly formats an input data structure so it can be read as an array
+    of floats
+    
+    Inputs:
+    data
+    
+    Outputs:
+    data_out
+    
+    
+    """
+    
+    
+    
     data_out=[]
     for line in data:
    
