@@ -19,6 +19,28 @@ from SUAVE.Optimization import helper_functions as help_fun
 
 ## @ingroup Optimization-Package_Setups
 def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderivative_line_search=False):
+    """ This converts your SUAVE Nexus problem into a PyOpt optimization problem and solves it
+        PyOpt has many algorithms, they can be switched out by using the solver input. 
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem                   [nexus()]
+        solver                    [str]
+        FD (parallel or single)   [str]
+        sense_step                [float]
+        nonderivative_line_search [bool]
+
+        Outputs:
+        outputs                   [list]
+
+        Properties Used:
+        None
+    """      
    
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
@@ -135,6 +157,28 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
 
 ## @ingroup Optimization-Package_Setups
 def PyOpt_Problem(problem,x):
+    """ This wrapper runs the SUAVE problem and is called by the PyOpt solver.
+        Prints the inputs (x) as well as the objective values and constraints.
+        If any values produce NaN then a fail flag is thrown.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem   [nexus()]
+        x         [array]
+
+        Outputs:
+        obj       [float]
+        cons      [array]
+        fail      [bool]
+
+        Properties Used:
+        None
+    """      
    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()

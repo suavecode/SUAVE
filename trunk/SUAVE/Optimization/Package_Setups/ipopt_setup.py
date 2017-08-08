@@ -17,6 +17,23 @@ import numpy as np
 
 ## @ingroup Optimization-Package_Setups
 def Ipopt_Solve(problem):
+    """Solves a Nexus optimization problem using ipopt
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        problem    [nexus()]
+
+        Outputs:
+        result     [array]
+
+        Properties Used:
+        None
+    """      
     
     # Pull out the basic problem
     inp = problem.optimization_problem.inputs
@@ -92,6 +109,24 @@ def Ipopt_Solve(problem):
 
 ## @ingroup Optimization-Package_Setups
 def eval_grad_f(x, problem):
+    """ Calculate the gradient of the objective function
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        x          [array]
+        problem    [nexus()]
+
+        Outputs:
+        grad     [array]
+
+        Properties Used:
+        None
+    """       
     
     grad_f, jac_g = problem.finite_difference(x)
     grad = grad_f.astype(float)
@@ -100,6 +135,26 @@ def eval_grad_f(x, problem):
 
 ## @ingroup Optimization-Package_Setups
 def eval_jac_g(x, flag, problem):
+    """ Calculate the jacobian of the constraint function
+        If flag is used a structure shape is provided to allow ipopt to size the constraints
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        x          [array]
+        flag       [bool]
+        problem    [nexus()]
+
+        Outputs:
+        jac_g      [array]
+
+        Properties Used:
+        None
+    """     
     
     if flag:
         matrix = make_structure(problem)
@@ -112,6 +167,24 @@ def eval_jac_g(x, flag, problem):
 
 ## @ingroup Optimization-Package_Setups
 def eval_f(x, problem):
+    """ Find the objective
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        x          [array]
+        problem    [nexus()]
+
+        Outputs:
+        obj        [float]
+
+        Properties Used:
+        None
+    """       
     
     obj = problem.objective(x)
     obj = obj.astype(float)[0]
@@ -120,6 +193,24 @@ def eval_f(x, problem):
 
 ## @ingroup Optimization-Package_Setups
 def eval_g(x, problem):
+    """ Find the constraints
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        x          [array]
+        problem    [nexus()]
+
+        Outputs:
+        con        [array]
+
+        Properties Used:
+        None
+    """      
     
     con = problem.all_constraints(x)
     con = con.astype(float)
@@ -128,6 +219,23 @@ def eval_g(x, problem):
 
 ## @ingroup Optimization-Package_Setups
 def make_structure(problem):
+    """ Create an array structure to let ipopt know the size of the problem
+
+        Assumptions:
+        You can actually install ipopt on your machine
+
+        Source:
+        N/A
+
+        Inputs:
+        problem    [nexus()]
+
+        Outputs:
+        array      [array]
+
+        Properties Used:
+        None
+    """       
     
     # Pull out the basic problem
     inp = problem.optimization_problem.inputs

@@ -17,7 +17,27 @@ import scipy as sp
 # ----------------------------------------------------------------------
 
 ## @ingroup Optimization-Package_Setups
-def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #1.4901161193847656e-08 is SLSQP default FD step in scipy
+def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #
+    """ This converts your SUAVE Nexus problem into a SciPy optimization problem and solves it
+        SciPy has many algorithms, they can be switched out by using the solver input. 
+
+        Assumptions:
+        1.4901161193847656e-08 is SLSQP default FD step in scipy
+
+        Source:
+        N/A
+
+        Inputs:
+        problem                   [nexus()]
+        solver                    [str]
+        sense_step                [float]
+
+        Outputs:
+        outputs                   [list]
+
+        Properties Used:
+        None
+    """     
     
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
@@ -49,6 +69,25 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #1
 
 ## @ingroup Optimization-Package_Setups
 def SciPy_Problem(problem,x):
+    """ This wrapper runs the SUAVE problem and is called by the Scipy solver.
+        Prints the inputs (x) as well as the objective value
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem   [nexus()]
+        x         [array]
+
+        Outputs:
+        obj       [float]
+
+        Properties Used:
+        None
+    """      
     
     print 'Inputs'
     print x        

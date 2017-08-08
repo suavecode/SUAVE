@@ -20,8 +20,26 @@ from SUAVE.Optimization import helper_functions as helper_functions
 
 ## @ingroup Optimization-Package_Setups
 def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
-    #sets up a surrogate problem so it can be run by pyOpt
-    
+    """ sets up a surrogate problem so it can be run by pyOpt. Makes the problem to be run
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        surrogate_function [nexus()]
+        inputs             [array]
+        constraints        [array]
+
+        Outputs:
+        opt_problem        [pyOpt problem]
+
+        Properties Used:
+        None
+    """       
+
 
     #taken from initial optimization problem that you set up
     ini              = inputs[:,1] # values
