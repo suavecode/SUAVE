@@ -44,7 +44,7 @@ class Atmospheric(Analysis):
         None
         
         Properties Used:
-        None.
+        N/A
         """          
         atmo_data = Atmosphere()
         self.update(atmo_data)
