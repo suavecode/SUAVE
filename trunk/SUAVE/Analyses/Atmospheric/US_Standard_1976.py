@@ -1,4 +1,4 @@
-## @ingroup analyses-atmospheric
+## @ingroup Analyses-Atmospheric
 # US_Standard_1976.py
 #
 # Created: 
@@ -28,7 +28,7 @@ from SUAVE.Core.Arrays import atleast_2d_col
 #  Classes
 # ----------------------------------------------------------------------
 
-## @ingroup analyses-atmospheric
+## @ingroup Analyses-Atmospheric
 class US_Standard_1976(Atmospheric):
 
     """ Implements the U.S. Standard Atmosphere (1976 version)
@@ -41,8 +41,7 @@ class US_Standard_1976(Atmospheric):
     """
     
     def __defaults__(self):
-        """This sets the default values for the analysis to function. (I don't actually
-        understand what's happening here). Sets the class atmosphere attribute.
+        """This sets the default values for the analysis to function.
 
         Assumptions:
         None

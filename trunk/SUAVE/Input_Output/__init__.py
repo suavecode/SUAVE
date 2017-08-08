@@ -6,6 +6,7 @@ from . import FreeMind
 from . import D3JS
 from . import Results
 
+import XML
 import SU2
 import OpenVSP
 import GMSH
