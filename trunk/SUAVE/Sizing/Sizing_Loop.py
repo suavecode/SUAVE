@@ -26,16 +26,24 @@ import time
 ## @ingroup Sizing
 class Sizing_Loop(Data):
     def __defaults__(self):
+        """
+        Data class that solves a fixed point iteration problem to size the aircraft. Includes
+        a variety of methods to solve the subproblem, including successive substitution, newton-raphson,
+        broyden's method, as well as a damped newton method. Also includes machine learning algorithms
+        from scikit-learn to aid in finding a good initial guess for your sizing parameters.
+        """
+    
+    
         #parameters common to all methods
         self.tolerance             = None
-        self.initial_step          = None  #'Default', 'Table', 'SVR'
-        self.update_method         = None  #'successive_substitution', 'newton-raphson', ;broyden
+        self.initial_step          = None  #'Default', 'Table', 'SVR', 'GradientBoosting', ExtraTrees', 'RandomForest', 'Bagging', 'GPR', 'RANSAC', 'Neighbors'  
+        self.update_method         = None  #'successive_substitution', 'newton-raphson', broyden, 'damped_newton'
         self.default_y             = None  #default inputs in case the guess is very far from 
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
         self.maximum_iterations    = None  #cutoff point for sizing loop to close
-        self.output_filename       = None
+        self.output_filename       = None  #stores optimization parameters and closed sizing parameters
         self.sizing_evaluation     = None  #defined in the Procedure script
-        self.write_threshhold      = 9     #number of iterations before it writes, regardless of how close it is to currently written values
+        self.write_threshhold      = 9     #number of iterations before it writes, regardless of how close it is to currently written values (i.e. this step is hard to converge)
         
         #parameters that may only apply to certain methods
         self.iteration_options     = Data()
@@ -49,7 +57,6 @@ class Sizing_Loop(Data):
         self.iteration_options.min_write_step                    = .011             #minimum distance at which sizing data are written
         self.iteration_options.min_surrogate_length              = 4                #minimum number data points needed before SVR is used
         self.iteration_options.number_of_surrogate_calls         = 0
-        #self.iteration_options.minimum_training_samples         = 1E6
         self.iteration_options.newton_raphson_damping_threshhold = 5E-5
         
 
@@ -299,13 +306,24 @@ class Sizing_Loop(Data):
         
         return nexus
         
+        
+        
     def successive_substitution_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        """
+        Uses a successive substitution update to try to zero the residual
+        """
+        
         err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
         iteration_options.err_save = err
         return err_out, y_out, iter
     
     def newton_raphson_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        """
+        Finite differences the problem to calculate the Jacobian, then
+        tries to use that to zero the residual
+        """
+        
         h = iteration_options.h
         print '###begin Finite Differencing###'
         J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
@@ -341,6 +359,11 @@ class Sizing_Loop(Data):
         return err_out, y_update, iter
         
     def broyden_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
+        """
+        uses an approximation to update the Jacobian without
+        the use of finite differencing
+        
+        """
         y_save      = iteration_options.y_save
         err_save    = iteration_options.err_save 
         dy          = y - y_save
@@ -412,9 +435,21 @@ class Sizing_Loop(Data):
     
 
 
-    
+## @ingroup Sizing    
 def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
-    #use forward difference
+    """
+    Uses a first-order finite difference step to calculate the Jacobian
+    
+    Inputs:
+    x               [array]
+    f               [array]
+    my_function     function that returns the residual f and sizing variable y-y_save
+    inputs          ordered dict that is unpacked within my_function
+    scaling         [array]
+    iter            [int]
+    h               [float]
+    
+    """
 
     J=np.nan*np.ones([len(x), len(x)])
     for i in range(len(x)):
