@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Descent
 # Constant_Speed_Constant_Angle.py
 #
 # Created:  
@@ -20,9 +21,35 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Descent
 class Constant_Speed_Constant_Angle(Unknown_Throttle):
+    """ Fixed at a true airspeed the vehicle will descend at a constant angle.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """      
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """            
         
         # --------------------------------------------------------------
         #   User inputs
