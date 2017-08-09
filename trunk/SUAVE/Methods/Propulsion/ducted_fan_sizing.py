@@ -1,4 +1,5 @@
-# test_gasturbine_network.py
+## @ingroup Methods-Propulsion
+# ducted_fan_sizing.py
 # 
 # Created:  Michael Vegh, July 2015
 # Modified: 
@@ -16,10 +17,18 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 
-
+## @ingroup Methods-Propulsion
 def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
-    '''create and evaluate a ducted_fan network
-    '''
+    """
+    creates and evaluates a ducted_fan network based on an atmospheric sizing condition
+    
+    Inputs:
+    ducted_fan       ducted fan network object (to be modified)
+    mach_number
+    altitude         [meters]
+    delta_isa        temperature difference [K]
+    conditions       ordered dict object
+    """
     
     #Unpack components
     
@@ -195,6 +204,6 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
    
     
-    #determine geometry
+    
     
     

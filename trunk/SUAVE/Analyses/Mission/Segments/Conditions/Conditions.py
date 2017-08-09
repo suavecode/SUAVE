@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Conditions
 # Conditions.py
 #
 # Created:  
@@ -14,29 +15,105 @@ import numpy as np
 # SUAVE imports
 from SUAVE.Core                    import Data
 
-
 # ----------------------------------------------------------------------
 #  Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Conditions
 class Conditions(Data):
+    """ Conditions are the magic Data that contains the information about the vehicle in flight.
+        At this point none of the information really exists. What is here are the methods that allow a mission
+        to collect the information.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None   
+    """ 
 
     _size = 1
     
     def ones_row(self,cols):
-        """ returns a row vector of ones with given number of columns """
+        """ returns a row vector of ones with given number of columns 
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            cols   [in]
+    
+            Outputs:
+            Vector
+    
+            Properties Used:
+            None
+        """     
         return np.ones([self._size,cols])
     
     def ones_row_m1(self,cols):
-        """ returns a row vector of ones with given number of columns """
+        """ returns an N-1 row vector of ones with given number of columns
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            cols   [in]
+    
+            Outputs:
+            Vector
+    
+            Properties Used:
+            None
+        """ 
         return np.ones([self._size-1,cols])    
     
     def ones_row_m2(self,cols):
-        """ returns a row vector of ones with given number of columns """
+        """ returns an N-2 row vector of ones with given number of columns
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            cols   [int]
+    
+            Outputs:
+            Vector
+    
+            Properties Used:
+            None
+        """ 
         return np.ones([self._size-2,cols])
     
     
     def expand_rows(self,rows):
+        """ Makes a 1-D array the right size. Often used after a mission is initialized to size out the vectors to the
+            right size.
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            rows   [int]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # store
         self._size = rows
@@ -57,4 +134,21 @@ class Conditions(Data):
         return
 
     def compile(self):
+        """ This is a call to expand_rows above...
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         self.expand_rows()

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Mach_Linear_Altitude.py
 #
 # Created:  June 2017, E. Botero
@@ -19,9 +20,35 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Constant_Mach_Linear_Altitude(Constant_Speed_Linear_Altitude):
+    """ Climb at a constant mach number but linearly change altitudes over a distance.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """       
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
