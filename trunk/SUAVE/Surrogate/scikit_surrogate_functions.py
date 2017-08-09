@@ -1,3 +1,4 @@
+## @ingroup Surrogate
 # scikit_surrogate_functions.py
 #
 # Created:  May 2016, M. Vegh
@@ -16,11 +17,32 @@ import numpy as np
 import time
 
 # ----------------------------------------------------------------------
-#  read_sizing_inputs
+#  build_scikit_models
 # ----------------------------------------------------------------------
 
-
+## @ingroup Surrogate
 def build_scikit_models(surrogate_optimization, obj_values, inputs, constraints):
+    """
+    Uses the scikit-learn package to build a surrogate formulation of an optimization problem
+    
+    Inputs:
+    obj_values          [array]
+    inputs              [array]
+    constraints         [array]
+    
+    Outputs:
+    obj_surrogate            callable function(inputs)
+    constraints_surrogates   [array(callable function(inputs))]
+    surrogate_function       callable function(inputs): returns the objective, constraints, and whether it succeeded as an int 
+    
+    """
+    
+    
+    
+    
+    
+    
+    
     #now build surrogates based on these
     t1=time.time()
     regr = surrogate_optimization.surrogate_model()
