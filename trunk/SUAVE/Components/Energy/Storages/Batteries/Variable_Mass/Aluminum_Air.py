@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Storages-Variable_Mass
 # Aluminum_Air.py
 # 
 # Created:  Oct 2014, M. Vegh
@@ -15,10 +16,17 @@ from SUAVE.Core import Units
 from SUAVE.Components.Energy.Storages.Batteries  import Battery
 
 # ----------------------------------------------------------------------
-#  Battery Class
+#  Aluminum_Air
 # ----------------------------------------------------------------------    
-
+## @ingroup Components-Energy-Storages-Variable_Mass
 class Aluminum_Air(Battery):
+    """
+    Specifies discharge/specific energy characteristics specific to
+    aluminum-air batteries. Also includes parameters related to 
+    consumption of aluminum, oxygen, and water
+    """
+    
+    
     
     def __defaults__(self):
         self.specific_energy        = 1300.*Units.Wh/Units.kg    # convert to Joules/kg
