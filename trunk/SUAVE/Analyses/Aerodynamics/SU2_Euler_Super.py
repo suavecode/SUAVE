@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # SU2_Euler_Super.py
 #
 # Created:  Dec 2016, T. MacDonald
@@ -29,6 +30,7 @@ from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
+## @ingroup Analyses-Aerodynamics
 class SU2_Euler_Super(Markup):
     
     def __defaults__(self):

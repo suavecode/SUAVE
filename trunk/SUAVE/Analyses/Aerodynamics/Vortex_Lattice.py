@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Vortex_Lattice.py
 #
 # Created:  Nov 2013, T. Lukaczyk
@@ -30,7 +31,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Vortex_Lattice(Aerodynamics):
     """ SUAVE.Analyses.Aerodynamics.Fidelity_Zero
         aerodynamic model that builds a surrogate model for clean wing

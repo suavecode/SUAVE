@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # AVL_Inviscid.py
 #
 # Created: Apr 2017, M. Clarke 
@@ -39,14 +40,34 @@ from warnings import warn
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class AVL_Inviscid(Aerodynamics):
-    """ SUAVE.Analyses.Aerodynamics.AVL
-        aerodynamic model that performs a vortex lattice analysis using AVL
-        (Athena Vortex Lattice, by Mark Drela of MIT).
-    """
+    """This builds a surrogate and computes lift using AVL.
 
+    Assumptions:
+    None
+
+    Source:
+    None
+    """     
     def __defaults__(self):
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """          
         self.tag                             = 'avl'
         self.keep_files                      = True
         
@@ -78,7 +99,23 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates                      = Data()
 
     def initialize(self):
+        """Drives functions to get training samples and build a surrogate.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        self.tag = 'avl_analysis_of_{}'.format(geometry.tag)
+
+        Properties Used:
+        self.geometry.tag
+        """  
         geometry     = self.geometry
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
         run_folder   = self.settings.filenames.run_folder
@@ -92,7 +129,28 @@ class AVL_Inviscid(Aerodynamics):
         return
 
     def evaluate(self,state,settings,geometry):
+        """Evaluates lift and drag using available surrogates.
 
+        Assumptions:
+        Returned drag values are currently not meaningful.
+
+        Source:
+        N/A
+
+        Inputs:
+        states.conditions.
+          mach_number      [-]
+          angle_of_attack  [radians]
+
+        Outputs:
+        inviscid_lift      [-] CL
+        inviscid_drag      [-] CD
+
+        Properties Used:
+        self.surrogates.
+          lift_coefficient [-] CL
+          drag_coefficient [-] CD
+        """  
         # Unpack
         surrogates    = self.surrogates        
         conditions    = state.conditions
@@ -122,7 +180,29 @@ class AVL_Inviscid(Aerodynamics):
         
 
     def sample_training(self):
-        
+        """Call methods to run AVL for sample point evaluation.
+
+        Assumptions:
+        Returned drag values are not meaningful.
+
+        Source:
+        N/A
+
+        Inputs:
+        see properties used
+
+        Outputs:
+        self.training.
+          coefficients     [-] CL and CD
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Properties Used:
+        self.geometry.tag  <string>
+        self.training.     
+          angle_of_attack  [radians]
+          Mach             [-]
+        self.training_file (file containing information on what points to run - optional)
+        """          
         # Unpack
         geometry = self.geometry
         training = self.training   
@@ -182,7 +262,27 @@ class AVL_Inviscid(Aerodynamics):
         return        
 
     def build_surrogate(self):
+        """Builds a surrogate based on sample evalations using a Guassian process.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        self.training.
+          coefficients     [-] CL and CD
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Outputs:
+        self.surrogates.
+          lift_coefficient <Guassian process surrogate>
+          drag_coefficient <Guassian process surrogate>
+
+        Properties Used:
+        No others
+        """   
         # Unpack data
         training                         = self.training
         AoA_data                         = training.angle_of_attack
@@ -230,21 +330,34 @@ class AVL_Inviscid(Aerodynamics):
 # ----------------------------------------------------------------------
         
     def evaluate_conditions(self,run_conditions):
-        """ process vehicle to setup geometry, condititon and configuration
-    
-            Inputs:
-                run_conditions - DataDict() of aerodynamic conditions; until input
-                method is finalized, will just assume mass_properties are always as 
+        """Process vehicle to setup geometry, condititon, and configuration.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        run_conditions <SUAVE data type> aerodynamic conditions; until input
+                method is finalized, will assume mass_properties are always as 
                 defined in self.features
-    
-            Outputs:
-                results - a DataDict() of type 
-                SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics(), augmented with
-                case data on moment coefficients and control derivatives
-    
-            Assumptions:
-    
-        """
+
+        Outputs:
+        results        <SUAVE data type>
+
+        Properties Used:
+        self.settings.filenames.
+          run_folder
+          output_template
+          batch_template
+          deck_template
+        self.current_status.
+          batch_index
+          batch_file
+          deck_file
+          cases
+        """           
         
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)

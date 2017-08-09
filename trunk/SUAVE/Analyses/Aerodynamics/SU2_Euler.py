@@ -1,4 +1,4 @@
-## @ingroup analyses-aerodynamics
+## @ingroup Analyses-Aerodynamics
 # SU2_Euler.py
 #
 # Created:  Sep 2016, E. Botero
@@ -29,7 +29,7 @@ from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-## @ingroup analyses-aerodynamics
+## @ingroup Analyses-Aerodynamics
 class SU2_Euler(Markup):
     """grouping test"""
     

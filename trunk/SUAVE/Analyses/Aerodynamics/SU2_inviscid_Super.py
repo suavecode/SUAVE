@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # SU2_inviscid.py
 #
 # Created:  Sep 2016, E. Botero
@@ -28,7 +29,7 @@ from sklearn import svm
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class SU2_inviscid_Super(Aerodynamics):
 
     def __defaults__(self):

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Supersonic_Zero.py
 # 
 # Created:            T. MacDonald
@@ -24,7 +25,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Supersonic_Zero(Markup):
     """ SUAVE.Attributes.Aerodynamics.Fidelity_Zero
         aerodynamic model that builds a surrogate model for clean wing 

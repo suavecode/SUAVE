@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Supersonic_OpenVSP_Wave_Drag.py
 # 
 # Created:            T. MacDonald
@@ -23,7 +24,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Supersonic_OpenVSP_Wave_Drag(Markup):
 
     

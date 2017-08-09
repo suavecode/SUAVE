@@ -45,8 +45,8 @@ def compressibility_drag_total(state,settings,geometry):
     state.conditions.aerodynamics.lift_breakdown.compressible_wings  [Unitless]
     state.conditions.freestream.mach_number                          [Unitless]
     geometry.wings                             
-    geometry.fuselages['fuselages'].length_total                     [m]
-    geometry.fuselages['fuselages'].effective_diameter               [m]
+    geometry.fuselages['fuselage'].length_total                      [m]
+    geometry.fuselages['fuselage'].effective_diameter                [m]
     geometry.propulsors[geometry.propulsors.keys()[0]].
       nacelle_diameter                                               [m]
       engine_length                                                  [m]
@@ -192,7 +192,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
     """Use drag divergence mach number to determine drag for subsonic speeds
 
     Assumptions:
-    Basic fit
+    Basic fit, subsonic
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
