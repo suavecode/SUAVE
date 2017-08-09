@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Cruise
 # Constant_Throttle_Constant_Altitude.py
 #
 # Created:  
@@ -19,13 +20,40 @@ from SUAVE.Analyses import Process
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Throttle_Constant_Altitude(Aerodynamic):
+    """ Vehicle flies at a set throttle setting. Allows a vehicle to do a level acceleration.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """           
+    
     
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
 
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs

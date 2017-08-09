@@ -1,3 +1,4 @@
+## @defgroup Vehicle
 # Vehicle.py
 #
 # Created:  ### 2013, SUAVE Team
@@ -17,17 +18,35 @@ import numpy as np
 #  Vehicle Data Class
 # ----------------------------------------------------------------------
 
+## @ingroup Vehicle
 class Vehicle(Data):
-    ''' SUAVE.Vehicle(**kwarg)
-        Arbitrary Vehicle Initialization
-        Vehicle.py: SUAVE Vehicle container class with database + input / output functionality
-
-        Inputs:
-            optional, dictionary of data for initialization
-
-    '''
+    """SUAVE Vehicle container class with database + input / output functionality
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """    
 
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """          
         self.tag = 'vehicle'
         self.fuselages              = Components.Fuselages.Fuselage.Container()
         self.wings                  = Components.Wings.Wing.Container()
@@ -45,6 +64,23 @@ class Vehicle(Data):
     _component_root_map = None
 
     def __init__(self,*args,**kwarg):
+        """ Sets up the component hierarchy for a vehicle
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         # will set defaults
         super(Vehicle,self).__init__(*args,**kwarg)
 
@@ -60,7 +96,22 @@ class Vehicle(Data):
 
     def find_component_root(self,component):
         """ find pointer to component data root.
-        """
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """  
 
         component_type = type(component)
 
@@ -75,7 +126,23 @@ class Vehicle(Data):
 
 
     def append_component(self,component):
-        """ adds a component to vehicle """
+        """ adds a component to vehicle
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """  
 
         # assert database type
         if not isinstance(component,Data):
@@ -89,33 +156,38 @@ class Vehicle(Data):
 
         return
 
-
+## @ingroup Vehicle
 class Vehicle_Mass_Properties(Components.Mass_Properties):
 
     """ Vehicle_Mass_Properties():
-        The vehicle's mass properties.  includes high level weight statement values
+        The vehicle's mass properties.
 
-        Attributes:
-
-            max_takeoff
-            max_zero
-
-            takeoff
-            cargo
-            operating_empty
-            payload
-            passenger
-            crew
-            fuel
-
-            center_of_gravity
-            Moments_Of_Inertia :
-                center
-                tensor
-
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
     """
 
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """         
 
         self.operating_empty = 0.0
         self.max_takeoff     = 0.0
@@ -134,9 +206,34 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.center_of_gravity = [0.0,0.0,0.0]
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
 
-
+## @ingroup Vehicle
 class Costs(Data):
+    """ Costs class for organizing the costs of things
+
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """    
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """         
         self.tag = 'costs'
         self.industrial = Components.Costs.Industrial_Costs()
         self.operating  = Components.Costs.Operating_Costs()

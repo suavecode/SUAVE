@@ -1,9 +1,8 @@
+## @ingroup Optimization
 # read_optimization_outputs.py
 #
 # Created:  May 2016, M. Vegh
 # Modified:
-
-
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,9 +13,25 @@ import numpy as np
 #  read_optimization_outputs_inputs
 # ----------------------------------------------------------------------
 
-
-
+## @ingroup Optimization
 def format_input_data(data):
+    """Takes in a result from an optimization problem and 
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        data
+
+        Outputs:
+        data_out
+
+        Properties Used:
+        None
+    """      
 
     data_out=[]
   
@@ -42,8 +57,31 @@ def format_input_data(data):
     
     return data_out
     
-    
+## @ingroup Optimization
 def read_optimization_outputs(filename, base_inputs, constraint_inputs):
+    """Reads in the outputs of an optimization problem
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        filename          [str]
+        base_inputs       [data]
+        constraint_inputs [data]
+
+        Outputs:
+        iterations        [int]
+        obj_values        [list]
+        inputs            [array]
+        constraints       [array]
+        
+
+        Properties Used:
+        None
+    """      
     #need vector of initial inputs to determine where to separate 
     #inputs from constraints in text file
     file_in = open(filename)

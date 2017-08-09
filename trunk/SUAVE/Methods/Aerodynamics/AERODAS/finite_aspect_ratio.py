@@ -34,7 +34,7 @@ def finite_aspect_ratio(state,settings,geometry):
         angle_attack_max_prestall_lift            [radians]
         pre_stall_maximum_drag_coefficient_angle  [radians]
         pre_stall_maximum_drag_coefficient        [Unitless]
-    settings.section_lift_curve_slope             [radians?]
+    settings.section_lift_curve_slope             [radians]
 
     Outputs:
     pre_stall_maximum_lift_coefficient            [Unitless]

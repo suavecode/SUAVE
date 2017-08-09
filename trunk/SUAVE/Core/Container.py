@@ -1,3 +1,4 @@
+## @ingroup Core
 # Container.py
 #
 # Created:  Jan 2015, T. Lukacyzk

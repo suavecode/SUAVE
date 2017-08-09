@@ -1,4 +1,4 @@
-## @ingroup analyses-atmospheric
+## @ingroup Analyses-Atmospheric
 # Constant_Temperature.py
 #
 # Created:  Mar 2014, SUAVE Team
@@ -27,10 +27,10 @@ from SUAVE.Methods.Utilities import atleast_2d_col
 # ----------------------------------------------------------------------
 #  Classes
 # ----------------------------------------------------------------------
-## @ingroup analyses-atmospheric
+## @ingroup Analyses-Atmospheric
 class Constant_Temperature(Atmospheric):
 
-    """ Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure
+    """Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure
         
     Assumptions:
     None
@@ -40,8 +40,7 @@ class Constant_Temperature(Atmospheric):
     """
     
     def __defaults__(self):
-        """This sets the default values for the analysis to function. (I don't actually
-        understand what's happening here). Sets the class atmosphere attribute.
+        """This sets the default values for the analysis to function.
     
         Assumptions:
         None

@@ -1,3 +1,4 @@
+## @ingroup Input_Output-XML
 # Data.py
 #
 # Created: T. Lukaczyk Feb 2015
@@ -20,16 +21,57 @@ t_table = string.maketrans( chars          + string.uppercase ,
 # ----------------------------------------------------------------------
 #  XML Data Clas
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-XML
 class Data(Data_Base):
-    
+    """This the XML data class used in SUAVE.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+    """       
     def __defaults__(self):
+        """Defaults for the data class.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """           
         self.tag        = ''
         self.attributes = Attributes()
         self.content    = ''
         self.elements   = []
         
     def get_elements(self,tag):
+        """Gets elements with a given tag.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        tag     - used to check which elements to return
+    
+        Outputs:
+        output  - list of matching elements
+    
+        Properties Used:
+        N/A
+        """           
         output = []
         for e in self.elements:
             if e.tag == tag:
@@ -37,6 +79,23 @@ class Data(Data_Base):
         return output
     
     def new_element(self,tag):
+        """Creates a new element.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        tag   - tag of the new element
+    
+        Outputs:
+        elem  - the new element
+    
+        Properties Used:
+        N/A
+        """           
         elem = Data()
         elem.tag = tag
         self.elements.append(elem)
@@ -44,7 +103,23 @@ class Data(Data_Base):
     
     @staticmethod
     def from_dict(data):
-        
+        """Gives a list of elements from data.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        data    - data class to read
+    
+        Outputs:
+        results - list of elements
+    
+        Properties Used:
+        N/A
+        """           
         result = Data()
         
         if data.has_key('tag'):
@@ -66,7 +141,23 @@ class Data(Data_Base):
         return result 
          
     def __str__(self,indent=''):
-        
+        """Determines how the class is shown in a string.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        indent  <string> indent to be used
+    
+        Outputs:
+        args    <string>
+    
+        Properties Used:
+        N/A
+        """           
         args = ''
         new_indent = '  '
         
@@ -107,5 +198,14 @@ class Data(Data_Base):
 # ----------------------------------------------------------------------
 #  XML Attributes Clas
 # ----------------------------------------------------------------------
+## @ingroup Input_Output-XML
 class Attributes(Data_Base):
+    """Placeholder class. No functionality.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+    """       
     pass

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Costs
 # Costs.py
 #
 # Created:  Sep 2016, T. Orra
@@ -13,12 +14,35 @@ from SUAVE.Analyses import Analysis
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Costs
 class Costs(Analysis):
-    """ SUAVE.Analyses.Costs.Costs()
+    """ This is the base class for cost analyses. It contains functions
+    that are built into the default class.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
     """
     def __defaults__(self):
+        """This sets the default values for the analysis to function.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """      
         self.tag = 'costs'
         self.vehicle  = Data()
 
@@ -30,7 +54,26 @@ class Costs(Analysis):
             SUAVE.Methods.Costs.Correlations.Industrial_Costs.compute_industrial_costs
 
     def evaluate(self,conditions=None):
+        """This sets the default evaluation method for costs.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None used
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.
+          vehicle                           SUAVE vehicle passed to the functions below
+          settings.industrial_costs_method  (function)
+          settings.operating_costs_method   (function)
+        """
         # unpack
         vehicle             = self.vehicle
         industrial_costs    = self.settings.industrial_costs_method

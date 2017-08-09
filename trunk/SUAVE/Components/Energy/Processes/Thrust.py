@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Processes
 # Thrust.py
 #
 # Created:  Jul 2014, A. Variyar
@@ -28,18 +29,35 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 #  Thrust Process
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Processes
 class Thrust(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Thrust
-        a component that computes the thrust and other output properties
-        
-        this class is callable, see self.__call__
-        
-        """
+    """A class that handles computation of thrust and other outputs for a gas turbine engine.
+    
+    Assumptions:
+    Perfect gas
+    
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """         
     
     def __defaults__(self):
-        
-        #setting the default values
+        """This sets the default value.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """                
         self.tag ='Thrust'
         self.bypass_ratio                             = 0.0
         self.compressor_nondimensional_massflow       = 0.0
@@ -61,7 +79,56 @@ class Thrust(Energy_Component):
 	
  
     def compute(self,conditions):
-        
+        """Computes thrust and other properties as below.
+
+        Assumptions:
+        Perfect gas
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        conditions.freestream.
+          isentropic_expansion_factor        [-] (gamma)
+          specific_heat_at_constant_pressure [J/(kg K)]
+          velocity                           [m/s]
+          speed_of_sound                     [m/s]
+          mach_number                        [-]
+          pressure                           [Pa]
+          gravity                            [m/s^2]
+        conditions.throttle                  [-] (.1 is 10%)
+        self.inputs.
+          fuel_to_air_ratio                  [-]
+          total_temperature_reference        [K]
+          total_pressure_reference           [Pa]
+          core_nozzle.
+            velocity                         [m/s]
+            static_pressure                  [Pa]
+            area_ratio                       [-]
+          fan_nozzle.
+            velocity                         [m/s]
+            static_pressure                  [Pa]
+            area_ratio                       [-]
+          number_of_engines                  [-]
+          bypass_ratio                       [-]
+          flow_through_core                  [-] percentage of total flow (.1 is 10%)
+          flow_through_fan                   [-] percentage of total flow (.1 is 10%)
+
+        Outputs:
+        self.outputs.
+          thrust                             [N]
+          thrust_specific_fuel_consumption   [N/N-s]
+          non_dimensional_thrust             [-]
+          core_mass_flow_rate                [kg/s]
+          fuel_flow_rate                     [kg/s]
+          power                              [W]
+
+        Properties Used:
+        self.
+          reference_temperature              [K]
+          reference_pressure                 [Pa]
+          compressor_nondimensional_massflow [-]
+        """           
         #unpack the values
         
         #unpacking from conditions
@@ -142,7 +209,31 @@ class Thrust(Energy_Component):
         
     
     def size(self,conditions):
-        
+        """Sizes the core flow for the design condition.
+
+        Assumptions:
+        Perfect gas
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        conditions.freestream.speed_of_sound [m/s] (conditions is also passed to self.compute(..))
+        self.inputs.
+          bypass_ratio                       [-]
+          total_temperature_reference        [K]
+          total_pressure_reference           [Pa]
+          number_of_engines                  [-]
+
+        Outputs:
+        self.outputs.non_dimensional_thrust  [-]
+
+        Properties Used:
+        self.
+          reference_temperature              [K]
+          reference_pressure                 [Pa]
+          total_design                       [N] - Design thrust
+        """             
         #unpack inputs
         a0                   = conditions.freestream.speed_of_sound
         throttle             = 1.0

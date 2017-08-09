@@ -1,3 +1,4 @@
+## @ingroup Surrogate
 # svr_surrogate_functions.py
 #
 # Created:  May 2016, M. Vegh
@@ -22,8 +23,29 @@ import time
 # ----------------------------------------------------------------------
 
 
-
+## @ingroup Surrogate
 def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E5, epsilon =.01):
+    """ 
+    Uses the scikit-learn package to build a surrogate formulation of an optimization problem,
+    using support vector regression. Includes additional options specific to support vector regression
+    
+    Inputs:
+    obj_values          [array]
+    inputs              [array]
+    constraints         [array]
+    kernel              [string]
+    C                   [float]
+    epsilon             [float]
+    
+    Outputs:
+    obj_surrogate            callable function(inputs)
+    constraints_surrogates   [array(callable function(inputs))]
+    surrogate_function       callable function(inputs): returns the objective, constraints, and whether it succeeded as an int 
+    
+    """
+    
+    
+    
     #now build surrogates based on these
     t1=time.time()
 
@@ -46,9 +68,25 @@ def build_svr_models(obj_values, inputs, constraints, kernel = 'rbf', C = 1E5, e
     surrogate_function.constraints_surrogates = constraints_surrogates
     
     return obj_surrogate, constraints_surrogates, surrogate_function    
-    
+
+
+## @ingroup Surrogate    
 def check_svr_accuracy(x, data_inputs, data_outputs, imin = -1): #set up so you can frame as an optimization problem
-    # x is inputs that you have option to optimize over
+    """ 
+    Determines how accurate the SVR function is at a given point
+    
+    Inputs:
+    x            [array]
+    data_inputs  [array]
+    data_outputs [array]
+    imin         [int]
+    
+    Outputs:
+    output       [float]
+    """
+    
+
+   # x is the set of inputs that you have option to optimize over
     #imin is index you want to leave out (default is last entry
     #use log base 10 inputs to find parameters
     Cval= 10**x[0]

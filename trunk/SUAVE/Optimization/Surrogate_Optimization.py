@@ -1,3 +1,4 @@
+## @ingroup Optimization
 #Surrogate_Optimization.py
 #
 #Created:  Jul 2016, M. Vegh
@@ -21,14 +22,36 @@ import time
 #  Surrogate_Optimization
 # ----------------------------------------------------------------------
 
-'''
-Takes a SUAVE Optimization problem, builds a surrogate around it, 
-and iteratively finds the optimum of the surrogate, then samples at that point.
-Stops when you hit max_iterations or it converges
-'''
-
+## @ingroup Optimization
 class Surrogate_Optimization(Data):
+    """Takes a SUAVE Optimization problem, builds a surrogate around it, 
+        and iteratively finds the optimum of the surrogate, then samples at that point.
+        Stops when you hit max_iterations or it converges
+        
+        Assumptions:
+        You're okay with represeting your problem with a surrogate
+        
+        Source:
+        N/A
+    """     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         self.sample_plan           = None #VyPy.sampling.lhc_uniform
         self.problem               = None #SUAVE nexus object
         self.optimizer             = None #pyOpt.pySNOPT.SNOPT()
@@ -38,6 +61,23 @@ class Surrogate_Optimization(Data):
         self.max_iterations        = 100
         
     def build_surrogate(self):
+        """Builds a surrogate for the problem
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         #unpack
         npoints           = self.number_of_points
         problem           = self.problem
@@ -79,6 +119,24 @@ class Surrogate_Optimization(Data):
         #now set up optimization problem on surrogate
         
     def iterative_optimization(self):
+        """Optimizes iteratively 
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            output_real        [float]
+            surrogate_problem  [surrogate]
+            
+            Properties Used:
+            None
+        """         
         
         filename  = self.optimization_filename
         problem   = self.problem
