@@ -1,3 +1,4 @@
+## @ingroup Methods-Propulsion
 # turbofan_nox_emission_index.py
 # 
 # Created:  Sep 2015, M. Vegh
@@ -11,12 +12,32 @@
 import numpy as np
 
 # ----------------------------------------------------------------------
-#   Turbofan NOX Emission Index
+#   turbofan_nox_emission_index
 # ----------------------------------------------------------------------
 
+
+## @ingroup Methods-Propulsion
 def turbofan_nox_emission_index(turbofan, state):
-    '''correlation taken from Antione, Nicholas, Aircraft Optimization for Minimal Environmental Impact, pp. 31 (PhD Thesis)
-    based on NASA's Engine Performance Program (NEPP)"'''
+    """
+    Outputs a turbofan's nox_emission_index takens from a regression calculated
+    from NASA's Engine Performance Program (NEPP)
+    
+    Inputs:
+    turbofan.
+      combustor.
+        inputs.
+          stagnation_pressure     [Pa]
+          stagnation_temperature  [K]
+        outputs.
+          stagnation_temperature  [K]
+          
+    Outputs:      
+    nox_emission_index            [kg/kg]
+    
+    Source: Antione, Nicholas, Aircraft Optimization for Minimal Environmental Impact, pp. 31 (PhD Thesis)
+    
+    
+    """
     
     results = turbofan(state)
     p3      = turbofan.combustor.inputs.stagnation_pressure/Units.psi
