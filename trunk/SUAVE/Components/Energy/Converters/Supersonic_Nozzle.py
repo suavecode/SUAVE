@@ -68,7 +68,7 @@ class Supersonic_Nozzle(Energy_Component):
     
     
     def compute(self,conditions):
-        """ This computes the output values from the input values according to
+        """This computes the output values from the input values according to
         equations from the source.
         
         Assumptions:
@@ -78,7 +78,7 @@ class Supersonic_Nozzle(Energy_Component):
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
         
         Inputs:
-        conditions data class with conditions.freestream.
+        conditions.freestream.
           isentropic_expansion_factor         [-]
           specific_heat_at_constant_pressure  [J/(kg K)]
           pressure                            [Pa]

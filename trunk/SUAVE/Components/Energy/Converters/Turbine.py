@@ -24,15 +24,34 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Converters
 class Turbine(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Turbine
-        a Turbine component
-        
-        this class is callable, see self.__call__
-        
-        """
+    """This is a turbine component typically used in a turbofan.
+    Calling this class calls the compute function.
+    
+    Assumptions:
+    Efficiencies do not change with varying conditions.
+
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """
     
     def __defaults__(self):
-        
+        """ This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """         
         #set the default values
         self.tag ='Turbine'
         self.mechanical_efficiency             = 1.0
@@ -48,7 +67,39 @@ class Turbine(Energy_Component):
     
     
     def compute(self,conditions):
-        
+        """This computes the output values from the input values according to
+        equations from the source.
+
+        Assumptions:
+        Constant polytropic efficiency and pressure ratio
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        conditions.freestream.
+          isentropic_expansion_factor         [-]
+          specific_heat_at_constant_pressure  [J/(kg K)]
+        self.inputs.
+          stagnation_temperature              [K]
+          stagnation_pressure                 [Pa]
+          bypass_ratio                        [-]
+          fuel_to_air_ratio                   [-]
+          compressor.work_done                [J/kg]
+          fan.work_done                       [J/kg]
+          shaft_power_off_take.work_done      [J/kg]
+
+        Outputs:
+        self.outputs.
+          stagnation_temperature              [K]  
+          stagnation_pressure                 [Pa]
+          stagnation_enthalpy                 [J/kg]
+
+        Properties Used:
+        self.
+          mechanical_efficiency               [-]
+          polytropic_efficiency               [-]
+        """           
         #unpack the values
         
         #unpack from conditions
@@ -58,7 +109,7 @@ class Turbine(Energy_Component):
         #unpack from inputs
         Tt_in           = self.inputs.stagnation_temperature
         Pt_in           = self.inputs.stagnation_pressure
-        alpha           =  self.inputs.bypass_ratio
+        alpha           = self.inputs.bypass_ratio
         f               = self.inputs.fuel_to_air_ratio
         compressor_work = self.inputs.compressor.work_done
         fan_work        = self.inputs.fan.work_done

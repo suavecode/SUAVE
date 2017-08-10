@@ -17,13 +17,55 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 #  Solar_Panel Class
 # ----------------------------------------------------------------------
 class Solar_Panel(Energy_Component):
+    """This is a solar cell component.
     
+    Assumptions:
+    None
+
+    Source:
+    None
+    """       
     def __defaults__(self):
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        None
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """        
         self.area       = 0.0
         self.efficiency = 0.0
     
     def power(self):
-        
+        """This determines the power output of the solar cell.
+
+        Assumptions:
+        None
+
+        Source:
+        None
+
+        Inputs:
+        self.inputs.flux   [W/m^2]
+
+        Outputs:
+        self.outputs.power [W]
+        power              [W]
+
+        Properties Used:
+        self.efficiency    [-]
+        self.area          [m^2]
+        """        
         # Unpack
         flux       = self.inputs.flux
         efficiency = self.efficiency

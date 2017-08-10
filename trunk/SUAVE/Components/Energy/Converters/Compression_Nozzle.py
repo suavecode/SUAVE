@@ -74,7 +74,7 @@ class Compression_Nozzle(Energy_Component):
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
 
         Inputs:
-        conditions data class with conditions.freestream.
+        conditions.freestream.
           isentropic_expansion_factor         [-]
           specific_heat_at_constant_pressure  [J/(kg K)]
           pressure                            [Pa]

@@ -56,7 +56,7 @@ class Motor(Energy_Component):
         self.expected_current   = 0.0
     
     def omega(self,conditions):
-        """Calculates the motors rotation rate
+        """Calculates the motor's rotation rate
 
         Assumptions:
         Cp (power coefficient) is constant
@@ -118,7 +118,7 @@ class Motor(Energy_Component):
         return omega1
     
     def current(self,conditions):
-        """Calculates the motors rotation rate
+        """Calculates the motor's current
 
         Assumptions:
         Cp (power coefficient) is constant
@@ -131,6 +131,9 @@ class Motor(Energy_Component):
 
         Outputs:
         self.outputs.current   [A]
+        conditions.
+          propulsion.etam      [-]
+        i                      [A]
 
         Properties Used:
         self.
