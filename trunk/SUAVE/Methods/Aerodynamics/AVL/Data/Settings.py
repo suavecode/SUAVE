@@ -38,7 +38,23 @@ class Settings(Data):
         """    
 
         def __defaults__(self):
-
+                """ Defines naming convention for files created/used by AVL to compute analysus
+        
+                Assumptions:
+                    None
+        
+                Source:
+                    None
+        
+                Inputs:
+                    None
+        
+                Outputs:
+                    None
+        
+                Properties Used:
+                    N/A
+                """  
                 self.run_cases                = Run_Case.Container()
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
@@ -82,15 +98,46 @@ class Settings(Data):
 # ------------------------------------------------------------
 
 class AVL_Discretization_Settings(Data):
+        """ A class that defines discretization of vortices on the aircraft wing
+        
+        Assumptions:
+            None
+    
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """           
         def __defaults__(self):
-                """
+                """ Defines the spacing of vortices on lifting surface in AVL
                 SPACING SCHEMES:
                 	- 'cosine' : ||  |    |      |      |    |  || (bunched at both ends)
                 	- '+sine'  : || |  |   |    |    |     |     | (bunched at start)
                 	- 'equal'  : |   |   |   |   |   |   |   |   | (equally spaced)
                 	- '-sine'  : |     |     |    |    |   |  | || (bunched at end)
-                """
-
+               
+                Assumptions:
+                    None
+                
+                Source:
+                    None
+                
+                Inputs:
+                    None
+                
+                Outputs:
+                    None
+                
+                Properties Used:
+                    N/A
+                """  
                 self.chordwise_elements        = 5
                 self.chordwise_spacing_scheme  = 'equal'
                 self.spanwise_elements         = 5

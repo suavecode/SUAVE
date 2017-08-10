@@ -39,7 +39,24 @@ class Configuration(Data):
 	
 	
 	def __defaults__(self):
-		
+		""" Defines the data structure and defaults for mass properties of the aircraft 
+		in AVL
+
+		Assumptions:
+		    None
+
+		Source:
+		    None
+
+		Inputs:
+		    None
+
+		Outputs:
+		    None
+
+		Properties Used:
+		    N/A
+		""" 		
 		self.tag = 'configuration'
 		self.parasite_drag                = 0.0
 		

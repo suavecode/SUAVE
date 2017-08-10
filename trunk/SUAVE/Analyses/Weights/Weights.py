@@ -38,6 +38,23 @@ class Weights(Analysis):
          N/A
     """
     def __defaults__(self):
+        """This sets the default values and methods for the weights analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """           
         self.tag = 'weights'
         
         self.vehicle  = Data()
@@ -45,10 +62,44 @@ class Weights(Analysis):
                
         
     def evaluate(self):
+        """Evaluate the weight analysis.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         
         return 
     
     def finalize(self):
+        """Finalize the weight analysis.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """          
         
         return     
     

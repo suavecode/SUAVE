@@ -35,7 +35,23 @@ class Results(Data):
     """    
     
     def __defaults__(self):
-
+        """ Defining data structure  and defaults for aerodynamics and stabilty results 
+    
+        Assumptions:
+            None
+            
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """ 
         self.aerodynamics = Data()
         self.stability    = Data()
         

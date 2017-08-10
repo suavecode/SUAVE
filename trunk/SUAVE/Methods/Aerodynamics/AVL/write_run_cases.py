@@ -22,7 +22,8 @@ def write_run_cases(avl_object):
         Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
 
     Inputs:
-        avl_object
+        avl_object.current_status.batch_file                    [-]
+        avl_object.geometry.mass_properties.center_of_gravity   [meters]
 
     Outputs:
         None
@@ -124,7 +125,23 @@ def write_run_cases(avl_object):
 
 
 def make_controls_case_text(control_deflection):
+    """ This function writes the text of the control surfaces in the AVL batch analysis
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        control_deflection.tag                                  [-]
+        control_deflection.deflection                           [-]
+    Outputs: 
+        controls_case_text                                      [-]
+ 
+    Properties Used:
+        N/A
+    """  
     base_control_cond_text = '{0}      ->  {0}     =   {1}    \n'
 
     # Unpack inputs

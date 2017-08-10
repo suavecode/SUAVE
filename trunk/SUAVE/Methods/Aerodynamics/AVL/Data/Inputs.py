@@ -38,7 +38,23 @@ class Inputs(Data):
 	
 
 	def __defaults__(self):
-		
+		""" Defines the data structure  and defaults of aircraft configuration and cases 
+	
+		Assumptions:
+		    None
+	    
+		Source:
+		    None
+	    
+		Inputs:
+		    None
+	    
+		Outputs:
+		    None
+	    
+		Properties Used:
+		    N/A
+		""" 		
 		self.configuration  = Data()
 		self.aircraft       = Data()
 		self.cases          = Data()
@@ -50,8 +66,4 @@ class Inputs(Data):
 		filenames.cases     = 'aircraft.cases'
 		filenames.deck      = 'commands.run'
 		filenames.reference_path = SUAVE.__path__[0] + '/temporary_files/'
-		# Currently dumping input files in the SUAVE main
-		# directory. This should be fixed once AVL has a place in
-		# the SUAVE file structure
-		
 		self.input_files = filenames

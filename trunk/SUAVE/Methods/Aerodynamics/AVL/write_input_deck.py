@@ -68,7 +68,25 @@ def write_input_deck(avl_object):
 
 
 def make_case_command(avl_object,case):
+    """ Makes commands for case execution in AVK
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        case.index
+        case.tag
+        case.result_filename
+
+    Outputs:
+        case_command
+ 
+    Properties Used:
+        N/A
+    """  
     base_case_command = \
 '''{0}
 x

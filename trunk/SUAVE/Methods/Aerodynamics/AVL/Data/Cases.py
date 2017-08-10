@@ -38,13 +38,24 @@ class Run_Case(Data):
     """    
     
     def __defaults__(self):
-        """
-        OUTPUTS:
-        	- 'aerodynamic' (CL, CD, CM)
-        	- 'body derivatives' (CMa,CNb,Clb,
-        	- 'stability derivatives' (
+        """Defines the data structure and defaults of aerodynamics coefficients, 
+        body derivatives and stability derivatives   
 
-        """
+        Assumptions:
+            None
+    
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """ 
 
         self.index                      = 0		# Will be overwritten when passed to an AVL_Callable object
         self.tag                        = 'case'
@@ -73,7 +84,23 @@ class Run_Case(Data):
  
 
     def append_control_deflection(self,control_tag,deflection):
-        """ adds a control deflection case """
+        """ Adds a control deflection case 
+
+	Assumptions:
+	    None
+    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""         
         control_deflection              = Data()
         control_deflection.tag          = control_tag
         control_deflection.deflection   = deflection
@@ -84,17 +111,43 @@ class Run_Case(Data):
         return
 
 class Container(DataOrdered):
+    """ A data class for the addition of a cases to the set of run cases
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        None
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
     def append_case(self,case):
-        """ adds a case to the set of run cases """
+        """ Adds a case to the set of run cases "
+        
+	Assumptions:
+	    None
+    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""         
         case.index = len(self)+1
         self.append(case)
-        #case = self.check_new_val(case)
-        
-        ## store data with the appropriate case index
-        ## AVL uses indices starting from 1, not 0!
-        ##num_cases = len(self)
-        #Data.append(self,case)
 
         return
     

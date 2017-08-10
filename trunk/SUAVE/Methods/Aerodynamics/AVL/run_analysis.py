@@ -25,8 +25,8 @@ def run_analysis(avl_object):
         None
 
     Inputs:
-        None
-
+        avl_object - passed into the  call_avl function  
+        
     Outputs:
         results
 
@@ -41,7 +41,24 @@ def run_analysis(avl_object):
 
 
 def call_avl(avl_object):
+    """ This function calls the AVL executable and executes analyses
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_object
+
+    Outputs:
+        exit_status
+
+    Properties Used:
+        N/A
+    """    
+    
     import sys
     import time
     import subprocess

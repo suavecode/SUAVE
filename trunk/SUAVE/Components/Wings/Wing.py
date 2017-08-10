@@ -1,3 +1,4 @@
+## @ingroup Components-Wings
 # Wing.py
 # 
 # Created:  
@@ -16,8 +17,43 @@ from Airfoils import Airfoil
 #   Wing
 # ------------------------------------------------------------
 
+## @ingroup Components-Wings
 class Wing(Lofted_Body):
+    """This class defines the wing in SUAVE
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """      
     def __defaults__(self):
+        """This sets the default values of a wing defined in SUAVE.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
 
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
@@ -85,7 +121,23 @@ class Wing(Lofted_Body):
         self.Airfoil            = Data()
 
     def append_segment(self,segment):
-        """ adds a segment to the wing """
+        """ Adds a segment to the wing 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
 
         # Assert database type
         if not isinstance(segment,Data):
@@ -97,7 +149,23 @@ class Wing(Lofted_Body):
         return
     
     def append_airfoil(self,airfoil):
-        """ adds an airfoil to the segment """
+        """ Adds an airfoil to the segment 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
 
         # Assert database type
         if not isinstance(airfoil,Data):
@@ -110,7 +178,23 @@ class Wing(Lofted_Body):
 
 
     def append_control_surface(self,control_surface):
-        """ adds a component to vehicle """
+        """ Adds a component to vehicle 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
 
         # Assert database type
         if not isinstance(control_surface,Data):
@@ -122,6 +206,25 @@ class Wing(Lofted_Body):
         return
 
 class Container(Component.Container):
+    
+    """ Container for wing
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """     
+    
     pass
 
 

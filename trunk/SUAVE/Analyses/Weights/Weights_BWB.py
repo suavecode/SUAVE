@@ -36,6 +36,23 @@ class Weights_BWB(Weights):
          N/A
     """
     def __defaults__(self):
+        """This sets the default values and methods for the BWB weight analysis.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """           
         self.tag = 'weights_bwb'
         
         self.vehicle  = Data()
@@ -43,7 +60,23 @@ class Weights_BWB(Weights):
         
         
     def evaluate(self,conditions=None):
-        
+        """Evaluate the weight analysis.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        results
+
+        Properties Used:
+        N/A
+        """         
         # unpack
         vehicle = self.vehicle
         empty   = SUAVE.Methods.Weights.Correlations.BWB.empty
@@ -63,7 +96,23 @@ class Weights_BWB(Weights):
     
     
     def finalize(self):
-        
+        """Finalize the weight analysis.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+            """           
         self.mass_properties = self.vehicle.mass_properties
         
         return

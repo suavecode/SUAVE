@@ -1,3 +1,4 @@
+## @ingroup Components-Wings
 # Segment.py
 # 
 # Created:  Sep 2016, E. Botero
@@ -14,8 +15,26 @@ from SUAVE.Components.Wings.Control_Surface import Control_Surface
 #  Wing Segments
 # ------------------------------------------------------------
 
+## @ingroup Components-Wings
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
+        """This sets the default for wing segments in SUAVE.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         self.tag = 'segment'
         self.percent_span_location = 0.0
         self.twist                 = 0.0
@@ -28,8 +47,23 @@ class Segment(Lofted_Body.Segment):
         self.control_surfaces      = Data()  
         
     def append_airfoil(self,airfoil):
-        """ adds an airfoil to the segment """
+        """ Adds an airfoil to the segment
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """  
         # assert database type
         if not isinstance(airfoil,Data):
             raise Exception, 'input component must be of type Data()'
@@ -40,4 +74,22 @@ class Segment(Lofted_Body.Segment):
         return    
 
 class SegmentContainer(Lofted_Body.Segment.Container):
+    """ Container for wing segment
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """     
+    
     pass

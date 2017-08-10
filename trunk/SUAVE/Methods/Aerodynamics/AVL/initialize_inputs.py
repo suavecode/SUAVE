@@ -20,27 +20,25 @@ from write_input_deck         import write_input_deck
 def initialize_inputs(geometry,configuration,conditions):
         """ This intializes the functions used in the AVL class
 
-	Assumptions:
-	    None
-	
-	Source:
-	    None
-	
-	Inputs:
-	    geometry
-	    conditions
-	    configuraton
-	
-	Outputs:
-	    avl_imputs
-	
-	Properties Used:
-	    N/A
-	"""    	
-    
-	avl_inputs = create_avl_datastructure(geometry,configuration,conditions)
-	avl_inputs = write_geometry(avl_inputs)
-	avl_inputs = write_run_cases(avl_inputs)
-	avl_inputs = write_input_deck(avl_inputs)
-	
-	return avl_inputs
+        Assumptions:
+                None
+
+        Source:
+                None
+
+        Inputs:
+                avl_inputs - passed into the write_geometry, write_run_cases and write_input_deck functions
+
+        Outputs:
+                avl_imputs
+
+        Properties Used:
+                N/A
+        """    	
+
+        avl_inputs = create_avl_datastructure(geometry,configuration,conditions)
+        avl_inputs = write_geometry(avl_inputs)
+        avl_inputs = write_run_cases(avl_inputs)
+        avl_inputs = write_input_deck(avl_inputs)
+
+        return avl_inputs

@@ -55,7 +55,25 @@ def create_avl_datastructure(geometry,conditions):
 
 
 def translate_avl_geometry(geometry):
+        """ Translates geometry from the vehicle setup to AVL format
 
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            geometry
+                geometry.wing - passed into the translate_avl_wing function      [data stucture] 
+                geometry.fuselage - passed into the translate_avl_body function  [data stucture]
+
+        Outputs:
+            aircraft - aircraft geometry in AVL format                           [data stucture] 
+
+        Properties Used:
+            N/A
+        """ 
         aircraft                 = Aircraft()
         aircraft.tag             = geometry.tag
 
@@ -72,6 +90,26 @@ def translate_avl_geometry(geometry):
 
 
 def translate_avl_wing(suave_wing):
+        """ Translates wing geometry from the vehicle setup to AVL format
+
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            suave_wing.tag                                                          [-]
+            suave_wing.symmetric                                                    [boolean]
+            suave_wing.verical                                                      [boolean]
+            suave_wing - passed into the populate_wing_sections function            [data stucture]
+            
+        Outputs:
+            w - aircraft wing in AVL format                                         [data stucture] 
+
+        Properties Used:
+            N/A
+        """         
         w                 = Wing()
         w.tag             = suave_wing.tag
         w.symmetric       = suave_wing.symmetric
@@ -81,7 +119,30 @@ def translate_avl_wing(suave_wing):
         return w
 
 def translate_avl_body(suave_body):
+        """ Translates body geometry from the vehicle setup to AVL format
 
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            body.tag                                                       [-]
+            suave_wing.lengths.total                                       [meters]                                                [boolean]
+            suave_body.lengths.nose                                        [meters]
+            suave_body.lengths.tail                                        [meters]
+            suave_wing.verical                                             [meters]
+            suave_body.width                                               [meters]
+            suave_body.heights.maximum                                     [meters]
+            suave_wing - passed into the populate_body_sections function   [data stucture]
+            
+        Outputs:
+            b - aircraft body in AVL format                                [data stucture] 
+
+        Properties Used:
+            N/A
+        """  
         b                 = Body()
         b.tag             = suave_body.tag
         b.symmetric       = True
@@ -95,7 +156,31 @@ def translate_avl_body(suave_body):
         return b
 
 def populate_wing_sections(avl_wing,suave_wing): 
+        """ Creates sections of wing geometry and populates the AVL wing data structure
 
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            avl_wing.symmetric                         [boolean]
+            suave_wing.spans.projected                 [meters]
+            suave_wing.origin                          [meters]
+            suave_wing.dihedral                        [radians]
+            suave_wing.Segments.sweeps.leading_edge    [radians]
+            suave_wing.Segments.root_chord_percent     [-]
+            suave_wing.Segments.percent_span_location  [-]
+            suave_wing.Segments.sweeps.quarter_chord   [radians]
+            suave_wing.Segment.twist                   [radians]
+                  
+        Outputs:
+            avl_wing - aircraft wing in AVL format     [data stucture] 
+
+        Properties Used:
+            N/A
+        """         
 
         # Check to see if segments are defined. Get count
         if len(suave_wing.Segments.keys())>0:
@@ -352,7 +437,31 @@ def populate_wing_sections(avl_wing,suave_wing):
 #-------------------------------------------------------------------------------------------------------------------------
 
 def populate_body_sections(avl_body,suave_body):
+        """ Creates sections of body geometry and populates the AVL body data structure
 
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            avl_wing.symmetric                       [boolean]
+            avl_body.widths.maximum                  [meters]
+            avl_body.heights.maximum                 [meters]
+            suave_body.fineness.nose                 [meters]
+            suave_body.fineness.tail                 [meters]
+            avl_body.lengths.total                   [meters]
+            avl_body.lengths.nose                    [meters] 
+            avl_body.lengths.tail                    [meters]  
+                  
+        Outputs:
+            avl_body - aircraft body in AVL format   [data stucture] 
+
+        Properties Used:
+            N/A
+        """  
+        
         symm = avl_body.symmetric   
         semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
         semispan_v = avl_body.heights.maximum * 0.5
@@ -396,7 +505,28 @@ def populate_body_sections(avl_body,suave_body):
         return avl_body
 
 def translate_avl_configuration(geometry,conditions):
+        """ Translates mass properties of the aircraft configuration into AVL format
 
+        Assumptions:
+            None
+
+        Source:
+            None
+
+        Inputs:
+            geometry.reference_area                              [meters**2]
+            geometry.wings['Main Wing'].spans.projected          [meters]
+            geometry.wings['Main Wing'].chords.mean_aerodynamic  [meters]
+            geometry.mass_properties.center_of_gravity           [meters]
+            geometry.mass_properties.moments_of_inertia.tensor   [kilograms-meters**2]
+                  
+        Outputs:
+            config                                               [-]
+
+        Properties Used:
+            N/A
+        """  
+        
         config                                   = Configuration()
         config.reference_values.sref             = geometry.reference_area
         config.reference_values.bref             = geometry.wings['Main Wing'].spans.projected
