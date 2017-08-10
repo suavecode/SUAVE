@@ -18,16 +18,32 @@ import numpy as np
 default_result = np.zeros([1,1])
 ## @ingroup Analyses-Aerodynamics
 class Results(Base_Results):
-    """A 
+    """A class for storing aerodynamic results.
 
     Assumptions:
-    Subsonic
+    None
 
     Source:
-    Primarily based on adg.stanford.edu, see methods for details
+    N/A
     """      
     def __defaults__(self):
-        
+        """This sets the default values for the results.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """               
         self.lift_coefficient  = default_result * 0.
         self.drag_coefficient  = default_result * 0.
         

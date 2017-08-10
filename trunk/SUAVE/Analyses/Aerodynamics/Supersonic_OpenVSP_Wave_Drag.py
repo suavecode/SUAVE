@@ -26,10 +26,32 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
 class Supersonic_OpenVSP_Wave_Drag(Markup):
+    """This is an analysis based on low-fidelity models.
 
-    
+    Assumptions:
+    None
+
+    Source:
+    Many methods based on adg.stanford.edu, see methods for details
+    """     
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """           
         self.tag = 'Supersonic_OpenVSP_Wave_Drag'
         
         # correction factors
@@ -81,6 +103,23 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         
         
     def initialize(self):
+        """Initializes the surrogate needed for lift calculation and removes old volume drag data files.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.geometry.tag (geometry in full is also attached to a process)
+        """          
         import os
         
         # Remove old volume drag data so that new data can be appended without issues

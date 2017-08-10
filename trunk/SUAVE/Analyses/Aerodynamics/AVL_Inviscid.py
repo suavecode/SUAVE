@@ -138,7 +138,7 @@ class AVL_Inviscid(Aerodynamics):
         N/A
 
         Inputs:
-        states.conditions.
+        state.conditions.
           mach_number      [-]
           angle_of_attack  [radians]
 
@@ -201,7 +201,7 @@ class AVL_Inviscid(Aerodynamics):
         self.training.     
           angle_of_attack  [radians]
           Mach             [-]
-        self.training_file (file containing information on what points to run - optional)
+        self.training_file (optional - file containing previous AVL data)
         """          
         # Unpack
         geometry = self.geometry

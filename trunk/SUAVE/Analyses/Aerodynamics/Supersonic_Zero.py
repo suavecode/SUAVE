@@ -27,17 +27,32 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
 class Supersonic_Zero(Markup):
-    """ SUAVE.Attributes.Aerodynamics.Fidelity_Zero
-        aerodynamic model that builds a surrogate model for clean wing 
-        lift, using vortex lattic, and various handbook methods
-        for everything else
-        
-        this class is callable, see self.__call__
-        
-    """
-    
+    """This is an analysis based on low-fidelity models.
+
+    Assumptions:
+    None
+
+    Source:
+    Primarily based on adg.stanford.edu, see methods for details
+    """ 
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         self.tag = 'Fidelity_Zero_Supersonic'
         
         # correction factors
@@ -87,6 +102,23 @@ class Supersonic_Zero(Markup):
         
         
     def initialize(self):
+        """Initializes the surrogate needed for lift calculation.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.geometry
+        """            
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         
