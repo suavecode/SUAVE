@@ -1,5 +1,5 @@
 
-[SUAVE: An Aerospace Vehicle Environment for Designing Future Aircraft](http://suave.stanford.edu)
+SUAVE: An Aerospace Vehicle Environment for Designing Future Aircraft
 =======
 
  
