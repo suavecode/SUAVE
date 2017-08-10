@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Shaft_Power_Off_Take.py
 #
 # Created:  Jun 2016, L. Kulik
@@ -15,7 +16,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Shaft Power component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Shaft_Power_Off_Take(Energy_Component):
     """ SUAVE.Components.Energy.Converters.Generator
         an electrical generator component

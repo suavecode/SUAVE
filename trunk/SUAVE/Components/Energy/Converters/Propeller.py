@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Propeller.py
 #
 # Created:  Jun 2014, E. Botero
@@ -22,7 +23,7 @@ from warnings import warn
 # ----------------------------------------------------------------------
 #  Propeller Class
 # ----------------------------------------------------------------------    
- 
+## @ingroup Components-Energy-Converters
 class Propeller(Energy_Component):
     
     def __defaults__(self):

@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Solar_Panel.py
 #
 # Created:  Jun 2014, E. Botero
@@ -11,7 +12,7 @@
 import SUAVE
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-
+## @ingroup Components-Energy-Converters
 # ----------------------------------------------------------------------
 #  Solar_Panel Class
 # ----------------------------------------------------------------------

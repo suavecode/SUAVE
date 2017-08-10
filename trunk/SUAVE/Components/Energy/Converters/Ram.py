@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Ram.py
 #
 # Created:  Jul 2014, A. Variyar
@@ -20,7 +21,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Ram Component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Ram(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Ram
         a Ram class that is used to convert static properties into

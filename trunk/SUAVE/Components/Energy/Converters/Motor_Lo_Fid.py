@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Motor_Lo_Fid.py
 #
 # Created:  Jun 2014, E. Botero
@@ -16,7 +17,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Motor Class
 # ----------------------------------------------------------------------
-    
+## @ingroup Components-Energy-Converters
 class Motor_Lo_Fid(Energy_Component):
     
     def __defaults__(self):

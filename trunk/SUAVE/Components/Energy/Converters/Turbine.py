@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Turbine.py
 #
 # Created:  Jul 2014, A. Variyar
@@ -21,7 +22,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Turbine Component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Turbine(Energy_Component):
     """ SUAVE.Components.Energy.Gas_Turbine.Turbine
         a Turbine component
