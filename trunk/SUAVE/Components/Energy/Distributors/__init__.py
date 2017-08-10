@@ -1,3 +1,7 @@
+## @defgroup Components-Energy-Distributors Distributors
+# Components that move energy/control energy/power in a network
+# @ingroup Components-Energy
+
 # __init__.py
 #
 # Created:  Jun 2014, E. Botero
