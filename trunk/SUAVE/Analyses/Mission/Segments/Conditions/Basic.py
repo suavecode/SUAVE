@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Conditions
 # Basic.py
 #
 # Created:  
@@ -17,9 +18,35 @@ from Conditions import Conditions
 #  Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Conditions
 class Basic(Conditions):
+    """ Basic builds upon conditions to add the mission data structure. Here frames and weights are added.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """    
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         self.tag = 'basic_conditions'
         
         # start default row vectors

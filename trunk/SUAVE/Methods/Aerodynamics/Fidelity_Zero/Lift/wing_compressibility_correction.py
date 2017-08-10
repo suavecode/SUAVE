@@ -21,20 +21,23 @@ def wing_compressibility_correction(state,settings,geometry):
     """Corrects a wings lift based on compressibility
 
     Assumptions:
-    wing capable of vortex lift
+    subsonic
 
     Source:
     https://stanford.edu/~cantwell/AA200_Course_Material/AA200_Course_Notes/
     
     Inputs:
-    settings.fuselage_lift_correction  [Unitless]
+    settings.fuselage_lift_correction  [-]
     state.conditions.
-      freestream.mach_number           [Unitless]
+      freestream.mach_number           [-]
       aerodynamics.angle_of_attack     [radians]
-      aerodynamics.lift_coefficient    [Unitless]
+      aerodynamics.lift_coefficient    [-]
 
     Outputs:
-    wings_lift_comp                    [Unitless]
+    state.conditions.aerodynamics.
+      lift_breakdown.compressible_wings [-] CL for the wings
+      lift_coefficient                  [-]
+    wings_lift_comp                     [-]
 
     Properties Used:
     N/A

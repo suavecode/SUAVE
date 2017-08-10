@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Unknown_Throttle.py
 #
 # Created:  
@@ -24,9 +25,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Unknown_Throttle(Aerodynamic):
+    """ This is a basic climb segment that is not callable by a user. All other variable throttle missions are based 
+        on this class as a building block.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

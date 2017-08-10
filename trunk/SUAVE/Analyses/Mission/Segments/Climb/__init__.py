@@ -1,3 +1,7 @@
+## @defgroup Analyses-Mission-Segments-Climb Climb
+# Segments for climbing flight
+# @ingroup Analyses-Mission-Segments
+
 
 from Constant_Dynamic_Pressure_Constant_Rate import Constant_Dynamic_Pressure_Constant_Rate
 from Constant_Mach_Constant_Angle import Constant_Mach_Constant_Angle

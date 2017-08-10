@@ -19,7 +19,7 @@ from SUAVE.Analyses import Analysis
 
 ## @ingroup Analyses-Atmospheric
 class Atmospheric(Analysis):
-    """ This is the base class for atmospheric analyses. It contains functions
+    """This is the base class for atmospheric analyses. It contains functions
     that are built into the default class.
     
     Assumptions:
