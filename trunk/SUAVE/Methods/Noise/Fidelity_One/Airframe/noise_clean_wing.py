@@ -1,7 +1,7 @@
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_clean_wing.py
 # 
-# Created:  Jun 2015, Carlos
+# Created:  Jun 2015, C. Ilario
 # Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
