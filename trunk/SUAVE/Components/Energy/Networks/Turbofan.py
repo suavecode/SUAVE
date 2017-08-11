@@ -298,7 +298,7 @@ class Turbofan(Propulsor):
             N/A
     
             Inputs:
-            None
+            State [state()]
     
             Outputs:
             None
