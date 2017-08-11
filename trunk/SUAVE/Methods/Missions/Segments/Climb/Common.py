@@ -1,7 +1,9 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Common.py
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,8 +14,27 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Missions-Segments-Climb
 def unpack_unknowns(segment,state):
+    """Unpacks the unknowns set in the mission to be available for the mission.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns.throttle            [Unitless]
+    state.unknowns.body_angle          [Radians]
+
+    Outputs:
+    state.conditions.propulsion.throttle            [Unitless]
+    state.conditions.frames.body.inertial_rotations [Radians]
+
+    Properties Used:
+    N/A
+    """        
     
     # unpack unknowns
     throttle = state.unknowns.throttle
@@ -27,7 +48,27 @@ def unpack_unknowns(segment,state):
 #  Residual Total Forces
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def residual_total_forces(segment,state):
+    """Takes the summation of forces and makes a residual from the accelerations.
+
+    Assumptions:
+    No higher order terms.
+
+    Source:
+    N/A
+
+    Inputs:
+    state.conditions.frames.inertial.total_force_vector   [Newtons]
+    sstate.conditions.frames.inertial.acceleration_vector [meter/second^2]
+    state.conditions.weights.total_mass                   [kilogram]
+
+    Outputs:
+    state.residuals.forces                                [Unitless]
+
+    Properties Used:
+    N/A
+    """        
     
     FT = state.conditions.frames.inertial.total_force_vector
     a  = state.conditions.frames.inertial.acceleration_vector
@@ -37,25 +78,25 @@ def residual_total_forces(segment,state):
     state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]       
 
     return
-       
+      
+## @ingroup Methods-Missions-Segments-Climb 
 def update_differentials_altitude(segment,state):
-    """ Segment.update_differentials_altitude(conditions, numerics, unknowns)
-        updates the differential operators t, D and I
-        must return in dimensional time, with t[0] = 0
+    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
 
+        Assumptions:
         Works with a segment discretized in vertical position, altitude
 
-        Inputs - 
-            unknowns      - data dictionary of segment free unknowns
-            conditions    - data dictionary of segment conditions
-            numerics - data dictionary of non-dimensional differential operators
+        Inputs:
+        state.numerics.dimensionless.control_points      [Unitless]
+        state.numerics.dimensionless.differentiate       [Unitless]
+        state.numerics.dimensionless.integrate           [Unitless]
+        state.conditions.frames.inertial.position_vector [meter]
+        state.conditions.frames.inertial.velocity_vector [meter/second]
+        
 
-        Outputs - 
-            numerics - udpated data dictionary with dimensional numerics 
+        Outputs:
+        state.conditions.frames.inertial.time            [second]
 
-        Assumptions - 
-            outputed operators are in dimensional time for the current solver iteration
-            works with a segment discretized in vertical position, altitude
 
     """
 

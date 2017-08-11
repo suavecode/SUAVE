@@ -1,3 +1,6 @@
+## @defgroup Components-Wings Wings
+# @ingroup Components
+#
 # __init__.py
 # 
 # Created:  

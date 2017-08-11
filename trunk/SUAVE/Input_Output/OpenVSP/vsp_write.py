@@ -1,3 +1,4 @@
+## @ingroup Input_Output-OpenVSP
 # vsp_write.py
 # 
 # Created:  Jul 2016, T. MacDonald
@@ -18,7 +19,73 @@ except ImportError:
     pass
 import numpy as np
 
+## @ingroup Input_Output-OpenVSP
 def write(vehicle,tag):
+    """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
+    if they are specified in the vehicle setup file.
+    
+    Assumptions:
+    Vehicle is composed of conventional shape fuselages, wings, and propulsors. Any propulsor
+    that should be created in tagged as 'turbofan'.
+
+    Source:
+    N/A
+
+    Inputs:
+    wings.*.    (* is all keys)
+      origin                                  [m] in all three dimensions
+      spans.projected                         [m]
+      chords.root                             [m]
+      chords.tip                              [m]
+      sweeps.quarter_chord                    [radians]
+      twists.root                             [radians]
+      twists.tip                              [radians]
+      thickness_to_chord                      [-]
+      dihedral                                [radians]
+      tag                                     <string>
+      Segments.*. (optional)
+        twist                                 [radians]
+        percent_span_location                 [-]  .1 is 10%
+        root_chord_percent                    [-]  .1 is 10%
+        dihedral_outboard                     [radians]
+        sweeps.quarter_chord                  [radians]
+        thickness_to_chord                    [-]
+    propulsors.turbofan. (optional)
+      number_of_engines                       [-]
+      engine_length                           [m]
+      nacelle_diameter                        [m]
+      origin                                  [m] in all three dimension, should have as many origins as engines
+      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+    fuselages.fuselage (optional)
+      width                                   [m]
+      lengths.total                           [m]
+      heights.
+        maximum                               [m]
+        at_quarter_length                     [m]
+        at_wing_root_quarter_chord            [m]
+        at_three_quarters_length              [m]
+      effective_diameter                      [m]
+      fineness.nose                           [-] ratio of nose section length to fuselage width
+      fineness.tail                           [-] ratio of tail section length to fuselage width
+      tag                                     <string>
+      OpenVSP_values.  (optional)
+        nose.top.angle                        [degrees]
+        nose.top.strength                     [-] this determines how much the specified angle influences that shape
+        nose.side.angle                       [degrees]
+        nose.side.strength                    [-]
+        nose.TB_Sym                           <boolean> determines if top angle is mirrored on bottom
+        nose.z_pos                            [-] z position of the nose as a percentage of fuselage length (.1 is 10%)
+        tail.top.angle                        [degrees]
+        tail.top.strength                     [-]
+        tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+    
+
+    Outputs:
+    <tag>.vsp3           This is the OpenVSP representation of the aircraft
+
+    Properties Used:
+    N/A
+    """    
     
     # Reset OpenVSP to avoid including a previous vehicle
     try:

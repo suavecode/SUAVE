@@ -1,3 +1,4 @@
+## @ingroup Analyses-Stability
 # AVL.py
 #
 # Created: Apr 2017, M. Clarke 
@@ -39,18 +40,39 @@ from sklearn import gaussian_process
 from shutil import rmtree
 from warnings import warn
 
-## ----------------------------------------------------------------------
-##  Class
-## ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+#  Class
+# ----------------------------------------------------------------------
 
+## @ingroup Analyses-Stability
 class AVL(Stability):
-    """ SUAVE.Analyses.Stability.AVL
-        stability model that performs a vortex lattice analysis using AVL
-        (Athena Vortex Lattice, by Mark Drela of MIT).
+    """This builds a surrogate and computes moment using AVL.
 
-    """
+    Assumptions:
+    None
+
+    Source:
+    None
+    """  
 
     def __defaults__(self):
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """                  
         self.tag                                            = 'avl'
         self.keep_files                                     = True
         
@@ -103,6 +125,23 @@ class AVL(Stability):
         self.stability_model.dutch_roll.natural_frequency   = 0.0
 
     def finalize(self):
+        """Drives functions to get training samples and build a surrogate.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        self.tag = 'avl_analysis_of_{}'.format(geometry.tag)
+
+        Properties Used:
+        self.geometry.tag
+        """          
         geometry                       = self.geometry
         self.tag                       = 'avl_analysis_of_{}'.format(geometry.tag)
         configuration                  = self.configuration
@@ -128,7 +167,34 @@ class AVL(Stability):
         return
 
     def __call__(self,conditions):
+        """Evaluates moment coefficient, stability deriviatives and neutral point using available surrogates.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        state.conditions.
+          mach_number      [-]
+          angle_of_attack  [radians]
+
+        Outputs:
+        results
+            results.static_stability
+            results.dynamic_stability
+        
+
+        Properties Used:
+        self.surrogates.
+           pitch_moment_coefficient [-] CM
+           cm_alpha                 [-] Cm_alpha
+           cn_beta                  [-] Cn_beta
+           neutral_point            [-] NP
+
+        """          
+        
         # Unpack
         surrogates          = self.surrogates  
         configuration       = self.configuration
@@ -222,7 +288,30 @@ class AVL(Stability):
 
 
     def sample_training(self):
+        """Call methods to run AVL for sample point evaluation.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        see properties used
+
+        Outputs:
+        self.training.
+          coefficients     [-] CM, Cm_alpha, Cn_beta CD
+          neutral point    [-] NP
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Properties Used:
+        self.geometry.tag  <string>
+        self.training.     
+          angle_of_attack  [radians]
+          Mach             [-]
+        self.training_file (optional - file containing previous AVL data)
+        """ 
         # Unpack
         geometry = self.geometry
         training = self.training
@@ -285,7 +374,30 @@ class AVL(Stability):
         return        
 
     def build_surrogate(self):
+        """Builds a surrogate based on sample evalations using a Guassian process.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        self.training.
+          coefficients     [-] CM, Cm_alpha, Cn_beta
+          neutral point    [meters] NP
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Outputs:
+        self.surrogates.
+          moment_coefficient             <Guassian process surrogate>
+          Cm_alpha_moment_coefficient    <Guassian process surrogate>
+          Cn_beta_moment_coefficient     <Guassian process surrogate>
+          neutral_point                  <Guassian process surrogate>       
+
+        Properties Used:
+        No others
+        """  
         # Unpack data
         training                                    = self.training
         AoA_data                                    = training.angle_of_attack
@@ -345,21 +457,34 @@ class AVL(Stability):
 # ----------------------------------------------------------------------
 
     def evaluate_conditions(self,run_conditions):
-        """ process vehicle to setup geometry, condititon and configuration
+        """Process vehicle to setup geometry, condititon, and configuration.
 
-            Inputs:
-                run_conditions - DataDict() of aerodynamic conditions; until input
-                method is finalized, will just assume mass_properties are always as 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        run_conditions <SUAVE data type> aerodynamic conditions; until input
+                method is finalized, will assume mass_properties are always as 
                 defined in self.features
 
-            Outputs:
-                results - a DataDict() of type 
-                SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics(), augmented with
-                case data on moment coefficients and control derivatives
+        Outputs:
+        results        <SUAVE data type>
 
-            Assumptions:
-
-        """
+        Properties Used:
+        self.settings.filenames.
+          run_folder
+          output_template
+          batch_template
+          deck_template
+        self.current_status.
+          batch_index
+          batch_file
+          deck_file
+          cases
+        """  
 
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)

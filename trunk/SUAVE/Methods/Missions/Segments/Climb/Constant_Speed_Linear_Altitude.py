@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Speed_Linear_Altitude.py 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jun 2017, E. Botero
@@ -6,7 +7,31 @@
 #  initialize conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constrant dynamic pressure and constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.air_speed                           [meters/second]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    segment.distance                            [meters]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """        
     
     # unpack
     alt0       = segment.altitude_start 

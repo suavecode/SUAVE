@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # convert_sweep.py
 #
 # Created:  Feb 2014, T. Momose
@@ -12,39 +13,45 @@ import numpy as np
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25):
-    """ new_sweep = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)
-        This method converts the sweep of a wing planform to refer to a new
-        chord fraction. Defaults to converting from leading-edge sweep to 
-        quarter-chord sweep.
-        
-        Inputs:
-            wing - a data dictionary with the fields:
-                apsect_ratio - wing aspect ratio [dimensionless]
-                sweep        - wing sweep [radians]
-                taper        - wing taper ratio [dimensionless]
-                
-            old_ref_chord_fraction - a float value between 0 and 1.0 that 
-                                     tells what fraction of the local chord
-                                     the sweep line follows. (For example, 
-                                     a value of 0.25 refers to quarter-chord
-                                     sweep
-            new_ref_chord_fraction - a float value between 0 and 1.0 that
-                                     tells what fraction of the local chord
-                                     is the new reference for sweep.
+    """ This method converts the sweep of a wing planform to refer to a new
+    chord fraction. Defaults to converting from leading-edge sweep to 
+    quarter-chord sweep.
+
+    Assumptions:
+        Assumes a simple trapezoidal wing shape. If the input wing object does
+        not have a simple trapezoidal shape, this function will convert sweeps
+        for an equivalent trapezoid having the same reference sweep, aspect 
+        ratio, and taper ratio.
     
-        Outputs:
-            output - a single float value, new_sweep, which is the sweep
-                     angle referenced to the new_ref_chord_fraction.
+    Source:
+        Unknown
+    
+    Inputs:
+        wing - a data dictionary with the fields:
+            apsect_ratio - wing aspect ratio                            [dimensionless]
+            sweep        - wing sweep                                   [radians]
+            taper        - wing taper ratio                             [dimensionless]
+ 
+        old_ref_chord_fraction - a float value between 0 and 1.0 that 
+                                 tells what fraction of the local chord
+                                 the sweep line follows. (For example, 
+                                 a value of 0.25 refers to quarter-chord
+                                 sweep
+        new_ref_chord_fraction - a float value between 0 and 1.0 that
+                                 tells what fraction of the local chord
+                                 is the new reference for sweep.
+
+    Outputs:
+        output - a single float value, new_sweep, which is the sweep
+                 angle referenced to the new_ref_chord_fraction.
+
+    Defaults:
+        Defaults to converting from leading edge sweep to quater-chord sweep.
         
-        Defaults:
-            Defaults to converting from leading edge sweep to quater-chord sweep.
-                
-        Assumptions:
-            Assumes a simple trapezoidal wing shape. If the input wing object does
-            not have a simple trapezoidal shape, this function will convert sweeps
-            for an equivalent trapezoid having the same reference sweep, aspect 
-            ratio, and taper ratio.
+     Properties Used:
+        N/A       
     """             
     # Unpack inputs
     sweep = wing.sweeps.quarter_chord

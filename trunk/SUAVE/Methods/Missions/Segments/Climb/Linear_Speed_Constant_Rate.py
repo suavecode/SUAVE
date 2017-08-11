@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Linear_Speed_Constant_Rate.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +14,32 @@ import numpy as np
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+    
+    Assumptions:
+    Linearly changing airspeed, with a constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_rate                          [meters/second]
+    segment.air_speed_start                     [meters/second]
+    segment.air_speed_end                       [meters/second]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     # unpack user inputs

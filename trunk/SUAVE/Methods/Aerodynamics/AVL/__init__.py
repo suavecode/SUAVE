@@ -1,5 +1,6 @@
-# AVL/__init__.py
-#
+## @defgroup Methods-Aerodynamics-AVL AVL
+# Functions to AVL calculations
+# @ingroup Methods-Aerodynamics
 
 """ SUAVE AVL Interface Package Setup
 """

@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Dynamic_Pressure_Constant_Angle.py
 # 
 # Created:  Jun 2017, E. Botero
@@ -13,7 +14,36 @@ import SUAVE
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions_unpack_unknowns(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constrant dynamic pressure and constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_angle                         [radians]
+    segment.dynamic_pressure                    [pascals]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+    state.unknowns.throttle                     [unitless]
+    state.unknowns.body_angle                   [radians]
+    state.unknowns.altitudes                    [meter]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.propulsion.throttle              [unitless]
+    conditions.frames.body.inertial_rotations   [radians]
+
+    Properties Used:
+    N/A
+    """           
     
     # unpack
     climb_angle = segment.climb_angle
@@ -54,11 +84,31 @@ def initialize_conditions_unpack_unknowns(segment,state):
     conditions.frames.inertial.velocity_vector[:,0] = v_x
     conditions.frames.inertial.velocity_vector[:,2] = v_z
     conditions.frames.inertial.position_vector[:,2] = -alts[:,0] # z points down
-    state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
-    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]  
+    conditions.propulsion.throttle[:,0]             = throttle[:,0]
+    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]  
     
-
+## @ingroup Methods-Missions-Segments-Climb
 def residual_total_forces(segment,state):
+    """Takes the summation of forces and makes a residual from the accelerations and altitude.
+
+    Assumptions:
+    No higher order terms.
+
+    Source:
+    N/A
+
+    Inputs:
+    state.conditions.frames.inertial.total_force_vector   [Newtons]
+    sstate.conditions.frames.inertial.acceleration_vector [meter/second^2]
+    state.conditions.weights.total_mass                   [kilogram]
+    state.conditions.freestream.altitude                  [meter]
+
+    Outputs:
+    state.residuals.forces                                [Unitless]
+
+    Properties Used:
+    N/A
+    """     
     
     # Unpack results
     FT = state.conditions.frames.inertial.total_force_vector

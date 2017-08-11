@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 # compressibility_drag_total.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -24,21 +25,35 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total
 # ----------------------------------------------------------------------
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def compressibility_drag_total(state,settings,geometry):
-    """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
-        computes the compressibility drag on a full aircraft
-        Inputs:
-            wings
-    fuselages
-    propulsors
-    freestream conditions
-        Outputs:
-    compressibility drag coefficient
-        Assumptions:
-            drag is only calculated for the wings, main fuselage, and propulsors
-    main fuselage must have tag 'fuselage'
-    no lift on wings other than main wing
-    """
+    """Computes compressibility drag for full aircraft including volume drag through OpenVSP
+
+    Assumptions:
+    None
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    settings.number_slices
+    settings.number_rotations
+    state.conditions.aerodynamics.
+      lift_breakdown.compressible_wings      [-]
+    state.conditions.freestream.mach_number  [-]
+    geometry.wings.*.tag                       
+
+    Outputs:
+    drag_breakdown.compressible[wing.tag].
+      divergence_mach                        [-]
+    drag_breakdown.compressible.total        [-]                    
+    drag_breakdown.compressible.total_volume [-]
+    drag_breakdown.compressible.total_lift   [-]
+    cd_c                                     [-] Total compressibility drag
+
+    Properties Used:
+    N/A
+    """     
 
     # Unpack
     conditions       = state.conditions
@@ -155,8 +170,31 @@ def compressibility_drag_total(state,settings,geometry):
 
     return cd_c
 
-
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def drag_div(Mc_ii,wing,k,cl,Sref_main):
+    """Use drag divergence mach number to determine drag for subsonic speeds
+
+    Assumptions:
+    Basic fit, subsonic
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    wing.
+      thickness_to_chord    [-]     
+      sweeps.quarter_chord  [radians]
+      high_mach             [Boolean]
+      areas.reference       [m^2]
+
+    Outputs:
+    cd_c                    [-]
+    mcc                     [-]
+    MDiv                    [-]
+
+    Properties Used:
+    N/A
+    """         
     # Use drag divergence mach number to determine drag for subsonic speeds
 
     # Check if the wing is designed for high subsonic cruise
@@ -215,7 +253,30 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     return (cd_c,mcc,MDiv)
 
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def lift_wave_drag(conditions,configuration,wing,k,Sref_main,flag105):
+    """Determine lift wave drag for supersonic speeds
+
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    conditions.freestream.mach_number [-]
+    configuration                     (passed to another function)
+    wing.areas.reference              [m^2]
+    k                                 (unused)
+    Sref_main                         [m^2] Main reference area
+    flag105                           <boolean> Check if calcs are for Mach 1.05
+
+    Outputs:
+    cd_c_l                            [-] Wave drag CD due to lift
+
+    Properties Used:
+    N/A
+    """       
     # Use wave drag to determine compressibility drag for supersonic speeds
 
     # Unpack mach number

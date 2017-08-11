@@ -1,3 +1,8 @@
+## @ingroup Analyses-Mission-Segments-Cruise
+# Constant_Pitch_Rate_Constant_Altitude.py
+# 
+# Created:  Jan 2016, E. Botero
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,14 +19,40 @@ from SUAVE.Analyses import Process
 # Units
 from SUAVE.Core import Units
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
+    """ Vehicle flies at a constant pitch rate at a set altitude. This is maneuvering flight.
+        This is used in VTOL aircraft which need to transition from one pitch attitude to another.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """      
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs

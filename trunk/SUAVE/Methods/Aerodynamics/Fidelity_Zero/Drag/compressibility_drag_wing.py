@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # compressibility_drag_wing.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -24,22 +25,34 @@ import scipy as sp
 #  The Function
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def compressibility_drag_wing(state,settings,geometry):
-    """ SUAVE.Methods.compressibility_drag_wing(conditions,configuration,geometry)
-        computes the induced drag associated with a wing 
-        
-        Inputs:
-        
-        Outputs:
-        
-        Assumptions:
-            based on a set of fits
-            
-    """
+    """Computes compressibility drag for a wing
+
+    Assumptions:
+    Subsonic to low transonic
+    Supercritical airfoil
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    state.conditions.
+      freestream.mach_number                         [Unitless]
+      aerodynamics.lift_breakdown.compressible_wings [Unitless]
+    geometry.thickness_to_chord                      [Unitless]
+    geometry.sweeps.quarter_chord                    [radians]
+
+    Outputs:
+    total_compressibility_drag                       [Unitless]
+
+    Properties Used:
+    N/A
+    """ 
     
     # unpack
     conditions    = state.conditions
-    configuration = settings    
+    configuration = settings    # unused
     
     wing = geometry
     if wing.tag == 'main_wing':

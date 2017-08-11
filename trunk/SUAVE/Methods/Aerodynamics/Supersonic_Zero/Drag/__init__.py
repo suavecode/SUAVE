@@ -1,3 +1,6 @@
+## @defgroup Methods-Aerodynamics-Supersonic_Zero-Drag Drag
+# Functions to perform low-fidelity drag calculations including supersonic
+# @ingroup Methods-Aerodynamics-Supersonic_Zero
 
 from parasite_drag_propulsor import parasite_drag_propulsor
 from parasite_drag_wing import parasite_drag_wing

@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
 # wing_fuel_volume.py
 #
 # Created:  Apr 2014, T. Orra
@@ -6,25 +7,28 @@
 # ----------------------------------------------------------------------
 #  Correlation-based methods for wing fuel capacity estimation
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
 def wing_fuel_volume(wing):
-    """ SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_fuel_volume(wing):
-        Estimates wing fuel capacity based in correlation methods.
+    """Calculates the available fuel volume in a wing.
 
-        Inputs:
-            wing.areas.reference    - Wing reference area [m2]
-            wing.aspect_ratio       - Wing Aspect Ratio (span?/wing area) [-]
-            wing.thickness_to_chord - Wing thickness ration [-]
+    Assumptions:
+    None
 
-        Outputs:
-            wing.fuel_volume        - Wing fuel capacity [m?]
+    Source:
+    Torenbeek, E., "Advanced Aircraft Design", 2013 (equation 10.30)
 
+    Inputs:
+    wing.
+      areas.reference    [m^2]
+      aspect_ratio       [-]
+      thickness_to_chord [-]
 
-        Assumptions:
-      		Wing fuel capacity calculated according to Torenbeek, E., "Advanced
-    Aircraft Design", 2013 (equation 10.30)
+    Outputs:
+    wing.volume          [m^3]
 
-    """
+    Properties Used:
+    N/A
+    """              
 
     # Unpack
     sref  = wing.areas.reference

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_propulsor.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -16,17 +17,34 @@ import numpy as np
 #   Parasite Drag Propulsors
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_propulsor(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
-        computes the parasite drag associated with a propulsor 
-        
-        Inputs:
+    """Computes the parasite drag due to the propulsor
 
-        Outputs:
+    Assumptions:
+    Basic fit
 
-        Assumptions:
+    Source:
+    Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach) (subsonic)
+    http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML (supersonic)
 
-        
+    Inputs:
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    geometry.      
+      nacelle_diameter                           [m^2]
+      areas.wetted                               [m^2]
+      engine_length                              [m]
+    state.conditions.aerodynamics.drag_breakdown.
+      compressible.main_wing.divergence_mach     [Unitless]
+
+    Outputs:
+    propulsor_parasite_drag                      [Unitless]
+
+    Properties Used:
+    N/A
     """
     
     # unpack inputs

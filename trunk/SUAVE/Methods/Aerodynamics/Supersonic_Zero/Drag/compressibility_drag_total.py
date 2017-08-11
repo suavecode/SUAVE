@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # compressibility_drag_total.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -27,21 +28,36 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def compressibility_drag_total(state,settings,geometry):
-    """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
-        computes the compressibility drag on a full aircraft
-        Inputs:
-            wings
-    fuselages
-    propulsors
-    freestream conditions
-        Outputs:
-    compressibility drag coefficient
-        Assumptions:
-            drag is only calculated for the wings, main fuselage, and propulsors
-    main fuselage must have tag 'fuselage'
-    no lift on wings other than main wing
-    """
+    """Computes compressibility drag for full aircraft
+
+    Assumptions:
+    Drag is only calculated for the wings, main fuselage, and propulsors
+    Main fuselage must have tag 'fuselage'
+    No lift on wings other than main wing
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    state.conditions.aerodynamics.lift_breakdown.compressible_wings  [Unitless]
+    state.conditions.freestream.mach_number                          [Unitless]
+    geometry.wings                             
+    geometry.fuselages['fuselage'].length_total                      [m]
+    geometry.fuselages['fuselage'].effective_diameter                [m]
+    geometry.propulsors[geometry.propulsors.keys()[0]].
+      nacelle_diameter                                               [m]
+      engine_length                                                  [m]
+      number_of_engines                                              [m]
+
+    Outputs:
+    total_compressibility_drag                                       [Unitless]
+
+    Properties Used:
+    N/A
+    """     
 
     # Unpack
     conditions    = state.conditions
@@ -171,9 +187,32 @@ def compressibility_drag_total(state,settings,geometry):
     return total_compressibility_drag
 
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def drag_div(Mc_ii,wing,k,cl,Sref_main):
-    # Use drag divergence mach number to determine drag for subsonic speeds
+    """Use drag divergence mach number to determine drag for subsonic speeds
 
+    Assumptions:
+    Basic fit, subsonic
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    wing.
+      thickness_to_chord    [Unitless]     
+      sweeps.quarter_chord  [radians]
+      high_mach             [Boolean]
+      areas.reference       [m^2]
+
+    Outputs:
+    cd_c                    [Unitless]
+    mcc                     [Unitless]
+    MDiv                    [Unitless]
+
+    Properties Used:
+    N/A
+    """     
+    
     # Check if the wing is designed for high subsonic cruise
     # If so use arbitrary divergence point as correlation will not work
     if wing.high_mach is True:
@@ -229,8 +268,36 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     return (cd_c,mcc,MDiv)
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,k,Sref_main,flag105):
-    # Use wave drag to determine compressibility drag for supersonic speeds
+    """Use wave drag to determine compressibility drag for supersonic speeds
+
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    conditions.freestream.mach_number            [Unitless]
+    configuration
+    main_fuselage (unused)
+    propulsor     (unused)
+    wing.areas.reference                         [m^2]
+    num_engines   (unused)
+    k             (tag for wing)                 [String]
+    Sref_main (main reference area)              [m^2]
+    flag105   (check if calcs are for Mach 1.05) [Boolean]
+    
+
+    Outputs:
+    cd_c                    [Unitless]
+    mcc                     [Unitless]
+    MDiv                    [Unitless]
+
+    Properties Used:
+    N/A
+    """    
 
     # Unpack mach number
     mach       = conditions.freestream.mach_number
@@ -275,7 +342,28 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
 
     return (cd_c,mcc,MDiv,cd_c_l,cd_c_v)
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_body_of_rev(total_length,Rmax,Sref):
+    """Use wave drag to determine compressibility drag a body of revolution
+
+    Assumptions:
+    Corrected Sear-Haack body 
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    total_length                    [m]
+    Rmax (max radius)               [m]
+    Sref (main wing reference area) [m^2]
+
+    Outputs:
+    wave_drag_body_of_rev*1.15      [Unitless]
+
+    Properties Used:
+    N/A
+    """    
+
 
     # Computations - takes drag of Sears-Haack and use wing reference area for CD
     wave_drag_body_of_rev = (9.0*(np.pi)**3.0*Rmax**4.0/(4.0*total_length**2.0))/(0.5*Sref)  

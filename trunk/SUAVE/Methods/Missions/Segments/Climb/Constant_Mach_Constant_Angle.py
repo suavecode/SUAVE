@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Mach_Constant_Angle.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,9 +14,32 @@ import SUAVE
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
-def initialize_conditions_unpack_unknowns(segment,state):
+## @ingroup Methods-Missions-Segments-Climb
+def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
     
+    Assumptions:
+    Constant Mach number, with a constant angle of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_angle                         [radians]
+    segment.mach                                [Unitless]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """       
     # unpack user inputs
     climb_angle = segment.climb_angle
     mach_number = segment.mach

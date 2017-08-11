@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_lift.py
 # 
 # Created:  Jun 2014, T. Macdonald
@@ -15,24 +16,28 @@ from SUAVE.Analyses import Results
 #   Wave Drag Lift
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_lift(conditions,configuration,wing):
-    """ SUAVE.Methods.wave_drag_lift(conditions,configuration,wing)
-        computes the wave drag due to lift 
-        Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-        
-        Inputs:
-        - SUave wing
-        - Sref - wing reference area
-        - Mc - mach number
-        - CL - coefficient of lift
-        - total_length - length of the wing root
-        Outputs:
-        - CD due to wave drag from the wing
-        Assumptions:
-        - Supersonic mach numbers
-        - Reference area of passed wing is desired for CD
-        
-    """
+    """Computes wave drag due to lift
+
+    Assumptions:
+    Simplified equations
+
+    Source:
+    http://adg.stanford.edu/aa241/drag/ssdragcalc.html
+
+    Inputs:
+    conditions.freestream.mach_number        [Unitless]
+    conditions.aerodynamics.lift_coefficient [Unitless]
+    wing.total_length                        [m]
+    wing.areas.reference                     [m^2]
+
+    Outputs:
+    wave_drag_lift                           [Unitless]
+
+    Properties Used:
+    N/A
+    """  
 
     # Unpack
     freestream = conditions.freestream

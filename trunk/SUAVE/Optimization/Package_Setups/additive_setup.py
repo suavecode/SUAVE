@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # additive_setup.py
 #
 # Created:  Apr 2017, T. MacDonald
@@ -25,8 +26,33 @@ import sys
 #  Additive Solve Functions
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=10,
                    tolerance=1e-6,opt_type='basic',num_starts=3,print_output=True):
+    """Solves a multifidelity problem using an additive corrections
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    problem             [nexus()]
+    num_fidelity_levels [int]
+    num_samples         [int]
+    max_iterations      [int]
+    tolerance           [float]
+    opt_type            [str]
+    num_starts          [int]
+    print_output        [bool]
+    
+    Outputs:
+    (fOpt,xOpt)  [tuple]
+
+    Properties Used:
+    N/A
+    """        
     
     if print_output == False:
         devnull = open(os.devnull,'w')
@@ -208,8 +234,28 @@ def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=1
         sys.stdout = sys.__stdout__     
     return (fOpt,xOpt)
     
+## @ingroup Optimization-Package_Setups    
+def evaluate_model(problem,x,cons):
+    """Solves the optimization problem to get the objective and constraints
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    problem   [nexus()]
+    x         [array]
+    cons      [array]
     
-def evaluate_model(problem,x,cons,der_flag=True):
+    Outputs:
+    f         [float]
+    g         [array]
+
+    Properties Used:
+    N/A    
+    """
     f  = np.array(0.)
     g  = np.zeros(np.shape(cons))
     
@@ -217,8 +263,33 @@ def evaluate_model(problem,x,cons,der_flag=True):
     g  = problem.all_constraints(x)
     
     return f,g
-    
+
+## @ingroup Optimization-Package_Setups    
 def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=None):
+    """Evaluates the corrected model with the low fidelity plus the corrections
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    x              [array]
+    problem        [nexus()]
+    obj_surrogate  [fun()]
+    cons_surrogate [fun()]
+    
+    Outputs:
+    obj            [float]
+    const          [array]
+    fail           [bool]
+
+    Properties Used:
+    N/A    
+    
+    """
+    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
@@ -239,7 +310,33 @@ def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=No
         
     return obj,const,fail
 
+## @ingroup Optimization-Package_Setups
 def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surrogate=None,fstar=np.inf,cons=None):
+    """Evaluates the expected improvement of the point x
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    x              [array]
+    problem        [nexus()]
+    obj_surrogate  [fun()]
+    cons_surrogate [fun()]
+    fstar          [float]
+    cons           [vector]
+    
+    Outputs:
+    -EI            [float]
+    const          [array]
+    fail           [bool]
+
+    Properties Used:
+    N/A    
+    
+    """    
 
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
@@ -275,7 +372,32 @@ def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surroga
         
     return -EI,const,fail
 
+## @ingroup Optimization-Package_Setups
 def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fstar,show_log_improvement=False):
+    """Makes a carpet plot of the expected improvement
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    lbs                  [array]
+    lbs                  [array]
+    problem              [nexus()]
+    obj_surrogate        [fun()]
+    cons_surrogate       [fun()]
+    fstar                [float]
+    show_log_improvement [bool]
+    
+    Outputs:
+    Alluring plots that you could only dream of
+
+    Properties Used:
+    N/A    
+    
+    """       
 
     # Assumes 2D
     # To use before global opt:
@@ -331,8 +453,36 @@ def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fst
     
     plt.show()
     
-    
+## @ingroup Optimization-Package_Setups    
 def scale_vals(inp,con,ini,bnd,scl):
+    """Scales values to help setup the problem
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inp                         [array]
+    con                         [array]
+    ini                         [array]
+    bnd                         [array]
+    scl                         [array]
+    
+    Outputs:
+        tuple:
+            x                   [array]
+            scaled_constraints  [array]
+            x_low_bounds        [array]
+            x_up_bounds         [array]
+            con_up_edge         [array]
+            con_low_edge        [array]
+
+    Properties Used:
+    N/A    
+    
+    """     
 
     # Pull out the constraints and scale them
     bnd_constraints = help_fun.scale_const_bnds(con)
@@ -368,8 +518,35 @@ def scale_vals(inp,con,ini,bnd,scl):
 
     return (x,scaled_constraints,x_low_bound,x_up_bound,con_up_edge,con_low_edge)    
 
-
+## @ingroup Optimization-Package_Setups
 def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval):
+    """Sets up the optimization values 
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    opt_prob         [pyopt_problem()]
+    obj              [float]
+    inp              [array]
+    x_low_bound      [array]
+    x_up_bound       [array]
+    con_low_edge     [array]
+    con_up_edge      [array]
+    nam              [list of str]
+    con              [array]
+    x_eval           [array]
+    
+    Outputs:
+    N/A
+    
+    Properties Used:
+    N/A    
+    
+    """        
     
     for ii in xrange(len(obj)):
         opt_prob.addObj('f',100) 
@@ -389,7 +566,30 @@ def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con
             
     return
 
-def run_objective_optimization(opt_prob,problem,f_additive_surrogate,g_additive_surrogate,optimizer='SNOPT'):
+## @ingroup Optimization-Package_Setups
+def run_objective_optimization(opt_prob,problem,f_additive_surrogate,g_additive_surrogate):
+    """Runs SNOPT to optimize
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    opt_prob             [pyopt_problem()]
+    problem              [nexus()]
+    f_additive_surrogate [fun()]  
+    g_additive_surrogate [fun()]
+    
+    Outputs:
+    fOpt                 [float]
+    xOpt                 [array]
+    
+    Properties Used:
+    N/A    
+    
+    """      
     
     opt = pyOpt.pySNOPT.SNOPT()
 

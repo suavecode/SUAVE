@@ -1,3 +1,4 @@
+## @ingroup Components-Costs
 # Costs.py
 #
 # Created:
@@ -14,8 +15,34 @@ from SUAVE.Methods.Costs.Correlations.Industrial_Costs import estimate_hourly_ra
 # ----------------------------------------------------------------------
 # Operating Costs class
 # ----------------------------------------------------------------------
+## @ingroup Components-Costs
 class Operating_Costs(Data):
+    """A class containing operating cost variables.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
+    """    
     def __defaults__(self):
+        """This sets the default values used in the operating cost methods.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """          
         self.tag = 'operating_costs'
         self.depreciate_years = 0.0
         self.fuel_price       = 0.0
@@ -30,9 +57,34 @@ class Operating_Costs(Data):
 # ----------------------------------------------------------------------
 # Industrial Costs class
 # ----------------------------------------------------------------------
+## @ingroup Components-Costs
 class Industrial_Costs(Data):
+    """A class containing industrial cost variables.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
+    """     
     def __defaults__(self):
+        """This sets the default values used in the industrial cost methods.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """  
         # inputs
         self.tag                            = 'industrial_costs'
         self.reference_year                 = 0.0

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # AVL.py
 #
 # Created: Apr 2017, M. Clarke 
@@ -23,10 +24,34 @@ from SUAVE.Analyses.Aerodynamics.AVL_Inviscid import AVL_Inviscid
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
+## @ingroup Analyses-Aerodynamics
 class AVL(Markup):
-    
+    """This uses AVL to compute lift.
+
+    Assumptions:
+    None
+
+    Source:
+    None
+    """        
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """          
         self.tag    = 'AVL_markup'       
     
         # Correction factors
@@ -73,6 +98,23 @@ class AVL(Markup):
         
         
     def initialize(self):
+        """Initializes the surrogate needed for AVL.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.geometry
+        """          
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate

@@ -111,7 +111,7 @@ def vehicle_setup():
     wing.flaps.chord      =  0.30   
     wing.flaps.span_start =  0.10   # ->     wing.flaps.area = 97.1112
     wing.flaps.span_end   =  0.75
-    wing.flaps.type       = 'double_sloted'  # -> wing.flaps.number_slots = 2
+    wing.flaps.type       = 'double_slotted'  # -> wing.flaps.number_slots = 2
     
     
     # add to vehicle

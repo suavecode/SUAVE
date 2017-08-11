@@ -1,11 +1,39 @@
-import numpy as np
-
+## @ingroup Methods-Missions-Segments-Hover
+# Descent.py
+# 
+# Created:  Jan 2016, E. Botero
+# Modified:
 
 # ----------------------------------------------------------------------
-#  Unpack Unknowns
+#  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Hover
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Descent segment with a constant rate.
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    segment.descent_rate                        [meters/second]
+    state.numerics.dimensionless.control_points [Unitless]
+    state.conditions.frames.inertial.time       [seconds]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     descent_rate = segment.descent_rate

@@ -1,3 +1,4 @@
+## @ingroup components-fuselages
 # Fuselage.py
 # 
 # Created:  Mar 2014, T. Lukacyzk
@@ -15,8 +16,36 @@ from SUAVE.Components import Physical_Component, Lofted_Body
 #  Fuselage
 # ------------------------------------------------------------
 
+## @ingroup components-fuselages
 class Fuselage(Lofted_Body):
+    """ This is a standard fuselage for a tube and wing aircraft.
+    
+    Assumptions:
+    Conventional fuselage
+    
+    Source:
+    N/A
+    """
+    
     def __defaults__(self):
+        """ This sets the default values for the component to function.
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        None
+        """      
+        
         self.tag = 'fuselage'
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()

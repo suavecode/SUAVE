@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # SU2_inviscid.py
 #
 # Created:  Sep 2016, E. Botero
@@ -28,11 +29,34 @@ from sklearn import svm
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class SU2_inviscid_Super(Aerodynamics):
+    """This builds a surrogate and computes lift and drag using SU2
 
+    Assumptions:
+    Inviscid
+
+    Source:
+    None
+    """   
     def __defaults__(self):
+        """This sets the default values and methods for the analysis.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
         self.tag = 'SU2_inviscid'
 
         self.geometry = Data()
@@ -55,7 +79,23 @@ class SU2_inviscid_Super(Aerodynamics):
  
         
     def initialize(self):
-                   
+        """Drives functions to get training samples and build a surrogate.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """                      
         # Sample training data
         self.sample_training()
                     
@@ -64,7 +104,28 @@ class SU2_inviscid_Super(Aerodynamics):
 
 
     def evaluate(self,state,settings,geometry):
+        """Evaluates lift and drag using available surrogates.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        state.conditions.
+          mach_number      [-]
+          angle_of_attack  [radians]
+
+        Outputs:
+        inviscid_lift      [-] CL
+        inviscid_drag      [-] CD
+
+        Properties Used:
+        self.surrogates.
+          lift_coefficient [-] CL
+          drag_coefficient [-] CD
+        """ 
         # Unpack
         surrogates = self.surrogates        
         conditions = state.conditions
@@ -97,7 +158,29 @@ class SU2_inviscid_Super(Aerodynamics):
 
 
     def sample_training(self):
-        
+        """Call methods to run SU2 for sample point evaluation.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        see properties used
+
+        Outputs:
+        self.training.
+          coefficients     [-] CL and CD
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Properties Used:
+        self.geometry.tag  <string>
+        self.training.     
+          angle_of_attack  [radians]
+          Mach             [-]
+        self.training_file (optional - file containing previous AVL data)
+        """                
         # Unpack
         geometry = self.geometry
         settings = self.settings
@@ -149,7 +232,27 @@ class SU2_inviscid_Super(Aerodynamics):
         return
 
     def build_surrogate(self):
+        """Builds a surrogate based on sample evalations using a Guassian process.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        self.training.
+          coefficients     [-] CL and CD
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Outputs:
+        self.surrogates.
+          lift_coefficient <Guassian process surrogate>
+          drag_coefficient <Guassian process surrogate>
+
+        Properties Used:
+        No others
+        """  
         # Unpack data
         training  = self.training
         AoA_data  = training.angle_of_attack
@@ -237,7 +340,33 @@ class SU2_inviscid_Super(Aerodynamics):
 # ----------------------------------------------------------------------
 
 def call_SU2(conditions,settings,geometry):
-    """ calculate total vehicle lift coefficient with SU2
+    """Calculates lift and drag using SU2
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions.
+      mach_number        [-]
+      angle_of_attack    [radians]
+    settings.
+      half_mesh_flag     <boolean> Determines if a symmetry plane is used
+      parallel           <boolean>
+      processors         [-]
+      maximum_iterations [-]
+    geometry.
+      tag
+      reference_area     [m^2]
+
+    Outputs:
+    CL                   [-]
+    CD                   [-]
+
+    Properties Used:
+    N/A
     """
 
     half_mesh_flag = settings.half_mesh_flag

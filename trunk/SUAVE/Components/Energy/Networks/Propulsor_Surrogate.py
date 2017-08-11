@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 # Propulsor_Surrogate.py
 #
 # Created:  Mar 2017, E. Botero
@@ -24,10 +25,37 @@ from sklearn import svm
 #  Network
 # ----------------------------------------------------------------------
 
-# The input format for this should be Altitude, Mach, Throttle, Thrust, SFC
-
+## @ingroup Components-Energy-Networks
 class Propulsor_Surrogate(Propulsor):
+    """ This is a way for you to load engine data from a source.
+        A .csv file is read in, a surrogate made, that surrogate is used during the mission analysis.
+        
+        You need to use build surrogate first when setting up the vehicle to make this work.
+    
+        Assumptions:
+        The input format for this should be Altitude, Mach, Throttle, Thrust, SFC
+        
+        Source:
+        None
+    """        
     def __defaults__(self): 
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """          
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
@@ -41,6 +69,24 @@ class Propulsor_Surrogate(Propulsor):
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+    
+            Properties Used:
+            Defaulted values
+        """             
         
         # Unpack the surrogate
         sfc_surrogate = self.sfc_surrogate
@@ -73,6 +119,27 @@ class Propulsor_Surrogate(Propulsor):
         return results          
     
     def build_surrogate(self):
+        """ Build a surrogate. Multiple options for models are available including:
+            -Gaussian Processes
+            -KNN
+            -SVR
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            self.sfc_surrogate    [fun()]
+            self.thrust_surrogate [fun()]
+    
+            Properties Used:
+            Defaulted values
+        """          
         
         # file name to look for
         file_name = self.input_file

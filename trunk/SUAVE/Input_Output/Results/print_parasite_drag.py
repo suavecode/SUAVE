@@ -1,4 +1,5 @@
-""" print_parasite_drag.py """
+## @ingroup Input_Output-Results
+# print_parasite_drag.py 
 
 # Created: SUAVE team
 # Updated: Carlos Ilario, Feb 2016
@@ -17,30 +18,48 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Print output file with parasite drag breakdown
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-Results
 def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag.dat'):
-    """ SUAVE.Methods.Results.print_parasite_drag(ref_condition,vehicle,filename = 'parasite_drag.dat'):
-        
-        Print output file with parasite drag breakdown
-        
-        Inputs:
-            ref_condition   - data dictionary with fields:
-                mach_number     - Mach number to be used in the drag estimation
-                reynolds_number - Reynolds number to be used in the drag estimation
-                
-            vehicle         - SUave type vehicle
+    """This creates a file showing a breakdown of compressibility drag for the vehicle. Esimates
+    altitude based on reference conditions.
 
-            filename [optional] - Name of the file to be created
+    Assumptions:
+    None
 
-        Outputs:
-            output file
+    Source:
+    N/A
 
-        Assumptions:
-            Altitude to be estimated, in order to have a condition with the Reynolds 
-            and Mach number required
+    Inputs:
+    ref_condition.
+      mach_number
+      reynolds_number
+    vehicle.wings.main_wing.
+      chords.mean_aerodynamic
+      aspect_ratio
+      sweeps.quarter_chord     [-]
+      thickness_to_chord
+      taper
+    vehicle.wings.*.
+      tag                     <string>
+    vehicle.reference_area    [m^2]
+    analyses.configs.cruise.aerodynamics.settings    Used in called functions:
+      compute.parasite.wings.wing(state,settings,wing)                (for all wings)
+      compute.parasite.fuselages.fuselage(state,settings,fuselage)    (for all fuselages)
+      compute.parasite.propulsors.propulsor(state,settings,propulsor) (for all propulsors)
+      compute.parasite.pylons(state,settings,vehicle) 
+      compute.miscellaneous(state,settings,vehicle)
+      compute.parasite.total(state,settings,vehicle)
+      compute.induced(state,settings,vehicle)    
+        with compute = analyses.configs.cruise.aerodynamics.process.compute.drag
+    filename                  Sets file name to save (optional)
 
-    """
-    
+
+    Outputs:
+    filename                  Saved file with name as above
+
+    Properties Used:
+    N/A
+    """        
     # Imports
     import time                     # importing library
     import datetime                 # importing library

@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Dynamic_Pressure_Constant_Rate.py
 # 
 # Created:  Jan 2016, E. Botero
@@ -12,8 +13,32 @@ import SUAVE
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constant dynamic pressure and constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_rate                          [meters/second]
+    segment.dynamic_pressure                    [pascals]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """        
     
     # unpack
     climb_rate = segment.climb_rate

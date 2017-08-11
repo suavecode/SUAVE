@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Optimized.py
 #
 # Created:  Mar 2016, E. Botero 
@@ -23,9 +24,44 @@ import SUAVE
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Optimized(Aerodynamic):
+    """ Optimize your climb segment. This is useful if you're not sure how your vehicle should climb.
+        You can set any conditions parameter as the objective, for example setting time to climb or vehicle mass:
+        segment.objective       = 'conditions.weights.total_mass[-1,0]'
+        
+        The ending airspeed is an optional parameter.
+        
+        This segment takes far longer to run than a normal segment. Wrapping this into a vehicle optimization
+        has not yet been tested for robustness.
+        
+    
+        Assumptions:
+        Can use SNOPT if you have it installed through PyOpt. But defaults to SLSQP through 
+        Runs a linear true airspeed mission first to initialize conditions.
+        
+        Source:
+        None
+    """          
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

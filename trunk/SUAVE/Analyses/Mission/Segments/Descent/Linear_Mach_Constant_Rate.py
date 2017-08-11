@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Descent
 # Linear_Mach_Constant_Rate.py
 #
 # Created:  
@@ -20,9 +21,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Descent
 class Linear_Mach_Constant_Rate(Unknown_Throttle):
+    """ Change Mach numbers during a descent while descending at a constant rate. The Mach number changes linearly
+        throughout the descent.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """    
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """            
         
         # --------------------------------------------------------------
         #   User inputs

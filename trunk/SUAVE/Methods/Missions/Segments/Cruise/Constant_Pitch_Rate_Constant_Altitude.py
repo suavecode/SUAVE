@@ -1,3 +1,12 @@
+## @ingroup Methods-Missions-Segments-Cruise
+# Constant_Pitch_Rate_Constant_Altitude.py
+# 
+# Created:  Jul 2014, SUAVE Team
+# Modified: Jan 2016, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 import numpy as np
 
@@ -5,7 +14,31 @@ import numpy as np
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constant acceleration and constant altitude
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude                [meters]
+    segment.pitch_initial           [radians]
+    segment.pitch_final             [radians]
+    segment.pitch_rate              [radians/second]
+
+    Outputs:
+    conditions.frames.body.inertial_rotations   [radians/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """       
     
     # unpack
     alt        = segment.altitude 
@@ -41,14 +74,33 @@ def initialize_conditions(segment,state):
     state.conditions.frames.inertial.time[:,0]            = time[:,0]
     
     
-    
+## @ingroup Methods-Missions-Segments-Cruise    
 def residual_total_forces(segment,state):
+    """ Calculates a residual based on forces
+    
+        Assumptions:
+        The vehicle is accelerating, doesn't use gravity
+        
+        Inputs:
+        state.conditions:
+            frames.inertial.total_force_vector [Newtons]
+            weights.total_mass                 [kg]
+            frames.inertial.velocity_vector    [meters/second]
+            
+        Outputs:
+        state:
+            residuals.forces [meters/second^2]
+            conditions.frames.inertial.acceleration_vector [meters/second^2]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     FT = state.conditions.frames.inertial.total_force_vector
     m  = state.conditions.weights.total_mass  
     v  = state.conditions.frames.inertial.velocity_vector
-    D  = state.numerics.time.differentiate
-    m  = state.conditions.weights.total_mass    
+    D  = state.numerics.time.differentiate  
     
     # process and pack
     acceleration = np.dot(D,v)
@@ -61,8 +113,27 @@ def residual_total_forces(segment,state):
     state.residuals.forces[:,1] = FT[:,2]  - a[:,2]
 
     return
-
+## @ingroup Methods-Missions-Segments-Cruise
 def unpack_unknowns(segment,state):
+    """ Unpacks the throttle setting and velocity from the solver to the mission
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            state.unknowns:
+                throttle    [Unitless]
+                velocity    [meters/second]
+            
+        Outputs:
+            state.conditions:
+                propulsion.throttle             [Unitless]
+                frames.inertial.velocity_vector [meters/second]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     # unpack unknowns
     throttle  = state.unknowns.throttle

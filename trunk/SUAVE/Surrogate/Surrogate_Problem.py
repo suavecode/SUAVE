@@ -1,3 +1,4 @@
+## @ingroup Surrogate
 # surrogate_problem.py
 #
 # Created:  May 2016, M. Vegh
@@ -12,14 +13,29 @@ import numpy as np
 #  Surrogate_Problem
 # ----------------------------------------------------------------------
 
-
+## @ingroup Surrogate
 class Surrogate_Problem(Data):
+    """
+    Callable data structure that computes a surrogate 
+    prediction of the problem vs. a point x
+    """
+
     def __defaults__(self):
         self.obj_surrogate = None
         self.constraints_surrogates = None
     
     def compute(self, x):
-       
+        """
+        Inputs: 
+        x    [array]
+        
+        Outputs:
+        f    [float]
+        g    [array]
+        fail [int]
+        
+        """
+        
         f = self.obj_surrogate.predict(x)
         g = []
         for j in range(len(self.constraints_surrogates)):

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL-Data
 # Body.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -15,14 +16,47 @@ from Wing        import Section
 #   Body
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Body(Data):
-	"""	A data class defining the parameters of a fuselage or other body modeled
-		by side and planform projections arranged in a plus (+) shape (when
-		viewed from the front).
-	"""
+	""" A data class defining the parameters of a fuselage or other body modeled
+	by side and planform projections arranged in a plus (+) shape (when viewed from
+	the front).
+		    
+	Assumptions:
+	    None
+	    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
+
 
 	def __defaults__(self):
-		
+		""" Defines the data structure and defaults for aircraft body geometry 
+	
+		Assumptions:
+		    None
+	    
+		Source:
+		    None
+	    
+		Inputs:
+		    None
+	    
+		Outputs:
+		    None
+	    
+		Properties Used:
+		    N/A
+		""" 		
 		self.tag                      = 'body'
 		self.symmetric                = True
 		self.origin                   = [0.,0.,0.]
@@ -49,8 +83,23 @@ class Body(Data):
 
 
 	def append_section(self,section,orientation='Horizontal'):
-		""" adds a section to the body vertical or horizontal segment """
-
+		""" Adds a section to the body vertical or horizontal segment 
+	
+		Assumptions:
+		    None
+	    
+		Source:
+		    None
+	    
+		Inputs:
+		    None
+	    
+		Outputs:
+		    None
+	    
+		Properties Used:
+		    N/A
+		""" 
 		# assert database type
 		if not isinstance(section,Data):
 			raise Exception, 'input component must be of type Data()'

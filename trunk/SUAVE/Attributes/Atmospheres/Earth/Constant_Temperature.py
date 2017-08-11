@@ -1,3 +1,4 @@
+## @ingroup Attributes-Atmospheres-Earth
 # Constant_Temperature.py: 
 
 # Created:  Mar, 2014, SUAVE Team
@@ -17,12 +18,34 @@ from SUAVE.Attributes.Atmospheres import Atmosphere
 # ----------------------------------------------------------------------
 #  Constant_Temperature Atmosphere
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Atmospheres-Earth
 class Constant_Temperature(Atmosphere):
-    """ SUAVE.Attributes.Atmospheres.Constant_Temp
-        ISA Pressure variation with constant (or input) outside temperature
+    """Contains US Standard 1976 values with temperature modified to be constant.
+    
+    Assumptions:
+    Constant temperature
+    
+    Source:
+    U.S. Standard Atmosphere (1976 version)
     """
     def __defaults__(self):
+        """This sets the default values at breaks in the atmosphere.
+
+        Assumptions:
+        Constant temperature
+
+        Source:
+        U.S. Standard Atmosphere (1976 version)
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """          
         self.fluid_properties = Air()
         self.planet = Earth()
         self.breaks = Data()

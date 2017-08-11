@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 # wave_drag_lift.py
 # 
 # Created:  Jun 2014, T. Macdonald
@@ -14,7 +15,34 @@ from SUAVE.Analyses import Results
 #   Wave Drag Lift
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def wave_drag_lift(conditions,configuration,wing):
+    """Determine lift wave drag for supersonic speeds
+
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    conditions.
+      freestream.mach_number          [-]
+      aerodynamics.lift_coefficient   [-] Used to build a dummy array if wing is vertical
+      aerodynamics.lift_breakdown.   
+        inviscid_wings_lift           [-] Used for lift otherwise
+    configuration                     (unused)
+    wing.total_length                 [m]
+    wing.areas.reference              [m^2]
+    wing.vertical                     <boolean> Indicates if the wing is vertical
+    wing.tag                          <string>
+    
+    Outputs:
+    wave_drag_lift                    [-] Wave drag CD due to lift (for the wing)
+
+    Properties Used:
+    N/A
+    """           
 
     # Unpack
     freestream = conditions.freestream

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # compressibility_drag_wing_total.py
 # 
 # Created:  Jan 2014, SUAVE Team
@@ -15,22 +16,27 @@ import numpy as np
 #  Computes the compressibility drag of the wings
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def compressibility_drag_wing_total(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
-        Simplified estimation, considering pylon drag a fraction of the nacelle drag
+    """Sums compressibility drag for all wings combined
 
-        Inputs:
-            conditions      - data dictionary for output dump
-            configuration   - not in use
-            geometry        - SUave type vehicle
+    Assumptions:
+    None
 
-        Outpus:
-            cd_misc  - returns the miscellaneous drag associated with the vehicle
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        Assumptions:
-            simplified estimation, considering pylon drag a fraction of the nacelle drag
+    Inputs:
+    state.conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag  [Unitless]
+    geometry.wings.areas.reference                                                            [m^2]
+    geometry.reference_area                                                                   [m^2]
 
-    """
+    Outputs:
+    total_compressibility_drag                                                                [Unitless]
+
+    Properties Used:
+    N/A
+    """ 
 
     # unpack
     conditions             = state.conditions

@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Engine
 # noise_SAE.py
 # 
 # Created:  May 2015, C. Ilario
@@ -33,6 +34,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 #   Noise SAE
 # ----------------------------------------------------------------------    
 
+## @ingroupMethods-Noise-Fidelity_One-Engine
 def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0): 
 
     #SAE ARP*876D 1994

@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 # Lithium_Sulfur.py
 # 
 # Created:  Nov 2014, M. Vegh
@@ -14,10 +15,14 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Components.Energy.Storages.Batteries  import Battery
 # ----------------------------------------------------------------------
-#  Battery Class
+#  Lithium_Sulfur
 # ----------------------------------------------------------------------    
-
+## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Sulfur(Battery):
+    """
+    Specifies discharge/specific energy characteristics specific to
+    lithium-ion batteries
+    """
     
     def __defaults__(self):
         self.specific_energy    = 500     *Units.Wh/Units.kg

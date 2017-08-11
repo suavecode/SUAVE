@@ -1,7 +1,9 @@
+## @ingroup Methods-Power-Battery-Ragone
 # find_ragone_optimimum.py
 # 
-# Created:  ### 2104, M. Vegh
-# Modified: Sep 2105, M. Vegh
+
+# Created:  ### 2014, M. Vegh
+# Modified: Sep 2015, M. Vegh
 #           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
@@ -14,32 +16,38 @@ from find_ragone_properties import find_ragone_properties
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Power-Battery-Ragone
 def find_ragone_optimum(battery, energy, power): #adds a battery that is optimized based on power and energy requirements and technology
     """
-    Uses Brent's Bracketing Method to find an optimum-mass battery based on the specific energy and specific power of the battery determined
-    from the battery's ragone plot.
+    Uses Brent's Bracketing Method to find an optimum-mass battery based on the 
+    specific energy and specific power of the battery determined from the battery's ragone plot.
+    
+    Assumptions:
+    Specific power can be modeled as a curve vs. specific energy of the form c1*10**(c2*specific_energy)
     
     Inputs:
-            battery
-            energy= energy battery is required to hold [J]
-            power= power battery is required to provide [W]
+    energy            [J]
+    power             [W]
+    battery.
+      specific_energy [J/kg]               
+      specific_power  [W/kg]
+      ragone.
+        constant_1    [W/kg]
+        constant_2    [J/kg]
+        upper_bound   [J/kg]
+        lower_bound   [J/kg]
+                
+    Outputs:
+    battery.
+      specific_energy [J/kg]
+      specific_power  [W/kg]
+      mass_properties.
+        mass           [kg]    
+                
+           
 
-       Reads:
-            battery.type
-            battery.specific_energy
-            battery.specific_power
-            battery.ragone.constant_1
-            battery.ragone.constant_2
-            battery.ragone.upper_bound
-            battery.ragone.lower_bound
-            energy
-            power
-
-       Outputs:
-            battery.specific_energy
-            battery.specific_power
-            battery.mass_properties.mass
+    Properties Used:
+    N/A  
     """
 
     specific_energy_guess = battery.specific_energy

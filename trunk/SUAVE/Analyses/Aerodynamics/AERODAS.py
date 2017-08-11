@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # AERODAS.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -17,13 +18,35 @@ from SUAVE.Methods.Aerodynamics import AERODAS as Methods
 # ----------------------------------------------------------------------
 #  AERODAS
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class AERODAS(Markup):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera"""
+    """This is an analysis based on the AERODAS models.
     
+    Assumptions:
+    None
+    
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+    """    
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """               
         self.tag = 'AERODAS Model'
         
         settings = self.settings

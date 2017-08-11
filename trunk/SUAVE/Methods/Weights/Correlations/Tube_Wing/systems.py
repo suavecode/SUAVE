@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 # systems.py
 # 
 # Created:  Jan 2014, A. Wendorff
@@ -14,32 +15,38 @@ from SUAVE.Core import Units, Data
 #   Systems
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 def systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type):
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
-        Calculate the weight of the different engine systems on the aircraft
+    """ Calculate the weight of the different engine systems on the aircraft
     
-        Inputs:
-            num_seats - total number of seats on the aircraft [dimensionless]
-            ctrl_type - specifies if the control system is fully power, partially powered, or not powered [dimensionless]
-            S_h - area of the horizontal tail [meters**2]
-            S_v - area of the vertical tail [meters**2]
-            S_gross_w - area of the wing [meters**2]
-            ac_type - determines type of instruments, electronics, and operating items based on type of vehicle [dimensionless]
-        
-        Outputs:
-            output - a data dictionary with fields:
-                wt_flt_ctrl - weight of the flight control system [kilograms]
-                wt_apu - weight of the apu [kilograms]
-                wt_hyd_pnu - weight of the hydraulics and pneumatics [kilograms]
-                wt_instruments - weight of the instruments and navigational equipment [kilograms]
-                wt_avionics - weight of the avionics [kilograms]
-                wt_opitems - weight of the optional items based on the type of aircraft [kilograms]
-                wt_elec - weight of the electrical items [kilograms]
-                wt_ac - weight of the air conditioning and anti-ice system [kilograms]
-                wt_furnish - weight of the furnishings in the fuselage [kilograms]
-            
-        Assumptions:
-                numbers based on FAA regulations and correlations from previous aircraft
+    Assumptions:
+        numbers based on FAA regulations and correlations from previous aircraft 
+
+    Source: 
+        N/A
+                
+   Inputs:
+       num_seats - total number of seats on the aircraft                                                   [dimensionless]
+       ctrl_type - specifies if the control system is fully power, partially powered, or not powered       [dimensionless]
+       S_h - area of the horizontal tail                                                                   [meters**2]
+       S_v - area of the vertical tail                                                                     [meters**2]
+       S_gross_w - area of the wing                                                                        [meters**2]
+       ac_type - determines type of instruments, electronics, and operating items based on type of vehicle [dimensionless]
+   
+   Outputs:
+       output - a data dictionary with fields:
+           wt_flt_ctrl - weight of the flight control system                                               [kilograms]
+           wt_apu - weight of the apu                                                                      [kilograms]
+           wt_hyd_pnu - weight of the hydraulics and pneumatics                                            [kilograms]
+           wt_instruments - weight of the instruments and navigational equipment                           [kilograms]
+           wt_avionics - weight of the avionics                                                            [kilograms]
+           wt_opitems - weight of the optional items based on the type of aircraft                         [kilograms]
+           wt_elec - weight of the electrical items                                                        [kilograms]
+           wt_ac - weight of the air conditioning and anti-ice system                                      [kilograms]
+           wt_furnish - weight of the furnishings in the fuselage                                          [kilograms]
+       
+    Properties Used:
+        N/A
     """ 
     # unpack inputs
     sref   = S_gross_w / Units.ft**2 # Convert meters squared to ft squared

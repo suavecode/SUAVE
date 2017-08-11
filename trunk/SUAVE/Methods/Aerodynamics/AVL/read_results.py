@@ -1,4 +1,5 @@
-# read_results.py
+## @ingroup Methods-Aerodynamics-AVL
+#read_results.py
 # 
 # Created:  Mar 2015, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -11,8 +12,27 @@
 from SUAVE.Core import Data
 from .Data.Results import Results
 
+## @ingroup Methods-Aerodynamics-AVL
 def read_results(avl_object):
+    """ This functions reads the results from the results text file created 
+    at the end of an AVL function call
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        None
+
+    Outputs:
+        results     
+
+    Properties Used:
+        N/A
+    """    
+    
     results = Data()
     #i = 0 Used in the dynamic stability module (under development)
     for case_name in avl_object.current_status.cases:

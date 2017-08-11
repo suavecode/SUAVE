@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_wing.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -16,39 +17,41 @@ import numpy as np
 #   Parasite Drag Wing
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_wing(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_wing(conditions,configuration,wing)
-        computes the parastite drag associated with a wing 
-        
-        Inputs:
-            conditions
-            -freestream mach number
-            -freestream density
-            -freestream dynamic_viscosity
-            -freestream temperature
-            -freestream pressuve
-            
-            configuration
-            -wing parasite drag form factor
-            
-            wing
-            -S reference
-            -mean aerodynamic chord
-            -thickness to chord ratio
-            -sweep
-            -aspect ratio
-            -span
-            -S exposed
-            -S affected
-            -transition x
-            
-        Outputs:
-            wing parasite drag coefficient with refernce area as the
-            reference area of the input wing
+    """Computes the parasite drag due to wings
 
-        
-        Assumptions:
-        
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    settings.wing_parasite_drag_form_factor      [Unitless]
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    geometry.
+      areas.reference                            [m^2]
+      chords.mean_aerodynamic                    [m]
+      thickness_to_chord                         [Unitless]
+      sweeps.quarter_chord                       [radians]
+      aspect_ratio                               [Unitless]
+      spans.projected                            [m]
+      areas.exposed                              [m^2]
+      areas.affected                             [m^2]
+      areas.wetted                               [m^2]
+      transition_x_upper                         [Unitless]
+      transition_x_lower                         [Unitless]
+
+
+    Outputs:
+    wing_parasite_drag                           [Unitless]
+
+    Properties Used:
+    N/A
     """
     
     # unpack inputs

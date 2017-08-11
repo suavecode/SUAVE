@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 # tube.py
 #
 # Created:  Jan 2014, A. Wendorff
@@ -15,28 +16,34 @@ import numpy as np
 #   Tube
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 def tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r)
-        Calculate the weight of a fuselage in the state tube and wing configuration
+    """ Calculate the weight of a fuselage in the state tube and wing configuration
+    
+    Assumptions:
+        fuselage in a standard wing and tube configuration         
+    
+    Source: 
+        N/A 
         
-        Inputs:
-            S_fus - fuselage wetted area [meters**2]
-            diff_p_fus - Maximum fuselage pressure differential [Pascal]
-            w_fus - width of the fuselage [meters]
-            h_fus - height of the fuselage [meters]
-            l_fus - length of the fuselage [meters]
-            Nlim - limit load factor at zero fuel weight of the aircraft [dimensionless]
-            wt_zf - zero fuel weight of the aircraft [kilograms]
-            wt_wing - weight of the wing of the aircraft [kilograms]
-            wt_propulsion - weight of the entire propulsion system of the aircraft [kilograms]
-            wing_c_r - wing root chord [meters]
+    Inputs:
+        S_fus - fuselage wetted area                                           [meters**2]
+        diff_p_fus - Maximum fuselage pressure differential                    [Pascal]
+        w_fus - width of the fuselage                                          [meters]
+        h_fus - height of the fuselage                                         [meters]
+        l_fus - length of the fuselage                                         [meters]
+        Nlim - limit load factor at zero fuel weight of the aircraft           [dimensionless]
+        wt_zf - zero fuel weight of the aircraft                               [kilograms]
+        wt_wing - weight of the wing of the aircraft                           [kilograms]
+        wt_propulsion - weight of the entire propulsion system of the aircraft [kilograms]
+        wing_c_r - wing root chord                                             [meters]
+        
+    Outputs:
+        weight - weight of the fuselage                                        [kilograms]
             
-        Outputs:
-            weight - weight of the fuselage [kilograms]
-            
-        Assumptions:
-            fuselage in a standard wing and tube configuration 
-    """
+    Properties Used:
+        N/A
+    """     
     # unpack inputs
     
     diff_p = diff_p_fus / (Units.force_pound / Units.ft**2) # Convert Pascals to lbs/ square ft
