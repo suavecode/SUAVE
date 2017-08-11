@@ -1,4 +1,4 @@
-##@ ingroup Analyses-Sizing
+## @ingroup Analyses-Sizing
 # Sizing.py
 #
 # Created:  
@@ -56,7 +56,7 @@ class Sizing(Analysis):
             None
     
             Outputs:
-            results
+            Results of the Sizing Analysis
     
             Properties Used:
             N/A                

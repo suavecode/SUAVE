@@ -1,4 +1,4 @@
-## @ ingroup Analyses-Planets
+## @ingroup Analyses-Planets
 # Planet.py
 #
 # Created:  
