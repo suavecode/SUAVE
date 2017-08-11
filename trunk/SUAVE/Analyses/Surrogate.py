@@ -1,3 +1,4 @@
+## @ingroup Analyses
 # Surrogate.py
 #
 # Created:  Trent Lukaczyk, March 2015 
