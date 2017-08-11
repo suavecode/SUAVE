@@ -1,7 +1,7 @@
 ## @defgroup Components-Propulsors Propulsors
 # These are the components used to provide thrust to
 # a vehicle.
-# @ ingroup Components
+# @ingroup Components
 
 # __init__.py
 # 
