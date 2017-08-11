@@ -2,5 +2,4 @@
 # Functions needed to save SUAVE data structures in JSON form
 # @ingroup Input_Output
 from load import load
-from save import save
 from archive import archive

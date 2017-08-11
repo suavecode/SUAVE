@@ -9,7 +9,6 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Core.Input_Output import save_data
 import numpy as np
 import types
 import json
