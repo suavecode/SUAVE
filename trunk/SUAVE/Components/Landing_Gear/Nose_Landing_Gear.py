@@ -1,3 +1,4 @@
+## @ingroup Components-Landing_Gear
 # Nose_Landing_Gear.py
 # 
 # Created:  Aug 2015, C. R. I. da Silva
@@ -15,13 +16,35 @@ from Landing_Gear import Landing_Gear
 
 class Nose_Landing_Gear(Landing_Gear):
     """ SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
-        Attributes:
-        Methods:
-        Assumptions:
-            if needed
+        
+        The NLG Landing Gear Component Class
+            
+            Assumptions:
+            None
+            
+            Source:
+            N/A        
     """
 
-    def __defaults__(self):        
+    def __defaults__(self): 
+        
+        """ This sets the default values for the component attributes.
+        
+                Assumptions:
+                None
+                
+                Source:
+                N/A
+                
+                Inputs:
+                None
+                
+                Output:
+                None
+                
+                Properties Used:
+                N/A
+        """
           
         self.tire_diameter = 0.    
         self.strut_length  = 0.    
