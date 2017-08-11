@@ -19,7 +19,7 @@ before_install:
   
 install:
     - cd trunk
-    - python setup.py install
+    - python setup.py develop
     - cd ../regression
     - pip install coveralls
   
