@@ -45,21 +45,21 @@ class Geometry(Analysis):
     def evaluate(self,condtitions):
         """Evaluate the Geometry analysis.
             
-                    Assumptions:
-                    None
+                Assumptions:
+                None
             
-                    Source:
-                    N/A
+                Source:
+                N/A
             
-                    Inputs:
-                    None
+                Inputs:
+                None
             
-                    Outputs:
-                    Results of the Geometry Analysis
+                Outputs:
+                Results of the Geometry Analysis
             
-                    Properties Used:
-                    N/A                
-                """        
+                Properties Used:
+                N/A                
+            """        
         return Results()
     
         
