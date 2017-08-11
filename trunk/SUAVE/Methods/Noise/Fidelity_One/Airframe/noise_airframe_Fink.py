@@ -241,7 +241,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
        
        
    #Calculation of dBA based on the sound pressure time history
-    dbA_total                =       max(SPLt_dBA_history)    #(Not used to certification point)
+    dbA_total               =       np.max(SPLt_dBA_history)    #(Not used to certification point)
           
    #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =       pnl_noise(SPL_total_history)
