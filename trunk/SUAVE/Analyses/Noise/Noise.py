@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Noise
 # Noise.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Dec 2015, C. Ilario
+# Modified: Feb 2016, A. Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
