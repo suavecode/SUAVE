@@ -12,6 +12,7 @@ from Noise import Noise
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
+## @ingroup Analyses-Noise
 class Fidelity_One(Noise):
     
     """ SUAVE.Analyses.Noise.Fidelity_One()

@@ -1,7 +1,6 @@
-# @defgroup components-energy-storages-batteries Batteries
+## @defgroup Components-Energy-Storages-Batteries Batteries
 #Contains different battery types, separated into variable mass (metal-air) and constant mass batteries
-
-## @ingroup components-energy-storages
+# @ingroup Components-Energy-Storages
 
 
 

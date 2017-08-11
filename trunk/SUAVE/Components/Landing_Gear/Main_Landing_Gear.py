@@ -13,7 +13,7 @@ from Landing_Gear import Landing_Gear
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Landing_Gear
 class Main_Landing_Gear(Landing_Gear):
     """ SUAVE.Components.Landing_Gear.Main_Landing_Gear()
         
