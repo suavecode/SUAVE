@@ -1,7 +1,6 @@
-# @defgroup components-energy-storages Storages
+## @defgroup Components-Energy-Storages Storages
 #Energy components that store energy (such as batteries)
-
-## @ingroup components-energy
+# @ingroup Components-Energy
 
 import Batteries
 

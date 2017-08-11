@@ -1,7 +1,7 @@
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_trailing_edge_flap.py
 # 
-# Created:  Jul 2015, Carlos
+# Created:  Jul 2015, C. Ilario
 # Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        

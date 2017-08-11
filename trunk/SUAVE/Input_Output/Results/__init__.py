@@ -1,4 +1,4 @@
-## @defgroup Input_Output-Results
+## @defgroup Input_Output-Results Results
 # Miscellaneous functions to print results
 # @ingroup Input_Output
 from print_mission_breakdown import print_mission_breakdown

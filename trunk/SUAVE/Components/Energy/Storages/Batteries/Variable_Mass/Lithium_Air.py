@@ -1,4 +1,4 @@
-## @ingroup Components-Energy-Storages-Variable_Mass
+## @ingroup Components-Energy-Storages-Batteries-Variable_Mass
 # Lithium_Air.py
 # 
 # Created:  Oct 2014, M. Vegh
@@ -18,7 +18,7 @@ from SUAVE.Components.Energy.Storages.Batteries  import Battery
 # ----------------------------------------------------------------------
 #  Battery Class
 # ----------------------------------------------------------------------    
-## @ingroup Components-Energy-Storages-Variable_Mass
+## @ingroup Components-Energy-Storages-Batteries-Variable_Mass
 class Lithium_Air(Battery):
     """
     Specifies specific energy characteristics specific to

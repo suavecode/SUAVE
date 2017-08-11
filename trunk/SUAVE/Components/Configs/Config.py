@@ -1,3 +1,4 @@
+## @ingroup Components-Configs
 # Config.py
 #
 # Created:  Oct 2014, T. Lukacyzk
@@ -15,9 +16,34 @@ from SUAVE.Core import Diffed_Data
 
 class Config(Diffed_Data):
     """ SUAVE.Components.Config()
+    
+        The Top Level Configuration Class
+        
+            Assumptions:
+            None
+            
+            Source:
+            N/A
     """
     
     def __defaults__(self):
+        """ This sets the default values for the configuration.
+        
+                Assumptions:
+                None
+                
+                Source:
+                N/A
+                
+                Inputs:
+                None
+                
+                Outputs:
+                None
+                
+                Properties Used:
+                N/A
+        """
         self.tag    = 'config'
         
 
@@ -27,6 +53,14 @@ class Config(Diffed_Data):
 
 class Container(Diffed_Data.Container):
     """ SUAVE.Components.Config.Container()
+    
+        The top level configuration container class
+        
+            Assumptions:
+            None:
+            
+            Source:
+            N/A
     """
     pass
 

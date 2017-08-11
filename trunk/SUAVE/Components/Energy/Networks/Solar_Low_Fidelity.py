@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 # Solar_Low_Fidelity.py
 # 
 # Created:  Jun 2014, E. Botero
@@ -19,8 +20,38 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
+
+## @ingroup Components-Energy-Networks
 class Solar_Low_Fidelity(Propulsor):
+    """ A solar powered system with batteries and maximum power point tracking.
+        
+        This network adds an extra unknowns to the mission, the torque matching between motor and propeller.
+    
+        Assumptions:
+        This model uses the low fidelity motor and propeller model to speed computation.
+        This reduces accuracy as it is assuming a simple efficiency
+        
+        Source:
+        None
+    """      
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """            
         self.solar_flux        = None
         self.solar_panel       = None
         self.motor             = None
@@ -37,6 +68,30 @@ class Solar_Low_Fidelity(Propulsor):
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            Caps the throttle at 110% and linearly interpolates thrust off that
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+            conditions.propulsion:
+                solar_flux           [watts/m^2] 
+                rpm                  [radians/sec]
+                current              [amps]
+                battery_draw         [watts]
+                battery_energy       [joules]
+                
+            Properties Used:
+            Defaulted values
+        """           
     
         # unpack
         conditions  = state.conditions

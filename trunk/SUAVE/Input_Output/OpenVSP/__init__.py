@@ -1,4 +1,4 @@
-## @defgroup Input_Output-OpenVSP
+## @defgroup Input_Output-OpenVSP OpenVSP
 # Functions needed to work with OpenVSP.
 # @ingroup Input_Output
 from get_vsp_areas import get_vsp_areas
