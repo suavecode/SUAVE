@@ -129,9 +129,8 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
                             weight['Landing Gear']
                             )
 
-    weight['Total'] = 1.1 * (
+    weight['Empty'] = 1.1 * (
                         weight['Structural'] +
-                        weight['Payload'] +
                         weight['Seats'] +
                         weight['Avionics'] +
                         weight['Battery'] +
@@ -140,15 +139,16 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
                         weight['Wiring'] +
                         weight['BRS']
                         )
+    
+    weight['Total'] = 1.1 * (
+                        weight['Structural'] +
+                        weight['Payload'] +
+                        weight['Avionics'] +
+                        weight['Battery'] +
+                        weight['Motors'] +
+                        weight['Servos'] +
+                        weight['Wiring'] +
+                        weight['BRS']
+                        )    
 
     return weight
-
-
-#-------------------------------------------------------------------------------
-# Testing/Debugging
-#-------------------------------------------------------------------------------
-
-import pprint as pp
-
-pp.pprint(empty(1, 400, 100, 200, 9800, 4, 
-               4, 5, 3, 3))
