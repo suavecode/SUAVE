@@ -14,6 +14,7 @@ from SUAVE.Core import Diffed_Data
 #  Config
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Configs
 class Config(Diffed_Data):
     """ SUAVE.Components.Config()
     
@@ -51,6 +52,7 @@ class Config(Diffed_Data):
 #  Config Container
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Configs
 class Container(Diffed_Data.Container):
     """ SUAVE.Components.Config.Container()
     

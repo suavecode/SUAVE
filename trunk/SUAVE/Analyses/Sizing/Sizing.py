@@ -16,6 +16,7 @@ from SUAVE.Analyses import Analysis, Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Sizing
 class Sizing(Analysis):
     """ SUAVE.Analyses.Sizing.Sizing()
     """

@@ -15,6 +15,7 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Planets
 class Planet(Analysis):
     """ SUAVE.Analyses.Planet()
     """

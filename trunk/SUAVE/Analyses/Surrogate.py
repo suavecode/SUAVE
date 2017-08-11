@@ -18,6 +18,7 @@ from Analysis import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Surrogate(Analysis):
     ''' SUAVE.Analyses.Surrogate()
     

@@ -16,6 +16,7 @@ from Analysis import Analysis
 #  Vehicle Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Vehicle(Analysis.Container):
     """ SUAVE.Analyses.Vehicle()
     

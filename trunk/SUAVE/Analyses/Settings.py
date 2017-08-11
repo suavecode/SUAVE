@@ -16,6 +16,7 @@ from SUAVE.Core import Container as ContainerBase
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Settings(Data):
     """ SUAVE.Analyses.Settings()
     
@@ -54,6 +55,7 @@ class Settings(Data):
 #  Config Container
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Container(ContainerBase):
     """ SUAVE.Analyses.Settings.Container()
     

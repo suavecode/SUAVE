@@ -14,6 +14,7 @@ from SUAVE.Components import Physical_Component
 # ----------------------------------------------------------------------
 #  Propulsor
 # ----------------------------------------------------------------------
+
 ## @ingroup Components-Propulsors
 class Propulsor(Physical_Component):
 
@@ -50,6 +51,7 @@ class Propulsor(Physical_Component):
         """
         self.tag = 'Propulsor'
         
+## @ingroup Components-Propulsors
 class Container(Physical_Component.Container):
     """ SUAVE.Components.Propulsor.Container()
         

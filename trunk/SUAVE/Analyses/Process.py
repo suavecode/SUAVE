@@ -15,6 +15,7 @@ from SUAVE.Analyses.Results import Results
 #  Process
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Process(ContainerOrdered):
     """ SUAVE.Analyses.Process()
     
