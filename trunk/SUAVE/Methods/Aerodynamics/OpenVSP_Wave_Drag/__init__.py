@@ -1,6 +1,6 @@
 ## @defgroup Methods-Aerodynamics-OpenVSP_Wave_Drag OpenVSP_Wave_Drag
 # Functions to perform wave drag calculations using OpenVSP
-# @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
+# @ingroup Methods-Aerodynamics
 from wave_drag_lift import wave_drag_lift
 from wave_drag_volume import wave_drag_volume
 from compressibility_drag_total import compressibility_drag_total
