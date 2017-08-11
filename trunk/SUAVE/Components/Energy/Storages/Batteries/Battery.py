@@ -1,4 +1,4 @@
-## @ingroup Components-Energy-Storages
+## @ingroup Components-Energy-Storages-Batteries
 # Battery.py
 # 
 # Created:  Nov 2014, M. Vegh
@@ -21,7 +21,7 @@ from SUAVE.Methods.Power.Battery.Discharge.datta_discharge import datta_discharg
 #  Battery
 # ----------------------------------------------------------------------    
 
-## @ingroup Components-Energy-Storages
+## @ingroup Components-Energy-Storages-Batteries
 class Battery(Energy_Component):
     """
     Energy Component object that stores energy. Contains values

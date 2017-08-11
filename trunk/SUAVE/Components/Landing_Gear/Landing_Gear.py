@@ -13,7 +13,7 @@ from SUAVE.Components import Physical_Component
 # ----------------------------------------------------------------------
 #  A ttribute
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Landing_Gear
 class Landing_Gear(Physical_Component):
     """ SUAVE.Components.Landing_Gear.Landing_Gear()
         

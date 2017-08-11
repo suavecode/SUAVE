@@ -1,7 +1,6 @@
-# @defgroup components-energy-storages-batteries-constant_mass Constant_Mass
+## @defgroup Components-Energy-Storages-Batteries-Constant_Mass Constant_Mass
 #Contains different battery types that don't change mass, such as lithium-ion and lithium-sulfur batteries
-
-# @defgroup components-energy-storages-batteries
+# @ingroup Components-Energy-Storages-Batteries
 
 
 from Lithium_Ion import Lithium_Ion

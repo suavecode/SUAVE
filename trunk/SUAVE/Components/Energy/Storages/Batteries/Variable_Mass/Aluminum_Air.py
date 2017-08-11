@@ -1,4 +1,4 @@
-## @ingroup Components-Energy-Storages-Variable_Mass
+## @ingroup Components-Energy-Storages-Batteries-Variable_Mass
 # Aluminum_Air.py
 # 
 # Created:  Oct 2014, M. Vegh
@@ -18,7 +18,7 @@ from SUAVE.Components.Energy.Storages.Batteries  import Battery
 # ----------------------------------------------------------------------
 #  Aluminum_Air
 # ----------------------------------------------------------------------    
-## @ingroup Components-Energy-Storages-Variable_Mass
+## @ingroup Components-Energy-Storages-Batteries-Variable_Mass
 class Aluminum_Air(Battery):
     """
     Specifies discharge/specific energy characteristics specific to

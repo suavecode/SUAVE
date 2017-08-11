@@ -14,7 +14,7 @@ from SUAVE.Analyses import Analysis
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Noise
 class Noise(Analysis):
     """ SUAVE.Analyses.Noise.Noise()
     
