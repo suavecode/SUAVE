@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 #Ducted_Fan.py
 # 
 # Created: Feb 2016, M. Vegh
@@ -21,9 +22,27 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Ducted_Fan Network
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Networks
 class Ducted_Fan(Propulsor):
     
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """           
         
         #setting the default values
         self.tag = 'Ducted_Fan'
