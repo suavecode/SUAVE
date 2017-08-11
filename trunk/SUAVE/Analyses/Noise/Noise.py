@@ -1,3 +1,4 @@
+## @ingroup Analyses-Noise
 # Noise.py
 #
 # Created:  
@@ -15,21 +16,80 @@ from SUAVE.Analyses import Analysis
 # ----------------------------------------------------------------------
 
 class Noise(Analysis):
-    """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
+    """ SUAVE.Analyses.Noise.Noise()
+    
+        The Top Level Noise Analysis Class
+        
+            Assumptions:
+            None
+            
+            Source:
+            N/A
     """
     def __defaults__(self):
-        self.tag    = 'aerodynamics'
-        
+        """This sets the default values and methods for the analysis.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+            """                   
+        self.tag    = 'Noise'        
+  
         self.geometry = Data()
         self.settings = Data()
         
         
     def evaluate(self,state):
+        """The default evaluate function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        results   <Results class> (empty)
+
+        Properties Used:
+        N/A
+        """           
         
-        results = Data()
+        results = Results()
         
         return results
     
     def finalize(self):
+        """The default finalize function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         
-        return  
+        return   
