@@ -1,3 +1,4 @@
+## @ingroup Analyses-Geometry
 # Geometry.py
 #
 # Created:  
@@ -15,8 +16,24 @@ from SUAVE.Analyses import Analysis, Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Geometry
 class Geometry(Analysis):
-    """ SUAVE.Analyses.Geometry.Geometry()
+    """ This class defines the geometry data structure of an aircraft in SUAVE
+    
+    Assumptions:
+        None
+
+    Source:
+        N/A
+
+    Inputs:
+        None
+        
+    Outputs:
+        None
+
+    Properties Used:
+         N/A
     """
     def __defaults__(self):
         self.tag    = 'geometry'

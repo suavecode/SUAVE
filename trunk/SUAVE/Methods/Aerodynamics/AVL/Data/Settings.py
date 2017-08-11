@@ -96,7 +96,7 @@ class Settings(Data):
 # ------------------------------------------------------------
 #  AVL Case
 # ------------------------------------------------------------
-
+## @ingroup Components-Wings
 class AVL_Discretization_Settings(Data):
         """ A class that defines discretization of vortices on the aircraft wing
         

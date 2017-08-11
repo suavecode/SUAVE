@@ -205,6 +205,7 @@ class Wing(Lofted_Body):
 
         return
 
+## @ingroup Components-Wings
 class Container(Component.Container):
     
     """ Container for wing

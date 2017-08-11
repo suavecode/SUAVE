@@ -78,7 +78,7 @@ class Control_Surface(Lofted_Body):
         return
 
 
-
+## @ingroup Components-Wings
 class Control_Surface_Section(Lofted_Body.Section):
     def __defaults__(self):
         """This sets the default values control surface sections defined in SUAVE.

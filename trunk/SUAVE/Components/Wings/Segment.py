@@ -73,6 +73,7 @@ class Segment(Lofted_Body.Segment):
 
         return    
 
+## @ingroup Components-Wings
 class SegmentContainer(Lofted_Body.Segment.Container):
     """ Container for wing segment
     
