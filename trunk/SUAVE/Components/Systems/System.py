@@ -14,6 +14,7 @@ from SUAVE.Components import Component
 #  Payload Base Class
 # ----------------------------------------------------------------------
         
+## @ingroup Components-Systems
 class System(Component):
     """ SUAVE.Components.Systems.System()
     
@@ -53,6 +54,7 @@ class System(Component):
         self.control         = None
         self.accessories     = None
 
+## @ingroup Components-Systems
 class Container(Component.Container):
 
     """ SUAVE.Components.Systems.Container()

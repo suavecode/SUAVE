@@ -16,6 +16,7 @@ from SUAVE.Analyses import Analysis, Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Geometry
 class Geometry(Analysis):
     """ SUAVE.Analyses.Geometry.Geometry()
     """

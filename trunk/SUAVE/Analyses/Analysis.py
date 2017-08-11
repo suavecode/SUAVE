@@ -17,6 +17,7 @@ from SUAVE.Analyses import Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Analysis(Data):
     """ SUAVE.Analyses.Analysis()
     
@@ -160,6 +161,7 @@ class Analysis(Data):
 #  Config Container
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses
 class Container(ContainerBase):
     """ SUAVE.Analyses.Analysis.Container()
     

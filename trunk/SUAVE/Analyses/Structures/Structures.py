@@ -16,6 +16,7 @@ from SUAVE.Analyses import Analysis, Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Structures
 class Structures(Analysis):
     """ SUAVE.Analyses.Structures.Structures()
     """

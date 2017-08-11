@@ -15,6 +15,7 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Energy
 class Energy(Analysis):
     """ SUAVE.Analyses.Energy.Energy()
     """

@@ -16,6 +16,7 @@ from SUAVE.Analyses import Analysis, Results
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Loads
 class Loads(Analysis):
     """ SUAVE.Analyses.Loads.Loads()
     """
