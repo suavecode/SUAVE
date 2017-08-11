@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 #Turbofan.py
 # 
 # Created:  Oct 2014, A. Variyar, 
@@ -22,9 +23,27 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Networks
 class Turbofan(Propulsor):
     
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """           
         
         #setting the default values
         self.tag = 'Turbofan'
@@ -284,11 +303,4 @@ class Turbofan(Propulsor):
         
         return results
         
-        #return
-    
-    
-    
-
-
     __call__ = evaluate_thrust
-

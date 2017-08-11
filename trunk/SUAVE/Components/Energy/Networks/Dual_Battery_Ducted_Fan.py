@@ -1,12 +1,10 @@
+## @ingroup Components-Energy-Networks
 # Battery_Ducted_Fan_Parallel_Hybrid.py
 #
 # Created:  Sep 2015, M. Vegh
 # Modified: Feb 2016, M. Vegh
 #           Jan 2016, T. MacDonald
-'''
-Uses two batteries to run a motor connected to a ducted fan; the primary_battery always runs,
-while the auxiliary_battery meets additional power needs
-'''
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -26,8 +24,35 @@ import copy
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
+
+## @ingroup Components-Energy-Networks
 class Dual_Battery_Ducted_Fan(Propulsor):
+    """ Uses two batteries to run a motor connected to a ducted fan; 
+        
+        Assumptions:
+        The primary_battery always runs, while the auxiliary_battery meets additional power needs
+        
+        Source:
+        None
+    """       
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """            
         self.propulsor            = None
         self.primary_battery      = None # main battery (generally high esp)
         self.auxiliary_battery    = None # used to meet power demands beyond primary
@@ -36,6 +61,28 @@ class Dual_Battery_Ducted_Fan(Propulsor):
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+            conditions.propulsion.primary_battery_draw     [watts]
+            conditions.propulsion.primary_battery_energy   [joules]
+            conditions.propulsion.auxiliary_battery_draw   [watts]
+            conditions.propulsion.auxiliary_battery_energy [joules]
+    
+            Properties Used:
+            Defaulted values
+        """         
         
         # unpack
 

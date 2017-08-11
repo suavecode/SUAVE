@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 # Turbojet_Super.py
 # 
 # Created:  May 2015, Tim MacDonald
@@ -26,9 +27,27 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Turbojet Network
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Networks
 class Turbojet_Super(Propulsor):
     
     def __defaults__(self):
+	""" This sets the default values for the network to function.
+
+            Assumptions:
+            None
+
+            Source:
+            N/A
+
+            Inputs:
+            None
+
+            Outputs:
+            None
+
+            Properties Used:
+            N/A
+        """    	
         
         #setting the default values
         self.tag = 'Turbo_Fan'
