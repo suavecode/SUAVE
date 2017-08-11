@@ -22,21 +22,21 @@ class Geometry(Analysis):
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
             
-                    Assumptions:
-                    None
+                Assumptions:
+                None
             
-                    Source:
-                    N/A
+                Source:
+                N/A
             
-                    Inputs:
-                    None
+                Inputs:
+                None
             
-                    Outputs:
-                    None
+                Outputs:
+                None
             
-                    Properties Used:
-                    N/A
-                """        
+                Properties Used:
+                N/A
+            """        
         self.tag    = 'geometry'
         self.features = Data()
         self.settings = Data()
