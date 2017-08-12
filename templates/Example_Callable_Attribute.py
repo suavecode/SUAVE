@@ -1,3 +1,4 @@
+## @ingroup templates
 # Example_Callable_Attribute.py
 # 
 # Created:  Jan 2015, J. Dawson
@@ -32,40 +33,57 @@ import scipy as sp
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
-
+## @ingroup templates
 class Example_Callable_Attribute(Function):
-    """ SUAVE.Methods.Example_Callable_Attribute()
-        an example method with defaults, high level description
-        does something useful when called
-        
-        This Class is Callable:
-            Method(input1,input2=None)
-        
-        Callable Inputs:
-            input1 - description [units]
-            input2 - description [units]
-            
-        Callable Outputs:
-            output1 - descriptioni [units]
-        
-        Attributes:
-            area   - description [units]
-            taper  - description [units]
-        
-        Sub-Methods:
-            do_this(input1,input2)  <no description, document in function>
-
-        Assumptions:
-            if needed
-        
+    """<Description>
+    
+    Assumptions:
+    <any assumptions>
+    
+    Source:
+    <source>
     """
     
     def __defaults__(self):
+        """<Description>
+
+        Assumptions:
+        <any assumptions>
+
+        Source:
+        <source>
+
+        Inputs:
+        <inputs>
+
+        Outputs:
+        <outputs>
+
+        Properties Used:
+        <properties used>
+        """                
         # default attributes, 
         self.area = None    # [units]
         self.taper = None   # [units]
         
     def __check__(self):
+        """<Description>
+
+        Assumptions:
+        <any assumptions>
+
+        Source:
+        <source>
+
+        Inputs:
+        <inputs>
+
+        Outputs:
+        <outputs>
+
+        Properties Used:
+        <properties used>
+        """                
         # called after initialized data
         # use to check the data's fields, and modify as needed
         # will not recieve any inputs other than self
@@ -75,6 +93,23 @@ class Example_Callable_Attribute(Function):
             self.area = 20
             
     def __call__(self,input1,input2=None):
+        """<Description>
+
+        Assumptions:
+        <any assumptions>
+
+        Source:
+        <source>
+
+        Inputs:
+        <inputs>
+
+        Outputs:
+        <outputs>
+
+        Properties Used:
+        <properties used>
+        """                        
         # the method used with the class is called like a function
         # document at class level
         
@@ -96,23 +131,23 @@ class Example_Callable_Attribute(Function):
         return output
     
     def do_this(input1,input2=None):
-        """ SUAVE.Attributes.Attribute.do_this(input1,input2=None)
-            conditions data for some useful purpose
-            
-            Inputs:
-                input1 - description [units]
-                input2 - description [units]
-                
-            Outpus:
-                output1 - description
-                output2 - description
-                >> try to minimize outputs
-                >> pack up outputs into Data() if needed
-            
-            Assumptions:
-                if needed
-            
-        """
+        """<Description>
+
+        Assumptions:
+        <any assumptions>
+
+        Source:
+        <source>
+
+        Inputs:
+        <inputs>
+
+        Outputs:
+        <outputs>
+
+        Properties Used:
+        <properties used>
+        """                
         
         # unpack inputs
         var1 = input1.var1
@@ -136,23 +171,25 @@ class Example_Callable_Attribute(Function):
 #   Helper Functions
 # ----------------------------------------------------------------------
 # these will not be available in the SUAVE namespace
-
+## @ingroup templates
 def helper_function(input1,inputs2=None):
-    """ conditions data for some useful purpose
-        
-        Inputs:
-            input1 - description [units]
-            input2 - description [units]
-            
-        Outpus:
-            output1 - description
-            output2 - description
-            >> try to minimize outputs
-            >> pack up outputs into Data() if needed
-        
-        Assumptions:
-            if needed
-    """
+    """<Description>
+
+    Assumptions:
+    <any assumptions>
+
+    Source:
+    <source>
+
+    Inputs:
+    <inputs>
+
+    Outputs:
+    <outputs>
+
+    Properties Used:
+    N/A
+    """                
     
     # unpack inputs
     var1 = input1.var1
