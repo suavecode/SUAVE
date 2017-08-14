@@ -48,6 +48,8 @@ def get_vsp_areas(tag):
     for ii, line in enumerate(f):
         if ii == 0:
             pass
+        elif line == '\n':
+            break
         else:
             vals = line.split(',')
             item_tag = vals[0][:-1]
