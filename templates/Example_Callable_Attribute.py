@@ -54,14 +54,20 @@ class Example_Callable_Attribute(Function):
         <source>
 
         Inputs:
-        <inputs>
+        <input1> <units>
+        <input2> <units>
+        ..
 
         Outputs:
-        <outputs>
+        <output1> <units>
+        <output2> <units>
+        ..
 
         Properties Used:
-        <properties used>
-        """                
+        <property1> <units>
+        <property2> <units>
+        ..
+        """          
         # default attributes, 
         self.area = None    # [units]
         self.taper = None   # [units]
@@ -76,14 +82,20 @@ class Example_Callable_Attribute(Function):
         <source>
 
         Inputs:
-        <inputs>
+        <input1> <units>
+        <input2> <units>
+        ..
 
         Outputs:
-        <outputs>
+        <output1> <units>
+        <output2> <units>
+        ..
 
         Properties Used:
-        <properties used>
-        """                
+        <property1> <units>
+        <property2> <units>
+        ..
+        """                  
         # called after initialized data
         # use to check the data's fields, and modify as needed
         # will not recieve any inputs other than self
@@ -102,14 +114,20 @@ class Example_Callable_Attribute(Function):
         <source>
 
         Inputs:
-        <inputs>
+        <input1> <units>
+        <input2> <units>
+        ..
 
         Outputs:
-        <outputs>
+        <output1> <units>
+        <output2> <units>
+        ..
 
         Properties Used:
-        <properties used>
-        """                        
+        <property1> <units>
+        <property2> <units>
+        ..
+        """                           
         # the method used with the class is called like a function
         # document at class level
         
@@ -140,14 +158,20 @@ class Example_Callable_Attribute(Function):
         <source>
 
         Inputs:
-        <inputs>
+        <input1> <units>
+        <input2> <units>
+        ..
 
         Outputs:
-        <outputs>
+        <output1> <units>
+        <output2> <units>
+        ..
 
         Properties Used:
-        <properties used>
-        """                
+        <property1> <units>
+        <property2> <units>
+        ..
+        """                 
         
         # unpack inputs
         var1 = input1.var1
@@ -182,14 +206,18 @@ def helper_function(input1,inputs2=None):
     <source>
 
     Inputs:
-    <inputs>
+    <input1> <units>
+    <input2> <units>
+    ..
 
     Outputs:
-    <outputs>
+    <output1> <units>
+    <output2> <units>
+    ..
 
     Properties Used:
     N/A
-    """                
+    """                    
     
     # unpack inputs
     var1 = input1.var1

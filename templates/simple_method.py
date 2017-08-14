@@ -41,10 +41,14 @@ def simple_method(input1,input2=None):
     <source>
 
     Inputs:
-    <inputs>
+    <input1> <units>
+    <input2> <units>
+    ..
 
     Outputs:
-    <outputs>
+    <output1> <units>
+    <output2> <units>
+    ..
 
     Properties Used:
     N/A
@@ -83,10 +87,14 @@ def helper_function(input1,inputs2=None):
     <source>
 
     Inputs:
-    <inputs>
+    <input1> <units>
+    <input2> <units>
+    ..
 
     Outputs:
-    <outputs>
+    <output1> <units>
+    <output2> <units>
+    ..
 
     Properties Used:
     N/A
