@@ -1,7 +1,7 @@
 # Analyses.py
 # 
-# Created:  Mar. 2016, M. Vegh
-# Modified: 
+# Created:  Mar, 2016, M. Vegh
+# Modified: Jul, 2017, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -51,7 +51,7 @@ def base(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.vehicle = vehicle
     analyses.append(weights)
 

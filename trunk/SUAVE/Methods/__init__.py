@@ -1,3 +1,5 @@
+## @defgroup Methods
+# Methods provide the functions needed to perform analyses. These are generally not classes.
 
 import Utilities
 import Noise

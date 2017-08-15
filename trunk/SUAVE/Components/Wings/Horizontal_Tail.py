@@ -1,3 +1,4 @@
+## @ingroup Components-Wings
 # Horizontal_Tail.py
 #
 # Created:  Feb 2014, T. Lukacyzk, T. Orra
@@ -14,20 +15,44 @@ from Wing import Wing
 #  Attribute
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Wings
 class Horizontal_Tail(Wing):
-    """ SUAVE.Components.Wing.Horizontal_Tail()
-
-        Attributes:
-
-        Methods:
-
+    """ This class is used to define horiontal tails SUAVE
+    
         Assumptions:
-            if needed
+        None
 
-    """
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
 
     def __defaults__(self):
-        # default attributes
+        """This sets the default for horizontal tails in SUAVE.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
         pass
 
 

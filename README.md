@@ -22,11 +22,14 @@ Contributing Developers
 * Carlos Ilario
 * Emilio Botero
 * Francisco Capristan
+* Jordan Smart
 * Juan Alonso
 * Luke Kulik
+* Matthew Clarke
 * Michael Colonno
 * Michael Kruger
 * Michael Vegh
+* Rick Fenrich
 * Tarik Orra
 * Tim MacDonald
 * Tim Momose

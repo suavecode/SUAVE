@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Shaft_Power_Off_Take.py
 #
 # Created:  Jun 2016, L. Kulik
@@ -15,30 +16,61 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Shaft Power component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Shaft_Power_Off_Take(Energy_Component):
-    """ SUAVE.Components.Energy.Converters.Generator
-        an electrical generator component
+    """This is a component representing the power draw from the shaft.
+    
+    Assumptions:
+    None
 
-        this class is callable, see self.__call__
-
-        Inputs:
-        power draw
-
-        Outputs:
-        work done
+    Source:
+    None
+    """ 
+    def __defaults__(self):
+        """This sets the default values for the component to function.
 
         Assumptions:
-        This device just draws power
+        None
 
-        """
-    def __defaults__(self):
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """          
         self.power_draw = 0.0
         self.reference_temperature = 288.15
         self.reference_pressure = 1.01325 * 10 ** 5
 
     def compute(self, state):
+        """ This computes the work done from the power draw.
 
+        Assumptions:
+        None
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        self.inputs.
+          mdhc                  [-] Compressor nondimensional mass flow
+          reference_temperature [K]
+          reference_pressure    [Pa]
+
+        Outputs:
+        self.outputs.
+          power                 [W]
+          work_done             [J/kg] (if power draw is not zero)
+
+        Properties Used:
+        self.power_draw         [W]
+        """  
         if self.power_draw == 0.0:
             self.outputs.work_done = np.array([0.0])
 

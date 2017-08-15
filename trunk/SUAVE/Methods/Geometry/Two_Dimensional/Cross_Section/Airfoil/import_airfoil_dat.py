@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 # import_airfoil_dat.py
 # 
 # Created:  
@@ -13,8 +14,25 @@ import numpy as np
 #  import airfoil dat
 # ------------------------------------------------------------
 
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def import_airfoil_dat(filename):
+    """Import an airfoil data file and stores it in a numpy array.
+    
+    Assumptions:
+    Airfoil file in Lednicer format
+
+    Source:
+    None
+
+    Inputs:
+    filename   <string>
+
+    Outputs:
+    data       numpy array with airfoil data
+
+    Properties Used:
+    N/A
+    """     
     
     filein = open(filename,'r')
     data = {}   

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # compute_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
@@ -16,32 +17,9 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
 #  The Function
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def compute_aircraft_drag(conditions,configuration,geometry=None):
-    """ SUAVE.Methods.Aerodynamics.compute_aircraft_drag_supersonic(conditions,configuration,geometry)
-        computes the lift associated with an aircraft 
-        
-        Inputs:
-            conditions - data dictionary with fields:
-                mach_number - float or 1D array of freestream mach numbers
-                angle_of_attack - floar or 1D array of angle of attacks
-                
-            configuration - data dictionary with fields:
-                surrogate_models.lift_coefficient - a callable function or class 
-                    with inputs of angle of attack and outputs of lift coefficent
-                fuselage_lift_correction - the correction to fuselage contribution to lift
-                    
-            geometry - the aircraft geoemtry with fields:
-            
-        
-        Outputs:
-            CD - float or 1D array of drag coefficients of the total aircraft
-        
-        Updates:
-            conditions.drag_breakdown - stores results here
-            
-        Assumptions:
-            
-            
+    """ Unused function
     """    
     
     # Unpack inputs

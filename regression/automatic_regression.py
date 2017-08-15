@@ -2,6 +2,7 @@
 #
 # Created:  Jun 2014, T. Lukaczyk
 # Modified: Jun 2014, SUAVE Team
+#           Jul 2017, SUAVE Team
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -33,6 +34,8 @@ import matplotlib.pyplot as plt
 modules = [
 
     # regression
+    'scripts/AVL/test_AVL.py',
+    'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/dynamic_stability/dynamicstability.py',
@@ -60,6 +63,7 @@ modules = [
     'scripts/noise_optimization/Noise_Test.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/industrial_costs/industrial_costs.py',
+    'scripts/sizing_loop/sizing_loop.py',
 ]
 
 

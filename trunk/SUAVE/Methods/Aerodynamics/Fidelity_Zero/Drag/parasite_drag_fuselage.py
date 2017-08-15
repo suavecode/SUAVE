@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_fuselage.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -16,17 +17,33 @@ import numpy as np
 #   Parasite Drag Fuselage
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_fuselage(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
-        computes the parasite drag associated with a fuselage 
-        
-        Inputs:
+    """Computes the parasite drag due to the fuselage
 
-        Outputs:
+    Assumptions:
+    Basic fit
 
-        Assumptions:
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        
+    Inputs:
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    settings.fuselage_parasite_drag_form_factor  [Unitless]
+    geometry.fuselage.       
+      areas.front_projected                      [m^2]
+      areas.wetted                               [m^2]
+      lengths.total                              [m]
+      effective_diameter                         [m]
+
+    Outputs:
+    fuselage_parasite_drag                       [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs

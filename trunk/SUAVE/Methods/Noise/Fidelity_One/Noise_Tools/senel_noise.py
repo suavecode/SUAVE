@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # senel_noise.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -12,6 +13,7 @@ import numpy as np
 #   SENEL Noise Metric
 # ---------------------------------------------------------------------- 
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def senel_noise(SPLt_dBA_max):
     """This method calculates de effective perceived noise level (EPNL) based on a time history PNLT
      (Perceived Noise Level with Tone Correction).

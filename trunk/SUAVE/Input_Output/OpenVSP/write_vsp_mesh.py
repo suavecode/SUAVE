@@ -1,7 +1,9 @@
+## @ingroup Input_Output-OpenVSP
 # write_vsp_mesh.py
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Feb 2017, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -11,7 +13,29 @@ import numpy as np
 import time
 import fileinput
 
+## @ingroup Input_Output-OpenVSP
 def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag):
+    """This create an .stl surface mesh based on a vehicle stored in a .vsp3 file.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    geometry.                                 - Also passed to set_sources
+      wings.main_wing.chords.mean_aerodynamic [m]
+    half_mesh_flag                            <boolean>  determines if a symmetry plane is created
+    growth_ratio                              [-]        growth ratio for the mesh
+    growth_limiting_flag                      <boolean>  determines if 3D growth limiting is used
+
+    Outputs:
+    <tag>.stl                               
+
+    Properties Used:
+    N/A
+    """      
     
     # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
@@ -68,20 +92,52 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     vsp.SetCFDMeshVal(vsp.CFD_MAX_EDGE_LEN,min_len)
     
     # vsp.AddDefaultSources()   
-    SetSources(geometry)
+    set_sources(geometry)
     
     vsp.Update()
     
     vsp.WriteVSPFile(tag + '_premesh.vsp3')
     
-    print 'Starting mesh for ' + tag
+    print 'Starting mesh for ' + tag + ' (This may take several minutes)'
     ti = time.time()
     vsp.ComputeCFDMesh(set_int,file_type)
     tf = time.time()
     dt = tf-ti
     print 'VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s'
     
-def SetSources(geometry):
+## @ingroup Input_Output-OpenVSP
+def set_sources(geometry):
+    """This sets meshing sources in a way similar to the OpenVSP default. Some source values can
+    also be optionally specified as below.
+    
+    Assumptions:
+    None
+
+    Source:
+    https://github.com/OpenVSP/OpenVSP (with some modifications)
+
+    Inputs:
+    geometry.
+      wings.*.                              (passed to add_segment_sources())
+        tag                                 <string>
+        Segments.*.percent_span_location    [-] (.1 is 10%)
+        Segments.*.root_chord_percent       [-] (.1 is 10%)
+        chords.root                         [m]
+        chords.tip                          [m]
+        vsp_mesh                            (optional) - This holds settings that are used in add_segment_sources
+      fuselages.*.
+        tag                                 <string>
+        vsp_mesh.                           (optional)
+          length                            [m]
+          radius                            [m]
+        lengths.total                       (only used if vsp_mesh is not defined for the fuselage)
+
+    Outputs:
+    <tag>.stl                               
+
+    Properties Used:
+    N/A
+    """     
     # Extract information on geometry type (for some reason it seems VSP doesn't have a simple 
     # way to do this)
     comp_type_dict = dict()
@@ -144,7 +200,7 @@ def SetSources(geometry):
                         wingtip_flag = True
                     else:
                         wingtip_flag = False
-                    AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
+                    add_segment_sources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)                        
                 elif (ii==0) and (use_base == False): 
                     cr = base_root * wing.Segments[0].root_chord_percent
@@ -159,7 +215,7 @@ def SetSources(geometry):
                     else:
                         custom_flag = False
                     wingtip_flag = False
-                    AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
+                    add_segment_sources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)
                 elif ii < num_secs - 1:
                     if use_base == True:
@@ -174,7 +230,7 @@ def SetSources(geometry):
                     else:
                         custom_flag = False
                     wingtip_flag = False
-                    AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
+                    add_segment_sources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)                   
                 else:     
                     if use_base == True:
@@ -189,7 +245,7 @@ def SetSources(geometry):
                     else:
                         custom_flag = False
                     wingtip_flag = True
-                    AddSegmentSources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
+                    add_segment_sources(comp,cr, ct, ii, u_start, num_secs, custom_flag, 
                                   wingtip_flag,seg)  
                 pass
                     
@@ -227,8 +283,37 @@ def SetSources(geometry):
             #pass        
     
         
+## @ingroup Input_Output-OpenVSP
+def add_segment_sources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,seg):
+    """This sets meshing sources for the wing segments according to their size and position.
+    
+    Assumptions:
+    None
 
-def AddSegmentSources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,seg):
+    Source:
+    https://github.com/OpenVSP/OpenVSP (with some modifications)
+
+    Inputs:
+    comp             <string> - OpenVSP component ID
+    cr               [m]      - root chord
+    ct               [m]      - tip chord
+    ii               [-]      - segment index
+    u_start          [-]      - OpenVSP parameter determining the u dimensional start point
+    num_secs         [-]      - number of segments on the corresponding wing
+    custom_flag      <boolean> - determines if custom source settings are to be used
+    wingtip_flag     <boolean> - indicates if the current segment is a wingtip
+    seg.vsp_mesh.    (only used if custom_flag is True)
+      inner_length   [m]       - length of inboard element edge
+      outer_length   [m]       - length of outboard element edge
+      inner_radius   [m]       - radius of influence for inboard source
+      outer_radius   [m]       - radius of influence for outboard source
+
+    Outputs:
+    None - sources are added to OpenVSP instance                             
+
+    Properties Used:
+    N/A
+    """     
     if custom_flag == True:
         len1 = seg.vsp_mesh.inner_length
         len2 = seg.vsp_mesh.outer_length

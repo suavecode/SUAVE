@@ -1,7 +1,8 @@
+## @ingroup Components-Energy-Networks
 #Ducted_Fan.py
 # 
-# Created: Feb 2016, M. Vegh
-# Modified: 
+# Created:  Feb 2016, M. Vegh
+# Modified: Aug 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,9 +22,36 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 #  Ducted_Fan Network
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Networks
 class Ducted_Fan(Propulsor):
+    """ A ducted fan 
+    
+        Assumptions:
+        None
+        
+        Source:
+        Most of the componentes come from this book:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """     
     
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """           
         
         #setting the default values
         self.tag = 'Ducted_Fan'
@@ -34,43 +62,56 @@ class Ducted_Fan(Propulsor):
         self.areas             = Data()
         
     _component_root_map = None
-        
-    
-    # linking the different network components
-    def evaluate_thrust(self,state):
 
+    def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
     
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+            results.power               [Watts]
+            conditions.propulsion.acoustic_outputs:
+                fan:
+                    exit_static_temperature      
+                    exit_static_pressure       
+                    exit_stagnation_temperature 
+                    exit_stagnation_pressure
+                    exit_velocity 
+    
+            Properties Used:
+            Defaulted values
+        """          
+
         #Unpack
-        
         conditions = state.conditions
-        numerics   = state.numerics
-        
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
         fan                       = self.fan
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
         
-        
-        
         #Creating the network by manually linking the different components
-        
-        
         #set the working fluid to determine the fluid properties
-        ram.inputs.working_fluid                             = self.working_fluid
+        ram.inputs.working_fluid                               = self.working_fluid
         
         #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
         ram(conditions)
         
-        
-        
         #link inlet nozzle to ram 
-        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
-        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
+        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature 
+        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure 
         
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
-        
         
         #Link the fan to the inlet nozzle
         fan.inputs.stagnation_temperature                      = inlet_nozzle.outputs.stagnation_temperature
@@ -78,31 +119,25 @@ class Ducted_Fan(Propulsor):
         
         #flow through the fan
         fan(conditions)
-        
 
-  
         #link the fan nozzle to the fan
         fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
         fan_nozzle.inputs.stagnation_pressure                  = fan.outputs.stagnation_pressure
         thrust.inputs.fuel_to_air_ratio                        = 0.
+        
          # flow through the fan nozzle
         fan_nozzle(conditions)
         
-
-
         # compute the thrust using the thrust component
-        
         #link the thrust component to the fan nozzle
         thrust.inputs.fan_exit_velocity                        = fan_nozzle.outputs.velocity
         thrust.inputs.fan_area_ratio                           = fan_nozzle.outputs.area_ratio
         thrust.inputs.fan_nozzle                               = fan_nozzle.outputs
         thrust.inputs.bypass_ratio                             = self.bypass_ratio  #0.0
-        #compute the trust
+        
+        #compute the thrust
         thrust(conditions)
- 
-        
-        
-        
+
         #obtain the network outputs from the thrust outputs
         
         u0                    = conditions.freestream.velocity
@@ -113,19 +148,14 @@ class Ducted_Fan(Propulsor):
         mdot            = thrust.outputs.fuel_flow_rate
         Isp             = thrust.outputs.specific_impulse
         output_power    = thrust.outputs.power
-  
         F_vec           = conditions.ones_row(3) * 0.0
         F_vec[:,0]      = F[:,0]
         F               = F_vec
       
         #pack outputs
         results = Data()
-        #propulsive_efficiency=[1.]
-        results.power               =output_power[:,0]
-        #results.power               = np.divide(output_power,propulsive_efficiency)  #offset by propulsive_efficiency
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
         results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
         
         # store data
@@ -143,41 +173,46 @@ class Ducted_Fan(Propulsor):
     
     
     
-    def size(self,state):  
+    def size(self,state):
+        """ Size the turbofan
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            State [state()]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """          
         
         #Unpack components
-        
-        conditions = state.conditions
-        numerics   = state.numerics        
-        
+        conditions = state.conditions       
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
         fan                       = self.fan
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
         
-        
-        
         #Creating the network by manually linking the different components
-        
-        
         #set the working fluid to determine the fluid properties
         ram.inputs.working_fluid                             = self.working_fluid
         
         #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
         ram(conditions)
 
-        
-        
         #link inlet nozzle to ram 
-        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
-        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
+        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature 
+        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure 
         
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
-          
-        
-        
         
         #Link the fan to the inlet nozzle
         fan.inputs.stagnation_temperature                      = inlet_nozzle.outputs.stagnation_temperature
@@ -185,8 +220,6 @@ class Ducted_Fan(Propulsor):
         
         #flow through the fan
         fan(conditions)
-
-        
 
         #link the dan nozzle to the fan
         fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
@@ -196,26 +229,12 @@ class Ducted_Fan(Propulsor):
         fan_nozzle(conditions)
         
         # compute the thrust using the thrust component
-        
-        
-        
         #link the thrust component to the fan nozzle
         thrust.inputs.fan_exit_velocity                        = fan_nozzle.outputs.velocity
         thrust.inputs.fan_area_ratio                           = fan_nozzle.outputs.area_ratio
         thrust.inputs.fan_nozzle                               = fan_nozzle.outputs
-        #thrust.inputs.total_temperature_reference 
-        #thrust.inputs.total_pressure_reference    
         
-        #compute the trust
+        #compute the thrust
         thrust.size(conditions)
-       
-        
-        
-        #return
-    
-    
-    
-
 
     __call__ = evaluate_thrust
-

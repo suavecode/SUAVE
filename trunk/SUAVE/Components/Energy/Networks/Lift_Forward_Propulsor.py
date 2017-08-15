@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 # Lift_Forward_propulsor.py
 # 
 # Created: Jan 2016, E. Botero
@@ -12,29 +13,53 @@ import SUAVE
 
 # package imports
 import numpy as np
-import scipy as sp
-import datetime
-import time
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-from SUAVE.Components.Energy.Networks import Battery_Propeller
 
-from SUAVE.Core import (
-Data, Container
-)
+# ----------------------------------------------------------------------
+#  Lift_Forward
+# ----------------------------------------------------------------------
 
-# We have two inputs, the forward throttle and the lift throttle setting
-
-# Since this is an airplane first and foremost, the "throttle" will be for forward thrust
-# The new unknown will be for lift throttle, because of the assumption on throttle something needs to be done...
-
-# Want only 1 residual on voltage
-
-# For any segment using this, body angle can't be an unknown.
-
-
+## @ingroup Components-Energy-Networks
 class Lift_Forward(Propulsor):
+    """ This is a complex version of battery_propeller with a battery powering propellers through
+        electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
+        
+        This network adds 2 extra unknowns to the mission. The first is
+        a voltage, to calculate the thevenin voltage drop in the pack.
+        The second is torque matching between motor and propeller.
+        
+        We have two inputs, the forward throttle and the lift throttle setting
+
+        Since this is an airplane first and foremost, the "throttle" will be for forward thrust
+        The new unknown will be for lift throttle, because of the assumption on throttle something needs to be done...
+
+        Want only 1 residual on voltage
+    
+        Assumptions:
+        For any segment using this, body angle can't be an unknown.
+        
+        Source:
+        None
+    """        
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """             
         self.motor_lift                = None
         self.motor_forward             = None
         self.propeller_lift            = None
@@ -57,6 +82,37 @@ class Lift_Forward(Propulsor):
         pass
         
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            Caps the throttle at 110% and linearly interpolates thrust off that
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [Newtons]
+            results.vehicle_mass_rate   [kg/s]
+            conditions.propulsion:
+                rpm_lift                 [radians/sec]
+                rpm _forward             [radians/sec]
+                current_lift             [amps]
+                current_forward          [amps]
+                battery_draw             [watts]
+                battery_energy           [joules]
+                voltage_open_circuit     [volts]
+                voltage_under_load       [volts]
+                motor_torque_lift        [N-M]
+                motor_torque_forward     [N-M]
+                propeller_torque_lift    [N-M]
+                propeller_torque_forward [N-M]
+    
+            Properties Used:
+            Defaulted values
+        """          
         
         # unpack
         conditions        = state.conditions
@@ -231,6 +287,30 @@ class Lift_Forward(Propulsor):
         return results
     
     def unpack_unknowns(self,segment,state):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses all the motors.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle                    [0-1]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle                    [0-1]
+    
+            Properties Used:
+            N/A
+        """          
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         state.conditions.propulsion.lift_throttle                    = state.unknowns.lift_throttle
@@ -243,6 +323,30 @@ class Lift_Forward(Propulsor):
     
     
     def unpack_unknowns_no_lift(self,segment,state):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses only the forward motors and turns the rest off.
+    
+            Assumptions:
+            Only the forward motors and turns the rest off.
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle                    [0-1]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle                    [0-1]
+    
+            Properties Used:
+            N/A
+        """             
         
         ones = state.ones_row
         
@@ -256,6 +360,30 @@ class Lift_Forward(Propulsor):
         return    
     
     def unpack_unknowns_no_forward(self,segment,state):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses only the lift motors.
+    
+            Assumptions:
+            Only the lift motors.
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle                    [0-1]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle                    [0-1]
+    
+            Properties Used:
+            N/A
+        """             
         
         ones = state.ones_row
         
@@ -270,6 +398,30 @@ class Lift_Forward(Propulsor):
     
     
     def residuals(self,segment,state):
+        """ This packs the residuals to be send to the mission solver.
+            Use this if all motors are operational
+    
+            Assumptions:
+            All motors are operational
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque_forward                  [N-m]
+                motor_torque_lift                     [N-m]
+                propeller_torque_forward              [N-m]
+                propeller_torque_lift                 [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """            
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_motor_forward = state.conditions.propulsion.motor_torque_forward
@@ -290,6 +442,30 @@ class Lift_Forward(Propulsor):
     
     
     def residuals_no_lift(self,segment,state):
+        """ This packs the residuals to be send to the mission solver.
+            Use this if only the forward motors are operational
+    
+            Assumptions:
+            Only the forward motors are operational
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque_forward                  [N-m]
+                motor_torque_lift                     [N-m]
+                propeller_torque_forward              [N-m]
+                propeller_torque_lift                 [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """          
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_motor_forward = state.conditions.propulsion.motor_torque_forward
@@ -306,6 +482,30 @@ class Lift_Forward(Propulsor):
         return    
     
     def residuals_no_forward(self,segment,state):
+        """ This packs the residuals to be send to the mission solver.
+            Only the lift motors are operational
+    
+            Assumptions:
+            The lift motors are operational
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque_forward                  [N-m]
+                motor_torque_lift                     [N-m]
+                propeller_torque_forward              [N-m]
+                propeller_torque_lift                 [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """            
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_motor_lift    = state.conditions.propulsion.motor_torque_lift

@@ -1,3 +1,4 @@
+## @ingroup Components-Wings
 # Main_Wing.py
 #
 # Created:  Feb 2014, T. Lukacyzk, T. Orra
@@ -14,20 +15,43 @@ from Wing import Wing
 #  Attribute
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Wings
 class Main_Wing(Wing):
-    """ SUAVE.Components.Wing.Main_Wing()
+    """This class is used to define main wings SUAVE
 
-        Attributes:
+    Assumptions:
+    None
 
-        Methods:
+    Source:
+    N/A
 
-        Assumptions:
-            if needed
+    Inputs:
+    None
 
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
     """
-
     def __defaults__(self):
-        # default attributes
+        """This sets the default for main wings in SUAVE.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
         pass
 
 

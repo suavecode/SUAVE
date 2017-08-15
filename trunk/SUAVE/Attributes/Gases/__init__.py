@@ -1,4 +1,6 @@
-
+## @defgroup Attributes-Gases Gases
+# Common gases
+# @ingroup Attributes
 # classes
 from Air import Air
 from CO2 import CO2

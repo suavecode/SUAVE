@@ -1,3 +1,4 @@
+## @ingroup Attributes-Liquids
 # Liquid.py
 
 # Created:  Dec, 2013, M. Vegh
@@ -12,13 +13,35 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Liquid Data Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Liquids
 class Liquid(Data):
+    """Base class for liquids
 
-    """ Physical constants of a liquid """
+    Assumptions:
+    None
+
+    Source:
+    None
+    """
 
     def __defaults__(self):
+        """This sets the default values.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """    
         self.molecular_mass  = 0.0               
         self.composition    = Data()
         self.composition.liquid = 1.0

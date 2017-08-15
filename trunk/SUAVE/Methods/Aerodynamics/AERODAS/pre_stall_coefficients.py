@@ -1,7 +1,8 @@
+## @ingroup Methods-Aerodynamics-AERODAS
 # pre_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,15 +15,41 @@ from SUAVE.Analyses import Results
 #  Pre Stall Coefficients
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AERODAS
 def pre_stall_coefficients(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    Using the equations 6 and 7"""
+    """Uses the AERODAS method to determine prestall parameters for lift and drag for a single wing
+
+    Assumptions:
+    None
+
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    state.conditions.aerodynamics.angle_of_attack
+    settings.section_zero_lift_angle_of_attack
+    geometry.
+      section.
+        angle_attack_max_prestall_lift
+        zero_lift_drag_coefficient
+      pre_stall_maximum_drag_coefficient_angle
+      pre_stall_maximum_lift_coefficient
+      pre_stall_lift_curve_slope 
+      pre_stall_maximum_lift_drag_coefficient
+
+    Outputs:
+    CL1 (coefficient of lift)                       [Unitless]
+    CD1 (coefficient of drag)                       [Unitless]
+    (packed in state.conditions.aerodynamics.pre_stall_coefficients[geometry.tag])
+
+    Properties Used:
+    N/A
+    """  
     
     # unpack inputs
     wing   = geometry
-    alpha  = state.conditions.aerodynamics.angle_of_attack
+    alpha  = state.conditions.aerodynamics.angle_of_attack * 1.0
     A0     = settings.section_zero_lift_angle_of_attack
     ACL1   = wing.section.angle_attack_max_prestall_lift 
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
@@ -30,10 +57,14 @@ def pre_stall_coefficients(state,settings,geometry):
     CD0    = wing.section.zero_lift_drag_coefficient
     S1     = wing.pre_stall_lift_curve_slope  
     CD1max = wing.pre_stall_maximum_lift_drag_coefficient
+    
+    if wing.vertical == True:
+        alpha = 0. * np.ones_like(alpha)
+        
         
     # Equation 6c
     RCL1          = S1*(ACL1-A0)-CL1max
-    RCL1[RCL1<=0] = 0.0
+    RCL1[RCL1<=0] = 1.e-16
     
     # Equation 6d
     N1            = 1 + CL1max/RCL1
