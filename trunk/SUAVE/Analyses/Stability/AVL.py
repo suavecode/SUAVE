@@ -33,7 +33,7 @@ from Stability import Stability
 import time
 import pylab as plt
 import os
-import numpy as np
+autograd.numpy import np
 import sys
 import sklearn
 from sklearn import gaussian_process

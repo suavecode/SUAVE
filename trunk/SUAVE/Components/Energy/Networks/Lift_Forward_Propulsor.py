@@ -12,7 +12,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+autograd.numpy import np
 from SUAVE.Core import Units, Data
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 

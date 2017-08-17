@@ -45,7 +45,7 @@ def initialize_inertial_position(segment,state):
         r_initial = state.initials.conditions.frames.inertial.position_vector
         r_current = state.conditions.frames.inertial.position_vector
         
-        state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])# Update for AD
+        state.conditions.frames.inertial.position_vector = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
     
     return
     
@@ -83,7 +83,7 @@ def initialize_time(segment,state):
         t_initial = state.initials.conditions.frames.inertial.time
         t_current = state.conditions.frames.inertial.time
         
-        state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0]) # Update for AD
+        state.conditions.frames.inertial.time = t_current + (t_initial[-1,0] - t_current[0,0])
         
     else:
         t_initial = state.conditions.frames.inertial.time[0,0]
@@ -190,9 +190,9 @@ def update_planet_position(segment,state):
 
     # Find the velocities and integrate the positions
     lamdadot  = (V/R)*np.cos(gamma)*np.cos(psi)
-    lamda     = np.dot(I,lamdadot) * 180./np.pi # Latitude
+    lamda     = np.dot(I,lamdadot) /Units.deg # Latitude
     mudot     = (V/R)*np.cos(gamma)*np.sin(psi)/np.cos(lamda)
-    mu        = np.dot(I,mudot) * 180./np.pi # Longitude
+    mu        = np.dot(I,mudot) /Units.deg  # Longitude
 
     # Reshape the size of the vectorss
     shape     = np.shape(conditions.freestream.velocity)
@@ -400,7 +400,7 @@ def integrate_inertial_horizontal_position(segment,state):
     x = np.dot(I,vx) + x0
     
     # pack
-    conditions.frames.inertial.position_vector[:,0:1+1] = x[:,:] # Update for AD
+    conditions.frames.inertial.position_vector = np.concatenate((x,conditions.frames.inertial.position_vector[:,-1:]),axis=1)
     
     return
 
@@ -437,4 +437,4 @@ def update_acceleration(segment,state):
     acc = np.dot(D,v)
     
     # pack conditions
-    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   # Update for AD
+    state.conditions.frames.inertial.acceleration_vector = acc

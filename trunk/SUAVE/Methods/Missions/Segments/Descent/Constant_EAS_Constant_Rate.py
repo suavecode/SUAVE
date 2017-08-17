@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-import numpy as np
+autograd.numpy import np
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions

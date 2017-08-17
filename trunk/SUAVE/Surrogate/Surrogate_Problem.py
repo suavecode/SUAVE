@@ -6,7 +6,7 @@
 
 
 from SUAVE.Core import Data
-import numpy as np
+autograd.numpy import np
 
 
 # ----------------------------------------------------------------------

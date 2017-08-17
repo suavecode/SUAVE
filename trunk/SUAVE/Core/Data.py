@@ -578,7 +578,7 @@ class Data(dict):
         """
         
         # dont require dict to have numpy
-        import numpy as np
+        autograd.numpy import np
         from Arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
@@ -660,7 +660,7 @@ class Data(dict):
 
         
         # dont require dict to have numpy
-        import numpy as np
+        autograd.numpy import np
         from Arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
@@ -808,7 +808,7 @@ if __name__ == '__main__':
     d.options.half  = 0.5
     print d
     
-    import numpy as np
+    autograd.numpy import np
     ones = np.ones([10,1])
         
     m = Data()

@@ -12,7 +12,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+autograd.numpy import np
 
 from SUAVE.Core import Data
 from SUAVE.Analyses import Results

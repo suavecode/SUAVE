@@ -20,7 +20,7 @@ from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 
-import numpy as np
+autograd.numpy import np
 
 # ----------------------------------------------------------------------
 #  Class

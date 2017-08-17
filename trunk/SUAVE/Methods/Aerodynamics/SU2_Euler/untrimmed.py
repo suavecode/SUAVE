@@ -4,7 +4,7 @@
 # Created:  Jan 2014, T. Orra
 # Modified: Jun 2017, T. MacDonald  
 
-import numpy as np # should be removed, need to determine how to handle this so create by dates dont appear
+autograd.numpy import np # should be removed, need to determine how to handle this so create by dates dont appear
 
 ## @ingroup Methods-Aerodynamics-SU2_Euler
 def untrimmed(state,settings,geometry):

@@ -61,8 +61,12 @@ def initialize_conditions(segment,state):
     v_z   = -climb_rate # z points down
     v_x   = np.sqrt( v_mag**2 - v_z**2 )
     
+    cond = state.conditions
+    v_xs = state.ones_row(1) * v_x
+    v_zs = state.ones_row(1) * v_z
+    zero = state.ones_row(1) * 0.
+    
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = v_x # Update for AD
-    conditions.frames.inertial.velocity_vector[:,2] = v_z # Update for AD
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down # Update for AD
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context # Update for AD
+    cond.frames.inertial.velocity_vector = np.concatenate((v_xs,zero,v_zs),axis=1)
+    cond.frames.inertial.position_vector = np.concatenate((cond.frames.inertial.position_vector[:,0:2],-alt),axis=1) # z points down
+    cond.freestream.altitude             = alt # positive altitude in this context

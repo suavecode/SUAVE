@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+autograd.numpy import np
 import SUAVE
 try:
     import pyOpt

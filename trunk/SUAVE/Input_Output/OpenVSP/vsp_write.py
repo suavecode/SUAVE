@@ -17,7 +17,7 @@ try:
 except ImportError:
     # This allows SUAVE to build without OpenVSP
     pass
-import numpy as np
+autograd.numpy import np
 
 ## @ingroup Input_Output-OpenVSP
 def write(vehicle,tag):

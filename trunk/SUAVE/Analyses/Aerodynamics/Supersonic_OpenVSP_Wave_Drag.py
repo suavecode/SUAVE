@@ -19,7 +19,7 @@ from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 
-import numpy as np
+autograd.numpy import np
 
 # ----------------------------------------------------------------------
 #  Class

@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
-import numpy as np
+autograd.numpy import np
 
 # default Aero Results
 from Results import Results

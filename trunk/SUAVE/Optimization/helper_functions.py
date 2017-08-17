@@ -141,7 +141,9 @@ def scale_input_values(inputs,x):
     """    
     
     provided_scale = inputs[:,3]
-    inputs[:,1] =  x*provided_scale # Update for AD
+    
+    #inputs = np.concatenate((inputs[:,0:1],np.array([x*provided_scale]).T,inputs[:,2:]),axis=1)
+    inputs[:,1] =  np.array(x*provided_scale) # Update for AD
     
     return inputs
 

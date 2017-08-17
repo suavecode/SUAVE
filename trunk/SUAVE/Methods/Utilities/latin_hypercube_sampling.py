@@ -9,7 +9,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+autograd.numpy import np
 
 ## If needed for mapping to normal distribution:
 #from scipy.stats.distributions import norm 

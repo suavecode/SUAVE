@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import scipy.optimize as opt
-import numpy as np
+autograd.numpy import np
 
 from SUAVE.Core.Arrays import array_type
 from SUAVE.Core import Units

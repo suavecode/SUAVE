@@ -18,7 +18,7 @@ import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
 from write_sizing_outputs import write_sizing_outputs
 from read_sizing_inputs import read_sizing_inputs
-import numpy as np
+autograd.numpy import np
 import scipy as sp
 import time
 

@@ -99,51 +99,51 @@ class Aerodynamics(Analysis):
         return     
     
     
-    def compute_forces(self,conditions):
-        """The default function to compute forces.
+    #def compute_forces(self,conditions):
+        #"""The default function to compute forces.
 
-        Assumptions:
-        None
+        #Assumptions:
+        #None
 
-        Source:
-        N/A
+        #Source:
+        #N/A
 
-        Inputs:
-        conditions.freestream.
-          dynamic_pressure       [Pa]
-        conditions.aerodynamics.
-          lift_coefficient       [-]
-          drag_coefficient       [-]
+        #Inputs:
+        #conditions.freestream.
+          #dynamic_pressure       [Pa]
+        #conditions.aerodynamics.
+          #lift_coefficient       [-]
+          #drag_coefficient       [-]
 
-        Outputs:
-        results.
-          lift_force_vector      [N]
-          drag_force_vector      [N]
+        #Outputs:
+        #results.
+          #lift_force_vector      [N]
+          #drag_force_vector      [N]
 
-        Properties Used:
-        self.geometry.reference_area [m^2]
-        """          
+        #Properties Used:
+        #self.geometry.reference_area [m^2]
+        #"""          
         
-        # unpack
-        q    = conditions.freestream.dynamic_pressure
-        Sref = self.geometry.reference_area
+        ## unpack
+        #q    = conditions.freestream.dynamic_pressure
+        #Sref = self.geometry.reference_area
         
-        # 
-        CL = conditions.aerodynamics.lift_coefficient
-        CD = conditions.aerodynamics.drag_coefficient
+        ## 
+        #CL = conditions.aerodynamics.lift_coefficient
+        #CD = conditions.aerodynamics.drag_coefficient
         
-        N = q.shape[0]
-        L = np.zeros([N,3])
-        D = np.zeros([N,3])
+        #N = q.shape[0]
+        #L = np.zeros([N,3])
+        #D = np.zeros([N,3])
 
-        L[:,2] = ( -CL * q * Sref )[:,0] # Update for AD
-        D[:,0] = ( -CD * q * Sref )[:,0] # Update for AD
+        #L[:,2] = ( -CL * q * Sref )[:,0] 
+        #D[:,0] = ( -CD * q * Sref )[:,0]
 
-        results = Data()
-        results.lift_force_vector = L
-        results.drag_force_vector = D
+        #results = Data()
+        #results.lift_force_vector = L
+        #results.drag_force_vector = D
 
-        return results        
+        #return results        
     
         
         

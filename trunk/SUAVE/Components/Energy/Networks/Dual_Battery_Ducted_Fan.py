@@ -17,7 +17,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 
 # package imports
-import numpy as np
+autograd.numpy import np
 import copy
 
 
