@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
+#           Jul 2017, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -41,7 +42,6 @@ from Concorde import vehicle_setup, configs_setup
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -67,13 +67,12 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    #plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(results)
+    plot_mission(old_results,'k-')
+    plt.show()
 
     # check the results
     check_results(results,old_results) 
-    
-    #plt.show()
     
     return
 
@@ -131,7 +130,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -428,12 +427,6 @@ def simple_sizing(configs):
     
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
-    
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 2.0 * wing.areas.reference
-        wing.areas.exposed  = 0.8 * wing.areas.wetted
-        wing.areas.affected = 0.6 * wing.areas.wetted
     
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers

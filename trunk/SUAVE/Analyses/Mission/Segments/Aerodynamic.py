@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments
 # Aerodynamic.py
 #
 # Created:  
@@ -15,17 +16,40 @@ from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
 
-# Units
-from SUAVE.Core import Units
-
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments
 class Aerodynamic(Simple):
+    """ Thethird basic piece of a mission which each segment will expand upon
+    
+        Assumptions:
+        There's a detailed process flow outline in defaults. A mission must be solved in that order.
+        Assumes you're an atmospheric vehicle.
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

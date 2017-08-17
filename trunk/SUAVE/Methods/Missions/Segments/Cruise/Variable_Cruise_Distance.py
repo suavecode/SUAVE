@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Cruise
 # Variable_Cruise_Distance.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -6,8 +7,26 @@
 # --------------------------------------------------------------
 #   Initialize - for cruise distance
 # --------------------------------------------------------------
-
+## @ingroup Methods-Missions-Segments-Cruise
 def initialize_cruise_distance(segment,state):
+    """This is a method that allows your vehicle to land at prescribed landing weight
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.cruise_tag              [string]
+    segment.distance                [meters]
+
+    Outputs:
+    state.unknowns.cruise_distance  [meters]
+
+    Properties Used:
+    N/A
+    """         
     
     # unpack
     cruise_tag = segment.cruise_tag
@@ -23,7 +42,26 @@ def initialize_cruise_distance(segment,state):
 #   Unknowns - for cruise distance
 # --------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def unknown_cruise_distance(segment,state):
+    """This is a method that allows your vehicle to land at prescribed landing weight
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.cruise_tag              [string]
+    state.unknowns.cruise_distance  [meters]
+
+    Outputs:
+    segment.distance                [meters]
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     distance = state.unknowns.cruise_distance
@@ -39,7 +77,27 @@ def unknown_cruise_distance(segment,state):
 #   Residuals - for Take Off Weight
 # --------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def residual_landing_weight(segment,state):
+    """This is a method that allows your vehicle to land at prescribed landing weight.
+    This takes the final weight and compares it against the prescribed landing weight.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.segments[-1].conditions.weights.total_mass [kilogram]
+    segment.target_landing_weight                    [kilogram]
+
+    Outputs:
+    state.residuals.landing_weight                   [kilogram]
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     landing_weight = state.segments[-1].conditions.weights.total_mass[-1]

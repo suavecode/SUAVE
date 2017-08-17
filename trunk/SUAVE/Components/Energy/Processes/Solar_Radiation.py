@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Processes
 # Solar_Radiation.py
 # 
 # Created:  Jun 2014, E. Botero
@@ -17,30 +18,44 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Solar Class
 # ----------------------------------------------------------------------
+## @ingroup Components-Energy-Processes
 class Solar_Radiation(Energy_Component):
-
+    """A class that handle solar radiation computation.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
+    """     
     def solar_radiation(self,conditions):  
-        
-        """ Computes the adjusted solar flux in watts per square meter.
-              
-              Inputs:
-                  day - day of the year from Jan 1st
-                  TUTC - time in seconds in UTC
-                  longitude- in degrees
-                  latitude - in degrees
-                  altitude - in meters                  
-                  bank angle - in radians
-                  pitch attitude - in radians
-                  heading angle - in radians
-                  
-              Outputs:
-                  sflux - adjusted solar flux
-                  
-              Assumptions:
-                  Solar intensity =1305 W/m^2
-                  Includes a diffuse component of 0% of the direct component
-                  Altitudes are not excessive 
-        """        
+        """Computes the adjusted solar flux
+
+        Assumptions:
+        Solar intensity =1305 W/m^2
+        Includes a diffuse component of 0% of the direct component
+        Altitudes are not excessive 
+
+        Source:
+        N/A
+
+        Inputs:
+        conditions.frames.
+          planet.start_time        [s]
+          planet.latitude          [degrees]
+          planet.longitude         [degrees]
+          body.inertial_rotations  [radians]
+          inertial.time            [s]
+        conditions.freestream.
+          altitude                 [m]
+
+        Outputs:
+        self.outputs.flux          [W/m^2]
+        flux                       [W/m^2]
+
+        Properties Used:
+        N/A
+        """            
         
         # Unpack
         timedate  = conditions.frames.planet.start_time

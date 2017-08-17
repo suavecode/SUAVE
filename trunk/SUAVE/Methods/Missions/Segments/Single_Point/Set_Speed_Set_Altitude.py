@@ -1,17 +1,52 @@
+## @ingroup Methods-Missions-Segments-Single_Point
 # Set_Speed_Set_Altitude.py
 # 
 # Created:  Mar 2017, T. MacDonald
-# Modified: 
+# Modified: Jul 2017, T. MacDonald
+#           Aug 2017, E. Botero
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Single_Point
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    A fixed speed and altitude
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude                            [meters]
+    segment.air_speed                           [meters/second]
+    segment.x_accel                             [meters/second^2]
+    segment.z_accel                             [meters/second^2]
+
+    Outputs:
+    conditions.frames.inertial.acceleration_vector [meters/second^2]
+    conditions.frames.inertial.velocity_vector     [meters/second]
+    conditions.frames.inertial.position_vector     [meters]
+    conditions.freestream.altitude                 [meters]
+    conditions.frames.inertial.time                [seconds]
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     alt        = segment.altitude
-    air_speed  = segment.air_speed       
+    air_speed  = segment.air_speed  
+    x_accel    = segment.x_accel
+    z_accel    = segment.z_accel
     conditions = state.conditions 
     
     # check for initial altitude
@@ -24,8 +59,30 @@ def initialize_conditions(segment,state):
     state.conditions.freestream.altitude[:,0]             = alt
     state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
     state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    
+    state.conditions.frames.inertial.acceleration_vector  = np.array([[x_accel,0.0,z_accel]])
+
+## @ingroup Methods-Missions-Segments-Single_Point
 def update_weights(segment,state):
+    """Sets the gravity force vector during the segment
+
+    Assumptions:
+    A fixed speed and altitde
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions:
+        weights.total_mass                          [kilogram]
+        freestream.gravity                          [meters/second^2]
+
+    Outputs:
+    conditions.frames.inertial.gravity_force_vector [newtons]
+
+
+    Properties Used:
+    N/A
+    """         
     
     # unpack
     conditions = state.conditions

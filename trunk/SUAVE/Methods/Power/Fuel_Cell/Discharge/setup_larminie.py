@@ -1,9 +1,10 @@
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 # setup_larminie.py
 #
 # Created : Apr 2015, M. Vegh 
 # Modified: Sep 2015, M. Vegh
 #           Feb 2016, E. Botero
-
+#           Aug 2017, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -16,10 +17,30 @@ from larminie import larminie
 #  Setup Larminie
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Power-Fuel_Cell-Discharge
 #default values representative of a hydrogen fuel cell
 def setup_larminie(fuel_cell):                     
    """ sets up additional values of fuel cell to run method from Larminie and 
-   Dicks (Fuel Cell Systems Explained) """   
+   Dicks (Fuel Cell Systems Explained)
+   
+   Inputs:
+       fuel cell
+    
+   Outputs:
+       fuel_cell.
+           number_of_cells
+           interface_area       [m**2]
+           r                    [ohms*m**2]
+           Eoc                  [V]
+           A1                   [V]
+           m                    [V]
+           n                    [m**2/A]
+           ideal_voltage        [V]
+           cell_density         [kg/m^3]
+           porousity_coeffient  
+
+
+   """   
    
    fuel_cell.number_of_cells       = 0.0                                  #number of fuel cells in the stack
    fuel_cell.interface_area        = 875.*(Units.cm**2.)                  # area of the fuel cell interface

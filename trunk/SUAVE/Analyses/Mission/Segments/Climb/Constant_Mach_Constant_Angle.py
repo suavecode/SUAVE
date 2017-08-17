@@ -1,7 +1,9 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Mach_Constant_Angle.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  June 2017, E. Botero 
+# Modified:
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -14,14 +16,40 @@ from Unknown_Throttle import Unknown_Throttle
 # Units
 from SUAVE.Core import Units
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Constant_Mach_Constant_Angle(Unknown_Throttle):
+    """ Climb at a constant mach number and at a constant angle.
+        This segment takes longer to solve than most because it has extra unknowns and residuals
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

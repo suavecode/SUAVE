@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # estimate_take_off_field_length.py
 #
 # Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
@@ -25,44 +26,37 @@ import numpy as np
 #  Compute field length required for takeoff
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_climb = 0):
-    """ SUAVE.Methods.Performance.estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_climb = 0):
-        Computes the takeoff field length for a given vehicle condition in a given airport, and
-        allow user to compute 2nd segment climb gradient
+    """ Computes the takeoff field length for a given vehicle configuration in a given airport.
+    Also optionally computes the second segment climb gradient.
 
-        Inputs:
-            vehicle	 - SUAVE type vehicle, with following fields:
-                mass_properties.takeoff    - Takeoff weight to be evaluated
-                vehicle.reference_area     - Airplane reference area
-                V2_VS_ratio                - Ratio between V2 and Stall speed
-                                             [optional. Default value = 1.20]
-                takeoff_constants          - Coefficients for takeoff field length equation
-                                             [optional. Default values: AA241 method]
-                maximum_lift_coefficient   - Maximum lift coefficient for the config
-                                             [Calculated if not informed]
+    Assumptions:
+    For second segment climb gradient:
+    One engine inoperative
+    Only validated for two engine aircraft
 
-            analyses  - SUAVE analyses type data structure, with the following fields:
-                analyses.base.atmosphere   - Atmosphere to be used for calculation
+    Source:
+    http://adg.stanford.edu/aa241/AircraftDesign.html
 
-                
-            airport   - SUAVE type airport data, with followig fields:
-                atmosphere                  - Airport atmosphere (SUAVE type)
-                altitude                    - Airport altitude
-                delta_isa                   - ISA Temperature deviation
+    Inputs:
+    analyses.base.atmosphere               [SUAVE data type]
+    airport.
+      altitude                             [m]
+      delta_isa                            [K]
+    vehicle.
+      mass_properties.takeoff              [kg]
+      reference_area                       [m^2]
+      V2_VS_ratio (optional)               [Unitless]
+      maximum_lift_coefficient (optional)  [Unitless]
+      propulsors.*.number_of_engines       [Unitless]
 
-            compute_2nd_seg_climb   - Flag to define if second segment climb gradient
-                                      should be calculated
-                                      
-        Outputs:
-            takeoff_field_length            - Takeoff field length
-            second_seg_climb_gradient       - Second Segment Climb gradient [ optional]
+    Outputs:
+    takeoff_field_length                   [m]
 
-        Assumptions:
-            Correlation based.
-            Second segment climb gradient:
-                - Considers ONE engine inoperative, for any number of engines.
-                - Valid for twin engine airplane - NOT VALIDATED/VERIFICATED WITH 3 OR MORE ENGINES.
-    """
+    Properties Used:
+    N/A
+    """        
 
     # ==============================================
         # Unpack

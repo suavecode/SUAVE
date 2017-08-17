@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Throttle_Constant_Speed.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +14,25 @@ import numpy as np
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def unpack_body_angle(segment,state):
+    """Unpacks and sets the proper value for body angle
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns.body_angle                      [Radians]
+
+    Outputs:
+    state.conditions.frames.body.inertial_rotation [Radians]
+
+    Properties Used:
+    N/A
+    """          
 
     # unpack unknowns
     theta      = state.unknowns.body_angle
@@ -26,7 +45,31 @@ def unpack_body_angle(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+    
+    Assumptions:
+    Constant throttle estting, with a constant true airspeed
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.air_speed                           [meters/second]
+    segment.throttle                            [Unitless]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.propulsion.throttle              [Unitless]
+
+    Properties Used:
+    N/A
+    """         
     
     # unpack
     throttle   = segment.throttle
@@ -44,27 +87,31 @@ def initialize_conditions(segment,state):
     # pack conditions  
     conditions.propulsion.throttle[:,0] = throttle
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
-    
+
+## @ingroup Methods-Missions-Segments-Climb
 def update_differentials_altitude(segment,state):
-    """ Segment.update_differentials_altitude(conditions, numerics, unknowns)
-        updates the differential operators t, D and I
-        must return in dimensional time, with t[0] = 0
+    """On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
+    
+    Assumptions:
+    Constant throttle setting, with a constant true airspeed.
 
-        Works with a segment discretized in vertical position, altitude
+    Source:
+    N/A
 
-        Inputs - 
-            unknowns      - data dictionary of segment free unknowns
-            conditions    - data dictionary of segment conditions
-            numerics - data dictionary of non-dimensional differential operators
+    Inputs:
+    segment.climb_angle                         [radians]
+    state.conditions.frames.inertial.velocity_vector [meter/second]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
 
-        Outputs - 
-            numerics - udpated data dictionary with dimensional numerics 
+    Outputs:
+    state.conditions.frames.inertial.time       [seconds]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
 
-        Assumptions - 
-            outputed operators are in dimensional time for the current solver iteration
-            works with a segment discretized in vertical position, altitude
-
-    """
+    Properties Used:
+    N/A
+    """   
 
     # unpack
     t = state.numerics.dimensionless.control_points
@@ -76,9 +123,7 @@ def update_differentials_altitude(segment,state):
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end    
     conditions = state.conditions  
-
-    r = state.conditions.frames.inertial.position_vector
-    v = state.conditions.frames.inertial.velocity_vector
+    v          = state.conditions.frames.inertial.velocity_vector
     
     # check for initial altitude
     if alt0 is None:
@@ -108,6 +153,7 @@ def update_differentials_altitude(segment,state):
 #  Update Velocity Vector from Wind Angle
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def update_velocity_vector_from_wind_angle(segment,state):
     
     # unpack

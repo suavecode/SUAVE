@@ -1,4 +1,5 @@
-# purge_directory.py
+## @ingroup Methods-Aerodynamics-AVL
+#purge_directory.py
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -10,9 +11,9 @@
 import os
 from purge_files import purge_files
 
+## @ingroup Methods-Aerodynamics-AVL
 def purge_directory(path,purge_subdirectories=False):
-	"""
-	Deletes the contents of a directory, then the directory itself.
+	""" Deletes the contents of a directory, then the directory itself.
 	If purge_subdirectories is True, subdirectories of the directory will also
 	be purged, recursively. In this case, the directory specified in the 'path'
 	argument will always be removed at the end of this function. 
@@ -20,7 +21,23 @@ def purge_directory(path,purge_subdirectories=False):
 	but subdirectories and their contents will be left untouched. In this case, 
 	the directory ('path' argument) will only be removed if it contains no
 	subdirectories.
-	"""
+
+
+	Assumptions:
+            None
+	    
+	Source:
+	    None
+    
+	Inputs:
+	    None
+    
+	Outputs:
+	    None
+    
+	Properties Used:
+	    N/A
+	"""    
 	
 	contents = os.listdir(path)
 	subdir   = []

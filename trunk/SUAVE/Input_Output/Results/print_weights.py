@@ -1,4 +1,5 @@
-""" print_weights.py """
+## @ingroup Input_Output-Results
+# print_weights.py 
 
 # Created: SUAVE team
 # Updated: Carlos Ilario, Feb 2016
@@ -11,22 +12,36 @@
 # ----------------------------------------------------------------------
 #  Print output file with weight breakdown
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-Results
 def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
-    """ SUAVE.Methods.Results.print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
-        
-        Print output file with weight breakdown
-        
-        Inputs:
-            config   - data dictionary with the airplane config
-            filename [optional] - Name of the file to be created
+    """This creates a file showing weight information.
 
-        Outputs:
-            output file
+    Assumptions:
+    One propulsor (can be multiple engines) with 'turbofan' tag.
 
-        Assumptions:
-			none
-		"""
+    Source:
+    N/A
+
+    Inputs:
+    config.
+      weight_breakdown.
+        empty
+        *.tag            <string>
+        systems.*.tag    <string>
+      mass_properties.
+        max_takeoff      [kg]
+	max_landing      [kg]
+	max_zero_fuel    [kg]
+	max_fuel         [kg]
+	max_payload      [kg]
+    filename (optional)  <string> Determines the name of the saved file
+
+    Outputs:
+    filename              Saved file with name as above
+
+    Properties Used:
+    N/A
+    """     
     
     # Imports
     import datetime                 # importing library

@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
 # engine_geometry.py
 #
 # Created:  Jun 15, A. Variyar 
@@ -21,70 +22,37 @@ from math import pi, sqrt
 #  Correlation-based methods to compute engine geometry
 # ----------------------------------------------------------------------
 
-def compute_ducted_fan_geometry(ducted_fan, mach_number = None, altitude = None, delta_isa = 0, conditions = None):
-    """ SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_ducted_fan_geometry
-    inputs:
-            ducted_fan: component ducted fan
-            conditions: SUAVE structured data for sizing conditions (optional)
-            alternatively the user can provide unstrucutred sizing conditions given by:
-                mach_number: free stream mach number
-                altitude: flight altitude
-                delta_isa: temperature deviation from ISA conditions
-    outputs:
-            ducted fan geometry data:
-                areas.wetted
-                areas.maximum
-                nacelle_diameter
-                engine_length
-    """
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
+def compute_ducted_fan_geometry(ducted_fan, conditions):
+    """Estimates geometry for a ducted fan.
     
+    Assumptions:
+    None
 
-    #Unpack conditions
+    Source:
+    None
 
-    #check if altitude is passed or conditions is passed
+    Inputs:
+    ducted_fan.thrust.
+      mass_flow_rate_design [kg/s]
+    ducted_fan.fan_nozzle.
+      outputs.velocity      [m/s]
+      outputs.density       [kg/m^3]
+      outputs.area_ratio    [-]
+    conditions.freestream.
+      velocity              [m/s]
+      density               [kg/m^3]
 
-    if(conditions):
-        #use conditions
-        pass
+    Outputs:
+    ducted_fan.
+      areas.maximum         [m^2]
+      areas.wetted          [m^2]
+      nacelle_diameter      [m]
+      engine_length         [m]
 
-    else:
-        #check if mach number and temperature are passed
-        if(mach_number==None or altitude==None):
-
-            #raise an error
-            raise NameError('The sizing conditions require an altitude and a Mach number')
-
-        else:
-            #call the atmospheric model to get the conditions at the specified altitude
-            atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)
-
-            p   = atmo_data.pressure          
-            T   = atmo_data.temperature       
-            rho = atmo_data.density          
-            a   = atmo_data.speed_of_sound    
-            mu  = atmo_data.dynamic_viscosity  
-            
-            # setup conditions
-            conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-
-            # freestream conditions
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
-            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
-            conditions.freestream.pressure           = np.atleast_1d(p)
-            conditions.freestream.temperature        = np.atleast_1d(T)
-            conditions.freestream.density            = np.atleast_1d(rho)
-            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-            conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.gamma              = np.atleast_1d(1.4)
-            conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-            conditions.freestream.R                  = 287.87
-            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
-            conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
-
-            # propulsion conditions
-            conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+    Properties Used:
+    N/A
+    """      
 
     # unpack
     thrust            = ducted_fan.thrust

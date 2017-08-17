@@ -1,7 +1,8 @@
-# Constant_Mach_Constant_Altitude_Loiter.py
+## @ingroup Analyses-Mission-Segments-Cruise
+# Constant_Speed_Constant_Altitude_Loiter.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Jun 2017, E. Botero 
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,9 +20,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Speed_Constant_Altitude_Loiter(Constant_Speed_Constant_Altitude):
+    """ Fixed true airspeed and altitude for a fixed time.
+        This is useful aircraft who need to station keep.
+    
+        Assumptions:
+        Built off of a constant speed constant altitude segment
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs

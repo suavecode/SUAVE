@@ -1,3 +1,8 @@
+## @ingroup Analyses-Mission-Segments-Cruise
+# Constant_Acceleration_Constant_Altitude.py
+#
+# Created:  Jan 2016, E. Botero
+# Modified: Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,17 +24,43 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Acceleration_Constant_Altitude(Aerodynamic):
+    """ Vehicle accelerates at a constant rate between two airspeeds.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
         self.altitude  = None
         self.acceleration      = 1.  * Units['m/s/s']
-        self.air_speed_final   = 0.0 * Units['m/s']
-        self.air_speed_initial = 1.0 * Units['m/s']
+        self.air_speed_start   = 0.0 * Units['m/s']
+        self.air_speed_end     = 1.0 * Units['m/s']
         
         
         # --------------------------------------------------------------

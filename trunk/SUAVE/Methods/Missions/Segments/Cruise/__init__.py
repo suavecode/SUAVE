@@ -1,3 +1,6 @@
+## @defgroup Methods-Missions-Segments-Cruise Cruise
+# Cruise mission methods containing the functions for setting up and solving a mission.
+# @ingroup Methods-Missions-Segments
 
 import Common
 import Constant_Mach_Constant_Altitude

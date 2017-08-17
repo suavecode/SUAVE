@@ -1,3 +1,4 @@
+## @ingroup Surrogate
 # kriging_surrogate_functions.py
 #
 # Created:  May 2016, M. Vegh
@@ -20,13 +21,28 @@ import time
 
 
 # ----------------------------------------------------------------------
-#  kriging_surrogate_functions
+#  build_kriging_models
 # ----------------------------------------------------------------------
 
 
-
+## @ingroup Surrogate
 def build_kriging_models(obj_values, inputs, constraints):
-
+    """
+    Uses the pyKriging package to build a surrogate formulation of an optimization problem
+    
+    Inputs:
+    obj_values          [array]
+    inputs              [array]
+    constraints         [array]
+    
+    Outputs:
+    obj_surrogate            callable function(inputs)
+    constraints_surrogates   [array(callable function(inputs))]
+    surrogate_function       callable function(inputs): returns the objective, constraints, and whether it succeeded as an int 
+    
+    """
+    
+    
     #now build surrogates based on these
     t1=time.time()
   

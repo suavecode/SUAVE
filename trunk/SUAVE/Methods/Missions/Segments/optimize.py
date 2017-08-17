@@ -1,3 +1,5 @@
+
+## @ingroup Methods-Missions-Segments
 # optimize.py
 # 
 # Created:  Dec 2016, E. Botero
@@ -13,14 +15,32 @@ import numpy as np
 from SUAVE.Core.Arrays import array_type
 from SUAVE.Core import Units
 
-import pyOpt
-import pyOpt.pySNOPT
-
 # ----------------------------------------------------------------------
 #  Converge Root
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments
 def converge_opt(segment,state):
+    """Interfaces the mission to an optimization algorithm
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    state.unknowns                     [Data]
+    segment                            [Data]
+    state                              [Data]
+    segment.algorithm                  [string]
+
+    Outputs:
+    state.unknowns                     [Any]
+
+    Properties Used:
+    N/A
+    """     
     
     # pack up the array
     unknowns = state.unknowns.pack_array()
@@ -29,46 +49,46 @@ def converge_opt(segment,state):
     obj       = lambda unknowns:get_objective(unknowns,(segment,state))   
     econ      = lambda unknowns:get_econstraints(unknowns,(segment,state)) 
     iecon     = lambda unknowns:get_ieconstraints(unknowns,(segment,state)) 
-    obj_pyopt = lambda unknowns:get_problem_pyopt(unknowns,(segment,state)) 
-    
     
     # Setup the bnds of the problem
     bnds = make_bnds(unknowns, (segment,state))
+
+    # Solve the problem, based on chosen algorithm
+    if segment.algorithm == 'SLSQP':
+        unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
+        
+    elif segment.algorithm == 'SNOPT':
+        
+        # SNOPT imports
+        import pyOpt
+        import pyOpt.pySNOPT    
+        
+        # Have the optimizer call the wrapper
+        obj_pyopt = lambda unknowns:get_problem_pyopt(unknowns,(segment,state)) 
     
-    # Solve the problem
-    #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
-    #unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)
+        opt_prob = pyOpt.Optimization('SUAVE',obj_pyopt)
+        opt_prob.addObj(segment.objective)
     
-    opt_prob = pyOpt.Optimization('SUAVE',obj_pyopt)
-    opt_prob.addObj('Something')
-
-    for ii in xrange(0,len(unknowns)):
-        lbd = (bnds[ii][0])
-        ubd = (bnds[ii][1])
-        vartype = 'c'
-        opt_prob.addVar(str(ii),vartype,lower=lbd,upper=ubd,value=unknowns[ii])  
-
-    # Setup constraints
-    segment_points = state.numerics.number_control_points
-    for ii in xrange(0,2*segment_points):
-        opt_prob.addCon(str(ii), type='e', equal=0.)
-    for ii in xrange(0,3*segment_points-1):
-        opt_prob.addCon(str(ii+segment_points*2), type='i', lower=0.,upper=np.inf)
-        #pass
-
-    print opt_prob
-
-    snopt = pyOpt.pySNOPT.SNOPT()    
-
-    outputs = snopt(opt_prob) 
-
-    print outputs
-
-    print opt_prob.solution(0)
+        for ii in xrange(0,len(unknowns)):
+            lbd = (bnds[ii][0])
+            ubd = (bnds[ii][1])
+            vartype = 'c'
+            opt_prob.addVar(str(ii),vartype,lower=lbd,upper=ubd,value=unknowns[ii])  
     
-    print outputs[1]
+        # Setup constraints
+        segment_points = state.numerics.number_control_points
+        for ii in xrange(0,2*segment_points):
+            opt_prob.addCon(str(ii), type='e', equal=0.)
+        for ii in xrange(0,3*segment_points-1):
+            opt_prob.addCon(str(ii+segment_points*2), type='i', lower=0.,upper=np.inf)
     
-    print state.residuals
+        print opt_prob
+    
+        snopt = pyOpt.pySNOPT.SNOPT()    
+        outputs = snopt(opt_prob) 
+    
+        print outputs
+        print opt_prob.solution(0)
 
     return
     
@@ -76,8 +96,23 @@ def converge_opt(segment,state):
 #  Helper Functions
 # ----------------------------------------------------------------------
     
-
+## @ingroup Methods-Missions-Segments
 def get_objective(unknowns,(segment,state)):
+    """ Runs the mission if the objective value is needed
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        state.unknowns      [Data]
+    
+        Outputs:
+        objective           [float]
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -91,7 +126,23 @@ def get_objective(unknowns,(segment,state)):
     
     return objective
 
+## @ingroup Methods-Missions-Segments
 def get_econstraints(unknowns,(segment,state)):
+    """ Runs the mission if the equality constraint values are needed
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        state.unknowns      [Data]
+            
+        Outputs:
+        constraints          [array]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -105,8 +156,25 @@ def get_econstraints(unknowns,(segment,state)):
     
     return constraints
 
-
+## @ingroup Methods-Missions-Segments
 def make_bnds(unknowns,(segment,state)):
+    """ Automatically sets the bounds of the optimization.
+    
+        Assumptions:
+        Restricts throttle to between 0 and 100%
+        Restricts body angle from 0 to pi/2 radians
+        Restricts flight path angle from 0 to pi/2 radians
+        
+        Inputs:
+        none
+            
+        Outputs:
+        bnds
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     ones    = state.ones_row(1)
     ones_m1 = state.ones_row_m1(1)
@@ -127,8 +195,25 @@ def make_bnds(unknowns,(segment,state)):
     
     return bnds
 
-
+## @ingroup Methods-Missions-Segments
 def get_ieconstraints(unknowns,(segment,state)):
+    """ Runs the mission if the inequality constraint values are needed
+    
+        Assumptions:
+        Time only goes forward
+        CL is less than a specified limit
+        All altitudes are greater than zero
+        
+        Inputs:
+        state.unknowns      [Data]
+            
+        Outputs:
+        constraints          [array]
+
+        Properties Used:
+        N/A
+                                
+    """      
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
@@ -153,7 +238,27 @@ def get_ieconstraints(unknowns,(segment,state)):
     
     return constraints
 
+## @ingroup Methods-Missions-Segments
 def get_problem_pyopt(unknowns,(segment,state)):
+    """ Runs the mission and obtains the objective and all constraints. This is formatted for pyopt
+    
+        Assumptions:
+        Time only goes forward
+        CL is less than a specified limit
+        All altitudes are greater than zero
+        
+        Inputs:
+        state.unknowns      [Data]
+    
+        Outputs:
+        obj                 [float]
+        con                 [array]
+        fail                [boolean]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)

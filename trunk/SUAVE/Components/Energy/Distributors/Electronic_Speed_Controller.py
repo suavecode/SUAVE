@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Distributors
 # Electronic_Speed_Controller.py
 #
 # Created:  Jun 2014, E. Botero
@@ -16,27 +17,52 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 #  Electronic Speed Controller Class
 # ----------------------------------------------------------------------
 
+## @ingroup Components-Energy-Distributors
 class Electronic_Speed_Controller(Energy_Component):
     
     def __defaults__(self):
+        """ This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """         
         
         self.efficiency = 0.0
     
     def voltageout(self,conditions):
-        """ The electronic speed controllers voltage out
-            
-            Inputs:
-                eta - [0-1] throttle setting
-                self.inputs.voltage() - a function that returns volts into the ESC
-               
-            Outputs:
-                voltage out of the ESC
-               
+        """ The voltage out of the electronic speed controller
+        
             Assumptions:
-                The ESC's output voltage is linearly related to throttle setting
-               
+            The ESC's output voltage is linearly related to throttle setting
+    
+            Source:
+            N/A
+    
+            Inputs:
+            conditions.propulsion.throttle [0-1] 
+            self.inputs.voltage            [volts]
+    
+            Outputs:
+            voltsout                       [volts]
+            self.outputs.voltageout        [volts]
+    
+            Properties Used:
+            None
+           
         """
-        # Unpack, deep copy since I replace values
+        # Unpack, don't modify the throttle
         eta = (conditions.propulsion.throttle[:,0,None])*1.0
         
         # Negative throttle is bad
@@ -54,17 +80,19 @@ class Electronic_Speed_Controller(Energy_Component):
         return voltsout
     
     def currentin(self):
-        """ The current going in
-            
-            Inputs:
-                eff - [0-1] efficiency of the ESC
-                self.inputs.power() - a function that returns power
-               
-            Outputs:
-                Current into the ESC
-               
+        """ The current going into the speed controller
+        
             Assumptions:
                 The ESC draws current.
+            
+            Inputs:
+                self.inputs.currentout [amps]
+               
+            Outputs:
+                outputs.currentin      [amps]
+            
+            Properties Used:
+                self.efficiency - [0-1] efficiency of the ESC
                
         """
         

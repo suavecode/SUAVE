@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Propeller_Lo_Fid.py
 #
 # Created:  Jun 2014, E. Botero
@@ -21,11 +22,34 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 # ----------------------------------------------------------------------
 #  Propeller Class
 # ----------------------------------------------------------------------    
- 
+## @ingroup Components-Energy-Converters
 class Propeller_Lo_Fid(Energy_Component):
+    """This is a low-fidelity propeller component.
     
+    Assumptions:
+    None
+
+    Source:
+    None
+    """    
     def __defaults__(self):
-        
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """             
         self.tip_radius            = 0.0
         self.propulsive_efficiency = 0.0
         self.thrust_angle          = 0.0
@@ -33,27 +57,35 @@ class Propeller_Lo_Fid(Energy_Component):
 
         
     def spin(self,conditions):
-        """ Analyzes a propeller given geometry and operating conditions
-                 
-                 Inputs:
-                     hub radius
-                     tip radius
-                     rotation rate
-                     freestream velocity
-                     number of blades
-                     number of stations
-                     chord distribution
-                     twist distribution
-                     airfoil data
-       
-                 Outputs:
-                     Power coefficient
-                     Thrust coefficient
-                     
-                 Assumptions:
-                     Based on Qprop Theory document
-       
-           """
+        """Analyzes a propeller given geometry and operating conditions.
+
+        Assumptions:
+        per source
+
+        Source:
+        Qprop theory document
+
+        Inputs:
+        self.inputs.omega            [radian/s]
+        self.inputs.torque           [Nm]
+        conditions.freestream.
+          density                    [kg/m^3]
+          dynamic_viscosity          [kg/(m-s)]
+          velocity                   [m/s]
+          speed_of_sound             [m/s]
+          temperature                [K]
+
+        Outputs:
+        conditions.propulsion.etap   [-]  (propulsive efficiency)
+        thrust                       [N]
+        Qm                           [Nm] (torque)
+        power                        [W]
+        Cp                           [-]  (coefficient of power)
+
+        Properties Used:
+        self.tip_radius              [m]
+        self.propulsive_efficiency   [-]
+        """    
            
         # Unpack    
         R     = self.tip_radius

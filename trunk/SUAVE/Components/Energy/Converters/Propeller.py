@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Propeller.py
 #
 # Created:  Jun 2014, E. Botero
@@ -22,42 +23,95 @@ from warnings import warn
 # ----------------------------------------------------------------------
 #  Propeller Class
 # ----------------------------------------------------------------------    
- 
+## @ingroup Components-Energy-Converters
 class Propeller(Energy_Component):
+    """This is a propeller component.
     
+    Assumptions:
+    None
+
+    Source:
+    None
+    """     
     def __defaults__(self):
-        
-        self.number_blades      = 0.0
-        self.tip_radius         = 0.0
-        self.hub_radius         = 0.0
-        self.twist_distribution = 0.0
-        self.chord_distribution = 0.0
-        self.mid_chord_aligment = 0.0
-        self.thrust_angle       = 0.0
-        self.surrogate          = Data()
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """         
+        self.prop_attributes = Data
+        self.prop_attributes.number_blades      = 0.0
+        self.prop_attributes.tip_radius         = 0.0
+        self.prop_attributes.hub_radius         = 0.0
+        self.prop_attributes.twist_distribution = 0.0
+        self.prop_attributes.chord_distribution = 0.0
+        self.prop_attributes.mid_chord_aligment = 0.0
+        self.thrust_angle                       = 0.0
         
     def spin(self,conditions):
-        """ Analyzes a propeller given geometry and operating conditions
-                 
-                 Inputs:
-                     hub radius
-                     tip radius
-                     rotation rate
-                     freestream velocity
-                     number of blades
-                     number of stations
-                     chord distribution
-                     twist distribution
-                     airfoil data
-       
-                 Outputs:
-                     Power coefficient
-                     Thrust coefficient
-                     
-                 Assumptions:
-                     Based on Qprop Theory document
-       
-           """
+        """Analyzes a propeller given geometry and operating conditions.
+
+        Assumptions:
+        per source
+
+        Source:
+        Qprop theory document
+
+        Inputs:
+        self.inputs.omega            [radian/s]
+        conditions.freestream.
+          density                    [kg/m^3]
+          dynamic_viscosity          [kg/(m-s)]
+          speed_of_sound             [m/s]
+          temperature                [K]
+        conditions.frames.
+          body.transform_to_inertial (rotation matrix)
+          inertial.velocity_vector   [m/s]
+        conditions.propulsion.
+          throttle                   [-]
+
+        Outputs:
+        conditions.propulsion.acoustic_outputs.
+          number_sections            [-]
+          r0                         [m]
+          airfoil_chord              [m]
+          blades_number              [-]
+          propeller_diameter         [m]
+          drag_coefficient           [-]
+          lift_coefficient           [-]
+          omega                      [radian/s]
+          velocity                   [m/s]
+          thrust                     [N]
+          power                      [W]
+          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+        conditions.propulsion.etap   [-]
+        thrust                       [N]
+        torque                       [Nm]
+        power                        [W]
+        Cp                           [-] (coefficient of power)
+
+        Properties Used:
+        self.prop_attributes.
+          number_blades              [-]
+          tip_radius                 [m]
+          hub_radius                 [m]
+          twist_distribution         [radians]
+          chord_distribution         [m]
+          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+        self.thrust_angle            [radians]
+        """         
            
         #Unpack    
         B      = self.number_blades

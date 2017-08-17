@@ -1,3 +1,4 @@
+## @ingroup Attributes-Propellants
 # Propellant.py
 # 
 # Created:  Unk 2013, SUAVE TEAM
@@ -13,13 +14,35 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Propellants
 class Propellant(Data):
-
-    """ Physical properties of propellants """
+    """Holds values for a propellant
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
 
     def __defaults__(self):
+        """This sets the default values.
 
+        Assumptions:
+        None
+
+        Source:
+        Values commonly available
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """    
         self.tag                       = 'Propellant'
         self.reactant                  = 'O2'
         self.density                   = 0.0                       # kg/m^3

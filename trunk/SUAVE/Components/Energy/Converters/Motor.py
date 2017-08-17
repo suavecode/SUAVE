@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Motor.py
 #
 # Created:  Jun 2014, E. Botero
@@ -18,11 +19,34 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Motor Class
 # ----------------------------------------------------------------------
-    
+## @ingroup Components-Energy-Converters
 class Motor(Energy_Component):
+    """This is a motor component.
     
+    Assumptions:
+    None
+
+    Source:
+    None
+    """      
     def __defaults__(self):
-        
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """           
         self.resistance         = 0.0
         self.no_load_current    = 0.0
         self.speed_constant     = 0.0
@@ -34,24 +58,36 @@ class Motor(Energy_Component):
         self.interpolated_func  = None
     
     def omega(self,conditions):
-        """ The motor's rotation rate
-            
-            Inputs:
-                Motor resistance - in ohms
-                Motor zeros load current - in amps
-                Motor Kv - in rad/s/volt
-                Propeller radius - in meters
-                Propeller Cp - power coefficient
-                Freestream velocity - m/s
-                Freestream dynamic pressure - kg/m/s^2
-                
-            Outputs:
-                The motor's rotation rate
-               
-            Assumptions:
-                Cp is not a function of rpm or RE
-               
-        """
+        """Calculates the motor's rotation rate
+
+        Assumptions:
+        Cp (power coefficient) is constant
+
+        Source:
+        N/A
+
+        Inputs:
+        conditions.
+          freestream.velocity                    [m/s]
+          freestream.density                     [kg/m^3]
+          propulsion.propeller_power_coefficient [-]
+        self.inputs.voltage                      [V]
+
+        Outputs:
+        self.outputs.
+          torque                                 [Nm]
+          omega                                  [radian/s]
+
+        Properties Used:
+        self.
+          resistance                             [ohms]
+          gearbox_efficiency                     [-]
+          expected_current                       [A]
+          no_load_current                        [A]
+          gear_ratio                             [-]
+          speed_constant                         [radian/s/V]
+          propeller_radius                       [m]
+        """           
         # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
@@ -121,22 +157,33 @@ class Motor(Energy_Component):
     
     
     def current(self,conditions):
-        """ The motor's current
-            
-            Inputs:
-                Motor resistance - in ohms
-                Motor Kv - in rad/s/volt
-                Voltage - volts
-                Gear ratio - ~
-                Rotation rate - rad/s
-                
-            Outputs:
-                The motor's current
-               
-            Assumptions:
-                Cp is invariant
-               
-        """    
+        """Calculates the motor's current
+
+        Assumptions:
+        Cp (power coefficient) is constant
+
+        Source:
+        N/A
+
+        Inputs:
+        self.inputs.voltage    [V]
+
+        Outputs:
+        self.outputs.current   [A]
+        conditions.
+          propulsion.etam      [-]
+        i                      [A]
+
+        Properties Used:
+        self.
+          gear_ratio           [-]
+          speed_constant       [radian/s/V]
+          resistance           [ohm]
+          outputs.omega        [radian/s]
+          gearbox_efficiency   [-]
+          expected_current     [A]
+          no_load_current      [A]
+        """                      
         
         # Unpack
         G     = self.gear_ratio

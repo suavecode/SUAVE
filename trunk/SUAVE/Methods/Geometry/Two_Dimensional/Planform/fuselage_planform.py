@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
 # fuselage_planform.py
 #
 # Created:  Jul 2014, T. MacDonald
@@ -18,32 +19,41 @@ from math import pi, sqrt
 #  Methods
 # ----------------------------------------------------------------------
 
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
 def fuselage_planform(fuselage):
-    """ err = SUAVE.Methods.Geometry.fuselage_planform(fuselage)
-    
-        Assumptions:
-            fuselage cross section is an ellipse
-            ellipse circumference approximated
-            
-        Inputs:
-            fuselage.num_coach_seats
-            fuselage.seat_pitch
-            fuselage.fineness_nose
-            fuselage.fineness_tail
-            fuselage.fwdspace
-            fuselage.aftspace
-            fuselage.width
-            fuselage.height            
-            
-        Outputs:
-            fuselage.length_nose
-            fuselage.length_tail
-            fuselage.length_cabin
-            fuselage.length_total
-            fuselage.area_wetted
-            
-    """
+    """Calculates fuselage geometry values
+
+    Assumptions:
+    None
+
+    Source:
+    http://adg.stanford.edu/aa241/drag/wettedarea.html
+
+    Inputs:
+    fuselage.
+      num_coach_seats       [-]
+      seat_pitch            [m]
+      seats_abreast         [-]
+      fineness.nose         [-]
+      fineness.tail         [-]
+      lengths.fore_space    [m]
+      lengths.aft_space     [m]
+      width                 [m]
+      heights.maximum       [m]
+
+    Outputs:
+    fuselage.
+      lengths.nose          [m]
+      lengths.tail          [m]
+      lengths.cabin         [m]
+      lengths.total         [m]
+      areas.wetted          [m]
+      areas.front_projected [m]
+      effective_diameter    [m]
+
+    Properties Used:
+    N/A
+    """        
     
     # unpack
     number_seats    = fuselage.number_coach_seats

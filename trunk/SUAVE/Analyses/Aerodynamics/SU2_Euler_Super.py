@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # SU2_Euler_Super.py
 #
 # Created:  Dec 2016, T. MacDonald
@@ -29,10 +30,34 @@ from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
+## @ingroup Analyses-Aerodynamics
 class SU2_Euler_Super(Markup):
-    
+    """This uses SU2 to compute lift.
+
+    Assumptions:
+    Subsonic
+
+    Source:
+    None
+    """     
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """              
         self.tag    = 'SU2_Euler_Super_markup'       
     
         # Correction factors
@@ -80,6 +105,29 @@ class SU2_Euler_Super(Markup):
         
         
     def initialize(self):
+        """Initializes the surrogate needed for SU2, including building the surface and volume meshes.
+
+        Assumptions:
+        Vehicle is available in OpenVSP
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.geometry.tag               <string> (geometry is also set as part of the lift process)
+        self.process.compute.lift.
+          inviscid.training_file        (optional - determines if new SU2 runs are necessary)
+        self.settings.
+          half_mesh_flag                <boolean> Determines if a symmetry plane is used
+          vsp_mesh_growth_ratio         [-] Determines how the mesh grows
+          vsp_mesh_growth_limiting_flag <boolean> Determines if 3D growth limiting is used
+        """              
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag

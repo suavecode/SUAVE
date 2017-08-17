@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # induced_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -15,18 +16,29 @@ import numpy as np
 #  Induced Drag Aicraft
 # ----------------------------------------------------------------------
 
-#def induced_drag_aircraft(conditions,configuration,geometry):
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def induced_drag_aircraft(state,settings,geometry):
-    """ SUAVE.Methods.induced_drag_aircraft(conditions,configuration,geometry)
-        computes the induced drag associated with a wing 
-        
-        Inputs:
-        
-        Outputs:
-        
-        Assumptions:
-            based on a set of fits
-            
+    """Determines induced drag for the full aircraft
+
+    Assumptions:
+    Based on fits
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    state.conditions.aerodynamics.lift_coefficient               [Unitless]
+    state.conditions.aerodynamics.drag_breakdown.parasite.total  [Unitless]
+    configuration.oswald_efficiency_factor                       [Unitless]
+    configuration.viscous_lift_dependent_drag_factor             [Unitless]
+    geometry.wings['main_wing'].span_efficiency                  [Unitless]
+    geometry.wings['main_wing'].aspect_ratio                     [Unitless]
+
+    Outputs:
+    total_induced_drag                                           [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs

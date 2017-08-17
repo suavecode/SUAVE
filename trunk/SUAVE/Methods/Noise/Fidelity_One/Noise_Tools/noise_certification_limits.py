@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # noise_certification_limits.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -14,6 +15,7 @@ import numpy as np
 #   Noise Certification Limits
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_certification_limits(results,vehicle):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits(results,vehicle):
             Computes the certification noise limits as a function of the aircraft weight [lbs] and number of engines for each segment.

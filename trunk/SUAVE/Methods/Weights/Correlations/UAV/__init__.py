@@ -1,2 +1,5 @@
+## @defgroup Methods-Weights-Correlations-UAV UAV
+# Provides structural weight correlations for UAVs
+# @ingroup Methods-Weights-Correlations
 
-from Empty import Empty
+from empty import empty

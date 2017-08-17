@@ -1,11 +1,9 @@
+## @ingroup Components-Energy-Networks
 # Battery_Ducted_Fan.py
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
 
-'''
-Simply connects a battery to a ducted fan, with an assumed motor efficiency
-'''
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -22,8 +20,38 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
+
+## @ingroup Components-Energy-Networks
 class Battery_Ducted_Fan(Propulsor):
+    """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
+    
     def __defaults__(self):
+        """ This sets the default values for the network to function.
+            This network operates slightly different than most as it attaches a propulsor to the net.
+    
+            Assumptions:
+            Your system always uses 90 amps...?
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """         
+        
         self.propulsor        = None
         self.battery          = None
         self.motor_efficiency = .95 
@@ -41,6 +69,24 @@ class Battery_Ducted_Fan(Propulsor):
 
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+    
+            Properties Used:
+            Defaulted values
+        """         
         
         # unpack
 

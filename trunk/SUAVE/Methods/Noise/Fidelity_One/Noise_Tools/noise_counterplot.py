@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # noise_counterplot.py
 # 
 # Created:  Feb 2016, C. Ilario
@@ -12,6 +13,7 @@ import numpy as np
 #   Noise Geometric
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_counterplot(noise_segment,analyses,config):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_counterplot(noise_segment,analyses,config):
             Computes the geometric parameters for the noise tools at any microphone potsition, not only the certification points:

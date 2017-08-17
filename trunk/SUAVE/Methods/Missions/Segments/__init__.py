@@ -1,3 +1,6 @@
+## @defgroup Methods-Missions-Segments Segments
+# Mission Segment folders containing the functions for setting up and solving a mission.
+# @ingroup Methods-Missions
 
 from converge_root import converge_root
 from expand_state  import expand_state

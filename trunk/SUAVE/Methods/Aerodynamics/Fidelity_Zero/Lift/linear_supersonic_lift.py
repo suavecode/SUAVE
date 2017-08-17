@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # linear_supersonic_lift.py
 # 
 # Created:  Jul 2014, T. MacDonald
@@ -14,22 +15,10 @@ import numpy as np
 #  Adapted from vortex lattice code to strip theory
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def linear_supersonic_lift(conditions,configuration,wing):
-    """ Computes lift using linear supersonic theory
-
-        Inputs:
-            wing - geometry dictionary with fields:
-            Sref - reference area
-
-        Outputs:
-            Cl - lift coefficient
-
-        Assumptions:
-            - Reference area of the passed wing is the desired 
-            reference area for Cl
-            - Compressibility effects are not handled
-        
-    """
+    """This function is outdated and not used in Fidelity_Zero
+    """   
 
     # Unpack
     span        = wing.Spans.projected
