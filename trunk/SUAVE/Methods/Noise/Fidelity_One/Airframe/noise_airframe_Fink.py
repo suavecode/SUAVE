@@ -23,15 +23,10 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-
-<<<<<<< HEAD
-import autograd.numpy as np 
-=======
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 
-import numpy as np
->>>>>>> develop
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Noise Airframce Fink

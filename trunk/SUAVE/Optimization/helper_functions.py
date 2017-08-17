@@ -8,13 +8,7 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-<<<<<<< HEAD
-#from SUAVE.Core import Data, Units
 import autograd.numpy as np 
-#from copy import deepcopy
-=======
-import numpy as np
->>>>>>> develop
 
 # ----------------------------------------------------------------------        
 #   Set_values

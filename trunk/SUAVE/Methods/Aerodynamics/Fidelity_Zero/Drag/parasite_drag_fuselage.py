@@ -10,13 +10,9 @@
 
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
-<<<<<<< HEAD
-from SUAVE.Core import Results
-import autograd.numpy as np 
-=======
+
 from SUAVE.Analyses import Results
-import numpy as np
->>>>>>> develop
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Fuselage

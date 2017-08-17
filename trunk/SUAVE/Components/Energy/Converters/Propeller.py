@@ -8,15 +8,11 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
 # suave imports
 import SUAVE
 
 import autograd.numpy as np 
-=======
-# package imports
-import numpy as np
->>>>>>> develop
+
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
 from SUAVE.Analyses import Results

@@ -188,13 +188,6 @@ def update_aerodynamics(segment,state):
     CL[q<=0.0] = 0.0
     CD[q<=0.0] = 0.0
     
-<<<<<<< HEAD
-    # dimensionalize    
-    zeros = state.ones_row(1) * 0.0
-    
-    L = np.transpose(np.array((zeros[:,0],zeros[:,0],( -CL * q * Sref )[:,0])))
-    D = np.transpose(np.array((( -CD * q * Sref )[:,0],zeros[:,0],zeros[:,0])))
-=======
     # CL limit
     CL[CL>CLmax] = CLmax
     
@@ -203,10 +196,10 @@ def update_aerodynamics(segment,state):
     # dimensionalize
     L = state.ones_row(3) * 0.0
     D = state.ones_row(3) * 0.0
+    zeros = state.ones_row(1) * 0.0
 
-    L[:,2] = ( -CL * q * Sref )[:,0]
-    D[:,0] = ( -CD * q * Sref )[:,0]
->>>>>>> develop
+    L = np.transpose(np.array((zeros[:,0],zeros[:,0],( -CL * q * Sref )[:,0])))
+    D = np.transpose(np.array((( -CD * q * Sref )[:,0],zeros[:,0],zeros[:,0])))
 
     results.lift_force_vector = L
     results.drag_force_vector = D    

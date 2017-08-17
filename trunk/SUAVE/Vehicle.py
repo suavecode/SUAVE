@@ -12,12 +12,8 @@
 
 from SUAVE.Core import Data, Container
 from SUAVE import Components
-<<<<<<< HEAD
-from SUAVE.Components import Component_Exception
+
 import autograd.numpy as np 
-=======
-import numpy as np
->>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Vehicle Data Class

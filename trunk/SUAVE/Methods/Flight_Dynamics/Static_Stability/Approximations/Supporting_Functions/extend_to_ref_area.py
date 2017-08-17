@@ -7,15 +7,9 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-<<<<<<< HEAD
-import autograd.numpy as np 
-from copy import deepcopy
-=======
 
-#SUAVE Imports 
-import numpy as np
+import autograd.numpy as np 
 from SUAVE.Core import Data
->>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Method

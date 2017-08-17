@@ -8,17 +8,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
 import autograd.numpy as np 
-=======
-## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
-import numpy as np
->>>>>>> develop
 
 # ----------------------------------------------------------------------
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cy_psi(cL,theta):
     """ This calculates the force coefficient in the y direction 
     with respect to the yaw angle of the aircraft        

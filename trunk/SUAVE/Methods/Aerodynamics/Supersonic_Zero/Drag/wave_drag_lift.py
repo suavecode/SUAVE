@@ -9,13 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
 import autograd.numpy as np 
-from SUAVE.Core import Results
-=======
-import numpy as np
 from SUAVE.Analyses import Results
->>>>>>> develop
 
 # ----------------------------------------------------------------------
 #   Wave Drag Lift

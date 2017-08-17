@@ -6,21 +6,11 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-<<<<<<< HEAD
-import os
-import autograd.numpy as np 
-from shutil import rmtree
-from warnings import warn
-
-# SUAVE imports
-=======
 import SUAVE
->>>>>>> develop
 from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
-import numpy as np
+import autograd.numpy as np 
 
 # Default aero Results
 from Results import Results

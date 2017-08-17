@@ -10,12 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import scipy
-<<<<<<< HEAD
 import autograd.numpy as np 
-=======
-import numpy as np
-
->>>>>>> develop
 from copy import deepcopy
 
 # SUAVE Imports

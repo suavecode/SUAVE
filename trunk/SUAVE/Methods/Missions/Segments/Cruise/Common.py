@@ -78,18 +78,9 @@ def residual_total_forces(segment,state):
     m  = state.conditions.weights.total_mass[:,0] 
     
     # horizontal
-<<<<<<< HEAD
-    res_1 = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )
+    res_1 = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )/m
     # vertical
     res_2 = FT[:,2]
-=======
-    state.residuals.forces[:,0] = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )/m
-    # vertical
-    state.residuals.forces[:,1] = FT[:,2]/m
-
-    return
-    
->>>>>>> develop
     
     state.residuals.forces = np.transpose(np.array([res_1,res_2]))
 

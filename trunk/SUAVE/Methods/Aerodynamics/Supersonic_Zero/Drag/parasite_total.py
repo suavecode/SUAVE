@@ -8,13 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
-from SUAVE.Core import Results
-import autograd.numpy as np 
-=======
 from SUAVE.Analyses import Results
-import numpy as np
->>>>>>> develop
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Parasite Total

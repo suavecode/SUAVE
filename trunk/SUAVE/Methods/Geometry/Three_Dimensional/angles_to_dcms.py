@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-import autograd
-import autograd.numpy as np 
-=======
 ## @ingroup Methods-Geometry-Three_Dimensional
-import numpy as np
->>>>>>> develop
 from numpy import cos, sin
 from orientation_product import orientation_product
+import autograd
+import autograd.numpy as np 
 
 ## @ingroup Methods-Geometry-Three_Dimensional
 def angles_to_dcms(rotations,sequence=(2,1,0)):

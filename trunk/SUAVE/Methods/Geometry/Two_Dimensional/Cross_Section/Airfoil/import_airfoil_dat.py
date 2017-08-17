@@ -8,12 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
-from math import sqrt, sin, cos, atan
 import autograd.numpy as np 
-=======
-import numpy as np
->>>>>>> develop
 
 # ------------------------------------------------------------
 #  import airfoil dat
