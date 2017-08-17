@@ -243,8 +243,8 @@ class Battery_Propeller(Propulsor):
         v_max     = self.voltage
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
+        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0] # Update for AD
+        state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max # Update for AD
         
         return    
             

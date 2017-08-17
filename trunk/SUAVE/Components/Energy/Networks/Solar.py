@@ -241,7 +241,7 @@ class Solar(Propulsor):
         q_prop    = state.conditions.propulsion.propeller_torque
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0] # Update for AD
         
         return        
             

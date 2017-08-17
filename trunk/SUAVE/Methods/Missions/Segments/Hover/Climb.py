@@ -60,11 +60,11 @@ def initialize_conditions(segment,state):
 
     # pack
     t_initial = state.conditions.frames.inertial.time[0,0]
-    state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0]    
+    state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0] # Update for AD   
     
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = 0.
-    conditions.frames.inertial.velocity_vector[:,2] = v_z
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
-    state.conditions.frames.inertial.time[:,0]      = t_initial + t[:,0]
+    conditions.frames.inertial.velocity_vector[:,0] = 0. # Update for AD
+    conditions.frames.inertial.velocity_vector[:,2] = v_z # Update for AD
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down # Update for AD
+    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context # Update for AD
+    state.conditions.frames.inertial.time[:,0]      = t_initial + t[:,0] # Update for AD

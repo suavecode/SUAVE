@@ -52,7 +52,7 @@ def initialize_conditions(segment,state):
     time      =  t_nondim * (duration) + t_initial
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = 0.
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]    
+    state.conditions.freestream.altitude[:,0]             = alt # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = 0. # Update for AD
+    state.conditions.frames.inertial.time[:,0]            = time[:,0]    # Update for AD

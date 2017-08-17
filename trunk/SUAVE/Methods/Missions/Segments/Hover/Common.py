@@ -32,7 +32,7 @@ def unpack_unknowns(segment,state):
     throttle   = state.unknowns.throttle
     
     # apply unknowns
-    state.conditions.propulsion.throttle[:,0] = throttle[:,0]
+    state.conditions.propulsion.throttle[:,0] = throttle[:,0] # Update for AD
     
 
 # ----------------------------------------------------------------------
@@ -61,7 +61,7 @@ def residual_total_forces(segment,state):
     FT = state.conditions.frames.inertial.total_force_vector
 
     # vertical
-    state.residuals.forces[:,0] = FT[:,2]
+    state.residuals.forces[:,0] = FT[:,2] # Update for AD
 
     return
     

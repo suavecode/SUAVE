@@ -66,12 +66,12 @@ def initialize_conditions(segment,state):
     
     # set the body angle
     body_angle = theta_dot*time + T0
-    state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]    
+    state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0] # Update for AD   
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]
+    state.conditions.freestream.altitude[:,0]             = alt # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down # Update for AD
+    state.conditions.frames.inertial.time[:,0]            = time[:,0] # Update for AD
     
     
 ## @ingroup Methods-Missions-Segments-Cruise    
@@ -108,9 +108,9 @@ def residual_total_forces(segment,state):
     a  = state.conditions.frames.inertial.acceleration_vector
     
     # horizontal
-    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
+    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0] # Update for AD
     # vertical
-    state.residuals.forces[:,1] = FT[:,2]  - a[:,2]
+    state.residuals.forces[:,1] = FT[:,2]  - a[:,2] # Update for AD
 
     return
 ## @ingroup Methods-Missions-Segments-Cruise
@@ -140,7 +140,7 @@ def unpack_unknowns(segment,state):
     air_speed = state.unknowns.velocity
     
     # apply unknowns
-    state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
+    state.conditions.propulsion.throttle[:,0]             = throttle[:,0] # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0] # Update for AD
     
     

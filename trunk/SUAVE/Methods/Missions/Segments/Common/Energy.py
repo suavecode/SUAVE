@@ -44,7 +44,7 @@ def initialize_battery(segment,state):
     else:
         energy_initial = 0.0
     
-    state.conditions.propulsion.battery_energy[:,0] = energy_initial
+    state.conditions.propulsion.battery_energy[:,0] = energy_initial # Update for AD
 
     return
 

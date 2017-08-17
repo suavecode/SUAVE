@@ -60,8 +60,8 @@ def unpack_unknowns(segment,state):
 
     #apply unknowns
     conditions = state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.time[:,0]            = time[:,0]
+    conditions.frames.inertial.velocity_vector[:,0] = velocity_x # Update for AD
+    conditions.frames.inertial.time[:,0]            = time[:,0] # Update for AD
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -111,9 +111,9 @@ def initialize_conditions(segment,state):
 
     # pack conditions
     state.unknowns.velocity_x                       = np.linspace(v0,vf,N)
-    conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
-    conditions.ground.incline[:,0]                  = segment.ground_incline
-    conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
+    conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N) # Update for AD
+    conditions.ground.incline[:,0]                  = segment.ground_incline # Update for AD
+    conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient # Update for AD
     
 # ----------------------------------------------------------------------
 #  Compute Ground Forces
@@ -159,8 +159,8 @@ def compute_ground_forces(segment,state):
     Ff = N * friction_coeff
 
     #pack results. Friction acts along x-direction
-    conditions.frames.inertial.ground_force_vector[:,2] = N[:,0]
-    conditions.frames.inertial.ground_force_vector[:,0] = Ff[:,0]
+    conditions.frames.inertial.ground_force_vector[:,2] = N[:,0] # Update for AD
+    conditions.frames.inertial.ground_force_vector[:,0] = Ff[:,0] # Update for AD
 
 # ----------------------------------------------------------------------
 #  Compute Forces

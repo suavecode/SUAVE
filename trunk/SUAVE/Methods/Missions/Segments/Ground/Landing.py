@@ -45,7 +45,7 @@ def initialize_conditions(segment,state):
     m_initial = segment.analyses.weights.vehicle.mass_properties.landing
           
     # apply initials
-    conditions.weights.total_mass[:,0]  = m_initial
-    conditions.propulsion.throttle[:,0] = throttle        
+    conditions.weights.total_mass[:,0]  = m_initial # Update for AD
+    conditions.propulsion.throttle[:,0] = throttle        # Update for AD
 
     return conditions

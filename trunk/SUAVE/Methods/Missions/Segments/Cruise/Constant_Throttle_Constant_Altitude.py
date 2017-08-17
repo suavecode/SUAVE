@@ -37,10 +37,10 @@ def unpack_unknowns(segment,state):
 
     #apply unknowns
     conditions = state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.velocity_vector[0,0] = v0
-    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]  
-    conditions.frames.inertial.time[:,0]            = time[:,0]
+    conditions.frames.inertial.velocity_vector[:,0] = velocity_x # Update for AD
+    conditions.frames.inertial.velocity_vector[0,0] = v0  # Update for AD
+    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]  # Update for AD
+    conditions.frames.inertial.time[:,0]            = time[:,0] # Update for AD
     
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -99,9 +99,9 @@ def initialize_conditions(segment,state):
     state.unknowns.velocity_x = np.linspace(v0,vf,N)
     
     # pack conditions
-    state.conditions.propulsion.throttle[:,0] = throttle  
-    state.conditions.freestream.altitude[:,0] = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down    
+    state.conditions.propulsion.throttle[:,0] = throttle   # Update for AD
+    state.conditions.freestream.altitude[:,0] = alt # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down    # Update for AD 
 
 # ----------------------------------------------------------------------
 #  Solve Residuals
@@ -148,8 +148,8 @@ def solve_residuals(segment,state):
     
     a  = state.conditions.frames.inertial.acceleration_vector
 
-    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
-    state.residuals.final_velocity_error = (v[-1,0] - vf)
+    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0] # Update for AD
+    state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   # Update for AD
+    state.residuals.final_velocity_error = (v[-1,0] - vf) # Update for AD
 
     return

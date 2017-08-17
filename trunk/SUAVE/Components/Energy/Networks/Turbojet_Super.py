@@ -201,7 +201,7 @@ class Turbojet_Super(Propulsor):
         Isp          = thrust.outputs.specific_impulse
         output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
-        F_vec[:,0]   = F[:,0]
+        F_vec[:,0]   = F[:,0] # Update for AD
         F            = F_vec
 
         results = Data()

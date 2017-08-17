@@ -19,7 +19,7 @@ def unpack_body_angle(segment,state):
     theta      = state.unknowns.body_angle
 
     # apply unknowns
-    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      
+    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      # Update for AD
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -50,10 +50,10 @@ def initialize_conditions(segment,state):
     alt = t_nondim * (altf-alt0) + alt0
     
     # pack conditions  
-    conditions.propulsion.throttle[:,0] = throttle
-    conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
+    conditions.propulsion.throttle[:,0] = throttle # Update for AD
+    conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value # Update for AD
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down # Update for AD
+    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context # Update for AD
     
     
 # ----------------------------------------------------------------------
@@ -82,7 +82,7 @@ def update_velocity_vector_from_wind_angle(segment,state):
     v_z = -v_mag * np.sin(gamma) # z points down
 
     # pack
-    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
-    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
+    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] # Update for AD
+    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] # Update for AD
 
     return conditions    

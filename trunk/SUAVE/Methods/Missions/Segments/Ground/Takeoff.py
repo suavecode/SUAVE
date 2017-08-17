@@ -49,6 +49,6 @@ def initialize_conditions(segment,state):
 
     # default initial time, position, and mass
     # apply initials
-    conditions.weights.total_mass[:,0]              = m_initial
-    conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
-    conditions.propulsion.throttle[:,0]             = throttle
+    conditions.weights.total_mass[:,0]              = m_initial # Update for AD
+    conditions.frames.inertial.position_vector[:,:] = r_initial[:,:] # Update for AD
+    conditions.propulsion.throttle[:,0]             = throttle # Update for AD

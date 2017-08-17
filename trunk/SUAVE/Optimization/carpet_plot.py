@@ -77,8 +77,8 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     for i in range(0, number_of_points):
         for j in range(0,number_of_points):
             #problem.optimization_problem.inputs=base_inputs  #overwrite any previous modification
-            opt_prob.inputs[:,1][idx0]= inputs[0,i]
-            opt_prob.inputs[:,1][idx1]= inputs[1,j]
+            opt_prob.inputs[:,1][idx0]= inputs[0,i] # Update for AD
+            opt_prob.inputs[:,1][idx1]= inputs[1,j] # Update for AD
    
             obj[j,i]             = problem.objective()*obj_scaling
             constraint_val[:,j,i]= problem.all_constraints().tolist()

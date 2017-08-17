@@ -56,9 +56,9 @@ def initialize_conditions(segment,state):
         segment.altitude = alt
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    state.conditions.freestream.altitude[:,0]             = alt # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed # Update for AD
     state.conditions.frames.inertial.acceleration_vector  = np.array([[x_accel,0.0,z_accel]])
 
 ## @ingroup Methods-Missions-Segments-Single_Point

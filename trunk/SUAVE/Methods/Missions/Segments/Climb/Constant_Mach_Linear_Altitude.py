@@ -75,7 +75,7 @@ def initialize_conditions(segment,state):
     segment.altitude = 0.5*(alt0 + altf)
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt[:,0]
-    state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]
+    state.conditions.freestream.altitude[:,0]             = alt[:,0] # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0] # Update for AD
+    state.conditions.frames.inertial.time[:,0]            = time[:,0] # Update for AD

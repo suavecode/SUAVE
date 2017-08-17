@@ -127,5 +127,5 @@ def unpack_unknowns(segment,state):
     body_angle = state.unknowns.body_angle
     
     # apply unknowns
-    state.conditions.frames.inertial.acceleration_vector[0,0] = x_accel
-    state.conditions.frames.body.inertial_rotations[:,1]      = body_angle[:,0]      
+    state.conditions.frames.inertial.acceleration_vector[0,0] = x_accel # Update for AD
+    state.conditions.frames.body.inertial_rotations[:,1]      = body_angle[:,0]     # Update for AD 

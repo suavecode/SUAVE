@@ -110,7 +110,7 @@ class Surrogate_Optimization(Data):
             #now run; results will be written to file, which can be read later
             for i in range(0,npoints):
         
-                opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units
+                opt_prob.inputs[:,1] = Xsample[i,:]*scl#/base_units # Update for AD
             
                 problem.objective()
         return 
@@ -205,7 +205,7 @@ class Surrogate_Optimization(Data):
             print 'f_out    = ', f_out
             print 'g_out    = ', g_out
             print 'fail_out = ', fail_out
-            opt_prob.inputs[:,1] = surrogate_outputs[1]*scl/base_units
+            opt_prob.inputs[:,1] = surrogate_outputs[1]*scl/base_units # Update for AD
             
             output_real = problem.objective(surrogate_outputs[1])
             print 'opt_prob.inputs[:,1]=', opt_prob.inputs[:,1]

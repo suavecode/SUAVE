@@ -72,10 +72,10 @@ def unpack_unknowns(segment,state):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    state.conditions.propulsion.throttle[:,0]             = throttle[:,0] # Update for AD
+    state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]    # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]  # Update for AD
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment,state):
@@ -127,9 +127,9 @@ def update_differentials(segment,state):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0] 
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
+    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0] # Update for AD
+    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down # Update for AD
+    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    # Update for AD
 
     return
 

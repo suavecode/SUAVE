@@ -141,7 +141,7 @@ def scale_input_values(inputs,x):
     """    
     
     provided_scale = inputs[:,3]
-    inputs[:,1] =  x*provided_scale
+    inputs[:,1] =  x*provided_scale # Update for AD
     
     return inputs
 

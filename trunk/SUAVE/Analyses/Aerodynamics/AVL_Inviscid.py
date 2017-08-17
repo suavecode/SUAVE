@@ -237,8 +237,8 @@ class AVL_Inviscid(Aerodynamics):
                 results =  self.evaluate_conditions(run_conditions)
                 
                 # Obtain CD and CL # Store other variables here as well 
-                CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
-                CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
+                CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0] # Update for AD
+                CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]   # Update for AD    
            
                 count += 1
             

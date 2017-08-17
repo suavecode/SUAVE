@@ -60,7 +60,7 @@ def initialize_conditions(segment,state):
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
     
     # pack conditions   
-    conditions.freestream.altitude[:,0]             =  alts[:,0] # positive altitude in this context
+    conditions.freestream.altitude[:,0]             =  alts[:,0] # positive altitude in this context # Update for AD
     
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
@@ -72,11 +72,11 @@ def initialize_conditions(segment,state):
     v_z   = -v_mag * np.sin(climb_angle)
     
     # pack conditions    
-    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
-    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
-    conditions.frames.inertial.position_vector[:,2] = -alts[:,0] # z points down
-    state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
-    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]  
+    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] # Update for AD
+    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] # Update for AD
+    conditions.frames.inertial.position_vector[:,2] = -alts[:,0] # z points down # Update for AD
+    state.conditions.propulsion.throttle[:,0]            = throttle[:,0] # Update for AD
+    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]   # Update for AD
     
 def residual_total_forces(segment,state):
     
@@ -88,8 +88,8 @@ def residual_total_forces(segment,state):
     alt_out = state.conditions.freestream.altitude[:,0] 
     
     # Residual in X and Z, as well as a residual on the guess altitude
-    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]
-    state.residuals.forces[:,2] = (alt_in - alt_out)/alt_out[-1]
+    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0] # Update for AD
+    state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2] # Update for AD
+    state.residuals.forces[:,2] = (alt_in - alt_out)/alt_out[-1] # Update for AD
 
     return    

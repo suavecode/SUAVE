@@ -136,8 +136,8 @@ class Aerodynamics(Analysis):
         L = np.zeros([N,3])
         D = np.zeros([N,3])
 
-        L[:,2] = ( -CL * q * Sref )[:,0]
-        D[:,0] = ( -CD * q * Sref )[:,0]
+        L[:,2] = ( -CL * q * Sref )[:,0] # Update for AD
+        D[:,0] = ( -CD * q * Sref )[:,0] # Update for AD
 
         results = Data()
         results.lift_force_vector = L

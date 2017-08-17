@@ -19,7 +19,7 @@ def unpack_body_angle(segment,state):
     theta      = state.unknowns.body_angle
 
     # apply unknowns
-    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      
+    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      # Update for AD
 
 
 # ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ def update_velocity_vector_from_wind_angle(segment,state):
     v_z = -v_mag * np.sin(gamma) # z points down
 
     # pack
-    conditions.frames.inertial.velocity_vector[:,0] = v_x
-    conditions.frames.inertial.velocity_vector[:,2] = v_z
+    conditions.frames.inertial.velocity_vector[:,0] = v_x # Update for AD
+    conditions.frames.inertial.velocity_vector[:,2] = v_z # Update for AD
 
     return conditions    

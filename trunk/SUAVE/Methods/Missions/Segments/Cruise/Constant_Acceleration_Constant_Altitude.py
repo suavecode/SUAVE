@@ -58,10 +58,10 @@ def initialize_conditions(segment,state):
     vx = v0+time*ax
     
     # pack
-    state.conditions.freestream.altitude[:,0] = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
+    state.conditions.freestream.altitude[:,0] = alt # Update for AD
+    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down # Update for AD
+    state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0] # Update for AD
+    state.conditions.frames.inertial.time[:,0] = time[:,0] # Update for AD
     
 
 # ----------------------------------------------------------------------
@@ -100,8 +100,8 @@ def residual_total_forces(segment,state):
     a_x    = ax*one_row(1)
     
     # horizontal
-    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a_x[:,0]
+    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a_x[:,0] # Update for AD
     # vertical
-    state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
+    state.residuals.forces[:,1] = FT[:,2]/m[:,0] # Update for AD
 
     return
