@@ -1,3 +1,4 @@
+## @ingroup Optimization-Package_Setups
 # pyopt_setup.py
 #
 # Created:  Jul 2015, E. Botero
@@ -16,7 +17,30 @@ from SUAVE.Optimization import helper_functions as help_fun
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
-def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
+## @ingroup Optimization-Package_Setups
+def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderivative_line_search=False):
+    """ This converts your SUAVE Nexus problem into a PyOpt optimization problem and solves it
+        PyOpt has many algorithms, they can be switched out by using the solver input. 
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem                   [nexus()]
+        solver                    [str]
+        FD (parallel or single)   [str]
+        sense_step                [float]
+        nonderivative_line_search [bool]
+
+        Outputs:
+        outputs                   [list]
+
+        Properties Used:
+        None
+    """      
    
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
@@ -75,6 +99,15 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
     if solver == 'SNOPT':
         import pyOpt.pySNOPT
         opt = pyOpt.pySNOPT.SNOPT()
+        CD_step = (sense_step**2.)**(1./3.)  #based on SNOPT Manual Recommendations
+        opt.setOption('Function precision', sense_step**2.)
+        opt.setOption('Difference interval', sense_step)
+        opt.setOption('Central difference interval', CD_step)
+
+    elif solver == 'COBYLA':
+        import pyOpt.pyCOBYLA
+        opt = pyOpt.pyCOBYLA.COBYLA() 
+        
     elif solver == 'SLSQP':
         import pyOpt.pySLSQP
         opt = pyOpt.pySLSQP.SLSQP()
@@ -96,11 +129,24 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
         opt = pyOpt.pyNLPQL.NLPQL()    
     elif solver == 'NSGA2':
         import pyOpt.pyNSGA2
-        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA')     
+        opt = pyOpt.pyNSGA2.NSGA2(pll_type='POA') 
+    elif solver == 'MIDACO':
+        import pyOpt.pyMIDACO
+        opt = pyOpt.pyMIDACO.MIDACO(pll_type='POA')     
+    elif solver == 'ALPSO':
+        import pyOpt.pyALPSO
+        #opt = pyOpt.pyALPSO.ALPSO(pll_type='DPM') #this requires DPM, which is a parallel implementation
+        opt = pyOpt.pyALPSO.ALPSO()
+    if nonderivative_line_search==True:
+        opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        
+    elif solver == 'SNOPT' or solver == 'SLSQP':
+        outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)
+  
     else:
-        outputs = opt(opt_prob, sens_type='FD')        
+        outputs = opt(opt_prob)        
    
     return outputs
 
@@ -109,7 +155,30 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single'):
 #  Problem Wrapper
 # ----------------------------------------------------------------------
 
+## @ingroup Optimization-Package_Setups
 def PyOpt_Problem(problem,x):
+    """ This wrapper runs the SUAVE problem and is called by the PyOpt solver.
+        Prints the inputs (x) as well as the objective values and constraints.
+        If any values produce NaN then a fail flag is thrown.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem   [nexus()]
+        x         [array]
+
+        Outputs:
+        obj       [float]
+        cons      [array]
+        fail      [bool]
+
+        Properties Used:
+        None
+    """      
    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()

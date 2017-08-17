@@ -1,4 +1,5 @@
-# test_gasturbine_network.py
+## @ingroup Methods-Propulsion
+# ducted_fan_sizing.py
 # 
 # Created:  Michael Vegh, July 2015
 # Modified: 
@@ -16,14 +17,23 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Data
 
-
+## @ingroup Methods-Propulsion
 def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
-    '''create and evaluate a ducted_fan network
-    '''
+    """
+    creates and evaluates a ducted_fan network based on an atmospheric sizing condition
+    
+    Inputs:
+    ducted_fan       ducted fan network object (to be modified)
+    mach_number
+    altitude         [meters]
+    delta_isa        temperature difference [K]
+    conditions       ordered dict object
+    """
     
     #Unpack components
     
     #check if altitude is passed or conditions is passed
+    
     if(conditions):
         #use conditions
         pass
@@ -38,7 +48,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            p,T,rho,a,mu = atmosphere.compute_values(altitude,delta_isa)
+            atmo_data = atmosphere.compute_values(altitude,delta_isa)
+
+            p   = atmo_data.pressure          
+            T   = atmo_data.temperature       
+            rho = atmo_data.density          
+            a   = atmo_data.speed_of_sound    
+            mu  = atmo_data.dynamic_viscosity   
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -137,7 +153,9 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #compute the trust
     thrust.size(conditions)
+    mass_flow  = thrust.mass_flow_rate_design
     
+
     #update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
     
@@ -146,7 +164,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #call the atmospheric model to get the conditions at the specified altitude
     atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p,T,rho,a,mu = atmosphere_sls.compute_values(0.0,0.0)
+    atmo_data = atmosphere_sls.compute_values(0.0,0.0)
+    
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity   
 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
@@ -178,24 +202,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
     ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-    
-    mdot_df  = thrust.mass_flow_rate_design
-    
-    u8       = fan_nozzle.outputs.velocity
-    p8       = fan_nozzle.outputs.static_pressure
-    T8       = fan_nozzle.outputs.static_temperature
-    rho8     = fan_nozzle.outputs.static_pressure/( conditions_sls.freestream.R*T8)
-    
-    A8       = mdot_df[0][0]/(rho8[0][0]*u8[0][0]) #ducted fan nozzle exit area
-    d8       = (A8**.5)*4/np.pi
+   
     
     
-    ducted_fan.nacelle_diameter = d8*1.1  #assume 1.1 nacelle/nozzle ratio for now
-    ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
     
-    #used for calculating nacelle drag
-    ducted_fan.A0               = A8 
-    ducted_fan.A7               = A8 
-    ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi
-
     

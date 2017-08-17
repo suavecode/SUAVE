@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Conditions
 # Aerodynamics.py
 #
 # Created:  
@@ -14,14 +15,41 @@ import autograd.numpy as np
 from Basic import Basic
 from Conditions import Conditions
 
-
 # ----------------------------------------------------------------------
 #  Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Conditions
 class Aerodynamics(Basic):
+    """ This builds upon Basic, which itself builds on conditions, to add the data structure for aerodynamic mission analyses.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
+    
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """ 
+        
         self.tag = 'aerodynamic_conditions'
         
         # start default row vectors
@@ -81,6 +109,7 @@ class Aerodynamics(Basic):
         self.propulsion = Conditions()
         self.propulsion.throttle           = ones_1col * 0
         self.propulsion.battery_energy     = ones_1col * 0
+        self.propulsion.battery_voltage    = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
         self.propulsion.acoustic_outputs       = Conditions()
         self.propulsion.acoustic_outputs.fan   = Conditions()

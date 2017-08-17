@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # payload_range.py
 #
 # Created:  Apr 2014, T. Orra
@@ -15,30 +16,39 @@ import autograd.numpy as np
 #  Calculate vehicle Payload Range Diagram
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
-    """ SUAVE.Methods.Performance.payload_range(vehicle,mission,cruise_segment_tag):
-        Calculates vehicle payload range diagram
+    """Calculates a vehicle's payload range diagram. Includes plotting.
 
-        Inputs:
-            vehicle - SUave type vehicle
-            mission - SUave type mission profile
-            cruise_segment_tag - Mission segment to be considered Cruise
+    Assumptions:
+    Constant altitude cruise
 
-        Outputs:
-            payload_range.range           - Array with range data   [m]
-            payload_range.payload         - Array with payload data [kg]
-            payload_range.fuel            - Array with fuel data    [kg]
-            payload_range.takeoff_weight  - Array with TOW data     [kg]
+    Source:
+    N/A
 
-            obs.:  4 points array:      # 1: 0
-                                        # 2: RANGE WITH MAX. PLD
-                                        # 3: RANGE WITH MAX. FUEL
-                                        # 4: FERRY RANGE
+    Inputs:
+    vehicle.mass_properties.
+      operating_empty                     [kg]
+      max_zero_fuel                       [kg]
+      max_takeoff                         [kg]
+      max_payload                         [kg]
+      max_fuel                            [kg]
+      takeoff                             [kg]
+    mission.segments[0].analyses.weights.
+      vehicle.mass_properties.takeoff     [kg]
+    cruise_segment_tag                    <string>
 
-        Assumptions:
-            Constante altitude cruise
+    Outputs:
+    payload_range.
+      range                             [m]
+      payload                           [kg]
+      fuel                              [kg]
+      takeoff_weight                    [kg]
+    PayloadRangeDiagram.dat (text file)
 
-    """
+    Properties Used:
+    N/A
+    """        
     # elapsed time start
     start_time = time.time()
 
@@ -93,12 +103,6 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     # allocating Range array
     R       = [0,0,0]
 
-    # Locate cruise segment to be variated
-    for i in range(len(mission.segments)):          #loop for all segments
-        if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
-            segmentNum = i
-            break
-
     # evaluate the mission
     if iprint:
         print('\n\n\n .......... PAYLOAD RANGE DIAGRAM CALCULATION ..........\n')
@@ -114,7 +118,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
 
         # Evaluate mission with current TOW
         results = mission.evaluate()
-        segment = results.segments[segmentNum]
+        segment = results.segments[cruise_segment_tag]
 
         # Distance convergency in order to have total fuel equal to target fuel
         #
@@ -144,11 +148,11 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
 
             # Estimated distance that will result in total fuel burn = target fuel
             DeltaDist  =  CruiseSR *  missingFuel
-            mission.segments[segmentNum].distance = (CruiseDist + DeltaDist)
+            mission.segments[cruise_segment_tag].distance = (CruiseDist + DeltaDist)
 
             # running mission with new distance
             results = mission.evaluate()
-            segment = results.segments[segmentNum]
+            segment = results.segments[cruise_segment_tag]
 
             # Difference between burned fuel and target fuel
             err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i] + reserves
@@ -156,7 +160,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
             if iprint:
                 print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
-                  + str('%8.0F' % (err+FUEL[i]+reserves))+' (kg) | Error : '+str('%8.0F' % err))
+                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Residual : '+str('%8.0F' % err))
 
         # Allocating resulting range in ouput array.
         R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]

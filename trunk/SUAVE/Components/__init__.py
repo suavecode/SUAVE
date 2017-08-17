@@ -1,18 +1,14 @@
-# __init__.py
-# 
-# Created:  
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Components
+# Components are classes that represent objects that are put together to form a vehicle.
+# They contain default variables and may contain functions that operate on these variables.
 
 # classes
 from Component import Component
-from Component_Exception import Component_Exception
 
 from Mass_Properties import Mass_Properties
 from Physical_Component import Physical_Component
 
 from Lofted_Body import Lofted_Body
-from Cost import Cost
-
 from Envelope import Envelope
 
 # packages
@@ -23,3 +19,4 @@ import Energy
 import Systems
 import Configs
 import Landing_Gear
+import Costs

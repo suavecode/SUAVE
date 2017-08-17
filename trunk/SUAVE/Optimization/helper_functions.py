@@ -1,3 +1,4 @@
+## @ingroup Optimization
 # helper_functions.py
 # 
 # Created:  May 2015, E. Botero
@@ -7,15 +8,44 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
+<<<<<<< HEAD
 #from SUAVE.Core import Data, Units
 import autograd.numpy as np 
 #from copy import deepcopy
+=======
+import numpy as np
+>>>>>>> develop
 
 # ----------------------------------------------------------------------        
 #   Set_values
 # ----------------------------------------------------------------------    
 
+## @ingroup Optimization
 def set_values(dictionary,input_dictionary,converted_values,aliases):
+    """ This method regresses through a dictionary to set the required values.
+        dictionary is the base class that will be modified, input_dictionary is
+        the set of inputs to be used, converted_values are values to be set in the
+        base dictionary, and finally the aliases which are where in the dictionary
+        the names link to
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    dictionary       [Data()]
+    input_dictionary [Data()]
+    converted_values [Data()]
+    aliases          [list of str]
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """      
     
     provided_names = input_dictionary[:,0]
         
@@ -57,8 +87,28 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
             
     return dictionary
         
-
+## @ingroup Optimization
 def find_a_star(dictionary,string):
+    """ Searches through a dictionary looking for an *
+
+    Assumptions:
+    There may or may not be an asterisk
+
+    Source:
+    N/A
+
+    Inputs:
+    dictionary       [Data()]
+    input_dictionary [Data()]
+    converted_values [Data()]
+    aliases          [list of str]
+
+    Outputs:
+    newstrings       [list of str]
+
+    Properties Used:
+    N/A
+    """
     splitstring = string.split('.')
     for ii in xrange(0,len(splitstring)):
         if '*' in splitstring[ii]:
@@ -75,20 +125,57 @@ def find_a_star(dictionary,string):
         
     return newstrings
 
+## @ingroup Optimization
 def scale_input_values(inputs,x):
+    """ Scales the values according to the a provided scale
+
+    Assumptions:
+    
+
+    Source:
+    N/A
+
+    Inputs:
+    x                [array]         
+    inputs           [list]
+
+    Outputs:
+    inputs           [list]
+
+    Properties Used:
+    N/A
+    """    
     
     provided_scale = inputs[:,3]
     inputs[:,1] =  x*provided_scale
     
     return inputs
 
+## @ingroup Optimization
 def convert_values(inputs): 
+    """ Converts an inputs from an optimization into the right units
+
+    Assumptions:
+    Always multiply the units by 1!
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs           [list]
+
+    Outputs:
+    converted_values [list of str]
+
+    Properties Used:
+    N/A
+    """    
     
     provided_values  = inputs[:,1] 
     
     # Most important 2 lines of these functions
     provided_units   = inputs[:,-1]*1.0
-    inputs[:,-1] = provided_units
+    inputs[:,-1]     = provided_units
     
     converted_values = provided_values*provided_units
     
@@ -99,7 +186,27 @@ def convert_values(inputs):
 #   Get
 # ----------------------------------------------------------------------  
 
+## @ingroup Optimization
 def get_values(dictionary,outputs,aliases):
+    """ Retrieves values saved in a dictionary 
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    dictionary       [Data()]
+    outputs          [Data()]
+    aliases          [list of str]
+
+    Outputs:
+    values           [float]
+
+    Properties Used:
+    N/A
+    """     
     
     npoutputs   = np.array(outputs)
     output_names = npoutputs[:,0]
@@ -118,36 +225,111 @@ def get_values(dictionary,outputs,aliases):
     
     return values
 
+## @ingroup Optimization
 def scale_obj_values(inputs,x):
+    """ Rescales an objective based on Nexus inputs scale
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs          [Data()]
+    x               [float]
+
+    Outputs:
+    scaled          [float]
+
+    Properties Used:
+    N/A
+    """     
     
     provided_scale = inputs[:,1]
-    provided_units   = inputs[:,-1]*1.0
-    inputs[:,-1] = provided_units
+    provided_units = inputs[:,-1]*1.0
+    inputs[:,-1]   = provided_units
     
     scaled =  x/(provided_scale*provided_units)
     
     return scaled
 
+## @ingroup Optimization
 def scale_const_values(inputs,x):
+    """ Rescales constraint values based on Nexus inputs scale
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs          [Data()]
+    x               [array]
+
+    Outputs:
+    scaled          [array]
+
+    Properties Used:
+    N/A
+    """        
     
     provided_scale = np.array(inputs[:,3],dtype = float)
     scaled =  x/provided_scale
     
     return scaled
 
+## @ingroup Optimization
 def scale_const_bnds(inputs):
+    """ Rescales constraint bounds based on Nexus inputs scale
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs           [Data()]
+
+    Outputs:
+    converted_values [array]
+
+    Properties Used:
+    N/A
+    """     
     
     provided_bounds = np.array(inputs[:,2],dtype = float)
     
     # Most important 2 lines of these functions
-    provided_units   = inputs[:,-1]*1.0
-    inputs[:,-1] = provided_units
+    provided_units  = inputs[:,-1]*1.0
+    inputs[:,-1]    = provided_units
     
     converted_values = provided_bounds*provided_units
     
     return converted_values
 
+## @ingroup Optimization
 def unscale_const_values(inputs,x):
+    """ Rescales constraint bounds based on Nexus inputs scale
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    inputs           [Data()]
+    x                [array]
+
+    Outputs:
+    scaled           [array]
+
+    Properties Used:
+    N/A
+    """     
     
     provided_units   = inputs[:,-1]*1.0
     provided_scale = np.array(inputs[:,3],dtype = float)

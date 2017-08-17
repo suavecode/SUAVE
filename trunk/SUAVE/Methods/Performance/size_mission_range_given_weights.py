@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # size_mission_range_given_weights.py
 #
 # Created:  Sep 2014, T. Orra
@@ -13,26 +14,34 @@ import autograd.numpy as np
 #  Calculate the range of  Payload Range Diagram
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_payload,takeoff_weight=0.,reserve_fuel=0.):
-    """ SUAVE.Methods.Performance.size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_payload,takeoff_weight=0.,reserve_fuel=0.):
-        Calculates vehicle range for a given takeoff weight and payload
+    """Calculates a vehicle's range and fuel for a given takeoff weight and payload
 
-        Inputs:
-            vehicle                     - SUave type vehicle
-            mission                     - SUave type mission profile
-            cruise_segment_tag          - Mission segment to be considered Cruise
-            mission_payload             - float or 1d array with mission payload weight for each mission
-            reserve_fuel   [optional]   - float of 1d array with required reserve fuel [kg]
-            takeoff_weight [optional]   - float or 1d array with takeoff weight for each mission
-                                          [if not informed, vehicle.mass_properties.m_takeoff is used]
-        Outputs:
-            distance              - float or 1d array with Range results for each mission
-            fuel                  - float or 1d array with fuel burn results for each mission
+    Assumptions:
+    Constant altitude cruise
 
-        Assumptions:
-            Constant altitude cruise.
+    Source:
+    N/A
 
-    """
+    Inputs:
+    vehicle.mass_properties.
+      operating_empty                     [kg]
+      takeoff                             [kg]
+    mission.segments[0].analyses.weights.
+      mass_properties.takeoff             [kg]
+    cruise_segment_tag                    <string>
+    mission_payload                       [kg]
+    takeoff_weight (optional)             [kg]
+    reserve_fuel                          [kg]
+
+    Outputs:
+    distance                              [m]
+    fuel                                  [kg]
+
+    Properties Used:
+    N/A
+    """   
     #unpack
     masses = vehicle.mass_properties
 

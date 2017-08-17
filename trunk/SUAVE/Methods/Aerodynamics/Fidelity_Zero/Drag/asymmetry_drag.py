@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # asymmetry_drag.py
 # 
 # Created:  Oct 2015, T. Orra
@@ -10,37 +11,43 @@
 # SUAVE Imports
 import SUAVE
 from SUAVE.Components import Wings
-from SUAVE.Core import Units, Data, Results
+from SUAVE.Core import Units, Data
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Compute asymmetry drag due to engine failure 
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
-    """ SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
-        Compute asymmetry drag due to engine failure 
+    """Computes asymmetry drag due to engine failure
 
-        Inputs:
-            geometry   - data dictionary with data of vehicle and engine
-        
-            state      -  data dictionary with state for thrust calculation:
-                            state.conditions.freestream.dynamic_pressure
-                            state.conditions.freestream.gravity    
-                            state.conditions.freestream.velocity   
-                            state.conditions.freestream.mach_number
-                            state.conditions.freestream.temperature
-                            state.conditions.freestream.pressure   
-                            state.conditions.propulsion.throttle                   
-            
-            windmilling_drag_coefficient [optional] - user input to be used in 
-                                                      calculation. Estimated if not specified.        
-        
-        Outputs:
-            asymmetry_drag
+    Assumptions:
+    Two engine aircraft
 
-        Assumptions:
-            Two engine airplane
-"""
+    Source:
+    Unknown source
+
+    Inputs:
+    state.conditions.freestream.dynamic_pressure                                                [Pa]
+    state.conditions.aerodynamics.drag_breakdown.windmilling_drag.windmilling_drag_coefficient  [Unitless]
+    geometry.
+      mass_properties.center_of_gravity                                                         [m]
+      propulsors. 
+        number_of_engines                                                                       [Unitless]
+      wings.
+        tag                                                                                     
+        sref (this function probably doesn't run)                                               [m^2]
+	spans.projected                                                                         [m]
+      reference_area                                                                            [m^2]
+
+    Outputs:
+    asymm_trim_drag_coefficient                                                                 [Unitless]
+    (packed in state.conditions.aerodynamics.drag_breakdown.asymmetry_trim_coefficient)
+
+    Properties Used:
+    N/A
+    """ 
     # ==============================================
 	# Unpack
     # ==============================================
@@ -72,7 +79,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     
     # getting engine y position and calculating thrust
     for idx,propulsor in enumerate(propulsors):
-        y_engine = propulsor.position[1]             
+        y_engine = propulsor.origin[0][1]             
         # Getting engine thrust
         results = propulsor(state) # total thrust
         thrust  = results.thrust_force_vector[0,0] / propulsor.number_of_engines
@@ -81,7 +88,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     # finding vertical tail
     for idx,wing in enumerate(wings):
         if not wing.vertical: continue
-        vertical_idx = idx
+        vertical_idx = wing.tag
         break
     # if vertical tail not found, raise error
     try:
@@ -94,10 +101,11 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     vertical_dist   = wings[vertical_idx].aerodynamic_center[0] + wings[vertical_idx].origin[0] - xcg
     
     # colculating windmilling drag
-    if not windmilling_drag_coefficient:
+    if windmilling_drag_coefficient == 0:
         try:
-            windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag
+            windmilling_drag_coefficient = state.conditions.aerodynamics.drag_breakdown.windmilling_drag.windmilling_drag_coefficient
         except: pass
+    
     windmilling_drag = windmilling_drag_coefficient * dyn_press * reference_area
     
     # calculating Drag force due to trim     

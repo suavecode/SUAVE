@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # wing_compressibility_correction.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -15,8 +16,32 @@ import autograd.numpy as np
 #  The Function
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def wing_compressibility_correction(state,settings,geometry):
-  
+    """Corrects a wings lift based on compressibility
+
+    Assumptions:
+    subsonic
+
+    Source:
+    https://stanford.edu/~cantwell/AA200_Course_Material/AA200_Course_Notes/
+    
+    Inputs:
+    settings.fuselage_lift_correction  [-]
+    state.conditions.
+      freestream.mach_number           [-]
+      aerodynamics.angle_of_attack     [radians]
+      aerodynamics.lift_coefficient    [-]
+
+    Outputs:
+    state.conditions.aerodynamics.
+      lift_breakdown.compressible_wings [-] CL for the wings
+      lift_coefficient                  [-]
+    wings_lift_comp                     [-]
+
+    Properties Used:
+    N/A
+    """     
    
     # unpack
     fus_correction = settings.fuselage_lift_correction

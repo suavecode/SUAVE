@@ -1,3 +1,4 @@
+## @ingroup Analyses
 # Process.py
 #
 # Created:  
@@ -7,19 +8,47 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Container
-from Results import Results
-
+from SUAVE.Core import ContainerOrdered, DataOrdered
+from SUAVE.Analyses.Results import Results
 
 # ----------------------------------------------------------------------
 #  Process
 # ----------------------------------------------------------------------
 
-class Process(Container):
+## @ingroup Analyses
+class Process(ContainerOrdered):
+    """ SUAVE.Analyses.Process()
+    
+        The Top Level Process Container Class
+        
+            Assumptions:
+            None
+            
+            Source:
+            N/A
+    """    
     
     verbose = False
     
     def evaluate(self,*args,**kwarg):
+        """This is used to execute the evaluate functions of the analyses
+            stored in the container.
+        
+                Assumptions:
+                None
+        
+                Source:
+                N/A
+        
+                Inputs:
+                None
+        
+                Outputs:
+                Results of the Evaluate Functions
+        
+                Properties Used:
+                N/A
+            """        
         
         results = Results()
         
@@ -48,5 +77,22 @@ class Process(Container):
         return results
         
     def __call__(self,*args,**kwarg):
+        """This is used to set the class' call behavior to the evaluate functions.
+        
+                Assumptions:
+                None
+        
+                Source:
+                N/A
+        
+                Inputs:
+                None
+        
+                Outputs:
+                None
+        
+                Properties Used:
+                N/A
+            """                        
         return self.evaluate(*args,**kwarg) 
     

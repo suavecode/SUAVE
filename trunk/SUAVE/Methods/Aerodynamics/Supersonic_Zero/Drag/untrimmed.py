@@ -1,7 +1,8 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # untrimmed.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +11,30 @@
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def untrimmed(state,settings,geometry):
+    """Sums aircraft drag before trim correction
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    state.conditions.aerodynamics.drag_breakdown.
+      parasite.total                              [Unitless]
+      induced.total                               [Unitless]
+      compressible.total                          [Unitless]
+      miscellaneous.total                         [Unitless]
+
+    Outputs:
+    aircraft_untrimmed                            [Unitless]
+
+    Properties Used:
+    N/A
+    """      
 
     # unpack inputs
 
@@ -26,7 +50,6 @@ def untrimmed(state,settings,geometry):
     miscellaneous_drag    = conditions.aerodynamics.drag_breakdown.miscellaneous.total 
 
     # untrimmed drag
-    Mc                 = conditions.freestream.mach_number   
     aircraft_untrimmed = parasite_total        \
                        + induced_total         \
                        + compressibility_total \

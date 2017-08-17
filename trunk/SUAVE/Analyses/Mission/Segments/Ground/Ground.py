@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Hover
 # Ground.py
 #
 # Created:  
@@ -24,10 +25,12 @@ from SUAVE.Core import Data
 #  Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Hover
 class Ground(Aerodynamic):
-    """
-        Base segment for takeoff and landing segments. Integrates equations of motion
+    """ Base segment for takeoff and landing segments. Integrates equations of motion
         including rolling friction.
+        
+        Assumptions:
         Notes Regarding Friction Coefficients
         Dry asphalt or concrete: .04 brakes off, .4 brakes on
         Wet asphalt or concrete: .05 brakes off, .225 brakes on
@@ -36,16 +39,34 @@ class Ground(Aerodynamic):
         Firm dirt:               .04 brakes off, .3 brakes on
         Soft turf:               .07 brakes off, .2 brakes on
         Wet grass:               .08 brakes off, .2 brakes on
-        FROM: General Aviation Aircraft Design: Applied Methods and Procedures,
+        
+        Source: General Aviation Aircraft Design: Applied Methods and Procedures,
         by Snorri Gudmundsson, copyright 2014, published by Elsevier, Waltham,
         MA, USA [p.938]
     """
-
+ 
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
 
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
@@ -84,7 +105,6 @@ class Ground(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
     
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -94,7 +114,6 @@ class Ground(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
     
         converge.converge_root             = Methods.converge_root    
        
@@ -102,7 +121,6 @@ class Ground(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
     
         # Update Initials
         iterate.initials = Process()
@@ -111,9 +129,9 @@ class Ground(Aerodynamic):
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
     
-    
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Ground.Common.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Ground.Common.unpack_unknowns
     
         # Update Conditions
         iterate.conditions = Process()
@@ -130,9 +148,6 @@ class Ground(Aerodynamic):
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
-    
-    
-        ## NEW STUFF TO UPDATE   
         
         # Solve Residuals
         iterate.residuals = Process()     
@@ -142,12 +157,10 @@ class Ground(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
     
         # Post Processing
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
-        finalize.post_process.ground            = Methods.Ground.Common.post_process
 
         return

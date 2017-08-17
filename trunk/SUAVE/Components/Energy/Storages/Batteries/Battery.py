@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Storages-Batteries
 # Battery.py
 # 
 # Created:  Nov 2014, M. Vegh
@@ -17,11 +18,16 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Power.Battery.Discharge.datta_discharge import datta_discharge
 
 # ----------------------------------------------------------------------
-#  Battery Class
+#  Battery
 # ----------------------------------------------------------------------    
 
+## @ingroup Components-Energy-Storages-Batteries
 class Battery(Energy_Component):
-    
+    """
+    Energy Component object that stores energy. Contains values
+    used to indicate its discharge characterics, including a model
+    that calculates discharge losses
+    """
     def __defaults__(self):
         self.mass_properties.mass = 0.0
         self.energy_density       = 0.0
@@ -29,6 +35,7 @@ class Battery(Energy_Component):
         self.resistance           = 0.07446 #base internal resistance of battery in ohms
         self.max_energy           = 0.0
         self.max_power            = 0.0
+        self.max_voltage          = 0.0
         self.discharge_model      = datta_discharge
         self.ragone               = Data()
         self.ragone.const_1       = 0.0 #used for ragone functions; 

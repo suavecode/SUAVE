@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # atmospheric_attenuation.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -13,6 +14,7 @@ import autograd.numpy as np
 #  Atmospheric Attenuation
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def atmospheric_attenuation(dist):
     """ SUAVE.Methods.Noise.Fidelity_One.atmospheric_attenuation(dist):
             This routine calculates a the atmospheric attenuation of sound for each frequency band as a function of the distance from the source to the observer. 

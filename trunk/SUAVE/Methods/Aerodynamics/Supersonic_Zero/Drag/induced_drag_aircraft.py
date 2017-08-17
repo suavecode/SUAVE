@@ -1,13 +1,14 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # induced_drag_aircraft.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import autograd.numpy as np 
 
@@ -15,18 +16,29 @@ import autograd.numpy as np
 #  Induced Drag Aicraft
 # ----------------------------------------------------------------------
 
-#def induced_drag_aircraft(conditions,configuration,geometry):
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def induced_drag_aircraft(state,settings,geometry):
-    """ SUAVE.Methods.induced_drag_aircraft(conditions,configuration,geometry)
-        computes the induced drag associated with a wing 
-        
-        Inputs:
-        
-        Outputs:
-        
-        Assumptions:
-            based on a set of fits
-            
+    """Determines induced drag for the full aircraft
+
+    Assumptions:
+    Based on fits
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    state.conditions.aerodynamics.lift_coefficient               [Unitless]
+    state.conditions.aerodynamics.drag_breakdown.parasite.total  [Unitless]
+    configuration.oswald_efficiency_factor                       [Unitless]
+    configuration.viscous_lift_dependent_drag_factor             [Unitless]
+    geometry.wings['main_wing'].span_efficiency                  [Unitless]
+    geometry.wings['main_wing'].aspect_ratio                     [Unitless]
+
+    Outputs:
+    total_induced_drag                                           [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs
@@ -34,14 +46,17 @@ def induced_drag_aircraft(state,settings,geometry):
     configuration = settings    
     
     aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.aircraft_span_efficiency_factor # TODO: get estimate from weissinger
-    ar            = geometry.wings[0].aspect_ratio # TODO: get estimate from weissinger
-    Mc            = conditions.freestream.mach_number
     
-    # start the results
-    total_induced_drag = np.array([[0.0]]*len(Mc))
-    total_induced_drag[Mc < 1.0] = aircraft_lift[Mc < 1.0]**2 / (np.pi*ar*e)
-    total_induced_drag[Mc >= 1.0] = aircraft_lift[Mc >= 1.0]**2 / (np.pi*ar*e)
+    e             = configuration.oswald_efficiency_factor
+    K             = configuration.viscous_lift_dependent_drag_factor
+    wing_e        = geometry.wings['main_wing'].span_efficiency
+    ar            = geometry.wings['main_wing'].aspect_ratio 
+    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    
+    if e == None:
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
+    
+    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
         
     # store data
     try:

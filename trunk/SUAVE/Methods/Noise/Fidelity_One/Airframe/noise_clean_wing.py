@@ -1,6 +1,7 @@
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_clean_wing.py
 # 
-# Created:  Jun 2015, Carlos
+# Created:  Jun 2015, C. Ilario
 # Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
@@ -14,6 +15,7 @@ from SUAVE.Core import Units
 # Compute the clean wing noise
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distance,frequency):
     """ SUAVE.Methods.Noise.Fidelity_One.noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,phi,theta,distance,frequency):
             Computes the 1/3 octave band sound pressure level and the overall sound pressure level from the clean wing,
@@ -45,10 +47,10 @@ def noise_clean_wing(S,b,ND,IsHorz,deltaw,velocity,viscosity,M,phi,theta,distanc
             Assumptions:
                 Correlation based."""
 
-    #Process
+    #Unit conversion required for the method
     kt2fts = 1.6878098571
-
-    delta = 0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
+    
+    delta  = 0.37*(S/b)*(velocity/Units.ft*S/(b*viscosity))**(-0.2)
 
     if IsHorz==1:
         DIR = np.cos(phi)

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 # wing_compressibility.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -15,9 +16,33 @@ import autograd.numpy as np
 # ----------------------------------------------------------------------
 #  Wing Compressibility
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 def wing_compressibility(state,settings,geometry):
+    """Corrects a wings lift based on compressibility, allow supersonic mach number
 
+    Assumptions:
+    wing capable of vortex lift
+
+    Source:
+    https://stanford.edu/~cantwell/AA200_Course_Material/AA200_Course_Notes/
+
+    Inputs:
+    settings.fuselage_lift_correction  [-]
+    state.conditions.
+      freestream.mach_number           [-]
+      aerodynamics.angle_of_attack     [radians]
+      aerodynamics.lift_coefficient    [-]
+
+    Outputs:
+    state.conditions.aerodynamics.
+      lift_breakdown.compressible_wings [-] CL for the wings
+      lift_coefficient                  [-]
+    wings_lift_comp                     [-]
+
+    Properties Used:
+    N/A
+    """  
+    
     # unpack
     fus_correction = settings.fuselage_lift_correction
     Mc             = state.conditions.freestream.mach_number

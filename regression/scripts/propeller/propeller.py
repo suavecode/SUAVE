@@ -10,7 +10,7 @@ import SUAVE
 from SUAVE.Core import Units
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container,
 )
 
 import numpy as np
@@ -46,10 +46,14 @@ def main():
     conditions = Data()
     conditions.freestream = Data()
     conditions.propulsion = Data()
+    conditions.frames     = Data()
+    conditions.frames.body     = Data()
+    conditions.frames.inertial = Data()
     conditions.freestream.update(atmosphere_conditions)
     conditions.freestream.dynamic_viscosity = atmosphere_conditions.dynamic_viscosity
-    conditions.freestream.velocity = np.array([[V]])
+    conditions.frames.inertial.velocity_vector = np.array([[V,0,0]])
     conditions.propulsion.throttle = np.array([[1.0]])
+    conditions.frames.body.transform_to_inertial = np.array([np.eye(3)])
     
     # Create and attach this propeller
     prop                 = SUAVE.Components.Energy.Converters.Propeller()

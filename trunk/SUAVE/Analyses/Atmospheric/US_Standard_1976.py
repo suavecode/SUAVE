@@ -1,7 +1,7 @@
-""" US_Standard_1976.py: U.S. Standard Atmosphere (1976) """
+## @ingroup Analyses-Atmospheric
+# US_Standard_1976.py
 #
-#
-# Modified by Tim MacDonald 2/16/15  
+# Created: 
 # Modified: Feb 2016, Andrew Wendorff
 
 # ----------------------------------------------------------------------
@@ -28,37 +28,70 @@ from SUAVE.Core.Arrays import atleast_2d_col
 #  Classes
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Atmospheric
 class US_Standard_1976(Atmospheric):
 
     """ Implements the U.S. Standard Atmosphere (1976 version)
+        
+    Assumptions:
+    None
+    
+    Source:
+    U.S. Standard Atmosphere, 1976, U.S. Government Printing Office, Washington, D.C., 1976
     """
     
     def __defaults__(self):
+        """This sets the default values for the analysis to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Output:
+        None
+
+        Properties Used:
+        None
+        """     
         
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
         self.update(atmo_data)        
     
     def compute_values(self,altitude,temperature_deviation=0.0):
 
-        """ Computes values from the International Standard Atmosphere
+        """Computes atmospheric values.
+
+        Assumptions:
+        US 1976 Standard Atmosphere
+
+        Source:
+        U.S. Standard Atmosphere, 1976, U.S. Government Printing Office, Washington, D.C., 1976
 
         Inputs:
-            altitude     : geometric altitude (elevation) (m)
-                           can be a float, list or 1D array of floats
-            temperature_deviation :  delta_isa
-         
-        Outputs:
-            list of conditions -
-                pressure       : static pressure (Pa)
-                temperature    : static temperature (K)
-                density        : density (kg/m^3)
-                speed_of_sound : speed of sound (m/s)
-                dynamic_viscosity      : dynamic_viscosity (kg/m-s)
-            
-        Example:
-            atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
-            atmosphere.ComputeValues(1000).pressure
-          
+        altitude                                 [m]
+        temperature_deviation                    [K]
+
+        Output:
+        atmo_data.
+          pressure                               [Pa]
+          temperature                            [K]
+          speed_of_sound                         [m/s]
+          dynamic_viscosity                      [kg/(m*s)]
+
+        Properties Used:
+        self.
+          fluid_properties.gas_specific_constant [J/(kg*K)]
+          planet.sea_level_gravity               [m/s^2]
+          planet.mean_radius                     [m]
+          breaks.
+            altitude                             [m]
+            temperature                          [K]
+            pressure                             [Pa]
         """
 
         # unpack
@@ -108,7 +141,7 @@ class US_Standard_1976(Atmospheric):
         
         # populate the altitude breaks
         # this uses >= and <= to capture both edges and because values should be the same at the edges
-        for i in range( len(self.breaks.altitude)-1 ): 
+        for i in xrange( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
             z0[ i_inside ]    = self.breaks.altitude[i]
             T0[ i_inside ]    = self.breaks.temperature[i]
@@ -127,8 +160,6 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mew = gas.compute_absolute_viscosity(T)
-        
-
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])

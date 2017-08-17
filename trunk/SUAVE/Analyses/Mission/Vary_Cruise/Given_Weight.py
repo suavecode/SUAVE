@@ -1,26 +1,50 @@
+## @ingroup Analyses-Mission-Vary_Cruise
 # Given_Weight.py
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 
-""" Mission.py: Top-level mission class """
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Methods import Missions as Methods
-
 from SUAVE.Analyses.Mission import All_At_Once
 
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Vary_Cruise
 class Given_Weight(All_At_Once):
-    """ Mission.py: Top-level mission class """
+    """ Given a target landing weight, select the cruise distance by adding a residual to the mission
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
     
     def __defaults__(self):
+        """This sets the default flow of methods for the mission.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         self.tag = 'vary_cruise_given_weight'
         
@@ -59,8 +83,8 @@ class Given_Weight(All_At_Once):
         # --------------------------------------------------------------
         #   Iterate
         # --------------------------------------------------------------        
-        iterate = self.process.iterate
-        iterate.clear()        
+        iterate = self.process.iterate  
+        iterate.clear()
         
         # unpack the unknown
         iterate.unpack_distance              = Methods.Segments.Cruise.Variable_Cruise_Distance.unknown_cruise_distance

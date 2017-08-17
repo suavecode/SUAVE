@@ -1,14 +1,15 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_wing.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Feb 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 import autograd.numpy as np 
 
@@ -16,39 +17,41 @@ import autograd.numpy as np
 #   Parasite Drag Wing
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_wing(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_wing(conditions,configuration,wing)
-        computes the parastite drag associated with a wing 
-        
-        Inputs:
-            conditions
-            -freestream mach number
-            -freestream density
-            -freestream dynamic_viscosity
-            -freestream temperature
-            -freestream pressuve
-            
-            configuration
-            -wing parasite drag form factor
-            
-            wing
-            -S reference
-            -mean aerodynamic chord
-            -thickness to chord ratio
-            -sweep
-            -aspect ratio
-            -span
-            -S exposed
-            -S affected
-            -transition x
-            
-        Outputs:
-            wing parasite drag coefficient with refernce area as the
-            reference area of the input wing
+    """Computes the parasite drag due to wings
 
-        
-        Assumptions:
-        
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    settings.wing_parasite_drag_form_factor      [Unitless]
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    geometry.
+      areas.reference                            [m^2]
+      chords.mean_aerodynamic                    [m]
+      thickness_to_chord                         [Unitless]
+      sweeps.quarter_chord                       [radians]
+      aspect_ratio                               [Unitless]
+      spans.projected                            [m]
+      areas.exposed                              [m^2]
+      areas.affected                             [m^2]
+      areas.wetted                               [m^2]
+      transition_x_upper                         [Unitless]
+      transition_x_lower                         [Unitless]
+
+
+    Outputs:
+    wing_parasite_drag                           [Unitless]
+
+    Properties Used:
+    N/A
     """
     
     # unpack inputs
@@ -61,16 +64,15 @@ def parasite_drag_wing(state,settings,geometry):
     # wing
     mac_w        = wing.chords.mean_aerodynamic
     t_c_w        = wing.thickness_to_chord
-    sweep_w      = wing.sweep
+    sweep_w      = wing.sweeps.quarter_chord
     arw_w        = wing.aspect_ratio
     span_w       = wing.spans.projected
-    S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
+    S_exposed_w  = wing.areas.exposed
     S_affected_w = wing.areas.affected  
     xtu          = wing.transition_x_upper
     xtl          = wing.transition_x_lower
+    Swet         = wing.areas.wetted
     
-    # compute wetted area # TODO: calcualte as preprocessing
-    Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w  
     
     # conditions
     Mc  = freestream.mach_number

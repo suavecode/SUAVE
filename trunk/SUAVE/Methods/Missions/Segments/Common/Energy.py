@@ -1,7 +1,9 @@
+## @ingroup Methods-Missions-Segments-Common
 # Energy.py
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Jul 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,12 +15,32 @@ import autograd.numpy as np
 #  Initialize Battery
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_battery(segment,state):
+    """ Sets the initial battery energy at the start of the mission
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            state.initials.conditions:
+                propulsion.battery_energy    [Joules]
+            segment.battery_energy           [Joules]
+            
+        Outputs:
+            state.conditions:
+                propulsion.battery_energy    [Joules]
+
+        Properties Used:
+        N/A
+                                
+    """
+    
     
     if state.initials:
-        energy_initial = state.initials.conditions.propulsion.battery_energy[-1,0]
+        energy_initial  = state.initials.conditions.propulsion.battery_energy[-1,0]
     elif segment.has_key('battery_energy'):
-        energy_initial = segment.battery_energy
+        energy_initial  = segment.battery_energy
     else:
         energy_initial = 0.0
     
@@ -30,19 +52,19 @@ def initialize_battery(segment,state):
 #  Update Thrust
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_thrust(segment,state):
-    """ update_energy()
-        update energy conditions
+    """ Evaluates the energy network to find the thrust force and mass rate
 
         Inputs -
-            segment.analyses.energy_network - a callable that will recieve ...
-            state.conditions         - passed directly to the propulsion model
+            segment.analyses.energy_network    [Function]
+            state                              [Data]
 
         Outputs -
-            thrust_force   - a 3-column array with rows of total thrust force vectors
-                for each control point, in the body frame
-            fuel_mass_rate - the total fuel mass flow rate for each control point
-            power  -
+            state.conditions:
+               frames.body.thrust_force_vector [Newtons]
+               weights.vehicle_mass_rate       [kg/s]
+
 
         Assumptions -
 

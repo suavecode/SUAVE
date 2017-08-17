@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # size_weights_given_mission_range.py
 #
 # Created:  Sep 2014, T. Orra and C. Ilario
@@ -14,27 +15,37 @@ import autograd.numpy as np
 #  Calculate vehicle Payload Range Diagram
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_payload,target_range,reserve_fuel=0.):
-    """ SUAVE.Methods.Performance.size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_payload,takeoff_weight,reserve_fuel=0.):
-        Calculates vehicle weight for a given range with given payload
+    """Calculates a vehicle's fuel and takeoff weight for a given range. Also returns the range.
 
-        Inputs:
-            vehicle                     - SUave type vehicle
-            mission                     - SUave type mission profile
-            cruise_segment_tag          - Mission segment to be considered Cruise
-            mission_payload             - float or 1d array with mission payload weight for each mission [kg]
-            target_range                - float or 1d array with target range for each mission [m]
-            reserve_fuel   [optional]   - float of 1d array with required reserve fuel [kg]
+    Assumptions:
+    Constant altitude cruise
 
-        Outputs:
-            distance              - float or 1d array with Range results for each mission
-            fuel                  - float or 1d array with fuel burn results for each mission
-			tow					  - float or 1d array with takeoff weight for each mission
+    Source:
+    N/A
 
-        Assumptions:
-            Constant altitude cruise.
+    Inputs:
+    vehicle.mass_properties.
+      operating_empty                     [kg]
+      max_zero_fuel                       [kg]
+      max_takeoff                         [kg]
+      max_payload                         [kg]
+      max_fuel                            [kg]
+    mission                               [SUAVE data structure]
+    cruise_segment_tag                    <string>
+    mission_payload                       [kg]
+    target_range                          [m]
+    reserve_fuel (optional)               [kg]
 
-    """
+    Outputs:
+    distance                              [m]
+    fuel                                  [kg]
+    tow                                   [kg]
+
+    Properties Used:
+    N/A
+    """      
     #unpack
     masses = vehicle.mass_properties
 

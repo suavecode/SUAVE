@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Cruise
 # Constant_Throttle_Constant_Altitude.py
 #
 # Created:  
@@ -19,20 +20,48 @@ from SUAVE.Analyses import Process
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Throttle_Constant_Altitude(Aerodynamic):
+    """ Vehicle flies at a set throttle setting. Allows a vehicle to do a level acceleration.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """           
+    
     
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
 
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.throttle             = None
-        self.velocity_start       = 0.0
-        self.velocity_end         = 0.0 
+        self.throttle        = None
+        self.altitude        = None
+        self.air_speed_start = 0.0
+        self.air_speed_end   = 0.0 
         
         # --------------------------------------------------------------
         #   State
@@ -57,7 +86,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
     
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -67,7 +95,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
     
         converge.converge_root             = Methods.converge_root    
        
@@ -75,7 +102,6 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -85,8 +111,8 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
-
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Constant_Throttle_Constant_Altitude.unpack_unknowns        
     
         # Update Conditions
         iterate.conditions = Process()
@@ -112,12 +138,10 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
     
         # Post Processing
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
-        #finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
-        finalize.post_process.cruise            = Methods.Cruise.Constant_Throttle_Constant_Altitude.post_process
+        finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
 
         return

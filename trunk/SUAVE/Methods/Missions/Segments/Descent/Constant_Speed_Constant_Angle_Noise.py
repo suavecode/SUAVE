@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Descent
 # Constant_Speed_Constant_Angle_noise.py
 # 
 # Created:  Nov 2015, C. Ilario
@@ -14,7 +15,27 @@ from SUAVE.Core import Units
 #  Expand State
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Descent
 def expand_state(segment,state):
+    """Makes all vectors in the state the same size.
+
+    Assumptions:
+    A 4 km threshold, this discretizes the mission to take measurements at the right place for certification maneuvers.
+
+    Source:
+    N/A
+
+    Inputs:
+    state.numerics.number_control_points  [Unitless]
+    segment.descent_angle                 [Radians]
+    segment.air_speed                     [meters/second]
+ 
+    Outputs:
+    state.numerics.number_control_points
+
+    Properties Used:
+    N/A
+    """      
 
     
     #Modification 11/04:
@@ -44,7 +65,33 @@ def expand_state(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Descent
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constant speed, constant descent angle. However, this follows a 2000 meter segment. This is a certification maneuver standard. The last point for the noise measurement is 50 feet.
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.descent_angle                       [radians]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    segment.air_speed                           [meters/second]
+    state.numerics.dimensionless.control_points [array]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """     
+    
     
     # unpack
     descent_angle= segment.descent_angle

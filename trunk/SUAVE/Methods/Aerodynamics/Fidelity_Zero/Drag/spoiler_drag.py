@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # spoiler_drag.py
 #
 # Created:  Jan 2014, A. Variyar
@@ -7,12 +8,31 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Adds the spoiler drag
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def spoiler_drag(state,settings,geometry):
+    """Adds a spoiler drag increment
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    settings.spoiler_drag_increment  [Unitless]
+
+    Outputs:
+    spoiler_drag                     [Unitless]
+
+    Properties Used:
+    N/A
+    """    
     
     # unpack inputs
     conditions     = state.conditions

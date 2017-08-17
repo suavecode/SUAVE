@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_pylon.py
 # 
 # Created:  Jan 2014, T. Orra
@@ -9,27 +10,40 @@
 import autograd.numpy as np 
 
 # Suave imports
-from SUAVE.Core import Results
+from SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Computes the pyloan parasite drag
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_pylon(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
-        Simplified estimation, considering pylon drag a fraction of the nacelle drag
+    """Computes the parasite drag due to pylons as a proportion of the propulsor drag
 
-        Inputs:
-            conditions      - data dictionary for output dump
-            configuration   - not in use
-            geometry        - SUave type vehicle
+    Assumptions:
+    Basic fit
 
-        Outpus:
-            cd_misc  - returns the miscellaneous drag associated with the vehicle
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        Assumptions:
-            simplified estimation, considering pylon drag a fraction of the nacelle drag
+    Inputs:
+    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].
+      form_factor                                                   [Unitless]
+      compressibility_factor                                        [Unitless]
+      skin_friction_coefficient                                     [Unitless]
+      wetted_area                                                   [m^2]
+      parasite_drag_coefficient                                     [Unitless]
+      reynolds_number                                               [Unitless]
+    geometry.reference_area                                         [m^2]
+    geometry.propulsors. 
+      nacelle_diameter                                              [m]
+      number_of_engines                                             [Unitless]
 
+    Outputs:
+    propulsor_parasite_drag                                         [Unitless]
+
+    Properties Used:
+    N/A
     """
     # unpack
     

@@ -1,7 +1,9 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Mach_Constant_Angle.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  June 2017, E. Botero 
+# Modified:
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -14,14 +16,40 @@ from Unknown_Throttle import Unknown_Throttle
 # Units
 from SUAVE.Core import Units
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
-class Constant_Speed_Constant_Angle(Unknown_Throttle):
+## @ingroup Analyses-Mission-Segments-Climb
+class Constant_Mach_Constant_Angle(Unknown_Throttle):
+    """ Climb at a constant mach number and at a constant angle.
+        This segment takes longer to solve than most because it has extra unknowns and residuals
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
@@ -32,12 +60,30 @@ class Constant_Speed_Constant_Angle(Unknown_Throttle):
         self.mach           = 0.7
         
         # --------------------------------------------------------------
+        #   State
+        # --------------------------------------------------------------
+    
+        # initials and unknowns
+        ones_row = self.state.ones_row        
+        self.state.unknowns.altitudes  = ones_row(1) * 0.0
+        self.state.residuals.forces    = ones_row(3) * 0.0           
+        
+        # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
     
         # only need to change one setup step from constant_speed_constant_ate
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Speed_Constant_Angle.initialize_conditions
+        initialize.conditions = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions_unpack_unknowns
+        
+        # Unpack Unknowns
+        iterate = self.process.iterate
+        iterate.unknowns.mission           = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions_unpack_unknowns
+    
+        iterate.conditions.differentials   = Methods.Climb.Optimized.update_differentials
+    
+        # Solve Residuals
+        iterate.residuals.total_forces     = Methods.Climb.Constant_Mach_Constant_Angle.residual_total_forces                
         
        
         return

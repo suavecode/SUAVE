@@ -1,3 +1,4 @@
+## @ingroup Components
 # Physical_Component.py
 # 
 # Created:  
@@ -15,28 +16,68 @@ from Mass_Properties import Mass_Properties
 #  Physical Component
 # ----------------------------------------------------------------------
 
+## @ingroup Components
 class Physical_Component(Component):
-    """ SUAVE.Components.Physical_Component()
-        a component that has a Mass_Properties Data
+    """ A component that has a Mass_Properties Data
+        
+        Assumptions:
+        None
+        
+        Source:
+        None
     """
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'Component'
         self.mass_properties = Mass_Properties()
-        self.position  = [0.0,0.0,0.0]
+        self.origin  = [[0.0,0.0,0.0]]
         self.symmetric = False
-    
+
+## @ingroup Components    
 class Container(Component.Container):
-    """ SUAVE.Components.Physical_Component.Container()
-        a container of physical components
+    """ A container of physical components
         
-        Methods:
-            sum_mass(): will recursively search the data tree and sum
-                        any Comp.Mass_Properties.mass, and return the total sum
-    """    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """ 
     def sum_mass(self):
-        """ an example of how to recursivly sum the mass of 
-            a tree of physical components
-        """
+        """ will recursively search the data tree and sum
+            any Comp.Mass_Properties.mass, and return the total sum
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """   
         total = 0.0
         for key,Comp in self.iteritems():
             if isinstance(Comp,PhysicalComponentContainer):

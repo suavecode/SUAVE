@@ -1,7 +1,9 @@
+## @ingroup Optimization
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
-# Modified: Feb 2015, M. Vegh
+# Modified: Feb 2016, M. Vegh
+#           Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,7 +11,8 @@
 
 # suave imports
 import SUAVE 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, DataOrdered
+from SUAVE.Analyses import Process
 from copy import deepcopy
 import helper_functions as help_fun
 import autograd.numpy as np 
@@ -17,31 +20,103 @@ import autograd.numpy as np
 # ----------------------------------------------------------------------
 #  Nexus Class
 # ----------------------------------------------------------------------
-    
+
+## @ingroup Optimization
 class Nexus(Data):
+    """noun (plural same or nexuses)
+        -a connection or series of connections linking two or more things
+        -a connected group or series: a nexus of ideas.
+        -the central and most important point or place
+        
+        This is the class that makes optimization possible. We put all the data and functions together to make
+        your future dreams come true.
+        
+        Assumptions:
+        You like SUAVE
+        
+        Source:
+        Oxford English Dictionary
+    """    
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         self.vehicle_configurations = SUAVE.Components.Configs.Config.Container()
         self.analyses               = SUAVE.Analyses.Analysis.Container()
         self.missions               = None
-        self.procedure              = None
+        self.procedure              = Process()
         self.results                = SUAVE.Analyses.Results()
         self.summary                = Data()
         self.optimization_problem   = None
+        self.fidelity_level         = 1
         self.last_inputs            = None
+        self.last_fidelity          = None
         self.evaluation_count       = 0
     
     def evaluate(self,x = None):
+        """This function runs the problem you setup in SUAVE.
+            If the last time you ran this the inputs were the same, a cache is used.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         self.unpack_inputs(x)
-        # This function calls really_evaluate
-        if np.all(self.optimization_problem.inputs==self.last_inputs):
+        
+        # Check if last call was the same
+        if np.all(self.optimization_problem.inputs==self.last_inputs) \
+           and self.last_fidelity == self.fidelity_level:
             pass
         else:
             self._really_evaluate()
         
     
     def _really_evaluate(self):
+        """Tricky little function you're not supposed to use. Doesn't check if the last inputs were already run.
+            This steps through like a process through the nexus, and stores the results.
+    
+            Assumptions:
+            Doesn't set values!
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         nexus = self
         
@@ -55,11 +130,29 @@ class Nexus(Data):
             self = nexus
                 
         # Store to cache
-        self.last_inputs = deepcopy(self.optimization_problem.inputs)
+        self.last_inputs   = deepcopy(self.optimization_problem.inputs)
+        self.last_fidelity = self.fidelity_level
           
     
     def objective(self,x = None):
-        
+        """Retrieve the objective value for your function
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x       [vector]
+    
+            Outputs:
+            scaled_objective [float]
+    
+            Properties Used:
+            None
+        """           
+    
         self.evaluate(x)
         
         aliases     = self.optimization_problem.aliases
@@ -72,6 +165,23 @@ class Nexus(Data):
         return scaled_objective
     
     def inequality_constraint(self,x = None):
+        """Retrieve the inequality constraint values for your function
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            scaled_constraints [vector]
+    
+            Properties Used:
+            None
+            """           
         
         self.evaluate(x)
         
@@ -97,7 +207,24 @@ class Nexus(Data):
         return scaled_constraints      
     
     def equality_constraint(self,x = None):
-        
+        """Retrieve the equality constraint values for your function
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            scaled_constraints [vector]
+    
+            Properties Used:
+            None
+        """         
+    
         self.evaluate(x)
 
         aliases     = self.optimization_problem.aliases
@@ -122,6 +249,23 @@ class Nexus(Data):
         return scaled_constraints   
     
     def all_constraints(self,x = None):
+        """Returns both the inequality and equality constraint values for your function
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            scaled_constraints [vector]
+    
+            Properties Used:
+            None
+        """         
         
         self.evaluate(x)
         
@@ -129,14 +273,31 @@ class Nexus(Data):
         constraints = self.optimization_problem.constraints
         results     = self.results
     
-        constraint_values = help_fun.get_values(self,constraints,aliases) 
+        constraint_values  = help_fun.get_values(self,constraints,aliases) 
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
     
         return scaled_constraints     
     
     
     def unpack_inputs(self,x = None):
-        
+        """Put's the values of the problem in the right place.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """                 
+         
         # Scale the inputs if given
         inputs = self.optimization_problem.inputs
         if x is not None:
@@ -149,12 +310,48 @@ class Nexus(Data):
         aliases = self.optimization_problem.aliases
         vehicle = self.vehicle_configurations
         
-        self = help_fun.set_values(self,inputs,converted_values,aliases)     
+        self    = help_fun.set_values(self,inputs,converted_values,aliases)     
     
     def constraints_individual(self,x = None):
+        """Put's the values of the problem in the right place.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         pass     
 
-    def finite_difference(self,x):
+    def finite_difference(self,x,diff_interval=1e-8):
+        """Finite difference gradients and jacobians of the problem.
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+            diff_interval      [float]
+    
+            Outputs:
+            grad_obj           [vector]
+            jac_con            [array]
+    
+            Properties Used:
+            None
+        """           
         
         obj = self.objective(x)
         con = self.all_constraints(x)
@@ -172,14 +369,14 @@ class Nexus(Data):
         
         for ii in xrange(0,inplen):
             newx     = np.asarray(x)*1.0
-            newx[ii] = newx[ii]+ 1e-8
+            newx[ii] = newx[ii] + diff_interval
             
             grad_obj[ii]  = self.objective(newx)
             jac_con[ii,:] = self.all_constraints(newx)
         
-        grad_obj = (grad_obj - obj)/(1e-8)
+        grad_obj = (grad_obj - obj)/diff_interval
         
-        jac_con = (jac_con - con2).T/(1e-8)
+        jac_con = (jac_con - con2).T/diff_interval
         
         grad_obj = grad_obj.astype(float)
         jac_con  = jac_con.astype(float)
@@ -188,6 +385,24 @@ class Nexus(Data):
     
     
     def translate(self,x = None):
+        """Make a pretty table view of the problem with objective and constraints at the current inputs
+    
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            inpu               [array]
+            const_table        [array]
+    
+            Properties Used:
+            None
+        """         
         
         # Run the problem just in case
         self.evaluate(x)

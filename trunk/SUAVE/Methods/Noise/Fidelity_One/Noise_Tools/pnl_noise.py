@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # pnl_noise.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -12,6 +13,7 @@ import autograd.numpy as np
 #  PNL Noise
 # ---------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def pnl_noise (SPL):
     """This method calculates de Perceived Noise Level PNL from a 1/3 octave band noise spectra
 

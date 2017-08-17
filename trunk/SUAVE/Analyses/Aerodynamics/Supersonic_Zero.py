@@ -1,10 +1,10 @@
+## @ingroup Analyses-Aerodynamics
 # Supersonic_Zero.py
 # 
-# Created:  Tim MacDonald, based on Fidelity_Zero
-# Modified: Tim MacDonald, 1/29/15 
-# Modified: Feb 2016, Andrew Wendorff
+# Created:            T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 #
-# Updated for new optimization structure
+# Based on Fidelity_Zero
 
 
 # ----------------------------------------------------------------------
@@ -20,24 +20,39 @@ from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 
-#from SUAVE.Attributes.Aerodynamics.Aerodynamics_1d_Surrogate import Aerodynamics_1d_Surrogate
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Supersonic_Zero(Markup):
-    """ SUAVE.Attributes.Aerodynamics.Fidelity_Zero
-        aerodynamic model that builds a surrogate model for clean wing 
-        lift, using vortex lattic, and various handbook methods
-        for everything else
-        
-        this class is callable, see self.__call__
-        
-    """
-    
+    """This is an analysis based on low-fidelity models.
+
+    Assumptions:
+    None
+
+    Source:
+    Primarily based on adg.stanford.edu, see methods for details
+    """ 
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         self.tag = 'Fidelity_Zero_Supersonic'
         
         # correction factors
@@ -47,7 +62,10 @@ class Supersonic_Zero(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.aircraft_span_efficiency_factor    = 0.78
+        settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
+        settings.oswald_efficiency_factor           = None
+        settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5
@@ -65,6 +83,8 @@ class Supersonic_Zero(Markup):
         compute.lift.total                         = Methods.Lift.aircraft_total # no difference
         
         compute.drag = Process()
+        compute.drag.compressibility               = Process()
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
         compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing # SZ
@@ -75,8 +95,6 @@ class Supersonic_Zero(Markup):
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Methods.Drag.parasite_total # SZ
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
-        compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match
         compute.drag.trim                          = Methods.Drag.trim # SZ can be chanaged to match
@@ -84,6 +102,23 @@ class Supersonic_Zero(Markup):
         
         
     def initialize(self):
+        """Initializes the surrogate needed for lift calculation.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.geometry
+        """            
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         

@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 # longitudinal.py
 # 
 # Created:  Apr 2014, A. Wendorff
@@ -15,50 +16,54 @@ import numpy.polynomial.polynomial as P
 #   Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations
 def longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha):
-    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.longitudinal(velocity, density, S_gross_w, mac, Cm_q, Cz_alpha, mass, Cm_alpha, Iy, Cm_alpha_dot, Cz_u, Cz_alpha_dot, Cz_q, Cw, Theta, Cx_u, Cx_alpha)
-        Calculate the natural frequency and damping ratio for the full linearized short period and phugoid modes        
+    """ This calculates the natural frequency and damping ratio for the full 
+    linearized short period and phugoid modes        
+    
+    Assumptions:
+        X-Z axis is plane of symmetry
+        Constant mass of aircraft
+        Origin of axis system at c.g. of aircraft
+        Aircraft is a rigid body
+        Earth is inertial reference frame
+        Perturbations from equilibrium are small
+        Flow is Quasisteady
+        Zero initial conditions
+        Cm_a = CF_z_a = CF_x_a = 0
+        Neglect Cx_alpha_dot, Cx_q and Cm_u
         
-        Inputs:
-            velocity - flight velocity at the condition being considered [meters/seconds]
-            density - flight density at condition being considered [kg/meters**3]
-            S_gross_w - area of the wing [meters**2]
-            mac - mean aerodynamic chord of the wing [meters]
-            Cm_q - coefficient for the change in pitching moment due to pitch rate [dimensionless] (2 * K * dC_m/di * lt/c where K is approximately 1.1)
-            Cz_alpha - coefficient for the change in Z force due to the angle of attack [dimensionless] (-C_D - dC_L/dalpha)
-            mass - mass of the aircraft [kilograms]
-            Cm_alpha - coefficient for the change in pitching moment due to angle of attack [dimensionless] (dC_m/dC_L * dCL/dalpha)
-            Iy - moment of interia about the body y axis [kg * meters**2]
-            Cm_alpha_dot - coefficient for the change in pitching moment due to rate of change of angle of attack [dimensionless] (2 * dC_m/di * depsilon/dalpha * lt/mac)
-            Cz_u - coefficient for the change in force in the Z direction due to change in forward velocity [dimensionless] (usually -2 C_L or -2C_L - U dC_L/du)
-            Cz_alpha_dot - coefficient for the change of angle of attack caused by w_dot on the Z force [dimensionless] (2 * dC_m/di * depsilon/dalpha)
-            Cz_q - coefficient for the change in Z force due to pitching velocity [dimensionless] (2 * K * dC_m/di where K is approximately 1.1)
-            Cw - coefficient to account for gravity [dimensionless] (-C_L)
-            Theta - angle between the horizontal axis and the body axis measured in the vertical plane [radians]
-            Cx_u - coefficient for the change in force in the X direction due to change in the forward velocity [dimensionless] (-2C_D)
-            Cx_alpha - coefficient for the change in force in the X direction due to the change in angle of attack caused by w [dimensionless] (C_L-dC_L/dalpha)
+    Source:
+        J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 26-41.
         
-        Outputs:
-            output - a data dictionary with fields:
-                short_w_n - natural frequency of the short period mode [radian/second]
-                short_zeta - damping ratio of the short period mode [dimensionless]
-                phugoid_w_n - natural frequency of the short period mode [radian/second]
-                phugoid_zeta - damping ratio of the short period mode [dimensionless]
-            
-        Assumptions:
-            X-Z axis is plane of symmetry
-            Constant mass of aircraft
-            Origin of axis system at c.g. of aircraft
-            Aircraft is a rigid body
-            Earth is inertial reference frame
-            Perturbations from equilibrium are small
-            Flow is Quasisteady
-            Zero initial conditions
-            Cm_a = CF_z_a = CF_x_a = 0
-            Neglect Cx_alpha_dot, Cx_q and Cm_u
-            
-        Source:
-            J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, p 26-41.
+    Inputs:
+        velocity - flight velocity at the condition being considered                                          [meters/seconds]
+        density - flight density at condition being considered                                                [kg/meters**3]
+        S_gross_w - area of the wing                                                                          [meters**2]
+        mac - mean aerodynamic chord of the wing                                                              [meters]
+        Cm_q - coefficient for the change in pitching moment due to pitch rate                                [dimensionless] (2 * K * dC_m/di * lt/c where K is approximately 1.1)
+        Cz_alpha - coefficient for the change in Z force due to the angle of attack                           [dimensionless] (-C_D - dC_L/dalpha)
+        mass - mass of the aircraft                                                                           [kilograms]
+        Cm_alpha - coefficient for the change in pitching moment due to angle of attack                       [dimensionless] (dC_m/dC_L * dCL/dalpha)
+        Iy - moment of interia about the body y axis                                                          [kg * meters**2]
+        Cm_alpha_dot - coefficient for the change in pitching moment due to rate of change of angle of attack [dimensionless] (2 * dC_m/di * depsilon/dalpha * lt/mac)
+        Cz_u - coefficient for the change in force in the Z direction due to change in forward velocity       [dimensionless] (usually -2 C_L or -2C_L - U dC_L/du)
+        Cz_alpha_dot - coefficient for the change of angle of attack caused by w_dot on the Z force           [dimensionless] (2 * dC_m/di * depsilon/dalpha)
+        Cz_q - coefficient for the change in Z force due to pitching velocity                                 [dimensionless] (2 * K * dC_m/di where K is approximately 1.1)
+        Cw - coefficient to account for gravity                                                               [dimensionless] (-C_L)
+        Theta - angle between the horizontal axis and the body axis measured in the vertical plane            [radians]
+        Cx_u - coefficient for the change in force in the X direction due to change in the forward velocity   [dimensionless] (-2C_D)
+        Cx_alpha - coefficient for the change in force in the X direction due to the change in angle of attack caused by w [dimensionless] (C_L-dC_L/dalpha)
+    
+    Outputs:
+        output - a data dictionary with fields:
+            short_w_n - natural frequency of the short period mode                                            [radian/second]
+            short_zeta - damping ratio of the short period mode                                               [dimensionless]
+            phugoid_w_n - natural frequency of the short period mode                                          [radian/second]
+            phugoid_zeta - damping ratio of the short period mode                                             [dimensionless]
+        
+    Properties Used:
+    N/A  
     """ 
 
     # constructing matrix of coefficients

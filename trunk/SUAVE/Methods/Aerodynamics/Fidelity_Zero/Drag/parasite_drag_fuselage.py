@@ -1,7 +1,8 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # parasite_drag_fuselage.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero    
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,24 +10,45 @@
 
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 from SUAVE.Attributes.Gases import Air # you should let the user pass this as input
+<<<<<<< HEAD
 from SUAVE.Core import Results
 import autograd.numpy as np 
+=======
+from SUAVE.Analyses import Results
+import numpy as np
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Fuselage
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def parasite_drag_fuselage(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_fuselage(conditions,configuration,fuselage)
-        computes the parasite drag associated with a fuselage 
-        
-        Inputs:
+    """Computes the parasite drag due to the fuselage
 
-        Outputs:
+    Assumptions:
+    Basic fit
 
-        Assumptions:
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        
+    Inputs:
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    settings.fuselage_parasite_drag_form_factor  [Unitless]
+    geometry.fuselage.       
+      areas.front_projected                      [m^2]
+      areas.wetted                               [m^2]
+      lengths.total                              [m]
+      effective_diameter                         [m]
+
+    Outputs:
+    fuselage_parasite_drag                       [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack inputs
@@ -39,10 +61,8 @@ def parasite_drag_fuselage(state,settings,geometry):
     Sref        = fuselage.areas.front_projected
     Swet        = fuselage.areas.wetted
     
-    l_fus  = fuselage.lengths.cabin
+    l_fus  = fuselage.lengths.total
     d_fus  = fuselage.effective_diameter
-    l_nose = fuselage.lengths.nose
-    l_tail = fuselage.lengths.tail
     
     # conditions
     Mc  = freestream.mach_number
@@ -50,7 +70,7 @@ def parasite_drag_fuselage(state,settings,geometry):
     re  = freestream.reynolds_number
 
     # reynolds number
-    Re_fus = re*(l_fus + l_nose + l_tail)
+    Re_fus = re*(l_fus)
     
     # skin friction coefficient
     cf_fus, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_fus,Mc,Tc)

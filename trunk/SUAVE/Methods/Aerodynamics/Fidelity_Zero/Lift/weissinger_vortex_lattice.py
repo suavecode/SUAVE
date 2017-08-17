@@ -1,7 +1,8 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # weissinger_vortex_lattice.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero
+# Modified: Apr 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,25 +15,46 @@ import autograd.numpy as np
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def weissinger_vortex_lattice(conditions,configuration,wing):
-    """ SUAVE.Methods.Aerodynamics.Pass_fidelity.vlm(conditions,configuration,geometry)
-        Vortex lattice method to compute the lift coefficient and induced drag component
+    """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 
-        Inputs:
-            wing - geometry dictionary with fields:
-                Sref - reference area
+    Assumptions:
+    None
 
-        Outputs:
+    Source:
+    Unknown
 
-        Assumptions:
-        
-    """
+    Inputs:
+    wing.
+      spans.projected                       [m]
+      chords.root                           [m]
+      chords.tip                            [m]
+      sweeps.quarter_chord                  [radians]
+      taper                                 [Unitless]
+      twists.root                           [radians]
+      twists.tip                            [radians]
+      symmetric                             [Boolean]
+      aspect_ratio                          [Unitless]
+      areas.reference                       [m^2]
+      vertical                              [Boolean]
+    configuration.number_panels_spanwise    [Unitless]
+    configuration.number_panels_chordwise   [Unitless]
+    conditions.aerodynamics.angle_of_attack [radians]
+
+    Outputs:
+    Cl                                      [Unitless]
+    Cd                                      [Unitless]
+
+    Properties Used:
+    N/A
+    """ 
 
     #unpack
     span        = wing.spans.projected
     root_chord  = wing.chords.root
     tip_chord   = wing.chords.tip
-    sweep       = wing.sweep
+    sweep       = wing.sweeps.quarter_chord
     taper       = wing.taper
     twist_rc    = wing.twists.root
     twist_tc    = wing.twists.tip
@@ -185,7 +207,7 @@ def whav(x1,y1,x2,y2):
             if needed
 
     """  
-    if x1==x2:
+    if np.isclose(x1,x2):
         whv=1/(y1-y2)
     else:  
         whv=1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))

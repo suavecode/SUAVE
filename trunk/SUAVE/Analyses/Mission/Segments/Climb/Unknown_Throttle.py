@@ -1,7 +1,9 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Unknown_Throttle.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2016, A. Wendorff
+#           Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,9 +25,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Unknown_Throttle(Aerodynamic):
+    """ This is a basic climb segment that is not callable by a user. All other variable throttle missions are based 
+        on this class as a building block.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
@@ -43,9 +72,8 @@ class Unknown_Throttle(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
+        self.state.unknowns.body_angle = ones_row(1) * 1.0 * Units.degrees
         self.state.residuals.forces    = ones_row(2) * 0.0
-        
         
         # --------------------------------------------------------------
         #   The Solving Process
@@ -55,7 +83,6 @@ class Unknown_Throttle(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -66,7 +93,6 @@ class Unknown_Throttle(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root        
         
@@ -74,7 +100,6 @@ class Unknown_Throttle(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -84,7 +109,8 @@ class Unknown_Throttle(Aerodynamic):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Climb.Common.unpack_unknowns  
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Climb.Common.unpack_unknowns  
         
         # Update Conditions
         iterate.conditions = Process()
@@ -110,7 +136,6 @@ class Unknown_Throttle(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         # Post Processing
         finalize.post_process = Process()        

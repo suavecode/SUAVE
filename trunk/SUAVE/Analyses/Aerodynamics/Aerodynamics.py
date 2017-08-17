@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Aerodynamics.py
 #
 # Created:  
@@ -6,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
 
 # default Aero Results
@@ -17,29 +18,111 @@ import autograd.numpy as np
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Aerodynamics(Analysis):
-    """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
+    """This is the base class for aerodynamics analyses. It contains functions
+    that are built into the default class.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
     """
     def __defaults__(self):
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """           
         self.tag    = 'aerodynamics'
         
         self.geometry = Data()
         self.settings = Data()
+        self.settings.maximum_lift_coefficient = np.inf
         
         
     def evaluate(self,state):
+        """The default evaluate function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        results   <Results class> (empty)
+
+        Properties Used:
+        N/A
+        """           
         
         results = Results()
         
         return results
     
     def finalize(self):
+        """The default finalize function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """         
         
         return     
     
     
     def compute_forces(self,conditions):
+        """The default function to compute forces.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        conditions.freestream.
+          dynamic_pressure       [Pa]
+        conditions.aerodynamics.
+          lift_coefficient       [-]
+          drag_coefficient       [-]
+
+        Outputs:
+        results.
+          lift_force_vector      [N]
+          drag_force_vector      [N]
+
+        Properties Used:
+        self.geometry.reference_area [m^2]
+        """          
         
         # unpack
         q    = conditions.freestream.dynamic_pressure

@@ -1,76 +1,121 @@
+## @ingroup Core
 # Container.py
 #
 # Created:  Jan 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
+#           Jun 2016, E. Botero
 
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------        
 
-from Data            import Data
-from Data_Exception  import Data_Exception
-from Data_Warning    import Data_Warning
-from warnings        import warn
+from Data     import Data
+from warnings import warn
 
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
 # ----------------------------------------------------------------------        
 
+## @ingroup Core
 class Container(Data):
-    """ SUAVE.Core.Container()
+    """ A dict-type container with attribute, item and index style access
+        intended to hold a attribute-accessible list of Data(). This is unordered.
         
-        a dict-type container with attribute, item and index style access
-        intended to hold a attribute-accessible list of Data()
-        no defaults are allowed
-    
+        Assumptions:
+        N/A
+        
+        Source:
+        N/A
+        
     """
+            
         
     def __defaults__(self):
+        """ Defaults function
+    
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            N/A
+        
+            Outputs:
+            N/A
+            
+            Properties Used:
+            N/A
+        """          
         pass
     
     def __init__(self,*args,**kwarg):
+        """ Initialization that builds the container
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+        
+            Outputs:
+            N/A
+            
+            Properties Used:
+            N/A
+        """          
         super(Container,self).__init__(*args,**kwarg)
         self.__defaults__()
     
     def append(self,val):
-        val = self.check_new_val(val)
+        """ Appends the value to the containers
+        
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+        
+            Outputs:
+            N/A
+            
+            Properties Used:
+            N/A
+        """           
+        
+        #val = self.check_new_val(val)
         Data.append(self,val)
         
     def extend(self,vals):
+        """ Append things regressively depending on what is inside.
+    
+            Assumptions:
+            None
+        
+            Source:
+            N/A
+        
+            Inputs:
+            self
+        
+            Outputs:
+            N/A
+            
+            Properties Used:
+            N/A
+        """         
         if isinstance(vals,(list,tuple)):
             for v in val: self.append(v)
         elif isinstance(vals,dict):
             self.update(vals)
         else:
-            raise Data_Exception, 'unrecognized data type'
-        
-    def check_new_val(self,val):
-        
-        # make sure val is a Data()
-        if not isinstance(val,Data): 
-            raise Data_Exception , 'val must be a Data() instance'        
-        
-        # make sure val has a tag
-        if not val.has_key('tag'): 
-            raise Data_Exception , 'val.tag must exist and be unique'
-        
-        # make sure tag is unique
-        ns = len(val.tag)
-        if self.has_key(val.tag):
-            #raise Data_Exception , 'val.tag=%s must exist and be unique'%val.tag
-            warn('\nval.tag should be unique',Data_Warning)
-            # add index to new val
-            keys = [k for k in self.iterkeys() if k[:(ns)] == val.tag]
-            val.tag = val.tag + '_%i' % (len(keys)+1)
-            # add index to existing val
-            if len(keys) == 1:
-                key_old = keys[0]
-                key_new = key_old + '_1'
-                self[key_old].tag = key_new
-                self[key_new] = self[key_old]
-                del self[key_old]
-            
-        return val
-        
+            raise Exception, 'unrecognized data type'

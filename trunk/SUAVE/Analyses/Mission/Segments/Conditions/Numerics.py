@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Conditions
 # Numerics.py
 #
 # Created:  
@@ -17,9 +18,35 @@ import autograd.numpy as np
 #  Numerics
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Conditions
 class Numerics(Conditions):
+    """ Creates the data structure for the numerical solving of a mission.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         self.tag = 'numerics'
         
         self.number_control_points = 16
@@ -27,7 +54,8 @@ class Numerics(Conditions):
         
         self.solver_jacobian                  = "none"
         self.tolerance_solution               = 1e-8
-        self.tolerance_boundary_conditions    = 1e-8        
+        self.tolerance_boundary_conditions    = 1e-8  
+        self.converged                        = None
         
         self.dimensionless = Conditions()
         self.dimensionless.control_points = np.empty([0,0])

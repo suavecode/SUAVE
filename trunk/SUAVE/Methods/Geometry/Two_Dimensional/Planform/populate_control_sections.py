@@ -48,7 +48,7 @@ def populate_control_sections(control_surface,span_fractions,chord_fractions,rel
     
     assert len(span_fractions) == len(chord_fractions) == len(relative_twists) , 'dimension array length mismatch'
 
-    sw   = wing.sweep
+    sw   = wing.sweeps.quarter_chord
     di   = wing.dihedral
     span = wing.spans.projected
     c_r  = wing.chords.root

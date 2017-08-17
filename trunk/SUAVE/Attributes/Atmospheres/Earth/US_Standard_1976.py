@@ -1,3 +1,4 @@
+## @ingroup Attributes-Atmospheres-Earth
 #US_Standard_1976.py
 
 # Created:  Mar, 2014, SUAVE Team
@@ -17,13 +18,35 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #  US_Standard_1976 Atmosphere Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Atmospheres-Earth
 class US_Standard_1976(Atmosphere):
+    """Contains US Standard 1976 values.
     
-    """ Implements the U.S. Standard Atmosphere (1976 version)
+    Assumptions:
+    None
+    
+    Source:
+    U.S. Standard Atmosphere (1976 version)
     """
     
     def __defaults__(self):
+        """This sets the default values at breaks in the atmosphere.
+
+        Assumptions:
+        None
+
+        Source:
+        U.S. Standard Atmosphere (1976 version)
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """          
         self.tag = ' U.S. Standard Atmosphere (1976)'
 
         # break point data: 
@@ -47,7 +70,13 @@ if __name__ == '__main__':
     
     atmosphere = US_Standard_1976()
     
-    p, T, rho, a, mew = atmosphere.compute_values(h)
+    atmo_data = atmosphere.compute_values(h)
+
+    p   = atmo_data.pressure          
+    T   = atmo_data.temperature       
+    rho = atmo_data.density          
+    a   = atmo_data.speed_of_sound    
+    mu  = atmo_data.dynamic_viscosity   
     
     plt.figure(1)
     plt.plot(p,h)

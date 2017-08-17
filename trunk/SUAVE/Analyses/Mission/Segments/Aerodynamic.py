@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments
 # Aerodynamic.py
 #
 # Created:  
@@ -15,17 +16,40 @@ from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
 
-# Units
-from SUAVE.Core import Units
-
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments
 class Aerodynamic(Simple):
+    """ Thethird basic piece of a mission which each segment will expand upon
+    
+        Assumptions:
+        There's a detailed process flow outline in defaults. A mission must be solved in that order.
+        Assumes you're an atmospheric vehicle.
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
@@ -41,7 +65,6 @@ class Aerodynamic(Simple):
         self.state.conditions.update( Conditions.Aerodynamics() )
         self.temperature_deviation = 0.0
         
-        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
@@ -50,7 +73,6 @@ class Aerodynamic(Simple):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -60,7 +82,6 @@ class Aerodynamic(Simple):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root        
         
@@ -68,8 +89,7 @@ class Aerodynamic(Simple):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
-                
+
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
@@ -78,7 +98,8 @@ class Aerodynamic(Simple):
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None  
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None  
         
         # Update Conditions
         iterate.conditions = Process()
@@ -102,7 +123,6 @@ class Aerodynamic(Simple):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         # Post Processing
         finalize.post_process = Process()        

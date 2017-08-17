@@ -4,27 +4,29 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import mission_B737
 
 import SUAVE
 from SUAVE.Core import Units
-
-from copy import deepcopy
 
 from time import time
 
 import pylab as plt
 
 #SUAVE.Analyses.Process.verbose = True
+import sys
+sys.path.append('../Vehicles')
+sys.path.append('../B737')
+from Boeing_737 import vehicle_setup, configs_setup
 
+import mission_B737
 # ----------------------------------------------------------------------
 #  Main
 # ----------------------------------------------------------------------
 
 def main():
     
-    vehicle  = mission_B737.vehicle_setup()
-    configs  = mission_B737.configs_setup(vehicle)
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
     analyses = mission_B737.analyses_setup(configs)
     mission  = mission_setup(configs,analyses)
     
@@ -38,7 +40,7 @@ def main():
     
     plot_results(results)
     
-    error = mission.target_landing_weight - results.conditions.weights.total_mass[-1,0]
+    error = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
     print 'landing weight error' , error
     assert error < 1.
     

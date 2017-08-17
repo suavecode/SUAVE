@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Ground
 # Common.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -16,14 +17,36 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Ground
 def unpack_unknowns(segment,state):
+    """ Unpacks the times and velocities from the solver to the mission
+    
+        Assumptions:
+        Overrides the velocities if they go to zero
+        
+        Inputs:
+            state.unknowns:
+                velocity_x         [meters/second]
+                time               [second]
+            segment.velocity_start [meters/second]
+            segment.velocity_start [meters/second]
+            
+        Outputs:
+            state.conditions:
+                frames.inertial.velocity_vector [meters/second]
+                frames.inertial.time            [second]
+
+        Properties Used:
+        N/A
+                                
+    """       
     
     # unpack unknowns
     unknowns   = state.unknowns
     velocity_x = unknowns.velocity_x
     time       = unknowns.time
     v0         = segment.velocity_start 
-    vf         = segment.velocity_end
+    vf         = segment.velocity_start 
     t_initial  = state.conditions.frames.inertial.time[0,0]
     t_nondim   = state.numerics.dimensionless.control_points    
     
@@ -44,34 +67,38 @@ def unpack_unknowns(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Ground
 def initialize_conditions(segment,state):
-    """ Segment.initialize_conditions(conditions,numerics,initials=None)
-        update the segment conditions
-        pin down as many condition variables as possible in this function
-        Inputs:
-            conditions - the conditions data dictionary, with initialized
-            zero arrays, with number of rows = 
-            segment.conditions.n_control_points
-            initials - a data dictionary with 1-row column arrays pulled from
-            the last row of the previous segment's conditions data, or none
-            if no previous segment
-        Outputs:
-            conditions - the conditions data dictionary, updated with the 
-                         values that can be precalculated
-        Assumptions:
-            --
-        Usage Notes:
-            may need to inspect segment (self) for user inputs
-            will be called before solving the segments free unknowns
-    """
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Checks to make sure non of the velocities are exactly zero
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.velocity_start             [meters]
+    segment.velocity_end               [meters]
+    segment.speed                      [meters/second]
+    segment.friction_coefficient       [unitless]
+    segment.ground_incline             [radians]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.ground.incline                   [radians]
+    conditions.ground.friction_coefficient      [unitless]
+    state.unknowns.velocity_x                   [meters/second]
+
+    Properties Used:
+    N/A
+    """   
 
     conditions = state.conditions
 
     # unpack inputs
     v0       = segment.velocity_start
     vf       = segment.velocity_end
-    conditions.ground.incline[:,0]              = segment.ground_incline
-    conditions.ground.friction_coefficient[:,0] = segment.friction_coefficient
     N        = len(conditions.frames.inertial.velocity_vector[:,0])
 
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
@@ -83,15 +110,37 @@ def initialize_conditions(segment,state):
     segment.velocity_end   = vf
 
     # pack conditions
+    state.unknowns.velocity_x                       = np.linspace(v0,vf,N)
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
-    state.unknowns.velocity_x            = np.linspace(v0,vf,N)
+    conditions.ground.incline[:,0]                  = segment.ground_incline
+    conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
     
 # ----------------------------------------------------------------------
 #  Compute Ground Forces
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Ground
 def compute_ground_forces(segment,state):
-    """ Compute the rolling friction on the aircraft """
+    """ Compute the rolling friction on the aircraft 
+    
+    Assumptions:
+    Does a force balance to calculate the load on the wheels using only lift. Uses only a single friction coefficient.
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions:
+        frames.inertial.gravity_force_vector       [meters/second^2]
+        ground.friction_coefficient                [unitless]
+        frames.wind.lift_force_vector              [newtons]
+
+    Outputs:
+    conditions.frames.inertial.ground_force_vector [newtons]
+
+    Properties Used:
+    N/A
+    """   
 
     # unpack
     conditions             = state.conditions
@@ -117,7 +166,27 @@ def compute_ground_forces(segment,state):
 #  Compute Forces
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Ground
 def compute_forces(segment,state):
+    """ Adds the rolling friction to the traditional 4 forces of flight
+    
+    Assumptions:
+    
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions:
+        frames.inertial.total_force_vector  [newtons]
+        frames.inertial.ground_force_vector [newtons]
+
+    Outputs:
+    frames.inertial.ground_force_vector     [newtons]
+
+    Properties Used:
+    N/A
+    """       
 
 
     SUAVE.Methods.Missions.Segments.Common.Frames.update_forces(segment,state)
@@ -131,25 +200,43 @@ def compute_forces(segment,state):
     F = total_aero_forces + inertial_ground_force_vector
 
     # pack
-    conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
+    frames.inertial.ground_force_vector[:,:] = F[:,:]
 
 # ----------------------------------------------------------------------
 #  Solve Residual
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Ground
 def solve_residuals(segment,state):
-    """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
-        the hard work, solves the residuals for the free unknowns
-        called once per segment solver iteration
-    """
+    """ Calculates a residual based on forces
+    
+        Assumptions:
+        
+        Inputs:
+            state.conditions:
+                frames.inertial.total_force_vector [Newtons]
+                frames.inertial.velocity_vector    [meters/second]
+                weights.total_mass                 [kg]
+            state.numerics.time.differentiate      [vector]
+            segment.velocity_end                   [meters/second]
+            
+        Outputs:
+            state:
+                residuals.acceleration_x           [meters/second^2]
+                residuals.final_velocity_error     [meters/second]
+
+        Properties Used:
+        N/A
+                                
+    """   
 
     # unpack inputs
     conditions = state.conditions
     FT = conditions.frames.inertial.total_force_vector
-    vf = segment.velocity_end
     v  = conditions.frames.inertial.velocity_vector
-    D  = state.numerics.time.differentiate
     m  = conditions.weights.total_mass
+    D  = state.numerics.time.differentiate
+    vf = segment.velocity_end
 
     # process and pack
     acceleration = np.dot(D , v)
@@ -157,43 +244,3 @@ def solve_residuals(segment,state):
 
     state.residuals.final_velocity_error = (v[-1,0] - vf)
     state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
-
-# ------------------------------------------------------------------
-#   Methods For Post-Solver
-# ------------------------------------------------------------------    
-
-def post_process(segment,state):
-    """ Segment.post_process(conditions,numerics,unknowns)
-        post processes the conditions after converging the segment solver.
-        Packs up the final position vector to allow estimation of the ground
-        roll distance (e.g., distance from brake release to rotation speed in
-        takeoff, or distance from touchdown to full stop on landing).
-        Inputs - 
-            unknowns - data dictionary of converged segment free unknowns with
-            fields:
-                states, controls, finals
-                    these are defined in segment.__defaults__
-            conditions - data dictionary of segment conditions
-                    these are defined in segment.__defaults__
-            numerics - data dictionary of the converged differential operators
-        Outputs - 
-            conditions - data dictionary with remaining fields filled with post-
-            processed conditions. Updated fields are:
-            conditions.frames.inertial.position_vector  (x-position update)
-        Usage Notes - 
-            Use this to store the unknowns and any other interesting in 
-            conditions for later plotting. For clarity and style, be sure to 
-            define any new fields in segment.__defaults__
-    """
-
-    # unpack inputs
-    conditions = state.conditions
-    ground_velocity  = conditions.frames.inertial.velocity_vector
-    I                = state.numerics.time.integrate
-    initial_position = conditions.frames.inertial.position_vector[0,:]
-
-    # process
-    position_vector = initial_position + np.dot( I , ground_velocity)
-
-    # pack outputs
-    conditions.frames.inertial.position_vector = position_vector

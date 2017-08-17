@@ -13,33 +13,52 @@ import autograd.numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 def wing_planform(wing):
-    """ err = SUAVE.Methods.Geometry.wing_planform(Wing)
-    
-        basic wing planform calculation
+    """Computes standard wing planform values.
+
+    Assumptions:
+    Trapezoidal wing with no leading/trailing edge extensions
+
+    Source:
+    None
+
+    Inputs:
+    wing.
+      areas.reference          [m^2]
+      taper                    [-]
+      sweeps.quarter_chord     [radians]
+      aspect_ratio             [-]
+      thickness_to_chord       [-]
+      dihedral                 [radians]
+      vertical                 <boolean> Determines if wing is vertical
+      symmetric                <boolean> Determines if wing is symmetric
+      origin                   [m]       x, y, and z position
+      high_lift                <boolean> Determines if wing is in a high lift configuration
+      flaps.                             Flap values are only used if high lift is True
+        span_start             [-]       Span start position (.1 is 10% span)
+        span_end               [-]       Span end position (.1 is 10% span)
+        chord                  [-]       Portion of wing chord used (.1 is 10% chord)
+
+    Outputs:
+    wing.
+      chords.root              [m]
+      chords.tip               [m]
+      chords.mean_aerodynamics [m]
+      areas.wetted             [m^2]
+      areas.affected           [m^2]
+      spans.projected          [m]
+      aerodynamic_center       [m]      x, y, and z location
+      flaps.chord_dimensional  [m]
+      flaps.area               [m^2]
         
-        Assumptions:
-            trapezoidal wing
-            no leading/trailing edge extensions
-            
-        Inputs:
-            Wing.sref
-            Wing.ar
-            Wing.taper
-            Wing.sweep
-            
-        Outputs:
-            Wing.chord_root
-            Wing.chord_tip
-            Wing.chord_mac
-            Wing.area_wetted
-            Wing.span
-        
-    """
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack
     sref        = wing.areas.reference
     taper       = wing.taper
-    sweep       = wing.sweep
+    sweep       = wing.sweeps.quarter_chord
     ar          = wing.aspect_ratio
     t_c_w       = wing.thickness_to_chord
     dihedral    = wing.dihedral 
@@ -73,7 +92,8 @@ def wing_planform(wing):
         y_coord = 0    
         
     # Computing flap geometry
-    if wing.flaps.chord:     
+    affected_area = 0.
+    if wing.high_lift:
         flap = wing.flaps
         #compute wing chords at flap start and end
         delta_chord = chord_tip - chord_root
@@ -87,15 +107,16 @@ def wing_planform(wing):
         flap.chord_dimensional = wing_mac_flap * flap.chord
         flap_chord_start = wing_chord_flap_start * flap.chord
         flap_chord_end   = wing_chord_flap_end * flap.chord
-        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.            
-    
+        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.    
+        affected_area    = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
+        
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
     wing.areas.wetted               = swet
+    wing.areas.affected             = affected_area
     wing.spans.projected            = span
-
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     
     return wing
@@ -113,10 +134,10 @@ if __name__ == '__main__':
     #imports
     wing = Wing()
     
-    wing.areas.reference        = 10.
+    wing.areas.reference        =  10.
     wing.taper                  =  0.50
-    wing.sweep                  =  45.  * Units.deg
-    wing.aspect_ratio           = 10.
+    wing.sweeps.quarter_chord   =  45.  * Units.deg
+    wing.aspect_ratio           =  10.
     wing.thickness_to_chord     =  0.13
     wing.dihedral               =  45.  * Units.deg
     wing.vertical               =  1

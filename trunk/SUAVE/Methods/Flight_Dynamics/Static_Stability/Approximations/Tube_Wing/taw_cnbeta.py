@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_Wing
 # taw_cnbeta.py
 #
 # Created:  Mar 2014, T. Momose
@@ -21,100 +22,101 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 # ----------------------------------------------------------------------
 #  Method
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_Wing
 def taw_cnbeta(geometry,conditions,configuration):
-    """ CnBeta = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cnbeta(configuration,conditions)
-        This method computes the static directional stability derivative for a
-        standard Tube-and-Wing aircraft configuration.        
-        
-        CAUTION: The correlations used in this method do not account for the
-        destabilizing moments due to propellers. This can lead to higher-than-
-        expected values of CnBeta, particularly for smaller prop-driven aircraft
-        
-        Inputs:
-            geometry - aircraft geometrical features: a data dictionary with the fields:
-                wings['Main Wing'] - the aircraft's main wing
-                    areas.reference - wing reference area [meters**2]
-                    spans.projected - span of the wing [meters]
-                    sweep - sweep of the wing leading edge [radians]
-                    aspect_ratio - wing aspect ratio [dimensionless]
-                    origin - the position of the wing root in the aircraft body frame [meters]
-                wings['Vertical Stabilizer']
-                    spans.projected - projected span (height for a vertical tail) of
-                     the exposed surface [meters]
-                    areas.reference - area of the reference vertical tail [meters**2]
-                    sweep - leading edge sweep of the aerodynamic surface [radians]
-                    chords.root - chord length at the junction between the tail and 
-                     the fuselage [meters]
-                    chords.tip - chord length at the tip of the aerodynamic surface
-                    [meters]
-                    symmetric - Is the wing symmetric across the fuselage centerline?
-                    origin - the position of the vertical tail root in the aircraft body frame [meters]
-                    exposed_root_chord_offset - the displacement from the fuselage
-                     centerline to the exposed area's physical root chordline [meters]
+    """ This method computes the static directional stability derivative for a
+    standard Tube-and-Wing aircraft configuration.        
+
+    CAUTION: The correlations used in this method do not account for the
+    destabilizing moments due to propellers. This can lead to higher-than-
+    expected values of CnBeta, particularly for smaller prop-driven aircraft
+
+    Assumptions:
+        -Assumes a tube-and-wing configuration with a single centered 
+        vertical tail
+        -Uses vertical tail effective aspect ratio, currently calculated by
+        hand, using methods from USAF Stability and Control DATCOM
+        -The validity of correlations for KN is questionable for sqrt(h1/h2)
+        greater than about 4 or h_max/w_max outside [0.3,2].
+        -This method assumes a small angle of attack, so the vertical tail AC
+        z-position does not affect the sideslip derivative.
     
-                fuselages.Fuselage - a data dictionary with the fields:
-                    areas.side_projected - fuselage body side area [meters**2]
-                    lengths.total - length of the fuselage [meters]
-                    heights.maximum - maximum height of the fuselage [meters]
-                    width - maximum width of the fuselage [meters]
-                    heights.at_quarter_length - fuselage height at 1/4 of the fuselage length [meters]
-                    heights.at_three_quarters_length - fuselage height at 3/4 of fuselage 
-                     length [meters]
-                    heights.at_vertical_root_quarter_chord - fuselage height at the quarter 
-                     chord of the vertical tail root [meters]
-                vertical - a data dictionary with the fields below:
-                NOTE: This vertical tail geometry will be used to define a reference
-                 vertical tail that extends to the fuselage centerline.
-                    
-                    x_ac_LE - the x-coordinate of the vertical tail aerodynamic 
-                    center measured relative to the tail root leading edge (root
-                    of reference tail area - at fuselage centerline)
-                    leading edge, relative to the nose [meters]
-                    sweep_le - leading edge sweep of the vertical tail [radians]
-                    span - height of the vertical tail [meters]
-                    taper - vertical tail taper ratio [dimensionless]
-                    aspect_ratio - vertical tail AR: bv/(Sv)^2 [dimensionless]
-                    effective_aspect_ratio - effective aspect ratio considering
-                    the effects of fuselage and horizontal tail [dimensionless]
-                    symmetric - indicates whether the vertical panel is symmetric
-                    about the fuselage centerline [Boolean]
-                other_bodies - an list of data dictionaries containing bodies 
-                such as nacelles if these are large enough to strongly influence
-                stability. Each body data dictionary contains the same fields as
-                the fuselage data dictionary (described above), except no value 
-                is needed for 'height_at_vroot_quarter_chord'. CAN BE EMPTY LIST
-                    x_front - This is the only new field needed: the x-coordinate 
-                    of the nose of the body relative to the fuselage nose
-                    
-            conditions - a data dictionary with the fields:
-                v_inf - true airspeed [meters/second]
-                M - flight Mach number
-                rho - air density [kg/meters**3]
-                mew - air dynamic dynamic_viscosity [kg/meter/second]
-                
-            configuration - a data dictionary with the fields:
-                mass_properties - a data dictionary with the field:
-                    center_of_gravity - A vector in 3-space indicating CG position [meters]
-                other - a dictionary of aerodynamic bodies, other than the fuselage,
-                whose effect on directional stability is to be included in the analysis
+    Source:
+        Correlations are taken from Roskam's Airplane Design, Part VI.
     
-        Outputs:
-            CnBeta - a single float value: The static directional stability 
-            derivative
-                
-        Assumptions:
-            -Assumes a tube-and-wing configuration with a single centered 
-            vertical tail
-            -Uses vertical tail effective aspect ratio, currently calculated by
-            hand, using methods from USAF Stability and Control DATCOM
-            -The validity of correlations for KN is questionable for sqrt(h1/h2)
-            greater than about 4 or h_max/w_max outside [0.3,2].
-            -This method assumes a small angle of attack, so the vertical tail AC
-            z-position does not affect the sideslip derivative.
-        
-        Correlations:
-            -Correlations are taken from Roskam's Airplane Design, Part VI.
+    Inputs:
+        geometry - aircraft geometrical features: a data dictionary with the fields:
+            wings                                                                         ['Main Wing'] - the aircraft's main wing
+                areas.reference - wing reference area                                     [meters**2]
+                spans.projected - span of the wing                                        [meters]
+                sweep - sweep of the wing leading edge                                    [radians]
+                aspect_ratio - wing aspect ratio                                          [dimensionless]
+                origin - the position of the wing root in the aircraft body frame         [meters]
+            wings                                                                         ['Vertical Stabilizer']
+                spans.projected - projected span (height for a vertical tail) of
+                 the exposed surface                                                      [meters]
+                areas.reference - area of the reference vertical tail                     [meters**2]
+                sweep - leading edge sweep of the aerodynamic surface                     [radians]
+                chords.root - chord length at the junction between the tail and 
+                 the fuselage                                                             [meters]
+                chords.tip - chord length at the tip of the aerodynamic surface           [meters]
+                symmetric - Is the wing symmetric across the fuselage centerline?
+                origin - the position of the vertical tail root in the aircraft body frame[meters]
+                exposed_root_chord_offset - the displacement from the fuselage
+                 centerline to the exposed area's physical root chordline                 [meters]
+
+            fuselages.Fuselage - a data dictionary with the fields:
+                areas.side_projected - fuselage body side area                            [meters**2]
+                lengths.total - length of the fuselage                                    [meters]
+                heights.maximum - maximum height of the fuselage                          [meters]
+                width - maximum width of the fuselage                                     [meters]
+                heights.at_quarter_length - fuselage height at 1/4 of the fuselage length [meters]
+                heights.at_three_quarters_length - fuselage height at 3/4 of fuselage 
+                 length                                                                   [meters]
+                heights.at_vertical_root_quarter_chord - fuselage height at the quarter 
+                 chord of the vertical tail root                                          [meters]
+            vertical - a data dictionary with the fields below:
+            NOTE: This vertical tail geometry will be used to define a reference
+             vertical tail that extends to the fuselage centerline.
+
+                x_ac_LE - the x-coordinate of the vertical tail aerodynamic 
+                center measured relative to the tail root leading edge (root
+                of reference tail area - at fuselage centerline)
+                leading edge, relative to the nose                                        [meters]
+                sweep_le - leading edge sweep of the vertical tail                        [radians]
+                span - height of the vertical tail                                        [meters]
+                taper - vertical tail taper ratio                                         [dimensionless]
+                aspect_ratio - vertical tail AR: bv/(Sv)^2                                [dimensionless]
+                effective_aspect_ratio - effective aspect ratio considering
+                the effects of fuselage and horizontal tail                               [dimensionless]
+                symmetric - indicates whether the vertical panel is symmetric
+                about the fuselage centerline                                             [Boolean]
+            other_bodies - an list of data dictionaries containing bodies 
+            such as nacelles if these are large enough to strongly influence
+            stability. Each body data dictionary contains the same fields as
+            the fuselage data dictionary (described above), except no value 
+            is needed for 'height_at_vroot_quarter_chord'. CAN BE EMPTY LIST
+                x_front - This is the only new field needed: the x-coordinate 
+                of the nose of the body relative to the fuselage nose
+
+        conditions - a data dictionary with the fields:
+            v_inf - true airspeed                                                         [meters/second]
+            M - flight Mach number
+            rho - air density                                                             [kg/meters**3]
+            mew - air dynamic dynamic_viscosity                                           [kg/meter/second]
+
+        configuration - a data dictionary with the fields:
+            mass_properties - a data dictionary with the field:
+                center_of_gravity - A vector in 3-space indicating CG position            [meters]
+            other - a dictionary of aerodynamic bodies, other than the fuselage,
+            whose effect on directional stability is to be included in the analysis
+
+    Outputs:
+        CnBeta - a single float value: The static directional stability 
+        derivative
+
+    Properties Used:
+        N/A  
     """         
 
     try:
@@ -126,7 +128,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     # Unpack inputs
     S      = geometry.wings['main_wing'].areas.reference
     b      = geometry.wings['main_wing'].spans.projected
-    sweep  = geometry.wings['main_wing'].sweep
+    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
     z_w    = geometry.wings['main_wing'].origin[2]
     S_bs   = geometry.fuselages['fuselage'].areas.side_projected
@@ -138,9 +140,9 @@ def taw_cnbeta(geometry,conditions,configuration):
     d_i    = geometry.fuselages['fuselage'].heights.at_wing_root_quarter_chord
     other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
-    S_v    = vert.areas.reference
-    x_v    = vert.origin[0]
-    b_v    = vert.spans.projected
+    S_v    = vert.extended.areas.reference
+    x_v    = vert.extended.origin[0]
+    b_v    = vert.extended.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
     x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity

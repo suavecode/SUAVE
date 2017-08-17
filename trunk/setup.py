@@ -1,7 +1,7 @@
 # setup.py
 # 
-# Created:  Trent L., Dec 2013
-# Modified:         
+# Created:  Dec 2013, T. Lukaczyk 
+# Modified: Jan 2017, E. Botero
 
 """ SUAVE setup script
 """
@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version = '1.0.0'
-    date = 'December 18, 2013'
+    version     = '1.0.0'
+    date        = 'August 15, 2017'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -61,7 +61,7 @@ def install(the_package,version,date):
         url = 'suave.stanford.edu',
         packages = packages,
         include_package_data = True,
-        license = 'CC BY-NC-SA 4.0',
+        license = 'LGPL-2.1',
         platforms = ['Win, Linux, Unix, Mac OS-X'],
         zip_safe  = False,
         long_description = read('../README.md')

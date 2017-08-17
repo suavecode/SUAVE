@@ -1,34 +1,51 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_pylon.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 from SUAVE.Core import Results
 import autograd.numpy as np 
+=======
+from SUAVE.Analyses import Results
+import numpy as np
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Parasite Total
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_total(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_pylon(conditions,configuration,geometry):
-        Simplified estimation, considering pylon drag a fraction of the nacelle drag
+    """Sums component parasite drag
 
-        Inputs:
-            conditions      - data dictionary for output dump
-            configuration   - not in use
-            geometry        - SUave type vehicle
+    Assumptions:
+    None
 
-        Outpus:
-            cd_misc  - returns the miscellaneous drag associated with the vehicle
+    Source:
+    None
 
-        Assumptions:
-            simplified estimation, considering pylon drag a fraction of the nacelle drag
+    Inputs:
+    geometry.reference_area                             [m^2]
+    geometry.wings.areas.reference                      [m^2]
+    geometry.fuselages.areas.front_projected            [m^2]
+    geometry.propulsors.number_of_engines               [Unitless]
+    conditions.aerodynamics.drag_breakdown.
+      parasite[wing.tag].parasite_drag_coefficient      [Unitless]
+      parasite[fuselage.tag].parasite_drag_coefficient  [Unitless]
+      parasite[propulsor.tag].parasite_drag_coefficient [Unitless]
 
+
+    Outputs:
+    total_parasite_drag                                 [Unitless]
+
+    Properties Used:
+    N/A
     """
 
     # unpack
@@ -60,6 +77,9 @@ def parasite_total(state,settings,geometry):
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
         total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
+
+    # from pylons
+    # not currently available for supersonics
 
     # dump to condtitions
     state.conditions.aerodynamics.drag_breakdown.parasite.total = total_parasite_drag

@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Correlations
 # shevell.py
 # 
 # Created:  Jul 2014, A. Wendorff
@@ -14,7 +15,34 @@ from SUAVE.Core import Units, Data
 #   Shevell Method
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Correlations
 def shevell(weight_landing, number_of_engines, thrust_sea_level, thrust_landing):
+    """ This uses correlations from Shevell, also used in AA241A/B, to calculate the sources for noise
+
+    Assumptions:
+    None
+
+    Source:
+    Stanford AA 241A/B Notes
+
+    Inputs:
+    weight_landing     [newtons]
+    number_of_engines  [int]
+    thrust_sea_level   [newtons]
+    thrust_landing     [newtons]
+    
+    Outputs:
+    output.
+        takeoff        [float]
+        side_line      [float]
+        landing        [float]
+
+    Properties Used:
+    baseline noise = 101.
+    various tuned correlations
+    """         
+    
+    
 
     #process
     baseline_noise    = 101. 

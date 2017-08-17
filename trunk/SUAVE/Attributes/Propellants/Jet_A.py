@@ -1,3 +1,4 @@
+## @ingroup Attributes-Propellants
 #Jet A
 #
 # Created:  Unk 2013, SUAVE TEAM
@@ -12,13 +13,35 @@ from Propellant import Propellant
 # ----------------------------------------------------------------------
 #  Jet_A Propellant Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Propellants
 class Jet_A(Propellant):
-
-    """ Physical properties of Jet A; reactant = O2 """
+    """Holds values for this propellant
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
 
     def __defaults__(self):
+        """This sets the default values.
 
+        Assumptions:
+        None
+
+        Source:
+        Values commonly available
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """    
         self.tag                       = 'Jet_A'
         self.reactant                  = 'O2'
         self.density                   = 820.0                          # kg/m^3 (15 C, 1 atm)

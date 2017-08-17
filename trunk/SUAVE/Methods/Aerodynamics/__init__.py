@@ -1,3 +1,9 @@
+## @defgroup Methods-Aerodynamics Aerodynamics
+# Aerodynamic methods contain the functions for the aerodynamic analyses.
+# @ingroup Methods
+
 import AVL
-import Supersonic_Zero
+import AERODAS
 import Fidelity_Zero
+import Supersonic_Zero
+import SU2_Euler

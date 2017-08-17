@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Compression_Nozzle.py
 #
 # Created:  Jul 2014, A. Variyar
@@ -19,17 +20,37 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Compression Nozzle Component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Compression_Nozzle(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
-        a nozzle component
-        
-        this class is callable, see self.__call__
-        
-        """
+    """This is a nozzle component intended for use in compression.
+    Calling this class calls the compute function.
+    
+    Assumptions:
+    Pressure ratio and efficiency do not change with varying conditions.
+    Subsonic or choked output.
+    
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """
     
     def __defaults__(self):
-        
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """                
         #setting the default values 
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
@@ -42,7 +63,40 @@ class Compression_Nozzle(Energy_Component):
     
 
     def compute(self,conditions):
-        
+        """ This computes the output values from the input values according to
+        equations from the source.
+
+        Assumptions:
+        Constant polytropic efficiency and pressure ratio
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        conditions.freestream.
+          isentropic_expansion_factor         [-]
+          specific_heat_at_constant_pressure  [J/(kg K)]
+          pressure                            [Pa]
+          universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+        self.inputs.
+          stagnation_temperature              [K]
+          stagnation_pressure                 [Pa]
+
+        Outputs:
+        self.outputs.
+          stagnation_temperature              [K]  
+          stagnation_pressure                 [Pa]
+          stagnation_enthalpy                 [J/kg]
+          mach_number                         [-]
+          static_temperature                  [K]
+          static_enthalpy                     [J/kg]
+          velocity                            [m/s]
+
+        Properties Used:
+        self.
+          pressure_ratio                      [-]
+          polytropic_efficiency               [-]
+        """           
         #unpack the values
         
         #unpack from conditions

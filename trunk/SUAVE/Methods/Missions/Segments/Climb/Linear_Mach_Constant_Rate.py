@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Linear_Mach_Constant_Rate.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -14,10 +15,35 @@ import SUAVE
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Climb
 def initialize_conditions(segment,state):
     
+    """Sets the specified conditions which are given for the segment type.
+    
+    Assumptions:
+    Linearly changing mach number, with a constant rate of climb
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_rate                          [meters/second]
+    segment.mach_start                          [Unitless]
+    segment.mach_end                            [Unitless]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """          
+    
     # unpack
-    # unpack user inputs
     climb_rate = segment.climb_rate
     Mo         = segment.mach_start
     Mf         = segment.mach_end

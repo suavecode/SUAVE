@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Cruise
 # Constant_Speed_Constant_Altitude.py
 #
 # Created:  
@@ -23,9 +24,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Speed_Constant_Altitude(Aerodynamic):
+    """ The CLASSIC! Fixed true airspeed and altitude and a set distance.
+        Most other cruise segments are built off this segment. The most simple segment you can fly.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """         
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs
@@ -45,7 +73,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
+        self.state.unknowns.body_angle = ones_row(1) * 1.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         
@@ -57,7 +85,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -67,7 +94,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root        
 
@@ -75,7 +101,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
@@ -84,9 +109,9 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
-        
         # Unpack Unknowns
-        iterate.unpack_unknowns            = Methods.Cruise.Common.unpack_unknowns
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = Methods.Cruise.Common.unpack_unknowns
         
         # Update Conditions
         iterate.conditions = Process()
@@ -111,13 +136,11 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         # Post Processing
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
         
-
         return
 

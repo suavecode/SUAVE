@@ -1,3 +1,4 @@
+## @ingroup Components-Wings-Airfoils
 # load_airfoils.py
 # 
 # Created:  
@@ -7,7 +8,25 @@ import os, glob
 from Airfoil import Airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import import_airfoil_dat
 
+## @ingroup Components-Wings-Airfoils
 def load_airfoils(directory,extension='.dat'):
+    """ Loads airfoil cooridinate points from .dat file
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """     
     
     pattern = '*' + extension
     

@@ -1,23 +1,34 @@
+<<<<<<< HEAD
 import autograd
 import autograd.numpy as np 
+=======
+## @ingroup Methods-Geometry-Three_Dimensional
+import numpy as np
+>>>>>>> develop
 from numpy import cos, sin
 from orientation_product import orientation_product
 
+## @ingroup Methods-Geometry-Three_Dimensional
 def angles_to_dcms(rotations,sequence=(2,1,0)):
-    """ transform = angles_to_dcms([r1s,r2s,r3s],seq)
-        builds euler angle rotation matrix
+    """Builds an euler angle rotation matrix
     
-        Inputs:
-            rotations = [r1s r2s r3s], column array of rotations
-            sequence = (2,1,0) (default)
-                       (2,1,2)
-                       etc...
-                       a combination of three column indeces
-        Outputs:
-            transform = 3-dimensional array with direction cosine matricies
-                        patterned along dimension zero
-    """
-    
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    rotations     [radians]  [r1s r2s r3s], column array of rotations
+    sequence      [-]        (2,1,0) (default), (2,1,2), etc.. a combination of three column indices
+
+    Outputs:
+    transform     [-]        3-dimensional array with direction cosine matrices
+                             patterned along dimension zero
+
+    Properties Used:
+    N/A
+    """         
     # transform map
     Ts = { 0:T0, 1:T1, 2:T2 }
     
@@ -32,8 +43,25 @@ def angles_to_dcms(rotations,sequence=(2,1,0)):
     # done!
     return transform
   
+## @ingroup Methods-Geometry-Three_Dimensional
 def T0(a):
+    """Rotation matrix about first axis
     
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a        [radians] angle of rotation
+
+    Outputs:
+    T        [-]       rotation matrix
+
+    Properties Used:
+    N/A
+    """      
     # T = np.array([[1,   0,  0],
     #               [0, cos,sin],
     #               [0,-sin,cos]])
@@ -59,9 +87,25 @@ def T0(a):
     
     return T
         
-
+## @ingroup Methods-Geometry-Three_Dimensional
 def T1(a):
+    """Rotation matrix about second axis
     
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a        [radians] angle of rotation
+
+    Outputs:
+    T        [-]       rotation matrix
+
+    Properties Used:
+    N/A
+    """      
     # T = np.array([[cos,0,-sin],
     #               [0  ,1,   0],
     #               [sin,0, cos]])
@@ -85,8 +129,25 @@ def T1(a):
     
     return T
 
+## @ingroup Methods-Geometry-Three_Dimensional
 def T2(a):
+    """Rotation matrix about third axis
     
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a        [radians] angle of rotation
+
+    Outputs:
+    T        [-]       rotation matrix
+
+    Properties Used:
+    N/A
+    """      
     # T = np.array([[cos ,sin,0],
     #               [-sin,cos,0],
     #               [0   ,0  ,1]])
@@ -111,8 +172,26 @@ def T2(a):
         
     return T
 
+## @ingroup Methods-Geometry-Three_Dimensional
 def new_tensor(a):
+    """Initializes the required tensor. Able to handle imaginary values.
     
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a        [radians] angle of rotation
+
+    Outputs:
+    T        [-]       3-dimensional array with identity matrix
+                       patterned along dimension zero
+
+    Properties Used:
+    N/A
+    """      
     assert np.rank(a) == 1
     n_a = len(a)
     

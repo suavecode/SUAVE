@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # compute_max_lift_coeff.py
 #
 # Created:  Dec 2013, A. Variyar
@@ -21,33 +22,42 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import comp
 #  compute_max_lift_coeff
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def compute_max_lift_coeff(vehicle,conditions=None):
-    """ SUAVE.Methods.Aerodynamics.compute_max_lift_coeff(vehicle):
-        Computes the maximum lift coefficient associated with an aircraft high lift system
+    """Computes the maximum lift coefficient associated with an aircraft high lift system
 
-        Inputs:
-            vehicle - SUave type vehicle
+    Assumptions:
+    None
 
-            conditions - data dictionary with fields:
-                mach_number - float or 1D array of freestream mach numbers
-                airspeed    - float or 1D array of freestream airspeed
-                rho         - air density
-                mu          - air dynamic_viscosity
+    Source:
+    Unknown
 
+    Inputs:
+    vehicle.max_lift_coefficient_factor [Unitless]
+    vehicle.reference_area              [m^2]
+    vehicle.wings. 
+      areas.reference                   [m^2]
+      thickness_to_chord                [Unitless]
+      chords.mean_aerodynamic           [m]
+      sweeps.quarter_chord              [radians]
+      taper                             [Unitless]
+      flaps.chord                       [m]
+      flaps.angle                       [radians]
+      slats.angle                       [radians]
+      areas.affected                    [m^2]
+      flaps.type                        [string]
+    conditions.freestream.
+      velocity                          [m/s]
+      density                           [kg/m^3]
+      dynamic_viscosity                 [N s/m^2]
 
+    Outputs:
+    Cl_max_ls (maximum CL)              [Unitless]
+    Cd_ind    (induced drag)            [Unitless]
 
-            geometry - Not used
-
-
-        Outputs:
-            Cl_max_ls - maximum lift coefficient
-            Cd_ind    - induced drag increment due to high lift device
-
-
-        Assumptions:
-            if needed
-
-    """
+    Properties Used:
+    N/A
+    """    
 
 
     # initializing Cl and CDi
@@ -64,7 +74,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Swing      = wing.areas.reference
         tc         = wing.thickness_to_chord * 100
         chord_mac  = wing.chords.mean_aerodynamic
-        sweep      = wing.sweep  # convert into degrees
+        sweep      = wing.sweeps.quarter_chord # convert into degrees
         taper      = wing.taper
         flap_chord = wing.flaps.chord
         flap_angle = wing.flaps.angle
@@ -135,7 +145,7 @@ if __name__ == '__main__':
     wing.tag = 'Main Wing'
 
     wing.areas.reference         = vehicle.reference_area
-    wing.sweep                   = 22. * Units.deg
+    wing.sweeps.quarter_chord    = 22. * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
@@ -160,7 +170,7 @@ if __name__ == '__main__':
     wing.tag = 'Horizontal Stabilizer'
 
     wing.areas.reference         = 26.
-    wing.sweep                   = 34.5 * Units.deg
+    wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.11
     wing.chords.mean_aerodynamic = 2.
@@ -175,7 +185,7 @@ if __name__ == '__main__':
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'Vertical Stabilizer'
     wing.areas.reference         = 16.0
-    wing.sweep                   = 35. * Units.deg
+    wing.sweeps.quarter_chord    = 35. * Units.deg
     wing.symmetric               = False
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.10

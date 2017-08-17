@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Engine
 # angle_of_attack_effect.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -13,6 +14,7 @@ import autograd.numpy as np
 #   Angle of Attack Effect
 # ---------------------------------------------------------------------- 
 
+## @ingroupMethods-Noise-Fidelity_One-Engine
 def angle_of_attack_effect (AOA,Mach_aircraft,theta_m):
     """This function calculates the angle of attack effect, in decibels, to be added to the predicted mixed jet noise level."""
 

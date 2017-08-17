@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments
 # Simple.py
 #
 # Created:  
@@ -14,14 +15,39 @@ from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments
 class Simple(Segment):
+    """ The Second basic piece of a mission which each segment will expand upon
+    
+        Assumptions:
+        There's a detailed process flow outline in defaults. A mission must be solved in that order.
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """        
         
         
         # --------------------------------------------------------------
@@ -31,7 +57,6 @@ class Simple(Segment):
         # conditions
         self.state.conditions.update( Conditions.Basic() )
         
-        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
@@ -40,7 +65,6 @@ class Simple(Segment):
         #   Initialize - before iteration
         # --------------------------------------------------------------
         initialize = self.process.initialize
-        initialize.clear()
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
@@ -50,7 +74,6 @@ class Simple(Segment):
         #   Converge - starts iteration
         # --------------------------------------------------------------
         converge = self.process.converge
-        converge.clear()
         
         converge.converge_root             = Methods.converge_root
 
@@ -58,14 +81,14 @@ class Simple(Segment):
         #   Iterate - this is iterated
         # --------------------------------------------------------------
         iterate = self.process.iterate
-        iterate.clear()
                 
         # Update Initials
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         
         # Unpack Unknowns
-        iterate.unpack_unknowns            = None
+        iterate.unknowns = Process()
+        iterate.unknowns.mission           = None
         
         # Update Conditions
         iterate.conditions = Process()
@@ -78,7 +101,6 @@ class Simple(Segment):
         #   Finalize - after iteration
         # --------------------------------------------------------------
         finalize = self.process.finalize
-        finalize.clear()
         
         finalize.post_process = Process()
         
@@ -90,9 +112,35 @@ class Simple(Segment):
 #  Container
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments
 class Container(Segment.Container):
+    """ A container for the segment
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Ram.py
 #
 # Created:  Jul 2014, A. Variyar
@@ -19,18 +20,36 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Ram Component
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Ram(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Ram
-        a Ram class that is used to convert static properties into
-        stagnation properties
-        
-        this class is callable, see self.__call__
-        
-        """
+    """This represent the compression of incoming air flow.
+    Calling this class calls the compute function.
+    
+    Assumptions:
+    None
+
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    """
     
     def __defaults__(self):
-        
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """         
         #set the deafult values
         self.tag = 'Ram'
         self.outputs.stagnation_temperature  = 1.0
@@ -38,7 +57,40 @@ class Ram(Energy_Component):
         self.inputs.working_fluid = Data()
 
     def compute(self,conditions):
-        
+        """ This computes the output values from the input values according to
+        equations from the source.
+
+        Assumptions:
+        None
+
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+
+        Inputs:
+        conditions.freestream.
+          pressure
+          temperature
+          mach_number
+        self.inputs.working_fluid
+
+        Outputs:
+        self.outputs.
+          stagnation_temperature              [K]  
+          stagnation_pressure                 [Pa]
+          isentropic_expansion_factor         [-]
+          specific_heat_at_constant_pressure  [J/(kg K)]
+          universal_gas_constant              [J/(kg K)]
+        conditions.freestream.
+          stagnation_temperature              [K]
+          stagnation_pressure                 [Pa]
+          isentropic_expansion_factor         [-]
+          specific_heat_at_constant_pressure  [J/(kg K)]
+          universal_gas_constant              [J/(kg K)]
+          speed_of_sound                      [m/s]
+
+        Properties Used:
+        None
+        """          
         #unpack from conditions
         Po = conditions.freestream.pressure
         To = conditions.freestream.temperature

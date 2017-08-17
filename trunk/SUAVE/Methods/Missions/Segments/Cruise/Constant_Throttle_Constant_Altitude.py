@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Cruise
 # Constant_Throttle_Constant_Altitude.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -15,6 +16,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def unpack_unknowns(segment,state):
     
     # unpack unknowns
@@ -44,26 +46,31 @@ def unpack_unknowns(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------    
 
+## @ingroup Methods-Missions-Segments-Cruise
 def initialize_conditions(segment,state):
-    """ Segment.initialize_conditions(conditions,numerics,initials=None)
-        update the segment conditions
-        pin down as many condition variables as possible in this function
-        Inputs:
-            conditions - the conditions data dictionary, with initialized
-            zero arrays, with number of rows = 
-            segment.conditions.n_control_points
-            initials - a data dictionary with 1-row column arrays pulled from
-            the last row of the previous segment's conditions data, or none
-            if no previous segment
-        Outputs:
-            conditions - the conditions data dictionary, updated with the 
-                         values that can be precalculated
-        Assumptions:
-            --
-        Usage Notes:
-            may need to inspect segment (self) for user inputs
-            will be called before solving the segments free unknowns
-    """
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constant throttle and constant altitude, allows for acceleration
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude                             [meters]
+    segment.air_speed_start                      [meters/second]
+    segment.air_speed_end                        [meters/second]
+    segment.throttle	                         [unitless]
+    segment.state.numerics.number_control_points [int]
+
+    Outputs:
+    state.conditions.propulsion.throttle        [unitless]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """   
 
     conditions = state.conditions
 
@@ -100,17 +107,37 @@ def initialize_conditions(segment,state):
 #  Solve Residuals
 # ----------------------------------------------------------------------    
 
+## @ingroup Methods-Missions-Segments-Cruise
 def solve_residuals(segment,state):
-    """ Segment.solve_residuals(conditions,numerics,unknowns,residuals)
-        the hard work, solves the residuals for the free unknowns
-        called once per segment solver iteration
-    """
+    """ Calculates a residual based on forces
+    
+        Assumptions:
+        The vehicle accelerates, residual on forces and to get it to the final speed
+        
+        Inputs:
+        segment.air_speed_end                  [meters/second]
+        state.conditions:
+            frames.inertial.total_force_vector [Newtons]
+            frames.inertial.velocity_vector    [meters/second]
+            weights.total_mass                 [kg]
+        state.numerics.time.differentiate
+            
+        Outputs:
+        state.residuals:
+            forces               [meters/second^2]
+            final_velocity_error [meters/second]
+        state.conditions:
+            conditions.frames.inertial.acceleration_vector [meters/second^2]
+
+        Properties Used:
+        N/A
+                                
+    """    
 
     # unpack inputs
     conditions = state.conditions
     FT = conditions.frames.inertial.total_force_vector
     vf = segment.air_speed_end
-    v0 = segment.air_speed_start
     v  = conditions.frames.inertial.velocity_vector
     D  = state.numerics.time.differentiate
     m  = conditions.weights.total_mass
@@ -126,43 +153,3 @@ def solve_residuals(segment,state):
     state.residuals.final_velocity_error = (v[-1,0] - vf)
 
     return
-    
-# ------------------------------------------------------------------
-#   Methods For Post-Solver
-# ------------------------------------------------------------------    
-
-def post_process(segment,state):
-    """ Segment.post_process(conditions,numerics,unknowns)
-        post processes the conditions after converging the segment solver.
-        Packs up the final position vector to allow estimation of the ground
-        roll distance (e.g., distance from brake release to rotation speed in
-        takeoff, or distance from touchdown to full stop on landing).
-        Inputs - 
-            unknowns - data dictionary of converged segment free unknowns with
-            fields:
-                states, controls, finals
-                    these are defined in segment.__defaults__
-            conditions - data dictionary of segment conditions
-                    these are defined in segment.__defaults__
-            numerics - data dictionary of the converged differential operators
-        Outputs - 
-            conditions - data dictionary with remaining fields filled with post-
-            processed conditions. Updated fields are:
-            conditions.frames.inertial.position_vector  (x-position update)
-        Usage Notes - 
-            Use this to store the unknowns and any other interesting in 
-            conditions for later plotting. For clarity and style, be sure to 
-            define any new fields in segment.__defaults__
-    """
-
-    # unpack inputs
-    conditions = state.conditions
-    ground_velocity  = conditions.frames.inertial.velocity_vector
-    I                = state.numerics.time.integrate
-    initial_position = conditions.frames.inertial.position_vector[0,:]
-
-    # process
-    position_vector = initial_position + np.dot( I , ground_velocity)
-
-    # pack outputs
-    conditions.frames.inertial.position_vector = position_vector

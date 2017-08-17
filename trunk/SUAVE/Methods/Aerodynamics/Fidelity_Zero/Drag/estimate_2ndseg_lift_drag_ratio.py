@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 # estimate_2ndseg_lift_drag_ratio.py
 # 
 # Created:  Jun 2013, C. Ilario & T. Orra
@@ -16,26 +17,31 @@ from SUAVE.Core import Data, Units
 #  Compute 2nd segment lift to drag ratio
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def estimate_2ndseg_lift_drag_ratio(config):
-    """ SUAVE.Methods.Aerodynamics.Drag.Correlations.estimate_2ndseg_lift_drag_ratio(config):
-        Estimates the 2nd segment Lift to drag ration (all engine operating)
-        Inputs:
-            config   - data dictionary with fields:
-                reference_area             - Airplane reference area
-                V2_VS_ratio                - Ratio between V2 and Stall speed
-                                             [optional. Default value = 1.20]
-                Main_Wing.aspect_ratio     - Main_Wing aspect ratio
-                maximum_lift_coefficient   - Maximum lift coefficient for the config
-                                             [Calculated if not informed]
+    """Estimates the 2nd segment climb lift to drag ratio (all engine operating)
+    
+    Assumptions:
+    All engines operating
 
-        Outputs:
-            takeoff_field_length            - Takeoff field length
+    Source:
+    Fig. 27.34 of "Aerodynamic Design of Transport Airplane" - Obert
 
-        Assumptions:
-            All engines Operating. Must be corrected for second segment climb configuration
-            reference: Fig. 27.34 of "Aerodynamic Design of Transport Airplane" - Obert
+    Inputs:
+    config.
+      V2_VS_ratio              [Unitless]
+      wings.
+        areas.reference        [m^2]
+	spans.projected        [m]
+	aspect_ratio           [Unitless]
+      maximum_lift_coefficient [Unitless]
 
-"""
+    Outputs:
+    lift_drag_ratio            [Unitless]
+
+    Properties Used:
+    N/A
+    """
     # ==============================================
 	# Unpack
     # ==============================================
