@@ -1,7 +1,7 @@
 # setup.py
 # 
 # Created:  Dec 2013, T. Lukaczyk 
-# Modified: Feb 2016, E. Botero
+# Modified: Jan 2017, E. Botero
 
 """ SUAVE setup script
 """
@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version = '1.0.0'
-    date = 'August 14, 2017'
+    version     = '1.0.0'
+    date        = 'August 15, 2017'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]

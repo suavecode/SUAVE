@@ -1,7 +1,5 @@
-# Example_Package/__init__.py
-# 
-# Created:  Jan 2015, J. Dawson
-# Modified: 
+## @defgroup Example_Package
+# An example package init
 
 # Attributes
 ## attributes local to this package
