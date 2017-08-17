@@ -717,10 +717,10 @@ class Data(dict):
                 elif rank == 2:
                     n,m = v.shape
                     if vector:
-                        D[k][:,:] = np.reshape( M[index:(index+(n*m))] ,[n,m], order='F')
+                        D[k][:,:] = np.reshape( M[index:(index+(n*m))] ,[n,m], order='F') # Update for AD
                         index += n*m 
                     else:#array
-                        D[k][:,:] = M[:,index:(index+m)]
+                        D[k][:,:] = M[:,index:(index+m)] # Update for AD
                         index += m
                 
                 #: switch rank

@@ -45,7 +45,7 @@ def initialize_inertial_position(segment,state):
         r_initial = state.initials.conditions.frames.inertial.position_vector
         r_current = state.conditions.frames.inertial.position_vector
         
-        state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
+        state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])# Update for AD
     
     return
     
@@ -83,7 +83,7 @@ def initialize_time(segment,state):
         t_initial = state.initials.conditions.frames.inertial.time
         t_current = state.conditions.frames.inertial.time
         
-        state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0])
+        state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0]) # Update for AD
         
     else:
         t_initial = state.conditions.frames.inertial.time[0,0]
@@ -400,7 +400,7 @@ def integrate_inertial_horizontal_position(segment,state):
     x = np.dot(I,vx) + x0
     
     # pack
-    conditions.frames.inertial.position_vector[:,0:1+1] = x[:,:]
+    conditions.frames.inertial.position_vector[:,0:1+1] = x[:,:] # Update for AD
     
     return
 
@@ -437,4 +437,4 @@ def update_acceleration(segment,state):
     acc = np.dot(D,v)
     
     # pack conditions
-    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   
+    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   # Update for AD

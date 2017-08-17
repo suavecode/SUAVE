@@ -200,7 +200,7 @@ def compute_forces(segment,state):
     F = total_aero_forces + inertial_ground_force_vector
 
     # pack
-    frames.inertial.ground_force_vector[:,:] = F[:,:]
+    frames.inertial.ground_force_vector[:,:] = F[:,:] # Update for AD
 
 # ----------------------------------------------------------------------
 #  Solve Residual
