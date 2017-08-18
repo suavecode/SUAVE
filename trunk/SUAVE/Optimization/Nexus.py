@@ -90,12 +90,12 @@ class Nexus(Data):
         
         self.unpack_inputs(x)
         
-        # Check if last call was the same
-        if np.all(self.optimization_problem.inputs==self.last_inputs) \
-           and self.last_fidelity == self.fidelity_level:
-            pass
-        else:
-            self._really_evaluate()
+        ## Check if last call was the same
+        #if np.all(self.optimization_problem.inputs==self.last_inputs) \
+           #and self.last_fidelity == self.fidelity_level:
+            #pass
+        #else:
+        self._really_evaluate()
         
     
     def _really_evaluate(self):
