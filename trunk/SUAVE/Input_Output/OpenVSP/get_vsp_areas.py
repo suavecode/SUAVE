@@ -17,7 +17,10 @@ def get_vsp_areas(tag):
     Assumptions:
     Vehicle must be open in OpenVSP (via recently used vsp_write)
     All components have different tags. Repeated tags are added together under the
-    assumption that this represents multiple engines or similar.
+    assumption that this represents multiple engines or similar. Areas computed from
+    repeated tags in this way may need to be divided by the number of entities later 
+    before assignment. This is because some analyses may multiply an assigned area
+    by number of engines, for example.
 
     Source:
     N/A
