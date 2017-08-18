@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Units
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #   Wing Main

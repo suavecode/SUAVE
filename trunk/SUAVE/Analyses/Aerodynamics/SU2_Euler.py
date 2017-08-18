@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Core import Data
 from Markup import Markup
 from SUAVE.Analyses import Process
-autograd.numpy import np
+import autograd.numpy as np
 
 from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file

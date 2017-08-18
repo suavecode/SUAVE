@@ -4,7 +4,7 @@
 # Created:  Aug 2014, T. Macdonald
 # Modified: Jan 2016, E. Botero
 
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Simple Method

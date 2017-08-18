@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-autograd.numpy import np
+import autograd.numpy as np
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as helper_functions
 

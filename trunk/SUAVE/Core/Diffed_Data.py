@@ -12,7 +12,7 @@
 from copy import deepcopy
 from Container import Container as ContainerBase
 from Data import Data
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Config

@@ -8,14 +8,15 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-autograd.numpy import np
+import autograd.numpy as np
+import numpy.matrixlib as matrixlib
 
 # ----------------------------------------------------------------------
 #   Array
 # ----------------------------------------------------------------------       
 
 array_type  = np.ndarray
-matrix_type = np.matrixlib.defmatrix.matrix
+matrix_type = matrixlib.defmatrix.matrix
 
 ## @ingroup Core
 def atleast_2d_col(A):

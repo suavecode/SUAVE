@@ -10,7 +10,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Component

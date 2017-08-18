@@ -11,6 +11,8 @@
 # suave imports
 import autograd.numpy as np 
 from SUAVE.Optimization import helper_functions as help_fun
+from autograd import grad
+from autograd import jacobian
 
 
 # ----------------------------------------------------------------------
@@ -44,10 +46,14 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
    
     # Have the optimizer call the wrapper
     mywrap = lambda x:PyOpt_Problem(problem,x)
+    mywrap_grad = lambda x,f,g:PyOpt_Gradients(problem,x,f,g)
    
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints
+    
+    problem.auto_gradient = grad(problem.objective)
+    problem.auto_jacobian = jacobian(problem.all_constraints)
    
     if FD == 'parallel':
         from mpi4py import MPI
@@ -141,6 +147,8 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
         outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+    if FD == 'auto':
+        outputs = opt(opt_prob, sens_type=mywrap_grad)    
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         outputs = opt(opt_prob, sens_type='FD', sens_step = sense_step)
@@ -193,3 +201,43 @@ def PyOpt_Problem(problem,x):
     print const
    
     return obj,const,fail
+
+## @ingroup Optimization-Package_Setups
+def PyOpt_Gradients(problem,x,f,g):
+    """ This wrapper takes gradients of the SUAVE problem and is called by the PyOpt solver.
+        Prints the inputs (x) as well as the objective values and constraints.
+        If any values produce NaN then a fail flag is thrown.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        problem   [nexus()]
+        x         [array]
+
+        Outputs:
+        obj       [float]
+        cons      [array]
+        fail      [bool]
+
+        Properties Used:
+        None
+    """      
+   
+    g_obj = problem.auto_gradient(x)
+    g_con = problem.auto_jacobian(x)
+    fail  = 0. 
+    
+    grad_obj, jac_con = problem.finite_difference(x)
+    
+    print g_obj
+    print g_con
+    
+    print grad_obj
+    print jac_con
+
+    return g_obj,g_con,fail
+

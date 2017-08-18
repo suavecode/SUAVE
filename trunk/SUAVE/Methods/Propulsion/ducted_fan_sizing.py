@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-autograd.numpy import np
+import autograd.numpy as np
 from SUAVE.Core import Data
 
 ## @ingroup Methods-Propulsion

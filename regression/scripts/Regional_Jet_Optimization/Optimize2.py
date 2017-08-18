@@ -37,8 +37,7 @@ def main():
     actual.con3 =  1.19398434
     
     print 'Fuel Burn   =', obj
-    print 'Fuel Margin =', con    
-
+    print 'Fuel Margin =', con 
 
     error = Data()
     error.obj = (actual.obj - obj)/actual.obj

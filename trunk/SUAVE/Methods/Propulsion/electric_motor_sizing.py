@@ -10,7 +10,7 @@
 import SUAVE
 
 # package imports
-autograd.numpy import np
+import autograd.numpy as np
 from SUAVE.Core import Units
 
 

@@ -12,7 +12,7 @@
 
 import json
 from SUAVE.Core import Data, DataOrdered
-autograd.numpy import np
+import autograd.numpy as np
 from collections import OrderedDict
 
 # ----------------------------------------------------------------------

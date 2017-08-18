@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Lofted_Body
-autograd.numpy import np
+import autograd.numpy as np
 
 # ------------------------------------------------------------
 #   Airfoil

@@ -18,7 +18,7 @@ from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
 
 # Package imports
-autograd.numpy import np
+import autograd.numpy as np
 import time
 import pylab as plt
 import sklearn

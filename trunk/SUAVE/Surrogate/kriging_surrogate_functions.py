@@ -16,7 +16,7 @@ try:
 except ImportError:
     pass 
 from Surrogate_Problem import Surrogate_Problem
-autograd.numpy import np
+import autograd.numpy as np
 import time
 
 

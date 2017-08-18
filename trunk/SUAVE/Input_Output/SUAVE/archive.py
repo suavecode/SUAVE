@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-autograd.numpy import np
+import autograd.numpy as np
 import types
 import json
 from collections import OrderedDict

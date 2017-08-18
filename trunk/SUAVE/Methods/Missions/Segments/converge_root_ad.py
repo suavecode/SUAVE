@@ -9,10 +9,10 @@
 ## ----------------------------------------------------------------------
 
 #import scipy.optimize
-#autograd.numpy import np
+#import autograd.numpy as np
 
 #from SUAVE.Core.Arrays import array_type
-#from autograd.numpy import np
+#from import autograd.numpy as np
 #from autograd.numpy.numpy_extra import ArrayNode
 #from autograd import jacobian, grad, hessian
 

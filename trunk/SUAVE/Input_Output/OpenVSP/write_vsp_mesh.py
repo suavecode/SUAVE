@@ -9,7 +9,7 @@ try:
     import vsp_g as vsp
 except ImportError:
     pass # This allows SUAVE to build without OpenVSP
-autograd.numpy import np
+import autograd.numpy as np
 import time
 import fileinput
 

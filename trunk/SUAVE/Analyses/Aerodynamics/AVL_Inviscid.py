@@ -32,7 +32,7 @@ import pylab as plt
 import os
 import sklearn
 from sklearn import gaussian_process
-autograd.numpy import np
+import autograd.numpy as np
 import sys
 from shutil import rmtree
 from warnings import warn

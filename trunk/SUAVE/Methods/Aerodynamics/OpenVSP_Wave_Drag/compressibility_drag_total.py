@@ -20,7 +20,7 @@ from wave_drag_volume import wave_drag_volume
 import copy
 
 # package imports
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total

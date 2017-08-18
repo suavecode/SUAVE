@@ -11,7 +11,7 @@
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # package imports
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Shaft Power component

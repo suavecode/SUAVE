@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2016, T. Orra
 
-autograd.numpy import np
+import autograd.numpy as np
 # ----------------------------------------------------------------------
 #  Estimate escalation factor according to United States Consumer Price Index
 # ----------------------------------------------------------------------

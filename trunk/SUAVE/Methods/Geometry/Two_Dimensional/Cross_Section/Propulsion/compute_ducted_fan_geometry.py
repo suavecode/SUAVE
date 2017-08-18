@@ -12,7 +12,7 @@
 from SUAVE.Core  import Data
 
 # package imports
-autograd.numpy import np
+import autograd.numpy as np
 from math import pi, sqrt
 
 # ----------------------------------------------------------------------

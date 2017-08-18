@@ -16,7 +16,7 @@ from SUAVE.Methods.Missions import Segments as Methods
 from SUAVE.Methods.skip import skip
 
 from SUAVE.Analyses import Process
-autograd.numpy import np
+import autograd.numpy as np
 
 # Units
 from SUAVE.Core import Units

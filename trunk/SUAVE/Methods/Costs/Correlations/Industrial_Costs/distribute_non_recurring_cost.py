@@ -9,7 +9,7 @@
 from SUAVE.Core import Data
 
 # general packages
-autograd.numpy import np
+import autograd.numpy as np
 
 # ----------------------------------------------------------------------
 #  Distribute non recurring costs, for cash flow proposes
