@@ -53,7 +53,9 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
         #pass
     
     Rex = Re*xt
-    Rex[Rex==0.0] = 0.0001
+    Rex_zero = Rex==0.
+    Rex_zero = Rex_zero * 1.
+    Rex = Rex + 0.0001 * Rex_zero
 
     theta = 0.671*xt/(Rex**0.5)
     xeff  = (27.78*theta*Re**0.2)**1.25

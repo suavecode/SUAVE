@@ -185,13 +185,13 @@ def update_aerodynamics(segment,state):
     CL = results.lift.total
     CD = results.drag.total
 
-    CL[q<=0.0] = 0.0
-    CD[q<=0.0] = 0.0
+    #CL[q<=0.0] = 0.0
+    #CD[q<=0.0] = 0.0
     
-    # CL limit
-    CL[CL>CLmax] = CLmax
+    ## CL limit
+    #CL[CL>CLmax] = CLmax
     
-    CL[CL< -CLmax] = -CLmax
+    #CL[CL< -CLmax] = -CLmax
         
     # dimensionalize
     L = state.ones_row(3) * 0.0

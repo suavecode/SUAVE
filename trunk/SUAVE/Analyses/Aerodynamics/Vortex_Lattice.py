@@ -213,7 +213,7 @@ class Vortex_Lattice(Aerodynamics):
         training = self.training
         
         AoA = training.angle_of_attack
-        CL  = np.zeros_like(AoA)
+        CLs  = np.zeros_like(AoA)
         
         wing_CLs = Data.fromkeys(geometry.wings.keys(), np.zeros_like(AoA))
         # The above performs the function of:
@@ -231,13 +231,17 @@ class Vortex_Lattice(Aerodynamics):
             # overriding conditions, thus the name mangling
             konditions.aerodynamics.angle_of_attack = AoA[i]
             
+            one = np.zeros(len(AoA))
+            one[i] = 1.
+            
             # these functions are inherited from Aerodynamics() or overridden
-            CL[i], wing_lifts = calculate_lift_vortex_lattice(konditions, settings, geometry)
+            CL, wing_lifts = calculate_lift_vortex_lattice(konditions, settings, geometry)
+            CLs = CLs + one*CL
             for wing in geometry.wings.values():
-                wing_CLs[wing.tag][i] = wing_lifts[wing.tag]
+                wing_CLs[wing.tag] = wing_CLs[wing.tag] + wing_lifts[wing.tag]*one
 
         # store training data
-        training.lift_coefficient = CL
+        training.lift_coefficient = CLs
         training.wing_lift_coefficients = wing_CLs
 
         return

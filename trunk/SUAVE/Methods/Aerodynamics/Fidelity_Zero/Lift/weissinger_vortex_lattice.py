@@ -144,9 +144,10 @@ def whav(x1,y1,x2,y2):
             if needed
 
     """    
-    whv=1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))
-    
-    # if x's are on top of each other
-    whv[np.isclose(x1,x2)] = (1/(y1 -y2))[np.isclose(x1,x2)]
 
+    use_base    = 1 - np.isclose(x1,x2)*1.
+    no_use_base = np.isclose(x1,x2)*1.
+    
+    whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
+    
     return whv
