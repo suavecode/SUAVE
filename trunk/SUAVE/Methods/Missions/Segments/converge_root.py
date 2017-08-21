@@ -10,8 +10,10 @@
 
 import scipy.optimize
 import autograd.numpy as np
+import autograd
 
 from SUAVE.Core.Arrays import array_type
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Converge Root
@@ -88,6 +90,37 @@ def iterate(unknowns,(segment,state)):
         
     segment.process.iterate(segment,state)
     
-    residuals = state.residuals.pack_array()
+    if type(state.residuals.forces) == autograd.numpy.numpy_extra.ArrayNode:
+        grad = True
+    else:
+        grad = False
+    
+    if grad == False:
+        residuals = state.residuals.pack_array()
+    else:
+        residuals = pack_autograd(state.residuals)
         
     return residuals 
+
+def pack_autograd(s_residuals):
+    
+    # We are going to loop through the dictionary recursively and unpack
+    
+    dic = s_residuals
+    pack_autograd.array = np.array([])
+    
+    def pack(dic):
+        for key in dic.iterkeys():
+            if isinstance(dic[key],Data):
+                pack(dic[key]) # Regression
+                continue
+            #elif np.rank(dic[key])>2: continue
+            elif isinstance(dic[key],str):continue
+            
+            pack_autograd.array = np.append(pack_autograd.array,dic[key])
+            
+            
+    pack(dic)
+    residuals = pack_autograd.array 
+    
+    return residuals

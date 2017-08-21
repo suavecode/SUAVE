@@ -35,12 +35,18 @@ def orientation_product(T,Bb):
     Properties Used:
     N/A
     """            
+    #print 'running or product'
     
     assert np.rank(T) == 3
     
-    if np.rank(Bb) == 3:
+    u, s, v = np.linalg.svd(Bb)
+    
+    if np.shape(Bb)[1]==3:
+        rank = np.sum(s > 1e-10)/np.shape(Bb)[0]  
+    
+    if np.all(rank == 3.):
         C = np.einsum('aij,ajk->aik', T, Bb )
-    elif np.rank(Bb) == 2:
+    elif np.all(rank == 0.):
         C = np.einsum('aij,aj->ai', T, Bb )
     else:
         raise Exception , 'bad B rank'
