@@ -13,7 +13,6 @@
 
 # suave imports
 from SUAVE.Core import Data
-from SUAVE.Analyses import Results
 from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
 
 # package imports
@@ -81,7 +80,7 @@ def parasite_drag_propulsor(state,settings,geometry):
     propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
     
     # dump data to conditions
-    propulsor_result = Results(
+    propulsor_result = Data(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
         parasite_drag_coefficient = propulsor_parasite_drag ,

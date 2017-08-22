@@ -5,7 +5,7 @@
 
 # suave imports
 from SUAVE.Core import Units,Data
-from SUAVE.Analyses import Results
+
 # ----------------------------------------------------------------------
 #  Compute operating costs
 # ----------------------------------------------------------------------

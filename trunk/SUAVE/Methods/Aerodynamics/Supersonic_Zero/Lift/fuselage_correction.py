@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Fuselage Correction
@@ -49,7 +49,7 @@ def fuselage_correction(state,settings,geometry):
     aircraft_lift_total = wings_lift_comp * fus_correction
     
     # store results
-    lift_results = Results(
+    lift_results = Data(
         total                = aircraft_lift_total ,
         compressible_wings   = wings_lift_comp     ,
     )

@@ -177,7 +177,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     swet_tot += drag_breakdown['pylon'].wetted_area
 
     for k in drag_breakdown:
-        if isinstance(k,SUAVE.Analyses.Results):
+        if isinstance(k,Data):
             # String formatting
             component       =   ' ' + k.tag[0:37] + (37-len(k.tag))*' '         + '|'
             wetted_area     =   str('%11.1f'   % k.wetted_area)                 + '    |'
