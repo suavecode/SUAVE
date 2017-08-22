@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # local imports
-from compressible_mixed_flat_plate import compressible_mixed_flat_plate
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag  import compressible_mixed_flat_plate
 
 # suave imports
 from SUAVE.Core import Data

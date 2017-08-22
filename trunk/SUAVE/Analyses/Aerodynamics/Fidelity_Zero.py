@@ -19,7 +19,7 @@ from Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
-from SUAVE.Methods.Aerodynamics import Common as Common
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from Process_Geometry import Process_Geometry
 from Vortex_Lattice import Vortex_Lattice
 

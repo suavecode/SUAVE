@@ -5,14 +5,6 @@
 # Modified: Oct 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
-     induced_drag_aircraft, compressibility_drag_wing, \
-     miscellaneous_drag_aircraft
-
-# ----------------------------------------------------------------------
 #  Total Aircraft
 # ----------------------------------------------------------------------
 

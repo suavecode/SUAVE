@@ -6,14 +6,6 @@
 #           Jan 2016, E. Botero 
 
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import \
-     induced_drag_aircraft, compressibility_drag_wing, \
-     miscellaneous_drag_aircraft
-
-# ----------------------------------------------------------------------
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
