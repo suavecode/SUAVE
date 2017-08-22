@@ -155,12 +155,9 @@ class Vortex_Lattice(Aerodynamics):
         # unpack
 
         surrogates = self.surrogates        
-
         conditions = state.conditions
         
-        # unpack
-
-        
+        # unpack        
         q    = conditions.freestream.dynamic_pressure
         AoA  = conditions.aerodynamics.angle_of_attack
         Sref = geometry.reference_area
