@@ -60,7 +60,7 @@ class Nexus(Data):
         self.analyses               = SUAVE.Analyses.Analysis.Container()
         self.missions               = None
         self.procedure              = Process()
-        self.results                = SUAVE.Analyses.Results()
+        self.results                = Data()
         self.summary                = Data()
         self.optimization_problem   = None
         self.fidelity_level         = 1

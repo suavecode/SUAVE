@@ -8,7 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Analyses import Process, Results
+from SUAVE.Core import Data
+from SUAVE.Analyses import Process
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -68,7 +69,7 @@ class Process_Geometry(Process):
         """             
         geometry_items = geometry.deep_get(self.geometry_key)
         
-        results = Results()
+        results = Data()
         
         for key, this_geometry in geometry_items.items():
             result = Process.evaluate(self,state,settings,this_geometry)

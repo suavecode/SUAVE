@@ -10,7 +10,6 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Analyses import Results
 from SUAVE.Core import (
     Data, Container,
 )
@@ -72,7 +71,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Initialize result
-    drag_breakdown.compressible = Results()
+    drag_breakdown.compressible = Data()
     
     # Use the vehicle for drag coefficients
     Sref_main = geometry.reference_area
