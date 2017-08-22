@@ -11,7 +11,7 @@
 
 # suave imports
 from SUAVE.Core import (
-    Data, Container,
+    Data, Container
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      wave_drag_lift, wave_drag_volume, wave_drag_body_of_rev
@@ -132,7 +132,7 @@ def compressibility_drag_total(state,settings,geometry):
         (cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
 
         # Dump data to conditions
-        wing_results = Results(
+        wing_results = Data(
             compressibility_drag      = cd_c    ,
             volume_wave_drag          = cd_c_v  ,
             lift_wave_drag            = cd_c_l  ,

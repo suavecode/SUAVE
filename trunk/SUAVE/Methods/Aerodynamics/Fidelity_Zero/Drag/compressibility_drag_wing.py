@@ -10,7 +10,6 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Analyses import Results
 from SUAVE.Core import (
     Data, Container
 )
@@ -111,7 +110,7 @@ def compressibility_drag_wing(state,settings,geometry):
     #total_compressibility_drag += cd_c
     
     # dump data to conditions
-    wing_results = Results(
+    wing_results = Data(
         compressibility_drag      = cd_c    ,
         thickness_to_chord        = tc      , 
         wing_sweep                = sweep_w , 

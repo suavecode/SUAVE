@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
@@ -68,7 +68,7 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     #   The final result
     # ------------------------------------------------------------------
     # dump to results
-    conditions.aerodynamics.drag_breakdown.miscellaneous = Results(
+    conditions.aerodynamics.drag_breakdown.miscellaneous = Data(
         total_wetted_area         = swet_tot,
         reference_area            = Sref ,
         total                     = cd_excrescence *ones_1col, )
