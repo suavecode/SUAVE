@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 # spoiler_drag.py
 #
 # Created:  Jan 2014, A. Variyar
@@ -13,7 +13,7 @@
 #  Adds the spoiler drag
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 def spoiler_drag(state,settings,geometry):
     """Adds a spoiler drag increment
 

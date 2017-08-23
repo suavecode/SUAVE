@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # fuselage_correction.py
 # 
 # Created:  Dec 2013, A. Variyar 
@@ -10,7 +10,7 @@
 #  Fuselage Correction
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def fuselage_correction(state,settings,geometry):  
     """Corrects aircraft lift based on fuselage effects
 

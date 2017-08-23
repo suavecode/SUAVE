@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Lift
 # lift_total.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -16,7 +16,7 @@ from SUAVE.Core import Data, Units
 #  Lift Total
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-AERODAS
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Lift
 def lift_total(state,settings,geometry):
     """Extract the lift coefficient
 

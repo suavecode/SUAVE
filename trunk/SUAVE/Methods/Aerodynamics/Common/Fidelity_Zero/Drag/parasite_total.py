@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 # parasite_drag_total.py
 #
 # Created:  Jan 2014, T. Orra
@@ -15,7 +15,7 @@ import numpy as np
 #  Total Parasite Drag
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 def parasite_total(state,settings,geometry):
     """Sums component parasite drag
 

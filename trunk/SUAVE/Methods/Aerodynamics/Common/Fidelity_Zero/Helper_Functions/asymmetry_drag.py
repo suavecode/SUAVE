@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions
 # asymmetry_drag.py
 # 
 # Created:  Oct 2015, T. Orra
@@ -17,7 +17,7 @@ from SUAVE.Core import Units, Data
 #  Compute asymmetry drag due to engine failure 
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions
 def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     """Computes asymmetry drag due to engine failure
 

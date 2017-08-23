@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
 # total_aircraft_drag.py
 # 
 # Created:  Dec 2013, A. Variyar
@@ -8,7 +8,7 @@
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
 def total_aircraft_drag(state,settings,geometry):
     """ This computes the total drag of an aircraft and stores
     that data in the conditions structure.

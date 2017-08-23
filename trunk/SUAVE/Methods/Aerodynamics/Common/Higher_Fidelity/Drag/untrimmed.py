@@ -1,12 +1,14 @@
-## @ingroup Methods-Aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
 # untrimmed.py
 #
 # Created:  Jan 2014, T. Orra
 # Modified: Jun 2017, T. MacDonald  
 
-import numpy as np # should be removed, need to determine how to handle this so create by dates dont appear
+# ----------------------------------------------------------------------
+#  Untrimmed
+# ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-SU2_Euler
+## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
 def untrimmed(state,settings,geometry):
     """ This computes the total drag of an aircraft without trim
     and stores that data in the conditions structure.

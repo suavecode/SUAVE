@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 # compressibility_drag_wing.py
 # 
 # Created:  Dec 2013, SUAVE Team
@@ -24,7 +24,7 @@ import scipy as sp
 #  The Function
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 def compressibility_drag_wing(state,settings,geometry):
     """Computes compressibility drag for a wing
 
