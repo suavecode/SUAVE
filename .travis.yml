@@ -27,7 +27,7 @@ before_install:
     - cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_CPPTEST=false -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=false -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../repo/Libraries -DCMAKE_BUILD_TYPE=Release
     - make -j8
     - cd ../build
-    - cmake ../repo/src/ -DVSP_LIBRARY_PATH=~/OpenVSP/buildlibs -DCMAKE_BUILD_TYPE=Release
+    - cmake ../repo/src/ -DVSP_LIBRARY_PATH=../buildlibs -DCMAKE_BUILD_TYPE=Release
     - make -j8
   
 install:
