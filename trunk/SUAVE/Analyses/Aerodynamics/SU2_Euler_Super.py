@@ -99,7 +99,7 @@ class SU2_Euler_Super(Markup):
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = Higher_Fidelity.Drag.untrimmed
+        compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag
         compute.drag.total                         = Higher_Fidelity.Drag.total_aircraft_drag
