@@ -18,6 +18,7 @@ from Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
+from SUAVE.Methods.Aerodynamics.Common import Higher_Fidelity as Higher_Fidelity
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.AVL_Inviscid import AVL_Inviscid
 
@@ -71,8 +72,8 @@ class AVL(Markup):
         compute.lift = Process()
 
         # Run AVL to determine lift
-        compute.lift.inviscid                         = AVL_Inviscid()
-        compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
+        compute.lift.inviscid                      = AVL_Inviscid()
+        compute.lift.total                         = Higher_Fidelity.Lift.lift_total
         
         # Do a traditional drag buildup
         compute.drag = Process()
@@ -94,7 +95,7 @@ class AVL(Markup):
         compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.AVL.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
-        compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler.total_aircraft_drag
+        compute.drag.total                         = Higher_Fidelity.Drag.total_aircraft_drag
         
         
     def initialize(self):

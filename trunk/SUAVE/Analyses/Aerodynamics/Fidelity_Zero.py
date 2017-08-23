@@ -97,8 +97,8 @@ class Fidelity_Zero(Markup):
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
-        compute.lift.fuselage                      = Methods.Lift.fuselage_correction
-        compute.lift.total                         = Methods.Lift.aircraft_total
+        compute.lift.fuselage                      = Common.Lift.fuselage_correction
+        compute.lift.total                         = Common.Lift.aircraft_total
         
         compute.drag = Process()
         compute.drag.parasite                      = Process()
