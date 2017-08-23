@@ -13,7 +13,7 @@ from SUAVE.Core import (
     Data, Container,
 )
 
-from wave_drag_lift import wave_drag_lift
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import wave_drag_lift
 from wave_drag_volume import wave_drag_volume
 
 import copy
