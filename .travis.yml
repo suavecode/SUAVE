@@ -31,7 +31,7 @@ before_install:
     - make -j8
   
 install:
-    - cd trunk
+    - cd ../../trunk
     - python setup.py develop
     - cd ../regression
     - pip install coveralls
