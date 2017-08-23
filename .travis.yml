@@ -17,6 +17,18 @@ branches:
 before_install:
     - sudo apt-get update
     - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
+    - sudo apt-get install git git-gui cmake libxml2-dev libfltk1.3-dev g++ libcpptest-dev libjpeg-dev libglm-dev libeigen3-dev libcminpack-dev libglew-dev 
+    - mkdir OpenVSP
+    - cd OpenVSP
+    - mkdir repo
+    - git clone https://github.com/OpenVSP/OpenVSP.git repo
+    - mkdir build buildlibs
+    - cd buildlibs
+    - cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_CPPTEST=false -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=false -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../repo/Libraries -DCMAKE_BUILD_TYPE=Release
+    - make -j8
+    - cd ../build
+    - cmake ../repo/src/ -DVSP_LIBRARY_PATH=/your/path/to/buildlibs -DCMAKE_BUILD_TYPE=Release
+    - make -j8
   
 install:
     - cd trunk
