@@ -76,7 +76,10 @@ def parasite_total(state,settings,geometry):
         total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
  
     # from pylons
-    parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient
+    try:
+        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient
+    except:
+        parasite_drag = 0. # not currently available for supersonics
 
     total_parasite_drag += parasite_drag
         

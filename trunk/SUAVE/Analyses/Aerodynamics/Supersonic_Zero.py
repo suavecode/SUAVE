@@ -19,6 +19,7 @@ from SUAVE.Analyses import Process
 from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
 import numpy as np
 
@@ -87,17 +88,17 @@ class Supersonic_Zero(Markup):
         compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing # SZ
+        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage # SZ
+        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
-        compute.drag.parasite.total                = Methods.Drag.parasite_total # SZ
+        compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
-        compute.drag.untrimmed                     = Methods.Drag.untrimmed # SZ can be changed to match
-        compute.drag.trim                          = Methods.Drag.trim # SZ can be chanaged to match
+        compute.drag.untrimmed                     = Common.Drag.untrimmed
+        compute.drag.trim                          = Common.Drag.trim
         compute.drag.total                         = Methods.Drag.total_aircraft # SZ
         
         

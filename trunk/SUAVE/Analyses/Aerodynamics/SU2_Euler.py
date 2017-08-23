@@ -22,7 +22,7 @@ from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 from Results import Results
 
 # The aero methods
-from SUAVE.Methods.Aerodynamics import Common as Common
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 

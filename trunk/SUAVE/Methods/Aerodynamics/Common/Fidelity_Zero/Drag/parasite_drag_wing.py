@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # local imports
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag  import compressible_mixed_flat_plate
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_mixed_flat_plate
 
 # suave imports
 from SUAVE.Core import Data
@@ -107,7 +107,9 @@ def parasite_drag_wing(state,settings,geometry):
     
     k_w = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc*Mc * cos2) )  \
         + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
-        / (2.*(1.-(Mc*cos_sweep)**2.))                       
+        / (2.*(1.-(Mc*cos_sweep)**2.))      
+    
+    k_w[Mc >= 0.95] =  1. 
 
     # find the final result
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.

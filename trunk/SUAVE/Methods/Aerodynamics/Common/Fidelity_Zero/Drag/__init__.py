@@ -14,3 +14,4 @@ from compressibility_drag_wing_total import compressibility_drag_wing_total
 from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU
 from trim import trim
 from spoiler_drag import spoiler_drag
+from untrimmed import untrimmed

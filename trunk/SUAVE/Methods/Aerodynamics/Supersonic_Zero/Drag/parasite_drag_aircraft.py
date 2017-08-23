@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-# parasite_drag_wing.py
+# parasite_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. Macdonald
 # Modified: Jan 2016, E. Botero
@@ -9,9 +9,6 @@
 # ----------------------------------------------------------------------
 
 # suave 
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
-     parasite_drag_wing, parasite_drag_fuselage, parasite_drag_propulsor
-
 from SUAVE.Core import Data
 
 import numpy as np

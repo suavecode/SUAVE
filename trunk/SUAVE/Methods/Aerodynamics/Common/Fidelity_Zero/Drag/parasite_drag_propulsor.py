@@ -13,7 +13,7 @@
 
 # suave imports
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag  import compressible_turbulent_flat_plate
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
 
 # package imports
 import numpy as np
