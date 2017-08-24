@@ -1,6 +1,5 @@
 ## @defgroup Methods-Aerodynamics-Common Common
-# Aerodynamic methods contain the functions for the aerodynamic analyses.
+# These are methods that are used by several methods
 # @ingroup Methods-Aerodynamics
 
 import Fidelity_Zero
-import Higher_Fidelity

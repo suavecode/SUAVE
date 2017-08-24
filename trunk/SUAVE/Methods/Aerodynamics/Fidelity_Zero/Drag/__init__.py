@@ -4,5 +4,4 @@
 
 
 from miscellaneous_drag_aircraft import miscellaneous_drag_aircraft
-from total_aircraft import total_aircraft
 

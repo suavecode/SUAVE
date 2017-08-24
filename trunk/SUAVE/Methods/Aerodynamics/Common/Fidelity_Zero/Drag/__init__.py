@@ -15,3 +15,4 @@ from miscellaneous_drag_aircraft_ESDU import miscellaneous_drag_aircraft_ESDU
 from trim import trim
 from spoiler_drag import spoiler_drag
 from untrimmed import untrimmed
+from total_aircraft import total_aircraft

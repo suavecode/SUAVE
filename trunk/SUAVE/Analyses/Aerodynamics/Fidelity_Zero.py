@@ -119,7 +119,7 @@ class Fidelity_Zero(Markup):
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):

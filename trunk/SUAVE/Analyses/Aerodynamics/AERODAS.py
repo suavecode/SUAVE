@@ -14,7 +14,7 @@ from SUAVE.Core import Data, Units
 from SUAVE.Analyses import Process
 from SUAVE.Analyses.Aerodynamics.Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import AERODAS as Methods
-from SUAVE.Methods.Aerodynamics.Common import Higher_Fidelity as Common
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
 # ----------------------------------------------------------------------
 #  AERODAS
@@ -76,7 +76,7 @@ class AERODAS(Markup):
         compute.lift_drag_total                        = Methods.AERODAS_setup.lift_drag_total
         
         compute.lift = Process()
-        compute.lift.total                             = Common.Lift.lift_total
+        compute.lift.total                             = Common.Lift.aircraft_total
         compute.drag = Process()
         compute.drag.total                             = Methods.AERODAS_setup.drag_total
         

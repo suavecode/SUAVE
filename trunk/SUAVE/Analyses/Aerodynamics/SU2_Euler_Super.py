@@ -24,7 +24,6 @@ from Results import Results
 # The aero methods
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from SUAVE.Methods.Aerodynamics.Common import Higher_Fidelity as Higher_Fidelity
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 
@@ -82,7 +81,7 @@ class SU2_Euler_Super(Markup):
 
         # Run SU2
         compute.lift.inviscid                      = SU2_inviscid_Super()
-        compute.lift.total                         = Higher_Fidelity.Lift.lift_total
+        compute.lift.total                         = Common.Lift.aircraft_total
         
         # Do a traditional drag buildup
         compute.drag = Process()
@@ -102,7 +101,7 @@ class SU2_Euler_Super(Markup):
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag
-        compute.drag.total                         = Higher_Fidelity.Drag.total_aircraft_drag
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):

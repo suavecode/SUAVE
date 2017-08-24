@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-# total_aircraft_drag.py
+# total_aircraft.py
 # 
 # Created:  Dec 2013, A. Variyar
 # Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra

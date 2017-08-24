@@ -1,15 +1,16 @@
-## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
-# total_aircraft_drag.py
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+# total_aircraft.py
 # 
 # Created:  Dec 2013, A. Variyar
-# Modified: Oct 2016, T. MacDonald
+# Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra
+#           Jan 2016, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Total Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Higher_Fidelity-Drag
-def total_aircraft_drag(state,settings,geometry):
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
+def total_aircraft(state,settings,geometry):
     """ This computes the total drag of an aircraft and stores
     that data in the conditions structure.
 
@@ -24,18 +25,18 @@ def total_aircraft_drag(state,settings,geometry):
     state.conditions.aerodynamics.drag_breakdown.
       trim_corrected_drag                          [Unitless]
       spoiler_drag                                 [Unitless]
-      
+
     Outputs:
-    aircraft_total_drag                            [Unitless]
+    aircraft_total_drag (drag coefficient)         [Unitless]
 
     Properties Used:
     N/A
     """    
-    
+
     # Unpack inputs
     conditions    = state.conditions
     configuration = settings
-    
+
     drag_coefficient_increment = configuration.drag_coefficient_increment
     trim_corrected_drag        = conditions.aerodynamics.drag_breakdown.trim_corrected_drag
     spoiler_drag               = conditions.aerodynamics.drag_breakdown.spoiler_drag 
@@ -48,5 +49,5 @@ def total_aircraft_drag(state,settings,geometry):
     # Store to results
     conditions.aerodynamics.drag_breakdown.total = aircraft_total_drag
     conditions.aerodynamics.drag_coefficient     = aircraft_total_drag
-    
+
     return aircraft_total_drag
