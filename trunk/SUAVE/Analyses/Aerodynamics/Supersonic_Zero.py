@@ -65,6 +65,7 @@ class Supersonic_Zero(Markup):
         settings.aircraft_span_efficiency_factor    = 0.78
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
+        settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
         settings.maximum_lift_coefficient           = np.inf 
         
@@ -99,6 +100,7 @@ class Supersonic_Zero(Markup):
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
+        compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         
