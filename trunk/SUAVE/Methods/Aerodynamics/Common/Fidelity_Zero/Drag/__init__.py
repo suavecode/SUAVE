@@ -1,5 +1,5 @@
 ## @defgroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag Drag
-# Aerodynamic methods contain the functions for the aerodynamic analyses.
+# Drag methods that are directly specified by analyses.
 # @ingroup Methods-Aerodynamics-Common-Fidelity_Zero
 
 

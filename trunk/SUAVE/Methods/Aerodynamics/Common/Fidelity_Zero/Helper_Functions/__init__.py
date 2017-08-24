@@ -1,5 +1,5 @@
 ## @defgroup Methods-Aerodynamics-Common-Fidelity_Zero-Helper_Functions Helper_Functions
-# Aerodynamic methods contain the functions for the aerodynamic analyses.
+# Functions that are needed by aerodynamics methods.
 # @ingroup Methods-Aerodynamics-Common-Fidelity_Zero
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
