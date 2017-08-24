@@ -1,5 +1,5 @@
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
-# wing_compressibility_correction.py
+## @ingroup Methods-Aerodynamics-Lifting_line
+# Lifting_Line.py
 # 
 # Created:  Aug 2017, E. Botero
 # Modified: 
@@ -15,7 +15,7 @@ import numpy as np
 #  The Function
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Lifting_line
 def lifting_line(state,settings,geometry):
     """
 
@@ -99,6 +99,7 @@ def lifting_line(state,settings,geometry):
         root_chord  = wing.chords.root
         tip_chord   = wing.chords.tip  
         
+        # Find the chords and twist profile
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
