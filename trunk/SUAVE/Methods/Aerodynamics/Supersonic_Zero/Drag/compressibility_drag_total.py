@@ -107,7 +107,7 @@ def compressibility_drag_total(state,settings,geometry):
                                   num_engines,k,Sref_main,True)
 
         # For subsonic mach numbers, use drag divergence correlations to find the drag
-        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
+        (cd_c[Mc[:,0] <= 0.99],mcc[Mc[:,0] <= 0.99], MDiv[Mc[:,0] <= 0.99]) = drag_div(Mc[Mc[:,0] <= 0.99],wing,k,cl[Mc[:,0] <= 0.99],Sref_main)
 
         # For mach numbers close to 1, use an interpolation to avoid intensive calculations
         cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
@@ -216,8 +216,8 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
     if wing.high_mach is True:
 
         # Divergence mach number
-        MDiv = np.array([0.95] * len(Mc_ii))
-        mcc = np.array([0.93] * len(Mc_ii))
+        MDiv = np.array([[0.95]] * len(Mc_ii))
+        mcc = np.array([[0.93]] * len(Mc_ii))
 
     else:
         # Unpack wing
@@ -264,6 +264,12 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
     cd_c = cd_c*wing.areas.reference/Sref_main    
+    
+    # Change empty format to avoid errors in assignment of returned values
+    if np.shape(cd_c) == (0,0):
+        cd_c = np.reshape(cd_c,[0,1]) 
+        mcc  = np.reshape(mcc,[0,1]) 
+        MDiv = np.reshape(MDiv,[0,1]) 
 
     return (cd_c,mcc,MDiv)
 
