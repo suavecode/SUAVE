@@ -99,7 +99,7 @@ class Supersonic_Zero(Markup):
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
-        compute.drag.total                         = Methods.Drag.total_aircraft # SZ
+        compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         
     def initialize(self):

@@ -8,4 +8,3 @@ from induced_drag_aircraft import induced_drag_aircraft
 from wave_drag_volume import wave_drag_volume
 from wave_drag_body_of_rev import wave_drag_body_of_rev
 from compressibility_drag_total import compressibility_drag_total
-from total_aircraft import total_aircraft 

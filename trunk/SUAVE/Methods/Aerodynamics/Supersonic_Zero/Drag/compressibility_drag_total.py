@@ -196,20 +196,21 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     Inputs:
     wing.
-      thickness_to_chord    [Unitless]     
+      thickness_to_chord    [-]     
       sweeps.quarter_chord  [radians]
       high_mach             [Boolean]
       areas.reference       [m^2]
 
     Outputs:
-    cd_c                    [Unitless]
-    mcc                     [Unitless]
-    MDiv                    [Unitless]
+    cd_c                    [-]
+    mcc                     [-]
+    MDiv                    [-]
 
     Properties Used:
     N/A
-    """     
-    
+    """         
+    # Use drag divergence mach number to determine drag for subsonic speeds
+
     # Check if the wing is designed for high subsonic cruise
     # If so use arbitrary divergence point as correlation will not work
     if wing.high_mach is True:
@@ -230,22 +231,23 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
             cl_w = 0
 
         # Get effective Cl and sweep
-        tc = t_c_w /(np.cos(sweep_w))
-        cl = cl_w / (np.cos(sweep_w))**2
+        cos_sweep = np.cos(sweep_w)
+        tc = t_c_w / cos_sweep
+        cl = cl_w / (cos_sweep*cos_sweep)
 
         # Compressibility drag based on regressed fits from AA241
         mcc_cos_ws = 0.922321524499352       \
             - 1.153885166170620*tc    \
             - 0.304541067183461*cl    \
-            + 0.332881324404729*tc**2 \
+            + 0.332881324404729*tc*tc \
             + 0.467317361111105*tc*cl \
-            + 0.087490431201549*cl**2
+            + 0.087490431201549*cl*cl
 
         # Crest-critical mach number, corrected for wing sweep
-        mcc = mcc_cos_ws / np.cos(sweep_w)
+        mcc = mcc_cos_ws / cos_sweep
 
         # Divergence mach number
-        MDiv = mcc * ( 1.02 + 0.08*(1 - np.cos(sweep_w)) )        
+        MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )        
 
     # Divergence ratio
     mo_mc = Mc_ii/mcc

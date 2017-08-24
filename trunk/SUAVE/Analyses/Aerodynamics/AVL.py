@@ -91,7 +91,7 @@ class AVL(Markup):
         compute.drag.compressibility.wings.wing    = Common.Drag.compressibility_drag_wing
         compute.drag.compressibility.total         = Common.Drag.compressibility_drag_wing_total        
         compute.drag.miscellaneous                 = Common.Drag.miscellaneous_drag_aircraft_ESDU
-        compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.AVL.untrimmed
+        compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft

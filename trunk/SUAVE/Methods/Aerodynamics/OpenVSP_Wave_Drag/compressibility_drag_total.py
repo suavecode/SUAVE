@@ -14,6 +14,7 @@ from SUAVE.Core import (
 )
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import wave_drag_lift
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.compressibility_drag_total import drag_div
 from wave_drag_volume import wave_drag_volume
 
 import copy
@@ -169,88 +170,6 @@ def compressibility_drag_total(state,settings,geometry):
 
     return cd_c
 
-## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
-def drag_div(Mc_ii,wing,k,cl,Sref_main):
-    """Use drag divergence mach number to determine drag for subsonic speeds
-
-    Assumptions:
-    Basic fit, subsonic
-
-    Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
-
-    Inputs:
-    wing.
-      thickness_to_chord    [-]     
-      sweeps.quarter_chord  [radians]
-      high_mach             [Boolean]
-      areas.reference       [m^2]
-
-    Outputs:
-    cd_c                    [-]
-    mcc                     [-]
-    MDiv                    [-]
-
-    Properties Used:
-    N/A
-    """         
-    # Use drag divergence mach number to determine drag for subsonic speeds
-
-    # Check if the wing is designed for high subsonic cruise
-    # If so use arbitrary divergence point as correlation will not work
-    if wing.high_mach is True:
-
-        # Divergence mach number
-        MDiv = np.array([0.95] * len(Mc_ii))
-        mcc = np.array([0.93] * len(Mc_ii))
-
-    else:
-        # Unpack wing
-        t_c_w   = wing.thickness_to_chord
-        sweep_w = wing.sweeps.quarter_chord
-
-        # Check if this is the main wing, other wings are assumed to have no lift
-        if k == 'main_wing':
-            cl_w = cl
-        else:
-            cl_w = 0
-
-        # Get effective Cl and sweep
-        cos_sweep = np.cos(sweep_w)
-        tc = t_c_w / cos_sweep
-        cl = cl_w / (cos_sweep*cos_sweep)
-
-        # Compressibility drag based on regressed fits from AA241
-        mcc_cos_ws = 0.922321524499352       \
-            - 1.153885166170620*tc    \
-            - 0.304541067183461*cl    \
-            + 0.332881324404729*tc*tc \
-            + 0.467317361111105*tc*cl \
-            + 0.087490431201549*cl*cl
-
-        # Crest-critical mach number, corrected for wing sweep
-        mcc = mcc_cos_ws / cos_sweep
-
-        # Divergence mach number
-        MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )        
-
-    # Divergence ratio
-    mo_mc = Mc_ii/mcc
-
-    # Compressibility correlation, Shevell
-    dcdc_cos3g = 0.0019*mo_mc**14.641
-
-    # Compressibility drag
-
-    # Sweep correlation cannot be used if the wing has a high mach design
-    if wing.high_mach is True:
-        cd_c = dcdc_cos3g
-    else:
-        cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
-        
-    cd_c = cd_c*wing.areas.reference/Sref_main    
-
-    return (cd_c,mcc,MDiv)
 
 ## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def lift_wave_drag(conditions,configuration,wing,k,Sref_main,flag105):
