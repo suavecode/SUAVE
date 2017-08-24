@@ -10,7 +10,6 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from .Data.Results import Results
 
 ## @ingroup Methods-Aerodynamics-AVL
 def read_results(avl_object):
@@ -39,7 +38,7 @@ def read_results(avl_object):
         case = avl_object.current_status.cases[case_name]
         num_ctrl = case.stability_and_control.control_deflections.size
         with open(case.result_filename,'r') as res_file:
-            case_res = Results()
+            case_res = Data()
             case_res.tag = case.tag
             lines   = res_file.readlines()
             

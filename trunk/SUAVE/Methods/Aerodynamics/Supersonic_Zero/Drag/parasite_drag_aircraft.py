@@ -12,7 +12,7 @@
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
      parasite_drag_wing, parasite_drag_fuselage, parasite_drag_propulsor
 
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 import numpy as np
 
@@ -60,7 +60,7 @@ def parasite_drag_aircraft(conditions,configuration,geometry):
     total_parasite_drag = 0.0
     
     # start conditions node
-    drag_breakdown.parasite = Results()
+    drag_breakdown.parasite = Data()
     
     # from wings
     for wing in wings.values():

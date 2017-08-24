@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 #
 # For more information, see ../templates/example_test_script.py
 
-
 # ----------------------------------------------------------------------
 #   The Modules to Test
 # ----------------------------------------------------------------------

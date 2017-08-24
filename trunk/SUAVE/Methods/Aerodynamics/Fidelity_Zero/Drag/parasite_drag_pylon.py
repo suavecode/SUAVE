@@ -10,7 +10,7 @@
 import numpy as np
 
 # Suave imports
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Computes the pyloan parasite drag
@@ -75,7 +75,7 @@ def parasite_drag_pylon(state,settings,geometry):
     pylon_FF            /= n_propulsors      
     
     # dump data to conditions
-    pylon_result = Results(
+    pylon_result = Data(
         wetted_area               = pylon_wetted_area   ,
         reference_area            = geometry.reference_area   ,
         parasite_drag_coefficient = pylon_parasite_drag ,

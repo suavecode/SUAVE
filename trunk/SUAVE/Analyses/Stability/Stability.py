@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Analyses import Analysis, Results
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------
@@ -61,7 +61,7 @@ class Stability(Analysis):
         Properties Used:
         N/A
         """          
-        results = Results()
+        results = Data()
         
         return results
     

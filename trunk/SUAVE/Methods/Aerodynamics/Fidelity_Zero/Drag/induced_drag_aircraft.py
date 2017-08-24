@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # package imports
 import numpy as np
@@ -63,7 +63,7 @@ def induced_drag_aircraft(state,settings,geometry):
     total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
         
     # store data
-    conditions.aerodynamics.drag_breakdown.induced = Results(
+    conditions.aerodynamics.drag_breakdown.induced = Data(
         total             = total_induced_drag ,
         efficiency_factor = e                  ,
         aspect_ratio      = ar                 ,

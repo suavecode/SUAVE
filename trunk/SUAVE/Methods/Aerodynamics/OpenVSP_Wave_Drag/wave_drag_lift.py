@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #   Wave Drag Lift
@@ -69,7 +69,7 @@ def wave_drag_lift(conditions,configuration,wing):
     wave_drag_lift[0:len(Mc[Mc >= 1.05]),0] = wave_drag_lift[Mc >= 1.05]
     
     # Dump data to conditions
-    wave_lift_result = Results(
+    wave_lift_result = Data(
         reference_area             = Sref   , 
         wave_drag_lift_coefficient = wave_drag_lift ,
         length_AR                  = ARL,

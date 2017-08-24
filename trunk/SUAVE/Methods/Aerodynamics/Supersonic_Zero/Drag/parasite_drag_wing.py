@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from compressible_mixed_flat_plate import compressible_mixed_flat_plate
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 import numpy as np
 
@@ -101,7 +101,7 @@ def parasite_drag_wing(state,settings,geometry):
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
     
     # dump data to conditions
-    wing_result = Results(
+    wing_result = Data(
         wetted_area               = Swet   , 
         reference_area            = Sref   , 
         parasite_drag_coefficient = wing_parasite_drag ,

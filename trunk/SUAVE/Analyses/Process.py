@@ -8,8 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import ContainerOrdered, DataOrdered
-from SUAVE.Analyses.Results import Results
+from SUAVE.Core import ContainerOrdered, DataOrdered, Data
 
 # ----------------------------------------------------------------------
 #  Process
@@ -50,7 +49,7 @@ class Process(ContainerOrdered):
                 N/A
             """        
         
-        results = Results()
+        results = Data()
         
         if self.verbose:
             print 'process start'

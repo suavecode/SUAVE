@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 # package imports
 import numpy as np
@@ -64,7 +64,7 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     #   Nacelle base drag
     # ------------------------------------------------------------------
     total_nacelle_base_drag = 0.0
-    nacelle_base_drag_results = Results()
+    nacelle_base_drag_results = Data()
     
     for propulsor in propulsors.values():
         
@@ -99,7 +99,7 @@ def miscellaneous_drag_aircraft(conditions,configuration,geometry):
     
     
     # dump to results
-    conditions.aerodynamics.drag_breakdown.miscellaneous = Results(
+    conditions.aerodynamics.drag_breakdown.miscellaneous = Data(
         fuselage_upsweep = fuselage_upsweep_drag     *ones_1col, 
         nacelle_base     = nacelle_base_drag_results ,
         fuselage_base    = fuselage_base_drag        *ones_1col,

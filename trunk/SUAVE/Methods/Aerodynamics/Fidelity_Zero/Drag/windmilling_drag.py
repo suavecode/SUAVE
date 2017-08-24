@@ -13,7 +13,6 @@
 import SUAVE
 from SUAVE.Components import Wings
 from SUAVE.Core import Units, Data
-from  SUAVE.Analyses import Results
 
 # ----------------------------------------------------------------------
 #  Compute drag of turbofan in windmilling condition
@@ -92,7 +91,7 @@ def windmilling_drag(geometry,state):
     windmilling_drag_coefficient = 0.007274 * swet_nac / reference_area
 
     # dump data to state
-    windmilling_result = Results(
+    windmilling_result = Data(
         wetted_area                  = swet_nac    ,
         windmilling_drag_coefficient = windmilling_drag_coefficient ,
     )
