@@ -25,8 +25,8 @@ def write(vehicle,tag):
     if they are specified in the vehicle setup file.
     
     Assumptions:
-    Vehicle is composed of conventional shape fuselages, wings, and propulsors. Any propulsor
-    that should be created in tagged as 'turbofan'.
+    Vehicle is composed of a conventional shaped fuselage, wings, and propulsors. Any propulsor
+    that should be created in tagged as 'turbofan'. The fuselage should be be tagged 'fuselage'.
 
     Source:
     N/A
@@ -270,7 +270,11 @@ def write(vehicle,tag):
             except:
                 no_twist_flag = True
             sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
-            tc_i       = wing.Segments[i_segs-1].thickness_to_chord
+            if len(wing.Segments[i_segs-1].Airfoil) == 0:
+                tc_i             = wing.Segments[i_segs-1].thickness_to_chord
+                custom_thickness = True
+            else:
+                custom_thickness = False
             
             # Calculate the local span
             if i_segs == n_segments:
@@ -295,7 +299,8 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+adjust],chord_i)
             if not no_twist_flag:
                 vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
-            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tc_i)
+            if custom_thickness == True:
+                vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tc_i)
             
             if adjust and (i_segs == 1):
                 vsp.Update()
@@ -306,7 +311,8 @@ def write(vehicle,tag):
         if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
             tip_chord = root_chord*wing.Segments[-1].root_chord_percent
             vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],tip_chord)
-            vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
+            if custom_thickness == True:
+                vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
             # twist is set in the normal loop
         else:
             vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
