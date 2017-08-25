@@ -29,6 +29,13 @@ before_install:
     - cd ../build
     - cmake ../repo/src/ -DVSP_LIBRARY_PATH=/home/travis/build/suavecode/SUAVE/OpenVSP/buildlibs -DCMAKE_BUILD_TYPE=Release
     - make -j8
+    - ls
+    - cd python_api
+    - ls
+    - pwd
+    - python vsp.py
+    - export PATH=$PATH:/home/travis/build/suavecode/SUAVE/OpenVSP/build/python_api
+    - cd ..
   
 install:
     - cd ../../trunk
