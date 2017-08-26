@@ -37,12 +37,13 @@ before_install:
     - python vsp.py
     - export PATH=$PATH:/home/travis/build/suavecode/SUAVE/OpenVSP/build/python_api
     - echo $PATH
-    - python ../../../regression/scripts/OpenVSP/vsp_test.py
     - cd ..
   
 install:
     - cd ../../trunk
     - python setup.py develop
+    - cd ../../build/python_api
+    - python ../../../regression/scripts/OpenVSP/vsp_test.py
     - cd ../regression
     - pip install coveralls
   
