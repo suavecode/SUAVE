@@ -18,6 +18,7 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
     - sudo apt-get install git git-gui cmake libxml2-dev libfltk1.3-dev g++ libcpptest-dev libjpeg-dev libglm-dev libeigen3-dev libcminpack-dev libglew-dev 
+    - sudo apt-get install swig
     - mkdir OpenVSP
     - cd OpenVSP
     - mkdir repo
