@@ -36,6 +36,8 @@ before_install:
     - pwd
     - python vsp.py
     - export PATH=$PATH:/home/travis/build/suavecode/SUAVE/OpenVSP/build/python_api
+    - echo $PATH
+    - python ../../../regression/scripts/OpenVSP/vsp_test.py
     - cd ..
   
 install:
