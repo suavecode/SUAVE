@@ -41,10 +41,13 @@ before_install:
   
 install:
     - cd ../../trunk
+    - pwd
     - python setup.py develop
-    - cd ../../build/python_api
+    - cd ../OpenVSP/build/python_api
+    - pwd
     - python ../../../regression/scripts/OpenVSP/vsp_test.py
     - cd ../regression
+    - pwd
     - pip install coveralls
   
 # run test
