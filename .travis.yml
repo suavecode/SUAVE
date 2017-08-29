@@ -37,6 +37,8 @@ before_install:
     - python vsp.py
     - export PATH=$PATH:/home/travis/build/suavecode/SUAVE/OpenVSP/build/python_api
     - echo $PATH
+    - export PYTHONPATH=$PYTHONPATH:/home/travis/build/suavecode/SUAVE/OpenVSP/build/python_api
+    - echo $PYTHONPATH
     - cd ..
   
 install:
