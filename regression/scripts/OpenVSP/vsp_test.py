@@ -31,6 +31,7 @@ Data, Container,
 
 import sys
 sys.path.append('../Vehicles')
+sys.path.append('../../../regression/scripts/Vehicles')
 from OpenVSP_Test_Vehicle import vehicle_setup, configs_setup
 
 
