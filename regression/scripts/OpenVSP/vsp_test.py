@@ -58,13 +58,13 @@ def main():
     results = mission.evaluate()
     
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
-    plt.show()
+    #plot_mission(results)
+    #plot_mission(old_results,'k-')
+    #plt.show()
 
     # check the results
     check_results(results,old_results) 
@@ -551,10 +551,10 @@ def check_results(new_results,old_results):
 
 
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('results_mission_concorde.res')
+    return SUAVE.Input_Output.SUAVE.load('results_mission_vsp.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_vsp.res')
     return    
     
 if __name__ == '__main__': 
