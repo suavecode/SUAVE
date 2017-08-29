@@ -45,9 +45,9 @@ install:
     - cd ../../trunk
     - pwd
     - python setup.py develop
-    - cd ../OpenVSP/build/python_api
-    - pwd
-    - python ../../../regression/scripts/OpenVSP/vsp_test.py
+    #- cd ../OpenVSP/build/python_api
+    #- pwd
+    #- python ../../../regression/scripts/OpenVSP/vsp_test.py
     - cd ../regression
     - pwd
     - pip install coveralls
