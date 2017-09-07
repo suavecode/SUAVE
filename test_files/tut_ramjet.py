@@ -316,7 +316,8 @@ def vehicle_setup():
     combustor.efficiency                = 1.   
     combustor.turbine_inlet_temperature = 2400.
     combustor.pressure_ratio            = 1.0
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()  
+    combustor.rayleigh_analysis         = True
     
     # add to network
     ramjet.append(combustor)
