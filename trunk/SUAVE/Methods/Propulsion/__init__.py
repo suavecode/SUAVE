@@ -10,4 +10,5 @@ from turbofan_sizing import turbofan_sizing
 from turbojet_sizing import turbojet_sizing
 from ramjet_sizing import ramjet_sizing
 from fm_id import fm_id
+from rayleigh import rayleigh
 import electric_motor_sizing
