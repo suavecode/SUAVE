@@ -1,6 +1,7 @@
 # ramjet_sizing.py
 # 
-# Created:  May 2017, P. Goncalves     
+# Created:  May 2015, T. MacDonald 
+# Modified: Jan 2016, E. Botero        
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -81,13 +82,12 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
     
     #Flow through the inlet nozzle
-    inlet_nozzle.size(conditions)
+    inlet_nozzle(conditions)
 
     #link the combustor to the high pressure compressor
     combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature
     combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure
-    combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
-
+    
     #flow through the high pressor comprresor
     combustor(conditions)
 
@@ -109,11 +109,11 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
     
     #link the thrust component to the low pressure compressor 
-    thrust.inputs.stag_temp_lpt_exit                       = inlet_nozzle.outputs.stagnation_temperature
-    thrust.inputs.stag_press_lpt_exit                      = inlet_nozzle.outputs.stagnation_pressure
+    thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature
+    thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines
-    thrust.inputs.total_temperature_reference              = inlet_nozzle.outputs.stagnation_temperature
-    thrust.inputs.total_pressure_reference                 = inlet_nozzle.outputs.stagnation_pressure
+    thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
+    thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
 
     #compute the thrust
     thrust.inputs.fan_nozzle = Data()
@@ -124,7 +124,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
     thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation     
     thrust.size(conditions)
-
+    
     #update the design thrust value
     ramjet.design_thrust = thrust.total_design
 
