@@ -20,6 +20,7 @@ import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 
+
 # ----------------------------------------------------------------------
 #  Expansion Nozzle Component
 # ----------------------------------------------------------------------
@@ -33,26 +34,20 @@ def exit_Mach_shock(area_ratio, gamma, Pt_out, P0):
         
         
 def mach_area(area_ratio, gamma, subsonic):
-        
         func = lambda Me : area_ratio**2 - ((1/Me)**2)*(((2/(gamma+1))*(1+((gamma-1)/2)*Me**2))**((gamma+1)/((gamma-1))))
-
         if subsonic:
             Me_initial_guess = 0.01
-
         else:
-            Me_initial_guess = 2.0
-
-            
+            Me_initial_guess = 2.0         
         
         Me_solution = fsolve(func,Me_initial_guess)
 
         return Me_solution
-    
 
     
-def normal_shock(M1, gamma):
-    
+def normal_shock(M1, gamma):  
     M2 = np.sqrt((((gamma-1)*M1**2)+2)/(2*gamma*M1**2-(gamma-1)))
+    
     return M2
     
 def pressure_ratio_isentropic(area_ratio, gamma, subsonic):
@@ -70,18 +65,23 @@ def pressure_ratio_shock_in_nozzle(area_ratio, gamma):
     
     pr_shock_in_nozzle = ((area_ratio)*(((gamma+1)/2)**((gamma+1)/(2*(gamma-1))))*M2*((1+((gamma-1)/2)*M2**2)**0.5))**(-1)
     return pr_shock_in_nozzle
-
-    
-    
     
     
 class Supersonic_Nozzle_V2(Energy_Component):
-    """ SUAVE.Components.Energy.Gas_Turbine.Nozzle
-        a nozzle component
-        
-        this class is callable, see self.__call__
-        
-        """
+    """This is a variable geometry nozzle component that allows 
+    for supersonic outflow. all possible nozzle conditions, including 
+    overexpansion and underexpansion.
+    Calling this class calls the compute function. 
+    T
+    
+    Assumptions:
+    Pressure ratio and efficiency do not change with varying conditions.
+    
+    Source:
+    https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+    
+    Cantwell, Fundamentals of Compressible Flow, Chapter 10
+    """
     
     def __defaults__(self):
         
@@ -89,9 +89,9 @@ class Supersonic_Nozzle_V2(Energy_Component):
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
         self.pressure_ratio                  = 1.0
-        self.inputs.stagnation_temperature   = 0.
+        self.inputs.stagnation_temperature   = 1.0
         self.inputs.stagnation_pressure      = 0.
-        self.outputs.stagnation_temperature  = 0.
+        self.outputs.stagnation_temperature  = 1.0
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
     
@@ -109,6 +109,7 @@ class Supersonic_Nozzle_V2(Energy_Component):
         Tto      = conditions.freestream.stagnation_temperature
         R        = conditions.freestream.universal_gas_constant
         Mo       = conditions.freestream.mach_number
+        To       = conditions.freestream.temperature
         
         #unpack from inputs
         Tt_in    = self.inputs.stagnation_temperature
@@ -118,9 +119,7 @@ class Supersonic_Nozzle_V2(Energy_Component):
         #unpack from self
         pid           = self.pressure_ratio
         etapold       = self.polytropic_efficiency
-        area_ratio    = self.area_ratio
-        
- 
+        #area_ratio    = self.area_ratio
         
         
         #Method for computing the nozzle properties
@@ -130,16 +129,18 @@ class Supersonic_Nozzle_V2(Energy_Component):
         Tt_out   = Tt_in*pid**((gamma-1)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
 
+        
         # Method for computing the nozzle properties
         
         #-- Compute the output Mach number guess with freestream pressure
         M_out          = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
-        
+
         #-- Initializing arrays
         P_out         = 1.0 *M_out/M_out
-
-        max_area_ratio = area_ratio*1.6
-        min_area_ratio = area_ratio*0.7
+        Pt_out        = Pt_out * M_out/M_out
+        area_ratio = 1.5
+        max_area_ratio = 1.70
+        min_area_ratio = 1.4
         
 #        
         #-- Compute limits of each possible regime 
@@ -175,9 +176,6 @@ class Supersonic_Nozzle_V2(Energy_Component):
         #-- Supersonic nozzle AND shock outside nozzle
         elif np.any(Po/Pt_out > supersonic_pressure_ratio):
             #print 'Overexpanded flow'
-            
-
-                                          
             if np.any(Po/Pt_out <= supersonic_min_Area):
                 #print 'Variable geometry, reduce area to match P0'
                 P_out = Po
@@ -203,11 +201,11 @@ class Supersonic_Nozzle_V2(Energy_Component):
                 #print 'Variable geometry, increase area to match Po'
                 P_out = Po
                 M_out = np.sqrt((((Pt_out/P_out)**((gamma-1)/gamma))-1)*2/(gamma-1))
-                area_ratio = np.sqrt((1/M_out)**2)*(((2/(gamma+1))*(1+((gamma-1)/2)*M_out**2))**((gamma+1)/((gamma-1))))
+                area_ratio = fm_id(M_out)
             else:
                 P_out = supersonic_pressure_ratio * Pt_out
                 M_out = np.sqrt((((Pt_out/P_out)**((gamma-1)/gamma))-1)*2/(gamma-1))
-
+                area_ratio = fm_id(M_out)
 
        #-- Calculate other flow properties
 
@@ -215,7 +213,8 @@ class Supersonic_Nozzle_V2(Energy_Component):
         h_out         = Cp*T_out
         u_out = M_out*np.sqrt(gamma*R*T_out)
         rho_out       = P_out/(R*T_out)
-        
+
+
         
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out
