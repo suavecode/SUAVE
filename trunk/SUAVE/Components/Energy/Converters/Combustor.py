@@ -62,6 +62,7 @@ class Combustor(Energy_Component):
         self.inputs.stagnation_temperature  = 1.0
         self.inputs.stagnation_pressure     = 1.0
         self.inputs.static_pressure         = 1.0
+        self.inputs.mach_number             = 0.1
         self.outputs.stagnation_temperature = 1.0
         self.outputs.stagnation_pressure    = 1.0
         self.outputs.static_pressure        = 1.0
