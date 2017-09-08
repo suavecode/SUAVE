@@ -298,8 +298,9 @@ def vehicle_setup():
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
-    inlet_nozzle.polytropic_efficiency = 1.
-    inlet_nozzle.pressure_ratio        = 1.
+    inlet_nozzle.polytropic_efficiency      = 1.
+    inlet_nozzle.pressure_ratio             = 1.
+    inlet_nozzle.compressibility_effects    = True
     
     # add to network
     ramjet.append(inlet_nozzle)
@@ -317,7 +318,7 @@ def vehicle_setup():
     combustor.turbine_inlet_temperature = 2400.
     combustor.pressure_ratio            = 1.0
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()  
-    combustor.rayleigh_analysis         = True
+    combustor.rayleigh_analyses         = True
     
     # add to network
     ramjet.append(combustor)
