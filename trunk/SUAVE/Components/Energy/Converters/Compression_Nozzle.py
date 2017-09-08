@@ -150,7 +150,6 @@ class Compression_Nozzle(Energy_Component):
             P_out[i_high]  = Pt_out[i_high]*(1+(2*gamma/(gamma+1))*(Mach[i_high]**2-1))
         
         else:
-            print 'entrei mesmo'
             Pt_out  = Pt_in*pid            
             Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
             T_out  = Tt_out/(1+(gamma-1)/2*Mach*Mach)
