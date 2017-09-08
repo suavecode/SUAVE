@@ -36,14 +36,23 @@ def rayleigh(gamma, M0, TtR):
     
     func = lambda M1: ((1+gamma*M0**2)**2*M1**2*(1+(gamma-1)*M1**2/2))/((1+gamma*M1**2)**2*M0**2*(1+(gamma-1)/2*M0**2)) - TtR[-1]
 
-    if M0 > 1.0:
-        M1_guess = 1.1
-    else:
-        M1_guess = .01
+    #Initializing the array
+    M1_guess = 1.0*M0/M0
+    
+    # Separating supersonic and subsonic solutions
+    i_low = M0 <= 1.0
+    i_high = M0 > 1.0
+
+    #--Subsonic solution
+    M1_guess[i_low]= .1
+    
+    #--Supersonic solution
+    M1_guess[i_high]= 1.1
+
         
-    M = fsolve(func,M1_guess)
+    M1 = fsolve(func,M1_guess)
     
     #Calculate stagnation pressure ratio
-    Ptr = (1+gamma*M0**2)/(1+gamma*M**2)*((1+(gamma-1)/2*M**2)/(1+(gamma-1)/2*M0**2))**(gamma/(gamma-1))
+    Ptr = (1+gamma*M0**2)/(1+gamma*M1**2)*((1+(gamma-1)/2*M1**2)/(1+(gamma-1)/2*M0**2))**(gamma/(gamma-1))
     
-    return M, Ptr
+    return M1, Ptr

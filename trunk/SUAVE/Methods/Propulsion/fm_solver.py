@@ -32,11 +32,17 @@ def fm_solver(Aratio, M0, gamma):
     
     func = lambda M1: (M0/M1*((1+(gamma-1)/2*M1**2)/(1+(gamma-1)/2*M0**2))**((gamma+1)/(2*(gamma-1))))-Aratio
 
-    i_low = M0 <= 1.0
-    i_high = M0 > 1.0
+    #Initializing the array
     M1_guess = 1.0*M0/M0
     
+    # Separating supersonic and subsonic solutions
+    i_low = M0 <= 1.0
+    i_high = M0 > 1.0
+
+    #--Subsonic solution
     M1_guess[i_low]= .1
+    
+    #--Supersonic solution
     M1_guess[i_high]= 1.1
  
     M1 = fsolve(func,M1_guess)

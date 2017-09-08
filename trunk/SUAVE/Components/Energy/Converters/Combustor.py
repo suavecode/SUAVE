@@ -130,19 +130,20 @@ class Combustor(Energy_Component):
         # Rayleigh flow analysis, constant pressure burner
         if ray_analysis:
             
-            """1/0.89 is a dummy value. Inlet nozzle must be changed to account
-            for shock and pressure loss"""
-            herro = (1/0.89) * Pt_in/Pt_in
+            # Initialize arrays
             M_out = 1*Pt_in/Pt_in
-            Ptr  = 1*Pt_in/Pt_in
-            print herro.shape
-            ray_charles = Pt_in <1000000000000000.
-            Mach[ray_charles]    = np.sqrt((((herro[ray_charles])**((gamma-1)/gamma))-1)*2/(gamma-1))                      # Burner entry Mach number
-            Mach[ray_charles]    = fm_solver(ar,Mach[ray_charles],gamma)  
-            print 'Mach solved', Mach
+            Ptr   = 1*Pt_in/Pt_in
+
+            # Make i_rayleigh the size of output arrays
+            i_rayleigh = Pt_in <2*Pt_in
+            
+            # Isentropic decceleration through divergent nozzle
+            Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma)  
+            
             # Determine max stagnation temperature to thermally choke flow                                     
             Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
 
+            #Separting which condition defines Tt4 : Rayleigh or material limitations
             i_low = Tt4_ray <= Tt4
             i_high = Tt4_ray > Tt4
             
@@ -155,13 +156,12 @@ class Combustor(Energy_Component):
             Tt4[i_low] = Tt4_ray[i_low]
             
             #Rayleigh calculations
-            M_out[ray_charles], Ptr[ray_charles] = rayleigh(gamma,Mach[ray_charles],Tt4[ray_charles]/Tt_in[ray_charles])
-
+            M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma,Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh])
             Pt_out     = Ptr*Pt_in
             
         else:
             Pt_out      = Pt_in*pib
-            
+
 
         # method to compute combustor properties
 
