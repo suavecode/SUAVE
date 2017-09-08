@@ -16,6 +16,7 @@ from scipy.optimize import fsolve
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.rayleigh import rayleigh
+from SUAVE.Methods.Propulsion.fm_solver import fm_solver
 
 
 # ----------------------------------------------------------------------
@@ -122,28 +123,40 @@ class Combustor(Energy_Component):
         eta_b  = self.efficiency
         
         # unpacking values from self
-        htf    = self.fuel_data.specific_energy
-        ray    = self.rayleigh_analysis
-        ar     = self.area_ratio
+        htf             = self.fuel_data.specific_energy
+        ray_analysis    = self.rayleigh_analysis
+        ar              = self.area_ratio
         
         # Rayleigh flow analysis, constant pressure burner
-        if ray:
-            M_in    = np.sqrt((((1/0.89)**((gamma-1)/gamma))-1)*2/(gamma-1))                      # Burner entry Mach number
-            M_in    = isentropic_area_mach(ar,M_in,gamma)
-            Tt4_ray = Tt_in*(1+gamma*M_in**2)**2/((2*(1+gamma)*M_in**2)*(1+(gamma-1)/2*M_in**2))  # Max stagnation temperature to choke the flow
-#            for tt4_ray in Tt4_ray:
-#                if tt4_ray < Tt4:
-#                    Tt4 = tt4_ray
-#           
-            if np.all(Tt4_ray < Tt4):
-                Tt4 = Tt4_ray
-                
-            M_out, Ptr = rayleigh(gamma,M_in,Tt4/Tt_in)
-            print 'M_out', M_out, 'Ptr', Ptr
+        if ray_analysis:
+            
+            """1/0.89 is a dummy value. Inlet nozzle must be changed to account
+            for shock and pressure loss"""
+            
+            Mach    = np.sqrt((((1/0.89)**((gamma-1)/gamma))-1)*2/(gamma-1))                      # Burner entry Mach number
+            Mach    = fm_solver(ar,Mach,gamma)  
+
+            # Determine max stagnation temperature to thermally choke flow                                     
+            Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
+
+            i_low = Tt4_ray <= Tt4
+            i_high = Tt4_ray > Tt4
+            
+            # Choose Tt4 for fuel calculations
+            
+            # --Material limitations define Tt4
+            Tt4 = Tt4*Tt4_ray/Tt4_ray
+            
+            # --Rayleigh limitations define Tt4
+            Tt4[i_low] = Tt4_ray[i_low]
+            
+            #Rayleigh calculations
+            M_out, Ptr = rayleigh(gamma,Mach,Tt4/Tt_in)
+
             Pt_out     = Ptr*Pt_in
             
         else:
-            Pt_out  = Pt_in*pib
+            Pt_out      = Pt_in*pib
             
 
         # method to compute combustor properties
@@ -169,30 +182,3 @@ class Combustor(Energy_Component):
     
     __call__ = compute
     
-    
-def rayleigh_equations(gamma, M0, TtR):
-    
-    func = lambda M1: ((1+gamma*M0**2)**2*M1**2*(1+(gamma-1)*M1**2/2))/((1+gamma*M1**2)**2*M0**2*(1+(gamma-1)/2*M0**2)) - TtR[-1]
-
-    if M0 > 1.0:
-        M1_guess = 1.1
-    else:
-        M1_guess = .1
-        
-    M = fsolve(func,M1_guess)
-    Ptr = (1+gamma*M0**2)/(1+gamma*M**2)*((1+(gamma-1)/2*M**2)/(1+(gamma-1)/2*M0**2))**(gamma/(gamma-1))
-    
-    return M, Ptr
-
-def isentropic_area_mach(Aratio, M0, gamma):
-    
-    func = lambda M1: (M0/M1*((1+(gamma-1)/2*M1**2)/(1+(gamma-1)/2*M0**2))**((gamma+1)/(2*(gamma-1))))-Aratio
-
-    if M0 > 1.0:
-        M1_guess = 1.1
-    else:
-        M1_guess = .1
-        
-    M1 = fsolve(func,M1_guess)
-    
-    return M1
