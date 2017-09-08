@@ -32,11 +32,13 @@ def fm_solver(Aratio, M0, gamma):
     
     func = lambda M1: (M0/M1*((1+(gamma-1)/2*M1**2)/(1+(gamma-1)/2*M0**2))**((gamma+1)/(2*(gamma-1))))-Aratio
 
-    if M0 > 1.0:
-        M1_guess = 1.1
-    else:
-        M1_guess = .1
-        
+    i_low = M0 <= 1.0
+    i_high = M0 > 1.0
+    M1_guess = 1.0*M0/M0
+    
+    M1_guess[i_low]= .1
+    M1_guess[i_high]= 1.1
+ 
     M1 = fsolve(func,M1_guess)
     
     return M1

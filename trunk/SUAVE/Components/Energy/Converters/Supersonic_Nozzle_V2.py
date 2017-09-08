@@ -119,6 +119,9 @@ class Supersonic_Nozzle_V2(Energy_Component):
         P_out         = 1.0 *M_out/M_out
         Pt_out        = Pt_out * M_out/M_out
 
+        """ Need to change the if statements to incorporate an index to tell us the result
+        of the comparison. Still not sure how to do it """
+        
         M_out = np.sqrt((((Pt_out/P_out)**((gamma-1)/gamma))-1)*2/(gamma-1))
 
         #-- Subsonic regime

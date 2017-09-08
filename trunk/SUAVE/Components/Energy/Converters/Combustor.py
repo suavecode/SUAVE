@@ -117,7 +117,7 @@ class Combustor(Energy_Component):
         # unpacking the values form inputs
         Tt_in  = self.inputs.stagnation_temperature
         Pt_in  = self.inputs.stagnation_pressure
-        P_in   = self.inputs.static_pressure
+        Mach   = self.inputs.mach_number
         Tt4    = self.turbine_inlet_temperature
         pib    = self.pressure_ratio
         eta_b  = self.efficiency
@@ -132,10 +132,14 @@ class Combustor(Energy_Component):
             
             """1/0.89 is a dummy value. Inlet nozzle must be changed to account
             for shock and pressure loss"""
-            
-            Mach    = np.sqrt((((1/0.89)**((gamma-1)/gamma))-1)*2/(gamma-1))                      # Burner entry Mach number
-            Mach    = fm_solver(ar,Mach,gamma)  
-
+            herro = (1/0.89) * Pt_in/Pt_in
+            M_out = 1*Pt_in/Pt_in
+            Ptr  = 1*Pt_in/Pt_in
+            print herro.shape
+            ray_charles = Pt_in <1000000000000000.
+            Mach[ray_charles]    = np.sqrt((((herro[ray_charles])**((gamma-1)/gamma))-1)*2/(gamma-1))                      # Burner entry Mach number
+            Mach[ray_charles]    = fm_solver(ar,Mach[ray_charles],gamma)  
+            print 'Mach solved', Mach
             # Determine max stagnation temperature to thermally choke flow                                     
             Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
 
@@ -151,7 +155,7 @@ class Combustor(Energy_Component):
             Tt4[i_low] = Tt4_ray[i_low]
             
             #Rayleigh calculations
-            M_out, Ptr = rayleigh(gamma,Mach,Tt4/Tt_in)
+            M_out[ray_charles], Ptr[ray_charles] = rayleigh(gamma,Mach[ray_charles],Tt4[ray_charles]/Tt_in[ray_charles])
 
             Pt_out     = Ptr*Pt_in
             
