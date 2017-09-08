@@ -174,20 +174,18 @@ class Thrust(Energy_Component):
       
      
         Fsp              = 1./(gamma*M0)*Thrust_nd
-        
+
         #Computing the specific impulse
         #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
-       
-     
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
-        
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
+
      
         
         #fuel flow rate
