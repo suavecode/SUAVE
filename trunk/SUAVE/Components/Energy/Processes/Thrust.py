@@ -167,7 +167,7 @@ class Thrust(Energy_Component):
         
 
         #computing the non dimensional thrust
-        core_thrust_nondimensional  = flow_through_core*((1+f)*gamma*M0*M0*(core_nozzle.velocity/u0-1) + core_area_ratio*(core_nozzle.static_pressure/p0-1))
+        core_thrust_nondimensional  = flow_through_core*(gamma*M0*M0*(core_nozzle.velocity/u0-1) + core_area_ratio*(core_nozzle.static_pressure/p0-1))
         fan_thrust_nondimensional   = flow_through_fan*(gamma*M0*M0*(fan_nozzle.velocity/u0-1) + fan_area_ratio*(fan_nozzle.static_pressure/p0-1))
         
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
