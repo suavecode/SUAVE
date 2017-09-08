@@ -104,6 +104,7 @@ class Compression_Nozzle(Energy_Component):
         gamma   = conditions.freestream.isentropic_expansion_factor
         Cp      = conditions.freestream.specific_heat_at_constant_pressure
         Po      = conditions.freestream.pressure
+        Mo      = conditions.freestream.mach_number
         R       = conditions.freestream.universal_gas_constant
         
         #unpack from inpust
@@ -117,19 +118,34 @@ class Compression_Nozzle(Energy_Component):
         #Method to compute the output variables
         
         #--Getting the output stagnation quantities
-        Pt_out  = Pt_in*pid
         Tt_out  = Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out  = Cp*Tt_out
         
-        # in case pressures go too low
-        if np.any(Pt_out<Po):
-            warn('Pt_out goes too low',RuntimeWarning)
-            Pt_out[Pt_out<Po] = Po[Pt_out<Po]
+        #initializing the arrays
+        Mach     = 1.0 * Pt_in/Pt_in
+        T_out    = 1.0 * Pt_in/Pt_in
+        Mo       = Mo * Pt_in/Pt_in
+        Pt_out   = 1.0 * Pt_in/Pt_in
+        P_out    = 1.0 * Pt_in/Pt_in
+        
+        i_low  = Mo <= 1.0
+        i_high = Mo > 1.0
         
         
         #compute the output Mach number, static quantities and the output velocity
-        Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
-        T_out   = Tt_out/(1+(gamma-1)/2*Mach*Mach)
+        
+        #-- Inlet Mach <= 1.0, isentropic relations
+        Mach[i_low]    = np.sqrt( (((Pt_out[i_low]/Po[i_low])**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
+        T_out[i_low]   = Tt_out[i_low]/(1+(gamma-1)/2*Mach[i_low]*Mach[i_low])
+        Pt_out[i_low]  = Pt_in[i_low]*pid
+        
+        #-- Inlet Mach > 1.0, normal shock
+        Mach[i_high]   = np.sqrt((1+(gamma-1)/2*Mo[i_high]**2)/(gamma*Mo[i_high]**2-(gamma-1)/2))
+        T_out[i_high]  = Tt_out[i_high]/(1+(gamma-1)/2*Mach[i_high]*Mach[i_high])
+        Pt_out[i_high] = Pt_in[i_high]*((((gamma+1)*(Mo[i_high]**2))/((gamma-1)*Mo[i_high]**2+2))**(gamma/(gamma-1)))*((gamma+1)/(2*gamma*Mo[i_high]**2-(gamma-1)))**(1/(gamma-1))
+        P_out[i_high]  = Pt_out[i_high]*(1+(2*gamma/(gamma+1))*(Mach[i_high]**2-1))
+        
+        #-- Compute exit velocity and enthalpy
         h_out   = Cp*T_out
         u_out   = np.sqrt(2*(ht_out-h_out))
           
