@@ -144,13 +144,18 @@ class Compression_Nozzle(Energy_Component):
             T_out[i_low]   = Tt_out[i_low]/(1+(gamma-1)/2*Mach[i_low]*Mach[i_low])
             
             #-- Inlet Mach > 1.0, normal shock
-            Mach[i_high]   = np.sqrt((1+(gamma-1)/2*Mo[i_high]**2)/(gamma*Mo[i_high]**2-(gamma-1)/2))
-            T_out[i_high]  = Tt_out[i_high]/(1+(gamma-1)/2*Mach[i_high]*Mach[i_high])
-            Pt_out[i_high] = Pt_in[i_high]*((((gamma+1)*(Mo[i_high]**2))/((gamma-1)*Mo[i_high]**2+2))**(gamma/(gamma-1)))*((gamma+1)/(2*gamma*Mo[i_high]**2-(gamma-1)))**(1/(gamma-1))
-            P_out[i_high]  = Pt_out[i_high]*(1+(2*gamma/(gamma+1))*(Mach[i_high]**2-1))
+            Mach[i_high]   = np.sqrt((1.+(gamma-1.)/2.*Mo[i_high]**2.)/(gamma*Mo[i_high]**2-(gamma-1.)/2.))
+            T_out[i_high]  = Tt_out[i_high]/(1.+(gamma-1.)/2*Mach[i_high]*Mach[i_high])
+            Pt_out[i_high] = Pt_in[i_high]*((((gamma+1.)*(Mo[i_high]**2.))/((gamma-1.)*Mo[i_high]**2.+2.))**(gamma/(gamma-1.)))*((gamma+1.)/(2.*gamma*Mo[i_high]**2.-(gamma-1.)))**(1./(gamma-1.))
+            P_out[i_high]  = Pt_out[i_high]*(1.+(2.*gamma/(gamma+1.))*(Mach[i_high]**2.-1.))
         
         else:
-            Pt_out  = Pt_in*pid            
+            Pt_out  = Pt_in*pid
+            # in case pressures go too low
+            if np.any(Pt_out<Po):
+                warn('Pt_out goes too low',RuntimeWarning)
+                Pt_out[Pt_out<Po] = Po[Pt_out<Po]
+
             Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
             T_out  = Tt_out/(1+(gamma-1)/2*Mach*Mach)
         

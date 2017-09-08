@@ -17,6 +17,5 @@ from Ram import Ram
 from Solar_Panel import Solar_Panel
 from Turbine import Turbine
 from Supersonic_Nozzle import Supersonic_Nozzle
-from Supersonic_Intake import Supersonic_Intake
 from Supersonic_Nozzle_V2 import Supersonic_Nozzle_V2
 from Shaft_Power_Off_Take import Shaft_Power_Off_Take
