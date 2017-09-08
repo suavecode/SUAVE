@@ -125,7 +125,7 @@ class Combustor(Energy_Component):
         
         # unpacking values from self
         htf             = self.fuel_data.specific_energy
-        ray_analysis    = self.rayleigh_analysis
+        ray_analysis    = self.rayleigh_analyses
         ar              = self.area_ratio
         
         # Rayleigh flow analysis, constant pressure burner
