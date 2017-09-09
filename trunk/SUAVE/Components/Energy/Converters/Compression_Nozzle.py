@@ -127,7 +127,8 @@ class Compression_Nozzle(Energy_Component):
         
 
         if compressibility_effects :
-            #compute the output Mach number, static quantities and the output velocity
+            
+            # Checking from Mach numbers below, above 1.0
             i_low  = Mo <= 1.0
             i_high = Mo > 1.0
             

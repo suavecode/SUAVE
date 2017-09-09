@@ -1,15 +1,14 @@
 ## @ingroup Methods-Propulsion
-# fm_id.py
+# fm_solver.py
 # 
-# Created:  ### ####, SUAVE Team
-# Modified: Feb 2016, E. Botero
+# Created:  Sep 2017, P Goncalves
 
 import numpy as np
 
 from scipy.optimize import fsolve
 
 # ----------------------------------------------------------------------
-#  fm_id
+#  fm_solver
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Propulsion

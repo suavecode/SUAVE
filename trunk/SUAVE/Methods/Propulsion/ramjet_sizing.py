@@ -72,7 +72,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     
     #Creating the network by manually linking the different components
     #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                             = ramjet.working_fluid
+    ram.inputs.working_fluid                               = ramjet.working_fluid
     
     #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
     ram(conditions)
@@ -117,13 +117,13 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
 
     #compute the thrust
-    thrust.inputs.fan_nozzle = Data()
-    thrust.inputs.fan_nozzle.velocity = 0.0
-    thrust.inputs.fan_nozzle.area_ratio = 0.0
-    thrust.inputs.fan_nozzle.static_pressure = 0.0
-    thrust.inputs.bypass_ratio = 0.0
-    thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
-    thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation     
+    thrust.inputs.fan_nozzle                               = Data()
+    thrust.inputs.fan_nozzle.velocity                      = 0.0
+    thrust.inputs.fan_nozzle.area_ratio                    = 0.0
+    thrust.inputs.fan_nozzle.static_pressure               = 0.0
+    thrust.inputs.bypass_ratio                             = 0.0
+    thrust.inputs.flow_through_core                        = 1.0 #scaled constant to turn on core thrust computation
+    thrust.inputs.flow_through_fan                         = 0.0 #scaled constant to turn on fan thrust computation     
     thrust.size(conditions)
     
     #update the design thrust value
@@ -131,8 +131,8 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
 
     #compute the sls_thrust
     #call the atmospheric model to get the conditions at the specified altitude
-    atmosphere_sls = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data = atmosphere_sls.compute_values(0.0,0.0)
+    atmosphere_sls  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data       = atmosphere_sls.compute_values(0.0,0.0)
     
     p   = atmo_data.pressure          
     T   = atmo_data.temperature       

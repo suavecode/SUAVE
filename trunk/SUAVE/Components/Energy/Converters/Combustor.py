@@ -106,6 +106,7 @@ class Combustor(Energy_Component):
           turbine_inlet_temperature           [K]
           pressure_ratio                      [-]
           efficiency                          [-]
+          area_ratio                          [-]
         """         
         # unpack the values
         
@@ -136,7 +137,7 @@ class Combustor(Energy_Component):
             Ptr   = 1*Pt_in/Pt_in
 
             # Make i_rayleigh the size of output arrays
-            i_rayleigh = Pt_in <2*Pt_in
+            i_rayleigh = Pt_in < 2*Pt_in
             
             # Isentropic decceleration through divergent nozzle
             Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma)  
@@ -144,7 +145,7 @@ class Combustor(Energy_Component):
             # Determine max stagnation temperature to thermally choke flow                                     
             Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
 
-            #Separting which condition defines Tt4 : Rayleigh or material limitations
+            # Checking if Tt4 is limited by Rayleigh
             i_low = Tt4_ray <= Tt4
             i_high = Tt4_ray > Tt4
             

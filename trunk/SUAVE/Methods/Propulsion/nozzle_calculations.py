@@ -3,10 +3,10 @@
 # 
 # Created:  ### ####, SUAVE Team
 # Modified: Feb 2016, E. Botero
-import SUAVE
 
-from scipy.optimize import fsolve
 import numpy as np
+from scipy.optimize import fsolve
+
 
 # ----------------------------------------------------------------------
 #  fm_id
@@ -14,23 +14,30 @@ import numpy as np
 
 ## @ingroup Methods-Propulsion
 def exit_Mach_shock(area_ratio, gamma, Pt_out, P0):
-        func = lambda Me : (Pt_out/P0)*(1/area_ratio)-(((gamma+1)/2)**((gamma+1)/(2*(gamma-1))))*Me*((1+(gamma-1)/2*Me**2)**0.5)
-        Me_initial_guess = 0.01
-        Me_solution = fsolve(func,Me_initial_guess)
+    func = lambda Me : (Pt_out/P0)*(1/area_ratio)-(((gamma+1)/2)**((gamma+1)/(2*(gamma-1))))*Me*((1+(gamma-1)/2*Me**2)**0.5)
+
+    #Initializing the array
+    Me_initial_guess = 1.0*Pt_out/Pt_out
         
-        return Me_solution
+    i_sol = Me_initial_guess < 10.0
+    
+    Me_initial_guess[i_sol] = 0.1
+
+    Me = fsolve(func,Me_initial_guess)
+        
+    return Me
         
         
 def mach_area(area_ratio, gamma, subsonic):
-        func = lambda Me : area_ratio**2 - ((1/Me)**2)*(((2/(gamma+1))*(1+((gamma-1)/2)*Me**2))**((gamma+1)/((gamma-1))))
-        if subsonic:
-            Me_initial_guess = 0.01
-        else:
-            Me_initial_guess = 2.0         
+    func = lambda Me : area_ratio**2 - ((1/Me)**2)*(((2/(gamma+1))*(1+((gamma-1)/2)*Me**2))**((gamma+1)/((gamma-1))))
+    if subsonic:
+        Me_initial_guess = 0.01
+    else:
+        Me_initial_guess = 2.0         
         
-        Me_solution = fsolve(func,Me_initial_guess)
+    Me = fsolve(func,Me_initial_guess)
 
-        return Me_solution
+    return Me
 
     
 def normal_shock(M1, gamma):  

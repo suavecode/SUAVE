@@ -1,8 +1,7 @@
 ## @ingroup Components-Energy-Networks
-# Turbojet_Super.py
+# Ramjet.py
 # 
-# Created:  May 2015, T. MacDonald
-# Modified: Aug 2017, E. Botero
+# Created:  Jun 2017, P. Goncalves
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,12 +14,12 @@ from SUAVE.Core import Data, Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
-#  Turbojet Network
+#  Ramjet Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
 class Ramjet(Propulsor):
-    """ This is a turbojet for supersonic flight.
+    """ This is a ramjet for supersonic flight.
 
         Assumptions:
         None
@@ -71,21 +70,21 @@ class Ramjet(Propulsor):
 		state [state()]
     
 		Outputs:
-		results.thrust_force_vector [newtons]
-		results.vehicle_mass_rate   [kg/s]
+		results.thrust_force_vector                   [newtons]
+		results.vehicle_mass_rate                     [kg/s]
 		conditions.propulsion.acoustic_outputs:
 		    core:
-			exit_static_temperature      
-			exit_static_pressure       
-			exit_stagnation_temperature 
-			exit_stagnation_pressure
-			exit_velocity 
+			exit_static_temperature                  [K] 
+			exit_static_pressure                     [K] 
+			exit_stagnation_temperature              [K] 
+			exit_stagnation_pressure                 [Pa] 
+			exit_velocity                            [m/s] 
 		    fan:
-			exit_static_temperature      
-			exit_static_pressure       
-			exit_stagnation_temperature 
-			exit_stagnation_pressure
-			exit_velocity 
+			exit_static_temperature                  [K]  
+			exit_static_pressure                     [K] 
+			exit_stagnation_temperature              [K] 
+			exit_stagnation_pressure                 [Pa] 
+			exit_velocity                            [m/s] 
     
 		Properties Used:
 		Defaulted values
