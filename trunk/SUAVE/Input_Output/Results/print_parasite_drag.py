@@ -9,7 +9,6 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units,Data
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import miscellaneous_drag_aircraft_ESDU
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 import numpy as np

@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
 from SUAVE.Core import Data
 
 import numpy as np
