@@ -167,6 +167,24 @@ class Ramjet(Propulsor):
     
     def size(self,state):  
         
+        """ Size the ramjet
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            State [state()]
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """       
+        
         #Unpack components
         conditions = state.conditions      
         ram                       = self.ram
