@@ -29,6 +29,7 @@ Contributing Developers
 * Michael Colonno
 * Michael Kruger
 * Michael Vegh
+* Pedro Gonçalves 
 * Rick Fenrich
 * Tarik Orra
 * Tim MacDonald
