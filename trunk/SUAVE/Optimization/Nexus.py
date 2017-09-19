@@ -67,6 +67,7 @@ class Nexus(Data):
         self.last_inputs            = None
         self.last_fidelity          = None
         self.evaluation_count       = 0
+        self.force_evaluate         = False
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -92,7 +93,8 @@ class Nexus(Data):
         
         # Check if last call was the same
         if np.all(self.optimization_problem.inputs==self.last_inputs) \
-           and self.last_fidelity == self.fidelity_level:
+           and self.last_fidelity == self.fidelity_level \
+           and self.force_evaluate == False:
             pass
         else:
             self._really_evaluate()
