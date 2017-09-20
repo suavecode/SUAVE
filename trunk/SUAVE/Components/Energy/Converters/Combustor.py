@@ -18,7 +18,6 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.rayleigh import rayleigh
 from SUAVE.Methods.Propulsion.fm_solver import fm_solver
 
-
 # ----------------------------------------------------------------------
 #  Combustor Component
 # ----------------------------------------------------------------------
@@ -72,8 +71,6 @@ class Combustor(Energy_Component):
         self.rayleigh_analyses              = False
         self.area_ratio                     = 1.9
     
-    
-    
     def compute(self,conditions):
         """ This computes the output values from the input values according to
         equations from the source.
@@ -109,7 +106,7 @@ class Combustor(Energy_Component):
           area_ratio                          [-]
         """         
         # unpack the values
-        
+
         # unpacking the values from conditions
         gamma  = conditions.freestream.isentropic_expansion_factor 
         Cp     = conditions.freestream.specific_heat_at_constant_pressure

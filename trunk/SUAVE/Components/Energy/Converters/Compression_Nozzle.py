@@ -117,14 +117,12 @@ class Compression_Nozzle(Energy_Component):
         pid                     =  self.pressure_ratio
         etapold                 =  self.polytropic_efficiency
         compressibility_effects =  self.compressibility_effects
-
         
         #Method to compute the output variables
         
         #--Getting the output stagnation quantities
         Tt_out  = Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out  = Cp*Tt_out
-        
 
         if compressibility_effects :
             
