@@ -46,7 +46,7 @@ def exit_Mach_shock(area_ratio, gamma, Pt_out, P0):
         
     return Me
         
-        
+## @ingroup Methods-Propulsion
 def mach_area(area_ratio, gamma, subsonic):
     """ Returns the Mach number given an area ratio and isentropic conditions
     
@@ -76,6 +76,7 @@ def mach_area(area_ratio, gamma, subsonic):
     return Me
 
     
+## @ingroup Methods-Propulsion
 def normal_shock(M1, gamma):  
     """ Returns the Mach number after normal shock
     
@@ -96,7 +97,8 @@ def normal_shock(M1, gamma):
     M2 = np.sqrt((((gamma-1.)*M1**2.)+2.)/(2.*gamma*M1**2.-(gamma-1.)))
     
     return M2
-    
+
+## @ingroup Methods-Propulsion
 def pressure_ratio_isentropic(area_ratio, gamma, subsonic):
     """ Determines the pressure ratio for isentropic flow throughout the entire
     nozzle
@@ -123,6 +125,7 @@ def pressure_ratio_isentropic(area_ratio, gamma, subsonic):
     
     return pr_isentropic
 
+## @ingroup Methods-Propulsion
 def pressure_ratio_shock_in_nozzle(area_ratio, gamma):
     """ Determines the lower value of pressure ratio responsible for a 
     normal shock taking place inside the nozzle
