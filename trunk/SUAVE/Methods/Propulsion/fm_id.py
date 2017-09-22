@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Propulsion
-def fm_id(M):
+def fm_id(M,g):
     """
     Function that takes in the Mach number, and outputs a function fm
     that's commonly used in compressible flow calculations
@@ -21,8 +21,6 @@ def fm_id(M):
     fm
     
     """
-    R  = 287.87
-    g  = 1.4
     
     m0 = (g+1)/(2*(g-1))
     m1 = ((g+1)/2)**m0
