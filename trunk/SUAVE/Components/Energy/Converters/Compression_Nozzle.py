@@ -63,8 +63,6 @@ class Compression_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
 
-    
-
     def compute(self,conditions):
         """ This computes the output values from the input values according to
         equations from the source.
@@ -100,8 +98,7 @@ class Compression_Nozzle(Energy_Component):
           pressure_ratio                      [-]
           polytropic_efficiency               [-]
         """           
-        #unpack the values
-        
+
         #unpack from conditions
         gamma   = conditions.freestream.isentropic_expansion_factor
         Cp      = conditions.freestream.specific_heat_at_constant_pressure

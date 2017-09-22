@@ -169,7 +169,7 @@ def energy_network():
     #  Component 4 - Core Nozzle
     
     # instantiate
-    nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle_V2()   
+    nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
     # setup

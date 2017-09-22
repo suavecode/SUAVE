@@ -129,7 +129,7 @@ class Ramjet(Propulsor):
         core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
         
         #flow through the core nozzle
-        core_nozzle(conditions)
+        core_nozzle.compute_variable_geometry(conditions)
 
         # compute the thrust using the thrust component
         #link the thrust component to the core nozzle
