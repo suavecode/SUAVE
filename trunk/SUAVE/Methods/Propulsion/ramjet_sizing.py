@@ -90,7 +90,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
     
     #flow through the high pressor comprresor
-    combustor(conditions)
+    combustor.compute_rayleigh(conditions)
 
     
     #link the core nozzle to the low pressure turbine
