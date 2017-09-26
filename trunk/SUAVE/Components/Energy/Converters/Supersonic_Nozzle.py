@@ -175,7 +175,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.static_pressure         = P_out
         self.outputs.area_ratio              = area_ratio
         
-    def compute_variable_geometry(self,conditions):
+    def compute_limited_geometry(self,conditions):
         
         """This is a variable geometry nozzle component that allows 
         for supersonic outflow. all possible nozzle conditions, including 

@@ -121,7 +121,7 @@ class Ramjet(Propulsor):
         combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
         
         #flow through the high pressor comprresor
-        combustor(conditions)
+        combustor.compute(conditions)
         
         
         #link the core nozzle to the low pressure turbine
@@ -129,7 +129,7 @@ class Ramjet(Propulsor):
         core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
         
         #flow through the core nozzle
-        core_nozzle.compute_variable_geometry(conditions)
+        core_nozzle.compute_limited_geometry(conditions)
 
         # compute the thrust using the thrust component
         #link the thrust component to the core nozzle
