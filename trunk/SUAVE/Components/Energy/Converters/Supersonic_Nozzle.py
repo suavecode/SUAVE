@@ -68,7 +68,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
         self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.8        
+        self.min_area_ratio                  = 1.5      
     
     
     
@@ -285,7 +285,7 @@ class Supersonic_Nozzle(Energy_Component):
         #-- Subsonic and sonic flow
         P_out[i_sub]        = Po[i_sub]
         M_out[i_sub]        = np.sqrt((((Pt_out[i_sub]/P_out[i_sub])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_sub]      = fm_id(M_out[i_sub],gamma)
+        A_ratio[i_sub]      = 1./fm_id(M_out[i_sub],gamma)
         
         #-- Shock inside nozzle
         P_out[i_shock]      = Po[i_shock]
@@ -295,22 +295,22 @@ class Supersonic_Nozzle(Energy_Component):
         #-- Overexpanded flow
         P_out[i_over]       = supersonic_pressure_ratio*Pt_out[i_over] 
         M_out[i_over]       = np.sqrt((((Pt_out[i_over]/P_out[i_over])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_over]     = fm_id(M_out[i_over],gamma)
+        A_ratio[i_over]     = min_area_ratio
         #-- Isentropic supersonic flow, with variable area adjustments
         P_out[i_sup]        = Po[i_sup]
         M_out[i_sup]        = np.sqrt((((Pt_out[i_sup]/P_out[i_sup])**((gamma-1)/gamma))-1)*2/(gamma-1))    
-        A_ratio[i_sup]      = fm_id(M_out[i_sup],gamma)
+        A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma)
         #-- Underexpanded flow
         P_out[i_und]        = supersonic_pressure_ratio*Pt_out[i_und] 
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_und]      = fm_id(M_out[i_und],gamma)
+        A_ratio[i_und]      = max_area_ratio
         
        #-- Calculate other flow properties
         T_out   = Tt_out/(1+(gamma-1)/2*M_out**2)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)
         rho_out = P_out/(R*T_out)
-        
+
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out
         self.outputs.stagnation_pressure     = Pt_out
