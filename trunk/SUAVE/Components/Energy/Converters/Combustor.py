@@ -68,7 +68,6 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_enthalpy    = 1.0
         self.outputs.fuel_to_air_ratio      = 1.0
         self.fuel_data                      = Data()
-        self.rayleigh_analyses              = False
         self.area_ratio                     = 1.9
     
     def compute(self,conditions):
@@ -104,6 +103,7 @@ class Combustor(Energy_Component):
           pressure_ratio                      [-]
           efficiency                          [-]
           area_ratio                          [-]
+          fuel_data.specific_energy           [J/kg]
         """         
         # unpack the values
 
@@ -116,14 +116,12 @@ class Combustor(Energy_Component):
         # unpacking the values form inputs
         Tt_in  = self.inputs.stagnation_temperature
         Pt_in  = self.inputs.stagnation_pressure
-        Mach   = self.inputs.mach_number
         Tt4    = self.turbine_inlet_temperature
         pib    = self.pressure_ratio
         eta_b  = self.efficiency
         
         # unpacking values from self
         htf             = self.fuel_data.specific_energy
-        ray_analysis    = self.rayleigh_analyses
         ar              = self.area_ratio
         
         # compute pressure
@@ -182,6 +180,7 @@ class Combustor(Energy_Component):
           pressure_ratio                      [-]
           efficiency                          [-]
           area_ratio                          [-]
+          fuel_data.specific_energy           [J/kg]
         """         
         # unpack the values
 
@@ -201,7 +200,6 @@ class Combustor(Energy_Component):
         
         # unpacking values from self
         htf             = self.fuel_data.specific_energy
-        ray_analysis    = self.rayleigh_analyses
         ar              = self.area_ratio
         
         # Rayleigh flow analysis, constant pressure burner
