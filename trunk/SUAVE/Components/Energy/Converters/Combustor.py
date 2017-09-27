@@ -251,7 +251,8 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_temperature  = Tt4
         self.outputs.stagnation_pressure     = Pt_out
         self.outputs.stagnation_enthalpy     = ht_out
-        self.outputs.fuel_to_air_ratio       = f     
+        self.outputs.fuel_to_air_ratio       = f    
+        self.outputs.mach_number             = M_out
     
     
     __call__ = compute
