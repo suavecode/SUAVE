@@ -186,6 +186,7 @@ class Supersonic_Nozzle(Energy_Component):
         
         Source:
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+        https://web.stanford.edu/~cantwell/AA210A_Course_Material/AA210A_Course_Notes/
         
         Inputs:
         conditions.freestream.
