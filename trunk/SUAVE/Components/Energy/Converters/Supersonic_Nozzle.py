@@ -68,7 +68,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
         self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.5      
+        self.min_area_ratio                  = 1.35     
     
     
     
@@ -291,19 +291,19 @@ class Supersonic_Nozzle(Energy_Component):
         P_out[i_shock]      = Po[i_shock]
         M_out[i_shock]      = np.sqrt((((Pt_out[i_shock]/P_out[i_shock])**((gamma-1)/gamma))-1)*2/(gamma-1))
         #M_out[i_shock]      = exit_Mach_shock(A_ratio[i_shock], gamma, Pt_out[i_shock], Po[i_shock])    
-        A_ratio[i_shock]    = area_ratio
+        A_ratio[i_shock]    = 1./fm_id(M_out[i_shock],gamma)
         #-- Overexpanded flow
-        P_out[i_over]       = supersonic_pressure_ratio*Pt_out[i_over] 
+        P_out[i_over]       = supersonic_min_Area*Pt_out[i_over] 
         M_out[i_over]       = np.sqrt((((Pt_out[i_over]/P_out[i_over])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_over]     = min_area_ratio
+        A_ratio[i_over]     = 1./fm_id(M_out[i_over],gamma)
         #-- Isentropic supersonic flow, with variable area adjustments
         P_out[i_sup]        = Po[i_sup]
         M_out[i_sup]        = np.sqrt((((Pt_out[i_sup]/P_out[i_sup])**((gamma-1)/gamma))-1)*2/(gamma-1))    
         A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma)
         #-- Underexpanded flow
-        P_out[i_und]        = supersonic_pressure_ratio*Pt_out[i_und] 
+        P_out[i_und]        = supersonic_max_Area*Pt_out[i_und] 
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_und]      = max_area_ratio
+        A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma)
         
        #-- Calculate other flow properties
         T_out   = Tt_out/(1+(gamma-1)/2*M_out**2)
