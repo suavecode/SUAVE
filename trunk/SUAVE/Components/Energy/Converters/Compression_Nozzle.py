@@ -17,7 +17,7 @@ from warnings import warn
 import numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-#from SUAVE.Methods.Propulsion.scramjet_geometry import diffuser
+from SUAVE.Methods.Propulsion.scramjet_sizing import inlet_conditions
 
 # ----------------------------------------------------------------------
 #  Compression Nozzle Component

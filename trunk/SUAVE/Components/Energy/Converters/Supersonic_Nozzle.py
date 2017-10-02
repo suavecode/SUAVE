@@ -322,6 +322,95 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.static_enthalpy         = h_out
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
-        self.outputs.area_ratio              = A_ratio        
+        self.outputs.area_ratio              = A_ratio     
+        
+    def compute_scramjet(self, conditions):
+        """This computes the output values from the input values according to
+        equations from the source.
+        
+        Assumptions:
+        Constant polytropic efficiency and pressure ratio
+        
+        Source:
+        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+        
+        Inputs:
+        conditions.freestream.
+          isentropic_expansion_factor         [-]
+          specific_heat_at_constant_pressure  [J/(kg K)]
+          pressure                            [Pa]
+          stagnation_pressure                 [Pa]
+          stagnation_temperature              [K]
+          universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+          mach_number                         [-]
+        self.inputs.
+          stagnation_temperature              [K]
+          stagnation_pressure                 [Pa]
+                   
+        Outputs:
+        self.outputs.
+          stagnation_temperature              [K]  
+          stagnation_pressure                 [Pa]
+          stagnation_enthalpy                 [J/kg]
+          mach_number                         [-]
+          static_temperature                  [K]
+          static_enthalpy                     [J/kg]
+          velocity                            [m/s]
+          static_pressure                     [Pa]
+          area_ratio                          [-]
+                
+        Properties Used:
+        self.
+          etapold                             [-]
+          A_ratio                             [-]
+          Cpe                                 [J/(kg K)]
+          g_e                                 [-]
+          area_ratio                          [-]
+        """           
+        
+        #unpack the values
+        
+        #unpack from conditions
+        Po       = conditions.freestream.pressure
+        Vo       = conditions.freestream.velocity
+        To       = conditions.freestream.temperature
+        R        = conditions.freestream.universal_gas_constant
+        
+        #unpack from inputs
+        Tt_in    = self.inputs.stagnation_temperature
+        Pt_in    = self.inputs.stagnation_pressure
+        T_in     = self.inputs.static_temperature
+        u_in     = self.inputs.velocity
+        P_in     = self.inputs.static_pressure
+        f        = self.inputs.fuel_to_air_ratio
+        
+        #unpack from self
+        etapold  = self.efficiency
+        A_ratio  = self.area_ratio
+        Cpe      = self.specific_heat_constant_pressure
+        g_e      = self.isentropic_expansion_factor  
+        
+        P_out = Po
+        
+        # Compute output properties
+        T_out   = T_in*(1-etapold*(1-(((P_out/Po)*(1/(P_in/Po)))**(R/Cpe))))
+        u_out   = np.sqrt(u_in**2+2*Cpe*(T_in-T_out))      
+        A_ratio = (1+f)*(1/(P_out/Po))*(T_out/To)*(u_in/Vo)    
+        M_out   = u_out/np.sqrt(g_e*R*T_out)
+        
+        print '++++++++++++++++++++++++++++++++++++++'
+        print 'NOZZLE '
+        print 'Area ', A_ratio
+        print 'u: ', u_out, 'T : ', T_out, 'M : ', M_out
+        
+        #pack computed quantities into outputs
+        self.outputs.stagnation_temperature  = Tt_in
+        self.outputs.stagnation_pressure     = Pt_in
+        self.outputs.temperature             = T_out
+        self.outputs.pressure                = P_out
+        self.outputs.velocity                = u_out
+        self.outputs.static_pressure         = P_out
+        self.outputs.area_ratio              = A_ratio
+            
         
     __call__ = compute
