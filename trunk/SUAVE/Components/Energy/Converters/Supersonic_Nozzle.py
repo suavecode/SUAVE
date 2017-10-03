@@ -61,6 +61,7 @@ class Supersonic_Nozzle(Energy_Component):
         #set the defaults
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
+        self.efficiency                      = 1.0
         self.pressure_ratio                  = 1.0
         self.inputs.stagnation_temperature   = 0.
         self.inputs.stagnation_pressure      = 0.
@@ -68,7 +69,9 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
         self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35     
+        self.min_area_ratio                  = 1.35  
+        self.specific_heat_constant_pressure  = 1510.
+        self.isentropic_expansion_factor     = 1.238
     
     
     
@@ -386,7 +389,6 @@ class Supersonic_Nozzle(Energy_Component):
         
         #unpack from self
         etapold  = self.efficiency
-        A_ratio  = self.area_ratio
         Cpe      = self.specific_heat_constant_pressure
         g_e      = self.isentropic_expansion_factor  
         
@@ -401,7 +403,7 @@ class Supersonic_Nozzle(Energy_Component):
         print '++++++++++++++++++++++++++++++++++++++'
         print 'NOZZLE '
         print 'Area ', A_ratio
-        print 'u: ', u_out, 'T : ', T_out, 'M : ', M_out
+        print 'u: ', u_out, 'T : ', T_out, 'M : ', M_out, 'Tt_out'
         
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_in
@@ -411,6 +413,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
         self.outputs.area_ratio              = A_ratio
+        self.outputs.mach_number             = M_out
             
         
     __call__ = compute

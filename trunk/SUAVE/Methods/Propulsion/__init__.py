@@ -9,6 +9,8 @@ from electric_motor_sizing import size_from_kv, size_from_mass
 from turbofan_sizing import turbofan_sizing
 from turbojet_sizing import turbojet_sizing
 from ramjet_sizing import ramjet_sizing
+from scramjet_sizing import inlet_conditions, scramjet_sizing
+from oblique_shock import theta_beta_mach, oblique_shock_relation
 from fm_id import fm_id
 from fm_solver import fm_solver
 from rayleigh import rayleigh

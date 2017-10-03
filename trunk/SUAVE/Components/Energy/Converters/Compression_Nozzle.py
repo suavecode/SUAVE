@@ -56,6 +56,7 @@ class Compression_Nozzle(Energy_Component):
         #setting the default values 
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
+        self.efficiency                      = 1.0
         self.pressure_ratio                  = 1.0
         self.compressibility_effects         = False
         self.compression_levels              = 1
@@ -233,6 +234,8 @@ class Compression_Nozzle(Energy_Component):
         #-- Compute inlet conditions, based on geometry and number of shocks 
         psi, Ptr    = inlet_conditions(Mo,gamma, ob_count, theta)
         
+        print 'PSI', psi
+        
         #-- Compute output parameters
         T_out       = psi*To
         P_out       = Po*(psi/(psi*(1-etapold)+etapold))**(Cp/R)
@@ -248,7 +251,7 @@ class Compression_Nozzle(Energy_Component):
         print 'u ', Vo, 'T : ', To, 'M : ', Mo
         print '++++++++++++++++++++++++++++++++++++++'
         print 'INLET '
-        print 'u_out: ', u_out, 'T_out : ', T_out, 'M_out : ', Mach
+        print 'u_out: ', u_out, 'T_out : ', T_out, 'M_out : ', Mach, 'Tt_out', Tt_out
           
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out

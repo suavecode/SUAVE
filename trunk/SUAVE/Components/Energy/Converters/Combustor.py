@@ -347,7 +347,7 @@ class Combustor(Energy_Component):
         print '++++++++++++++++++++++++++++++++++++++'
         print 'COMBUSTOR '
         print 'f : ', f
-        print 'u: ', V4, 'T : ', T4, 'M : ', M4
+        print 'u: ', V4, 'T : ', T4, 'M : ', M4, 'Tt4', Tt
 
 
         # Computing the exit static and stagnation conditions
@@ -361,6 +361,7 @@ class Combustor(Energy_Component):
         self.outputs.static_temperature      = T4
         self.outputs.static_pressure         = P_out
         self.outputs.velocity                = V4
+        self.outputs.mach_number             = M4
 
     
     __call__ = compute
