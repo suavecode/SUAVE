@@ -353,9 +353,12 @@ class Combustor(Energy_Component):
         # Computing the exit static and stagnation conditions
         ht_out  = Cp*Tt
         P_out   = P_in
+        Pt_out = Pt_in*((((gamma+1.)*(M4**2.))/((gamma-1.)*M4**2.+2.))**(gamma/(gamma-1.)))*((gamma+1.)/(2.*gamma*M4**2.-(gamma-1.)))**(1./(gamma-1.))
+
         
         # pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt
+        self.outputs.stagnation_pressure     = Pt_out
         self.outputs.stagnation_enthalpy     = ht_out
         self.outputs.fuel_to_air_ratio       = f 
         self.outputs.static_temperature      = T4

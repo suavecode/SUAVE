@@ -184,6 +184,17 @@ class Scramjet(Propulsor):
         results.tt2 = combustor.outputs.stagnation_temperature
         results.tt3 = core_nozzle.outputs.stagnation_temperature
         
+        results.pt0 = ram.outputs.stagnation_pressure
+        results.pt1 = inlet_nozzle.outputs.stagnation_pressure
+        results.pt2 = combustor.outputs.stagnation_pressure
+        results.pt3 = core_nozzle.outputs.stagnation_pressure
+        
+        results.p0 = conditions.freestream.pressure
+        results.p1 = inlet_nozzle.outputs.static_pressure
+        results.p2 = combustor.outputs.static_pressure
+        results.p3 = core_nozzle.outputs.pressure
+
+        
         return results
     
     def size(self,state):  
