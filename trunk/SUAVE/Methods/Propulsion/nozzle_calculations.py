@@ -71,7 +71,7 @@ def mach_area(area_ratio, gamma, subsonic):
     else:
         Me_initial_guess = 2.0         
         
-    Me = fsolve(func,Me_initial_guess)
+    Me = fsolve(func,Me_initial_guess, factor = 0.1)
 
     return Me
 

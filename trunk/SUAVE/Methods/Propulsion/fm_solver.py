@@ -44,6 +44,6 @@ def fm_solver(Aratio, M0, gamma):
     #--Supersonic solution
     M1_guess[i_high]= 1.1
  
-    M1 = fsolve(func,M1_guess)
+    M1 = fsolve(func,M1_guess, factor=0.1)
     
     return M1
