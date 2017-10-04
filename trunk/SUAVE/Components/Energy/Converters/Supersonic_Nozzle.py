@@ -60,18 +60,18 @@ class Supersonic_Nozzle(Energy_Component):
         
         #set the defaults
         self.tag = 'Nozzle'
-        self.polytropic_efficiency           = 1.0
-        self.efficiency                      = 1.0
-        self.pressure_ratio                  = 1.0
-        self.inputs.stagnation_temperature   = 0.
-        self.inputs.stagnation_pressure      = 0.
-        self.outputs.stagnation_temperature  = 0.
-        self.outputs.stagnation_pressure     = 0.
-        self.outputs.stagnation_enthalpy     = 0.
-        self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35  
+        self.polytropic_efficiency            = 1.0
+        self.efficiency                       = 1.0
+        self.pressure_ratio                   = 1.0
+        self.inputs.stagnation_temperature    = 0.
+        self.inputs.stagnation_pressure       = 0.
+        self.outputs.stagnation_temperature   = 0.
+        self.outputs.stagnation_pressure      = 0.
+        self.outputs.stagnation_enthalpy      = 0.
+        self.max_area_ratio                   = 2.
+        self.min_area_ratio                   = 1.35  
         self.specific_heat_constant_pressure  = 1510.
-        self.isentropic_expansion_factor     = 1.238
+        self.isentropic_expansion_factor      = 1.238
     
     
     
@@ -332,10 +332,12 @@ class Supersonic_Nozzle(Energy_Component):
         equations from the source.
         
         Assumptions:
-        Constant polytropic efficiency and pressure ratio
-        
+        JP-7 used as fuel, fixed output Cp and gamma
+
         Source:
-        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
+        "Hypersonic Airbreathing Propulsion", 1994
+
         
         Inputs:
         conditions.freestream.
@@ -364,11 +366,9 @@ class Supersonic_Nozzle(Energy_Component):
                 
         Properties Used:
         self.
-          etapold                             [-]
-          A_ratio                             [-]
+          eta                                 [-]
           Cpe                                 [J/(kg K)]
           g_e                                 [-]
-          area_ratio                          [-]
         """           
         
         #unpack the values
@@ -388,22 +388,18 @@ class Supersonic_Nozzle(Energy_Component):
         f        = self.inputs.fuel_to_air_ratio
         
         #unpack from self
-        etapold  = self.efficiency
+        eta      = self.efficiency
         Cpe      = self.specific_heat_constant_pressure
         g_e      = self.isentropic_expansion_factor  
         
         P_out = Po
         
         # Compute output properties
-        T_out   = T_in*(1-etapold*(1-(((P_out/Po)*(1/(P_in/Po)))**(R/Cpe))))
+        T_out   = T_in*(1-eta*(1-(((P_out/Po)*(1/(P_in/Po)))**(R/Cpe))))
         u_out   = np.sqrt(u_in**2+2*Cpe*(T_in-T_out))      
         A_ratio = (1+f)*(1/(P_out/Po))*(T_out/To)*(u_in/Vo)    
         M_out   = u_out/np.sqrt(g_e*R*T_out)
-        
-        print '++++++++++++++++++++++++++++++++++++++'
-        print 'NOZZLE '
-        print 'Area ', A_ratio
-        print 'u: ', u_out, 'T : ', T_out, 'M : ', M_out, 'Tt_out'
+
         
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_in

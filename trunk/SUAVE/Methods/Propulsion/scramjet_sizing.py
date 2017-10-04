@@ -126,16 +126,16 @@ def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0,
     #Flow through the inlet nozzle
     inlet_nozzle.compute_scramjet(conditions)
 
-    #link the combustor to the high pressure compressor
+    #link the combustor to the inlet nozzle
     combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature
     combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure
     combustor.inputs.inlet_nozzle                          = inlet_nozzle.outputs
     
-    #flow through the high pressor comprresor
+    #flow through the combustor
     combustor.compute_scramjet(conditions)
 
     
-    #link the core nozzle to the low pressure turbine
+    #link the core nozzle to combustor
     core_nozzle.inputs.stagnation_temperature              = combustor.outputs.stagnation_temperature
     core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
     core_nozzle.inputs.static_temperature                  = combustor.outputs.static_temperature
@@ -158,7 +158,7 @@ def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0,
     #link the thrust component to the combustor
     thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
     
-    #link the thrust component to the low pressure compressor 
+    #link the thrust component to the core nozzle 
     thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature
     thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines

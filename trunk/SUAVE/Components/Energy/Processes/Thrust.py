@@ -209,10 +209,10 @@ class Thrust(Energy_Component):
         """Computes thrust and other properties as below.
 
         Assumptions:
-        Perfect gas
 
         Source:
-        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
+        "Hypersonic Airbreathing Propulsion", 1994
 
         Inputs:
         conditions.freestream.
@@ -295,14 +295,10 @@ class Thrust(Energy_Component):
         ##--------Stream thrust method ---------------------------        
         
             
-        Sa0     = u0*(1+R*T0/u0**2)
-        Sa_exit = core_exit_velocity*(1+R*core_exit_temperature/core_exit_velocity**2)
+        Sa0         = u0*(1+R*T0/u0**2)
+        Sa_exit     = core_exit_velocity*(1+R*core_exit_temperature/core_exit_velocity**2)
     
-        Fsp      = ((1+f)*Sa_exit - Sa0 - R*T0/u0*(core_area_ratio-1))/a0
-        
-        print '++++++++++++++++++++++++++++++++++++++'
-        print 'THRUST '
-        print 'Fsp: ', Fsp, 'Sa0 : ', Sa0, 'Sa10 : ', Sa_exit
+        Fsp         = ((1+f)*Sa_exit - Sa0 - R*T0/u0*(core_area_ratio-1))/a0
 
         #Computing the specific impulse
         #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
@@ -310,10 +306,6 @@ class Thrust(Energy_Component):
         #Computing the TSFC
         TSFC             = f/(Fsp*a0)
         #3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
-        print 'tsfc: ', TSFC, 'Isp: ', Fsp*a0/(f*g)
-        print 'eta_0 : ', u0/(43.5e6*TSFC)
-        print 'eta_t : ', (((1+f)*core_exit_velocity**2/2)-u0**2/2)/(f*43.5e6)
-        print 'eta_p : ', (u0/(43.5e6*TSFC))/((((1+f)*core_exit_velocity**2/2)-u0**2/2)/(f*43.5e6))
     
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
@@ -404,7 +396,8 @@ class Thrust(Energy_Component):
         Perfect gas
 
         Source:
-        https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
+        "Hypersonic Airbreathing Propulsion", 1994
 
         Inputs:
         conditions.freestream.speed_of_sound [m/s] (conditions is also passed to self.compute(..))
@@ -424,8 +417,8 @@ class Thrust(Energy_Component):
           total_design                       [N] - Design thrust
         """             
         #unpack inputs
-        a0                   = conditions.freestream.speed_of_sound
-        throttle             = 1.0
+        a0                      = conditions.freestream.speed_of_sound
+        throttle                = 1.0
         
         #unpack from self
         bypass_ratio                = self.inputs.bypass_ratio

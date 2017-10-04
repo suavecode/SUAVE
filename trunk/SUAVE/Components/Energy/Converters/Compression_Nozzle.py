@@ -178,7 +178,10 @@ class Compression_Nozzle(Energy_Component):
         equations from the source.
 
         Assumptions:
-        Constant polytropic efficiency and pressure ratio
+        
+        Source:
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
+        "Hypersonic Airbreathing Propulsion", 1994
 
 
 
@@ -188,6 +191,10 @@ class Compression_Nozzle(Energy_Component):
           specific_heat_at_constant_pressure  [J/(kg K)]
           pressure                            [Pa]
           universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+          temperature                         [K]
+          mach_number                         [-]
+          velocity                            [m/s]
+          
         self.inputs.
           stagnation_temperature              [K]
           stagnation_pressure                 [Pa]
@@ -224,7 +231,7 @@ class Compression_Nozzle(Energy_Component):
         Pt_in   = self.inputs.stagnation_pressure
         
         #unpack from self
-        etapold                 =   self.efficiency
+        eta                     =   self.efficiency
         ob_count                =   self.compression_levels
         theta                   =   self.theta
 
@@ -234,11 +241,9 @@ class Compression_Nozzle(Energy_Component):
         #-- Compute inlet conditions, based on geometry and number of shocks 
         psi, Ptr    = inlet_conditions(Mo,gamma, ob_count, theta)
         
-        print 'PSI', psi
-        
         #-- Compute output parameters
         T_out       = psi*To
-        P_out       = Po*(psi/(psi*(1-etapold)+etapold))**(Cp/R)
+        P_out       = Po*(psi/(psi*(1-eta)+eta))**(Cp/R)
         Pt_out      = Ptr*Pt_in
         Mach        = np.sqrt((2/(gamma-1))*((To/T_out)*(1+(gamma-1)/2*Mo**2)-1)) 
         u_out       = np.sqrt(Vo**2-2*Cp*To*(psi-1))
@@ -246,13 +251,6 @@ class Compression_Nozzle(Energy_Component):
         Tt_out      = Tt_in
         ht_out      = Cp*Tt_out
   
-        print '++++++++++++++++++++++++++++++++++++++'
-        print 'FREESTREAM '
-        print 'u ', Vo, 'T : ', To, 'M : ', Mo
-        print '++++++++++++++++++++++++++++++++++++++'
-        print 'INLET '
-        print 'u_out: ', u_out, 'T_out : ', T_out, 'M_out : ', Mach, 'Tt_out', Tt_out
-          
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out
         self.outputs.stagnation_pressure     = Pt_out
