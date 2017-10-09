@@ -208,8 +208,8 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 3399690.0050419518
-    expected.mdot   = 203.11136550916788
+    expected.thrust = 3056962.9065545597
+    expected.mdot   = 203.11136550916942
     
     #error data function
     error =  Data()
