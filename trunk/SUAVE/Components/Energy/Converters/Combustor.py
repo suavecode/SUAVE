@@ -55,20 +55,27 @@ class Combustor(Energy_Component):
         self.tag = 'Combustor'
         
         #-----setting the default values for the different components
-        self.fuel_data                      = SUAVE.Attributes.Propellants.Jet_A()
-        self.alphac                         = 0.0
-        self.turbine_inlet_temperature      = 1.0
-        self.inputs.stagnation_temperature  = 1.0
-        self.inputs.stagnation_pressure     = 1.0
-        self.inputs.static_pressure         = 1.0
-        self.inputs.mach_number             = 0.1
-        self.outputs.stagnation_temperature = 1.0
-        self.outputs.stagnation_pressure    = 1.0
-        self.outputs.static_pressure        = 1.0
-        self.outputs.stagnation_enthalpy    = 1.0
-        self.outputs.fuel_to_air_ratio      = 1.0
-        self.fuel_data                      = Data()
-        self.area_ratio                     = 1.9
+        self.fuel_data                          = SUAVE.Attributes.Propellants.Jet_A()
+        self.alphac                             = 0.0
+        self.turbine_inlet_temperature          = 1.0
+        self.inputs.stagnation_temperature      = 1.0
+        self.inputs.stagnation_pressure         = 1.0
+        self.inputs.static_pressure             = 1.0
+        self.inputs.mach_number                 = 0.1
+        self.outputs.stagnation_temperature     = 1.0
+        self.outputs.stagnation_pressure        = 1.0
+        self.outputs.static_pressure            = 1.0
+        self.outputs.stagnation_enthalpy        = 1.0
+        self.outputs.fuel_to_air_ratio          = 1.0
+        self.fuel_data                          = Data()
+        self.area_ratio                         = 1.9
+        self.axial_fuel_velocity_ratio          = 0.5
+        self.fuel_velocity_ratio                = 0.5
+        self.burner_drag_coefficient            = 0.1
+        self.temperature_reference              = 222.
+        self.absolute_sensible_enthalpy         = 0.
+        self.specific_heat_constant_pressure    = 1510.
+    
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to
@@ -254,6 +261,107 @@ class Combustor(Energy_Component):
         self.outputs.fuel_to_air_ratio       = f    
         self.outputs.mach_number             = M_out
     
+    def compute_scramjet(self,conditions):
+        """ This computes the output values from the input values according to
+        equations from the source.
+
+        Assumptions:
+        JP-7 used as fuel, fixed output Cp and gamma
+
+
+        Source:
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
+        "Hypersonic Airbreathing Propulsion", 1994
+
+        Inputs:
+        conditions.freestream.
+          isentropic_expansion_factor          [-]
+          specific_heat_at_constant_pressure   [J/(kg K)]
+          temperature                          [K]
+          stagnation_temperature               [K]
+          universal_gas_constant               [J/(kg K)] 
+        self.inputs.
+          stagnation_temperature               [K]
+          stagnation_pressure                  [Pa]
+          inlet_nozzle                         [-]
+
+        Outputs:
+        self.outputs.
+          stagnation_temperature               [K]
+          stagnation_pressure                  [Pa]
+          stagnation_enthalpy                  [J/kg]
+          fuel_to_air_ratio                    [-]
+          static_temperature                   [K]
+          static_pressure                      [Pa]
+          velocity                             [m/s]
+          mach_number                          [-]         
+
+        Properties Used:
+          self.fuel_data.specific_energy       [J/kg]
+          self.efficiency                      [-]
+          self.axial_fuel_velocity_ratio       [-]
+          self.fuel_velocity_ratio             [-]
+          self.burner_drag_coefficient         [-]
+          self.temperature_reference           [-]
+          self.absolute_sensible_enthalpy      [J/kg]
+          self.specific_heat_constant_pressure [J/(kg K)]
+        """         
+        # unpack the values
+        
+        # unpacking the values from conditions
+        R      = conditions.freestream.universal_gas_constant
+        
+        # unpacking the values form inputs
+        nozzle = self.inputs.inlet_nozzle
+        Pt_in   = self.inputs.stagnation_pressure
+
+        
+        # unpacking values from self
+        htf    = self.fuel_data.specific_energy
+        eta_b  = self.efficiency
+        Vfx_V3 = self.axial_fuel_velocity_ratio
+        Vf_V3  = self.fuel_velocity_ratio
+        CfAwA3 = self.burner_drag_coefficient
+        Tref   = self.temperature_reference
+        hf     = self.absolute_sensible_enthalpy
+        Cpb    = self.specific_heat_constant_pressure
+        
+        # New flow properties
+        Cpb         = 1510.
+        gamma_b     = 1.238
+        
+        
+        # Calculate input properties
+        T_in   = nozzle.static_temperature
+        V_in   = nozzle.velocity
+        P_in   = nozzle.static_pressure
+        
+        
+        #-- Find suitable fuel-to-air ratio     
+        f   = 0.02
+        
+        V_out  = V_in*(((1+f*Vfx_V3)/(1+f))-(CfAwA3/(2*(1+f))))
+        T_out  = (T_in/(1+f))*(1+(1/(Cpb*T_in))*(eta_b*f*htf+f*hf+f*Cpb*Tref+(1+f*(Vf_V3)**2)*V_in**2/2))-V_out**2/(2*Cpb)   
+        M_out  = V_out/np.sqrt(gamma_b*R*T_out)
+        Tt_out  = T_out*(1+(gamma_b-1)/2*M_out**2)
+    
+
+        # Computing the exit static and stagnation conditions
+        ht_out  = Cpb*Tt_out
+        P_out   = P_in
+        Pt_out  = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.))
+
+        
+        # pack computed quantities into outputs
+        self.outputs.stagnation_temperature  = Tt_out
+        self.outputs.stagnation_pressure     = Pt_out
+        self.outputs.stagnation_enthalpy     = ht_out
+        self.outputs.fuel_to_air_ratio       = f 
+        self.outputs.static_temperature      = T_out
+        self.outputs.static_pressure         = P_out
+        self.outputs.velocity                = V_out
+        self.outputs.mach_number             = M_out
+
     
     __call__ = compute
     
