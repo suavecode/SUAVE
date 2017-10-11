@@ -17,7 +17,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 
 # local imports
@@ -155,12 +155,9 @@ class Vortex_Lattice(Aerodynamics):
         # unpack
 
         surrogates = self.surrogates        
-
         conditions = state.conditions
         
-        # unpack
-
-        
+        # unpack        
         q    = conditions.freestream.dynamic_pressure
         AoA  = conditions.aerodynamics.angle_of_attack
         Sref = geometry.reference_area
