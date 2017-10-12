@@ -99,5 +99,6 @@ def iterate(unknowns,(segment,state)):
     segment.process.iterate(segment,state)
     
     residuals = state.residuals.pack_array()
+    state.residuals.all_residuals = residuals
         
     return residuals 
