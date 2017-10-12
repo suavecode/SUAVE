@@ -19,7 +19,7 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 def empty(vehicle):
-    """weight = SUAVE.Methods.Weights.Correlations.eStopped_Rotor.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.eTiltrotor.empty(
             rLiftProp,
             rThrustProp,
             mBattery,
@@ -35,7 +35,7 @@ def empty(vehicle):
             fHeight
         )
 
-        Calculates the empty fuselage mass for an electric stopped rotor including
+        Calculates the empty fuselage mass for an electric tiltrotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following correlation scripts:
@@ -86,6 +86,7 @@ def empty(vehicle):
     output.motors           = 10 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
     output.battery          = vehicle.propulsors.network.battery.mass_properties.mass
     output.servos           = 0.65 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
+    output.rotor_servos     = 2 * (len(vehicle.wings['main wing'].xMotor) + len(vehicle.wings['secondary wing'].xMotor))
     output.brs              = 16.
     output.hubs             = 2 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
     output.landing_gear     = vehicle.mass_properties.max_takeoff * 0.02
@@ -120,7 +121,6 @@ def empty(vehicle):
     # Component Weight Calculations
 
     output.lift_rotors      = prop(0.8, maxLift, 4) * (len(vehicle.wings['main wing'].xMotor) + len(vehicle.wings['secondary wing'].xMotor))
-    output.thrust_rotors    = prop(0.8, maxLift/5, 2)
     output.fuselage         = fuselage(vehicle.fuselages['fuselage'].lengths.total,
                                        vehicle.fuselages['fuselage'].width,
                                        vehicle.fuselages['fuselage'].heights.maximum,
@@ -155,7 +155,6 @@ def empty(vehicle):
 
 
     output.structural   = (output.lift_rotors +
-                            output.thrust_rotors +
                             output.hubs +
                             output.fuselage + 
                             output.landing_gear +
@@ -170,6 +169,7 @@ def empty(vehicle):
                             output.battery +
                             output.motors +
                             output.servos +
+                            output.rotor_servos +
                             output.wiring +
                             output.brs
                             )

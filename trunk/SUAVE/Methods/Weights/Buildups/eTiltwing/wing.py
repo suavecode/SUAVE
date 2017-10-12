@@ -16,7 +16,7 @@ import numpy as np
 
 def wing(MTOW, wingspan, chord, thicknessToChord, wingletFraction,
             liftFraction, xMotor, maxThrust):
-    """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wing(
+    """weight = SUAVE.Methods.Weights.Buildups.eHelicopter.wing(
             MTOW,
             wingspan,
             chord,

@@ -19,7 +19,7 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 def empty(vehicle):
-    """weight = SUAVE.Methods.Weights.Correlations.eStopped_Rotor.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.eTiltwing.empty(
             rLiftProp,
             rThrustProp,
             mBattery,
@@ -86,6 +86,7 @@ def empty(vehicle):
     output.motors           = 10 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
     output.battery          = vehicle.propulsors.network.battery.mass_properties.mass
     output.servos           = 0.65 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
+    output.wing_servos      = 8
     output.brs              = 16.
     output.hubs             = 2 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
     output.landing_gear     = vehicle.mass_properties.max_takeoff * 0.02
@@ -170,6 +171,7 @@ def empty(vehicle):
                             output.battery +
                             output.motors +
                             output.servos +
+                            output.wing_servos +
                             output.wiring +
                             output.brs
                             )

@@ -1,3 +1,4 @@
+# @ ingroup Analyses-Planets
 # Planet.py
 #
 # Created:  
@@ -15,9 +16,30 @@ from SUAVE.Analyses import Analysis
 # ----------------------------------------------------------------------
 
 class Planet(Analysis):
-    """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
+    """ SUAVE.Analyses.Planet()
     """
+    
     def __defaults__(self):
+        
+        """This sets the default values and methods for the analysis.
+    
+            Assumptions:
+            Planet is Earth.
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+            """                  
+        
+        
         self.tag    = 'planet'
         self.features = Data()
         self.settings = Data()
