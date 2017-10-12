@@ -5,6 +5,7 @@
 from converge_root import converge_root
 from expand_state  import expand_state
 from optimize      import converge_opt
+from dummy_mission_solver import dummy_mission_solver
 
 import Common
 import Cruise
