@@ -1,7 +1,6 @@
-# __init__.py
-#
-# Created:
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Components
+# Components are classes that represent objects that are put together to form a vehicle.
+# They contain default variables and may contain functions that operate on these variables.
 
 # classes
 from Component import Component

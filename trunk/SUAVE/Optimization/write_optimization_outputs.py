@@ -1,3 +1,4 @@
+## @ingroup Optimization
 # write_optimization_outputs.py
 #
 # Created:  May 2016, M. Vegh
@@ -15,8 +16,26 @@ from helper_functions import get_values, scale_obj_values, scale_const_values
 # ----------------------------------------------------------------------
 
 
-
+## @ingroup Optimization
 def write_optimization_outputs(nexus, filename):
+    """ Writes the optimization outputs to a file
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    nexus            [nexus()]
+    filename         [str]
+
+    Outputs:
+    N/A
+
+    Properties Used:
+    N/A
+    """       
  
     #unpack optimization problem values
     objective          = nexus.optimization_problem.objective
@@ -36,9 +55,6 @@ def write_optimization_outputs(nexus, filename):
     constraint_values  = get_values(nexus,constraints,aliases) 
     scaled_constraints = scale_const_values(constraints,constraint_values)
     
-    
-    
-   
     problem_inputs  = []
     problem_constraints = []
     for value in scaled_inputs:

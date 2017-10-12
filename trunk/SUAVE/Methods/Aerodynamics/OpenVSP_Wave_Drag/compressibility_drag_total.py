@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 # compressibility_drag_total.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -8,12 +9,12 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Analyses import Results
 from SUAVE.Core import (
     Data, Container,
 )
 
-from wave_drag_lift import wave_drag_lift
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import wave_drag_lift
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.compressibility_drag_total import drag_div
 from wave_drag_volume import wave_drag_volume
 
 import copy
@@ -24,21 +25,35 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total
 # ----------------------------------------------------------------------
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def compressibility_drag_total(state,settings,geometry):
-    """ SUAVE.Methods.compressibility_drag_total_supersonic(conditions,configuration,geometry)
-        computes the compressibility drag on a full aircraft
-        Inputs:
-            wings
-    fuselages
-    propulsors
-    freestream conditions
-        Outputs:
-    compressibility drag coefficient
-        Assumptions:
-            drag is only calculated for the wings, main fuselage, and propulsors
-    main fuselage must have tag 'fuselage'
-    no lift on wings other than main wing
-    """
+    """Computes compressibility drag for full aircraft including volume drag through OpenVSP
+
+    Assumptions:
+    None
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    settings.number_slices
+    settings.number_rotations
+    state.conditions.aerodynamics.
+      lift_breakdown.compressible_wings      [-]
+    state.conditions.freestream.mach_number  [-]
+    geometry.wings.*.tag                       
+
+    Outputs:
+    drag_breakdown.compressible[wing.tag].
+      divergence_mach                        [-]
+    drag_breakdown.compressible.total        [-]                    
+    drag_breakdown.compressible.total_volume [-]
+    drag_breakdown.compressible.total_lift   [-]
+    cd_c                                     [-] Total compressibility drag
+
+    Properties Used:
+    N/A
+    """     
 
     # Unpack
     conditions       = state.conditions
@@ -55,7 +70,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Initialize result
-    drag_breakdown.compressible = Results()
+    drag_breakdown.compressible = Data()
     
     # Use main wing reference area for drag coefficients
     Sref_main = geometry.reference_area
@@ -156,66 +171,30 @@ def compressibility_drag_total(state,settings,geometry):
     return cd_c
 
 
-def drag_div(Mc_ii,wing,k,cl,Sref_main):
-    # Use drag divergence mach number to determine drag for subsonic speeds
-
-    # Check if the wing is designed for high subsonic cruise
-    # If so use arbitrary divergence point as correlation will not work
-    if wing.high_mach is True:
-
-        # Divergence mach number
-        MDiv = np.array([0.95] * len(Mc_ii))
-        mcc = np.array([0.93] * len(Mc_ii))
-
-    else:
-        # Unpack wing
-        t_c_w   = wing.thickness_to_chord
-        sweep_w = wing.sweeps.quarter_chord
-
-        # Check if this is the main wing, other wings are assumed to have no lift
-        if k == 'main_wing':
-            cl_w = cl
-        else:
-            cl_w = 0
-
-        # Get effective Cl and sweep
-        cos_sweep = np.cos(sweep_w)
-        tc = t_c_w / cos_sweep
-        cl = cl_w / (cos_sweep*cos_sweep)
-
-        # Compressibility drag based on regressed fits from AA241
-        mcc_cos_ws = 0.922321524499352       \
-            - 1.153885166170620*tc    \
-            - 0.304541067183461*cl    \
-            + 0.332881324404729*tc*tc \
-            + 0.467317361111105*tc*cl \
-            + 0.087490431201549*cl*cl
-
-        # Crest-critical mach number, corrected for wing sweep
-        mcc = mcc_cos_ws / cos_sweep
-
-        # Divergence mach number
-        MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )        
-
-    # Divergence ratio
-    mo_mc = Mc_ii/mcc
-
-    # Compressibility correlation, Shevell
-    dcdc_cos3g = 0.0019*mo_mc**14.641
-
-    # Compressibility drag
-
-    # Sweep correlation cannot be used if the wing has a high mach design
-    if wing.high_mach is True:
-        cd_c = dcdc_cos3g
-    else:
-        cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
-        
-    cd_c = cd_c*wing.areas.reference/Sref_main    
-
-    return (cd_c,mcc,MDiv)
-
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def lift_wave_drag(conditions,configuration,wing,k,Sref_main,flag105):
+    """Determine lift wave drag for supersonic speeds
+
+    Assumptions:
+    Basic fit
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    conditions.freestream.mach_number [-]
+    configuration                     (passed to another function)
+    wing.areas.reference              [m^2]
+    k                                 (unused)
+    Sref_main                         [m^2] Main reference area
+    flag105                           <boolean> Check if calcs are for Mach 1.05
+
+    Outputs:
+    cd_c_l                            [-] Wave drag CD due to lift
+
+    Properties Used:
+    N/A
+    """       
     # Use wave drag to determine compressibility drag for supersonic speeds
 
     # Unpack mach number

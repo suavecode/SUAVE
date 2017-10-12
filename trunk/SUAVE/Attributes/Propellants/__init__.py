@@ -1,4 +1,6 @@
-
+## @defgroup Attributes-Propellants Propellants
+# Common propellants
+# @ingroup Attributes
 # classes
 from Propellant import Propellant
 from Aviation_Gasoline import Aviation_Gasoline

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL
 # write_runcases.py
 # 
 # Created:  Dec 2014, T. Momose
@@ -10,8 +11,27 @@
 
 from purge_files import purge_files
 
+## @ingroup Methods-Aerodynamics-AVL
 def write_run_cases(avl_object):
+    """ This function writes the run cases used in the AVL batch analysis
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        avl_object.current_status.batch_file                    [-]
+        avl_object.geometry.mass_properties.center_of_gravity   [meters]
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
 
     # unpack avl_inputs
     batch_filename = avl_object.current_status.batch_file
@@ -105,7 +125,23 @@ def write_run_cases(avl_object):
 
 
 def make_controls_case_text(control_deflection):
+    """ This function writes the text of the control surfaces in the AVL batch analysis
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        control_deflection.tag                                  [-]
+        control_deflection.deflection                           [-]
+    Outputs: 
+        controls_case_text                                      [-]
+ 
+    Properties Used:
+        N/A
+    """  
     base_control_cond_text = '{0}      ->  {0}     =   {1}    \n'
 
     # Unpack inputs

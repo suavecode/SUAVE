@@ -1,3 +1,6 @@
+## @defgroup Analyses-Weights Weights
+# Classes that represent the types of aircraft configuration weight computations
+## @ingroup Analyses
 
 # Attributes
 from Weights                import Weights

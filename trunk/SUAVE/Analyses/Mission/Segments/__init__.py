@@ -1,3 +1,6 @@
+## @defgroup Analyses-Mission-Segments Segment
+# Segment analyses to setup each part of a mission to fly
+# @ingroup Analyses-Mission
 
 
 from Segment     import Segment

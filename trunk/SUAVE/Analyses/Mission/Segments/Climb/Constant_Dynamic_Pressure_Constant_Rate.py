@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Dynamic_Pressure_Constant_Rate.py
 #
 # Created:  
@@ -18,9 +19,35 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Constant_Dynamic_Pressure_Constant_Rate(Unknown_Throttle):
+    """ Climb at a constant dynamic pressure at a constant rate.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """       
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

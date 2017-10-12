@@ -1,9 +1,7 @@
+## @defgroup Methods-Weights Weights
+#Weights methods provide different means of estimating vehicle weight breakdowns
+# @ingroup Methods
 
-
-# Attributes
-
-
-# Packages
 import Correlations
 import Buildups
 

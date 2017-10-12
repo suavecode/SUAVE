@@ -1,3 +1,4 @@
+## @ingroup Methods-Performance
 # payload_range.py
 #
 # Created:  Apr 2014, T. Orra
@@ -15,30 +16,39 @@ import numpy as np
 #  Calculate vehicle Payload Range Diagram
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
-    """ SUAVE.Methods.Performance.payload_range(vehicle,mission,cruise_segment_tag):
-        Calculates vehicle payload range diagram
+    """Calculates a vehicle's payload range diagram. Includes plotting.
 
-        Inputs:
-            vehicle - SUave type vehicle
-            mission - SUave type mission profile
-            cruise_segment_tag - Mission segment to be considered Cruise
+    Assumptions:
+    Constant altitude cruise
 
-        Outputs:
-            payload_range.range           - Array with range data   [m]
-            payload_range.payload         - Array with payload data [kg]
-            payload_range.fuel            - Array with fuel data    [kg]
-            payload_range.takeoff_weight  - Array with TOW data     [kg]
+    Source:
+    N/A
 
-            obs.:  4 points array:      # 1: 0
-                                        # 2: RANGE WITH MAX. PLD
-                                        # 3: RANGE WITH MAX. FUEL
-                                        # 4: FERRY RANGE
+    Inputs:
+    vehicle.mass_properties.
+      operating_empty                     [kg]
+      max_zero_fuel                       [kg]
+      max_takeoff                         [kg]
+      max_payload                         [kg]
+      max_fuel                            [kg]
+      takeoff                             [kg]
+    mission.segments[0].analyses.weights.
+      vehicle.mass_properties.takeoff     [kg]
+    cruise_segment_tag                    <string>
 
-        Assumptions:
-            Constante altitude cruise
+    Outputs:
+    payload_range.
+      range                             [m]
+      payload                           [kg]
+      fuel                              [kg]
+      takeoff_weight                    [kg]
+    PayloadRangeDiagram.dat (text file)
 
-    """
+    Properties Used:
+    N/A
+    """        
     # elapsed time start
     start_time = time.time()
 

@@ -1,3 +1,7 @@
+## @defgroup Components-Energy-Peripherals Peripherals
+# These are components that use energy but are otherwise not part of a network.
+# @ingroup Components-Energy
+
 # __init__.py
 # 
 # Created:  

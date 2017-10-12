@@ -1,7 +1,8 @@
-# __init__.py
-# 
-# Created:  
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Components-Energy-Networks Networks
+# Components used in energy networks.
+# These scripts are the blue prints the connect the component of your energy system. The mission will call these
+# at each iteration to calculate thrust and a mass flow rate.
+# @ingroup Components-Energy
 
 from Solar import Solar
 from Ducted_Fan import Ducted_Fan

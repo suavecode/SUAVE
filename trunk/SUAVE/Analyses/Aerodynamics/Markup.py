@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Markup.py
 #
 # Created:  
@@ -14,12 +15,34 @@ from SUAVE.Analyses import Process
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class Markup(Aerodynamics):
-    """ SUAVE.Analyses.Aerodynamics.Markup()
-    """
+    """This is an intermediate class for aerodynamic analyses.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+    """  
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """           
         self.tag    = 'aerodynamics_markup'
         
         self.geometry = Data()
@@ -31,7 +54,24 @@ class Markup(Aerodynamics):
         
         
     def evaluate(self,state):
-        
+        """The default evaluate function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        results   <SUAVE data class>
+
+        Properties Used:
+        self.settings
+        self.geometry
+        """          
         settings = self.settings
         geometry = self.geometry
         
@@ -40,6 +80,23 @@ class Markup(Aerodynamics):
         return results
         
     def initialize(self):
+        """The default finalize function. Calls the initialize process.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """            
         self.process.initialize(self)
     
         

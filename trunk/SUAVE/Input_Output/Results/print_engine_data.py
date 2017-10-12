@@ -1,3 +1,4 @@
+## @ingroup Input_Output-Results
 # print_engine_data.py
 
 # Created:  SUAVE team
@@ -17,22 +18,34 @@ import datetime  # importing library
 # ----------------------------------------------------------------------
 #  Print output file with compressibility drag
 # ----------------------------------------------------------------------
+## @ingroup Input_Output-Results
 def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
-    """ SUAVE.Methods.Results.print_compress_drag(vehicle,filename = 'compress_drag.dat'):
+    """This creates a file showing engine information.
 
-        Print output file with compressibility drag
+    Assumptions:
+    One propulsor (can be multiple engines) with 'turbofan' tag.
 
-        Inputs:
-            vehicle         - SUave type vehicle
-            filename [optional] - Name of the file to be created
-            units - output units, either "imperial" or "si", default: imperial
+    Source:
+    N/A
 
-        Outputs:
-            output file
+    Inputs:
+    vehicle.
+      tag
+      turbofan()              Function to compute thrust and fuel burn rate
+      propulsors.turbofan.
+        design_thrust         [N]
+        engine_length         [m]
+        nacelle_diameter      [m]
+        thrust.bypass_ratio   [-]
+    filename (optional)       <string> Determines the name of the saved file
+    units (optional)          <string> Determines the type of units used in the output, options are imperial and si
 
-        Assumptions:
+    Outputs:
+    filename                  Saved file with name as above
 
-    """
+    Properties Used:
+    N/A
+    """       
     imperial = False
     SI = False
 

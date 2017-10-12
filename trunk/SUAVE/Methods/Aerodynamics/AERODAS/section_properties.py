@@ -15,10 +15,35 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 
 def section_properties(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    From RE and t/c, get Clmax, CD0,  ACD1', ACL1'"""
+    """Determine wing section properties according to AERODAS methods
+
+    Assumptions:
+    None
+
+    Sources:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    state.conditions.freestream.reynolds_number   [Unitless]
+    geometry.
+      chords.mean_aerodynamic                     [m]
+      thickness_to_chord                          [Unitless]
+    settings.section_zero_lift_angle_of_attack    [radians]
+    settings.section_lift_curve_slope             [1/radians]
+
+    Outputs:
+    wing.section.
+      maximum_coefficient_lift                    [Unitless]
+      zero_lift_drag_coefficient                  [Unitless]
+      angle_attack_max_prestall_lift              [radians]
+      pre_stall_maximum_drag_coefficient          [Unitless]
+      pre_stall_maximum_drag_coefficient_angle    [radians]
+
+    Properties Used:
+    N/A
+    """  
     
     # Unpack
     wing = geometry

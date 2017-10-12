@@ -1,3 +1,4 @@
+## @ingroup Methods-Propulsion
 # electric_motor_sizing.py
 # 
 # Created:  Jan 2016, E. Botero
@@ -6,16 +7,38 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-# suave imports
 import SUAVE
 
 # package imports
 import numpy as np
 from SUAVE.Core import Units
 
-def size_from_kv(motor,kv):
 
+
+# ----------------------------------------------------------------------
+#  size_from_kv
+# ----------------------------------------------------------------------
+## @ingroup Methods-Propulsion
+def size_from_kv(motor,kv):
+    """
+    Determines a motors mass based on the speed constant KV
+    
+    Source:
+    Gur, O., Rosen, A, AIAA 2008-5916.
+    
+    Inputs:
+    motor    (to be modified)
+    kv       motor speed constant
+    
+    Outputs:
+    motor.
+      resistance         [ohms]
+      no_load_current    [amps]
+      mass               [kg]
+    
+    
+    """
+    
     # Set the KV    
     motor.speed_constant = kv 
     

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AERODAS
 # finite_aspect_ratio.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -14,11 +15,37 @@ from SUAVE.Core import Units
 #  Finite Aspect Ratio
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AERODAS
 def finite_aspect_ratio(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    Using Equations from 4 and 5"""
+    """Uses the AERODAS method to prestall parameters for lift and drag.
+
+    Assumptions:
+    None
+
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    geometry.
+      aspect_ratio                                [Unitless]
+      section.
+        maximum_coefficient_lift                  [Unitless]
+        angle_attack_max_prestall_lift            [radians]
+        pre_stall_maximum_drag_coefficient_angle  [radians]
+        pre_stall_maximum_drag_coefficient        [Unitless]
+    settings.section_lift_curve_slope             [radians]
+
+    Outputs:
+    pre_stall_maximum_lift_coefficient            [Unitless]
+    pre_stall_maximum_lift_drag_coefficient       [Unitless]
+    pre_stall_lift_curve_slope                    [radians]
+    pre_stall_maximum_drag_coefficient_angle      [Unitless]
+    (these are also packed into geometry.)
+
+    Properties Used:
+    N/A
+    """      
     
     # unpack inputs
     wing    = geometry

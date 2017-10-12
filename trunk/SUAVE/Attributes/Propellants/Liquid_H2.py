@@ -1,3 +1,4 @@
+## @ingroup Attributes-Propellants
 # Liquid_H2.py:
 #
 # Created:  Unk 2013, SUAVE TEAM
@@ -13,13 +14,35 @@ from Propellant import Propellant
 # ----------------------------------------------------------------------
 #  Liquid_H2 Propellant Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Propellants
 class Liquid_H2(Propellant):
-
-    """ Physical properties of liquid H2 for propulsion use; reactant = O2 """
+    """Holds values for this propellant
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
 
     def __defaults__(self):
+        """This sets the default values.
 
+        Assumptions:
+        None
+
+        Source:
+        Values commonly available
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """    
         self.tag             = 'Liquid_H2'
         self.reactant        = 'O2'
         self.density         = 59.9                             # kg/m^3

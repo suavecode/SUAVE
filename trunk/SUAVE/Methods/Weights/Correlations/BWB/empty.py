@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-BWB
 # empty.py
 # 
 # Created:  Apr 2017, M. Clarke 
@@ -21,54 +22,60 @@ import warnings
 #  Empty
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-BWB
 def empty(vehicle):
-    """ output = SUAVE.Methods.Weights.Correlations.BWB.empty(engine,wing,aircraft,fuselage)
-        This is for a BWB aircraft configuration.        
+    """ This is for a BWB aircraft configuration. 
+    
+    Assumptions:
+         calculated aircraft weight from correlations created per component of historical aircraft
+      
+    Source: 
+        N/A
+         
+    Inputs:
+        engine - a data dictionary with the fields:                    
+            thrust_sls - sea level static thrust of a single engine                                        [Newtons]
 
-        Inputs:
-            engine - a data dictionary with the fields:                    
-                thrust_sls - sea level static thrust of a single engine [Newtons]
+        wing - a data dictionary with the fields:
+            gross_area - wing gross area                                                                   [meters**2]
+            span - span of the wing                                                                        [meters]
+            taper - taper ratio of the wing                                                                [dimensionless]
+            t_c - thickness-to-chord ratio of the wing                                                     [dimensionless]
+            sweep - sweep angle of the wing                                                                [radians]
+            mac - mean aerodynamic chord of the wing                                                       [meters]
+            r_c - wing root chord                                                                          [meters]
 
-            wing - a data dictionary with the fields:
-                gross_area - wing gross area [meters**2]
-                span - span of the wing [meters]
-                taper - taper ratio of the wing [dimensionless]
-                t_c - thickness-to-chord ratio of the wing [dimensionless]
-                sweep - sweep angle of the wing [radians]
-                mac - mean aerodynamic chord of the wing [meters]
-                r_c - wing root chord [meters]
+        aircraft - a data dictionary with the fields:                    
+            Nult - ultimate load of the aircraft                                                           [dimensionless]
+            Nlim - limit load factor at zero fuel weight of the aircraft                                   [dimensionless]
+            TOW - maximum takeoff weight of the aircraft                                                   [kilograms]
+            zfw - maximum zero fuel weight of the aircraft                                                 [kilograms]
+            num_eng - number of engines on the aircraft                                                    [dimensionless]
+            num_pax - number of passengers on the aircraft                                                 [dimensionless]
+            wt_cargo - weight of the bulk cargo being carried on the aircraft                              [kilograms]
+            num_seats - number of seats installed on the aircraft                                          [dimensionless]
+            ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
+            ac - determines type of instruments, electronics, and operating items based on types: 
+                "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst"        [dimensionless]
 
-            aircraft - a data dictionary with the fields:                    
-                Nult - ultimate load of the aircraft [dimensionless]
-                Nlim - limit load factor at zero fuel weight of the aircraft [dimensionless]
-                TOW - maximum takeoff weight of the aircraft [kilograms]
-                zfw - maximum zero fuel weight of the aircraft [kilograms]
-                num_eng - number of engines on the aircraft [dimensionless]
-                num_pax - number of passengers on the aircraft [dimensionless]
-                wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
-                num_seats - number of seats installed on the aircraft [dimensionless]
-                ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
-                ac - determines type of instruments, electronics, and operating items based on types: 
-                    "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst" [dimensionless]
-
-             fuselage - a data dictionary with the fields:
-                area - fuselage wetted area [meters**2]
-                diff_p - Maximum fuselage pressure differential [Pascal]
-                width - width of the fuselage [meters]
-                height - height of the fuselage [meters]
-                length - length of the fuselage [meters]   
-            
-        Outputs:
-            output - a data dictionary with fields:
-                wt_payload - weight of the passengers plus baggage and paid cargo [kilograms]
-                wt_pax - weight of all the passengers [kilogram]
-                wt_bag - weight of all the baggage [kilogram]
-                wt_fuel - weight of the fuel carried[kilogram]
-                wt_empty - operating empty weight of the aircraft [kilograms]
-
-        Assumptions:
-            calculated aircraft weight from correlations created per component of historical aircraft
-    """     
+         fuselage - a data dictionary with the fields:
+            area - fuselage wetted area                                                                    [meters**2]
+            diff_p - Maximum fuselage pressure differential                                                [Pascal]
+            width - width of the fuselage                                                                  [meters]
+            height - height of the fuselage                                                                [meters]
+            length - length of the fuselage                                                                [meters]   
+        
+    Outputs:
+        output - a data dictionary with fields:
+            wt_payload - weight of the passengers plus baggage and paid cargo                              [kilograms]
+            wt_pax - weight of all the passengers                                                          [kilogram]
+            wt_bag - weight of all the baggage                                                             [kilogram]
+            wt_fuel - weight of the fuel carried                                                           [kilogram]
+            wt_empty - operating empty weight of the aircraft                                              [kilograms]
+    
+    Properties Used:
+    N/A
+    """    
 
     # Unpack inputs
     Nult       = vehicle.envelope.ultimate_load

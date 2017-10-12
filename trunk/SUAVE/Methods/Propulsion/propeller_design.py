@@ -1,3 +1,4 @@
+## @ingroup Methods-Propulsion
 # propeller_design.py
 # 
 # Created:  Jul 2014, E. Botero
@@ -20,22 +21,23 @@ def propeller_design(prop_attributes):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
-              Either design power or thrust
-              hub radius
-              tip radius
-              rotation rate
-              freestream velocity
-              number of blades
-              number of stations
-              design lift coefficient
-              airfoil data
+          Either design power or thrust
+          prop_attributes.
+            hub radius                       [m]
+            tip radius                       [m]
+            rotation rate                    [rad/s]
+            freestream velocity              [m/s]
+            number of blades               
+            number of stations
+            design lift coefficient
+            airfoil data                     
 
           Outputs:
-              Twist distribution
-              Chord distribution
+          Twist distribution                 [array of radians]
+          Chord distribution                 [array of meters]
               
-          Assumptions:
-              Based on Design of Optimum Propellers by Adkins and Liebeck
+          Assumptions/ Source:
+          Based on Design of Optimum Propellers by Adkins and Liebeck
 
     """    
     # Unpack

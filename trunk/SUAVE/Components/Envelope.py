@@ -1,3 +1,4 @@
+## @ingroup Components
 # Envelope.py
 #
 # Created:
@@ -15,8 +16,35 @@ from Component import Component
 #  Envelope
 # ----------------------------------------------------------------------
 
+## @ingroup Components
 class Envelope(Component):
+    """ Flight envelope for a vehicle
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """    
+    
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         self.tag = 'Envelope'
 
         self.ultimate_load = 0.0

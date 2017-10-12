@@ -1,4 +1,4 @@
-# @ ingroup Analyses-Planets
+## @ingroup Analyses-Planets
 # Planet.py
 #
 # Created:  
@@ -15,6 +15,7 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Planets
 class Planet(Analysis):
     """ SUAVE.Analyses.Planet()
     """

@@ -1,3 +1,5 @@
+## @defgroup Optimization
+# The files that help you setup an optimization problem.
 
 from Nexus import Nexus
 import helper_functions

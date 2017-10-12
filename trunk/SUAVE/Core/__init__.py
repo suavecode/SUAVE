@@ -1,7 +1,5 @@
-# __init__.py
-#
-# Created:  Jan 2015, T. Lukacyzk
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Core
+# Core is all the under the hood magic that makes SUAVE work.
 
 from Arrays import *
 

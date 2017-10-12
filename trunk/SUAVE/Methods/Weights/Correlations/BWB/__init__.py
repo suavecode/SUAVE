@@ -1,3 +1,6 @@
+## @defgroup Methods-Weights-Correlations-BWB BWB
+# Provides structural weight correlations for a BWB concept
+# @ingroup Methods-Weights-Correlations
 
 """ SUAVE.Methods.Weights.Correlations.BWB
     contains some useful methods or attributes

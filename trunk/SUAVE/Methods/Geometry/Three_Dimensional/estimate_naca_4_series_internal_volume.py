@@ -1,3 +1,4 @@
+## @ingroup Methods-Geometry-Three_Dimensional
 # estimate_naca_4_series_internal_volume.py
 #
 # Created:  ### ####, M. Vegh
@@ -12,21 +13,35 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Geometry-Three_Dimensional
 def estimate_naca_4_series_internal_volume(wing, m, p): 
-    """ 
-    m is %camber, p is location of max camber, valid for naca 4-series airfoils
-    uses method from Wikipedia, based on Moran, Jack (2003). An introduction to theoretical and computational aerodynamics. Dover. p. 7. ISBN 0-486-42879-6.
-    assumes wing has constant thickness to chord along the span
-    assumes the front spar is at 10%chord and rear spar is at 60% chord
-    integrates along the span of the wing using Simpson's Rule
-    
-        Inputs:
-            wing
-            m= %camber
-            p=location of max camber
-        Outputs:
-            volume=wing internal volume
-    """
+    """Computes the volume of a wing with NACA 4-series airfoils.
+
+    Assumptions:
+    Wing has constant thickness to chord along the span
+    Front spar is at 10%chord and rear spar is at 60% chord
+
+    Source:
+    Wikipedia, based on Moran, Jack (2003). An introduction to theoretical and 
+      computational aerodynamics. Dover.
+
+    Inputs:
+    m                       [-]  percent camber (.1 is 10%)
+    p                       [-]  location of max camber (.1 is 10% along chord)
+    wing.chords.
+      root                  [m]
+      tip                   [m]
+    wing.taper              [-]
+    wing.thickness_to_chord [-]
+    wing.spans.projected    [m]
+    chord_length            [m]
+
+    Outputs:
+    volume                  [m^3] 
+
+    Properties Used:
+    N/A
+    """          
     #unpack inputs
     t_c   = wing.thickness_to_chord
     taper = wing.taper

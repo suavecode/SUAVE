@@ -1,3 +1,4 @@
+## @ingroup Analyses-Stability
 # AVL.py
 #
 # Created: Apr 2017, M. Clarke 
@@ -39,55 +40,77 @@ from sklearn import gaussian_process
 from shutil import rmtree
 from warnings import warn
 
-## ----------------------------------------------------------------------
-##  Class
-## ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+#  Class
+# ----------------------------------------------------------------------
 
+## @ingroup Analyses-Stability
 class AVL(Stability):
-    """ SUAVE.Analyses.Aerodynamics.AVL
-        aerodynamic model that performs a vortex lattice analysis using AVL
-        (Athena Vortex Lattice, by Mark Drela of MIT).
+    """This builds a surrogate and computes moment using AVL.
 
-        this class is callable, see self.__call__
+    Assumptions:
+    None
 
-    """
+    Source:
+    None
+    """  
 
     def __defaults__(self):
-        self.tag        = 'avl'
-        self.keep_files = True
+        """This sets the default values and methods for the analysis.
 
-        self.settings = Settings()
+        Assumptions:
+        None
 
-        self.current_status = Data()
-        self.current_status.batch_index = 0
-        self.current_status.batch_file  = None
-        self.current_status.deck_file   = None
-        self.current_status.cases       = None
+        Source:
+        N/A
 
-        self.settings.filenames.log_filename = sys.stdout
-        self.settings.filenames.err_filename = sys.stderr
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """                  
+        self.tag                                            = 'avl'
+        self.keep_files                                     = True
+        
+        self.settings                                       = Settings()
+        
+        self.current_status                                 = Data()
+        self.current_status.batch_index                     = 0
+        self.current_status.batch_file                      = None
+        self.current_status.deck_file                       = None
+        self.current_status.cases                           = None
+        
+        self.settings.filenames.log_filename                = sys.stdout
+        self.settings.filenames.err_filename                = sys.stderr
 
         # Conditions table, used for surrogate model training
-        self.training = Data()        
+        self.training                                       = Data()        
 
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack  = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
-        self.training.Mach             = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
-
-        self.training.lift_coefficient = None
-        self.training.drag_coefficient = None
-        self.training_file             = None
+        self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
+        
+        self.training.moment_coefficient                    = None
+        self.training.Cm_alpha_moment_coefficient           = None
+        self.training.Cn_beta_moment_coefficient            = None
+        self.training.neutral_point                         = None
+        self.training_file                                  = None
 
         # Surrogate model
-        self.surrogates = Data()
-        self.surrogates.moment_coefficient = None
-
+        self.surrogates                                     = Data()
+        self.surrogates.moment_coefficient                  = None
+        self.surrogates.Cm_alpha_moment_coefficient         = None
+        self.surrogates.Cn_beta_moment_coefficient          = None
+        self.surrogates.neutral_point                       = None
 
         # Initialize quantities
-
-        self.configuration = Data()    
-        self.geometry      = Data()
-
+        self.configuration                                  = Data()    
+        self.geometry                                       = Data()
+        
         self.stability_model                                = Data()
         self.stability_model.short_period                   = Data()
         self.stability_model.short_period.natural_frequency = 0.0
@@ -101,18 +124,32 @@ class AVL(Stability):
         self.stability_model.dutch_roll.damping_ratio       = 0.0
         self.stability_model.dutch_roll.natural_frequency   = 0.0
 
-
     def finalize(self):
+        """Drives functions to get training samples and build a surrogate.
 
-        geometry           = self.geometry
-        self.tag           = 'avl_analysis_of_{}'.format(geometry.tag)
-        configuration      = self.configuration
-        stability_model    = self.stability_model
+        Assumptions:
+        None
 
-        configuration.mass_properties = geometry.mass_properties
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        self.tag = 'avl_analysis_of_{}'.format(geometry.tag)
+
+        Properties Used:
+        self.geometry.tag
+        """          
+        geometry                       = self.geometry
+        self.tag                       = 'avl_analysis_of_{}'.format(geometry.tag)
+        configuration                  = self.configuration
+        stability_model                = self.stability_model
+        configuration.mass_properties  = geometry.mass_properties
 
         if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
-            configuration.fuel = geometry.fuel
+            configuration.fuel         = geometry.fuel
         else: #assign as zero to planes with no fuel such as UAVs
             fuel                       = SUAVE.Components.Physical_Component()
             fuel.mass_properties.mass  = 0.
@@ -130,13 +167,40 @@ class AVL(Stability):
         return
 
     def __call__(self,conditions):
+        """Evaluates moment coefficient, stability deriviatives and neutral point using available surrogates.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        state.conditions.
+          mach_number      [-]
+          angle_of_attack  [radians]
+
+        Outputs:
+        results
+            results.static_stability
+            results.dynamic_stability
+        
+
+        Properties Used:
+        self.surrogates.
+           pitch_moment_coefficient [-] CM
+           cm_alpha                 [-] Cm_alpha
+           cn_beta                  [-] Cn_beta
+           neutral_point            [-] NP
+
+        """          
+        
         # Unpack
-        surrogates = self.surrogates  
-        configuration   = self.configuration
-        geometry        = self.geometry
-        stability_model = self.stability_model	
-
+        surrogates          = self.surrogates  
+        configuration       = self.configuration
+        geometry            = self.geometry
+        stability_model     = self.stability_model
+        
         q                   = conditions.freestream.dynamic_pressure
         Sref                = geometry.reference_area    
         velocity            = conditions.freestream.velocity
@@ -145,12 +209,12 @@ class AVL(Stability):
         mac                 = geometry.wings['main_wing'].chords.mean_aerodynamic        
         mach                = conditions.freestream.mach_number
         AoA                 = conditions.aerodynamics.angle_of_attack
-
+        
         moment_model        = surrogates.moment_coefficient
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient
         neutral_point_model = surrogates.neutral_point
-
+        
         configuration       = self.configuration
         stability_model     = self.stability_model
 
@@ -158,7 +222,6 @@ class AVL(Stability):
         # set up data structures
         static_stability    = Data()
         dynamic_stability   = Data()        
-
 
         #Run Analysis
         data_len            = len(AoA)
@@ -217,8 +280,7 @@ class AVL(Stability):
         #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         # pack results
-
-        results = Data()
+        results         = Data()
         results.static  = static_stability
         results.dynamic = dynamic_stability
 
@@ -226,14 +288,37 @@ class AVL(Stability):
 
 
     def sample_training(self):
+        """Call methods to run AVL for sample point evaluation.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        see properties used
+
+        Outputs:
+        self.training.
+          coefficients     [-] CM, Cm_alpha, Cn_beta CD
+          neutral point    [-] NP
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Properties Used:
+        self.geometry.tag  <string>
+        self.training.     
+          angle_of_attack  [radians]
+          Mach             [-]
+        self.training_file (optional - file containing previous AVL data)
+        """ 
         # Unpack
         geometry = self.geometry
         training = self.training
-
-        AoA  = training.angle_of_attack
-        mach = training.Mach
-
+        
+        AoA      = training.angle_of_attack
+        mach     = training.Mach
+        
         CM       = np.zeros([len(AoA)*len(mach),1])
         Cm_alpha = np.zeros([len(AoA)*len(mach),1])
         Cn_beta  = np.zeros([len(AoA)*len(mach),1]) 
@@ -241,16 +326,15 @@ class AVL(Stability):
         if self.training_file is None:
             # Calculate aerodynamics for table
             table_size = len(AoA)*len(mach)
-            xy = np.zeros([table_size,2])
-            count = 0
-            time0 = time.time()
+            xy         = np.zeros([table_size,2])
+            count      = 0
+            time0      = time.time()
 
             for i,_ in enumerate(mach):
                 for j,_ in enumerate(AoA):
                     xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
             for j,_ in enumerate(mach):
                 # Set training conditions
-
                 run_conditions = Aerodynamics()
                 run_conditions.weights.total_mass               = 0 
                 run_conditions.freestream.density               = 1.225
@@ -258,7 +342,6 @@ class AVL(Stability):
                 run_conditions.aerodynamics.angle_of_attack     = AoA
                 run_conditions.freestream.mach_number           = mach[j]
                 
-
                 #Run Analysis at AoA[i] and mach[j]
                 results =  self.evaluate_conditions(run_conditions)
 
@@ -281,7 +364,7 @@ class AVL(Stability):
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6] 
         # Save the data
-        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='AoA Mach CM Cm_alpha Cn_beta NP ')
+        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
 
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])
@@ -291,42 +374,65 @@ class AVL(Stability):
         return        
 
     def build_surrogate(self):
+        """Builds a surrogate based on sample evalations using a Guassian process.
 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        self.training.
+          coefficients     [-] CM, Cm_alpha, Cn_beta
+          neutral point    [meters] NP
+          grid_points      [radians,-] angles of attack and mach numbers 
+
+        Outputs:
+        self.surrogates.
+          moment_coefficient             <Guassian process surrogate>
+          Cm_alpha_moment_coefficient    <Guassian process surrogate>
+          Cn_beta_moment_coefficient     <Guassian process surrogate>
+          neutral_point                  <Guassian process surrogate>       
+
+        Properties Used:
+        No others
+        """  
         # Unpack data
-        training       = self.training
-        AoA_data       = training.angle_of_attack
-        mach_data      = training.Mach
-        CM_data        = training.coefficients[:,0]
-        Cm_alpha_data  = training.coefficients[:,1]
-        Cn_beta_data   = training.coefficients[:,2]
-        NP_data        = training.coefficients[:,3]	
-        xy             = training.grid_points 
+        training                                    = self.training
+        AoA_data                                    = training.angle_of_attack
+        mach_data                                   = training.Mach
+        CM_data                                     = training.coefficients[:,0]
+        Cm_alpha_data                               = training.coefficients[:,1]
+        Cn_beta_data                                = training.coefficients[:,2]
+        NP_data                                     = training.coefficients[:,3]	
+        xy                                          = training.grid_points 
 
         # Gaussian Process New
-        regr_cm        = gaussian_process.GaussianProcess()
-        regr_cm_alpha  = gaussian_process.GaussianProcess()
-        regr_cn_beta   = gaussian_process.GaussianProcess()	
-        regr_np        = gaussian_process.GaussianProcess()
+        regr_cm                                     = gaussian_process.GaussianProcess()
+        regr_cm_alpha                               = gaussian_process.GaussianProcess()
+        regr_cn_beta                                = gaussian_process.GaussianProcess()	
+        regr_np                                     = gaussian_process.GaussianProcess()
 
-        cm_surrogate            = regr_cm.fit(xy, CM_data) 
-        cm_alpha_surrogate      = regr_cm_alpha.fit(xy, Cm_alpha_data) 
-        cn_beta_surrogate       = regr_cn_beta.fit(xy, Cn_beta_data)
-        neutral_point_surrogate = regr_np.fit(xy, NP_data)
+        cm_surrogate                                = regr_cm.fit(xy, CM_data) 
+        cm_alpha_surrogate                          = regr_cm_alpha.fit(xy, Cm_alpha_data) 
+        cn_beta_surrogate                           = regr_cn_beta.fit(xy, Cn_beta_data)
+        neutral_point_surrogate                     = regr_np.fit(xy, NP_data)
 
         self.surrogates.moment_coefficient          = cm_surrogate
         self.surrogates.Cm_alpha_moment_coefficient = cm_alpha_surrogate
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate
         self.surrogates.neutral_point               = neutral_point_surrogate
 
-        AoA_points  = np.linspace(-3.,11.,100)*Units.deg 
-        mach_points = np.linspace(.02,.9,100)           
+        AoA_points                                  = np.linspace(-3.,11.,100)*Units.deg 
+        mach_points                                 = np.linspace(.02,.9,100)           
 
-        AoA_mesh,mach_mesh = np.meshgrid(AoA_points,mach_points)
+        AoA_mesh,mach_mesh                          = np.meshgrid(AoA_points,mach_points)
 
-        CM_sur   = np.zeros(np.shape(AoA_mesh))
-        Cm_a_sur = np.zeros(np.shape(AoA_mesh))
-        Cn_b_sur = np.zeros(np.shape(AoA_mesh))
-        NP_sur   = np.zeros(np.shape(AoA_mesh)) 
+        CM_sur                                      = np.zeros(np.shape(AoA_mesh))
+        Cm_a_sur                                    = np.zeros(np.shape(AoA_mesh))
+        Cn_b_sur                                    = np.zeros(np.shape(AoA_mesh))
+        NP_sur                                      = np.zeros(np.shape(AoA_mesh)) 
 
 
         for jj in range(len(AoA_points)):
@@ -351,27 +457,40 @@ class AVL(Stability):
 # ----------------------------------------------------------------------
 
     def evaluate_conditions(self,run_conditions):
-        """ process vehicle to setup geometry, condititon and configuration
+        """Process vehicle to setup geometry, condititon, and configuration.
 
-            Inputs:
-                run_conditions - DataDict() of aerodynamic conditions; until input
-                method is finalized, will just assume mass_properties are always as 
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        run_conditions <SUAVE data type> aerodynamic conditions; until input
+                method is finalized, will assume mass_properties are always as 
                 defined in self.features
 
-            Outputs:
-                results - a DataDict() of type 
-                SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics(), augmented with
-                case data on moment coefficients and control derivatives
+        Outputs:
+        results        <SUAVE data type>
 
-            Assumptions:
-
-        """
+        Properties Used:
+        self.settings.filenames.
+          run_folder
+          output_template
+          batch_template
+          deck_template
+        self.current_status.
+          batch_index
+          batch_file
+          deck_file
+          cases
+        """  
 
         # unpack
-        run_folder      = os.path.abspath(self.settings.filenames.run_folder)
-        output_template = self.settings.filenames.output_template
-        batch_template  = self.settings.filenames.batch_template
-        deck_template   = self.settings.filenames.deck_template
+        run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
+        output_template                  = self.settings.filenames.output_template
+        batch_template                   = self.settings.filenames.batch_template
+        deck_template                    = self.settings.filenames.deck_template
 
         # stability_output_template = self.settings.filenames.stability_output_template  # SUAVE-AVL dynamic stability under development  
 
@@ -382,13 +501,13 @@ class AVL(Stability):
         self.current_status.deck_file    = deck_template.format(batch_index)
 
         # translate conditions
-        cases                     = translate_conditions_to_cases(self,run_conditions)
-        self.current_status.cases = cases        
+        cases                            = translate_conditions_to_cases(self,run_conditions)
+        self.current_status.cases        = cases        
 
         # case filenames
         for case in cases:
-            cases[case].result_filename = output_template.format(case)
-            #case.eigen_result_filename = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
+            cases[case].result_filename  = output_template.format(case)
+            #case.eigen_result_filename  = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
 
 
         # write the input files

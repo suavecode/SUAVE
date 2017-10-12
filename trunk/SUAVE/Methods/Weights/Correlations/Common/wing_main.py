@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Common 
 # wing_main.py
 #
 # Created:  Jan 2014, A. Wendorff
@@ -16,29 +17,34 @@ import numpy as np
 #   Wing Main
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Common 
 def wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf):
-    """ weight = SUAVE.Methods.Weights.Correlations.Common.wing_main\
-    (S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
-        Calculate the wing weight of the aircraft based on the fully-stressed 
-        bending weight of the wing box        
+    """ Calculate the wing weight of the aircraft based on the fully-stressed 
+    bending weight of the wing box
+    
+    Assumptions:
+        calculated total wing weight based on a bending index and actual data 
+        from 15 transport aircraft 
+    
+    Source: 
+        N/A
         
-        Inputs:
-            S_gross_w - area of the wing [meters**2]
-            b - span of the wing [meters**2]
-            lambda_w - taper ratio of the wing [dimensionless]
-            t_c_w - thickness-to-chord ratio of the wing [dimensionless]
-            sweep_w - sweep of the wing [radians]
-            Nult - ultimate load factor of the aircraft [dimensionless]
-            TOW - maximum takeoff weight of the aircraft [kilograms]
-            wt_zf - zero fuel weight of the aircraft [kilograms]
+    Inputs:
+        S_gross_w - area of the wing                 [meters**2]
+        b - span of the wing                         [meters**2]
+        lambda_w - taper ratio of the wing           [dimensionless]
+        t_c_w - thickness-to-chord ratio of the wing [dimensionless]
+        sweep_w - sweep of the wing                  [radians]
+        Nult - ultimate load factor of the aircraft  [dimensionless]
+        TOW - maximum takeoff weight of the aircraft [kilograms]
+        wt_zf - zero fuel weight of the aircraft     [kilograms]
+    
+    Outputs:
+        weight - weight of the wing                  [kilograms]          
         
-        Outputs:
-            weight - weight of the wing [kilograms]
-            
-        Assumptions:
-            calculated total wing weight based on a bending index and actual data 
-            from 15 transport aircraft
-    """
+    Properties Used:
+        N/A
+    """ 
     
     # unpack inputs
     span  = b / Units.ft # Convert meters to ft

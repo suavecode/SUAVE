@@ -1,9 +1,8 @@
+## @ingroup Analyses-Mission-Segments-Descent
 # Unknown_Throttle.py
 #
 # Created:  Aug 2016, T. MacDonald
 # Modified: 
-#
-# Added to descent folder
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -25,9 +24,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Descent
 class Unknown_Throttle(Aerodynamic):
+    """ This is not a usable segment for missions. Rather other descent segments that require throttle determination
+        are based off this segment type.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """            
         
         # --------------------------------------------------------------
         #   User inputs
