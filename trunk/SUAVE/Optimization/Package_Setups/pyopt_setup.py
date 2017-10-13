@@ -47,6 +47,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
    
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
+    con = problem.optimization_problem.constraints
    
     if FD == 'parallel':
         from mpi4py import MPI

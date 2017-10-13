@@ -470,16 +470,21 @@ class Nexus(Data):
             print 'Overwriting the solver in ' + segment + ' segment.'
             mis.segments[segment].settings.root_finder = SUAVE.Methods.Missions.Segments.dummy_mission_solver
             
-            n_points = mis.segments[segment].state.numerics.number_control_points
-            unkn = mis.segments[segment].state.unknowns.pack_array()
-            keys = mis.segments[segment].state.unknowns.keys()
-            initial_values = np.repeat(unkn,n_points)
-        
+            # Start putting together the inputs
             print 'Adding in the new inputs for ' + segment + '.'
-            
+            n_points = mis.segments[segment].state.numerics.number_control_points
+            unknown_keys = mis.segments[segment].state.unknowns.keys()
+            unknown_keys.remove('tag')  
+            len_inputs     = n_points*len(unknown_keys)
+            unknown_value  = Data()
+            full_unkn_vals = Data()
+            for unkn in unknown_keys:
+                unknown_value[unkn]  = mis.segments[segment].state.unknowns[unkn]
+                full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
+        
             # Basic construction
-            # [Input_###, initial, (-np.inf, np.inf), initial, Units.less]
-            len_inputs        = len(initial_values)
+            # [Input_###, initial, (-np.inf, np.inf), initial, Units.less]            initial_values    = full_unkn_vals.pack_array()
+            initial_values    = full_unkn_vals.pack_array()
             input_len_strings = np.tile('Mission_Input_', len_inputs)
             input_numbers     = np.linspace(1,len_inputs,len_inputs,dtype=np.int16)
             input_names       = np.core.defchararray.add(input_len_strings,np.array(map(str,input_numbers)))
@@ -517,10 +522,15 @@ class Nexus(Data):
             
             # add the corresponding aliases
             # setup the aliases for the inputs
-            basic_string_con = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns[', len_inputs)
-            input_string     = np.core.defchararray.add(basic_string_con,np.array(map(str,input_numbers-1)))
-            input_string     = np.core.defchararray.add(input_string, np.tile(']',len_inputs))
-            input_aliases    = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
+            output_numbers = np.linspace(0,n_points-1,n_points,dtype=np.int16)
+            basic_string_con = Data()
+            input_string = []
+            for unkn in unknown_keys:
+                basic_string_con[unkn] = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns.'+unkn+'[', n_points)
+                input_string.append(np.core.defchararray.add(basic_string_con[unkn],np.array(map(str,output_numbers))))
+            input_string  = np.ravel(input_string)
+            input_string  = np.core.defchararray.add(input_string, np.tile(']',len_inputs))
+            input_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
                                           
             input_aliases[:,0] = input_names
             input_aliases[:,1] = input_string
@@ -539,5 +549,8 @@ class Nexus(Data):
             for ii in xrange(len_inputs):
                 ali.append(residual_aliases[ii].tolist())
                 ali.append(input_aliases[ii].tolist())
+                
+            # The mission needs the state expanded now
+            mis.segments[segment].process.initialize.expand_state(mis.segments[segment],mis.segments[segment].state)
             
         return self
