@@ -69,7 +69,7 @@ class Nexus(Data):
         self.evaluation_count       = 0
         
         opt_prob = self.optimization_problem
-        opt_probobjective      = None
+        opt_prob.objective      = None
         opt_prob.inputs        = None 
         opt_prob.constraints   = None
         opt_prob.aliases       = None
@@ -448,7 +448,7 @@ class Nexus(Data):
             x                  [vector]
     
             Outputs:
-            inpu               [array]
+            input              [array]
             const_table        [array]
     
             Properties Used:
