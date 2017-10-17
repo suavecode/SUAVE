@@ -47,14 +47,7 @@ from SUAVE.Input_Output.Results import  print_parasite_drag,  \
 
 def main():
 
-    # 2027 or 2037 (or 2017 for no change)
-    year = 2017
-    # NLF or HLF (laminar flow type)
-    LF_type = 'NLF'
-    
-    LD_factor = find_LD_factor(year,LF_type)
-
-    configs, analyses = full_setup(LD_factor)
+    configs, analyses = full_setup()
 
     simple_sizing(configs, analyses)
 
@@ -101,56 +94,19 @@ def main():
 
     return
 
-def find_LD_factor(year,LF_type):
-    
-    if year == 2017:
-        return 0.
-    
-    LD_factors = dict()
-    # values are single aisle (SA), [1,.25,40,60] corresponds to 1% +- .25% with 40% chance in 2027 and 60% in 2037
-    LD_factors['Riblets']               = [1,.25,40,60]
-    LD_factors['Excrescence Reduction'] = [.4,.4,60,90]
-    if LF_type == 'NLF': # Natural Laminar Flow
-        LD_factors['LF - Nacelle']         = [.5,.25,60,90]
-        LD_factors['LF - Wing']            = [3,1.5,40,60]
-        LD_factors['LF - HTail']           = [.25,.25,10,40]
-        LD_factors['LF - VTail']           = [.25,.25,10,40]
-    elif LF_type == 'HLF': # Hybrid Laminar Flow
-        LD_factors['LF - Nacelle']         = [.6,.25,10,40]
-        LD_factors['LF - Wing']            = [3,1.5,10,40]
-        LD_factors['LF - HTail']           = [.5,.25,10,40]
-        LD_factors['LF - VTail']           = [.5,.25,40,60]
-    else:
-        raise ValueError('Use NLF or HLF for laminar flow type setting')
-    LD_factors['Advanced Winglets']     = [1,1,90,90]
-    LD_factors['TE Variable Camber']    = [.5,.5,40,90]
-    LD_factors['Active CG Control']     = [.5,.5,20,30]
-    LD_factors['Active Flow Control']   = [.2,.2,20,50]
-    
-    LD_increase = 0
-    for tech,vals in LD_factors.iteritems():
-        if year == 2027:
-            tech_factor = vals[0]/100.*vals[2]/100.
-        elif year == 2037:
-            tech_factor = vals[0]/100.*vals[3]/100.
-        else:
-            raise ValueError('Year must be 2027 or 2037')
-        LD_increase += tech_factor
-        
-    return LD_increase
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(LD_factor):
+def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs,LD_factor)
+    configs_analyses = analyses_setup(configs)
 
     # mission analyses
     mission  = mission_setup(configs_analyses)
@@ -166,13 +122,13 @@ def full_setup(LD_factor):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs,LD_factor):
+def analyses_setup(configs):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config,LD_factor)
+        analysis = base_analysis(config)
         analyses[tag] = analysis
 
     # adjust analyses for configs
@@ -186,7 +142,7 @@ def analyses_setup(configs,LD_factor):
 
     return analyses
 
-def base_analysis(vehicle,LD_factor):
+def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -211,7 +167,6 @@ def base_analysis(vehicle,LD_factor):
     aerodynamics.geometry = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
-    aerodynamics.settings.lift_to_drag_adjustment    = LD_factor
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
