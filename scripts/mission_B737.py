@@ -1,52 +1,38 @@
 # mission_B737.py
 # 
-# Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Created:  Oct 2017, SUAVE Team
 
-""" setup file for a mission with a 737
-"""
-
+# Use the variables in the "Analysis Controls" block in the main function
+# to run an analyses with different years and technology settings.
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-
 import numpy as np
 import pylab as plt
+import copy
+import sys
 
-import copy, time
-
+import SUAVE
 from SUAVE.Core import (
-Data, Container,
+Units, Data, Container,
 )
-
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
-import sys
-
-#sys.path.append('../Vehicles')
-# the analysis functions
-
 from Boeing_737 import vehicle_setup, configs_setup
-import copy
 
-
-
-from SUAVE.Input_Output.Results import  print_parasite_drag,  \
-     print_compress_drag, \
-     print_engine_data,   \
-     print_mission_breakdown, \
-     print_weight_breakdown
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
 
 def main():
+    
+    # -----------------------------------------------------------
+    # Analysis Controls
+    # -----------------------------------------------------------
 
     # 2027 or 2037 (or 2017 for no change)
     year = 2037
@@ -54,6 +40,10 @@ def main():
     LF_type = 'NLF'
     # metal or composite
     fuselage_material = 'composite'
+    
+    # -----------------------------------------------------------
+    #
+    # -----------------------------------------------------------
     
     LD_factor = find_LD_factor(year,LF_type)
     wt_factors = weight_factors(year,fuselage_material)
