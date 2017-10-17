@@ -48,12 +48,11 @@ def turbofan_emission_index(turbofan, state):
     p3      = turbofan.combustor.inputs.stagnation_pressure/Units.psi
     T3      = turbofan.combustor.inputs.stagnation_temperature/Units.degR 
     T4      = turbofan.combustor.outputs.stagnation_temperature/Units.degR
-    mdot    = results.vehicle_mass_rate
     
     nox_emission_index = .004194*T4*((p3/439.)**.37)*np.exp((T3-1471.)/345.)
-    CO2                = 3.155  * mdot # This is in kg/kg but since it's multiplied 
-    H2O                = 1.240  * mdot
-    SO2                = 0.0008 * mdot
+    CO2                = 3.155  # This is in kg/kg
+    H2O                = 1.240  # This is in kg/kg 
+    SO2                = 0.0008 # This is in kg/kg 
     
     #correlation in g Nox/kg fuel; convert to kg Nox/kg
     nox_emission_index = nox_emission_index * (Units.g/Units.kg) 
