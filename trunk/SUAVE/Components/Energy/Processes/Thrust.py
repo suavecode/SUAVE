@@ -75,7 +75,7 @@ class Thrust(Energy_Component):
         self.outputs.power                            = 0.0
         self.design_thrust                            = 0.0
         self.mass_flow_rate_design                    = 0.0
-        self.SFC_adjustment                           = 1.0
+        self.SFC_adjustment                           = 0.0
 
 	
  
@@ -181,7 +181,7 @@ class Thrust(Energy_Component):
         #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
-        TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))*SFC_adjustment
+        TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))*(1.-SFC_adjustment)
        
      
         #computing the core mass flow
