@@ -60,6 +60,7 @@ class Turbofan(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 1.0
+        self.SFC_adjustment    = 0.0 
         
         #areas needed for drag; not in there yet
         self.areas             = Data()
@@ -118,7 +119,8 @@ class Turbofan(Propulsor):
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
         bypass_ratio              = self.bypass_ratio
-        number_of_engines         = self.number_of_engines   
+        number_of_engines         = self.number_of_engines
+        SFC_adjustment            = self.SFC_adjustment
         
         #Creating the network by manually linking the different components
         
@@ -257,7 +259,7 @@ class Turbofan(Propulsor):
 
         #getting the network outputs from the thrust outputs
         F            = thrust.outputs.thrust*[1,0,0]
-        mdot         = thrust.outputs.fuel_flow_rate
+        mdot         = thrust.outputs.fuel_flow_rate*SFC_adjustment
         output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = F[:,0]
