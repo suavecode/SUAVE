@@ -51,10 +51,13 @@ def main():
     year = 2037
     # NLF or HLF (laminar flow type)
     LF_type = 'NLF'
+    # metal or composite
+    fuselage_material = 'composite'
     
     LD_factor = find_LD_factor(year,LF_type)
+    wt_factors = weight_factors(year,fuselage_material)
 
-    configs, analyses = full_setup(LD_factor)
+    configs, analyses = full_setup(LD_factor,wt_factors)
 
     simple_sizing(configs, analyses)
 
@@ -139,18 +142,70 @@ def find_LD_factor(year,LF_type):
         
     return LD_increase
 
+def weight_factors(year,fuselage_material):
+    
+    wt_factors = Data()
+    wt_factors.main_wing = 0
+    wt_factors.fuselage  = 0
+    wt_factors.empennage = 0    
+    
+    if year == 2017:
+        return wt_factors
+    
+    wing_tech      = dict()
+    fuselage_tech  = dict()
+    empennage_tech = dict()
+    
+    wing_tech['Advanced Composites'] = [10,2,80,100]
+    wing_tech['Opt Local Design']    = [2,1,40,70]
+    wing_tech['Multifunc Materials'] = [2,1,40,70]
+    wing_tech['Load Alleviation']    = [1.5,1,50,80]
+    
+    if fuselage_material == 'metal':
+        fuselage_tech['Advanced Metals'] = [4,2,60,90]
+    elif fuselage_material == 'composite':
+        fuselage_tech['Advanced Composites'] = [8,3,80,100]
+    else:
+        raise ValueError('Fuselage material must be metal or composite')
+    fuselage_tech['Opt Local Design']    = [2,1,40,70]
+    fuselage_tech['Multifunc Materials'] = [3,1,40,70]
+    fuselage_tech['Load Alleviation']    = [.5,.5,30,60]
+    
+    empennage_tech['Advanced Composites'] = [8,2,80,100]
+    empennage_tech['Opt Local Design']    = [2,1,40,70]
+    empennage_tech['Multifunc Materials'] = [2,1,40,70]
+    empennage_tech['Load Alleviation']    = [.5,.5,50,80]    
+    
+    weight_techs = dict()
+    weight_techs['main_wing'] = wing_tech
+    weight_techs['fuselage']  = fuselage_tech
+    weight_techs['empennage'] = empennage_tech
+    
+    for component,comp_dict in weight_techs.iteritems():
+        for tech,vals in comp_dict.iteritems():
+            if year == 2027:
+                tech_factor = vals[0]/100.*vals[2]/100.
+            elif year == 2037:
+                tech_factor = vals[0]/100.*vals[3]/100.
+            else:
+                raise ValueError('Year must be 2027 or 2037')
+            wt_factors[component] += tech_factor    
+            
+    return wt_factors
+        
+
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(LD_factor):
+def full_setup(LD_factor,wt_factors):
 
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs,LD_factor)
+    configs_analyses = analyses_setup(configs,LD_factor,wt_factors)
 
     # mission analyses
     mission  = mission_setup(configs_analyses)
@@ -166,13 +221,13 @@ def full_setup(LD_factor):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs,LD_factor):
+def analyses_setup(configs,LD_factor,wt_factors):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config,LD_factor)
+        analysis = base_analysis(config,LD_factor,wt_factors)
         analyses[tag] = analysis
 
     # adjust analyses for configs
@@ -186,7 +241,7 @@ def analyses_setup(configs,LD_factor):
 
     return analyses
 
-def base_analysis(vehicle,LD_factor):
+def base_analysis(vehicle,LD_factor,wt_factors):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -203,6 +258,9 @@ def base_analysis(vehicle,LD_factor):
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.vehicle = vehicle
+    weights.settings.weight_reduction_factors.main_wing = wt_factors.main_wing
+    weights.settings.weight_reduction_factors.fuselage  = wt_factors.fuselage
+    weights.settings.weight_reduction_factors.empennage = wt_factors.empennage
     analyses.append(weights)
 
     # ------------------------------------------------------------------
@@ -419,13 +477,25 @@ def simple_sizing(configs, analyses):
     # weight analysis
     #need to put here, otherwise it won't be updated
     weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()    
-    
+    improved_breakdown = weights.evaluate()   
+    #improvements = weights.settings.weight_reduction_factors #(copy to resey)
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
     compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     compute_aircraft_center_of_gravity(base)
+    
+    weights.settings.weight_reduction_factors.main_wing = 0.
+    weights.settings.weight_reduction_factors.fuselage  = 0.
+    weights.settings.weight_reduction_factors.empennage = 0.
+    
+    initial_breakdown = weights.evaluate()
+    
+    weight_diff = improved_breakdown.empty - initial_breakdown.empty
+    
+    ## Reset weight analysis
+    
+    base.mass_properties.takeoff = base.mass_properties.takeoff + weight_diff    
     
     # diff the new data
     base.store_diff()
