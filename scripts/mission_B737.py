@@ -35,7 +35,9 @@ def main():
     # -----------------------------------------------------------
 
     # 2027 or 2037 (or 2017 for no change)
-    year = 2037
+    # This determines which performance plots are shown
+    # Plots showing overall comparisons will still be shown for both 2027 and 2037
+    plotting_year = 2037
     # NLF or HLF (laminar flow type)
     LF_type = 'NLF'
     # metal or composite
@@ -45,52 +47,44 @@ def main():
     #
     # -----------------------------------------------------------
     
-    LD_factor    = find_LD_factor(year,LF_type)
-    wt_factors   = weight_factors(year,fuselage_material)
-    prop_factors = propulsion_factors(year)
+    years = [2017,2027,2037]
+    
+    results_dict = dict()
+    
+    for year in years:
 
-    configs, analyses = full_setup(LD_factor,wt_factors,prop_factors)
+        print 'Computing results for ' + str(year)
+        
+        LD_factor    = find_LD_factor(year,LF_type)
+        wt_factors   = weight_factors(year,fuselage_material)
+        prop_factors = propulsion_factors(year)
+    
+        configs, analyses = full_setup(LD_factor,wt_factors,prop_factors)
+    
+        simple_sizing(configs, analyses)
+    
+        configs.finalize()
+        analyses.finalize()
+    
+      
+     
+        # mission analysis
+        mission = analyses.missions.base
+        results = mission.evaluate()
+        
+        results_dict[year] = results
 
-    simple_sizing(configs, analyses)
-
-    configs.finalize()
-    analyses.finalize()
-
-  
- 
-    # mission analysis
-    mission = analyses.missions.base
-    results = mission.evaluate()
-
-    # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
-
-    # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
-
-    # print parasite drag data into file
-    # define reference condition for parasite drag
-    ref_condition = Data()
-    ref_condition.mach_number = 0.3
-    ref_condition.reynolds_number = 12e6     
-    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
-
-    # print compressibility drag data into file
-    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
-
-    # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
-
-    # load older results
-    #save_results(results)
-    old_results = load_results()   
+    ## load older results
+    ##save_results(results)
+    #old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    plot_mission(results_dict[2017])
+    plot_mission(results_dict[plotting_year],'k-')
+    plot_general_results(results_dict,years)
     plt.show(block=True)
-    # check the results
-    check_results(results,old_results)
+    ## check the results
+    #check_results(results,old_results)
     
    
 
@@ -467,6 +461,15 @@ def plot_mission(results,line_style='bo-'):
         #plt.savefig("B737_mission.png")
 
     return
+
+# ----------------------------------------------------------------------
+#   Plot General Results
+# ----------------------------------------------------------------------
+
+def plot_general_results(results_dict,years):
+    takeoff_mass = dict()
+    for year in years
+    takeoff_mass[2017] = results_dict[2017].segments[0].conditions.weights.total_mass[0,0]
 
 def simple_sizing(configs, analyses):
 
