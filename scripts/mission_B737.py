@@ -47,6 +47,7 @@ def main():
     #
     # -----------------------------------------------------------
     
+<<<<<<< HEAD
     years = [2017,2027,2037]
     
     results_dict = dict()
@@ -73,6 +74,25 @@ def main():
         results = mission.evaluate()
         
         results_dict[year] = results
+=======
+    LD_factor    = find_LD_factor(year,LF_type)
+    wt_factors   = weight_factors(year,fuselage_material)
+    prop_factors = propulsion_factors(year)
+
+    configs, analyses = full_setup(LD_factor,wt_factors,prop_factors)
+
+    simple_sizing(configs, analyses)
+
+    configs.finalize()
+    analyses.finalize()
+
+    # mission analysis
+    mission = analyses.missions.base
+    results = mission.evaluate()
+    
+    # Post process for emissions
+    results = post_process_emissions(configs, results)
+>>>>>>> 7a41c8dd25ecdc73dff5d7dc7fd0929abd37ca00
 
     ## load older results
     ##save_results(results)
@@ -188,15 +208,45 @@ def propulsion_factors(year):
     if   year == 2017:
         prop_factors = 0.16 * 1.0
     elif year == 2027:
-        prop_factors = 0.20 * 0.60
+        prop_factors = 0.16 + 0.04 * 0.60
     elif year == 2037:
-        prop_factors = ((1+0.6/100.)**20.-1.) * 0.60 
+        prop_factors = 0.16 + 0.04 * 0.60 + ((1+0.6/100.)**10.-1.) * 0.60 
     else:
-        raise ValueError('Year must be 2027 or 2037')    
+        raise ValueError('Year must be 2017, 2027, or 2037')    
         
     return prop_factors
 
+
+def post_process_emissions(configs,results):
     
+    # Unpack
+    turbofan_emmissions  = SUAVE.Methods.Propulsion.turbofan_emission_index
+    turbofan = configs.base.propulsors.turbofan
+    
+    CO2_total = 0. 
+    SO2_total = 0.
+    NOx_total = 0.
+    H2O_total = 0.
+    for segment in results.segments.values():
+        
+        # Find the emissions indices
+        emissions = turbofan_emmissions(turbofan,segment)
+        segment.conditions.emissions = emissions
+        
+        # Add up the total emissions from all segments
+        CO2_total = CO2_total + emissions.total.CO2[-1]
+        SO2_total = SO2_total + emissions.total.SO2[-1]
+        NOx_total = NOx_total + emissions.total.NOx[-1]
+        H2O_total = H2O_total + emissions.total.H2O[-1]     
+        
+    results.emissions = Data()
+    results.emissions.total = Data()
+    results.emissions.total.CO2 = CO2_total
+    results.emissions.total.SO2 = SO2_total
+    results.emissions.total.NOx = NOx_total
+    results.emissions.total.H2O = H2O_total
+    
+    return results
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
@@ -206,10 +256,15 @@ def full_setup(LD_factor,wt_factors,prop_factors):
 
     # vehicle data
     vehicle  = vehicle_setup()
+    
+    # Change the propulsion factor
+    vehicle.propulsors.turbofan.thrust.SFC_adjustment = prop_factors
+    
+    # Setup multiple configs
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs,LD_factor,wt_factors,prop_factors)
+    configs_analyses = analyses_setup(configs,LD_factor,wt_factors)
 
     # mission analyses
     mission  = mission_setup(configs_analyses)
@@ -225,13 +280,13 @@ def full_setup(LD_factor,wt_factors,prop_factors):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs,LD_factor,wt_factors,prop_factors):
+def analyses_setup(configs,LD_factor,wt_factors):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config,LD_factor,wt_factors,prop_factors)
+        analysis = base_analysis(config,LD_factor,wt_factors)
         analyses[tag] = analysis
 
     # adjust analyses for configs
@@ -245,7 +300,7 @@ def analyses_setup(configs,LD_factor,wt_factors,prop_factors):
 
     return analyses
 
-def base_analysis(vehicle,LD_factor,wt_factors,prop_factors):
+def base_analysis(vehicle,LD_factor,wt_factors):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -286,7 +341,6 @@ def base_analysis(vehicle,LD_factor,wt_factors,prop_factors):
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
-    energy.network.turbofan.thrust.SFC_adjustment = prop_factors
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -323,7 +377,7 @@ def plot_mission(results,line_style='bo-'):
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]*0.224808943
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]*0.224808943
-        eta  = segment.conditions.propulsion.throttle[:,0]
+        eta    = segment.conditions.propulsion.throttle[:,0]
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc    = 3600. * mdot / 0.1019715 / thrust	
