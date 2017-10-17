@@ -33,6 +33,7 @@ import sys
 # the analysis functions
 
 from Boeing_737 import vehicle_setup, configs_setup
+import copy
 
 
 
@@ -474,26 +475,28 @@ def simple_sizing(configs, analyses):
     # fuselage seats
     base.fuselages['fuselage'].number_coach_seats = base.passengers
     
+    weights = analyses.configs.base.weights
+    improvements = copy.deepcopy(weights.settings.weight_reduction_factors) #(copy to resey)
+    
+    weights.settings.weight_reduction_factors.main_wing = 0.
+    weights.settings.weight_reduction_factors.fuselage  = 0.
+    weights.settings.weight_reduction_factors.empennage = 0.
+    
+    initial_breakdown = weights.evaluate()    
+    
+    # Reset weight analysis
+    weights.settings.weight_reduction_factors = improvements
+    
     # weight analysis
     #need to put here, otherwise it won't be updated
-    weights = analyses.configs.base.weights
     improved_breakdown = weights.evaluate()   
-    #improvements = weights.settings.weight_reduction_factors #(copy to resey)
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
     compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     compute_aircraft_center_of_gravity(base)
     
-    weights.settings.weight_reduction_factors.main_wing = 0.
-    weights.settings.weight_reduction_factors.fuselage  = 0.
-    weights.settings.weight_reduction_factors.empennage = 0.
-    
-    initial_breakdown = weights.evaluate()
-    
     weight_diff = improved_breakdown.empty - initial_breakdown.empty
-    
-    ## Reset weight analysis
     
     base.mass_properties.takeoff = base.mass_properties.takeoff + weight_diff    
     
