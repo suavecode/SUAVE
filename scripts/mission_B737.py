@@ -48,7 +48,7 @@ from SUAVE.Input_Output.Results import  print_parasite_drag,  \
 def main():
 
     # 2027 or 2037 (or 2017 for no change)
-    year = 2017
+    year = 2037
     # NLF or HLF (laminar flow type)
     LF_type = 'NLF'
     
@@ -87,7 +87,7 @@ def main():
     #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
