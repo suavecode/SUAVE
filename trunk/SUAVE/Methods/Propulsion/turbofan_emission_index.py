@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
 #   turbofan_nox_emission_index
@@ -33,11 +33,17 @@ def turbofan_emission_index(turbofan, state):
           stagnation_temperature  [K]
           
     Outputs:      
-    emission_index.
-          NOx                     [kg/kg]
-          CO2                     [kg/kg]
-          H2O                     [kg/kg]
-          SO2                     [kg/kg]
+    emission.
+          total.
+                NOx               [kg]
+                CO2               [kg]
+                H2O               [kg]
+                SO2               [kg]
+          index.
+                NOx               [kg/kg]
+                CO2               [kg/kg]
+                H2O               [kg/kg]
+                SO2               [kg/kg]
     
     Source: Antoine, Nicholas, Aircraft Optimization for Minimal Environmental Impact, pp. 31 (PhD Thesis)
     
@@ -48,20 +54,34 @@ def turbofan_emission_index(turbofan, state):
     p3      = turbofan.combustor.inputs.stagnation_pressure/Units.psi
     T3      = turbofan.combustor.inputs.stagnation_temperature/Units.degR 
     T4      = turbofan.combustor.outputs.stagnation_temperature/Units.degR
+    mdot    = state.conditions.weights.vehicle_mass_rate
+    I       = state.numerics.time.integrate
     
-    nox_emission_index = .004194*T4*((p3/439.)**.37)*np.exp((T3-1471.)/345.)
-    CO2                = 3.155  # This is in kg/kg
-    H2O                = 1.240  # This is in kg/kg 
-    SO2                = 0.0008 # This is in kg/kg 
+    NOx = .004194*T4*((p3/439.)**.37)*np.exp((T3-1471.)/345.)
+    CO2 = 3.155  # This is in kg/kg
+    H2O = 1.240  # This is in kg/kg 
+    SO2 = 0.0008 # This is in kg/kg 
     
     #correlation in g Nox/kg fuel; convert to kg Nox/kg
-    nox_emission_index = nox_emission_index * (Units.g/Units.kg) 
+    NOx = NOx * (Units.g/Units.kg) 
     
-    emission_index = Data()
-    emission_index.NOx = nox_emission_index
-    emission_index.CO2 = CO2
-    emission_index.H2O = H2O
-    emission_index.SO2 = SO2
+    # Integrate them over the entire segment
+    NOx_total = np.dot(I,mdot*NOx)
+    CO2_total = np.dot(I,mdot*CO2)
+    SO2_total = np.dot(I,mdot*SO2)
+    H2O_total = np.dot(I,mdot*H2O)
+
+    emission = Data()
+    emission.total = Data()
+    emission.index = Data()
+    emission.total.NOx = NOx_total
+    emission.total.CO2 = CO2_total
+    emission.total.H2O = H2O_total
+    emission.total.SO2 = SO2_total 
+    emission.index.NOx = NOx
+    emission.index.CO2 = CO2
+    emission.index.H2O = H2O
+    emission.index.SO2 = SO2
     
     
-    return emission_index
+    return emission
