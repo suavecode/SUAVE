@@ -54,10 +54,11 @@ def main():
     # metal or composite
     fuselage_material = 'composite'
     
-    LD_factor = find_LD_factor(year,LF_type)
-    wt_factors = weight_factors(year,fuselage_material)
+    LD_factor    = find_LD_factor(year,LF_type)
+    wt_factors   = weight_factors(year,fuselage_material)
+    prop_factors = propulsion_factors(year)
 
-    configs, analyses = full_setup(LD_factor,wt_factors)
+    configs, analyses = full_setup(LD_factor,wt_factors,prop_factors)
 
     simple_sizing(configs, analyses)
 
@@ -192,20 +193,38 @@ def weight_factors(year,fuselage_material):
             wt_factors[component] += tech_factor    
             
     return wt_factors
+
+
+def propulsion_factors(year):
+    # values are single aisle (SA), [1,.25,40,60] corresponds to 1% +- .25% with 40% chance in 2027 and 60% in 2037
+    
+    # How to incorporate CO2 changes, these are stoichiometric from the slides?
+    
+    if   year == 2017:
+        prop_factors = 0.16 * 1.0
+    elif year == 2027:
+        prop_factors = 0.20 * 0.60
+    elif year == 2037:
+        prop_factors = ((1+0.6/100.)**20.-1.) * 0.60 
+    else:
+        raise ValueError('Year must be 2027 or 2037')    
         
+    return prop_factors
+
+    
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(LD_factor,wt_factors):
+def full_setup(LD_factor,wt_factors,prop_factors):
 
     # vehicle data
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs,LD_factor,wt_factors)
+    configs_analyses = analyses_setup(configs,LD_factor,wt_factors,prop_factors)
 
     # mission analyses
     mission  = mission_setup(configs_analyses)
@@ -221,13 +240,13 @@ def full_setup(LD_factor,wt_factors):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs,LD_factor,wt_factors):
+def analyses_setup(configs,LD_factor,wt_factors,prop_factors):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config,LD_factor,wt_factors)
+        analysis = base_analysis(config,LD_factor,wt_factors,prop_factors)
         analyses[tag] = analysis
 
     # adjust analyses for configs
@@ -241,7 +260,7 @@ def analyses_setup(configs,LD_factor,wt_factors):
 
     return analyses
 
-def base_analysis(vehicle,LD_factor,wt_factors):
+def base_analysis(vehicle,LD_factor,wt_factors,prop_factors):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -282,6 +301,7 @@ def base_analysis(vehicle,LD_factor,wt_factors):
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network.turbofan.thrust.SFC_adjustment = prop_factors
     analyses.append(energy)
 
     # ------------------------------------------------------------------
