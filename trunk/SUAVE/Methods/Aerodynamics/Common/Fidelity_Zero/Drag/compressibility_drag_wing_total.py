@@ -6,18 +6,6 @@
 #        
 
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-# SUAVE imports
-<<<<<<< HEAD:trunk/SUAVE/Methods/Aerodynamics/Fidelity_Zero/Drag/compressibility_drag_wing_total.py
-from SUAVE.Analyses import Results
-import autograd.numpy as np 
-=======
-import numpy as np
->>>>>>> develop:trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/compressibility_drag_wing_total.py
-
-# ----------------------------------------------------------------------
 #  Computes the compressibility drag of the wings
 # ----------------------------------------------------------------------
 

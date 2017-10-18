@@ -9,12 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD:trunk/SUAVE/Methods/Aerodynamics/Fidelity_Zero/Drag/parasite_total.py
-from SUAVE.Analyses import Results
 import autograd.numpy as np 
-=======
-import numpy as np
->>>>>>> develop:trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py
 
 # ----------------------------------------------------------------------
 #  Total Parasite Drag

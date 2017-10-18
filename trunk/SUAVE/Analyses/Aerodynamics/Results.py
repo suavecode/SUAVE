@@ -7,13 +7,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
-from SUAVE.Analyses import Results as Base_Results
-import autograd.numpy as np 
-=======
 from SUAVE.Core import Data
-import numpy as np
->>>>>>> develop
+import autograd.numpy as np 
 
 # ----------------------------------------------------------------------
 #  Default Aerodynamic Results

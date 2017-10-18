@@ -8,14 +8,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD
 import autograd.numpy as np
-from SUAVE.Core import Units
-from SUAVE.Analyses import Results
-=======
-import numpy as np
 from SUAVE.Core import Units, Data
->>>>>>> develop
+
 
 # ----------------------------------------------------------------------
 #  Post Stall Coefficients

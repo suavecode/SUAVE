@@ -9,13 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-<<<<<<< HEAD:trunk/SUAVE/Methods/Aerodynamics/Supersonic_Zero/Drag/wave_drag_lift.py
 import autograd.numpy as np 
-from SUAVE.Analyses import Results
-=======
-import numpy as np
 from SUAVE.Core import Data
->>>>>>> develop:trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/wave_drag_lift.py
 
 # ----------------------------------------------------------------------
 #   Wave Drag Lift

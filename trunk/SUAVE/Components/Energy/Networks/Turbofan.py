@@ -17,11 +17,6 @@ import SUAVE
 import autograd.numpy as np 
 
 from SUAVE.Core import Data
-<<<<<<< HEAD
-from SUAVE.Analyses import Results
-
-=======
->>>>>>> develop
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
