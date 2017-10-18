@@ -48,7 +48,7 @@ def main():
     #
     # -----------------------------------------------------------
 
-    years = [2017,2027,2037]
+    years = [2010,2017,2027,2037]
     
     results_dict = dict()
     emissions    = dict()
@@ -76,13 +76,15 @@ def main():
         emissions[year]    = post_process_emissions(configs, results).emissions.total 
 
     # plt the old results
-    plot_mission(results_dict[2017],'r-')
-    if plotting_year == 2027:
+    plot_mission(results_dict[2010],'k-')
+    if plotting_year == 2017:
+        plot_mission(results_dict[plotting_year],'r-')    
+    elif plotting_year == 2027:
         plot_mission(results_dict[plotting_year],'g-')
     elif plotting_year == 2037:
         plot_mission(results_dict[plotting_year],'b-')
     else:
-        plot_mission(results_dict[plotting_year],'k-')
+        plot_mission(results_dict[plotting_year],'y-')
     plot_general_results(results_dict,emissions,years)
     plt.show(block=True)
 
@@ -90,7 +92,7 @@ def main():
 
 def find_LD_factor(year,LF_type):
     
-    if year == 2017:
+    if year == 2017 or year==2010:
         return 0.
     
     LD_factors = dict()
@@ -133,7 +135,7 @@ def weight_factors(year,fuselage_material):
     wt_factors.fuselage  = 0
     wt_factors.empennage = 0    
     
-    if year == 2017:
+    if year == 2017 or year==2010:
         return wt_factors
     
     wing_tech      = dict()
@@ -181,14 +183,16 @@ def weight_factors(year,fuselage_material):
 def propulsion_factors(year):
     # values are single aisle (SA)
     
-    if   year == 2017:
+    if  year == 2010:
+        prop_factors = 0.
+    elif  year == 2017:
         prop_factors = 0.16 * 1.0
     elif year == 2027:
         prop_factors = 0.16 + 0.04 * 0.60
     elif year == 2037:
         prop_factors = 0.16 + 0.04 * 0.60 + ((1+0.6/100.)**10.-1.) * 0.60 
     else:
-        raise ValueError('Year must be 2017, 2027, or 2037')    
+        raise ValueError('Year must be 2010, 2017, 2027, or 2037')    
         
     return prop_factors
 
@@ -353,6 +357,7 @@ def plot_mission(results,line_style='b-'):
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Throttle Setting',axis_font)
+        plt.ylim((0,1))
         axes.grid(True)	
 
         #plt.savefig("B737_engine.pdf")
@@ -441,36 +446,39 @@ def plot_general_results(results_dict,emissions,years):
         final_mass      = results_dict[year].segments[-1].conditions.weights.total_mass[-1,0]
         fuel_burn[year] = (takeoff_mass-final_mass) / Units.lb
         
-    fuel_burn_vals = np.array([fuel_burn[2017],fuel_burn[2027],fuel_burn[2037]])
+    fuel_burn_vals = np.array([fuel_burn[2010],fuel_burn[2017],fuel_burn[2027],fuel_burn[2037]])
 
     # Plot Fuel Burn
     
-    ind = np.arange(1,4)
+    ind = np.arange(1,5)
     fig, ax = plt.subplots()
-    y17,y27,y37 = plt.bar(ind,fuel_burn_vals,align='center')
-    y17.set_facecolor('r')
-    y27.set_facecolor('g')
-    y37.set_facecolor('b')    
+    y17,y27,y37,y47 = plt.bar(ind,fuel_burn_vals,align='center')
+    y17.set_facecolor('k')
+    y27.set_facecolor('r')
+    y37.set_facecolor('y')    
+    y47.set_facecolor('g')   
     
-    perc27 = (1.-fuel_burn[2027]/fuel_burn[2017])*100.
-    perc37 = (1.-fuel_burn[2037]/fuel_burn[2017])*100.    
+    perc27 = (1.-fuel_burn[2017]/fuel_burn[2010])*100.
+    perc37 = (1.-fuel_burn[2027]/fuel_burn[2010])*100.   
+    perc47 = (1.-fuel_burn[2037]/fuel_burn[2010])*100.  
     
     legend_27 = "{:.1f}".format(perc27) + '% Reduction'
     legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    legend_47 = "{:.1f}".format(perc47) + '% Reduction'
     
-    plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    plt.legend([y17,y27,y37,y47],['Baseline',legend_27,legend_37,legend_47])
     
     ax.set_xticks(ind)
-    ax.set_xticklabels(['2017','2027','2037'])
-    ax.set_ylim([0,fuel_burn[2017]*1.4])
+    ax.set_xticklabels(['2010','2017','2027','2037'])
+    ax.set_ylim([0,fuel_burn[2010]*1.4])
     ax.set_ylabel('Fuel Burn (lb)')
     ax.set_title('Fuel Burn by Year')    
 
     # Extract Emissions Values
-    H2O_vals = np.array([emissions[2017].H2O[0],emissions[2027].H2O[0],emissions[2037].H2O[0]]) / Units.lb
-    CO2_vals = np.array([emissions[2017].CO2[0],emissions[2027].CO2[0],emissions[2037].CO2[0]]) / Units.lb
-    NOx_vals = np.array([emissions[2017].NOx[0],emissions[2027].NOx[0],emissions[2037].NOx[0]]) / Units.lb
-    SO2_vals = np.array([emissions[2017].SO2[0],emissions[2027].SO2[0],emissions[2037].SO2[0]]) / Units.lb
+    H2O_vals = np.array([emissions[2010].H2O[0],emissions[2017].H2O[0],emissions[2027].H2O[0],emissions[2037].H2O[0]]) / Units.lb
+    CO2_vals = np.array([emissions[2010].CO2[0],emissions[2017].CO2[0],emissions[2027].CO2[0],emissions[2037].CO2[0]]) / Units.lb
+    NOx_vals = np.array([emissions[2010].NOx[0],emissions[2017].NOx[0],emissions[2027].NOx[0],emissions[2037].NOx[0]]) / Units.lb
+    SO2_vals = np.array([emissions[2010].SO2[0],emissions[2017].SO2[0],emissions[2027].SO2[0],emissions[2037].SO2[0]]) / Units.lb
     
     # 4 Plot
     emissions_types = ['H2O','CO2','NOx','SO2']
@@ -481,22 +489,25 @@ def plot_general_results(results_dict,emissions,years):
         for jj in range(2):
         
             em_ind = ii*2+jj
-            y17,y27,y37 = ax[ii,jj].bar(ind,emissions_vals[em_ind],align='center')
+            y17,y27,y37,y47 = ax[ii,jj].bar(ind,emissions_vals[em_ind],align='center')
             
-            y17.set_facecolor('r')
-            y27.set_facecolor('g')
-            y37.set_facecolor('b')
+            y17.set_facecolor('k')
+            y27.set_facecolor('r')
+            y37.set_facecolor('y')    
+            y47.set_facecolor('g') 
             
             perc27 = (1.-emissions_vals[em_ind][1]/emissions_vals[em_ind][0])*100.
             perc37 = (1.-emissions_vals[em_ind][2]/emissions_vals[em_ind][0])*100.
+            perc47 = (1.-emissions_vals[em_ind][3]/emissions_vals[em_ind][0])*100.
             
             legend_27 = "{:.1f}".format(perc27) + '% Reduction'
             legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+            legend_47 = "{:.1f}".format(perc47) + '% Reduction'
             
-            ax[ii,jj].legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+            ax[ii,jj].legend([y17,y27,y37,y47],['Baseline',legend_27,legend_37,legend_47])
             
             ax[ii,jj].set_xticks(ind)
-            ax[ii,jj].set_xticklabels(['2017','2027','2037'])
+            ax[ii,jj].set_xticklabels(['2010','2017','2027','2037'])
             ax[ii,jj].set_ylim([0,emissions_vals[em_ind][0]*1.4])
             ax[ii,jj].set_ylabel(emissions_types[em_ind] + ' (lb)')
             ax[ii,jj].set_title(emissions_types[em_ind] + ' by Year')
@@ -597,10 +608,10 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.takeoff )
 
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.0   * Units.km
-    segment.air_speed      = 125.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
+    segment.altitude_start = 0.0   
+    segment.altitude_end   = 10000. * Units.feet
+    segment.air_speed      = 125.0  * Units['m/s']
+    segment.climb_rate     = 1000. * Units['feet/minute']
 
     # add to misison
     mission.append_segment(segment)
@@ -609,14 +620,14 @@ def mission_setup(analyses):
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
     segment.tag = "climb_2"
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end   = 8.0   * Units.km
-    segment.air_speed      = 190.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
+    segment.altitude_end   = 25000. * Units.feet
+    segment.mach           = 0.74
+    segment.climb_rate     = 800. * Units['feet/minute']
 
     # add to mission
     mission.append_segment(segment)
@@ -625,14 +636,14 @@ def mission_setup(analyses):
     #   Third Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------    
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
     segment.tag = "climb_3"
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 10.668 * Units.km
-    segment.air_speed    = 226.0  * Units['m/s']
-    segment.climb_rate   = 3.0    * Units['m/s']
+    segment.altitude_end = 35000. * Units.feet
+    segment.mach         = 0.68
+    segment.climb_rate   = 275. * Units['feet/minute']
 
     # add to mission
     mission.append_segment(segment)
@@ -641,16 +652,14 @@ def mission_setup(analyses):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment = Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
     segment.tag = "cruise"
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    segment.mach     = 0.78
+    segment.distance = 2490. * Units.nautical_mile   
     
-    segment.state.numerics.number_control_points = 10
-
     # add to mission
     mission.append_segment(segment)
     
@@ -758,7 +767,7 @@ def mission_setup(analyses):
     segment.altitude_start = 0.0    * Units.km
     segment.altitude_end   = 15000. * Units.ft
     segment.air_speed      = 138.0  * Units['m/s']
-    segment.climb_rate     = 3000.  * Units['ft/min']
+    segment.climb_rate     = 2000.  * Units['ft/min']
  
     # add to misison
     mission.append_segment(segment)
