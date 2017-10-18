@@ -10,15 +10,12 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-from SUAVE.Analyses import Results
 from SUAVE.Core import (
-    Data, Container,
+    Data, Container
 )
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import \
-     wave_drag_lift, wave_drag_volume, wave_drag_body_of_rev
-
-from wave_drag_lift import wave_drag_lift
-from wave_drag_volume import wave_drag_volume
+      wave_drag_volume, wave_drag_body_of_rev
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import wave_drag_lift
 
 import copy
 
@@ -72,7 +69,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # Initialize result
-    drag_breakdown.compressible = Results()
+    drag_breakdown.compressible = Data()
     
     # Use the vehicle for drag coefficients
     Sref_main = geometry.reference_area
@@ -110,7 +107,7 @@ def compressibility_drag_total(state,settings,geometry):
                                   num_engines,k,Sref_main,True)
 
         # For subsonic mach numbers, use drag divergence correlations to find the drag
-        (cd_c[Mc <= 0.99],mcc[Mc <= 0.99], MDiv[Mc <= 0.99]) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
+        (cd_c[Mc[:,0] <= 0.99],mcc[Mc[:,0] <= 0.99], MDiv[Mc[:,0] <= 0.99]) = drag_div(Mc[Mc[:,0] <= 0.99],wing,k,cl[Mc[:,0] <= 0.99],Sref_main)
 
         # For mach numbers close to 1, use an interpolation to avoid intensive calculations
         cd_c[Mc > 0.99] = drag99[Mc > 0.99] + (drag105[Mc > 0.99]-drag99[Mc > 0.99])*(Mc[Mc > 0.99]-0.99)/(1.05-0.99)
@@ -133,7 +130,7 @@ def compressibility_drag_total(state,settings,geometry):
         (cd_c[Mc >= 1.05],mcc[Mc >= 1.05], MDiv[Mc >= 1.05]) = (cd_c_sup[Mc >= 1.05],mcc_sup[Mc >= 1.05],MDiv_sup[Mc >= 1.05])
 
         # Dump data to conditions
-        wing_results = Results(
+        wing_results = Data(
             compressibility_drag      = cd_c    ,
             volume_wave_drag          = cd_c_v  ,
             lift_wave_drag            = cd_c_l  ,
@@ -199,27 +196,28 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
     Inputs:
     wing.
-      thickness_to_chord    [Unitless]     
+      thickness_to_chord    [-]     
       sweeps.quarter_chord  [radians]
       high_mach             [Boolean]
       areas.reference       [m^2]
 
     Outputs:
-    cd_c                    [Unitless]
-    mcc                     [Unitless]
-    MDiv                    [Unitless]
+    cd_c                    [-]
+    mcc                     [-]
+    MDiv                    [-]
 
     Properties Used:
     N/A
-    """     
-    
+    """         
+    # Use drag divergence mach number to determine drag for subsonic speeds
+
     # Check if the wing is designed for high subsonic cruise
     # If so use arbitrary divergence point as correlation will not work
     if wing.high_mach is True:
 
         # Divergence mach number
-        MDiv = np.array([0.95] * len(Mc_ii))
-        mcc = np.array([0.93] * len(Mc_ii))
+        MDiv = np.array([[0.95]] * len(Mc_ii))
+        mcc = np.array([[0.93]] * len(Mc_ii))
 
     else:
         # Unpack wing
@@ -233,22 +231,23 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
             cl_w = 0
 
         # Get effective Cl and sweep
-        tc = t_c_w /(np.cos(sweep_w))
-        cl = cl_w / (np.cos(sweep_w))**2
+        cos_sweep = np.cos(sweep_w)
+        tc = t_c_w / cos_sweep
+        cl = cl_w / (cos_sweep*cos_sweep)
 
         # Compressibility drag based on regressed fits from AA241
         mcc_cos_ws = 0.922321524499352       \
             - 1.153885166170620*tc    \
             - 0.304541067183461*cl    \
-            + 0.332881324404729*tc**2 \
+            + 0.332881324404729*tc*tc \
             + 0.467317361111105*tc*cl \
-            + 0.087490431201549*cl**2
+            + 0.087490431201549*cl*cl
 
         # Crest-critical mach number, corrected for wing sweep
-        mcc = mcc_cos_ws / np.cos(sweep_w)
+        mcc = mcc_cos_ws / cos_sweep
 
         # Divergence mach number
-        MDiv = mcc * ( 1.02 + 0.08*(1 - np.cos(sweep_w)) )        
+        MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )        
 
     # Divergence ratio
     mo_mc = Mc_ii/mcc
@@ -265,6 +264,12 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
         cd_c = dcdc_cos3g * (np.cos(sweep_w))**3
         
     cd_c = cd_c*wing.areas.reference/Sref_main    
+    
+    # Change empty format to avoid errors in assignment of returned values
+    if np.shape(cd_c) == (0,0):
+        cd_c = np.reshape(cd_c,[0,1]) 
+        mcc  = np.reshape(mcc,[0,1]) 
+        MDiv = np.reshape(MDiv,[0,1]) 
 
     return (cd_c,mcc,MDiv)
 

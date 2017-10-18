@@ -8,8 +8,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 import autograd.numpy as np
 from SUAVE.Analyses import Results
+=======
+import numpy as np
+from SUAVE.Core import Data
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Pre Stall Coefficients
@@ -87,7 +92,7 @@ def pre_stall_coefficients(state,settings,geometry):
     CD1[np.logical_not(con)] = 0.
     
     # Pack outputs
-    wing_result = Results(
+    wing_result = Data(
         lift_coefficient = CL1,
         drag_coefficient = CD1
         )

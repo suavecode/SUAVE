@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Analyses import Results
+from SUAVE.Core import Data
 
 import autograd.numpy as np 
 
@@ -60,7 +60,7 @@ def induced_drag_aircraft(state,settings,geometry):
         
     # store data
     try:
-        conditions.aerodynamics.drag_breakdown.induced = Results(
+        conditions.aerodynamics.drag_breakdown.induced = Data(
             total             = total_induced_drag ,
             efficiency_factor = e                  ,
             aspect_ratio      = ar                 ,

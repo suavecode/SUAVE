@@ -8,9 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 import autograd.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Analyses import Results
+=======
+import numpy as np
+from SUAVE.Core import Units, Data
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Post Stall Coefficients
@@ -111,7 +116,7 @@ def post_stall_coefficients(state,settings,geometry):
     CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin((alphan[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))        
         
     # Pack outputs
-    wing_result = Results(
+    wing_result = Data(
         lift_coefficient = CL2,
         drag_coefficient = CD2
         )

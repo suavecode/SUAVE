@@ -9,7 +9,6 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units,Data
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import miscellaneous_drag_aircraft_ESDU
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 import autograd.numpy as np 
@@ -176,7 +175,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     swet_tot += drag_breakdown['pylon'].wetted_area
 
     for k in drag_breakdown:
-        if isinstance(k,SUAVE.Analyses.Results):
+        if isinstance(k,Data):
             # String formatting
             component       =   ' ' + k.tag[0:37] + (37-len(k.tag))*' '         + '|'
             wetted_area     =   str('%11.1f'   % k.wetted_area)                 + '    |'

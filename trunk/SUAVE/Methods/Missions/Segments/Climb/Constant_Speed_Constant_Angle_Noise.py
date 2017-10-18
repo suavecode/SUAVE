@@ -47,7 +47,7 @@ def expand_state(segment,state):
     
     #number of time steps (space discretization)
     total_time=(x0+500)/v_x    
-    n_points   = np.ceil(total_time/dt +1)       
+    n_points   = np.int(np.ceil(total_time/dt +1))       
     
     state.numerics.number_control_points = n_points
     

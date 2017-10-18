@@ -7,8 +7,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+<<<<<<< HEAD
 from SUAVE.Analyses import Results as Base_Results
 import autograd.numpy as np 
+=======
+from SUAVE.Core import Data
+import numpy as np
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Default Aerodynamic Results
@@ -17,7 +22,7 @@ import autograd.numpy as np
 
 default_result = np.zeros([1,1])
 ## @ingroup Analyses-Aerodynamics
-class Results(Base_Results):
+class Results(Data):
     """A class for storing aerodynamic results.
 
     Assumptions:

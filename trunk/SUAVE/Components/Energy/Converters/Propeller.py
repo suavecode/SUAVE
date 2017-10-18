@@ -15,7 +15,6 @@ import autograd.numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
-from SUAVE.Analyses import Results
 import scipy.optimize as opt
 
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -296,7 +295,7 @@ class Propeller(Energy_Component):
         conditions.propulsion.etap = etap
         
         # store data
-        results_conditions = Results       
+        results_conditions = Data      
         conditions.propulsion.acoustic_outputs = results_conditions(
             number_sections    = N,
             r0                 = r,

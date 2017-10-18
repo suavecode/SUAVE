@@ -124,12 +124,12 @@ class Container(ContainerBase):
             state   [Data()]
     
             Outputs:
-            Results [Results()]
+            Results [Data()]
     
             Properties Used:
             None
         """          
-        results = SUAVE.Analyses.Results()
+        results = SUAVE.Core.Data()
         
         for key,mission in self.items():
             result = mission.evaluate(state)

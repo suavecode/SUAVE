@@ -17,8 +17,11 @@ import SUAVE
 import autograd.numpy as np 
 
 from SUAVE.Core import Data
+<<<<<<< HEAD
 from SUAVE.Analyses import Results
 
+=======
+>>>>>>> develop
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -269,7 +272,7 @@ class Turbofan(Propulsor):
         results.vehicle_mass_rate   = mdot
         
         # store data
-        results_conditions = Results
+        results_conditions = Data
         conditions.propulsion.acoustic_outputs.core = results_conditions(
         exit_static_temperature             = core_nozzle.outputs.static_temperature,
         exit_static_pressure                = core_nozzle.outputs.static_pressure,

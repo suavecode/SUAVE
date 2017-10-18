@@ -15,7 +15,6 @@ import SUAVE
 import autograd.numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Analyses import Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------

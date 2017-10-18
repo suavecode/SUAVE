@@ -15,9 +15,9 @@ from SUAVE.Core            import Data
 from SUAVE.Core            import Units
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import windmilling_drag
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import estimate_2ndseg_lift_drag_ratio
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import asymmetry_drag
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import windmilling_drag
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import estimate_2ndseg_lift_drag_ratio
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import asymmetry_drag
 
 # package imports
 import autograd.numpy as np 

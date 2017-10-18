@@ -73,7 +73,7 @@ class Aerodynamics(Analysis):
         N/A
         """           
         
-        results = Results()
+        results = Data()
         
         return results
     
