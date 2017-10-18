@@ -387,49 +387,6 @@ def plot_mission(results,line_style='b-'):
         #plt.savefig("B737_aero.png")
 
     # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components",figsize=(8,10))
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
-            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'ro-', label='CD total'   )
-            
-        else:
-            axes.plot( time , cdp , 'k-', label='CD parasite' )
-            axes.plot( time , cdi , 'b-', label='CD induced' )
-            axes.plot( time , cdc , 'g-', label='CD compressibility' )
-            axes.plot( time , cdm , 'y-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'r-', label='CD total'   )       
-        
-        if i == 0:
-            axes.legend(loc='upper center')    
-            
-
-    handles, labels = plt.gca().get_legend_handles_labels()
-    by_label = OrderedDict(zip(labels, handles))
-    plt.legend(by_label.values(), by_label.keys())    
-
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    #plt.savefig("B737_drag.pdf")
-    #plt.savefig("B737_drag.png")
-
-    # ------------------------------------------------------------------
     #   Altitude, sfc, weight
     # ------------------------------------------------------------------
 
