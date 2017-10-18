@@ -13,6 +13,7 @@ import numpy as np
 import pylab as plt
 import copy
 import sys
+from collections import OrderedDict
 
 import SUAVE
 from SUAVE.Core import (
@@ -548,97 +549,127 @@ def plot_general_results(results_dict,emissions,years):
     NOx_vals = np.array([emissions[2017].NOx[0],emissions[2027].NOx[0],emissions[2037].NOx[0]]) / Units.lb
     SO2_vals = np.array([emissions[2017].SO2[0],emissions[2027].SO2[0],emissions[2037].SO2[0]]) / Units.lb
     
-    # H2O Plot
+    # 4 Plot
     
-    ind = np.arange(1,4)
-    fig, ax = plt.subplots()
-    y17,y27,y37 = plt.bar(ind,H2O_vals,align='center')
-    y17.set_facecolor('r')
-    y27.set_facecolor('g')
-    y37.set_facecolor('b')    
+    emissions_types = ['H2O','CO2','NOx','SO2']
+    emissions_vals  = [H2O_vals,CO2_vals,NOx_vals,SO2_vals]
     
-    perc27 = (1.-H2O_vals[1]/H2O_vals[0])*100.
-    perc37 = (1.-H2O_vals[2]/H2O_vals[0])*100.    
+    fig, ax = plt.subplots(2,2)
+    for ii in range(2):
+        for jj in range(2):
+        
+            em_ind = ii*2+jj
+            y17,y27,y37 = ax[ii,jj].bar(ind,emissions_vals[em_ind],align='center')
+            
+            y17.set_facecolor('r')
+            y27.set_facecolor('g')
+            y37.set_facecolor('b')
+            
+            perc27 = (1.-emissions_vals[em_ind][1]/emissions_vals[em_ind][0])*100.
+            perc37 = (1.-emissions_vals[em_ind][2]/emissions_vals[em_ind][0])*100.
+            
+            legend_27 = "{:.1f}".format(perc27) + '% Reduction'
+            legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+            
+            ax[ii,jj].legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+            
+            ax[ii,jj].set_xticks(ind)
+            ax[ii,jj].set_xticklabels(['2017','2027','2037'])
+            ax[ii,jj].set_ylim([0,emissions_vals[em_ind][0]*1.4])
+            ax[ii,jj].set_ylabel(emissions_types[em_ind] + ' (lb)')
+            ax[ii,jj].set_title(emissions_types[em_ind] + ' by Year')
     
-    legend_27 = "{:.1f}".format(perc27) + '% Reduction'
-    legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    ## H2O Plot
     
-    plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    #ind = np.arange(1,4)
+    #fig, ax = plt.subplots()
+    #y17,y27,y37 = plt.bar(ind,H2O_vals,align='center')
+    #y17.set_facecolor('r')
+    #y27.set_facecolor('g')
+    #y37.set_facecolor('b')    
     
-    ax.set_xticks(ind)
-    ax.set_xticklabels(['2017','2027','2037'])
-    ax.set_ylim([0,H2O_vals[0]*1.4])
-    ax.set_ylabel('H2O (lb)')
-    ax.set_title('H2O Emissions by Year')    
+    #perc27 = (1.-H2O_vals[1]/H2O_vals[0])*100.
+    #perc37 = (1.-H2O_vals[2]/H2O_vals[0])*100.    
     
-    # CO2 Plot
+    #legend_27 = "{:.1f}".format(perc27) + '% Reduction'
+    #legend_37 = "{:.1f}".format(perc37) + '% Reduction'
     
-    ind = np.arange(1,4)
-    fig, ax = plt.subplots()
-    y17,y27,y37 = plt.bar(ind,CO2_vals,align='center')
-    y17.set_facecolor('r')
-    y27.set_facecolor('g')
-    y37.set_facecolor('b')    
+    #plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
     
-    perc27 = (1.-CO2_vals[1]/CO2_vals[0])*100.
-    perc37 = (1.-CO2_vals[2]/CO2_vals[0])*100.    
+    #ax.set_xticks(ind)
+    #ax.set_xticklabels(['2017','2027','2037'])
+    #ax.set_ylim([0,H2O_vals[0]*1.4])
+    #ax.set_ylabel('H2O (lb)')
+    #ax.set_title('H2O Emissions by Year')    
     
-    legend_27 = "{:.1f}".format(perc27) + '% Reduction'
-    legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    ## CO2 Plot
     
-    plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    #ind = np.arange(1,4)
+    #fig, ax = plt.subplots()
+    #y17,y27,y37 = plt.bar(ind,CO2_vals,align='center')
+    #y17.set_facecolor('r')
+    #y27.set_facecolor('g')
+    #y37.set_facecolor('b')    
     
-    ax.set_xticks(ind)
-    ax.set_xticklabels(['2017','2027','2037'])
-    ax.set_ylim([0,CO2_vals[0]*1.4])
-    ax.set_ylabel('CO2 (lb)')
-    ax.set_title('CO2 Emissions by Year')   
+    #perc27 = (1.-CO2_vals[1]/CO2_vals[0])*100.
+    #perc37 = (1.-CO2_vals[2]/CO2_vals[0])*100.    
     
-    # NOx Plot
+    #legend_27 = "{:.1f}".format(perc27) + '% Reduction'
+    #legend_37 = "{:.1f}".format(perc37) + '% Reduction'
     
-    ind = np.arange(1,4)
-    fig, ax = plt.subplots()
-    y17,y27,y37 = plt.bar(ind,NOx_vals,align='center')
-    y17.set_facecolor('r')
-    y27.set_facecolor('g')
-    y37.set_facecolor('b')    
+    #plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
     
-    perc27 = (1.-NOx_vals[1]/NOx_vals[0])*100.
-    perc37 = (1.-NOx_vals[2]/NOx_vals[0])*100.    
+    #ax.set_xticks(ind)
+    #ax.set_xticklabels(['2017','2027','2037'])
+    #ax.set_ylim([0,CO2_vals[0]*1.4])
+    #ax.set_ylabel('CO2 (lb)')
+    #ax.set_title('CO2 Emissions by Year')   
     
-    legend_27 = "{:.1f}".format(perc27) + '% Reduction'
-    legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    ## NOx Plot
     
-    plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    #ind = np.arange(1,4)
+    #fig, ax = plt.subplots()
+    #y17,y27,y37 = plt.bar(ind,NOx_vals,align='center')
+    #y17.set_facecolor('r')
+    #y27.set_facecolor('g')
+    #y37.set_facecolor('b')    
     
-    ax.set_xticks(ind)
-    ax.set_xticklabels(['2017','2027','2037'])
-    ax.set_ylim([0,NOx_vals[0]*1.4])
-    ax.set_ylabel('NOx (lb)')
-    ax.set_title('NOx Emissions by Year')   
+    #perc27 = (1.-NOx_vals[1]/NOx_vals[0])*100.
+    #perc37 = (1.-NOx_vals[2]/NOx_vals[0])*100.    
     
-    # SO2 Plot
+    #legend_27 = "{:.1f}".format(perc27) + '% Reduction'
+    #legend_37 = "{:.1f}".format(perc37) + '% Reduction'
     
-    ind = np.arange(1,4)
-    fig, ax = plt.subplots()
-    y17,y27,y37 = plt.bar(ind,SO2_vals,align='center')
-    y17.set_facecolor('r')
-    y27.set_facecolor('g')
-    y37.set_facecolor('b')    
+    #plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
     
-    perc27 = (1.-SO2_vals[1]/SO2_vals[0])*100.
-    perc37 = (1.-SO2_vals[2]/SO2_vals[0])*100.    
+    #ax.set_xticks(ind)
+    #ax.set_xticklabels(['2017','2027','2037'])
+    #ax.set_ylim([0,NOx_vals[0]*1.4])
+    #ax.set_ylabel('NOx (lb)')
+    #ax.set_title('NOx Emissions by Year')   
     
-    legend_27 = "{:.1f}".format(perc27) + '% Reduction'
-    legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    ## SO2 Plot
     
-    plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    #ind = np.arange(1,4)
+    #fig, ax = plt.subplots()
+    #y17,y27,y37 = plt.bar(ind,SO2_vals,align='center')
+    #y17.set_facecolor('r')
+    #y27.set_facecolor('g')
+    #y37.set_facecolor('b')    
     
-    ax.set_xticks(ind)
-    ax.set_xticklabels(['2017','2027','2037'])
-    ax.set_ylim([0,SO2_vals[0]*1.4])
-    ax.set_ylabel('SO2 (lb)')
-    ax.set_title('SO2 Emissions by Year')       
+    #perc27 = (1.-SO2_vals[1]/SO2_vals[0])*100.
+    #perc37 = (1.-SO2_vals[2]/SO2_vals[0])*100.    
+    
+    #legend_27 = "{:.1f}".format(perc27) + '% Reduction'
+    #legend_37 = "{:.1f}".format(perc37) + '% Reduction'
+    
+    #plt.legend([y17,y27,y37],['Baseline',legend_27,legend_37])
+    
+    #ax.set_xticks(ind)
+    #ax.set_xticklabels(['2017','2027','2037'])
+    #ax.set_ylim([0,SO2_vals[0]*1.4])
+    #ax.set_ylabel('SO2 (lb)')
+    #ax.set_title('SO2 Emissions by Year')       
 
 def simple_sizing(configs, analyses):
 
