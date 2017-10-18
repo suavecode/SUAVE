@@ -658,7 +658,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.cruise )
 
     segment.mach     = 0.78
-    segment.distance = 2490. * Units.nautical_mile   
+    segment.distance = 2275. * Units.nautical_mile   
     
     # add to mission
     mission.append_segment(segment)
