@@ -463,7 +463,6 @@ class Nexus(Data):
         
         # add the inputs
         input_count = 0
-        vec = np.array([])
         for segment in mis.segments:
             
             # Change the mission solve to dummy solver
@@ -487,7 +486,7 @@ class Nexus(Data):
             initial_values    = full_unkn_vals.pack_array()
             input_len_strings = np.tile('Mission_Input_', len_inputs)
             input_numbers     = np.linspace(1,len_inputs,len_inputs,dtype=np.int16)
-            input_names       = np.core.defchararray.add(input_len_strings,np.array(map(str,input_numbers)))
+            input_names       = np.core.defchararray.add(input_len_strings,np.array(map(str,input_numbers+input_count)))
             bounds            = np.broadcast_to((-np.inf,np.inf),(len_inputs,2))
             units             = np.broadcast_to(Units.less,(len_inputs,))
             new_inputs        = np.reshape(np.tile(np.atleast_2d(np.array([None,None,(None,None),None,None])),len_inputs), (-1, 5))
@@ -506,7 +505,7 @@ class Nexus(Data):
             new_con = np.reshape(np.tile(np.atleast_2d(np.array([None,None,None,None,None])),len_inputs), (-1, 5))
         
             con_len_strings = np.tile('Residual_', len_inputs)
-            con_names       = np.core.defchararray.add(con_len_strings,np.array(map(str,input_numbers))) 
+            con_names       = np.core.defchararray.add(con_len_strings,np.array(map(str,input_numbers+input_count))) 
             equals          = np.broadcast_to('=',(len_inputs,))
             zeros           = np.zeros(len_inputs)
             ones            = np.ones(len_inputs)
@@ -552,5 +551,8 @@ class Nexus(Data):
                 
             # The mission needs the state expanded now
             mis.segments[segment].process.initialize.expand_state(mis.segments[segment],mis.segments[segment].state)
+            
+            # Update the count of inputs
+            input_count = input_count+input_numbers[-1]
             
         return self
