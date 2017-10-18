@@ -66,29 +66,19 @@ def main():
     
         configs.finalize()
         analyses.finalize()
-    
-      
      
         # mission analysis
         mission = analyses.missions.base
         results = mission.evaluate()
         
         results_dict[year] = results
-        emissions[year]    = post_process_emissions(configs, results).emissions.total
-
-    ## load older results
-    ##save_results(results)
-    #old_results = load_results()   
+        emissions[year]    = post_process_emissions(configs, results).emissions.total 
 
     # plt the old results
     plot_mission(results_dict[2017])
     plot_mission(results_dict[plotting_year],'k-')
     plot_general_results(results_dict,emissions,years)
     plt.show(block=True)
-    ## check the results
-    #check_results(results,old_results)
-    
-   
 
     return
 
@@ -183,9 +173,7 @@ def weight_factors(year,fuselage_material):
 
 
 def propulsion_factors(year):
-    # values are single aisle (SA), [1,.25,40,60] corresponds to 1% +- .25% with 40% chance in 2027 and 60% in 2037
-    
-    # How to incorporate CO2 changes, these are stoichiometric from the slides?
+    # values are single aisle (SA)
     
     if   year == 2017:
         prop_factors = 0.16 * 1.0
@@ -271,15 +259,6 @@ def analyses_setup(configs,LD_factor,wt_factors):
         analysis = base_analysis(config,LD_factor,wt_factors)
         analyses[tag] = analysis
 
-    # adjust analyses for configs
-
-    # takeoff_analysis
-    analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
-
-    # landing analysis
-    aerodynamics = analyses.landing.aerodynamics
-    # do something here eventually
-
     return analyses
 
 def base_analysis(vehicle,LD_factor,wt_factors):
@@ -322,7 +301,7 @@ def base_analysis(vehicle,LD_factor,wt_factors):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.propulsors
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -343,7 +322,7 @@ def base_analysis(vehicle,LD_factor,wt_factors):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):
+def plot_mission(results,line_style='b-'):
 
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
@@ -367,14 +346,13 @@ def plot_mission(results,line_style='bo-'):
 
         axes = fig.add_subplot(2,1,1)
         axes.plot( time , Thrust , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Thrust (lbf)',axis_font)
         axes.grid(True)
 
         axes = fig.add_subplot(2,1,2)
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
+        axes.set_ylabel('Throttle Setting)',axis_font)
         axes.grid(True)	
 
         #plt.savefig("B737_engine.pdf")
@@ -398,18 +376,16 @@ def plot_mission(results,line_style='bo-'):
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , CLift , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Lift Coefficient',axis_font)
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , l_d , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('L/D',axis_font)
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , aoa , 'ro-' )
+        axes.plot( time , aoa , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
@@ -441,11 +417,11 @@ def plot_mission(results,line_style='bo-'):
             if i == 0:
                 axes.legend(loc='upper center')            
         else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
+            axes.plot( time , cdp , 'k-', label='CD parasite' )
+            axes.plot( time , cdi , 'b-', label='CD induced' )
+            axes.plot( time , cdc , 'g-', label='CD compressibility' )
+            axes.plot( time , cdm , 'y-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'r-', label='CD total'   )        
 
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
@@ -454,7 +430,7 @@ def plot_mission(results,line_style='bo-'):
     #plt.savefig("B737_drag.png")
 
     # ------------------------------------------------------------------
-    #   Altitude,sfc,vehiclde weight
+    #   Altitude, sfc, weight
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
@@ -476,7 +452,6 @@ def plot_mission(results,line_style='bo-'):
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Altitude (ft)',axis_font)
         axes.grid(True)
 
@@ -487,8 +462,7 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mass , 'ro-' )
-        #axes.set_xlabel('Time (min)',axis_font)
+        axes.plot( time , mass , line_style )
         axes.set_ylabel('Weight (lb)',axis_font)
         axes.grid(True)
 
@@ -538,11 +512,6 @@ def plot_general_results(results_dict,emissions,years):
     ax.set_title('Fuel Burn by Year')    
 
     # Extract Emissions Values
-    #H20
-    #CO2
-    #NOx
-    #SO2
-    
     H2O_vals = np.array([emissions[2017].H2O[0],emissions[2027].H2O[0],emissions[2037].H2O[0]]) / Units.lb
     CO2_vals = np.array([emissions[2017].CO2[0],emissions[2027].CO2[0],emissions[2037].CO2[0]]) / Units.lb
     NOx_vals = np.array([emissions[2017].NOx[0],emissions[2027].NOx[0],emissions[2037].NOx[0]]) / Units.lb
@@ -702,10 +671,6 @@ def simple_sizing(configs, analyses):
     # done!
     return
 
-# ----------------------------------------------------------------------
-#   Define the Mission
-# ----------------------------------------------------------------------
-
 def mission_setup(analyses):
 
     # ------------------------------------------------------------------
@@ -728,7 +693,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-
+    base_segment.state.numerics.number_control_points = 8
 
     # ------------------------------------------------------------------
     #   First Climb Segment: constant Mach, constant segment angle 
@@ -747,7 +712,6 @@ def mission_setup(analyses):
     # add to misison
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------
     #   Second Climb Segment: constant Speed, constant segment angle 
     # ------------------------------------------------------------------    
@@ -763,7 +727,6 @@ def mission_setup(analyses):
 
     # add to mission
     mission.append_segment(segment)
-
 
     # ------------------------------------------------------------------
     #   Third Climb Segment: constant Mach, constant segment angle 
@@ -781,7 +744,6 @@ def mission_setup(analyses):
     # add to mission
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
@@ -798,11 +760,10 @@ def mission_setup(analyses):
 
     # add to mission
     mission.append_segment(segment)
-
-
-# ------------------------------------------------------------------
-#   First Descent Segment: consant speed, constant segment rate
-# ------------------------------------------------------------------
+    
+    # ------------------------------------------------------------------
+    #   First Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_1"
@@ -815,7 +776,6 @@ def mission_setup(analyses):
 
     # add to mission
     mission.append_segment(segment)
-
 
     # ------------------------------------------------------------------
     #   Second Descent Segment: consant speed, constant segment rate
@@ -835,7 +795,6 @@ def mission_setup(analyses):
     # add to mission
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------
     #   Third Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------
@@ -854,7 +813,6 @@ def mission_setup(analyses):
     # add to mission
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------
     #   Fourth Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------
@@ -863,7 +821,6 @@ def mission_setup(analyses):
     segment.tag = "descent_4"
 
     segment.analyses.extend( analyses.landing )
-
     analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 2.0   * Units.km
@@ -873,8 +830,6 @@ def mission_setup(analyses):
 
     # add to mission
     mission.append_segment(segment)
-
-
 
     # ------------------------------------------------------------------
     #   Fifth Descent Segment: consant speed, constant segment rate
@@ -886,7 +841,6 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.landing )
     analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
-
     segment.altitude_end = 0.0   * Units.km
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 3.0   * Units['m/s']
@@ -895,9 +849,77 @@ def mission_setup(analyses):
     # append to mission
     mission.append_segment(segment)
 
+    
+    #------------------------------------------------------------------
+    #         Reserve mission
+    #------------------------------------------------------------------
+    #   First Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------
-    #   Mission definition complete    
+ 
+    segment = Segments.Climb.Constant_Speed_Constant_Rate()
+    segment.tag = "reserve_climb"
+ 
+    # connect vehicle configuration
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_start = 0.0    * Units.km
+    segment.altitude_end   = 15000. * Units.ft
+    segment.air_speed      = 138.0  * Units['m/s']
+    segment.climb_rate     = 3000.  * Units['ft/min']
+ 
+    # add to misison
+    mission.append_segment(segment)
+    
     # ------------------------------------------------------------------
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------
+    
+    segment = Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
+    segment.tag = "reserve_cruise"
+    
+    segment.analyses.extend( analyses.cruise )
+    
+    segment.mach      = 0.5
+    segment.distance  = 140.0 * Units.nautical_mile    
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Loiter Segment: constant mach, constant time
+    # ------------------------------------------------------------------
+    
+    segment = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
+    segment.tag = "reserve_loiter"
+    
+    segment.analyses.extend( analyses.cruise )
+    
+    segment.mach = 0.5
+    segment.time = 30.0 * Units.minutes
+    
+    mission.append_segment(segment)    
+    
+    
+    # ------------------------------------------------------------------
+    #   Fifth Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+    
+    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
+    segment.tag = "reserve_descent_1"
+    
+    segment.analyses.extend( analyses.landing )
+    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    
+    
+    segment.altitude_end = 0.0   * Units.km
+    segment.descent_rate = 3.0   * Units['m/s']
+    segment.mach_end     = 0.24
+    segment.mach_start   = 0.3
+    
+    # append to mission
+    mission.append_segment(segment)
+    
+    #------------------------------------------------------------------
+    #          Reserve mission completed
+    #------------------------------------------------------------------    
 
     return mission
 
@@ -905,104 +927,9 @@ def missions_setup(base_mission):
 
     # the mission container
     missions = SUAVE.Analyses.Mission.Mission.Container()
-
-    # ------------------------------------------------------------------
-    #   Base Mission
-    # ------------------------------------------------------------------
-
     missions.base = base_mission
 
-
-    # ------------------------------------------------------------------
-    #   Mission for Constrained Fuel
-    # ------------------------------------------------------------------    
-    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
-    fuel_mission.tag = 'fuel'
-    fuel_mission.range   = 1277. * Units.nautical_mile
-    fuel_mission.payload   = 19000.
-    missions.append(fuel_mission)    
-
-
-    # ------------------------------------------------------------------
-    #   Mission for Constrained Short Field
-    # ------------------------------------------------------------------    
-    short_field = SUAVE.Analyses.Mission.Mission(base_mission) #Short_Field_Constrained()
-    short_field.tag = 'short_field'    
-
-    #airport
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-    airport.available_tofl = 1500.
-    short_field.airport = airport    
-    missions.append(short_field)
-
-
-
-    # ------------------------------------------------------------------
-    #   Mission for Fixed Payload
-    # ------------------------------------------------------------------    
-    payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
-    payload.tag = 'payload'
-    payload.range   = 2316. * Units.nautical_mile
-    payload.payload   = 19000.
-    missions.append(payload)
-
-
-    # done!
     return missions  
-
-def check_results(new_results,old_results):
-
-    # check segment values
-    check_list = [
-        'segments.cruise.conditions.aerodynamics.angle_of_attack',
-        'segments.cruise.conditions.aerodynamics.drag_coefficient',
-        'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
-        'segments.cruise.conditions.propulsion.throttle',
-        'segments.cruise.conditions.weights.vehicle_mass_rate',
-    ]
-
-    # do the check
-    for k in check_list:
-        print k
-
-        old_val = np.max( old_results.deep_get(k) )
-        new_val = np.max( new_results.deep_get(k) )
-        err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
-        assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
-
-        old_val = np.min( old_results.deep_get(k) )
-        new_val = np.min( new_results.deep_get(k) )        
-        err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
-        assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
-
-        print ''
-
-    ## check high level outputs
-    #def check_vals(a,b):
-        #if isinstance(a,Data):
-            #for k in a.keys():
-                #err = check_vals(a[k],b[k])
-                #if err is None: continue
-                #print 'outputs' , k
-                #print 'Error:' , err
-                #print ''
-                #assert np.abs(err) < 1e-6 , 'Outputs Check Failed : %s' % k  
-        #else:
-            #return (a-b)/a
-
-    ## do the check
-    #check_vals(old_results.output,new_results.output)
-
-
-    return
-
 
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
@@ -1013,5 +940,3 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    #plt.show()
-
