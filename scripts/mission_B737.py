@@ -407,16 +407,21 @@ def plot_mission(results,line_style='b-'):
             axes.plot( time , cdc , 'go-', label='CD compressibility' )
             axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
             axes.plot( time , cd  , 'ro-', label='CD total'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
+            
         else:
             axes.plot( time , cdp , 'k-', label='CD parasite' )
             axes.plot( time , cdi , 'b-', label='CD induced' )
             axes.plot( time , cdc , 'g-', label='CD compressibility' )
             axes.plot( time , cdm , 'y-', label='CD miscellaneous' )
             axes.plot( time , cd  , 'r-', label='CD total'   )       
-            if i == 0:
-                axes.legend(loc='upper center')                
+        
+        if i == 0:
+            axes.legend(loc='upper center')    
+            
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    by_label = OrderedDict(zip(labels, handles))
+    plt.legend(by_label.values(), by_label.keys())    
 
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
