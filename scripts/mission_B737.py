@@ -76,8 +76,13 @@ def main():
         emissions[year]    = post_process_emissions(configs, results).emissions.total 
 
     # plt the old results
-    plot_mission(results_dict[2017])
-    plot_mission(results_dict[plotting_year],'k-')
+    plot_mission(results_dict[2017],'r-')
+    if plotting_year == 2027:
+        plot_mission(results_dict[plotting_year],'g-')
+    elif plotting_year == 2037:
+        plot_mission(results_dict[plotting_year],'b-')
+    else:
+        plot_mission(results_dict[plotting_year],'k-')
     plot_general_results(results_dict,emissions,years)
     plt.show(block=True)
 
