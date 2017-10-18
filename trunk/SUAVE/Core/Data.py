@@ -18,6 +18,8 @@ t_table = string.maketrans( chars          + string.uppercase ,
 dictgetitem = dict.__getitem__
 objgetattrib = object.__getattribute__
 
+import autograd.numpy as np
+
 # ----------------------------------------------------------------------
 #   Data
 # ----------------------------------------------------------------------        
@@ -520,7 +522,9 @@ class Data(dict):
         if keys[-1][-1] ==']':
             splitkey = keys[-1].split('[')
             index    = splitkey[-1][:-1]
-            data[splitkey[0]][int(index)] = val
+            one = np.zeros(len(data[splitkey[0]]))
+            one[int(index)] = 1.       
+            data[splitkey[0]] = data[splitkey[0]] + one*val
         else:
             data[ keys[-1] ] = val
         

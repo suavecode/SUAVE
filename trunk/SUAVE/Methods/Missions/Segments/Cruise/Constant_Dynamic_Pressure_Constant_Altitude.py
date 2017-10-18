@@ -65,8 +65,12 @@ def initialize_conditions(segment,state):
     t_nondim  = state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial) + t_initial
     
+    alts      = state.ones_row(1) * alt
+    cond      = state.conditions
+    airspeeds = np.atleast_2d(air_speed).T
+    
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt # Update for AD
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down # Update for AD
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed # Update for AD
-    state.conditions.frames.inertial.time[:,0]            = time[:,0] # Update for AD
+    cond.freestream.altitude             = alts
+    cond.frames.inertial.position_vector = np.concatenate((cond.frames.inertial.position_vector[:,0:2],-alts),axis=1)
+    cond.frames.inertial.velocity_vector = np.concatenate((airspeeds,cond.frames.inertial.velocity_vector[:,1:] ),axis=1)
+    cond.frames.inertial.time            = time

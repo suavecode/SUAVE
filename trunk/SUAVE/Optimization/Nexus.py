@@ -15,7 +15,7 @@ from SUAVE.Core import Data, DataOrdered, Units
 from SUAVE.Analyses import Process
 from copy import deepcopy
 import helper_functions as help_fun
-import autograd.numpy as np 
+import numpy as np 
 
 # ----------------------------------------------------------------------
 #  Nexus Class

@@ -61,4 +61,4 @@ def initialize_conditions(segment,state):
     cond.freestream.altitude             = alts
     cond.frames.inertial.position_vector = np.concatenate((cond.frames.inertial.position_vector[:,0:2],-alts),axis=1)
     cond.frames.inertial.velocity_vector = np.concatenate((airspeeds,cond.frames.inertial.velocity_vector[:,1:] ),axis=1)
-    cond.frames.inertial.time            = time # Update for AD
+    cond.frames.inertial.time            = time
