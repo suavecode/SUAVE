@@ -335,14 +335,8 @@ def plot_mission(results,line_style='b-'):
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]*0.224808943
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]*0.224808943
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lb
         eta    = segment.conditions.propulsion.throttle[:,0]
-        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
-
 
         axes = fig.add_subplot(2,1,1)
         axes.plot( time , Thrust , line_style )
@@ -352,7 +346,7 @@ def plot_mission(results,line_style='b-'):
         axes = fig.add_subplot(2,1,2)
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Throttle Setting)',axis_font)
+        axes.set_ylabel('Throttle Setting',axis_font)
         axes.grid(True)	
 
         #plt.savefig("B737_engine.pdf")
@@ -368,8 +362,6 @@ def plot_mission(results,line_style='b-'):
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
         CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
         aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         l_d = CLift/CDrag
 
@@ -421,7 +413,9 @@ def plot_mission(results,line_style='b-'):
             axes.plot( time , cdi , 'b-', label='CD induced' )
             axes.plot( time , cdc , 'g-', label='CD compressibility' )
             axes.plot( time , cdm , 'y-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'r-', label='CD total'   )        
+            axes.plot( time , cd  , 'r-', label='CD total'   )       
+            if i == 0:
+                axes.legend(loc='upper center')                
 
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
@@ -437,19 +431,12 @@ def plot_mission(results,line_style='b-'):
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        aoa    = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d    = CLift/CDrag
-        mass   = segment.conditions.weights.total_mass[:,0]*2.20462
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.km *3.28084 *1000
+        mass   = segment.conditions.weights.total_mass[:,0] / Units.kg
+        altitude = segment.conditions.freestream.altitude[:,0] / Units.feet
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
-
-
+        sfc    = 9.81 * mdot / thrust * Units.hour 
+        
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_style )
         axes.set_ylabel('Altitude (ft)',axis_font)
