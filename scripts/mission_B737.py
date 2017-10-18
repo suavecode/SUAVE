@@ -471,7 +471,7 @@ def plot_general_results(results_dict,emissions,years):
     emissions_types = ['H2O','CO2','NOx','SO2']
     emissions_vals  = [H2O_vals,CO2_vals,NOx_vals,SO2_vals]
     
-    fig, ax = plt.subplots(2,2,figsize=(15, 7))
+    fig, ax = plt.subplots(2,2,figsize=(13, 7))
     for ii in range(2):
         for jj in range(2):
         
