@@ -483,7 +483,7 @@ class Nexus(Data):
                 full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
         
             # Basic construction
-            # [Input_###, initial, (-np.inf, np.inf), initial, Units.less]            initial_values    = full_unkn_vals.pack_array()
+            # [Input_###, initial, (-np.inf, np.inf), initial, Units.less]
             initial_values    = full_unkn_vals.pack_array()
             input_len_strings = np.tile('Mission_Input_', len_inputs)
             input_numbers     = np.linspace(1,len_inputs,len_inputs,dtype=np.int16)
@@ -537,7 +537,7 @@ class Nexus(Data):
             
             
             # setup the aliases for the residuals
-            basic_string_res = np.tile('missions.' + mission_key + '.state.residuals.' + segment + '.forces[', len_inputs)
+            basic_string_res = np.tile('missions.' + mission_key + '.state.residuals.' + segment + '.pack_array()[', len_inputs)
             residual_string  = np.core.defchararray.add(basic_string_res,np.array(map(str,input_numbers-1)))
             residual_string  = np.core.defchararray.add(residual_string, np.tile(']',len_inputs))
             residual_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
