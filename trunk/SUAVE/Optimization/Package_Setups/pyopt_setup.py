@@ -231,13 +231,13 @@ def PyOpt_Gradients(problem,x,f,g):
     g_con = problem.auto_jacobian(x)
     fail  = 0. 
     
-    grad_obj, jac_con = problem.finite_difference(x)
+    #grad_obj, jac_con = problem.finite_difference(x)
     
     print g_obj
     print g_con
     
-    print grad_obj
-    print jac_con
+    #print grad_obj
+    #print jac_con
 
     return g_obj,g_con,fail
 

@@ -214,10 +214,11 @@ def get_values(dictionary,outputs,aliases):
             if output_names[ii] == aliases[jj][0]:
                 pointer.append(aliases[jj][1])    
                 
-    values = np.zeros(len(outputs))
+    #values = np.zeros(len(outputs))
+    values = []
     for ii in xrange(0,len(outputs)):
         splitstring = pointer[ii].split('.')
-        values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
+        values.append(eval('dictionary.'+'.'.join(splitstring[0:])))
     
     return values
 

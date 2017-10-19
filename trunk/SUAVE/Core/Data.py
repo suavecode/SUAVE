@@ -646,6 +646,8 @@ class Data(dict):
         # done!
         return M
     
+    
+    
     def unpack_array(self,M):
         """ unpacks an input 1d vector or 2d column array into the data dictionary
             important that the structure of the data dictionary, and the shapes
@@ -745,7 +747,8 @@ class Data(dict):
         if not M.shape[-1] == _index[0]: warn('did not unpack all values',RuntimeWarning)
          
         # done!
-        return self     
+        return self
+    
     
     def do_recursive(self,method,other=None,default=None):
         """ Recursively applies a method of the class.
@@ -802,6 +805,36 @@ class Data(dict):
         do_operation(self,other,result)    
     
         return result
+    
+    def pack_auto(self):
+        
+        result = pack_autograd(self)
+        
+        return result
+
+
+def pack_autograd(s_residuals):
+    
+    # We are going to loop through the dictionary recursively and unpack
+    
+    dic = s_residuals
+    pack_autograd.array = np.array([])
+    
+    def pack(dic):
+        for key in dic.iterkeys():
+            if isinstance(dic[key],Data):
+                pack(dic[key]) # Regression
+                continue
+            #elif np.rank(dic[key])>2: continue
+            elif isinstance(dic[key],str):continue
+            
+            pack_autograd.array = np.append(pack_autograd.array,dic[key])
+            
+            
+    pack(dic)
+    residuals = pack_autograd.array 
+    
+    return residuals
 
 # ----------------------------------------------------------------------
 #   Module Tests
