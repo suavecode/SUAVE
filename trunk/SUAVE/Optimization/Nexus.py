@@ -481,16 +481,16 @@ class Nexus(Data):
                 unknown_value[unkn]  = mis.segments[segment].state.unknowns[unkn]
                 full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
                 
-            ## Start putting together the inputs
-            #print 'Adding in the new inputs for ' + segment + '.'
-            #n_points = mis.segments[segment].state.numerics.number_control_points
-            #unknown_keys = mis.state.unknowns.segments[segment].keys()
-            #len_inputs     = n_points*len(unknown_keys)
-            #unknown_value  = Data()
-            #full_unkn_vals = Data()
-            #for unkn in unknown_keys:
-                #unknown_value[unkn]  = mis.segments[segment].state.unknowns[unkn]
-                #full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
+            # Start putting together the inputs
+            print 'Adding in the new inputs for ' + segment + '.'
+            n_points = mis.segments[segment].state.numerics.number_control_points
+            mis.state.unknowns[segment] = Data()
+            len_inputs     = n_points*len(unknown_keys)
+            unknown_value  = Data()
+            full_unkn_vals = Data()
+            for unkn in unknown_keys:
+                unknown_value[unkn]  = mis.segments[segment].state.unknowns[unkn]
+                full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
     
         
             # Basic construction
@@ -537,8 +537,8 @@ class Nexus(Data):
             basic_string_con = Data()
             input_string = []
             for unkn in unknown_keys:
-                basic_string_con[unkn] = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns.'+unkn+'[', n_points)
-                #basic_string_con[unkn] = np.tile('missions.' + mission_key +'.state.unknowns.' + segment + '.' + unkn +'[', n_points)
+                #basic_string_con[unkn] = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns.'+unkn+'[', n_points)
+                basic_string_con[unkn] = np.tile('missions.' + mission_key +'.state.unknowns.' + segment + '.' + unkn +'[', n_points)
                 input_string.append(np.core.defchararray.add(basic_string_con[unkn],np.array(map(str,output_numbers))))
             input_string  = np.ravel(input_string)
             input_string  = np.core.defchararray.add(input_string, np.tile(']',len_inputs))
@@ -567,5 +567,7 @@ class Nexus(Data):
             
             # Update the count of inputs
             input_count = input_count+input_numbers[-1]
+            
+        SUAVE.Methods.Missions.Segments.Common.Sub_Segments.expand_sub_segments(mis,mis.state)
             
         return self
