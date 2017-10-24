@@ -3,6 +3,7 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -54,20 +55,20 @@ class System(Component):
         self.control         = None
         self.accessories     = None
 
-## @ingroup Components-Systems
-class Container(Component.Container):
+### @ingroup Components-Systems
+#class Container(Component.Container):
 
-    """ SUAVE.Components.Systems.Container()
+    #""" SUAVE.Components.Systems.Container()
     
-        The Systems Container Class
+        #The Systems Container Class
         
-            Assumptions:
-            None
+            #Assumptions:
+            #None
             
-            Source:
-            N/A
-    """    
+            #Source:
+            #N/A
+    #"""    
     
-    pass
+    #pass
 
-System.Container = Container
+#System.Container = Container
