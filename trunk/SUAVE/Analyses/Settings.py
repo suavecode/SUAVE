@@ -51,26 +51,26 @@ class Settings(Data):
         self.verbose_process = False
         
 
-# ----------------------------------------------------------------------
-#  Config Container
-# ----------------------------------------------------------------------
+## ----------------------------------------------------------------------
+##  Config Container
+## ----------------------------------------------------------------------
 
-## @ingroup Analyses
-class Container(ContainerBase):
-    """ SUAVE.Analyses.Settings.Container()
+### @ingroup Analyses
+#class Container(ContainerBase):
+    #""" SUAVE.Analyses.Settings.Container()
     
-        The Top Level Settings Container Class
+        #The Top Level Settings Container Class
         
-            Assumptions:
-            None
+            #Assumptions:
+            #None
             
-            Source:
-            N/A
-    """
-    pass
+            #Source:
+            #N/A
+    #"""
+    #pass
 
-# ------------------------------------------------------------
-#  Handle Linking
-# ------------------------------------------------------------
+## ------------------------------------------------------------
+##  Handle Linking
+## ------------------------------------------------------------
 
-Settings.Container = Container
+#Settings.Container = Container
