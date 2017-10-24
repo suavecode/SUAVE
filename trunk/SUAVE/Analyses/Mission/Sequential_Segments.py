@@ -75,23 +75,3 @@ class Sequential_Segments(Mission):
         self.process.finalize.sub_segments = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
         
         return
-    
-    def finalize(self):
-        """ Stub
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            None
-    
-            Outputs:
-            None
-    
-            Properties Used:
-            None
-        """           
-        pass
