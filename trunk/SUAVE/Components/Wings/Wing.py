@@ -205,33 +205,3 @@ class Wing(Lofted_Body):
         self.control_surfaces.append(control_surface)
 
         return
-
-### @ingroup Components-Wings
-#class Container(Component.Container):
-    
-    #""" Container for wing
-    
-    #Assumptions:
-    #None
-
-    #Source:
-    #N/A
-
-    #Inputs:
-    #None
-
-    #Outputs:
-    #None
-
-    #Properties Used:
-    #N/A
-    #"""     
-    
-    #pass
-
-
-## ------------------------------------------------------------
-##  Handle Linking
-## ------------------------------------------------------------
-
-#Wing.Container = Container
