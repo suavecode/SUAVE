@@ -43,22 +43,3 @@ class Constant(Data):
         None
         """          
         pass
-
-class Container(ContainerBase):
-    """A subcontainer for constant values.
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    """    
-    pass
-
-# ----------------------------------------------------------------------
-#  Handle Linking
-# ----------------------------------------------------------------------
-
-Constant.Container = Container    
-    
-    

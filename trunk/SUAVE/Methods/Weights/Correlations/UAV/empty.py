@@ -11,9 +11,7 @@
 import SUAVE
 import numpy as np
 
-from SUAVE.Core import (
-    Data, Container,
-    )
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Empty
