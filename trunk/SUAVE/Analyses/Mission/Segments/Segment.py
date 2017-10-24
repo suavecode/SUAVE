@@ -192,7 +192,7 @@ class Segment(Analysis):
         if state is None:
             state = self.state
         self.process(self,state)
-        return state
+        return self
     
     
 # ----------------------------------------------------------------------
