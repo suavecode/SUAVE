@@ -9,7 +9,6 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Core import Container as ContainerBase
 
 # ----------------------------------------------------------------------
 #  Constant Data Class
