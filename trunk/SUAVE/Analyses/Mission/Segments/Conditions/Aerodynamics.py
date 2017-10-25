@@ -93,3 +93,6 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+
+        # number of vortices (for AVL)
+        self.vortex_number = 0.0  # defined a number of vortices per meter with units [m^-1]

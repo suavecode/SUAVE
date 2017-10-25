@@ -83,6 +83,7 @@ def populate_wing_sections(avl_wing,suave_wing):
         if len(suave_wing.Segments.keys())>0:
                 symm                 = avl_wing.symmetric
                 semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
+                avl_wing.semispan    = semispan
                 origin               = []
                 origin.append(suave_wing.origin)
                 root_chord           =  suave_wing.chords.root
@@ -143,17 +144,19 @@ def populate_wing_sections(avl_wing,suave_wing):
                 semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
                 origin   = suave_wing.origin
                 
-                root_section        = Section()
-                root_section.tag    = 'root_section'
-                root_section.origin = origin
-                root_section.chord  = suave_wing.chords.root
-                root_section.twist  = suave_wing.twists.root
+                root_section          = Section()
+                root_section.tag      = 'root_section'
+                root_section.origin   = origin
+                root_section.chord    = suave_wing.chords.root
+                root_section.twist    = suave_wing.twists.root
+                root_section.semispan  = semispan
         
-                tip_section         = Section()
-                tip_section.tag     = 'tip_section'
-                tip_section.chord   = suave_wing.chords.tip
-                tip_section.twist   = suave_wing.twists.tip
-                tip_section.origin  = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
+                tip_section           = Section()
+                tip_section.tag       = 'tip_section'
+                tip_section.chord     = suave_wing.chords.tip
+                tip_section.twist     = suave_wing.twists.tip
+                tip_section.semispan  = 0
+                tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
                 
                 if avl_wing.vertical:
                         temp                  = tip_section.origin[2]
@@ -339,30 +342,32 @@ def populate_body_sections(avl_body,suave_body):
 
 
         # Horizontal Sections of Fuselage
-        width_array = np.linspace(-semispan_h, semispan_h, num=11,endpoint=True)
-        for section_width in width_array:
-                fuselage_h_section               = Section()
-                fuselage_h_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
-                fuselage_h_section_nose_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_nose_curvature ))**(1/fuselage_nose_curvature))*avl_body.lengths.nose
-                fuselage_h_section_tail_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_tail_curvature ))**(1/fuselage_tail_curvature))*avl_body.lengths.tail
-                fuselage_h_section_nose_origin   = avl_body.lengths.nose - fuselage_h_section_nose_length
-                fuselage_h_section.tag           =  'fuselage_horizontal_section_at_' +  str(section_width) + '_m'
-                fuselage_h_section.origin        = [ origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
-                fuselage_h_section.chord         = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
-                avl_body.append_section(fuselage_h_section,'horizontal')
+        if semispan_h != 0.0:                
+                width_array = np.linspace(-semispan_h, semispan_h, num=11,endpoint=True)
+                for section_width in width_array:
+                        fuselage_h_section               = Section()
+                        fuselage_h_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+                        fuselage_h_section_nose_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_nose_curvature ))**(1/fuselage_nose_curvature))*avl_body.lengths.nose
+                        fuselage_h_section_tail_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_tail_curvature ))**(1/fuselage_tail_curvature))*avl_body.lengths.tail
+                        fuselage_h_section_nose_origin   = avl_body.lengths.nose - fuselage_h_section_nose_length
+                        fuselage_h_section.tag           =  'fuselage_horizontal_section_at_' +  str(section_width) + '_m'
+                        fuselage_h_section.origin        = [ origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
+                        fuselage_h_section.chord         = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
+                        avl_body.append_section(fuselage_h_section,'horizontal')
 
-        # Vertical Sections of Fuselage       
-        height_array = np.linspace(-semispan_v, semispan_v, num=11,endpoint=True)
-        for section_height in height_array :
-                fuselage_v_section               = Section()
-                fuselage_v_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
-                fuselage_v_section_nose_length   = ((1 - ((abs(section_height/semispan_v))**fuselage_nose_curvature ))**(1/fuselage_nose_curvature))*avl_body.lengths.nose
-                fuselage_v_section_tail_length   = ((1 - ((abs(section_height/semispan_v))**fuselage_tail_curvature ))**(1/fuselage_tail_curvature))*avl_body.lengths.tail
-                fuselage_v_section_nose_origin   = avl_body.lengths.nose - fuselage_v_section_nose_length
-                fuselage_v_section.tag           = 'fuselage_vertical_top_section_at_' +  str(section_height) + '_m'        
-                fuselage_v_section.origin        = [ origin[0] + fuselage_v_section_nose_origin,  origin[1],  origin[2] + section_height ]
-                fuselage_v_section.chord         = fuselage_v_section_cabin_length + fuselage_v_section_nose_length + fuselage_v_section_tail_length
-                avl_body.append_section(fuselage_v_section,'vertical')
+        # Vertical Sections of Fuselage 
+        if semispan_v != 0:               
+                height_array = np.linspace(-semispan_v, semispan_v, num=11,endpoint=True)
+                for section_height in height_array :
+                        fuselage_v_section               = Section()
+                        fuselage_v_section_cabin_length  = avl_body.lengths.total - (avl_body.lengths.nose + avl_body.lengths.tail)
+                        fuselage_v_section_nose_length   = ((1 - ((abs(section_height/semispan_v))**fuselage_nose_curvature ))**(1/fuselage_nose_curvature))*avl_body.lengths.nose
+                        fuselage_v_section_tail_length   = ((1 - ((abs(section_height/semispan_v))**fuselage_tail_curvature ))**(1/fuselage_tail_curvature))*avl_body.lengths.tail
+                        fuselage_v_section_nose_origin   = avl_body.lengths.nose - fuselage_v_section_nose_length
+                        fuselage_v_section.tag           = 'fuselage_vertical_top_section_at_' +  str(section_height) + '_m'        
+                        fuselage_v_section.origin        = [ origin[0] + fuselage_v_section_nose_origin,  origin[1],  origin[2] + section_height ]
+                        fuselage_v_section.chord         = fuselage_v_section_cabin_length + fuselage_v_section_nose_length + fuselage_v_section_tail_length
+                        avl_body.append_section(fuselage_v_section,'vertical')
 
         return avl_body
 

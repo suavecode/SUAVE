@@ -68,9 +68,13 @@ class AVL(Stability):
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
 
-        # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
-        self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
+        ## Standard subsonic/transolic aircarft
+        #self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        #self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
+        
+        # HALE UAV Cruise
+        self.training.angle_of_attack                       = np.array([0.,2., 4.,6., 8., 10])*Units.degree 
+        self.training.Mach                                  = np.array([0.075,0.1,0.125, 0.15,0.175,0.2])       
         
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
@@ -108,7 +112,6 @@ class AVL(Stability):
         configuration                  = self.configuration
         stability_model                = self.stability_model
         configuration.mass_properties  = geometry.mass_properties
-
         if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
             configuration.fuel         = geometry.fuel
         else: #assign as zero to planes with no fuel such as UAVs
@@ -119,6 +122,15 @@ class AVL(Stability):
 
         run_folder = self.settings.filenames.run_folder 
 
+        try:
+            vortices_per_meter = self.settings.vortex_density
+        except:
+            vortices_per_meter = []
+        if vortices_per_meter == []:
+            self.settings.vortex_density = 2
+
+        pass  
+    
         # Sample training data
         self.sample_training()
 
@@ -214,11 +226,11 @@ class AVL(Stability):
         #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         # pack results
-        results         = Data()
-        results.static  = static_stability
-        results.dynamic = dynamic_stability
+        stability_results                    = Data()
+        stability_results.static_stability   = static_stability
+        stability_results.dynamic_stability  = dynamic_stability
 
-        return results    
+        return stability_results    
 
 
     def sample_training(self):
@@ -252,6 +264,7 @@ class AVL(Stability):
                 run_conditions.freestream.gravity               = 9.81          
                 run_conditions.aerodynamics.angle_of_attack     = AoA
                 run_conditions.freestream.mach_number           = mach[j]
+                run_conditions.vortices_per_meter               = self.settings.vortex_density # DEFINE VORTEX NUMBER
                 
                 #Run Analysis at AoA[i] and mach[j]
                 results =  self.evaluate_conditions(run_conditions)
@@ -312,8 +325,13 @@ class AVL(Stability):
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate
         self.surrogates.neutral_point               = neutral_point_surrogate
 
-        AoA_points                                  = np.linspace(-3.,11.,100)*Units.deg 
-        mach_points                                 = np.linspace(.02,.9,100)           
+        ## Standard subsonic/transolic aircarft  
+        #AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
+        #mach_points                      = np.linspace(.02,.9,100)         
+    
+        # HALE UAV Cruise
+        AoA_points                       = np.linspace(-1.,11.,100)*Units.deg 
+        mach_points                      = np.linspace(.05,.225,100)          
 
         AoA_mesh,mach_mesh                          = np.meshgrid(AoA_points,mach_points)
 
@@ -330,13 +348,13 @@ class AVL(Stability):
                 Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
 
-        fig = plt.figure('Coefficient of Moment Surrogate Plot')    
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CM_sur,levels=None)
-        cbar = plt.colorbar()
-        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')
-        cbar.ax.set_ylabel('Coefficient of Moment')  
+        #fig = plt.figure('Coefficient of Moment Surrogate Plot')    
+        #plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CM_sur,levels=None)
+        #cbar = plt.colorbar()
+        #plt.scatter(xy[:,0]/Units.deg,xy[:,1])
+        #plt.xlabel('Angle of Attack (deg)')
+        #plt.ylabel('Mach Number')
+        #cbar.ax.set_ylabel('Coefficient of Moment')  
         return
 
 
@@ -367,6 +385,8 @@ class AVL(Stability):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
 
+        vortices_per_meter               = run_conditions.vortices_per_meter # DEFINE VORTEX NUMBER
+
         # stability_output_template = self.settings.filenames.stability_output_template  # SUAVE-AVL dynamic stability under development  
 
         # update current status
@@ -387,7 +407,7 @@ class AVL(Stability):
 
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self)
+            write_geometry(self,vortices_per_meter)
             write_run_cases(self)
             write_input_deck(self)
 

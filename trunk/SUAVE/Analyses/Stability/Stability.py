@@ -32,6 +32,8 @@ class Stability(Analysis):
     
     
     def finalize(self):
+   
+    
         
         return
     

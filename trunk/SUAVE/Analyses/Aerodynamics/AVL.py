@@ -39,8 +39,8 @@ class AVL(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
-        
-                
+
+          
         # Build the evaluation process
         compute = self.process.compute
         compute.lift = Process()
@@ -74,9 +74,16 @@ class AVL(Markup):
         
     def initialize(self):
         self.process.compute.lift.inviscid.geometry = self.geometry
+        try:
+            vortices_per_meter = self.settings.vortex_density
+        except:
+            vortices_per_meter = []
+        if vortices_per_meter == []:
+            vortices_per_meter = 2
+        pass
         
-        # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize()
+    
+        self.process.compute.lift.inviscid.initialize(vortices_per_meter)
         
     finalize = initialize
     

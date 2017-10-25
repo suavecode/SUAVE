@@ -25,7 +25,7 @@ class Settings(Data):
                 self.discretization           = Data()
 
                 self.num_control_surfaces     = 0
-
+                
                 self.discretization.defaults  = Data()
                 self.discretization.surfaces  = Data()
                 self.discretization.defaults.wing                             = AVL_Discretization_Settings()
@@ -35,7 +35,7 @@ class Settings(Data):
                 self.discretization.defaults.fuselage.nose_interpolation      = 'parabolic'
                 self.discretization.defaults.fuselage.tail_interpolation      = 'linear'
 
-                self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
+                self.filenames.avl_bin_name    = '/home/matthew-linux/Documents/Avl/bin/avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
                 self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
                 self.filenames.features        = 'aircraft.avl'
                 self.filenames.mass_file       = 'aircraft.mass'
@@ -71,7 +71,7 @@ class AVL_Discretization_Settings(Data):
                 	- '-sine'  : |     |     |    |    |   |  | || (bunched at end)
                 """
 
-                self.chordwise_elements        = 5
-                self.chordwise_spacing_scheme  = 'equal'
-                self.spanwise_elements         = 5
-                self.spanwise_spacing_scheme   = 'cosine'
+                self.chordwise_elements_per_meter        = 5
+                self.chordwise_spacing_scheme            = 'equal'
+                self.spanwise_elements_per_meter         = 5
+                self.spanwise_spacing_scheme             = 'cosine'
