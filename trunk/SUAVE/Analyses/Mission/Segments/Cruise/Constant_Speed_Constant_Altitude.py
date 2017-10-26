@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Cruise
 # Constant_Speed_Constant_Altitude.py
 #
 # Created:  
@@ -23,9 +24,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Cruise
 class Constant_Speed_Constant_Altitude(Aerodynamic):
+    """ The CLASSIC! Fixed true airspeed and altitude and a set distance.
+        Most other cruise segments are built off this segment. The most simple segment you can fly.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """         
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs
@@ -45,7 +73,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 0.0
+        self.state.unknowns.body_angle = ones_row(1) * 1.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         

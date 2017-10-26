@@ -1,7 +1,6 @@
-# __init__.py
-# 
-# Created:  
-# Modified: Feb 2016, T. MacDonald
+## @defgroup components-landing_gear Landing Gear
+# Components considered are the Main and Nose Landing Gear
+## @ingroup Components
 
 # classes
 from Landing_Gear import Landing_Gear

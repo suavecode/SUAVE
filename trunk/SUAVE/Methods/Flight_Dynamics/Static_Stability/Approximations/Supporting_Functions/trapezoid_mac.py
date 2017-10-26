@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 # trapezoid_mac.py
 #
 # Created:  Mar 2014, T. Momose
@@ -7,26 +8,31 @@
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
 def trapezoid_mac(wing):
-    """ mac = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.trapezoid_mac(wing)
-        This method computes the mean aerodynamic chord of a linearly tapered
-        trapezoidal aerodynamic surface
+    """ This method computes the mean aerodynamic chord of a linearly tapered
+    trapezoidal aerodynamic surface
+
+    Assumptions:
+        Assumes a simple trapezoidal wing shape.
         
-        Inputs:
-            wing - a data dictionary with the fields:
-                areas.reference - the planform area of the trapezoidal wing [meters**2]
-                spans.projected - wing span [meters]
-                chords.root - the wing root chord [meters]
-                {One of the following}
-                chords.tip - the wing tip chord [meters]
-                taper - taper ratio of the wing [dimensionless]
-               
-        Outputs:
-            mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)
-            [meters]
-              
-        Assumptions:
-            Assumes a simple trapezoidal wing shape.
+    Source:
+        Unknown
+
+    Inputs:
+        wing - a data dictionary with the fields:
+            areas.reference - the planform area of the trapezoidal wing               [meters**2]
+            spans.projected - wing span                                               [meters]
+            chords.root - the wing root chord                                         [meters]
+            {One of the following}
+            chords.tip - the wing tip chord                                           [meters]
+            taper - taper ratio of the wing                                           [dimensionless]
+
+    Outputs:
+        mac - the mean aerodynamic chord of the wing (or equivalent trapezoid)        [meters]
+
+    Properties Used:
+        N/A
     """                 
 
     #Unpack inputs

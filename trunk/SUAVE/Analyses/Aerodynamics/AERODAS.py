@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # AERODAS.py
 # 
 # Created:  Feb 2016, E. Botero
@@ -13,17 +14,40 @@ from SUAVE.Core import Data, Units
 from SUAVE.Analyses import Process
 from SUAVE.Analyses.Aerodynamics.Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import AERODAS as Methods
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
 # ----------------------------------------------------------------------
 #  AERODAS
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Aerodynamics
 class AERODAS(Markup):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera"""
+    """This is an analysis based on the AERODAS models.
     
+    Assumptions:
+    None
+    
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+    """    
     def __defaults__(self):
-        
+        """This sets the default values and methods for the analysis.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """               
         self.tag = 'AERODAS Model'
         
         settings = self.settings
@@ -52,7 +76,7 @@ class AERODAS(Markup):
         compute.lift_drag_total                        = Methods.AERODAS_setup.lift_drag_total
         
         compute.lift = Process()
-        compute.lift.total                             = Methods.AERODAS_setup.lift_total
+        compute.lift.total                             = Common.Lift.aircraft_total
         compute.drag = Process()
         compute.drag.total                             = Methods.AERODAS_setup.drag_total
         

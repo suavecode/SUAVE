@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_volume.py
 # 
 # Created:  Tim MacDonald, 6/24/14
@@ -15,19 +16,28 @@ import numpy as np
 #   Wave Drag Volume
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_volume(conditions,configuration,wing):
-    """ SUAVE.Methods.wave_drag_volume(conditions,configuration,fuselage)
-        computes the wave drag due to lift 
-        Based on http://adg.stanford.edu/aa241/drag/ssdragcalc.html
-        
-        Inputs: total_length, Sref, t/c, Mach
+    """Computes wave drag due to volume
 
-        Outputs:
+    Assumptions:
+    Simplified equations for wing
 
-        Assumptions:
+    Source:
+    http://adg.stanford.edu/aa241/drag/ssdragcalc.html
 
-        
-    """
+    Inputs:
+    conditions.freestream.mach_number        [Unitless]
+    wing.thickness_to_chord                  [Unitless]
+    wing.total_length                        [m]
+    wing.areas.reference                     [m^2]
+
+    Outputs:
+    wave_drag_volume                         [Unitless]
+
+    Properties Used:
+    N/A
+    """  
 
     # unpack inputs
     freestream   = conditions.freestream

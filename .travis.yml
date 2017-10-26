@@ -15,13 +15,17 @@ branches:
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
+    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
   
 install:
     - cd trunk
-    - python setup.py install
+    - python setup.py develop
     - cd ../regression
+    - pip install coveralls
   
 # run test
 script:  
-    - python automatic_regression.py
+     coverage run --source=SUAVE --omit=../trunk/SUAVE/Plugins/pint/* automatic_regression.py test
+    
+after_success:
+  coveralls

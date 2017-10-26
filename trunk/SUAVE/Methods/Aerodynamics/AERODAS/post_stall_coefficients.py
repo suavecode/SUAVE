@@ -1,25 +1,50 @@
+## @ingroup Methods-Aerodynamics-AERODAS
 # post_stall_coefficients.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Analyses import Results
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
 #  Post Stall Coefficients
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AERODAS
 def post_stall_coefficients(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    Using the equations 11 and 12"""
+    """Uses the AERODAS method to determine poststall parameters for lift and drag for a single wing
+
+    Assumptions:
+    None
+
+    Source:
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    settings.section_zero_lift_angle_of_attack      [radians]
+    geometry.
+      aspect_ratio                                  [Unitless]
+      thickness_to_chord                            [Unitless]
+      section.angle_attack_max_prestall_lift        [radians]
+      pre_stall_maximum_lift_drag_coefficient       [Unitless]
+      pre_stall_maximum_drag_coefficient_angle      [Unitless]
+    state.conditions.aerodynamics.angle_of_attack   [radians]
+      
+
+    Outputs:
+    CL2 (coefficient of lift)                       [Unitless]
+    CD2 (coefficient of drag)                       [Unitless]
+    (packed in state.conditions.aerodynamics.post_stall_coefficients[geometry.tag])
+
+    Properties Used:
+    N/A
+    """  
     
     # unpack inputs
     wing   = geometry
@@ -30,6 +55,9 @@ def post_stall_coefficients(state,settings,geometry):
     CD1max = wing.pre_stall_maximum_lift_drag_coefficient
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
     alpha  = state.conditions.aerodynamics.angle_of_attack
+    
+    if wing.vertical == True:
+        alpha = 0. * np.ones_like(alpha)    
             
     # Equation 9a and b
     F1        = 1.190*(1.0-(t_c*t_c))
@@ -82,7 +110,7 @@ def post_stall_coefficients(state,settings,geometry):
     CD2[con2] = CD1max[con2] + (CD2max - CD1max[con2]) * np.sin((alphan[con2]-ACD1[con2])/(np.pi/2-ACD1[con2]))        
         
     # Pack outputs
-    wing_result = Results(
+    wing_result = Data(
         lift_coefficient = CL2,
         drag_coefficient = CD2
         )

@@ -7,6 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+## @ingroup Attributes-Atmospheres
 from SUAVE.Attributes.Constants import Constant #, Composition
 from SUAVE.Core import Data
 
@@ -14,14 +15,35 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Atmosphere Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Atmospheres
 class Atmosphere(Constant):
-
-    """ SUAVE.Attributes.Atmospheres.Atmosphere
-    Constant-property atmosphere model
+    """The base atmosphere class.
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
     """
 
     def __defaults__(self):
+        """This sets the default values.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """          
         self.tag = 'Constant-property atmosphere'
         self.composition           = Data()
         self.composition.gas       = 1.0

@@ -1,3 +1,6 @@
+## @defgroup Components-Wings-Airfoils Airfoils
+# @ingroup Components-Wings
+#
 # __init__.py
 # 
 # Created:  

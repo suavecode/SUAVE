@@ -1,7 +1,7 @@
 # section_properties.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Jun 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,10 +15,35 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 
 def section_properties(state,settings,geometry):
-    """This model is based on the NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
-     Wind Turbines and Wind Tunnels" by D. A. Spera
-    
-    From RE and t/c, get Clmax, CD0,  ACD1', ACL1'"""
+    """Determine wing section properties according to AERODAS methods
+
+    Assumptions:
+    None
+
+    Sources:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    NASA TR: "Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in
+      Wind Turbines and Wind Tunnels" by D. A. Spera
+
+    Inputs:
+    state.conditions.freestream.reynolds_number   [Unitless]
+    geometry.
+      chords.mean_aerodynamic                     [m]
+      thickness_to_chord                          [Unitless]
+    settings.section_zero_lift_angle_of_attack    [radians]
+    settings.section_lift_curve_slope             [1/radians]
+
+    Outputs:
+    wing.section.
+      maximum_coefficient_lift                    [Unitless]
+      zero_lift_drag_coefficient                  [Unitless]
+      angle_attack_max_prestall_lift              [radians]
+      pre_stall_maximum_drag_coefficient          [Unitless]
+      pre_stall_maximum_drag_coefficient_angle    [radians]
+
+    Properties Used:
+    N/A
+    """  
     
     # Unpack
     wing = geometry
@@ -33,7 +58,7 @@ def section_properties(state,settings,geometry):
     
     # Calculate 2-D CLmax
     # From 241 A/B notes
-    Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+    Cl_max_ref = -0.0009*tc*tc*tc + 0.0217*tc*tc - 0.0442*tc + 0.7005
     Re_ref     = 9.*10**6
     #CL1maxp = Cl_max_ref * ( RE / Re_ref ) **0.1
     CL1maxp = 1.5 * np.ones_like(state.conditions.freestream.altitude)

@@ -1,7 +1,8 @@
+## @ingroup Input_Output-Results
 # print_mission_breakdown.py
 
-# Created: SUAVE team
-# Updated: Carlos Ilario, Feb 2016
+# Created:  SUAVE team
+# Modified: Aug 2016, L. Kulik
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,23 +17,45 @@ import datetime                 # importing library
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
+## @ingroup Input_Output-Results
+def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imperial"):
+    """This creates a file showing mission information.
 
-def print_mission_breakdown(results,filename='mission_breakdown.dat'):
-    """ SUAVE.Methods.Results.mission_breakdown(results,filename='mission_breakdown.dat'):
-        
-        Print output file with compressibility drag
-        
-        Inputs:
-            results - Data dictionary with the fields:
-                ? ?? ? ? ?
-            filename [optional] - Name of the file to be created
+    Assumptions:
+    None
 
-        Outputs:
-            output file
+    Source:
+    N/A
 
-        Assumptions:
+    Inputs:
+    results.segments.*.conditions.
+      frames.
+        inertial.position_vector     [m]
+        inertial.time                [s]
+      aerodynamics.lift_coefficient  [-]
+      weights.total                  [kg]
+      freestream.  
+        mach_number                  [-]
+        pressure                     [Pa]
+    filename (optional)       <string> Determines the name of the saved file
+    units (option)            <string> Determines the type of units used in the output, options are imperial and si
 
-    """ 
+    Outputs:
+    filename                  Saved file with name as above
+
+    Properties Used:
+    N/A
+    """           
+    imperial = False
+    SI = False
+
+    if units.lower()=="imperial":
+        imperial = True
+    elif units.lower()=="si":
+        SI = True
+    else:
+        print "Incorrect system of units selected - choose 'imperial' or 'SI'"
+        return
 
     fid = open(filename,'w')   # Open output file
     fid.write('Output file with mission profile breakdown\n\n') #Start output printing
@@ -45,8 +68,12 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
     for key in results.segments.keys():        #loop for all segments
         segment = results.segments[key]
 
-        HPf = -segment.conditions.frames.inertial.position_vector[-1,2] / Units.ft      #Final segment Altitude   [ft]
-        HPi = -segment.conditions.frames.inertial.position_vector[0,2] / Units.ft       #Initial segment Altitude  [ft]
+        if imperial:
+            HPf = -segment.conditions.frames.inertial.position_vector[-1,2] / Units.ft      #Final segment Altitude   [ft]
+            HPi = -segment.conditions.frames.inertial.position_vector[0,2] / Units.ft       #Initial segment Altitude  [ft]
+        elif SI:
+            HPf = -segment.conditions.frames.inertial.position_vector[-1, 2] / Units.m  # Final segment Altitude   [m]
+            HPi = -segment.conditions.frames.inertial.position_vector[0, 2] / Units.m  # Initial segment Altitude  [m]
 
         CLf = segment.conditions.aerodynamics.lift_coefficient[-1]     #Final Segment CL [-]
         CLi = segment.conditions.aerodynamics.lift_coefficient[0]      #Initial Segment CL [-]
@@ -54,7 +81,12 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         Ti  =  segment.conditions.frames.inertial.time[0] / Units.min   #Initial Segment Time [min]
         Wf  =  segment.conditions.weights.total_mass[-1]                  #Final Segment weight [kg]
         Wi  =  segment.conditions.weights.total_mass[0]                   #Initial Segment weight [kg]
-        Dist = (segment.conditions.frames.inertial.position_vector[-1,0] - segment.conditions.frames.inertial.position_vector[0,0] ) / Units.nautical_miles #Distance [nm]
+        if imperial:
+            Dist = (segment.conditions.frames.inertial.position_vector[-1,0] - segment.conditions.frames.inertial.position_vector[0,0] ) / Units.nautical_miles #Distance [nm]
+        elif SI:
+            Dist = (segment.conditions.frames.inertial.position_vector[-1, 0] -
+                    segment.conditions.frames.inertial.position_vector[0, 0]) / Units.km  # Distance [km]
+
         TotalRange = TotalRange + Dist
 
         Mf = segment.conditions.freestream.mach_number[-1]          # Final segment mach number
@@ -69,12 +101,18 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         VEi = Mi*(340.294*np.sqrt(deltai))          #Equivalent airspeed [m/s]
         QCPOi = deltai*((1.+ k1*VEi**2/deltai)**3.5-1.) #
         VCi = np.sqrt(((QCPOi+1.)**k2-1.)/k1)       #Calibrated airspeed [m/s]
-        KCASi = VCi / Units.knots                   #Calibrated airspeed [knots]
+        if imperial:
+            KCASi = VCi / Units.knots                   #Calibrated airspeed [knots]
+        elif SI:
+            KCASi = VCi #Calibrated airspeed [m/s]
 
         VEf = Mf*(340.294*np.sqrt(deltaf))          #Equivalent airspeed [m/s]
         QCPOf = deltaf*((1.+ k1*VEf**2/deltaf)**3.5-1.)
         VCf = np.sqrt(((QCPOf+1.)**k2-1.)/k1) #m/s  #Calibrated airspeed [m/s]
-        KCASf = VCf / Units.knots                   #Calibrated airspeed [knots]
+        if imperial:
+            KCASf = VCf / Units.knots                   #Calibrated airspeed [knots]
+        elif SI:
+            KCASf = VCf
 
 #       String formatting
         CLf_str =   str('%15.3f'   % CLf)     + '|'
@@ -95,10 +133,17 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
         
 
         if i == 0:  #Write header
-            fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
-            fid.write( '                                | From  |   To  |Inicial | Final  |         |       |        |Inicial| Final |Inicial| Final |\n')
-            fid.write( '                                |   ft  |   ft  |   kg   |   kg   |    nm   |  min  |   kg   | KCAS  | KCAS  |  Mach |  Mach |\n')
-            fid.write( '                                |       |       |        |        |         |       |        |       |       |       |       |\n')
+            if imperial:
+                fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
+                fid.write( '                                | From  |   To  |Initial | Final  |         |       |        |Inicial| Final |Inicial| Final |\n')
+                fid.write( '                                |   ft  |   ft  |   kg   |   kg   |    nm   |  min  |   kg   | KCAS  | KCAS  |  Mach |  Mach |\n')
+                fid.write( '                                |       |       |        |        |         |       |        |       |       |       |       |\n')
+            elif SI:
+                fid.write('         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
+                fid.write('                                | From  |   To  |Initial | Final  |         |       |        |Initial| Final |Initial| Final |\n')
+                fid.write('                                |   m   |   m   |   kg   |   kg   |    km   |  min  |   kg   | m/s   | m/s   |  Mach |  Mach |\n')
+                fid.write('                                |       |       |        |        |         |       |        |       |       |       |       |\n')
+
         # Print segment data
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+Fuel_str+KCASi_str+KCASf_str+Mi_str+Mf_str+'\n')
         i = i+1
@@ -108,7 +153,10 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat'):
     TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1] - results.segments[0].conditions.frames.inertial.time[0])  #[min]
 
     fid.write(2*'\n')
-    fid.write(' Total Range (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
+    if imperial:
+        fid.write(' Total Range (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
+    elif SI:
+        fid.write(' Total Range (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
     fid.write(' Total Fuel  (kg) ........... '+ str('%9.0f'   % TotalFuel)+'\n')
     fid.write(' Total Time  (hh:mm) ........ '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
     # Print timestamp

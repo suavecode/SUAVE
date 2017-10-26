@@ -1,7 +1,6 @@
-# __init__.py
-# 
-# Created:  
-# Modified: Feb 2016, T. MacDonald
+## @defgroup Components-Energy-Storages Storages
+#Energy components that store energy (such as batteries)
+# @ingroup Components-Energy
 
 import Batteries
 

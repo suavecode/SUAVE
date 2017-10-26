@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Human_Powered
 # empty.py
 # 
 # Created:  Jun 2014, E. Botero
@@ -18,61 +19,67 @@ from SUAVE.Core import Data
 #  Empty
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Human_Powered
 def empty(vehicle):
-    """ weight = SUAVE.Methods.Weights.Correlations.Solar_HPA_weights.empty(wing,aircraft,horizontal,vertical): 
+    """ Computes weights estimates for human powered aircraft
+    
+    Assumptions:
+       All of this is from AIAA 89-2048, units are in kg. These weight estimates
+       are from the MIT Daedalus and are valid for very lightweight
+       carbon fiber composite structures. This may need to be solved iteratively since
+       gross weight is an input.
+       
+    Source: 
+        MIT Daedalus
+                       
+    Inputs:
+        wing - a data dictionary with the fields:
+            Sw -       wing area                                                       [meters**2]
+            bw -       wing span                                                       [meters]
+            cw -       average wing chord                                              [meters]
+            deltaw -   average rib spacing to average chord ratio                      [dimensionless]
+            Nwr -      number of wing surface ribs (bw**2)/(deltaw*Sw)                 [dimensionless]
+            t_cw -     wing airfoil thickness to chord ratio                           [dimensionless]
+            Nwer -     number of wing end ribs (2*number of individual wing panels -2) [dimensionless]
             
-        Inputs:
-            wing - a data dictionary with the fields:
-                Sw -       wing area [m**2]
-                bw -       wing span [m]
-                cw -       average wing chord [m]
-                deltaw -   average rib spacing to average chord ratio
-                Nwr -      number of wing surface ribs (bw**2)/(deltaw*Sw)
-                t_cw -     wing airfoil thickness to chord ratio
-                Nwer -     number of wing end ribs (2*number of individual wing panels -2)
+        horizontal - a data dictionary with the fields:
+            Sts -      tail surface area                                               [meters]
+            bts -      tail surface span                                               [meters]
+            cts -      average tail surface chord                                      [meters]
+            deltawts - average rib spacing to average chord ratio                      [dimensionless]
+            Ntsr -     number of tail surface ribs (bts^2)/(deltats*Sts)               [dimensionless]
+            t_cts -    tail airfoil thickness to chord ratio                           [dimensionless]
+            
+        vertical - a data dictionary with the fields:
+            Sts -      tail surface area                                               [meters]
+            bts -      tail surface span                                               [meters]
+            cts -      average tail surface chord                                      [meters]
+            deltawts - average rib spacing to average chord ratio                      [dimensionless]
+            Ntsr -     number of tail surface ribs (bts**2)/(deltats*Sts)              [dimensionless]
+            t_cts -    tail airfoil thickness to chord ratio                           [dimensionless]
+            
+        aircraft - a data dictionary with the fields:    
+            nult -     ultimate load factor                                            [dimensionless]
+            GW -       aircraft gross weight                                           [kilogram]
+            qm -       dynamic pressure at maneuvering speed                           [Pascals]
+            Ltb -      tailboom length                                                 [meters]
+    
+    Outputs:
+        Wws -      weight of wing spar                                                 [kilogram]
+        Wtss -     weight of tail surface spar                                         [kilogram]
+        Wwr -      weight of wing ribs                                                 [kilogram]
+        Wtsr -     weight of tail surface ribs                                         [kilogram]
+        Wwer -     weight of wing end ribs                                             [kilogram]
+        WwLE -     weight of wing leading edge                                         [kilogram]
+        WtsLE -    weight of tail surface leading edge                                 [kilogram]
+        WwTE -     weight of wing trailing edge                                        [kilogram]
+        Wwc -      weight of wing covering                                             [kilogram]
+        Wtsc -     weight of tail surface covering                                     [kilogram]
+        Wtb -      tailboom weight                                                     [kilogram]
                 
-            horizontal - a data dictionary with the fields:
-                Sts -      tail surface area (m)
-                bts -      tail surface span (m)
-                cts -      average tail surface chord (m)
-                deltawts - average rib spacing to average chord ratio
-                Ntsr -     number of tail surface ribs (bts^2)/(deltats*Sts)
-                t_cts -    tail airfoil thickness to chord ratio
-                
-            vertical - a data dictionary with the fields:
-                Sts -      tail surface area (m)
-                bts -      tail surface span (m)
-                cts -      average tail surface chord (m)
-                deltawts - average rib spacing to average chord ratio
-                Ntsr -     number of tail surface ribs (bts**2)/(deltats*Sts)
-                t_cts -    tail airfoil thickness to chord ratio
-                
-            aircraft - a data dictionary with the fields:    
-                nult -     ultimate load factor
-                GW -       aircraft gross weight
-                qm -       dynamic pressure at maneuvering speed (N/m2)
-                Ltb -      tailboom length (m)
-        
-            Outputs:
-                Wws -      weight of wing spar (kg)
-                Wtss -     weight of tail surface spar (kg)
-                Wwr -      weight of wing ribs (kg)
-                Wtsr -     weight of tail surface ribs (kg)
-                Wwer -     weight of wing end ribs (kg)
-                WwLE -     weight of wing leading edge (kg)
-                WtsLE -    weight of tail surface leading edge (kg)
-                WwTE -     weight of wing trailing edge (kg)
-                Wwc -      weight of wing covering (kg)
-                Wtsc -     weight of tail surface covering (kg)
-                Wtb -      tailboom weight (kg)
-                    
-            Assumptions:
-                All of this is from AIAA 89-2048, units are in kg. These weight estimates
-                are from the MIT Daedalus and are valid for very lightweight
-                carbon fiber composite structures. This may need to be solved iteratively since
-                gross weight is an input.
-                
-        """
+    Properties Used:
+        N/A
+    """ 
     
     #Unpack
     

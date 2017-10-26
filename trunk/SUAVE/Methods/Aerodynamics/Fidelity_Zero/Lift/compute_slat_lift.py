@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 # compute_slat_lift.py
 #
 # Created:  Dec 2013, A. Variyar
@@ -15,21 +16,27 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  compute_slat_lift
 # ----------------------------------------------------------------------
+
+## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
 def compute_slat_lift(slat_angle,sweep_angle):
-    """ SUAVE.Methods.Aerodynamics.compute_slat_lift(vehicle):
-        Computes the increase of lift due to slat deployment
+    """Computes the increase in lift due to slats
 
-        Inputs:
-            slat_angle  - Slat deflection angle - [rad]
-            sweep_angle - Wing sweep angle      - [rad]
+    Assumptions:
+    None
 
-        Outputs:
-            dcl_slat    - Lift coefficient increase due to slat
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
-        Assumptions:
-            if needed
+    Inputs:
+    slat_angle   [radians]
+    sweep_angle  [radians]
 
-    """
+    Outputs:
+    dcl_slat     [Unitless]
+
+    Properties Used:
+    N/A
+    """     
 
     # unpack
     sa = slat_angle  / Units.deg
