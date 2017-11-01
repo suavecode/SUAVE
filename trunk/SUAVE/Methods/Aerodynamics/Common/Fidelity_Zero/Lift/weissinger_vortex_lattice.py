@@ -3,13 +3,14 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Apr 2017, T. MacDonald
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # package imports
-import autograd.numpy as np 
+import numpy as np 
 
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
