@@ -63,6 +63,7 @@ def lifting_line(state,settings,geometry):
     V     = freestream.velocity # Freestream velocity
     mu    = freestream.dynamic_viscosity # Freestream viscosity
     alpha = state.conditions.aerodynamics.angle_of_attack
+    C_R   = wing.chords.root
     
     repeats = np.size(alpha)
     
@@ -74,22 +75,42 @@ def lifting_line(state,settings,geometry):
     # Start doing calculations
     N      = r-1                        # number of spanwise divisions
     n      = np.linspace(1,N,N)         # vectorize
-    thetan = n*np.pi/r                  # angular stations
+    thetan = n*np.pi/r                  # angular stations ######## I added a pi/2 here!
     yn     = -b*np.cos(thetan)/2.       # y locations based on the angular spacing
     etan   = np.abs(2.*yn/b)            # normalized coordinates
     etam   = np.pi*np.sin(thetan)/(2*r) # Useful mulitplier
     
     # Project the spanwise y locations into the chords
+    segment_keys = wing.Segments.keys()
+    n_segments   = len(segment_keys)
     # If spanwise stations are setup
-    if len(wing.Segments.keys())>0:
-        c    = np.empty_like(etan)
-        ageo = np.empty_like(etan)
-        for i_segs in xrange(n_segments):
-            # Figure out where the segment ends
+    if n_segments>0:
+        c    = np.ones_like(etan) * wing.chords.root
+        ageo = np.ones_like(etan) * wing.twists.root 
+        for i_seg in xrange(n_segments):
             
-            # For the range of etan's that exist add in the corresponding chord values
+            # Figure out where the segment starts
+            X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
+            L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
+            T1 = wing.Segments[segment_keys[i_seg]].twist 
+
+
             
-            # For the range of etan's that exist add in the corresponding twist values
+            if i_seg == n_segments-1 and X1 != 1.0:
+                X2 = 1.0
+                L2 = wing.chords.tip/wing.chords.root
+                T2 = wing.twists.tip
+            else:
+                X2 = wing.Segments[segment_keys[i_seg+1]].percent_span_location
+                L2 = wing.Segments[segment_keys[i_seg+1]].root_chord_percent
+                T2 = wing.Segments[segment_keys[i_seg+1]].twist
+                
+                
+            bools  =  np.logical_and(etan>X1,etan<X2)
+                
+            c[bools]    = (L1 + (etan[bools]-X1)*(L2-L1)/(X2-X1)) * C_R
+            ageo[bools] = (T1 + (etan[bools]-X1)*(T2-T1)/(X2-X1))
+                
 
     # Spanwise stations are not setup
     else:
@@ -107,8 +128,6 @@ def lifting_line(state,settings,geometry):
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
-    
-    
     k = c*cla/(4.*b) # Grouped term 
     
     n_trans = np.atleast_2d(n).T
@@ -117,7 +136,7 @@ def lifting_line(state,settings,geometry):
     RHS = (np.sin(n_trans*thetan)*(np.sin(thetan)+n_trans*k))
     
     # Expand out for all the angles of attack
-    RHS2 =  np.tile(RHS, (repeats,1,1))
+    RHS2 = np.tile(RHS, (repeats,1,1))
 
     # Left hand side vector    
     LHS = k*np.sin(thetan)*(alpha+ageo-azl)
@@ -176,7 +195,7 @@ if __name__ == '__main__':
     atmosphere_conditions = atmosphere.compute_values(0.)
     state.conditions.freestream.update(atmosphere_conditions)
     state.conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
-    state.conditions.aerodynamics.angle_of_attack = np.atleast_2d([2. * Units.deg, 2. * Units.deg]).T
+    state.conditions.aerodynamics.angle_of_attack = np.atleast_2d([1. * Units.deg, 2. * Units.deg]).T
     
     
     # ------------------------------------------------------------------        
@@ -283,40 +302,6 @@ if __name__ == '__main__':
     segment.thickness_to_chord    = 0.10
     wing.Segments.append(segment)      
     
-
-    ## ------------------------------------------------------------------        
-    ##   Main Wing
-    ## ------------------------------------------------------------------        
-    
-    #wing = SUAVE.Components.Wings.Main_Wing()
-    #wing.tag = 'main_wing'
-    
-    #wing.aspect_ratio            = 10.18
-    #wing.sweeps.quarter_chord    = 25 * Units.deg
-    #wing.thickness_to_chord      = 0.1
-    #wing.taper                   = 0.1
-    #wing.span_efficiency         = 0.9
-    
-    #wing.spans.projected         = 34.32   
-    
-    #wing.chords.root             = 7.760 * Units.meter
-    #wing.chords.tip              = 0.782 * Units.meter
-    #wing.chords.mean_aerodynamic = 4.235 * Units.meter
-    
-    #wing.areas.reference         = 124.862 
-    
-    #wing.twists.root             = 4.0 * Units.degrees
-    #wing.twists.tip              = 0.0 * Units.degrees
-    
-    #wing.origin                  = [13.61,0,-1.27]
-    #wing.aerodynamic_center      = [0,0,0]  #[3,0,0]
-    
-    #wing.vertical                = False
-    #wing.symmetric               = True
-    #wing.high_lift               = True
-    
-    #wing.dynamic_pressure_ratio  = 1.0    
-    
     geometry = wing
     
     # ------------------------------------------------------------------        
@@ -324,9 +309,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------      
     
     settings = Data()
-    settings.number_of_stations = 4
-    
-    
+    settings.number_of_stations = 10
     
     CL, CD = lifting_line(state, settings, geometry)
     
