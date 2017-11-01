@@ -16,7 +16,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Lifting_line
-def lifting_line(state,settings,geometry):
+def lifting_line(conditions,settings,geometry):
     """
 
     Assumptions:
@@ -37,7 +37,6 @@ def lifting_line(state,settings,geometry):
     
     # Unpack first round:
     wing        = geometry
-    freestream  = state.conditions.freestream
     orientation = wing.vertical    
     
     # Don't bother doing the calculation if it is a vertical tail
@@ -48,10 +47,6 @@ def lifting_line(state,settings,geometry):
     else:
         pass
         
-    # Potentially useful unpacks
-    #sweep       = wing.sweeps.quarter_chord
-
-
     # Unpack fo'real
     b     = wing.spans.projected
     S     = wing.areas.reference
@@ -59,11 +54,11 @@ def lifting_line(state,settings,geometry):
     MAC   = wing.chords.mean_aerodynamic
     sym   = wing.symmetric
     r     = settings.number_of_stations # Number of divisions
-    rho   = freestream.density # Freestream density
-    V     = freestream.velocity # Freestream velocity
-    mu    = freestream.dynamic_viscosity # Freestream viscosity
-    alpha = state.conditions.aerodynamics.angle_of_attack
+    alpha = conditions.aerodynamics.angle_of_attack
     C_R   = wing.chords.root
+    
+    # Make sure alpha is 2D
+    alpha = np.atleast_2d(alpha)
     
     repeats = np.size(alpha)
     
@@ -75,7 +70,7 @@ def lifting_line(state,settings,geometry):
     # Start doing calculations
     N      = r-1                        # number of spanwise divisions
     n      = np.linspace(1,N,N)         # vectorize
-    thetan = n*np.pi/r                  # angular stations ######## I added a pi/2 here!
+    thetan = n*np.pi/r                  # angular stations
     yn     = -b*np.cos(thetan)/2.       # y locations based on the angular spacing
     etan   = np.abs(2.*yn/b)            # normalized coordinates
     etam   = np.pi*np.sin(thetan)/(2*r) # Useful mulitplier
@@ -94,8 +89,6 @@ def lifting_line(state,settings,geometry):
             L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
             T1 = wing.Segments[segment_keys[i_seg]].twist 
 
-
-            
             if i_seg == n_segments-1 and X1 != 1.0:
                 X2 = 1.0
                 L2 = wing.chords.tip/wing.chords.root
@@ -116,7 +109,6 @@ def lifting_line(state,settings,geometry):
     else:
         # Use the taper ratio to determine the chord distribution
         # Use the geometric twist applied to the ends to    
-        
         # unpack
         taper       = wing.taper
         tip_twist   = wing.twists.root
@@ -186,16 +178,15 @@ if __name__ == '__main__':
     #   State
     # ------------------------------------------------------------------           
     
-    state = Data()
-    state.conditions = Data()
-    state.conditions.freestream = Data()
-    state.conditions.aerodynamics = Data()
+    conditions = Data()
+    conditions.freestream = Data()
+    conditions.aerodynamics = Data()
     
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions = atmosphere.compute_values(0.)
-    state.conditions.freestream.update(atmosphere_conditions)
-    state.conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
-    state.conditions.aerodynamics.angle_of_attack = np.atleast_2d([1. * Units.deg, 2. * Units.deg]).T
+    conditions.freestream.update(atmosphere_conditions)
+    conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
+    conditions.aerodynamics.angle_of_attack = np.atleast_2d([1. * Units.deg, 2. * Units.deg]).T
     
     
     # ------------------------------------------------------------------        
@@ -311,7 +302,7 @@ if __name__ == '__main__':
     settings = Data()
     settings.number_of_stations = 10
     
-    CL, CD = lifting_line(state, settings, geometry)
+    CL, CD = lifting_line(conditions, settings, geometry)
     
     print 'CL: '
     print CL
