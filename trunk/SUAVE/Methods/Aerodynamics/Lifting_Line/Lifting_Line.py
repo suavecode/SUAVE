@@ -161,7 +161,7 @@ def lifting_line(state,settings,geometry):
     
     #############
     # Profile drag of a 2-D section
-    Cdn = 0.01
+    Cdn = 0.00
     #############
     
     # Find the profile drag
