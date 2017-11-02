@@ -65,49 +65,45 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     orientation = wing.vertical
 
     n  = configuration.number_panels_spanwise
-    nn = configuration.number_panels_chordwise
+    #nn = configuration.number_panels_chordwise
 
     # conditions
     aoa = conditions.aerodynamics.angle_of_attack
     
     # chord difference
-    dchord=(root_chord-tip_chord)
+    dchord = (root_chord-tip_chord)
     if sym_para is True :
-        span=span/2
-    deltax=span/n
+        span = span/2
+        
+    deltax = span/n
 
     if orientation == False :
 
         # discretizing the wing sections into panels            
         i              = np.arange(0,n)
         section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
-        area_section   = section_length[i]*deltax
-        sl             = section_length[i]
         twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
-        xpos           = (i)*deltax
         
         ya = np.atleast_2d((i)*deltax)
         yb = np.atleast_2d((i+1)*deltax)
-        xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*sl)
-        x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*sl)
-        y  = np.atleast_2d(((i+1)*deltax-deltax/2))
-        
-        xloc_leading  = ((i+1)*deltax)*np.tan(sweep)
-        xloc_trailing = ((i+1)*deltax)*np.tan(sweep) + sl        
+        xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*section_length)
+        x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*section_length)
+        y  = np.atleast_2d(((i+1)*deltax-deltax/2))      
                 
-        RHS  = np.atleast_2d(np.sin(twist_distri+aoa)).T
+        RHS  = np.atleast_2d(np.sin(twist_distri+aoa))
+        
         A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
             -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
     
         # Vortex strength computation by matrix inversion
-        T = np.linalg.solve(A.T,RHS)
+        T = np.linalg.solve(A.T,RHS.T).T
         
         # Calculating the effective velocty         
         A_v = A*0.25/np.pi*T
-        v   = np.sum(A_v,axis=0)
+        v   = np.sum(A_v,axis=1)
         
-        Lfi = -T.T * (np.sin(twist_tc)-v)
-        Lfk =  T.T * np.cos(twist_tc)   
+        Lfi = -T * (np.sin(twist_tc)-v)
+        Lfk =  T * np.cos(twist_tc)   
         Lft = -Lfi*np.sin(twist_tc)+Lfk*np.cos(twist_tc)
         Dg  = Lfi*np.cos(twist_tc)+Lfk*np.sin(twist_tc)
             
