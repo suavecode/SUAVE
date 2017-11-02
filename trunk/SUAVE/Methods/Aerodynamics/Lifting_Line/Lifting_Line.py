@@ -48,14 +48,19 @@ def lifting_line(conditions,settings,geometry):
         pass
         
     # Unpack fo'real
-    b     = wing.spans.projected
-    S     = wing.areas.reference
-    AR    = wing.aspect_ratio
-    MAC   = wing.chords.mean_aerodynamic
-    sym   = wing.symmetric
-    r     = settings.number_of_stations # Number of divisions
-    alpha = conditions.aerodynamics.angle_of_attack
-    C_R   = wing.chords.root
+    b           = wing.spans.projected
+    S           = wing.areas.reference
+    AR          = wing.aspect_ratio
+    MAC         = wing.chords.mean_aerodynamic
+    sym         = wing.symmetric
+    taper       = wing.taper
+    tip_twist   = wing.twists.root
+    root_twist  = wing.twists.tip 
+    root_chord  = wing.chords.root
+    tip_chord   = wing.chords.tip      
+    r           = settings.number_of_stations # Number of divisions
+    alpha       = conditions.aerodynamics.angle_of_attack
+    C_R         = wing.chords.root
     
     # Make sure alpha is 2D
     alpha = np.atleast_2d(alpha)
@@ -65,7 +70,6 @@ def lifting_line(conditions,settings,geometry):
     # Need to set to something
     cla   = 2 * np.pi # 2-D lift curve slope
     azl   = 0. # 2-D 
-
 
     # Start doing calculations
     N      = r-1                        # number of spanwise divisions
@@ -109,18 +113,13 @@ def lifting_line(conditions,settings,geometry):
     else:
         # Use the taper ratio to determine the chord distribution
         # Use the geometric twist applied to the ends to    
-        # unpack
-        taper       = wing.taper
-        tip_twist   = wing.twists.root
-        root_twist  = wing.twists.tip 
-        root_chord  = wing.chords.root
-        tip_chord   = wing.chords.tip  
         
         # Find the chords and twist profile
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
     k = c*cla/(4.*b) # Grouped term 
+
     
     n_trans = np.atleast_2d(n).T
         
@@ -128,7 +127,7 @@ def lifting_line(conditions,settings,geometry):
     RHS = (np.sin(n_trans*thetan)*(np.sin(thetan)+n_trans*k))
     
     # Expand out for all the angles of attack
-    RHS2 = np.tile(RHS, (repeats,1,1))
+    RHS2 = np.tile(RHS.T, (repeats,1,1))
 
     # Left hand side vector    
     LHS = k*np.sin(thetan)*(alpha+ageo-azl)
@@ -186,7 +185,7 @@ if __name__ == '__main__':
     atmosphere_conditions = atmosphere.compute_values(0.)
     conditions.freestream.update(atmosphere_conditions)
     conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
-    conditions.aerodynamics.angle_of_attack = np.atleast_2d([1. * Units.deg, 2. * Units.deg]).T
+    conditions.aerodynamics.angle_of_attack = np.atleast_2d([4. * Units.deg, 2. * Units.deg]).T
     
     
     # ------------------------------------------------------------------        
@@ -201,7 +200,7 @@ if __name__ == '__main__':
     wing.taper                   = 0.0138
     wing.span_efficiency         = 0.95
     
-    wing.spans.projected         = 289.0 * Units.feet    
+    wing.spans.projected         = 289.0 * Units.feet  
 
     wing.chords.root             = 145.0 * Units.feet
     wing.chords.tip              = 3.5  * Units.feet
@@ -300,7 +299,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------      
     
     settings = Data()
-    settings.number_of_stations = 10
+    settings.number_of_stations = 100
     
     CL, CD = lifting_line(conditions, settings, geometry)
     

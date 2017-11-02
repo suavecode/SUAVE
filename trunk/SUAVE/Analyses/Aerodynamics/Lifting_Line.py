@@ -59,8 +59,8 @@ class Lifting_Line(Aerodynamics):
         self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
-        self.settings.number_of_stations  = 40
-
+        self.settings.number_of_stations  = 100
+        
         # conditions table, used for surrogate model training
         self.training = Data()        
         self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
