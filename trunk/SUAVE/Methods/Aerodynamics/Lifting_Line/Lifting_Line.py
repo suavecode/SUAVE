@@ -163,147 +163,147 @@ def lifting_line(conditions,settings,geometry):
     return CL, CD
 
 
-# ----------------------------------------------------------------------
-#   Unit Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
+## ----------------------------------------------------------------------
+##   Unit Tests
+## ----------------------------------------------------------------------
+## this will run from command line, put simple tests for your code here
+#if __name__ == '__main__':
     
-    import SUAVE
-    from SUAVE.Core import Data, Units
-    
-    
-    # ------------------------------------------------------------------        
-    #   State
-    # ------------------------------------------------------------------           
-    
-    conditions = Data()
-    conditions.freestream = Data()
-    conditions.aerodynamics = Data()
-    
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions = atmosphere.compute_values(0.)
-    conditions.freestream.update(atmosphere_conditions)
-    conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
-    conditions.aerodynamics.angle_of_attack = np.atleast_2d([4. * Units.deg, 2. * Units.deg]).T
+    #import SUAVE
+    #from SUAVE.Core import Data, Units
     
     
-    # ------------------------------------------------------------------        
-    #   Main Wing
-    # ------------------------------------------------------------------        
+    ## ------------------------------------------------------------------        
+    ##   State
+    ## ------------------------------------------------------------------           
+    
+    #conditions = Data()
+    #conditions.freestream = Data()
+    #conditions.aerodynamics = Data()
+    
+    #atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    #atmosphere_conditions = atmosphere.compute_values(0.)
+    #conditions.freestream.update(atmosphere_conditions)
+    #conditions.freestream.velocity = np.atleast_2d([100., 100.]).T
+    #conditions.aerodynamics.angle_of_attack = np.atleast_2d([4. * Units.deg, 2. * Units.deg]).T
+    
+    
+    ## ------------------------------------------------------------------        
+    ##   Main Wing
+    ## ------------------------------------------------------------------        
 
-    wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'main_wing'
+    #wing = SUAVE.Components.Wings.Main_Wing()
+    #wing.tag = 'main_wing'
 
-    wing.aspect_ratio            = 289.**2 / (7840. * 2)
-    wing.thickness_to_chord      = 0.15
-    wing.taper                   = 0.0138
-    wing.span_efficiency         = 0.95
+    #wing.aspect_ratio            = 289.**2 / (7840. * 2)
+    #wing.thickness_to_chord      = 0.15
+    #wing.taper                   = 0.0138
+    #wing.span_efficiency         = 0.95
     
-    wing.spans.projected         = 289.0 * Units.feet  
+    #wing.spans.projected         = 289.0 * Units.feet  
 
-    wing.chords.root             = 145.0 * Units.feet
-    wing.chords.tip              = 3.5  * Units.feet
-    wing.chords.mean_aerodynamic = 80. * Units.feet
+    #wing.chords.root             = 145.0 * Units.feet
+    #wing.chords.tip              = 3.5  * Units.feet
+    #wing.chords.mean_aerodynamic = 80. * Units.feet
 
-    wing.areas.reference         = 7840. * 2 * Units.feet**2
-    wing.sweeps.quarter_chord    = 33. * Units.degrees
+    #wing.areas.reference         = 7840. * 2 * Units.feet**2
+    #wing.sweeps.quarter_chord    = 33. * Units.degrees
 
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
-    wing.dihedral                = 2.5 * Units.degrees
+    #wing.twists.root             = 0.0 * Units.degrees
+    #wing.twists.tip              = 0.0 * Units.degrees
+    #wing.dihedral                = 2.5 * Units.degrees
 
-    wing.origin                  = [0.,0.,0]
-    wing.aerodynamic_center      = [0,0,0] 
+    #wing.origin                  = [0.,0.,0]
+    #wing.aerodynamic_center      = [0,0,0] 
 
-    wing.vertical                = False
-    wing.symmetric               = True
-    wing.high_lift               = True
+    #wing.vertical                = False
+    #wing.symmetric               = True
+    #wing.high_lift               = True
 
-    wing.dynamic_pressure_ratio  = 1.0
+    #wing.dynamic_pressure_ratio  = 1.0
 
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_1'
-    segment.percent_span_location = 0.0
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 1.
-    segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
-    segment.thickness_to_chord    = 0.165 
-    wing.Segments.append(segment)    
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_1'
+    #segment.percent_span_location = 0.0
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 1.
+    #segment.dihedral_outboard     = 0. * Units.degrees
+    #segment.sweeps.quarter_chord  = 30.0 * Units.degrees
+    #segment.thickness_to_chord    = 0.165 
+    #wing.Segments.append(segment)    
     
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_2'
-    segment.percent_span_location = 0.052
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.921
-    segment.dihedral_outboard     = 0.   * Units.degrees
-    segment.sweeps.quarter_chord  = 52.5 * Units.degrees
-    segment.thickness_to_chord    = 0.167    
-    wing.Segments.append(segment)   
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_2'
+    #segment.percent_span_location = 0.052
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.921
+    #segment.dihedral_outboard     = 0.   * Units.degrees
+    #segment.sweeps.quarter_chord  = 52.5 * Units.degrees
+    #segment.thickness_to_chord    = 0.167    
+    #wing.Segments.append(segment)   
 
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_3'
-    segment.percent_span_location = 0.138
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.76
-    segment.dihedral_outboard     = 1.85 * Units.degrees
-    segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
-    segment.thickness_to_chord    = 0.171    
-    wing.Segments.append(segment)   
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_3'
+    #segment.percent_span_location = 0.138
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.76
+    #segment.dihedral_outboard     = 1.85 * Units.degrees
+    #segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
+    #segment.thickness_to_chord    = 0.171    
+    #wing.Segments.append(segment)   
     
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_4'
-    segment.percent_span_location = 0.221
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.624
-    segment.dihedral_outboard     = 1.85 * Units.degrees
-    segment.sweeps.quarter_chord  = 30.4 * Units.degrees    
-    segment.thickness_to_chord    = 0.175  
-    wing.Segments.append(segment)       
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_4'
+    #segment.percent_span_location = 0.221
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.624
+    #segment.dihedral_outboard     = 1.85 * Units.degrees
+    #segment.sweeps.quarter_chord  = 30.4 * Units.degrees    
+    #segment.thickness_to_chord    = 0.175  
+    #wing.Segments.append(segment)       
     
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_5'
-    segment.percent_span_location = 0.457
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.313
-    segment.dihedral_outboard     = 1.85  * Units.degrees
-    segment.sweeps.quarter_chord  = 30.85 * Units.degrees
-    segment.thickness_to_chord    = 0.118
-    wing.Segments.append(segment)       
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_5'
+    #segment.percent_span_location = 0.457
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.313
+    #segment.dihedral_outboard     = 1.85  * Units.degrees
+    #segment.sweeps.quarter_chord  = 30.85 * Units.degrees
+    #segment.thickness_to_chord    = 0.118
+    #wing.Segments.append(segment)       
     
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_6'
-    segment.percent_span_location = 0.568
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.197
-    segment.dihedral_outboard     = 1.85 * Units.degrees
-    segment.sweeps.quarter_chord  = 34.3 * Units.degrees
-    segment.thickness_to_chord    = 0.10
-    wing.Segments.append(segment)     
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_6'
+    #segment.percent_span_location = 0.568
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.197
+    #segment.dihedral_outboard     = 1.85 * Units.degrees
+    #segment.sweeps.quarter_chord  = 34.3 * Units.degrees
+    #segment.thickness_to_chord    = 0.10
+    #wing.Segments.append(segment)     
     
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_7'
-    segment.percent_span_location = 0.97
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.086
-    segment.dihedral_outboard     = 73. * Units.degrees
-    segment.sweeps.quarter_chord  = 55. * Units.degrees
-    segment.thickness_to_chord    = 0.10
-    wing.Segments.append(segment)      
+    #segment = SUAVE.Components.Wings.Segment()
+    #segment.tag                   = 'section_7'
+    #segment.percent_span_location = 0.97
+    #segment.twist                 = 0. * Units.deg
+    #segment.root_chord_percent    = 0.086
+    #segment.dihedral_outboard     = 73. * Units.degrees
+    #segment.sweeps.quarter_chord  = 55. * Units.degrees
+    #segment.thickness_to_chord    = 0.10
+    #wing.Segments.append(segment)      
     
-    geometry = wing
+    #geometry = wing
     
-    # ------------------------------------------------------------------        
-    #   Settings
-    # ------------------------------------------------------------------      
+    ## ------------------------------------------------------------------        
+    ##   Settings
+    ## ------------------------------------------------------------------      
     
-    settings = Data()
-    settings.number_of_stations = 100
+    #settings = Data()
+    #settings.number_of_stations = 100
     
-    CL, CD = lifting_line(conditions, settings, geometry)
+    #CL, CD = lifting_line(conditions, settings, geometry)
     
-    print 'CL: '
-    print CL
-    print 'CD: '
-    print CD
+    #print 'CL: '
+    #print CL
+    #print 'CD: '
+    #print CD
