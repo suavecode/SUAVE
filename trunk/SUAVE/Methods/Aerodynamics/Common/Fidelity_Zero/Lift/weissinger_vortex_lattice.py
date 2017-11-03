@@ -24,7 +24,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     None
 
     Source:
-    Unknown
+    An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
 
     Inputs:
     wing.
