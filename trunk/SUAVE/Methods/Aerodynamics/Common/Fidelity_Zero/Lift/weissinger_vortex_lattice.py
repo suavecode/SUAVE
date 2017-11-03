@@ -64,7 +64,6 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     orientation = wing.vertical
 
     n  = configuration.number_panels_spanwise
-    #nn = configuration.number_panels_chordwise
 
     # conditions
     aoa = conditions.aerodynamics.angle_of_attack
