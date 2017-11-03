@@ -12,14 +12,9 @@ from SUAVE.Optimization import carpet_plot, line_plot
 import sys
 sys.path.append('../Regional_Jet_Optimization')
 from Optimize2 import setup
-# the analysis functions
-
-#from Boeing_737 import vehicle_setup, configs_setup
 
 
-# ----------------------------------------------------------------------
-#   Run the whole thing
-# ----------------------------------------------------------------------
+
 def main():
     
     problem          = setup()
