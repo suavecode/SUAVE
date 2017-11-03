@@ -19,7 +19,7 @@ def main():
     
     problem          = setup()
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [ [ 6849.69405276 , 6683.05359866]]
+    truth_obj_sweeps = [[ 6849.67198211,  6683.04022917]]
     
     #print outputs_sweep
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )))
@@ -29,7 +29,7 @@ def main():
     outputs_carpet = variable_sweep(problem)
     
     #print outputs_carpet
-    truth_obj_carp  =  [[ 6705.53342526 , 6892.86563816],[ 7316.47840395 , 6575.80047318]]
+    truth_obj_carp  =  [[ 6705.51886786,  6892.8555861 ],[ 7316.43875266,  6575.77923123]]    
     max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)) 
     print ' max_err_carp = ',  max_err_carp
     assert(max_err_carp<1e-6)
