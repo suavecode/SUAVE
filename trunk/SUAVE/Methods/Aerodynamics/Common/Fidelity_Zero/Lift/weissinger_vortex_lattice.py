@@ -76,6 +76,9 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         span = span/2
         
     deltax = span/n
+    
+    sin_aoa = np.sin(aoa)
+    cos_aoa = np.cos(aoa)
 
     if orientation == False :
 
@@ -102,10 +105,10 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         A_v = A*0.25/np.pi*T
         v   = np.sum(A_v,axis=1)
         
-        Lfi = -T * (np.sin(twist_tc)-v)
-        Lfk =  T * np.cos(twist_tc)   
-        Lft = -Lfi*np.sin(twist_tc)+Lfk*np.cos(twist_tc)
-        Dg  = Lfi*np.cos(twist_tc)+Lfk*np.sin(twist_tc)
+        Lfi = -T * (sin_aoa-v)
+        Lfk =  T * cos_aoa 
+        Lft = -Lfi * sin_aoa + Lfk * cos_aoa
+        Dg  =  Lfi * cos_aoa + Lfk * sin_aoa
             
         L  = deltax * Lft
         D  = deltax * Dg
