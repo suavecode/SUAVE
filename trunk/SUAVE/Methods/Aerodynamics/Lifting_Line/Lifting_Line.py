@@ -30,6 +30,7 @@ def lifting_line(conditions,settings,geometry):
       spans.projected                       [m]
       chords.root                           [m]
       chords.tip                            [m]
+      chords.mean_aerodynamic               [m]
       twists.root                           [radians]
       twists.tip                            [radians]
       aspect_ratio                          [Unitless]
@@ -62,7 +63,8 @@ def lifting_line(conditions,settings,geometry):
     # Unpack fo'real
     b           = wing.spans.projected
     S           = wing.areas.reference
-    sym         = wing.symmetric
+    AR          = wing.aspect_ratio
+    MAC         = wing.chords.mean_aerodynamic
     taper       = wing.taper
     tip_twist   = wing.twists.root
     root_twist  = wing.twists.tip 
