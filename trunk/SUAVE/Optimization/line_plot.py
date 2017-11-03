@@ -1,8 +1,8 @@
 ## @ingroup Optimization
-# line_plot.py
+#  line_plot.py
 #
-# Created : Feb 2016, M. Vegh 
-# Modified : Feb 2017, M. Vegh
+# Created  : Oct 2017, M. Vegh 
+# Modified : Nov 2017, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -33,7 +33,7 @@ def line_plot(problem, number_of_points,  plot_obj=1, plot_const=1, sweep_index=
         number_of_points   [int]
         plot_obj           [int]
         plot_const         [int]
-        sweep_index      [int]
+        sweep_index        [int]
 
         
         Outputs:
@@ -85,7 +85,6 @@ def line_plot(problem, number_of_points,  plot_obj=1, plot_const=1, sweep_index=
   
     if plot_obj==1:
         plt.figure(0)
-        #CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2)
         plt.plot(inputs[0,:], obj, lw = 2)
         plt.xlabel(names[idx0])
         plt.ylabel(obj_name)
