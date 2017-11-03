@@ -60,7 +60,6 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     twist_rc    = wing.twists.root
     twist_tc    = wing.twists.tip
     sym_para    = wing.symmetric
-    AR          = wing.aspect_ratio
     Sref        = wing.areas.reference
     orientation = wing.vertical
 

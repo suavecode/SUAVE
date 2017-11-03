@@ -37,16 +37,13 @@ def main():
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.process.compute.lift.inviscid_wings = SUAVE.Analyses.Aerodynamics.Lifting_Line()
     aerodynamics.geometry = vehicle
-        
     aerodynamics.initialize()    
-    
     
     #no of test points
     test_num = 11
     
     #specify the angle of attack
     angle_of_attacks = np.linspace(-.174,.174,test_num)[:,None] #* Units.deg
-    
     
     # Cruise conditions (except Mach number)
     state = SUAVE.Analyses.Mission.Segments.Conditions.State()
@@ -60,27 +57,27 @@ def main():
     # --------------------------------------------------------------------
     
     random.seed(1)
-    Mc = np.linspace(0.05,0.9,test_num)
-    random.shuffle(Mc)
+    Mc  = np.linspace(0.05,0.9,test_num)
     rho = np.linspace(0.3,1.3,test_num)
-    random.shuffle(rho)
-    mu = np.linspace(5*10**-6,20*10**-6,test_num)
-    random.shuffle(mu)
-    T = np.linspace(200,300,test_num)
-    random.shuffle(T)
+    mu  = np.linspace(5*10**-6,20*10**-6,test_num)
+    T   = np.linspace(200,300,test_num)
     pressure = np.linspace(10**5,10**6,test_num)
     
+    random.shuffle(Mc)
+    random.shuffle(rho)
+    random.shuffle(mu)
+    random.shuffle(T)
+    
     # Changed after to preserve seed for initial testing
-    Mc = Mc[:,None]
+    Mc  = Mc[:,None]
     rho = rho[:,None]
-    mu = mu[:,None]
-    T = T[:,None]
+    mu  = mu[:,None]
+    T   = T[:,None]
     pressure = pressure[:,None]
     
     air = Air()
-    a = air.compute_speed_of_sound(T,pressure)
-    
-    re = rho*a*Mc/mu
+    a   = air.compute_speed_of_sound(T,pressure)
+    re  = rho*a*Mc/mu
 
     state.conditions.freestream.mach_number = Mc
     state.conditions.freestream.density = rho

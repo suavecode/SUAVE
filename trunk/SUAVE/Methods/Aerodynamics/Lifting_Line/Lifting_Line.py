@@ -26,10 +26,22 @@ def lifting_line(conditions,settings,geometry):
     Traub, L. W., Botero, E., Waghela, R., Callahan, R., & Watson, A. (2015). Effect of Taper Ratio at Low Reynolds Number. Journal of Aircraft.
     
     Inputs:
-    N/A
+    wing.
+      spans.projected                       [m]
+      chords.root                           [m]
+      chords.tip                            [m]
+      twists.root                           [radians]
+      twists.tip                            [radians]
+      aspect_ratio                          [Unitless]
+      areas.reference                       [m^2]
+      vertical                              [Boolean]
+
+    settings.number_of_stations             [int]
+    conditions.aerodynamics.angle_of_attack [radians]
 
     Outputs:
-    N/A
+    CL                                      [Unitless]
+    CD                                      [Unitless]
 
     Properties Used:
     N/A
@@ -50,8 +62,6 @@ def lifting_line(conditions,settings,geometry):
     # Unpack fo'real
     b           = wing.spans.projected
     S           = wing.areas.reference
-    AR          = wing.aspect_ratio
-    MAC         = wing.chords.mean_aerodynamic
     sym         = wing.symmetric
     taper       = wing.taper
     tip_twist   = wing.twists.root
@@ -60,7 +70,6 @@ def lifting_line(conditions,settings,geometry):
     tip_chord   = wing.chords.tip      
     r           = settings.number_of_stations # Number of divisions
     alpha       = conditions.aerodynamics.angle_of_attack
-    C_R         = wing.chords.root
     
     # Make sure alpha is 2D
     alpha = np.atleast_2d(alpha)
@@ -105,7 +114,7 @@ def lifting_line(conditions,settings,geometry):
                 
             bools  =  np.logical_and(etan>X1,etan<X2)
                 
-            c[bools]    = (L1 + (etan[bools]-X1)*(L2-L1)/(X2-X1)) * C_R
+            c[bools]    = (L1 + (etan[bools]-X1)*(L2-L1)/(X2-X1)) * root_chord
             ageo[bools] = (T1 + (etan[bools]-X1)*(T2-T1)/(X2-X1))
                 
 

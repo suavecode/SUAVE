@@ -123,19 +123,6 @@ class Lifting_Line(Aerodynamics):
           lift_coefficient                   [-] CL
           wing_lift_coefficient[wings.*.tag] [-] CL (wing specific)
         """          
-        """ process vehicle to setup geometry, condititon and settings
-            Inputs:
-                conditions - DataDict() of aerodynamic conditions
-            Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
-            Assumptions:
-                linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or settings
-        """
-
         # unpack
 
         surrogates = self.surrogates        
