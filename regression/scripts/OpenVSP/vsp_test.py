@@ -537,13 +537,13 @@ def check_results(new_results,old_results):
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Max:' , err
-        assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
+        assert np.abs(err) < 1e-4 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
         print 'Error at Min:' , err
-        assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
+        assert np.abs(err) < 1e-4 , 'Min Check Failed : %s' % k        
 
         print ''
 
