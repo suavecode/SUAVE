@@ -163,6 +163,7 @@ def lifting_line(conditions,settings,geometry):
     
     #############
     # Profile drag of a 2-D section
+    # This is currently stubbed out. If the 2-D sectional data is known it can be added to get viscous drag
     Cdn = 0.00
     #############
     
