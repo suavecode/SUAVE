@@ -66,14 +66,10 @@ class AVL_Inviscid(Aerodynamics):
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
         
-        ## Standard subsonic/transolic aircarft
-        #self.training.angle_of_attack        = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
-        #self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
-
-        # HALE UAV Cruise
-        self.training.angle_of_attack        = np.array([0.,2., 4.,6., 8., 10])*Units.degree 
-        self.training.Mach                   = np.array([0.075,0.1,0.125, 0.15,0.175,0.2])       
-        
+        # Standard subsonic/transolic aircarft
+        self.training.angle_of_attack        = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+   
         self.training.lift_coefficient        = None
         self.training.drag_coefficient        = None
         self.training_file                    = None
@@ -208,13 +204,9 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cdi_surrogate  
         
-        ## Standard subsonic/transolic aircarft  
-        #AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
-        #mach_points                      = np.linspace(.02,.9,100)         
- 
-        # HALE UAV Cruise
-        AoA_points                       = np.linspace(-1.,11.,100)*Units.deg 
-        mach_points                      = np.linspace(.05,.225,100)   
+        # Standard subsonic/transolic aircarft  
+        AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
+        mach_points                      = np.linspace(.02,.9,100)         
         
         AoA_mesh,mach_mesh               = np.meshgrid(AoA_points,mach_points)
         
@@ -226,50 +218,7 @@ class AVL_Inviscid(Aerodynamics):
             for ii in range(len(mach_points)):
                 CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 CDi_sur[ii,jj] = cdi_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-        
-        #fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-        #plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
-        #cbar = plt.colorbar()
-        #plt.scatter(xy[:,0]/Units.deg,xy[:,1])
-        #plt.xlabel('Angle of Attack (deg)')
-        #plt.ylabel('Mach Number')
-        #cbar.ax.set_ylabel('Coefficient of Lift')
-        
-        #------------------------------------------------------------------------
-        ## FOR AQUILA OPTIMIZATION - Finding CDi and CL at a particular AoA and Mach
-        #aquila_cruise_CL = Data()
-        #aquila_cruise_CDi = Data()
-        #const_mach_cost_AoA_sweep = Data()
-        #const_mach_cost_AoA_twist = Data()
-    
-        #aquila_cruise_CL.tag = 'cruise_CL'
-        #aquila_cruise_CDi.tag = 'cruise_CDi'
-        #const_mach_cost_AoA_sweep.tag = 'const_mach_cost_AoA_sweep' 
-        #const_mach_cost_AoA_twist.tag = 'const_mach_cost_AoA_twist'
-        
-        
-        #for jj in range(len(AoA_points)):
-            #for ii in range(len(mach_points)):
-                #CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                #CDi_sur[ii,jj] = cdi_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                #cruise_AoA = 0.17506181
-                #cruise_mach = 0.16666667
-                #if AoA_points[ii] == cruise_AoA and mach_points[jj] == cruise_mach:
-                        #cruise_CL = CL_sur[ii,jj]
-                        #cruise_CDi = CL_sur[ii,jj]               
-
-                
-        #const_mach_cost_AoA_twist = self.geometry.wings.main_wing.Segments.section_2.twist
-        #const_mach_cost_AoA_sweep = self.geometry.wings.main_wing.Segments.root.sweeps.quarter_chord
-        
-        #self.aerodynamics.append(aquila_cruise_CL)
-        #self.aerodynamics.append(aquila_cruise_CDi)
-        #self.aerodynamics.append(const_mach_cost_AoA_twist)
-        #self.aerodynamics.append(const_mach_cost_AoA_sweep)        
-        
-    
-        #------------------------------------------------------------------------
-
+   
         return 
         
     

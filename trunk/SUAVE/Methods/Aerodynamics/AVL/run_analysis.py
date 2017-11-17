@@ -42,19 +42,21 @@ def call_avl(avl_object):
     with redirect.output(log_file,err_file):
 
         ctime = time.ctime() # Current date and time stamp
-        #sys.stdout.write("Log File of System stdout from AVL Run \n{}\n\n".format(ctime))
-        #sys.stderr.write("Log File of System stderr from AVL Run \n{}\n\n".format(ctime))
 
         with open(in_deck,'r') as commands:
             print_output = False
+            
+            # Initialize suppression of console window output
             if print_output == False:
                 devnull = open(os.devnull,'w')
                 sys.stdout = devnull       
                 
+            # Run AVL
             avl_run = subprocess.Popen([avl_call,geometry],stdout=sys.stdout,stderr=sys.stderr,stdin=subprocess.PIPE)
             for line in commands:
                 avl_run.stdin.write(line)
-                
+              
+            # Terminate suppression of console window output  
             if print_output == False:
                 sys.stdout = sys.__stdout__                    
                 
@@ -62,8 +64,6 @@ def call_avl(avl_object):
 
         exit_status = avl_run.returncode
         ctime = time.ctime()
-        #sys.stdout.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))
-        #sys.stderr.write("\nProcess finished: {0}\nExit status: {1}\n".format(ctime,exit_status))        
 
     return exit_status
 
