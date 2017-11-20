@@ -12,8 +12,4 @@ import Constant_Dynamic_Pressure_Constant_Altitude_Loiter
 import Constant_Acceleration_Constant_Altitude
 import Constant_Pitch_Rate_Constant_Altitude
 import Constant_Dynamic_Pressure_Constant_Altitude
-<<<<<<< HEAD
 import Constant_Speed_Constant_Altitude_Loiter
-=======
-import Constant_Speed_Constant_Altitude_Loiter
->>>>>>> develop

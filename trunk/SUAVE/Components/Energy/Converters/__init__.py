@@ -22,7 +22,3 @@ import Turbofan_TASOPT
 from Gearbox import Gearbox
 from Supersonic_Nozzle import Supersonic_Nozzle
 from Shaft_Power_Off_Take import Shaft_Power_Off_Take
-<<<<<<< HEAD
-=======
-from Gearbox import Gearbox
->>>>>>> develop
