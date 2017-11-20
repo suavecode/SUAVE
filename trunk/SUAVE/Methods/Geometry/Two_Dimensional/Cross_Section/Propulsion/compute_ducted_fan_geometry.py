@@ -3,15 +3,12 @@
 #
 # Created:  Jun 15, A. Variyar 
 # Modified: Mar 16, M. Vegh
-# Modified: Aug 16, D. Bianchi
-# Modified: Sep 16, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-import SUAVE
 from SUAVE.Core  import Data
 
 # package imports
