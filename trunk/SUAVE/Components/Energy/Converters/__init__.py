@@ -20,3 +20,4 @@ from Supersonic_Nozzle import Supersonic_Nozzle
 import Turbofan_JDM
 import Turbofan_TASOPT
 from Shaft_Power_Off_Take import Shaft_Power_Off_Take
+from Gearbox import Gearbox

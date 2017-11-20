@@ -1,38 +1,24 @@
 ## @ingroup Analyses-Aerodynamics
-# Vortex_Lattice.py
-#
-# Created:  Nov 2013, T. Lukaczyk
-# Modified:     2014, T. Lukaczyk, A. Variyar, T. Orra
-#           Feb 2016, A. Wendorff
-#           Apr 2017, T. MacDonald
-#           Nov 2017, E. Botero
-
+# Lifting_Line.py
+# 
+# Created:  Aug 2017, E. Botero
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
-
-from SUAVE.Core import Data
-from SUAVE.Core import Units
-
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
-
-# local imports
-from Aerodynamics import Aerodynamics
-
-# package imports
 import numpy as np
-
+from SUAVE.Core import Data, Units
+from SUAVE.Methods.Aerodynamics.Lifting_Line import lifting_line as LL
+from Aerodynamics import Aerodynamics
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
-class Vortex_Lattice(Aerodynamics):
-    """This builds a surrogate and computes lift using a basic vortex lattice.
+class Lifting_Line(Aerodynamics):
+    """This builds a surrogate and computes lift using a basic lifting line.
 
     Assumptions:
     None
@@ -59,7 +45,7 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         N/A
         """  
-        self.tag = 'Vortex_Lattice'
+        self.tag = 'Lifting_Line'
 
         self.geometry = Data()
         self.settings = Data()
@@ -73,8 +59,8 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise = 5
-
+        self.settings.number_of_stations  = 100
+        
         # conditions table, used for surrogate model training
         self.training = Data()        
         self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
@@ -137,19 +123,6 @@ class Vortex_Lattice(Aerodynamics):
           lift_coefficient                   [-] CL
           wing_lift_coefficient[wings.*.tag] [-] CL (wing specific)
         """          
-        """ process vehicle to setup geometry, condititon and settings
-            Inputs:
-                conditions - DataDict() of aerodynamic conditions
-            Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
-            Assumptions:
-                linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or settings
-        """
-
         # unpack
 
         surrogates = self.surrogates        
@@ -227,7 +200,7 @@ class Vortex_Lattice(Aerodynamics):
             konditions.aerodynamics.angle_of_attack = AoA[i]
             
             # these functions are inherited from Aerodynamics() or overridden
-            CL[i], wing_lifts = calculate_lift_vortex_lattice(konditions, settings, geometry)
+            CL[i], wing_lifts = calculate_lift_lifting_line(konditions, settings, geometry)
             for wing in geometry.wings.values():
                 wing_CLs[wing.tag][i] = wing_lifts[wing.tag]
 
@@ -292,7 +265,7 @@ class Vortex_Lattice(Aerodynamics):
 # ----------------------------------------------------------------------
 
 
-def calculate_lift_vortex_lattice(conditions,settings,geometry):
+def calculate_lift_lifting_line(conditions,settings,geometry):
     """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
     using a vortex lattice method.
 
@@ -323,7 +296,7 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     wing_lifts = Data()
     for wing in geometry.wings.values():
 
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        [wing_lift_coeff,wing_drag_coeff] = LL(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
 

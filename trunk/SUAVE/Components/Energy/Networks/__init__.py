@@ -22,3 +22,5 @@ from Turbofan_JDM import Turbofan_JDM
 from Turbofan_TASOPT_Net import Turbofan_TASOPT_Net
 from Turbofan_TASOPT_Net_fsolve import Turbofan_TASOPT_Net_fsolve
 from Propulsor_Surrogate import Propulsor_Surrogate
+from Battery_Propeller import Battery_Propeller
+from Lift_Forward_Propulsor import Lift_Forward_Propulsor
