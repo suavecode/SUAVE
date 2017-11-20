@@ -10,8 +10,6 @@
 
 from SUAVE.Core import Data
 from SUAVE.Core import Container as ContainerBase
-from SUAVE.Analyses import Results
-
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -112,7 +110,7 @@ class Analysis(Data):
                 N/A
             """             
         raise NotImplementedError
-        return Results()
+        return Data()
     
     def finalize(self,*args,**kwarg):
         """This is used to finalize the analysis' specific algorithms.
@@ -239,7 +237,7 @@ class Container(ContainerBase):
                 Properties Used:
                 N/A
             """
-        results = Results()
+        results = Data()
         for tag,analysis in self.items(): 
             if hasattr(analysis,'evaluate'):
                 result = analysis.evaluate(*args,**kwarg)

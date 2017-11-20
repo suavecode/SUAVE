@@ -127,33 +127,6 @@ def lift_drag_total(state,settings,geometry):
     
     return CL_total, CD_total
 
-# ----------------------------------------------------------------------
-#  Lift Total
-# ----------------------------------------------------------------------
-
-## @ingroup Methods-Aerodynamics-AERODAS
-def lift_total(state,settings,geometry):
-    """Extract the lift coefficient
-
-    Assumptions:
-    None
-
-    Source:
-    N/A
-
-    Inputs:
-    state.conditions.aerodynamics.lift_coefficient [Unitless]
-
-    Outputs:
-    CL (coefficient of lift)                       [Unitless]
-
-    Properties Used:
-    N/A
-    """  
-    
-    CL = state.conditions.aerodynamics.lift_coefficient     
-
-    return CL
 
 # ----------------------------------------------------------------------
 #  Drag Total
