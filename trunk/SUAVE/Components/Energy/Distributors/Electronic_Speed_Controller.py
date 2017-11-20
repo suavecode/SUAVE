@@ -66,7 +66,7 @@ class Electronic_Speed_Controller(Energy_Component):
         eta = (conditions.propulsion.throttle[:,0,None])*1.0
         
         # Negative throttle is bad
-        #eta[eta<=0.0] = 0.0
+        eta[eta<=0.0] = 0.0
         
         # Cap the throttle
         eta[eta>=1.0] = 1.0

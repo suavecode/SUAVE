@@ -87,7 +87,6 @@ def main():
     plot_mission(results)
     plot_mission(old_results,'k-')
     plt.show(block=True)
-
     # check the results
     check_results(results,old_results)
     
@@ -328,7 +327,6 @@ def plot_mission(results,line_style='bo-'):
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc    = 3600. * mdot / 0.1019715 / thrust	
-        throttle = segment.conditions.propulsion.throttle[:,0]
 
 
         axes = fig.add_subplot(3,1,1)
@@ -338,7 +336,7 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , throttle , line_style )
+        axes.plot( time , sfc , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
         axes.grid(True)

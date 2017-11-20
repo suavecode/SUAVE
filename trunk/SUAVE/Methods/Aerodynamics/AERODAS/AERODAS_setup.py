@@ -79,15 +79,15 @@ def lift_drag_total(state,settings,geometry):
     N/A
     """      
     
+    # prime the totals
+    CL_total = 0.
+    CD_total = 0.
+    
     # Unpack general things
     ref       = geometry.reference_area
     wing_aero = state.conditions.aerodynamics
     alpha     = state.conditions.aerodynamics.angle_of_attack
     A0        = settings.section_zero_lift_angle_of_attack
-    
-    # prime the totals
-    CL_total = 0. * np.ones_like(alpha)
-    CD_total = 0. * np.ones_like(alpha)  
     
     #  loop through each wing 
     for wing in geometry.wings:
@@ -105,9 +105,6 @@ def lift_drag_total(state,settings,geometry):
         # Equation 3b
         CL[alpha<=A0] = np.fmin(CL1[alpha<=A0],CL2[alpha<=A0])
         
-        ## TTHIS LINE SHOULD NOT BE HERE EVER!
-        #CL[alpha>= .3] = np.fmin(CL1[alpha>= .3],0.)
-        
         # Equation 3c
         CD            = np.fmax(CD1,CD2)
         
@@ -118,6 +115,7 @@ def lift_drag_total(state,settings,geometry):
             CL_total      = CL_total + CL*area/ref
         else:
             pass
+
         
     CD_total = CD_total + settings.drag_coefficient_increment
         

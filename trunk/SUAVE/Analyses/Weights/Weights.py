@@ -58,7 +58,8 @@ class Weights(Analysis):
         self.tag = 'weights'
         
         self.vehicle  = Data()
-        self.settings = Data()               
+        self.settings = Data()
+               
         
     def evaluate(self):
         """Evaluate the weight analysis.
