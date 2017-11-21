@@ -17,6 +17,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
+from SUAVE.Components.Wings import Wing
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 
@@ -326,10 +327,54 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     # iterate over wings
     total_lift_coeff = 0.0
     wing_lifts = Data()
-    for wing in geometry.wings.values():
+    
+    #-------------------------------------------------------------------------
+    # OLD CODE    
+    #for wing in geometry.wings.values():
 
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
-        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        wing_lifts[wing.tag] = wing_lift_coeff
+        #[wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        #total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        #wing_lifts[wing.tag] = wing_lift_coeff
+    #-------------------------------------------------------------------------
+       
+
+
+    for wing in geometry.wings.values():
+        if len(wing.Segments.keys())>0:
+            symm                 = wing.symmetric
+            semispan             = wing.spans.projected*0.5 * (2 - symm)
+            root_chord           = wing.chords.root
+            segment_percent_span = 0;   
+            num_segments           = len(wing.Segments.keys())      
+            
+            for i_segs in xrange(num_segments): 
+                if i_segs == num_segments-1:
+                    continue 
+                else: 
+                    wing_segment = Wing() #converts each wing segment to wing for VLM computation
+                    wing_segment.spans.projected      = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )
+                    wing_segment.chords.root          = root_chord*wing.Segments[i_segs].root_chord_percent
+                    wing_segment.chords.tip           = root_chord*wing.Segments[i_segs+1].root_chord_percent
+                    wing_segment.sweeps.quarter_chord = wing.Segments[i_segs].sweeps.quarter_chord
+                    wing_segment.taper                = wing_segment.chords.tip /wing_segment.chords.root
+                    wing_segment.twists.root          = wing.Segments[i_segs].twist
+                    wing_segment.twists.tip           = wing.Segments[i_segs+1].twist
+                    wing_segment.symmetric            = wing.symmetric
+                    wing_segment.areas.reference      = wing_segment.spans.projected *(wing_segment.chords.root+wing_segment.chords.tip)*0.5
+                    wing_segment.aspect_ratio         = (wing_segment.spans.projected)**2/wing_segment.areas.reference
+                    wing_segment.vertical             = wing.vertical           
+                
+                    [wing_segment_lift_coeff,wing_segment_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing_segment)
+                    wing_segment_lift_coeff += wing_segment_lift_coeff * wing_segment.areas.reference / vehicle_reference_area
+            total_lift_coeff = wing_segment_lift_coeff
+            wing_lifts[wing.tag] = wing_segment_lift_coeff 
+                
+           
+        else:
+            [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+            total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+            wing_lifts[wing.tag] = wing_lift_coeff
+
+
 
     return total_lift_coeff, wing_lifts
