@@ -186,6 +186,7 @@ class Propeller(Energy_Component):
         diff   = 1.
         
         ii = 0
+        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -264,11 +265,13 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                broke = True
                 break
                 
             ii+=1
                 
-            if ii>20000:
+            if ii>2000:
+                broke = True
                 break
 
         #There is also RE scaling
@@ -290,7 +293,7 @@ class Propeller(Energy_Component):
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         power    = torque*omega       
-       
+
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
 
