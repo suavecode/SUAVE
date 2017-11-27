@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission
 # Mission.py
 #
 # Created:  
@@ -11,22 +12,63 @@
 
 import SUAVE
 from SUAVE.Core import Container as ContainerBase
-
 import Segments
 
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission
 class Mission(Segments.Simple.Container):
-    """ Mission.py: Top-level mission class """
+    """ Mission.py: Top-level mission class
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         self.tag = 'mission'
         
         # see Segments.Simple.Container
         
     def finalize(self):
+        """ Stub
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
         pass
     
     
@@ -35,10 +77,36 @@ class Mission(Segments.Simple.Container):
 #   Container Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission
 class Container(ContainerBase):
+    """ Container for mission
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """    
     
     def evaluate(self,state=None):
-        results = SUAVE.Analyses.Results()
+        """ Go through the missions, run through them, save the results
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state   [Data()]
+    
+            Outputs:
+            Results [Data()]
+    
+            Properties Used:
+            None
+        """         
+        results = SUAVE.Core.Data()
         
         for key,mission in self.items():
             result = mission.evaluate(state)
@@ -47,6 +115,23 @@ class Container(ContainerBase):
         return results
     
     def finalize(self):
+        """ Stub
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """          
         pass
 
 # Link container

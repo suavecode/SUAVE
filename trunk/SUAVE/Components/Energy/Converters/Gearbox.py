@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Converters
 # Gearbox.py
 #
 # Created:  Aug 2016, C. Ilario
@@ -18,11 +19,34 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 #  Gearbox Class
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Energy-Converters
 class Gearbox(Energy_Component):
+    """This is a gear box component.
     
+    Assumptions:
+    None
+
+    Source:
+    None
+    """       
     def __defaults__(self):
-        
+        """This sets the default values for the component to function.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """            
         self.tag = 'GearBox'
         
         self.gearwhell_radius1 = 0.     #radius of gearwheel 1
@@ -37,6 +61,31 @@ class Gearbox(Energy_Component):
         
     
     def compute(self):
+        """Computes gearbox values.
+
+        Assumptions:
+        None
+
+        Source:
+        None
+
+        Inputs:
+        see properties used
+
+        Outputs:
+        self.outputs.
+          rotation_speed    [radian/s]
+          torque            [Nm]
+          power             [W]
+
+        Properties Used:
+        self.
+          gearwhell_radius1 [m]
+          gearwhell_radius2 [m]
+          torque1           [Nm]
+          speed_1           [radian/s]
+          efficiency        [-]
+        """            
         
         # unpack the values
         

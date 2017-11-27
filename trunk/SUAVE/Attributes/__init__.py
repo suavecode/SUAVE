@@ -1,6 +1,5 @@
-
-# classes
-from Analysis import Analysis
+## @defgroup Attributes
+# Attributes provide objects that can be attached to various analyses.
 
 # packages
 import Constants
@@ -9,3 +8,4 @@ import Planets
 import Atmospheres
 import Propellants
 import Airports
+import Liquids

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Hover
 # Ground.py
 #
 # Created:  
@@ -24,10 +25,12 @@ from SUAVE.Core import Data
 #  Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Hover
 class Ground(Aerodynamic):
-    """
-        Base segment for takeoff and landing segments. Integrates equations of motion
+    """ Base segment for takeoff and landing segments. Integrates equations of motion
         including rolling friction.
+        
+        Assumptions:
         Notes Regarding Friction Coefficients
         Dry asphalt or concrete: .04 brakes off, .4 brakes on
         Wet asphalt or concrete: .05 brakes off, .225 brakes on
@@ -36,16 +39,34 @@ class Ground(Aerodynamic):
         Firm dirt:               .04 brakes off, .3 brakes on
         Soft turf:               .07 brakes off, .2 brakes on
         Wet grass:               .08 brakes off, .2 brakes on
-        FROM: General Aviation Aircraft Design: Applied Methods and Procedures,
+        
+        Source: General Aviation Aircraft Design: Applied Methods and Procedures,
         by Snorri Gudmundsson, copyright 2014, published by Elsevier, Waltham,
         MA, USA [p.938]
     """
-
+ 
     # ------------------------------------------------------------------
     #   Data Defaults
     # ------------------------------------------------------------------  
 
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs
@@ -141,6 +162,5 @@ class Ground(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
-        finalize.post_process.ground            = Methods.Ground.Common.post_process
 
         return

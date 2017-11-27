@@ -19,13 +19,13 @@ before_install:
   
 install:
     - cd trunk
-    - python setup.py install
+    - python setup.py develop
     - cd ../regression
     - pip install coveralls
   
 # run test
 script:  
-     coverage run --source=SUAVE automatic_regression.py test
+     coverage run --source=SUAVE --omit=../trunk/SUAVE/Plugins/pint/* automatic_regression.py test
     
 after_success:
   coveralls

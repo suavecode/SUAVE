@@ -1,10 +1,33 @@
+## @ingroup Input_Output-SU2
 # write_SU2_cfg.py
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 
-
+## @ingroup Input_Output-SU2
 def write_SU2_cfg(tag,SU2_settings):
+    """Creates an SU2 .cfg file that can be used for an SU2 run.
+
+    Assumptions:
+    Almost all settings are current hard coded.
+
+    Source:
+    N/A
+
+    Inputs:
+    tag                          <string>  This determines the name of the .cfg
+    SU2_settings.
+      reference_area            [m^2]
+      mach_number               [-]
+      angle_of_attack           [degrees]
+      maximum_iterations        [-]
+
+    Outputs:
+    <tag>.cfg
+
+    Properties Used:
+    N/A
+    """      
     
     ref_area = SU2_settings.reference_area
     mach     = SU2_settings.mach_number

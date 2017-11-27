@@ -1,3 +1,4 @@
+## @ingroup Analyses-Stability
 # Fidelity_Zero.py
 # 
 # Created:  Andrew, July 2014
@@ -34,13 +35,34 @@ import numpy as np
 #  Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Stability
 class Fidelity_Zero(Stability):
-    """ SUAVE.Analyses.Stability.Fidelity_Zero
-        
-    """
-    
+    """This is an analysis based on low-fidelity models.
+
+    Assumptions:
+    Subsonic
+
+    Source:
+    Primarily based on adg.stanford.edu, see methods for details
+    """ 
     def __defaults__(self):
-        
+	"""This sets the default values and methods for the analysis.
+
+	Assumptions:
+	None
+
+	Source:
+	N/A
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+
+	Properties Used:
+	N/A
+	"""          
         # Initialize quantities
         
         self.configuration = Data()
@@ -63,7 +85,23 @@ class Fidelity_Zero(Stability):
         return
     
     def finalize(self):
-                        
+	"""Finalizes the surrogate needed for lift calculation.
+
+	Assumptions:
+	None
+
+	Source:
+	N/A
+
+	Inputs:
+	None
+
+	Outputs:
+	None
+
+	Properties Used:
+	self.geometry
+	"""                         
         # unpack
         geometry         = self.geometry #really a vehicle object
         configuration    = self.configuration
@@ -79,20 +117,25 @@ class Fidelity_Zero(Stability):
             configuration.fuel        = fuel
     
     def __call__(self,conditions):
-        """ process vehicle to setup geometry, condititon and configuration
-            
-            Inputs:
-                conditions - DataDict() of aerodynamic conditions
-                results - DataDict() of 
-                
-            Outputs:
+        """ Process vehicle to setup geometry, condititon and configuration
+	
+        Assumptions:
+        None
+       
+        Source:
+	N/A
 
-                
-            Assumptions:
-
-                
-        """
-        
+	Inputs:
+	    conditions - DataDict() of aerodynamic conditions
+	    results    - DataDict() of moment coeffients and stability derivatives
+	    
+	Outputs:
+	None
+         
+	Properties Used:
+	self.geometry
+	"""         
+       
         # unpack
         configuration   = self.configuration
         geometry        = self.geometry

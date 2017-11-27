@@ -1,7 +1,7 @@
-# __init__.py
-#
-# Created:  Mar 2014, T. Lukacyzk
-# Modified: Jan 2016, T. MacDonald
+## @defgroup Components-Energy-Converters Converters
+# Energy components meant to be used within an energy network.
+# They typically contain functions operating on class specific input variables.
+## @ingroup Components-Energy
 
 from Combustor import Combustor
 from Compression_Nozzle import Compression_Nozzle
@@ -18,3 +18,4 @@ from Solar_Panel import Solar_Panel
 from Turbine import Turbine
 from Supersonic_Nozzle import Supersonic_Nozzle
 from Shaft_Power_Off_Take import Shaft_Power_Off_Take
+from Gearbox import Gearbox

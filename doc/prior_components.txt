@@ -33,6 +33,25 @@ All of these files below can be found in the initial public release of the code 
 
 * /SUAVE/Methods/Utilities/Chebyshev/PlotDock.py
 	a function which allowed for interactive plotting
+	
+* /SUAVE/Methods/Utilities/Utilities.py
+        A variety of mathematical utilities that were not in used or tested:
+	runge_kutta_45
+	psuedospectral
+	chebyshev_data
+	chebyshev_fit
+	chebyshev_interpolate
+	chebyshev_basis_function
+	residuals
+	residuals0
+	residuals_unpowered
+	residuals_uncontrolled
+	jacobian_complex
+	jacobian_AD
+	create_guess
+	unpack
+	create_state_data
+	assign_values
 
 * /SUAVE/Weights/Correlations/Tube_Wing_Torenbeek
 	These correlations were old and it was decided not to update them to the current code standards

@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_wing
 # taw_cmalpha.py
 #
 # Created:  Apr 2014, T. Momose
@@ -15,52 +16,58 @@ from SUAVE.Methods.Center_of_Gravity.compute_mission_center_of_gravity import co
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Tube_wing
 def taw_cmalpha(geometry,mach,conditions,configuration):
-    """ cm_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha(configuration,conditions)
-        This method computes the static longitudinal stability derivative for a
-        standard Tube-and-Wing aircraft configuration.
+    """ This method computes the static longitudinal stability derivative for a
+    standard Tube-and-Wing aircraft configuration.
+            
+    Assumptions:
+        -This method assumes a tube-and-wing configuration
+        -April 8, 2014 - The current version only accounts for the effect of
+        downwash on the lift curve slopes of lifting surfaces behind other
+        lifting surfaces by an efficiency factor.
         
-        Inputs:
-            configuration - a data dictionary with the fields:
-                reference - a data dictionary with the fields:
-                    area - the reference wing area [meters**2]
-                    mac  - the main wing mean aerodynamic chord [meters]
-                    CL_alpha_wing - the main wing lift curve slope [dimensionless]
-                Mass_Props - a data dictionary with the field:
-                    pos_cg - A vector in 3-space indicating CG position [meters]
-                Lifting_Surfaces - a list containing data dictionaries
-                representing all non-vertical lifting surfaces. Each of these
-                lifting surface data dictionaries has the fields:
-                    x_LE - the x-coordinate of the surface root LE position 
-                    [meters] (root at fuselage symmetry plane)
-                    x_ac_LE - the x-coordinate of the surface's aerodynamic 
-                    center measured relative to the root leading edge (root
-                    of reference area - at symmetry plane) [meters]
-                    area - lifting surface planform area [meters**2]
-                    span - span of the lifting surface [meters]
-                    sweep_le - sweep of the leading edge [radians]
-                    taper - taper ratio [dimensionless]
-                    aspect_ratio - aspect ratio [dimensionless]
-                    CL_alpha - the surface's lift curve slope [dimensionless]
-                    eta - lifting efficiency. Use to indicate effect of surfaces
-                    ahead of the lifting surface [dimensionless]
-                fuselage - a data dictionary with the fields:
-                    x_root_quarter_chord - x coordinate of the quarter-chord of 
-                    the wing root (here, the wing root is where the wing 
-                    intersects the body) [meters]
-                    w_max - maximum width of the fuselage [meters]
-                    length - length of the fuselage [meters]
-            mach - flight Mach number
+    Source: 
+        Unknown
     
-        Outputs:
-            cm_alpha - a single float value: The static longidutinal stability
-            derivative (d(Cm_cg)/d(alpha))
-                
-        Assumptions:
-            -This method assumes a tube-and-wing configuration
-            -April 8, 2014 - The current version only accounts for the effect of
-            downwash on the lift curve slopes of lifting surfaces behind other
-            lifting surfaces by an efficiency factor.
+    Inputs:
+        configuration - a data dictionary with the fields:
+            reference - a data dictionary with the fields: 
+                area - the reference wing area                                  [meters**2]
+                mac  - the main wing mean aerodynamic chord                     [meters]
+                CL_alpha_wing - the main wing lift curve slope                  [dimensionless]
+            Mass_Props - a data dictionary with the field:
+                pos_cg - A vector in 3-space indicating CG position             [meters]
+            Lifting_Surfaces - a list containing data dictionaries
+            representing all non-vertical lifting surfaces. Each of these
+            lifting surface data dictionaries has the fields:
+                x_LE - the x-coordinate of the surface root LE position 
+                                                                                [meters] (root at fuselage symmetry plane)
+                x_ac_LE - the x-coordinate of the surface's aerodynamic 
+                center measured relative to the root leading edge (root
+                of reference area - at symmetry plane)                          [meters]
+                area - lifting surface planform area                            [meters**2]
+                span - span of the lifting surface                              [meters]
+                sweep_le - sweep of the leading edge                            [radians]
+                taper - taper ratio                                             [dimensionless]
+                aspect_ratio - aspect ratio                                     [dimensionless]
+                CL_alpha - the surface's lift curve slope                       [dimensionless]
+                eta - lifting efficiency. Use to indicate effect of surfaces
+                ahead of the lifting surface                                    [dimensionless]
+            fuselage - a data dictionary with the fields:
+                x_root_quarter_chord - x coordinate of the quarter-chord of 
+                the wing root (here, the wing root is where the wing 
+                intersects the body)                                            [meters]
+                w_max - maximum width of the fuselage                           [meters]
+                length - length of the fuselage                                 [meters]
+        mach - flight Mach number
+    
+    Outputs:
+        cm_alpha - a single float value: The static longidutinal stability
+        derivative (d(Cm_cg)/d(alpha))
+        
+    Properties Used:
+        N/A              
     """
 
     # Unpack inputs

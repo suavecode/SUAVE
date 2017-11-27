@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Common
 # Numerics.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +14,29 @@ from SUAVE.Core.Arrays import atleast_2d_col
 #  Initialize Differentials
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def initialize_differentials_dimensionless(segment,state):
+    """ Discretizes the differential operators
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            state.numerics:
+                number_control_points [int]
+                discretization_method [function]
+            
+        Outputs:
+            numerics.dimensionless:           
+                control_points        [array]
+                differentiate         [array]
+                integrate             [array]
+
+        Properties Used:
+        N/A
+                                
+    """    
+    
     
     # unpack
     numerics = state.numerics
@@ -35,12 +58,32 @@ def initialize_differentials_dimensionless(segment,state):
 #  Update Differentials
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Common
 def update_differentials_time(segment,state):
+    """ Scales the differential operators (integrate and differentiate) based on mission time
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            numerics.dimensionless:           
+                control_points                    [array]
+                differentiate                     [array]
+                integrate                         [array]
+            state.conditions.frames.inertial.time [seconds]
+            
+        Outputs:
+            numerics.time:           
+                control_points        [array]
+                differentiate         [array]
+                integrate             [array]
+
+        Properties Used:
+        N/A
+                                
+    """     
     
     # unpack
-    #print 'starting mission'
-    #import time
-    #time.sleep(2.)
     numerics = state.numerics
     x = numerics.dimensionless.control_points
     D = numerics.dimensionless.differentiate

@@ -1,3 +1,4 @@
+## @ingroup Methods-Costs-Industrial_Costs
 # compute_industrial_costs.py
 #
 # Created:  Sep 2016, T. Orra
@@ -13,49 +14,70 @@ from SUAVE.Methods.Costs.Correlations.Industrial_Costs import ( estimate_escalat
 # ----------------------------------------------------------------------
 #  Compute costs to develop and produce the vehicle (only airplanes)
 # ----------------------------------------------------------------------
+## @ingroup Methods-Costs-Industrial_Costs
 def compute_industrial_costs(vehicle):
-    """ SUAVE.Methods.Costs.Correlations.Industrial_Costs.compute_industrial_costs(vehicle):
-        
-        Compute Costs for Design, Development, Test and Manufacturing of an airplane program
+    """Computes costs for design, development, test, and manufacturing of an airplane program
 
-        Inputs:
-            vehicle.costs.industrial: data dictionary with inputs for costs estimations:
-                            .reference_year                 = reference date for calculations
-                            .production_total_units         = total units to be produced
-                            .units_to_amortize              = number of units to amortize development costs
-                            .prototypes_units               = number of prototypes used in flight test campaign
-                            .avionics_cost                  = user-informed avionics costs
-                            .test_facilities_cost           = user-informed test facilities costs
-                            .manufacturing_facilities_cost  = user-informed manufact. facilities costs
-                            .development_total_years        = total years of development, for cash flow
-                            .aircraft_type                  = for interior costs: 'military' or 'general aviation' or 'regional' or 'commercial' or 'business'.
-                            .difficulty_factor              = 1.0 for conventional tech., 1.5 for moderately advanc. tech., 2 for agressive use of adv. tech.
-                            .cad_factor                     = 1.2 for learning CAD, 1.0 for manual, 0.8 for experienced
-                            .stealth                        = 0 for non-stealth, 1 for stealth
-                            .material_factor                = 1.0 for conventional Al, 1.5 for stainless steel, 2~2.5 for composites, 3 for carbon fiber
+    Assumptions:
+    Production tooling is considered a non-recurring cost
 
-            vehicle.mass_properties.empty
-            vehicle.propulsors.turbofan.number_of_engines
-            vehicle.propulsors.turbofan.sealevel_static_thrust / Units.lbf
-            vehicle.passengers
+    Source:
+    "Airplane Design, Part VIII - Airplane Cost Estimation", Roskam
 
-        Outputs:
-            vehicle.costs.industrial.unit_cost               = total cost of each airplane produced
-            vehicle.costs.industrial.non_recurring.total     = total non recurring costs
-            vehicle.costs.industrial.non_recurring.breakdown = breakdown of non recurring costs
-            vehicle.costs.industrial.recurring.total         = total recurring costs
-            vehicle.costs.industrial.recurring.breakdown     = breakdown of recurring costs
-            vehicle.costs.industrial.non_recurring.cash_flow = non recurring cost distributed on time
-            vehicle.costs.industrial.non_recurring.cash_flow.breakdown = non recurring cash flow breakdown
+    Inputs:
+    vehicle.costs.industrial.        data dictionary with inputs for costs estimations:
+      reference_year                 [-]        reference date for calculations
+      production_total_units         [-]        total units to be produced
+      units_to_amortize              [-]        number of units to amortize development costs
+      prototypes_units               [-]        number of prototypes used in flight test campaign
+      avionics_cost                  [$]        user-informed avionics costs
+      test_facilities_cost           [$]        user-informed test facilities costs
+      manufacturing_facilities_cost  [$]        user-informed manufact. facilities costs
+      development_total_years        [-]        total years of development, for cash flow
+      aircraft_type                  <string>   for interior costs: 'military' or 'general aviation' or 'regional' or 'commercial' or 'business'.
+      difficulty_factor              [-]        1.0 for conventional tech., 1.5 for moderately advanc. tech., 2 for agressive use of adv. tech.
+      cad_factor                     [-]        1.2 for learning CAD, 1.0 for manual, 0.8 for experienced
+      stealth                        [-]        0 for non-stealth, 1 for stealth
+      material_factor                [-]        1.0 for conventional Al, 1.5 for stainless steel, 2~2.5 for composites, 3 for carbon fiber
+    vehicle.mass_properties.empty    [kg]
+    vehicle.propulsors.turbofan.
+      number_of_engines              [-]
+      sealevel_static_thrust         [N]
+    vehicle.passengers               [-]
 
-        Assumptions:
-            Methods from "Airplane Design, Part VIII - Airplane Cost Estimation", Roskam.
+    Outputs:
+    vehicle.costs.industrial.
+      unit_cost                      [$] total cost of each airplane produced
+      non_recurring.total            [$]
+      non_recurring.breakdown.       
+        airframe_engineering         [$]
+        development_support          [$]
+        flight_test                  [$]
+        engines                      [$]
+        avionics                     [$]
+        tooling_development          [$]
+        tooling_production           [$]
+        manufacturing_labor          [$]
+        manufacturing_material       [$]
+        quality_control              [$]
+        test_facilities              [$]
+        manufacturing_facilities     [$]
+        total                        [$]
+      recurring.total                [$]
+      recurring.breakdown.           
+        airframe_engineering         [$]
+        interior                     [$]
+        manufacturing_labor          [$]
+        manufacturing_material       [$]
+        quality_control              [$]
+        engines                      [$]
+        avionics                     [$]
+        total                        [$]
 
-            Note:   Production tooling is considered a non-recurring cost.
-
-"""
-
-	# Unpack
+    Properties Used:
+    N/A
+    """          
+    # Unpack
     costs                   = vehicle.costs.industrial
     reference_year          = costs.reference_year
     total_production        = costs.production_total_units
@@ -75,7 +97,7 @@ def compute_industrial_costs(vehicle):
     manuf_facilities_cost = costs.manufacturing_facilities_cost
 
 
-	# factors to account for design especific characteristics
+        # factors to account for design especific characteristics
     F_diff  = costs.difficulty_factor # (1.0 for conventional, 1.5 for moderately advanc. tech., 2 for agressive use of adv. tech.)
     F_CAD   = costs.cad_factor #(1.2 for learning, 1.0 for manual, 0.8 for experienced)
     F_obs   = 1 + 3. * costs.stealth #(0 for non-stealth, 1 for stealth)
@@ -267,7 +289,30 @@ def compute_industrial_costs(vehicle):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 
+## @ingroup Methods-Costs-Industrial_Costs
 def call_print(config):
+    """Prints precalculated costs for an airplane program.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    config.tag                <string>
+    config.costs.industrial.
+      non_recurring.total     [$]
+      unit_cost               [$]
+      recurring.total         [$]
+      production_total_units  [$]
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """      
 
     nrec = config.costs.industrial.non_recurring.total / 1e6
     unit = config.costs.industrial.unit_cost / 1e6

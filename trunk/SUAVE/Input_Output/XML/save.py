@@ -1,3 +1,4 @@
+## @ingroup Input_Output-XML
 # save.py
 #
 # Created: T. Lukaczyk Feb 2015
@@ -32,9 +33,26 @@ except NameError:
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-XML
 def save(xml_data,filename):
+	"""This creates an XML file based on an XML data structure.
 
+	Assumptions:
+	None
+    
+	Source:
+	N/A
+    
+	Inputs:
+	xml_data   The XML data structure to be saved
+	filename   The name of the saved file
+    
+	Outputs:
+	XML file with name as specified by filename
+    
+	Properties Used:
+	N/A
+	"""   	
 	# translate to xml data if not already
 	if not isinstance(xml_data,XML_Data):
 		xml_data = XML_Data.from_dict(xml_data)
@@ -84,8 +102,26 @@ def save(xml_data,filename):
 
 	return
 
-
+## @ingroup Input_Output-XML
 def indent(elem, level=0):
+	"""Indentation helper.
+
+	Assumptions:
+	None
+    
+	Source:
+	http://effbot.org/zone/element-lib.htm
+    
+	Inputs:
+	elem             The element to be used
+	level (optional) The indentation level
+    
+	Outputs:
+	Modifies elem
+    
+	Properties Used:
+	N/A
+	"""	
 	# Indentation helper from http://effbot.org/zone/element-lib.htm
 	i = "\n" + level*"  "
 	if len(elem):

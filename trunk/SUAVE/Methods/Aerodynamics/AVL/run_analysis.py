@@ -1,4 +1,5 @@
-# run_analysis.py
+## @ingroup Methods-Aerodynamics-AVL
+#run_analysis.py
 # 
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -13,9 +14,26 @@ from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results
 from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
 from SUAVE.Core import redirect
 
-
+## @ingroup Methods-Aerodynamics-AVL
 def run_analysis(avl_object):
+    """ This calls the AVL executable and runs an analysis
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_object - passed into the  call_avl function  
+        
+    Outputs:
+        results
+
+    Properties Used:
+        N/A
+    """    
+    
     call_avl(avl_object)
     results = read_results(avl_object)
 
@@ -23,7 +41,24 @@ def run_analysis(avl_object):
 
 
 def call_avl(avl_object):
+    """ This function calls the AVL executable and executes analyses
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_object
+
+    Outputs:
+        exit_status
+
+    Properties Used:
+        N/A
+    """    
+    
     import sys
     import time
     import subprocess

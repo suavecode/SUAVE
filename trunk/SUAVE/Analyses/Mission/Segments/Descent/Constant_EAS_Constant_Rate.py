@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Descent
 # Constant_EAS_Constant_Rate.py
 #
 # Created:  Aug 2016, T. MacDonald
@@ -21,9 +22,35 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Descent
 class Constant_EAS_Constant_Rate(Unknown_Throttle):
+    """ Fixed at an Equivalent Airspeed (EAS) the vehicle will descent at a constant rate.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """            
         
         # --------------------------------------------------------------
         #   User inputs

@@ -1,4 +1,5 @@
-# Settings.py
+## @ingroup Methods-Aerodynamics-AVL-Data
+#Settings.py
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -15,10 +16,45 @@ from Cases import Run_Case
 #   Configuration
 # ------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-AVL-Data
 class Settings(Data):
+        """ A class that defines important settings that call the AVL executable in addition to the 
+        format of the result, batch and geometry filenames
+        
+        Assumptions:
+            None
+    
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """    
 
         def __defaults__(self):
-
+                """ Defines naming convention for files created/used by AVL to compute analysus
+        
+                Assumptions:
+                    None
+        
+                Source:
+                    None
+        
+                Inputs:
+                    None
+        
+                Outputs:
+                    None
+        
+                Properties Used:
+                    N/A
+                """  
                 self.run_cases                = Run_Case.Container()
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
@@ -60,18 +96,51 @@ class Settings(Data):
 # ------------------------------------------------------------
 #  AVL Case
 # ------------------------------------------------------------
-
+## @ingroup Components-Wings
 class AVL_Discretization_Settings(Data):
+        """ A class that defines discretization of vortices on the aircraft wing
+        
+        Assumptions:
+            None
+    
+        Source:
+            None
+    
+        Inputs:
+            None
+    
+        Outputs:
+            None
+    
+        Properties Used:
+            N/A
+        """           
         def __defaults__(self):
-                """
+                """ Defines the spacing of vortices on lifting surface in AVL
                 SPACING SCHEMES:
                 	- 'cosine' : ||  |    |      |      |    |  || (bunched at both ends)
                 	- '+sine'  : || |  |   |    |    |     |     | (bunched at start)
                 	- 'equal'  : |   |   |   |   |   |   |   |   | (equally spaced)
                 	- '-sine'  : |     |     |    |    |   |  | || (bunched at end)
-                """
+               
+                Assumptions:
+                    None
+                
+                Source:
+                    None
+                
+                Inputs:
+                    None
+                
+                Outputs:
+                    None
+                
+                Properties Used:
+                    N/A
+                """  
+                self.chordwise_elements        = 5
+                self.chordwise_spacing_scheme  = 'equal'
+                self.spanwise_elements         = 5
+                self.spanwise_spacing_scheme   = 'cosine'
 
-                self.chordwise_elements_per_meter        = 5
-                self.chordwise_spacing_scheme            = 'equal'
-                self.spanwise_elements_per_meter         = 5
-                self.spanwise_spacing_scheme             = 'cosine'
+                

@@ -1,6 +1,7 @@
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_landing_gear.py
 # 
-# Created:  Jun 2015, Carlos
+# Created:  Jun 2015, C. Ilario
 # Modified: Jan 2016, E. Botero
 
 # ----------------------------------------------------------------------        
@@ -13,6 +14,7 @@ from SUAVE.Core import Units
 # Compute the main and nose landing gear noise
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 def noise_landing_gear (D,H,wheels,M,velocity,phi,theta,distance,frequency):
     """ SUAVE.Methods.Noise.Fidelity_One.noise_landing_gear(D,H,wheels,M,velocity,phi,theta,distance,frequency):
             Calculates the Landing gear 1/3 octave band sound pressure level and overall sound pressure level

@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 # wave_drag_volume.py
 # 
 # Created:  Jun 2014, T. Macdonald
@@ -14,7 +15,32 @@ import numpy as np
 #   Wave Drag Volume
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-OpenVSP_Wave_Drag
 def wave_drag_volume(conditions,geometry,flag105,num_slices=20,num_rots=10):
+    """Determine volume wave drag for supersonic speeds using OpenVSP
+
+    Assumptions:
+    None
+
+    Source:
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+
+    Inputs:
+    conditions.
+      freestream.mach_number [-]
+    geometry.
+      reference_area         [m^2]
+      tag                    <string>
+    flag105                  <boolean> determines is Mach = 1.05 is used
+    num_slices               [-] Slices used by OpenVSP (optional - defaults to 20)
+    num_rots                 [-] Rotations used by OpenVSP (optional - defaults to 10)
+
+    Outputs:
+    cd_w_all
+
+    Properties Used:
+    N/A
+    """        
     
     import vsp
 

@@ -1,3 +1,4 @@
+## @ingroup Optimization
 # carpet_plot.py
 #
 # Created : Feb 2016, M. Vegh 
@@ -15,12 +16,37 @@ import matplotlib.pyplot as plt
 #  carpet_plot
 # ----------------------------------------------------------------------
 
-
+## @ingroup Optimization
 def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_index_0=0, sweep_index_1=1): 
-    #takes in an optimization problem and runs a carpet plot of the first 2 variables
-    #sweep_index_0, sweep_index_1 is index of variables you want to run carpet plot (i.e. sweep_index_0=0 means you want to sweep first variable, sweep_index_0 = 4 is the 5th variable)
-    #unpack
+    """ Takes in an optimization problem and runs a carpet plot of the first 2 variables
+        sweep_index_0, sweep_index_1 is index of variables you want to run carpet plot (i.e. sweep_index_0=0 means you want to sweep first variable, sweep_index_0 = 4 is the 5th variable)
     
+        Assumptions:
+        N/A
+    
+        Source:
+        N/A
+    
+        Inputs:
+        problem            [Nexus Class]
+        number_of_points   [int]
+        plot_obj           [int]
+        plot_const         [int]
+        sweep_index_0      [int]
+        sweep_index_1      [int]
+        
+        Outputs:
+        Beautiful Beautiful Plots!
+            Outputs:
+                inputs     [array]
+                objective  [array]
+                constraint [array]
+    
+        Properties Used:
+        N/A
+    """         
+
+    #unpack
     idx0            = sweep_index_0 # local name
     idx1            = sweep_index_1
     opt_prob        = problem.optimization_problem
@@ -82,7 +108,8 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     outputs= Data()
     outputs.inputs         = inputs
     outputs.objective      = obj
-    outputs.constraint_val =constraint_val
+    outputs.constraint_val = constraint_val
+    
     return outputs
     
     

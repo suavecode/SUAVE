@@ -1,7 +1,8 @@
+## @ingroup Methods-Utilities
 # latin_hypercube_sampling.py
 #
 # Created:  Jul 2016, R. Fenrich (outside of SUAVE code)
-# Modified: Mar 2017, T. MacDonald
+# Modified: Apr 2017, T. MacDonald
 
 
 # ----------------------------------------------------------------------
@@ -17,8 +18,31 @@ import numpy as np
 # ----------------------------------------------------------------------
 #   Latin Hypercube Sampling
 # ----------------------------------------------------------------------
+## @ingroup Methods-Utilities
+def latin_hypercube_sampling(num_dimensions,num_samples,bounds=None,criterion='random'):
+    """Provides an array of chosen dimensionality and number of samples taken according
+    to latin hypercube sampling. Bounds can be optionally specified.
 
-def latin_hypercube_sampling(num_dimensions,num_samples,criterion='random'):
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    num_dimensions       [-]
+    num_samples          [-]
+    bounds (optional)    [-]      Default is 0 to 1. Input value should be in the form (with numpy arrays)
+                                  (array([low_bnd_1,low_bnd_2,..]), array([up_bnd_1,up_bnd_2,..]))
+    criterion            <string> Possible values: random and center. Determines if samples are 
+                                  taken at the center of a bucket or randomly from within it.
+                         
+    Outputs:             
+    lhd                  [-]      Array of samples
+
+    Properties Used:
+    N/A
+    """       
     
     n = num_dimensions
     samples = num_samples
@@ -43,6 +67,11 @@ def latin_hypercube_sampling(num_dimensions,num_samples,criterion='random'):
         
     ## Map samples to the standard normal distribution (if needed for future functionality)
     #lhd = norm(loc=0,scale=1).ppf(lhd)
+    
+    if bounds != None:
+        lower_bounds = bounds[0]
+        upper_bounds = bounds[1]
+        lhd = lhd*(upper_bounds-lower_bounds) + lower_bounds
 
     return lhd
 

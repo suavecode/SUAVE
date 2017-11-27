@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Cruise
 # Constant_Dynamic_Pressure_Constant_Altitude_Loiter.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -14,7 +15,30 @@ import numpy as np
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def initialize_conditions(segment,state):
+    """Sets the specified conditions which are given for the segment type.
+
+    Assumptions:
+    Constant dynamic pressure and constant altitude with set loiter time
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude                [meters]
+    segment.time                    [seconds]
+    segment.dynamic_pressure        [pascals]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+    conditions.frames.inertial.time             [seconds]
+
+    Properties Used:
+    N/A
+    """     
     
     # unpack
     alt        = segment.altitude

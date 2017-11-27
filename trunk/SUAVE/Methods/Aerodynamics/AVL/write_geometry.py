@@ -1,4 +1,5 @@
-# write_geometry.py
+## @ingroup Methods-Aerodynamics-AVL
+#write_geometry.py
 # 
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero
@@ -12,9 +13,27 @@ from purge_files import purge_files
 import numpy as np
 from create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
+## @ingroup Methods-Aerodynamics-AVL
+def write_geometry(avl_object):
+    """This function writes the translated aircraft geometry into text file read 
+    by AVL when it is called
 
-def write_geometry(avl_object,vortices_per_meter):
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
 
+    Inputs:
+        avl_object
+
+    Outputs:
+        None
+
+    Properties Used:
+        N/A
+    """    
+    
     # unpack inputs
     aircraft            = avl_object.geometry
     geometry_file       = avl_object.settings.filenames.features
@@ -41,8 +60,31 @@ def write_geometry(avl_object,vortices_per_meter):
     return
 
 
-def make_header_text(avl_object):
-    # Template for header
+def make_header_text(avl_object):  
+    """This function writes the header using the template required for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_object.settings.flow_symmetry.xz_plane                      [-]
+        avl_object.settings.flow_symmetry.xy_parallel                   [-]
+        avl_object.settings.flow_symmetry.z_symmetry_plane              [-]
+        avl_object.geometry.wings['main_wing'].areas.reference          [meters**2]
+        avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic  [meters]
+        avl_object.geometry.wings['main_wing'].spans.projected          [meters]
+        avl_object.geometry.mass_properties.center_of_gravity           [meters]
+        avl_object.geometry.tag                                         [-]
+    
+    Outputs:
+        header_text                                                     [-]
+
+    Properties Used:
+        N/A
+    """      
     header_base = \
 '''{0}
 #Mach
@@ -78,8 +120,25 @@ def make_header_text(avl_object):
     return header_text
 
 
-def make_surface_text(avl_wing,vortices_per_meter):
-    # Template for a surface
+def make_surface_text(avl_wing):
+    """This function writes the surface text using the template required for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+       avl_wing.symmetric
+       avl_wing.tag
+        
+    Outputs:
+        surface_text                                                 
+
+    Properties Used:
+        N/A
+    """       
     ordered_tags = []         
     surface_base = \
         '''
@@ -133,7 +192,24 @@ SURFACE
 
 
 def make_body_text(avl_body):    
-    # Template for a surface
+    """This function writes the body text using the template required for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_body.sections.horizontal
+        avl_body.sections.vertical
+    
+    Outputs:
+        body_text                                                 
+
+    Properties Used:
+        N/A
+    """      
     surface_base = \
 '''
 
@@ -174,7 +250,26 @@ SURFACE
 
 
 def make_wing_section_text(avl_section):
-    # Template for a section
+    """This function writes the wing text using the template required for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+       avl_section.origin             [meters]
+       avl_section.chord              [meters]
+       avl_section.twist              [radians]
+       avl_section.airfoil_coord_file [-] 
+        
+    Outputs:
+        wing_section_text                                                 
+
+    Properties Used:
+        N/A
+    """      
     section_base = \
 '''
 SECTION
@@ -195,18 +290,37 @@ AFILE
     ainc    = avl_section.twist
     airfoil = avl_section.airfoil_coord_file
 
-    section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
+    wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
-        section_text = section_text + airfoil_base.format(airfoil)
+        wing_section_text = wing_section_text + airfoil_base.format(airfoil)
     for cs in avl_section.control_surfaces:
         control_text = make_controls_text(cs)
-        section_text = section_text + control_text
+        wing_section_text = wing_section_text + control_text
 
-    return section_text
+    return wing_section_text
 
     
 def make_body_section_text(avl_body_section):
-    # Template for a section
+    """This function writes the body text using the template required for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+       avl_section.origin             [meters]
+       avl_section.chord              [meters]
+       avl_section.twist              [radians]
+       avl_section.airfoil_coord_file [-] 
+                  
+    Outputs:
+        body_section_text                                                 
+
+    Properties Used:
+        N/A
+    """    
     section_base = \
 '''
 SECTION
@@ -227,18 +341,39 @@ AFILE
     ainc    = avl_body_section.twist
     airfoil = avl_body_section.airfoil_coord_file
 
-    section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
+    body_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
-        section_text = section_text + airfoil_base.format(airfoil)
+        body_section_text = body_section_text + airfoil_base.format(airfoil)
     for cs in avl_body_section.control_surfaces:
         control_text = make_controls_text(cs)
-        section_text = section_text + control_text
+        body_section_text = body_section_text + control_text
 
-    return section_text
+    return body_section_text
 
     
 def make_controls_text(avl_control_surface):
-    # Template for a control surface
+    """This function writes the control surface text using the template required 
+    for the AVL executable to read
+
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        avl_control_surface.tag             [-]
+        avl_control_surface.gain            [-]
+        avl_control_surface.x_hinge         [-]
+        avl_control_surface.hinge_vector    [-]
+        avl_control_surface.sign_duplicate  [-]
+                  
+    Outputs:
+        control_text                                                 
+
+    Properties Used:
+        N/A
+    """    
     control_base = \
 '''CONTROL
 {0}    {1}   {2}   {3}  {4}

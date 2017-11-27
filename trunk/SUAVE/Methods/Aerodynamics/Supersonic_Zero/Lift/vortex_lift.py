@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 # vortex_lift.py
 # 
 # Created:  Jun 2014, T. Macdonald
@@ -14,9 +15,32 @@ import numpy as np
 #   The Function
 # ----------------------------------------------------------------------
 
-
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 def vortex_lift(state,settings,geometry):
-    # Based on http://adg.stanford.edu/aa241/highlift/sstclmax.html
+    """Computes vortex lift
+
+    Assumptions:
+    wing capable of vortex lift
+
+    Source:
+    http://adg.stanford.edu/aa241/highlift/sstclmax.html
+    
+    Inputs:
+    states.conditions.
+      freestream.mach_number              [-]
+      aerodynamics.angle_of_attack        [radians]
+      aerodynamics.lift_coefficient       [-]
+    geometry.wings.*.aspect_ratio         [Unitless]
+    geometry.wings.*.sweeps.quarter_chord [radians]
+
+    Outputs:
+    state.conditions.aerodynamics.
+      lift_breakdown.vortex_lift          [-] CL due to vortex lift
+    wings_lift                            [-] Total CL at this point
+
+    Properties Used:
+    N/A
+    """      
 
     Mc         = state.conditions.freestream.mach_number
     AoA        = state.conditions.aerodynamics.angle_of_attack

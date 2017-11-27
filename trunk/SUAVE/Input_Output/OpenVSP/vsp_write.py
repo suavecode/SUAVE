@@ -1,7 +1,9 @@
+## @ingroup Input_Output-OpenVSP
 # vsp_write.py
 # 
 # Created:  Jul 2016, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Jul 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,7 +19,73 @@ except ImportError:
     pass
 import numpy as np
 
+## @ingroup Input_Output-OpenVSP
 def write(vehicle,tag):
+    """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
+    if they are specified in the vehicle setup file.
+    
+    Assumptions:
+    Vehicle is composed of conventional shape fuselages, wings, and propulsors. Any propulsor
+    that should be created in tagged as 'turbofan'.
+
+    Source:
+    N/A
+
+    Inputs:
+    wings.*.    (* is all keys)
+      origin                                  [m] in all three dimensions
+      spans.projected                         [m]
+      chords.root                             [m]
+      chords.tip                              [m]
+      sweeps.quarter_chord                    [radians]
+      twists.root                             [radians]
+      twists.tip                              [radians]
+      thickness_to_chord                      [-]
+      dihedral                                [radians]
+      tag                                     <string>
+      Segments.*. (optional)
+        twist                                 [radians]
+        percent_span_location                 [-]  .1 is 10%
+        root_chord_percent                    [-]  .1 is 10%
+        dihedral_outboard                     [radians]
+        sweeps.quarter_chord                  [radians]
+        thickness_to_chord                    [-]
+    propulsors.turbofan. (optional)
+      number_of_engines                       [-]
+      engine_length                           [m]
+      nacelle_diameter                        [m]
+      origin                                  [m] in all three dimension, should have as many origins as engines
+      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+    fuselages.fuselage (optional)
+      width                                   [m]
+      lengths.total                           [m]
+      heights.
+        maximum                               [m]
+        at_quarter_length                     [m]
+        at_wing_root_quarter_chord            [m]
+        at_three_quarters_length              [m]
+      effective_diameter                      [m]
+      fineness.nose                           [-] ratio of nose section length to fuselage width
+      fineness.tail                           [-] ratio of tail section length to fuselage width
+      tag                                     <string>
+      OpenVSP_values.  (optional)
+        nose.top.angle                        [degrees]
+        nose.top.strength                     [-] this determines how much the specified angle influences that shape
+        nose.side.angle                       [degrees]
+        nose.side.strength                    [-]
+        nose.TB_Sym                           <boolean> determines if top angle is mirrored on bottom
+        nose.z_pos                            [-] z position of the nose as a percentage of fuselage length (.1 is 10%)
+        tail.top.angle                        [degrees]
+        tail.top.strength                     [-]
+        tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+    
+
+    Outputs:
+    <tag>.vsp3           This is the OpenVSP representation of the aircraft
+
+    Properties Used:
+    N/A
+    """    
     
     # Reset OpenVSP to avoid including a previous vehicle
     try:
@@ -93,9 +161,20 @@ def write(vehicle,tag):
         vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[1],sweep_loc)
         
         # Twists
-        vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
-        vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
-        
+        if n_segments != 0:
+            if wing.Segments[0].percent_span_location == 0.:
+                vsp.SetParmVal( wing_id,'Twist',x_secs[0],wing.Segments[0].twist / Units.deg) # root
+            else:
+                vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
+            if wing.Segments[-1].percent_span_location == 1.:
+                vsp.SetParmVal( wing_id,'Twist',x_secs[-2],wing.Segments[0].twist / Units.deg) # root
+            else:
+                vsp.SetParmVal( wing_id,'Twist',x_secs[-2],tip_twist) # root
+        else:
+            vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
+            vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
+            
+            
         # Figure out if there is an airfoil provided
         
         # Airfoils should be in Lednicer format
@@ -174,15 +253,24 @@ def write(vehicle,tag):
                 adjust = 1
         else:
             adjust = 1
+            
         
         # Loop for the number of segments left over
-        for i_segs in xrange(1,n_segments+1):            
+        for i_segs in xrange(1,n_segments+1):  
+            
+            if (wing.Segments[i_segs-1] == wing.Segments[-1]) and (wing.Segments[-1].percent_span_location == 1.):
+                break
             
             # Unpack
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
             chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
-            twist_i    = wing.Segments[i_segs-1].twist / Units.deg
+            try:
+                twist_i    = wing.Segments[i_segs].twist / Units.deg
+                no_twist_flag = False
+            except:
+                no_twist_flag = True
             sweep_i    = wing.Segments[i_segs-1].sweeps.quarter_chord / Units.deg
+            tc_i       = wing.Segments[i_segs-1].thickness_to_chord
             
             # Calculate the local span
             if i_segs == n_segments:
@@ -205,12 +293,26 @@ def write(vehicle,tag):
             vsp.SetParmVal( wing_id,'Sweep',x_secs[i_segs+adjust],sweep_i)
             vsp.SetParmVal( wing_id,'Sweep_Location',x_secs[i_segs+adjust],sweep_loc)      
             vsp.SetParmVal( wing_id,'Root_Chord',x_secs[i_segs+adjust],chord_i)
-            vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
-            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tip_tc)
+            if not no_twist_flag:
+                vsp.SetParmVal( wing_id,'Twist',x_secs[i_segs+adjust],twist_i)
+            vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[i_segs+adjust],tc_i)
+            
+            if adjust and (i_segs == 1):
+                vsp.Update()
+                vsp.SetParmVal( wing_id,'Twist',x_secs[1],wing.Segments[i_segs-1].twist / Units.deg)
             
             vsp.Update()
        
-        vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+        if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
+            tip_chord = root_chord*wing.Segments[-1].root_chord_percent
+            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],tip_chord)
+            vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
+            # twist is set in the normal loop
+        else:
+            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
+            vsp.SetParmVal( wing_id,'Twist',x_secs[-1-(1-adjust)],tip_twist)
+            # a single trapezoidal wing is assumed to have constant thickness to chord
+        vsp.Update()
         vsp.SetParmVal(wing_id,'CapUMaxOption','EndCap',2.)
         vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
         

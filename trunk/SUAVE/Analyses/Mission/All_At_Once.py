@@ -1,9 +1,8 @@
+## @ingroup Analyses-Mission
 # All_At_Once.py
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
-
-""" Mission.py: Top-level mission class """
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,10 +16,35 @@ from Mission import Mission
 #   Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission
 class All_At_Once(Mission):
-    """ Solves all segments and sub segments at once """
+    """ Solves all segments and sub segments at once
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+            """           
         
         self.tag = 'mission'
         
@@ -48,8 +72,3 @@ class All_At_Once(Mission):
         #   Finalize
         # --------------------------------------------------------------        
         self.process.finalize.sub_segments          = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
-        
-    def finalize(self):
-        pass
-    
-    

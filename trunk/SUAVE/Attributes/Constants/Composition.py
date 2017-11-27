@@ -1,3 +1,4 @@
+## @ingroup Attributes-Constants
 # Composition.py
 # 
 # Created: Mar 2014,     J. Sinsay
@@ -18,14 +19,55 @@ from warnings import warn
 # ----------------------------------------------------------------------
 #  Composition Constant Class
 # ----------------------------------------------------------------------
-
+## @ingroup Attributes-Constants
 class Composition(Constant):
-    """ Composition base class for gas mixtures """
+    """A container to store chemical compositions.
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """
     def __defaults__(self):
+        """This sets the default values (just a pass here).
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """            
         pass
     
     def __check__(self):
-        
+        """Checks that the composition values sum to 1.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        self.values       [-]
+        self.Other        [-] (optional)
+        """            
         # check that composition sums to 1.0
         total = 0.0
         for v in self.values():

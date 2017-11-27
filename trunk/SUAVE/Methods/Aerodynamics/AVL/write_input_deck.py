@@ -1,3 +1,4 @@
+## @ingroup Methods-Aerodynamics-AVL
 # write_input_deck.py
 # 
 # Created:  Oct 2014, T. Momose
@@ -10,9 +11,26 @@
 
 from purge_files import purge_files
 
-
+## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object):
+    """ This fucntions writes the execution steps used in the AVL call
 
+    Assumptions:
+        None
+        
+    Source:
+        Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
+
+    Inputs:
+        avl_object
+
+    Outputs:
+        None
+ 
+    Properties Used:
+        N/A
+    """    
+    
     open_runs = \
 '''CASE {}
 '''
@@ -50,7 +68,25 @@ def write_input_deck(avl_object):
 
 
 def make_case_command(avl_object,case):
+    """ Makes commands for case execution in AVK
 
+    Assumptions:
+        None
+        
+    Source:
+        None
+
+    Inputs:
+        case.index
+        case.tag
+        case.result_filename
+
+    Outputs:
+        case_command
+ 
+    Properties Used:
+        N/A
+    """  
     base_case_command = \
 '''{0}
 x

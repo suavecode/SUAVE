@@ -1,3 +1,4 @@
+## @ingroup Components-Energy-Networks
 # Battery_Propeller.py
 # 
 # Created:  Jul 2015, E. Botero
@@ -19,8 +20,40 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
+
+## @ingroup Components-Energy-Networks
 class Battery_Propeller(Propulsor):
-    def __defaults__(self): 
+    """ This is a simple network with a battery powering a propeller through
+        an electric motor
+        
+        This network adds 2 extra unknowns to the mission. The first is
+        a voltage, to calculate the thevenin voltage drop in the pack.
+        The second is torque matching between motor and propeller.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """  
+    def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """             
         self.motor             = None
         self.propeller         = None
         self.esc               = None
@@ -36,6 +69,33 @@ class Battery_Propeller(Propulsor):
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
+    
+            Assumptions:
+            Caps the throttle at 110% and linearly interpolates thrust off that
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+            conditions.propulsion:
+                rpm                  [radians/sec]
+                current              [amps]
+                battery_draw         [watts]
+                battery_energy       [joules]
+                voltage_open_circuit [volts]
+                voltage_under_load   [volts]
+                motor_torque         [N-M]
+                propeller_torque     [N-M]
+    
+            Properties Used:
+            Defaulted values
+        """          
     
         # unpack
         conditions = state.conditions
@@ -124,7 +184,25 @@ class Battery_Propeller(Propulsor):
     
     
     def unpack_unknowns(self,segment,state):
-        """"""        
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+    
+            Properties Used:
+            N/A
+        """                  
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
@@ -133,7 +211,27 @@ class Battery_Propeller(Propulsor):
         return
     
     def residuals(self,segment,state):
-        """"""        
+        """ This packs the residuals to be send to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque                          [N-m]
+                propeller_torque                      [N-m]
+                voltage_under_load                    [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """        
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         

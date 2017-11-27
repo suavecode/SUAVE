@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Single_Point
 # Set_Speed_Set_Altitude.py
 #
 # Created:  Mar 2017, T. MacDonald
@@ -25,9 +26,36 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Single_Point
 class Set_Speed_Set_Altitude(Aerodynamic):
+    """ This is a segment that is solved using a single point. A snapshot in time.
+        We fix the speed and altitude. Throttle is solved from those.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """        
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """           
         
         # --------------------------------------------------------------
         #   User inputs

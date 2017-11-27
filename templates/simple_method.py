@@ -1,3 +1,4 @@
+## @ingroup templates
 # simple_method.py
 # 
 # Created:  Jan 2015, J. Dawson
@@ -29,25 +30,29 @@ import scipy as sp
 # ----------------------------------------------------------------------
 #  Simple Method
 # ----------------------------------------------------------------------
-
+## @ingroup templates
 def simple_method(input1,input2=None):
-    """ SUAVE.Methods.SimpleMethod(input1,input2=None)
-        does something useful
-        
-        Inputs:
-            input1 - description [units]
-            input2 - description [units]
-            
-        Outputs:
-            output1 - description
-            output2 - description
-            >> try to minimize outputs
-            >> pack up outputs into Data() if needed
-        
-        Assumptions:
-            if needed
-        
-    """
+    """<Description>
+
+    Assumptions:
+    <any assumptions>
+
+    Source:
+    <source>
+
+    Inputs:
+    <input1> <units>
+    <input2> <units>
+    ..
+
+    Outputs:
+    <output1> <units>
+    <output2> <units>
+    ..
+
+    Properties Used:
+    N/A
+    """   
     
     # unpack inputs
     var1 = input1.var1
@@ -71,23 +76,29 @@ def simple_method(input1,input2=None):
 #   Helper Functions
 # ----------------------------------------------------------------------
 # these will not be available in the SUAVE namespace
-
+## @ingroup templates
 def helper_function(input1,inputs2=None):
-    """ conditions data for some useful purpose
-        
-        Inputs:
-            input1 - description [units]
-            input2 - description [units]
-            
-        Outpus:
-            output1 - description
-            output2 - description
-            >> try to minimize outputs
-            >> pack up outputs into Data() if needed
-        
-        Assumptions:
-            if needed
-    """
+    """<Description>
+
+    Assumptions:
+    <any assumptions>
+
+    Source:
+    <source>
+
+    Inputs:
+    <input1> <units>
+    <input2> <units>
+    ..
+
+    Outputs:
+    <output1> <units>
+    <output2> <units>
+    ..
+
+    Properties Used:
+    N/A
+    """   
     
     # unpack inputs
     var1 = input1.var1

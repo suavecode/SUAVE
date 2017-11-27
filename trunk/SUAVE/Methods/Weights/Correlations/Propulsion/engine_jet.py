@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Propulsion
 # engine_jet.py
 # 
 # Created:  Jan 2014, A. Wendorff
@@ -10,27 +11,30 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container
-)
 
 # ----------------------------------------------------------------------
 #   Jet Engine
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Propulsion
 def engine_jet(thrust_sls):
-    """ weight = SUAVE.Methods.Weights.Correlations.Propulsion.engine_jet(thrust_sls)
-        Calculate the weight of the dry engine  
+    """ Calculate the weight of the dry engine  
     
-        Inputs:
-                thrust_sls - sea level static thrust of a single engine [Newtons]
-        
-        Outputs:
-                weight - weight of the dry engine [kilograms]
+    Assumptions:
+            calculated engine weight from a correlation of engines
+    
+    Source: 
+            N/A
             
-        Assumptions:
-                calculated engine weight from a correlation of engines 
-    """    
+    Inputs:
+            thrust_sls - sea level static thrust of a single engine [Newtons]
+    
+    Outputs:
+            weight - weight of the dry engine                       [kilograms]
+        
+    Properties Used:
+            N/A
+    """     
     # setup
     thrust_sls_en = thrust_sls / Units.force_pound # Convert N to lbs force  
     

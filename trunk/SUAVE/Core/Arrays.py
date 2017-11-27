@@ -1,3 +1,4 @@
+## @ingroup Core
 # Arrays.py
 #
 # Created:  Aug 2015, T. Lukacyzk
@@ -16,16 +17,67 @@ import numpy as np
 array_type  = np.ndarray
 matrix_type = np.matrixlib.defmatrix.matrix
 
-
+## @ingroup Core
 def atleast_2d_col(A):
+    """Makes a 2D array in column format
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    A      [1-D Array]
+
+    Outputs:
+    A      [2-D Array]
+
+    Properties Used:
+    N/A
+    """       
     return atleast_2d(A,'col')
 
+## @ingroup Core
 def atleast_2d_row(A):
+    """Makes a 2D array in row format
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    A      [1-D Array]
+
+    Outputs:
+    A      [2-D Array]
+
+    Properties Used:
+    N/A
+    """       
     return atleast_2d(A,'row')
 
+## @ingroup Core
 def atleast_2d(A,oned_as='row'):
-    ''' ensures A is an array and at least of rank 2
-    '''
+    """ensures A is an array and at least of rank 2
+
+    Assumptions:
+    Defaults as row
+
+    Source:
+    N/A
+
+    Inputs:
+    A      [1-D Array]
+
+    Outputs:
+    A      [2-D Array]
+
+    Properties Used:
+    N/A
+    """       
     
     # not an array yet
     if not isinstance(A,(array_type,matrix_type)):

@@ -1,5 +1,6 @@
-# AVL/__init__.py
-#
+## @defgroup Methods-Aerodynamics-AVL AVL
+# Functions to AVL calculations
+# @ingroup Methods-Aerodynamics
 
 """ SUAVE AVL Interface Package Setup
 """
@@ -14,6 +15,5 @@ from translate_data       import translate_conditions_to_cases, translate_result
 from write_geometry       import write_geometry
 from write_input_deck     import write_input_deck
 from write_run_cases      import write_run_cases
-from untrimmed            import untrimmed
 
 import Data
