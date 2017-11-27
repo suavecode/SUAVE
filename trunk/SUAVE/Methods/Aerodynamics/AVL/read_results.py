@@ -38,10 +38,12 @@ def read_results(avl_object):
         case = avl_object.current_status.cases[case_name]
         num_ctrl = case.stability_and_control.control_deflections.size
         with open(case.result_filename,'r') as res_file:
-            case_res = Data()
-            case_res.tag = case.tag
-            lines   = res_file.readlines()
             
+            case_res = Data()           
+            case_res.tag = case.tag
+ 
+            lines   = res_file.readlines()
+                  
             case_res.aerodynamics.Sref = float(lines[8][10:16].strip())
             case_res.aerodynamics.Cref = float(lines[8][31:37].strip())
             case_res.aerodynamics.Bref = float(lines[8][52:58].strip())

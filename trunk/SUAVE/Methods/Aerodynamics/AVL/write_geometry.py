@@ -14,7 +14,7 @@ import numpy as np
 from create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_geometry(avl_object):
+def write_geometry(avl_object,vortices_per_meter):
     """This function writes the translated aircraft geometry into text file read 
     by AVL when it is called
 
@@ -120,7 +120,7 @@ def make_header_text(avl_object):
     return header_text
 
 
-def make_surface_text(avl_wing):
+def make_surface_text(avl_wing,vortices_per_meter):
     """This function writes the surface text using the template required for the AVL executable to read
 
     Assumptions:
