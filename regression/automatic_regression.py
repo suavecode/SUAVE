@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 #
 # For more information, see ../templates/example_test_script.py
 
-
 # ----------------------------------------------------------------------
 #   The Modules to Test
 # ----------------------------------------------------------------------
@@ -64,6 +63,8 @@ modules = [
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/sizing_loop/sizing_loop.py',
+    'scripts/lifting_line/lifting_line.py',
+    'scripts/sweeps/test_sweeps.py',
 ]
 
 

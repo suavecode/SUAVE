@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Analyses import Analysis, Results
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------
@@ -63,7 +63,7 @@ class Sizing(Analysis):
             N/A                
         """
         
-        return Results()
+        return Data()
     
     __call__ = evaluate
         
