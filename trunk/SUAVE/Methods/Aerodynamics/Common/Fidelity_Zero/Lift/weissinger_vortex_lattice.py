@@ -93,12 +93,14 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             segment_twist = np.zeros(n_segments)
             segment_sweep = np.zeros(n_segments)
             segment_span = np.zeros(n_segments)
+            section_stations = np.zeros(n_segments)
             
             # obtain chord and twist at the beginning/end of each segment
             for i_seg in xrange(n_segments):                
                 segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
                 segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
                 segment_sweep[i_seg] = wing.Segments[segment_keys[i_seg]].sweeps.quarter_chord
+                section_stations[i_seg] = wing.Segments[segment_keys[i_seg]].percent_span_location*span
                 if i_seg == 0:
                     segment_span[i_seg] = 0
                 else:
@@ -106,7 +108,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             
             # shift spanwise vortices onto section breaks 
             for i_seg in xrange(n_segments):
-                idx =  (np.abs(y_coordinates-segment_span[i_seg])).argmin()
+                idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
                 y_coordinates[idx] = segment_span[i_seg]
             
             # define y coordinates of horseshoe vortices      
