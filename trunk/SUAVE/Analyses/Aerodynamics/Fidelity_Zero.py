@@ -77,7 +77,7 @@ class Fidelity_Zero(Markup):
         settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
-        settings.number_panels_spanwise  = 5
+        settings.number_panels_spanwise  = 40
         settings.number_panels_chordwise = 1
         
         

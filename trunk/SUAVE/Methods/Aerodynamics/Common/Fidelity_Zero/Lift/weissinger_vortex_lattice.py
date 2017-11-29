@@ -125,7 +125,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                     twist_distri[idx] =  segment_twist[i_seg] + ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
                     section_length[idx] =  segment_chord[i_seg] + ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
                     if idx == 0:
-                        continue
+                        pass
                     else: 
                         i_seg += 1
                 else:
@@ -137,7 +137,14 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 x[idx] = (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)*np.tan(segment_sweep[i_seg]) + 0.75*section_length[idx]   # x coordinate of control points on panel  
                 y[idx] = (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)                                                           # y coordinate of control points on panel 
                     
-            RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                                                  # twist distribution along wing 
+                                                                            # twist distribution along wing 
+            x  = np.atleast_2d(x)
+            y  = np.atleast_2d(y)
+            xa = np.atleast_2d(xa)
+            ya = np.atleast_2d(xb)
+            yb = np.atleast_2d(yb)
+            
+            RHS  = np.atleast_2d(np.sin(twist_distri+aoa))  
    
         else:   # no segments defined on wing     
             i              = np.arange(0,n)
