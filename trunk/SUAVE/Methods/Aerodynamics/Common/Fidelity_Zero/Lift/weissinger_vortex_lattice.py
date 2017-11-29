@@ -80,18 +80,78 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
 
     if orientation == False :
 
-        # discretizing the wing sections into panels            
-        i              = np.arange(0,n)
-        section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
-        twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
-        
-        ya = np.atleast_2d((i)*deltax)
-        yb = np.atleast_2d((i+1)*deltax)
-        xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*section_length)
-        x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*section_length)
-        y  = np.atleast_2d(((i+1)*deltax-deltax/2))      
+        # Determine if wing segments are defined  
+        segment_keys = wing.Segments.keys()
+        n_segments   = len(segment_keys)
+        # If spanwise stations are setup
+        if n_segments>0:
+            # discretizing the wing sections into panels
+            i              = np.arange(0,n)
+            j              = np.arange(0,n+1)
+            y_coordinates = (j)*deltax             
+            segment_chord = np.zeros(n_segments)
+            segment_twist = np.zeros(n_segments)
+            segment_sweep = np.zeros(n_segments)
+            segment_span = np.zeros(n_segments)
+            
+            # obtain chord and twist at the beginning/end of each segment
+            for i_seg in xrange(n_segments):                
+                segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
+                segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
+                segment_sweep[i_seg] = wing.Segments[segment_keys[i_seg]].sweeps.quarter_chord
+                if i_seg == 0:
+                    segment_span[i_seg] = 0
+                else:
+                    segment_span[i_seg] = wing.Segments[segment_keys[i_seg]].percent_span_location*span - wing.Segments[segment_keys[i_seg-1]].percent_span_location*span
+            
+            # shift spanwise vortices onto section breaks 
+            for i_seg in xrange(n_segments):
+                idx =  (np.abs(y_coordinates-segment_span[i_seg])).argmin()
+                y_coordinates[idx] = segment_span[i_seg]
+            
+            # define y coordinates of horseshoe vortices      
+            ya = np.atleast_2d(y_coordinates[i])                                                          # y coordinate of start of horseshoe vortex on panel
+            yb = np.atleast_2d(y_coordinates[i+1])                                                        # y coordinate of end horseshoe vortex on panel
+            xa =  np.zeros(n)
+            x  = np.zeros(n)
+            y  =  np.zeros(n)
+            twist_distri =  np.zeros(n)
+            section_length =  np.zeros(n)
+            
+            # define coordinates of horseshoe vortices and control points
+            i_seg = 0;
+            for idx in xrange(n):
+                if  y_coordinates[idx] == wing.Segments[segment_keys[i_seg]].percent_span_location*span: 
+                    twist_distri[idx] = segment_twist[i_seg] - ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_twist[i_seg] - segment_twist[i_seg+1])/segment_span[i_seg+1])     
+                    section_length[idx] =  section_length[idx] =  segment_chord[i_seg] - ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_chord[i_seg] - segment_chord[i_seg+1])/segment_span[i_seg+1])
+                    if idx == 0:
+                        pass
+                    else: 
+                        i_seg += 1
+                else:
+                    twist_distri[idx]   =  segment_twist[i_seg] - ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_twist[i_seg] - segment_twist[i_seg+1])/segment_span[i_seg+1])     
+                    section_length[idx] =  segment_chord[i_seg] - ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_chord[i_seg] - segment_chord[i_seg+1])/segment_span[i_seg+1])
+                    
+                    
+                xa[idx]= (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)*np.tan(segment_sweep[i_seg]) + 0.25*section_length[idx]   # x coordinate of horseshoe vortex on panel        
+                x[idx] = (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)*np.tan(segment_sweep[i_seg]) + 0.75*section_length[idx]  # x coordinate of control points on panel  
+                y[idx] = (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)                                                      # y coordinate of control points on panel 
+                    
+            RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                                             # twist distribution along wing 
+   
+        else:   # no segments defined on wing     
+            i              = np.arange(0,n)
+            section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+            twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
+            
+            ya = np.atleast_2d((i)*deltax)                                                  # y coordinate of start of horseshoe vortex on panel
+            yb = np.atleast_2d((i+1)*deltax)                                                # y coordinate of end horseshoe vortex on panel
+            xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*section_length) # x coordinate of horseshoe vortex on panel
+            x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*section_length) # x coordinate of control points on panel
+            y  = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
+                    
+            RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                  # twist distribution along wing 
                 
-        RHS  = np.atleast_2d(np.sin(twist_distri+aoa))
         
         A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
             -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
