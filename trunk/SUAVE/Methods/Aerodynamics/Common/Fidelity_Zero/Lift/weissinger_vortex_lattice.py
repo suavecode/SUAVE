@@ -64,7 +64,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     orientation = wing.vertical
 
     n  = configuration.number_panels_spanwise
-
+    #n = 40
     # conditions
     aoa = conditions.aerodynamics.angle_of_attack
     
@@ -109,7 +109,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             # shift spanwise vortices onto section breaks 
             for i_seg in xrange(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = segment_span[i_seg]
+                y_coordinates[idx] = section_stations[i_seg]
             
             # define y coordinates of horseshoe vortices      
             ya = np.atleast_2d(y_coordinates[i])                                                          # y coordinate of start of horseshoe vortex on panel
@@ -124,8 +124,8 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             i_seg = 0;
             for idx in xrange(n):
                 if  y_coordinates[idx] == wing.Segments[segment_keys[i_seg]].percent_span_location*span: 
-                    twist_distri[idx]   =  segment_twist[i_seg] + ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
-                    section_length[idx] =  segment_chord[i_seg] + ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
+                    twist_distri[idx]   =  segment_twist[i_seg] #+ ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
+                    section_length[idx] =  segment_chord[i_seg] #+ ((ya[0][idx] + (yb[0][idx]-ya[0][idx])/2)*(segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
                     if idx == 0:
                         pass
                     else: 
