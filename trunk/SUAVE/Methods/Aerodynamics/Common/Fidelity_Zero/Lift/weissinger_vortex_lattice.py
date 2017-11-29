@@ -138,7 +138,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 y[idx] = (yb[0][idx] - (yb[0][idx]-ya[0][idx])/2)                                                           # y coordinate of control points on panel 
                     
                                                                             # twist distribution along wing 
-            ya = np.atleast_2d(xb)
+            ya = np.atleast_2d(ya)
             yb = np.atleast_2d(yb)
             xa = np.atleast_2d(xa)
             x  = np.atleast_2d(x)
