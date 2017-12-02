@@ -64,66 +64,7 @@ def parasite_drag_wing(state,settings,geometry):
     
     wing = geometry
     wing_parasite_drag = 0.0
-    #if len(wing.Segments.keys())>0:
-        #symm                 = wing.symmetric
-        #semispan             = wing.spans.projected*0.5 * (2 - symm)
-        #root_chord           = wing.chords.root
-        #segment_percent_span = 0;   
-        #num_segments           = len(wing.Segments.keys())      
-        
-        #for i_segs in xrange(num_segments): 
-            #if i_segs == num_segments-1:
-                #continue 
-            #else:             
-                #t_c_w        = wing.thickness_to_chord            
-                #span_w     = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )
-                #chords_root          = root_chord*wing.Segments[i_segs].root_chord_percent
-                #chords_tip           = root_chord*wing.Segments[i_segs+1].root_chord_percent
-                #taper = chords_root/chords_root         
-                #mac_w         = chords_root * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper  ))     
-                #sweep_w   = wing.Segments[i_segs].sweeps.quarter_chord
-                #Sref      = span_w  *(chords_root+chords_tip)*0.5
-                #arw_w          = (span_w)**2/Sref    
-                #xtu          = wing.transition_x_upper
-                #xtl          = wing.transition_x_lower            
-               
-                #if i_segs == 0: 
-                    #S_exposed_w  = Sref*2.0*0.8 
-                    #Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
-                #else: 
-                    #S_exposed_w  = Sref*2.0 
-                    #Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
-                    
-                #wing.areas.wetted += Swet        
-                
-                ## conditions
-                #Mc  = freestream.mach_number
-                #Tc  = freestream.temperature    
-                #re  = freestream.reynolds_number
-            
-                ## reynolds number
-                #Re_w = re*mac_w  
-                
-                ## skin friction  coefficient, upper
-                #cf_w_u, k_comp_u, k_reyn_u = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtu)
-                
-                ## skin friction  coefficient, lower
-                #cf_w_l, k_comp_l, k_reyn_l = compressible_mixed_flat_plate(Re_w,Mc,Tc,xtl)    
-            
-                ## correction for airfoils
-                #cos_sweep = np.cos(sweep_w)
-                #cos2      = cos_sweep*cos_sweep
-                
-                #k_w = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc*Mc * cos2) )  \
-                    #+ ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
-                    #/ (2.*(1.-(Mc*cos_sweep)**2.))                       
-            
-                ## find the final result
-                #wing_parasite_drag += k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
-                    
-   
-   
-    #else:       
+       
     Sref = wing.areas.reference
     
     # wing

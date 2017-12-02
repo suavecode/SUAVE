@@ -133,6 +133,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 else: 
                     twist_distri[idx]   =  segment_twist[i_seg-1] + ((yb[0][idx] - deltax[idx]/2 - segment_span[i_seg-1])*(segment_twist[i_seg] - segment_twist[i_seg-1])/segment_span[i_seg])     
                     section_length[idx] =  segment_chord[i_seg-1] + ((yb[0][idx] - deltax[idx]/2 - segment_span[i_seg-1])*(segment_chord[i_seg] - segment_chord[i_seg-1])/segment_span[i_seg])
+  
                 xa[idx]= (yb[0][idx] -  deltax[idx]/2)*np.tan(segment_sweep[i_seg-1]) + 0.25*section_length[idx]   # x coordinate of horseshoe vortex on panel        
                 x[idx] = (yb[0][idx] -  deltax[idx]/2)*np.tan(segment_sweep[i_seg-1]) + 0.75*section_length[idx]   # x coordinate of control points on panel  
                 y[idx] = (yb[0][idx] -  deltax[idx]/2)                                                           # y coordinate of control points on panel 
