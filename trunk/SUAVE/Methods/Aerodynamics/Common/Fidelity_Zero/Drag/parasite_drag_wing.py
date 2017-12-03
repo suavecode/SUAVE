@@ -103,7 +103,7 @@ def parasite_drag_wing(state,settings,geometry):
                 xtl           = wing.transition_x_lower
                 
                 if i_segs == 0: 
-                    S_exposed_seg  = Sref_seg*2.0*0.5 # currently assuming half of base segment is exposed 
+                    S_exposed_seg  = Sref_seg*2.0*0.6 # currently assuming half of base segment is exposed 
                     if wing.thickness_to_chord < 0.05:
                         Swet_seg = 2.003* S_exposed_seg
                     else:
@@ -173,6 +173,7 @@ def parasite_drag_wing(state,settings,geometry):
     
     state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
 
+    print wing_parasite_drag[0]
     return wing_parasite_drag
 
 
@@ -204,4 +205,4 @@ def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     wing_parasite_drag = k_w * cf_w_u * Swet / Sref /2. + k_w * cf_w_l * Swet / Sref /2.
 
 
-    return parasitic_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_reyn_l
+    return wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_reyn_l
