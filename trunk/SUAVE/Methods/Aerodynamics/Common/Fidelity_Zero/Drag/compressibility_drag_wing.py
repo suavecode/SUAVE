@@ -74,6 +74,7 @@ def compressibility_drag_wing(state,settings,geometry):
         cl_w = wing_lifts
     else:
         cl_w = 0
+      
         
     cos_sweep = np.cos(sweep_w)
 
@@ -118,3 +119,4 @@ def compressibility_drag_wing(state,settings,geometry):
     drag_breakdown.compressible[wing.tag] = wing_results
     
     return total_compressibility_drag
+
