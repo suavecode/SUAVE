@@ -173,7 +173,6 @@ def parasite_drag_wing(state,settings,geometry):
     
     state.conditions.aerodynamics.drag_breakdown.parasite[wing.tag] = wing_result
 
-    print wing_parasite_drag[0]
     return wing_parasite_drag
 
 
