@@ -125,7 +125,7 @@ def parasite_drag_wing(state,settings,geometry):
                 total_segment_cf_w_u         += segment_cf_w_u*Sref_seg 
                 total_segment_cf_w_l         += segment_cf_w_l*Sref_seg 
                 total_segment_k_comp_u       += segment_k_comp_u*Sref_seg 
-                total_k_reyn_l               += k_reyn_l*Sref 
+                total_k_reyn_l               += k_reyn_l*Sref_seg  
                 
             Swet              = total_wetted_area     
             wing.areas.wetted = total_wetted_area 
