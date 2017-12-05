@@ -65,45 +65,49 @@ def compressibility_drag_wing(state,settings,geometry):
     # start result
     total_compressibility_drag = 0.0
         
-    # unpack wing
-    t_c_w   = wing.thickness_to_chord
-    sweep_w = wing.sweeps.quarter_chord
-    
     # Currently uses vortex lattice model on all wings
     if wing.tag=='main_wing':
         cl_w = wing_lifts
     else:
         cl_w = 0
       
-        
-    cos_sweep = np.cos(sweep_w)
+    if len(wing.Segments.keys())>0:
+        symm                 = wing.symmetric
+        semispan             = wing.spans.projected*0.5 * (2 - symm)
+        root_chord           = wing.chords.root
+        num_segments         = len(wing.Segments.keys())     
 
-    # get effective Cl and sweep
-    tc = t_c_w /(cos_sweep)
-    cl = cl_w / (cos_sweep*cos_sweep)
+        # include running sum of compressibility drag functions
 
-    # compressibility drag based on regressed fits from AA241
-    mcc_cos_ws = 0.922321524499352       \
-               - 1.153885166170620*tc    \
-               - 0.304541067183461*cl    \
-               + 0.332881324404729*tc*tc \
-               + 0.467317361111105*tc*cl \
-               + 0.087490431201549*cl*cl
+        for i_segs in xrange(num_segments): 
+
+            if i_segs == num_segments-1:
+                continue 
+            else:             
+                t_c_seg       = wing.thickness_to_chord            
+                span_seg      = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )
+                chords_root   = root_chord*wing.Segments[i_segs].root_chord_percent
+                chords_tip    = root_chord*wing.Segments[i_segs+1].root_chord_percent
+                taper         = chords_root/chords_root         
+                mac_seg       = chords_root * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))     
+                sweep_seg     = wing.Segments[i_segs].sweeps.quarter_chord
+                Sref_seg      = span_seg *(chords_root+chords_tip)*0.5
+
+            cl_seg = compute_segment_c_l()  # CORRECT 
+            cd_c_seg, mcc_seg, Mdiv_seg = compute_compressibility_drag(mach,sweep_seg,t_c_seg,cl_seg) 
+            
+        cd_c    =
+        tc      =
+        sweep_w =
+        mcc     =
+        Mdiv    =
+    else:
+        # unpack wing
+        t_c_w   = wing.thickness_to_chord
+        sweep_w = wing.sweeps.quarter_chord    
+        cd_c, mcc, Mdiv = compute_compressibility_drag(mach,sweep_w,t_c_w,cl_w)
         
-    # crest-critical mach number, corrected for wing sweep
-    mcc = mcc_cos_ws / cos_sweep
     
-    # divergence mach number
-    MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )
-    
-    # divergence ratio
-    mo_mc = mach/mcc
-    
-    # compressibility correlation, Shevell
-    dcdc_cos3g = 0.0019*mo_mc**14.641
-    
-    # compressibility drag
-    cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep
     
     # increment
     #total_compressibility_drag += cd_c
@@ -120,3 +124,112 @@ def compressibility_drag_wing(state,settings,geometry):
     
     return total_compressibility_drag
 
+def compute_segment_c_l():
+    
+    # CODE
+    
+    return cl_seg
+
+
+def compute_compressibility_drag(mach,sweep_w,t_c_w,cl_w):
+    cos_sweep = np.cos(sweep_w)
+
+    # get effective Cl and sweep
+    tc = t_c_w /(cos_sweep)
+    cl = cl_w / (cos_sweep*cos_sweep)
+
+    # compressibility drag based on regressed fits from AA241
+    mcc_cos_ws = 0.922321524499352       \
+        - 1.153885166170620*tc    \
+        - 0.304541067183461*cl    \
+        + 0.332881324404729*tc*tc \
+        + 0.467317361111105*tc*cl \
+        + 0.087490431201549*cl*cl
+
+    # crest-critical mach number, corrected for wing sweep
+    mcc = mcc_cos_ws / cos_sweep
+
+    # divergence mach number
+    MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )
+
+    # divergence ratio
+    mo_mc = mach/mcc
+
+    # compressibility correlation, Shevell
+    dcdc_cos3g = 0.0019*mo_mc**14.641
+
+    # compressibility drag
+    cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep    
+    
+    return cd_c, mcc, Mdiv
+#conditions    = state.conditions
+#configuration = settings    # unused
+
+#wing = geometry
+#if wing.tag == 'main_wing':
+    #wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
+#elif wing.vertical:
+    #wing_lifts = 0
+#else:
+    #wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
+    
+#mach           = conditions.freestream.mach_number
+#drag_breakdown = conditions.aerodynamics.drag_breakdown
+
+## start result
+#total_compressibility_drag = 0.0
+    
+## unpack wing
+#t_c_w   = wing.thickness_to_chord
+#sweep_w = wing.sweeps.quarter_chord
+
+## Currently uses vortex lattice model on all wings
+#if wing.tag=='main_wing':
+    #cl_w = wing_lifts
+#else:
+    #cl_w = 0
+  
+    
+#cos_sweep = np.cos(sweep_w)
+
+## get effective Cl and sweep
+#tc = t_c_w /(cos_sweep)
+#cl = cl_w / (cos_sweep*cos_sweep)
+
+## compressibility drag based on regressed fits from AA241
+#mcc_cos_ws = 0.922321524499352       \
+           #- 1.153885166170620*tc    \
+           #- 0.304541067183461*cl    \
+           #+ 0.332881324404729*tc*tc \
+           #+ 0.467317361111105*tc*cl \
+           #+ 0.087490431201549*cl*cl
+    
+## crest-critical mach number, corrected for wing sweep
+#mcc = mcc_cos_ws / cos_sweep
+
+## divergence mach number
+#MDiv = mcc * ( 1.02 + 0.08*(1 - cos_sweep) )
+
+## divergence ratio
+#mo_mc = mach/mcc
+
+## compressibility correlation, Shevell
+#dcdc_cos3g = 0.0019*mo_mc**14.641
+
+## compressibility drag
+#cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep
+
+## increment
+##total_compressibility_drag += cd_c
+
+## dump data to conditions
+#wing_results = Data(
+    #compressibility_drag      = cd_c    ,
+    #thickness_to_chord        = tc      , 
+    #wing_sweep                = sweep_w , 
+    #crest_critical            = mcc     ,
+    #divergence_mach           = MDiv    ,
+#)
+#drag_breakdown.compressible[wing.tag] = wing_results
+
+#return total_compressibility_drag
