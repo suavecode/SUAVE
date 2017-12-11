@@ -220,13 +220,39 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
     else:
         # Unpack wing
         t_c_w   = wing.thickness_to_chord
-        sweep_w = wing.sweeps.quarter_chord
+        if len(wing.Segments.keys())>0: # if wing has segments
+            symm           = wing.symmetric
+            semispan       = wing.spans.projected*0.5 * (2 - symm)
+            root_chord     = wing.chords.root
+            num_segments   = len(wing.Segments.keys())     
+            
+            weighted_sweep = 0
+            Sref           = 0
+            for i_segs in xrange(num_segments): 
+                if i_segs == num_segments-1:
+                    continue 
+                else:                    
+                    span_seg        = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )
+                    chord_root      = root_chord*wing.Segments[i_segs].root_chord_percent
+                    chord_tip       = root_chord*wing.Segments[i_segs+1].root_chord_percent
+                    Sref_seg        = span_seg *(chord_root+chord_tip)*0.5
+                    weighted_sweep += wing.Segments[i_segs].sweeps.quarter_chord*Sref_seg 
+                    Sref           += Sref_seg       
+            sweep_w = weighted_sweep/Sref
+        
+  
+        else: # if wing does not have segments          
+            sweep_w = wing.sweeps.quarter_chord
 
         # Check if this is the main wing, other wings are assumed to have no lift
         if k == 'main_wing':
             cl_w = cl
         else:
             cl_w = 0
+            
+            
+            
+            
 
         # Get effective Cl and sweep
         cos_sweep = np.cos(sweep_w)

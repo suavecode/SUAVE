@@ -68,7 +68,6 @@ def compressibility_drag_wing(state,settings,geometry):
     # unpack wing
     t_c_w   = wing.thickness_to_chord
     
-    
     if len(wing.Segments.keys())>0: # if wing has segments
         symm           = wing.symmetric
         semispan       = wing.spans.projected*0.5 * (2 - symm)
