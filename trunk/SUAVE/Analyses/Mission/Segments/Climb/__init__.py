@@ -16,4 +16,5 @@ from Unknown_Throttle import Unknown_Throttle
 from Constant_Speed_Constant_Angle import   Constant_Speed_Constant_Angle
 from Constant_EAS_Constant_Rate import Constant_EAS_Constant_Rate
 from Constant_Dynamic_Pressure_Constant_Angle import Constant_Dynamic_Pressure_Constant_Angle
+from Constant_Throttle_Constant_Angle import Constant_Throttle_Constant_Angle
 from Optimized import Optimized
