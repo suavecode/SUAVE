@@ -98,29 +98,34 @@ def parasite_drag_wing(state,settings,geometry):
                 xtu       = wing.transition_x_upper
                 xtl       = wing.transition_x_lower      
                 
-                if i_segs == 0:
+                if i_segs == 0 and wing.tag == 'main_wing':
                     chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
                     chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent   
-                    wing_root     = chord_root - exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
+                    wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
                     taper         = chord_tip/wing_root  
                     mac_seg       = wing_root  * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))  
-                    Sref_seg      = (span_seg-exposed_root_chord_offset)*(wing_root+chord_tip)*0.5                    
+                    Sref_seg      = span_seg*(chord_root+chord_tip)*0.5 
+                    S_exposed_seg = (span_seg-exposed_root_chord_offset)*(wing_root+chord_tip)*0.5                    
+                
                 else: 
                     chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
                     chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent
                     taper         = chord_tip/chord_root   
                     mac_seg       = chord_root * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))
                     Sref_seg      = span_seg*(chord_root+chord_tip)*0.5
+                    S_exposed_seg = Sref_seg
  
                 if wing.symmetric:
                     Sref_seg = Sref_seg*2
+                    S_exposed_seg = S_exposed_seg*2
+                
                 Sref += Sref_seg 
                 
-                # compute exposed area of segment
-                S_exposed_seg = Sref_seg*2 
-                   
                 # compute wetted area of segment
-                Swet_seg = 1. * (1.0+ 0.2*t_c_w) * S_exposed_seg
+                if t_c_w < 0.05:
+                    Swet_seg = 2.003* S_exposed_seg
+                else:
+                    Swet_seg = (1.977 + 0.52*t_c_w) * S_exposed_seg
         
                 # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for segments
                 segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_seg,Mc,Tc,xtu,xtl,sweep_seg,t_c_w,Sref_seg,Swet_seg,C)    
@@ -150,21 +155,23 @@ def parasite_drag_wing(state,settings,geometry):
         arw_w        = wing.aspect_ratio
         span_w       = wing.spans.projected
         Sref_w       = wing.areas.reference
-        S_exposed_w  = wing.areas.exposed # TODO: calculate by fuselage diameter (in Fidelity_Zero.initialize())
         xtu          = wing.transition_x_upper
         xtl          = wing.transition_x_lower
         
         chord_root = wing.chords.root
         chord_tip  = wing.chords.tip
-        wing_root_chord = chord_root - (chord_tip - chord_root)/span * exposed_root_chord_offset
+        wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
     
         # calculate exposed area
         if wing.symmetric:
-            S_exposed_w = 2*(wing.areas.reference - (chord_root + wing_root_chord)*exposed_root_chord_offset)
+            S_exposed_w = wing.areas.reference - (chord_root + wing_root)*exposed_root_chord_offset         
         else: 
-            S_exposed_w = 2*(wing.areas.reference - 0.5*(chord_root + wing_root_chord)*exposed_root_chord_offset)
-        
-        Swet_w = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w
+            S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
+              
+        if t_c_w < 0.05:
+            Swet_w = 2.003* S_exposed_w
+        else:
+            Swet_w = (1.977 + 0.52*t_c_w) * S_exposed_w
         
         # compute wetted area of segment
         wing.areas.wetted = Swet                            
