@@ -39,7 +39,12 @@ def read_results(avl_object):
         num_ctrl = case.stability_and_control.control_deflections.size
         with open(case.result_filename,'r') as res_file:
             
-            case_res = Data()           
+            case_res = Data()  
+            case_res.aerodynamics = Data()
+            case_res.stability    = Data()
+            case_res.stability.alpha_derivatives = Data()
+            case_res.stability.beta_derivatives  = Data()   
+            
             case_res.tag = case.tag
  
             lines   = res_file.readlines()
