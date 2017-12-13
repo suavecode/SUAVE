@@ -217,17 +217,13 @@ class Combustor(Energy_Component):
         # Determine max stagnation temperature to thermally choke flow                                     
         Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
 
-        # Checking if Tt4 is limited by Rayleigh
-        i_low = Tt4_ray <= Tt4
-        i_high = Tt4_ray > Tt4
-        
         # Choose Tt4 for fuel calculations
         
         # --Material limitations define Tt4
-        Tt4 = Tt4*Tt4_ray/Tt4_ray
+        Tt4 = Tt4 * np.ones_like(Tt4_ray)
         
         # --Rayleigh limitations define Tt4
-        Tt4[i_low] = Tt4_ray[i_low]
+        Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
         M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma,Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh])
