@@ -2,7 +2,7 @@
 # fm_solver.py
 #
 # Created:  Sep 2017, P Goncalves
-# Modified: Dec 2107, W. Maier
+# Modified: Dec 2017, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,15 +23,18 @@ def fm_solver(area_ratio, M0, gamma):
     one of the areas and outputs the missing Mach number.
 
     Inputs:
-    M           [dimensionless]
-    gamma       [dimensionless]
-    area_ratio  [dimensionless]
+    M           [-]
+    gamma       [-]
+    area_ratio  [-]
 
     Outputs:
-    M1          [dimensionless]
+    M1          [-]
+
+    Source:
+    https://web.stanford.edu/~cantwell/AA210A_Course_Material/AA210A_Course_Notes/
     """
 
-    func = lambda M1: (M0/M1*((1+(gamma-1)/2*M1**2)/(1+(gamma-1)/2*M0**2))**((gamma+1)/(2*(gamma-1))))-area_ratio
+    func = lambda M1: (M0/M1*((1+(gamma-1)/2*M1*M1)/(1+(gamma-1)/2*M0*M0))**((gamma+1)/(2*(gamma-1))))-area_ratio
 
     # Initializing the array
     M1_guess = 1.0*M0/M0
