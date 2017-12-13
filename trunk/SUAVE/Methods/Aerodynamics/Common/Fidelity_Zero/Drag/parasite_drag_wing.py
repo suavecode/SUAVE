@@ -98,7 +98,7 @@ def parasite_drag_wing(state,settings,geometry):
                 xtu       = wing.transition_x_upper
                 xtl       = wing.transition_x_lower      
                 
-                if i_segs == 0 and wing.tag == 'main_wing':
+                if i_segs == 0:
                     chord_root    = root_chord*wing.Segments[i_segs].root_chord_percent
                     chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent   
                     wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
