@@ -78,7 +78,7 @@ def parasite_drag_wing(state,settings,geometry):
     
     # if wing has segments, compute and sum parasite drag of each segment
     if len(wing.Segments.keys())>0:
-        num_segments         = len(wing.Segments.keys())     
+        num_segments                 = len(wing.Segments.keys())     
         total_wetted_area            = 0
         total_segment_parasite_drag  = 0 
         total_segment_k_w            = 0 
@@ -86,7 +86,7 @@ def parasite_drag_wing(state,settings,geometry):
         total_segment_cf_w_l         = 0 
         total_segment_k_comp_u       = 0
         total_k_reyn_l               = 0    
-        root_chord                = wing.chords.root    
+        root_chord                   = wing.chords.root    
         Sref                         = 0
         
         for i_segs in xrange(num_segments):
@@ -154,13 +154,13 @@ def parasite_drag_wing(state,settings,geometry):
         sweep_w      = wing.sweeps.quarter_chord
         arw_w        = wing.aspect_ratio
         span_w       = wing.spans.projected
-        Sref_w       = wing.areas.reference
+        Sref         = wing.areas.reference
         xtu          = wing.transition_x_upper
         xtl          = wing.transition_x_lower
         
         chord_root = wing.chords.root
         chord_tip  = wing.chords.tip
-        wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
+        wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
     
         # calculate exposed area
         if wing.symmetric:
@@ -169,16 +169,16 @@ def parasite_drag_wing(state,settings,geometry):
             S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
               
         if t_c_w < 0.05:
-            Swet_w = 2.003* S_exposed_w
+            Swet = 2.003* S_exposed_w
         else:
-            Swet_w = (1.977 + 0.52*t_c_w) * S_exposed_w
+            Swet = (1.977 + 0.52*t_c_w) * S_exposed_w
         
         # compute wetted area of segment
-        wing.areas.wetted = Swet                            
+        wing.areas.wetted = Swet                           
 
         # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for wing
-        wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref_w,Swet_w,C)             
-      
+        wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C)             
+
     # dump data to conditions
     wing_result = Data(
         wetted_area               = Swet   , 

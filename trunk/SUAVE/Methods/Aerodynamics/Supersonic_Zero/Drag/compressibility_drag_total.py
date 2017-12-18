@@ -215,7 +215,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
         # Divergence mach number
         MDiv = np.array([[0.95]] * len(Mc_ii))
-        mcc = np.array([[0.93]] * len(Mc_ii))
+        mcc  = np.array([[0.93]] * len(Mc_ii))
 
     else:
         # Unpack wing
@@ -248,11 +248,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
         if k == 'main_wing':
             cl_w = cl
         else:
-            cl_w = 0
-            
-            
-            
-            
+            cl_w = 0   
 
         # Get effective Cl and sweep
         cos_sweep = np.cos(sweep_w)
@@ -351,12 +347,12 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     cd_volume_wave = wave_drag_volume(conditions,configuration,wing)
 
     # Pack supersonic results into correct elements
-    cd_c[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
+    cd_c[mach   >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
     cd_c_l[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0]
     cd_c_v[mach >= 1.05] = cd_volume_wave[0:len(mach[mach >= 1.05]),0]
 
     # Convert coefficient to full aircraft value
-    cd_c = cd_c*wing.areas.reference/Sref_main
+    cd_c   = cd_c*wing.areas.reference/Sref_main
     cd_c_l = cd_c_l*wing.areas.reference/Sref_main
     cd_c_v = cd_c_v*wing.areas.reference/Sref_main
 

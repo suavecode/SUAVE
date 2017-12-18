@@ -135,7 +135,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 x[idx] = segment_span_x[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg]) + 0.5*section_length[idx]  
                 y[idx] = (yb[0][idx] -  deltax[idx]/2)                
                 
-                if  y_coordinates[idx] == wing.Segments[segment_keys[i_seg+1]].percent_span_location*span: 
+                if y_coordinates[idx] == wing.Segments[segment_keys[i_seg+1]].percent_span_location*span: 
                     i_seg += 1                    
                 if y_coordinates[idx+1] == span:
                     continue
