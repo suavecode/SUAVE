@@ -14,7 +14,7 @@ import numpy as np
 from create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_geometry(avl_object,vortices_per_meter):
+def write_geometry(avl_object,spanwise_vortices_per_meter):
     """This function writes the translated aircraft geometry into text file read 
     by AVL when it is called
 
@@ -48,7 +48,7 @@ def write_geometry(avl_object,vortices_per_meter):
         
         for w in aircraft.wings:
             avl_wing      = translate_avl_wing(w)
-            wing_text     = make_surface_text(avl_wing,vortices_per_meter)
+            wing_text     = make_surface_text(avl_wing,spanwise_vortices_per_meter)
             geometry.write(wing_text)  
                      
         for b in aircraft.fuselages:
@@ -120,7 +120,7 @@ def make_header_text(avl_object):
     return header_text
 
 
-def make_surface_text(avl_wing,vortices_per_meter):
+def make_surface_text(avl_wing,spanwise_vortices_per_meter):
     """This function writes the surface text using the template required for the AVL executable to read
 
     Assumptions:
@@ -163,7 +163,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference 
         chordwise_vortices       = 20  
         chordwise_vortex_spacing = 1.0
-        spanwise_vortices        = np.ceil(avl_wing.semispan*vortices_per_meter)# units [m^-1]
+        spanwise_vortices        = np.ceil(avl_wing.semispan*spanwise_vortices_per_meter)# units [m^-1]
         spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
         
@@ -178,7 +178,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference
         chordwise_vortices       = 20  
         chordwise_vortex_spacing = 1.0        
-        spanwise_vortices        = np.ceil(avl_wing.semispan*vortices_per_meter)# units [m^-1]
+        spanwise_vortices        = np.ceil(avl_wing.semispan*spanwise_vortices_per_meter)# units [m^-1]
         spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
     

@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # AVL_Inviscid.py
 #
 # Created: Apr 2017, M. Clarke 
@@ -40,13 +41,38 @@ from warnings import warn
 #  Class
 # ----------------------------------------------------------------------
 
+# ----------------------------------------------------------------------
+#  Class
+# ----------------------------------------------------------------------
+## @ingroup Analyses-Aerodynamics
 class AVL_Inviscid(Aerodynamics):
-    """ SUAVE.Analyses.Aerodynamics.AVL
-        aerodynamic model that performs a vortex lattice analysis using AVL
-        (Athena Vortex Lattice, by Mark Drela of MIT).
-    """
-
+    """This builds a surrogate and computes lift using AVL.
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """     
+    
     def __defaults__(self):
+        """This sets the default values and methods for the analysis.
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+        """          
         self.tag                             = 'avl'
         self.keep_files                      = True
         
@@ -77,14 +103,31 @@ class AVL_Inviscid(Aerodynamics):
         # Surrogate model
         self.surrogates                      = Data()
 
-    def initialize(self,vortices_per_meter):
+    def initialize(self,spanwise_vortices_per_meter):
+        """Drives functions to get training samples and build a surrogate.
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        self.tag = 'avl_analysis_of_{}'.format(geometry.tag)
+        
+        Properties Used:
+        self.geometry.tag
+        """          
 
         geometry     = self.geometry
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
         run_folder   = self.settings.filenames.run_folder
         
         # Sample training data
-        self.sample_training(vortices_per_meter)
+        self.sample_training(spanwise_vortices_per_meter)
     
         # Build surrogate
         self.build_surrogate()
@@ -92,7 +135,28 @@ class AVL_Inviscid(Aerodynamics):
         return
 
     def evaluate(self,state,settings,geometry):
-
+        """Evaluates lift and drag using available surrogates.
+        
+        Assumptions:
+        Returned drag values are currently not meaningful.
+        
+        Source:
+        N/A
+        
+        Inputs:
+        state.conditions.
+          mach_number      [-]
+          angle_of_attack  [radians]
+        
+        Outputs:
+        inviscid_lift      [-] CL
+        inviscid_drag      [-] CD
+        
+        Properties Used:
+        self.surrogates.
+          lift_coefficient [-] CL
+          drag_coefficient [-] CD
+        """          
         # Unpack
         surrogates    = self.surrogates        
         conditions    = state.conditions
@@ -127,7 +191,7 @@ class AVL_Inviscid(Aerodynamics):
         return aerodynamic_results
         
                              
-    def sample_training(self,vortices_per_meter):
+    def sample_training(self,spanwise_vortices_per_meter):
         
         # Unpack
         geometry = self.geometry
@@ -158,7 +222,7 @@ class AVL_Inviscid(Aerodynamics):
                 run_conditions.freestream.gravity           = 9.81          
                 run_conditions.aerodynamics.angle_of_attack = AoA
                 run_conditions.freestream.mach_number       = mach[j]
-                run_conditions.vortices_per_meter           = vortices_per_meter  # DEFINE VORTEX NUMBER
+                run_conditions.spanwise_vortices_per_meter  = spanwise_vortices_per_meter 
                 #Run Analysis at AoA[i] and mach[j]
                 results =  self.evaluate_conditions(run_conditions)
                 
@@ -250,7 +314,7 @@ class AVL_Inviscid(Aerodynamics):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-        vortices_per_meter               = run_conditions.vortices_per_meter # DEFINE VORTEX NUMBER
+        spanwise_vortices_per_meter      = run_conditions.spanwise_vortices_per_meter 
         
         # update current status
         self.current_status.batch_index += 1
@@ -269,7 +333,7 @@ class AVL_Inviscid(Aerodynamics):
     
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,vortices_per_meter)
+            write_geometry(self,spanwise_vortices_per_meter)
             write_run_cases(self)
             write_input_deck(self)
     

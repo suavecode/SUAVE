@@ -63,6 +63,7 @@ class AVL(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        settings.vortex_density                     = 2
         settings.maximum_lift_coefficient           = np.inf 
 
           
@@ -116,16 +117,9 @@ class AVL(Markup):
         self.geometry
         """          
         self.process.compute.lift.inviscid.geometry = self.geometry
-        try:
-            vortices_per_meter = self.settings.vortex_density
-        except:
-            vortices_per_meter = []
-        if vortices_per_meter == []:
-            vortices_per_meter = 2
-        pass
+        spanwise_vortices_per_meter  = self.settings.vortex_density 
         
-    
-        self.process.compute.lift.inviscid.initialize(vortices_per_meter)
+        self.process.compute.lift.inviscid.initialize(spanwise_vortices_per_meter )
         
     finalize = initialize
     

@@ -51,7 +51,6 @@ class Aerodynamics(Analysis):
         
         self.geometry = Data()
         self.settings = Data()
-        self.vortex_density = Data()
         self.settings.maximum_lift_coefficient = np.inf
         
         
