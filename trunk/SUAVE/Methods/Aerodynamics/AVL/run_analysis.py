@@ -9,6 +9,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import sys
+import time
+import subprocess
 import os
 from SUAVE.Methods.Aerodynamics.AVL.read_results import read_results
 from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
@@ -58,11 +61,6 @@ def call_avl(avl_object):
     Properties Used:
         N/A
     """    
-    
-    import sys
-    import time
-    import subprocess
-    import os
 
     log_file = avl_object.settings.filenames.log_filename
     err_file = avl_object.settings.filenames.err_filename

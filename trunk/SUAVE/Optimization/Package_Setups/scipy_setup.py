@@ -37,7 +37,8 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #
 
         Properties Used:
         None
-    """         
+    """
+    
     inp = problem.optimization_problem.inputs
     obj = problem.optimization_problem.objective
     con = problem.optimization_problem.constraints

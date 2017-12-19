@@ -156,7 +156,6 @@ def translate_avl_body(suave_body):
         return b
 
 def populate_wing_sections(avl_wing,suave_wing): 
-
         """ Creates sections of wing geometry and populates the AVL wing data structure
 
         Assumptions:
@@ -175,7 +174,7 @@ def populate_wing_sections(avl_wing,suave_wing):
             suave_wing.Segments.percent_span_location  [-]
             suave_wing.Segments.sweeps.quarter_chord   [radians]
             suave_wing.Segment.twist                   [radians]
-                  
+
         Outputs:
             avl_wing - aircraft wing in AVL format     [data stucture] 
 

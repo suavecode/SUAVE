@@ -41,9 +41,10 @@ class Wing(Data):
 		self.symmetric = True
 		self.vertical  = False
 		self.origin    = [0.,0.,0.]
-             
+
 		self.sweep        = 0.0
-                self.semispan     = 0.0
+		self.dihedral     = 0.0
+
 		self.sections = Data()
 		self.configuration = Data()
 		self.control_surfaces = Data()

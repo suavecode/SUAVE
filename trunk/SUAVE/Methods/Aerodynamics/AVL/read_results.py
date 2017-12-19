@@ -48,22 +48,22 @@ def read_results(avl_object):
             case_res.tag = case.tag
  
             lines   = res_file.readlines()
-                  
+        
             case_res.aerodynamics.Sref = float(lines[8][10:16].strip())
             case_res.aerodynamics.Cref = float(lines[8][31:37].strip())
             case_res.aerodynamics.Bref = float(lines[8][52:58].strip())
             case_res.aerodynamics.Xref = float(lines[9][10:16].strip())
             case_res.aerodynamics.Yref = float(lines[9][31:37].strip())
             case_res.aerodynamics.Zref = float(lines[9][52:58].strip())  
-            
+        
             case_res.aerodynamics.CX = float(lines[19][11:19].strip())
             case_res.aerodynamics.CY = float(lines[20][11:19].strip()) 
             case_res.aerodynamics.CZ = float(lines[21][11:19].strip())
-            
+        
             case_res.aerodynamics.Cltot = float(lines[19][33:41].strip())
             case_res.aerodynamics.Cmtot = float(lines[20][33:41].strip()) 
             case_res.aerodynamics.Cntot = float(lines[21][33:41].strip())
-            
+        
             case_res.aerodynamics.roll_moment_coefficient  = float(lines[19][32:42].strip())
             case_res.aerodynamics.pitch_moment_coefficient = float(lines[20][32:42].strip())
             case_res.aerodynamics.yaw_moment_coefficient   = float(lines[21][32:42].strip())
@@ -71,7 +71,7 @@ def read_results(avl_object):
             case_res.aerodynamics.total_drag_coefficient   = float(lines[24][10:20].strip())
             case_res.aerodynamics.induced_drag_coefficient = float(lines[25][32:42].strip())
             case_res.aerodynamics.span_efficiency_factor   = float(lines[27][32:42].strip())
-
+        
             case_res.stability.alpha_derivatives.lift_curve_slope           = float(lines[36+num_ctrl][24:34].strip()) # CL_a
             case_res.stability.alpha_derivatives.side_force_derivative      = float(lines[37+num_ctrl][24:34].strip()) # CY_a
             case_res.stability.alpha_derivatives.roll_moment_derivative     = float(lines[38+num_ctrl][24:34].strip()) # Cl_a
@@ -82,7 +82,7 @@ def read_results(avl_object):
             case_res.stability.beta_derivatives.roll_moment_derivative      = float(lines[38+num_ctrl][43:54].strip()) # Cl_b
             case_res.stability.beta_derivatives.pitch_moment_derivative     = float(lines[39+num_ctrl][43:54].strip()) # Cm_b
             case_res.stability.beta_derivatives.yaw_moment_derivative       = float(lines[40+num_ctrl][43:54].strip()) # Cn_b
-            
+        
             case_res.stability.CL_p = float(lines[44+num_ctrl][24:34].strip())
             case_res.stability.CL_q = float(lines[44+num_ctrl][43:54].strip())
             case_res.stability.CL_r = float(lines[44+num_ctrl][65:74].strip())
@@ -98,10 +98,10 @@ def read_results(avl_object):
             case_res.stability.Cn_p = float(lines[48+num_ctrl][24:34].strip())
             case_res.stability.Cn_q = float(lines[48+num_ctrl][43:54].strip())
             case_res.stability.Cn_r = float(lines[44+num_ctrl][65:74].strip())
-               
+        
             case_res.stability.neutral_point  = float(lines[50+13*(num_ctrl>0)][22:33].strip())
-
-            results.append(case_res)
+        
+            results.append(case_res)        
        
         #------------------------------------------------------------------------------------------
         #          SUAVE-AVL dynamic stability analysis under development

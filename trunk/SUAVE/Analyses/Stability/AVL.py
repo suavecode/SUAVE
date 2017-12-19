@@ -90,10 +90,9 @@ class AVL(Stability):
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
 
-        # Standard subsonic/transolic aircarft
+        # Standard subsonic/transonic aircarft
         self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
         self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
-
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
         self.training.Cn_beta_moment_coefficient            = None
@@ -434,7 +433,7 @@ class AVL(Stability):
         self.surrogates.neutral_point               = neutral_point_surrogate
 
         # Standard subsonic/transolic aircarft  
-        AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
+        AoA_points                       = np.linspace(-3.,11.,100)
         mach_points                      = np.linspace(.02,.9,100)         
     
         AoA_mesh,mach_mesh                          = np.meshgrid(AoA_points,mach_points)
