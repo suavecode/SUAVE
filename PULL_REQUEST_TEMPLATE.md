@@ -2,9 +2,9 @@
  * Merge in the latest Develop branch changes to your branch
  * Remove .pyc files from your repository:
    * Linux/Mac
-    * find . -name *.pyc -delete
+     * find . -name *.pyc -delete
    * Windows
-    * del /S *.pyc
+     * del /S *.pyc
  * Run automatic regression and makes sure everything is passing
  * Did you make a new regression test that covers your new code?
  * Did you update your docstrings?
