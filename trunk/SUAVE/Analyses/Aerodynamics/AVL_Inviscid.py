@@ -21,7 +21,7 @@ from SUAVE.Methods.Aerodynamics.AVL.write_run_cases  import write_run_cases
 from SUAVE.Methods.Aerodynamics.AVL.write_input_deck import write_input_deck
 from SUAVE.Methods.Aerodynamics.AVL.run_analysis     import run_analysis
 from SUAVE.Methods.Aerodynamics.AVL.translate_data   import translate_conditions_to_cases, translate_results_to_conditions
-from SUAVE.Methods.Aerodynamics.AVL.purge_files      import Results
+from SUAVE.Methods.Aerodynamics.AVL.purge_files      import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
