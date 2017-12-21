@@ -87,7 +87,7 @@ class AVL(Stability):
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
         
-        self.settings.vortex_density                        = 2
+        self.settings.vortex_density                        = 2.5
         
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        

@@ -62,7 +62,7 @@ class AVL(Markup):
         settings.oswald_efficiency_factor           = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
-        settings.vortex_density                     = 2.
+        settings.vortex_density                     = 2.5
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
         
