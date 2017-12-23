@@ -251,7 +251,7 @@ class AVL_Inviscid(Aerodynamics):
             CD         = data_array[:,3:4]
 
         # Save the data
-        np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
+        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
 
         # Store training data
         training.coefficients = np.hstack([CL,CD])

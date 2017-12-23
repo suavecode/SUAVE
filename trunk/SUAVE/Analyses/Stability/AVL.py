@@ -278,13 +278,14 @@ class AVL(Stability):
                 #stability_model.phugoid.natural_frequency[i]      = - ( case_results.aerodynamics.phugoid_mode_mode_1_real/stability_model.phugoid.damping_ratio)
         #
         #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+       
+       
         # pack results
-        stability_results                    = Data()
-        stability_results.static_stability   = static_stability
-        stability_results.dynamic_stability  = dynamic_stability
-
-        return stability_results    
+        results         = Data()
+        results.static  = static_stability
+        results.dynamic = dynamic_stability
+    
+        return results   
 
 
     def sample_training(self):
@@ -365,7 +366,7 @@ class AVL(Stability):
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6] 
         # Save the data
-        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
 
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])
