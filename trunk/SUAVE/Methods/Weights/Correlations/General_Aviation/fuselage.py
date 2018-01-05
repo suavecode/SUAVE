@@ -16,18 +16,20 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fus):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r)
-        Calculate the weight of a fuselage in the state tube and wing configuration
+    """ 
+        Calculate the weight of a fuselage for a GA aircraft
         
         Inputs:
-            S_f - fuselage wetted area [meters**2]
-            Nult - ultimate load of the aircraft [dimensionless]]
-            TOW - maximum takeoff weight of the aircraft [kilograms]
-            w_fus - width of the fuselage [meters]
-            h_fus - height of the fuselage [meters]
-            l_fus - length of the fuselage [meters]
-            V_fuse - volume of pressurized cabin [meters**3]
-            diff_p_fus - Maximum fuselage pressure differential [Pascal]
+            S_f - fuselage wetted area                          [meters**2]
+            Nult - ultimate load of the aircraft                [dimensionless]]
+            TOW - maximum takeoff weight of the aircraft        [kilograms]
+            w_fus - width of the fuselage                       [meters]
+            h_fus - height of the fuselage                      [meters]
+            l_fus - length of the fuselage                      [meters]
+            l_ht  - length of tail arm                          [meters]
+            q_c    - dynamic pressure                           [Pascals] 
+            V_fuse - volume of pressurized cabin                [meters**3]
+            diff_p_fus - Maximum fuselage pressure differential [Pascals]
            
 
             
@@ -35,7 +37,7 @@ def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fu
             weight - weight of the fuselage [kilograms]
             
         Assumptions:
-            fuselage in a standard wing and tube configuration 
+            fuselage for a general aviation type aircraft
     """
     # unpack inputs
     

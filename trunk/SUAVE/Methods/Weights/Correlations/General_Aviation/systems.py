@@ -41,8 +41,8 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
                 wt_ac - weight of the air conditioning and anti-ice system [kilograms]
                 wt_furnish - weight of the furnishings in the fuselage [kilograms]
             
-        Assumptions:
-                numbers based on FAA regulations and correlations from previous aircraft
+        Source:
+                 Aircraft Design: A Conceptual Approach by Raymer
     """ 
     # unpack inputs
     

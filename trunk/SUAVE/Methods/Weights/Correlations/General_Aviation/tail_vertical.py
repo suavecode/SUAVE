@@ -16,21 +16,21 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudder_fraction = 0.25):      
-    """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
+    """
         Calculate the weight of the vertical fin of an aircraft without the weight of the rudder and then calculate the weight of the rudder        
         
         Inputs:
-            S_v - area of the vertical tail (combined fin and rudder) [meters**2]
-            M_w -mass of wing in kg
-            AR_v -aspect ratio of vertial tail
-            sweep_v - sweep angle of the vertical tail [radians]
-            q_c - dynamic pressure at cruise
-            taper_v - taper ratio of vertical tail
-            t_c_v -thickness to chord ratio of wing
-            Nult - ultimate load of the aircraft [dimensionless]
-            TOW - maximum takeoff weight of the aircraft [kilograms]
-            S_gross_w - wing gross area [meters**2]
-            t_tail - factor to determine if aircraft has a t-tail [dimensionless]
+            S_v - area of the vertical tail (combined fin and rudder)          [meters**2]
+            M_w -mass of wing                                                  [kilograms]
+            AR_v -aspect ratio of vertial tail                                 [dimensionless]
+            sweep_v - sweep angle of the vertical tail                         [radians]
+            q_c - dynamic pressure at cruise                                   [Pascals]
+            taper_v - taper ratio of vertical tail                             [dimensionless]
+            t_c_v -thickness to chord ratio of wing                            [dimensionless]
+            Nult - ultimate load of the aircraft                               [dimensionless]
+            TOW - maximum takeoff weight of the aircraft                       [kilograms]
+            S_gross_w - wing gross area                                        [meters**2]
+            t_tail - flag to determine if aircraft has a t-tail                [dimensionless]
             rudder_fraction - fraction of the vertical tail that is the rudder [dimensionless]
         
         Outputs:

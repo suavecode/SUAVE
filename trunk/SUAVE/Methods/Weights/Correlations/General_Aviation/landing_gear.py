@@ -30,7 +30,7 @@ def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
             landing_weight- landing weight of the aircraft [kilograms]
            
         Outputs:
-            weight - weight of the landing gear [kilograms]
+            weight - weight of the landing gear            [kilograms]
             
         Assumptions:
             calculating the landing gear weight based on the landing weight, load factor, and strut length 

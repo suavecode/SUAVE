@@ -34,8 +34,8 @@ def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):
             output - a dictionary with outputs:
                 wt_main_wing - weight of the vertical fin portion of the vertical tail [kilograms]
             
-        Assumptions:
-            uses correlations from Aircraft Design: A Conceptual Approach by Raymer
+        Source:
+            Aircraft Design: A Conceptual Approach by Raymer
     """     
     # unpack inputs
 
