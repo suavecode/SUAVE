@@ -5,6 +5,7 @@ import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
+from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Core import (
     Data, Container,
 )
@@ -16,7 +17,7 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Boeing_737 import vehicle_setup
-from SUAVE.Methods.Performance  import payload_range
+from Cessna_172 import vehicle_setup as vehicle_setup_general_aviation
 
 
 def main():
@@ -44,25 +45,7 @@ def main():
     actual.vertical_tail   = 629.03876835
     actual.rudder          =  251.61550734
     
-    
-    '''
-    #old errors; original geometry appears to be incorrect
-    actual.payload = 17349.9081525
-    actual.pax = 15036.5870655
-    actual.bag = 2313.321087
-    actual.fuel = -13680.6265874
-    actual.empty = 75346.5184349
-    actual.wing = 27694.192985
-    actual.fuselage = 11423.9380852
-    actual.propulsion = 6855.68572746 
-    actual.landing_gear = 3160.632
-    actual.systems = 16655.7076511
-    actual.wt_furnish = 7466.1304102
-    actual.horizontal_tail = 2191.30720639
-    actual.vertical_tail = 5260.75341411
-    actual.rudder = 2104.30136565    
-    '''
-    
+
     
     error = Data()
     error.payload = (actual.payload - weight.payload)/actual.payload
@@ -81,12 +64,66 @@ def main():
     error.vertical_tail = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder = (actual.rudder - weight.rudder)/actual.rudder
     
-    print 'Results (kg)'
+    print 'Results tube and wing (kg)'
     print weight
     
     print 'Relative Errors'
     print error  
+    
+    
       
+    for k,v in error.items():
+        assert(np.abs(v)<0.001)    
+   
+    #General Aviation weights; note that values are taken from Raymer,
+    #but there is a huge spread among the GA designs, so individual components
+    #differ a good deal from the actual design
+   
+    vehicle     = vehicle_setup_general_aviation()
+    GTOW        = vehicle.mass_properties.max_takeoff
+    weight      = General_Aviation.empty(vehicle)
+    weight.fuel = vehicle.fuel.mass_properties.mass 
+    actual      = Data()
+    
+
+    actual.bag     = 0.
+    
+    actual.empty   =  605.585163611
+  
+    actual.fuel    =  114.30527724 
+   
+    actual.wing            = 109.687250943
+    actual.fuselage        = 137.867024567
+    actual.propulsion      = 194.477769922 #includes power plant and propeller, does not include fuel system
+    actual.landing_gear    = 45.26037556
+    actual.furnishing      = 28.5944630048
+    actual.electrical      = 34.0149458608
+    actual.control_systems = 22.753226972
+    actual.fuel_systems    = 13.2183176771
+    actual.systems         = 101.412216023
+  
+    
+    #empty weight =1354 * Units.lbs
+    error = Data()
+    error.fuel = (actual.fuel - weight.fuel)/actual.fuel
+    error.empty = (actual.empty - weight.empty)/actual.empty
+    error.wing = (actual.wing - weight.wing)/actual.wing
+    error.fuselage = (actual.fuselage - weight.fuselage)/actual.fuselage
+    error.propulsion = (actual.propulsion - weight.propulsion)/actual.propulsion
+    error.landing_gear = (actual.landing_gear - (weight.landing_gear_main+weight.landing_gear_nose))/actual.landing_gear
+    error.furnishing = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
+    error.electrical = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
+    error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems
+    error.fuel_systems = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
+    error.systems = (actual.systems - weight.systems)/actual.systems
+
+    print 'actual.systems=', actual.systems
+    print 'General Aviation Results (kg)'
+    print weight
+    
+    print 'Relative Errors'
+    print error  
+    
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
    
