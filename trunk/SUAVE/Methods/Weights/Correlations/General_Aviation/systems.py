@@ -20,14 +20,14 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
         Calculate the weight of the different engine systems on the aircraft
     
         Inputs:
-            V_fuel              - total fuel volume [meters**3]
-            V_int               - internal fuel volume [meters**3]
-            N_tank              - number of fuel tanks
-            N_eng               - number of engines
-            span                - wingspan [meters]
-            TOW                 - gross takeoff weight of the aircraft [kg]
+            V_fuel              - total fuel volume                     [meters**3]
+            V_int               - internal fuel volume                  [meters**3]
+            N_tank              - number of fuel tanks                  [dimensionless]
+            N_eng               - number of engines                     [dimensionless]
+            span                - wingspan                              [meters]
+            TOW                 - gross takeoff weight of the aircraft  [kg]
             num_seats           - total number of seats on the aircraft [dimensionless]
-            mach_number         - mach number [dimensionless]
+            mach_number         - mach number                           [dimensionless]
             has_air_conditioner - integer of 1 if the vehicle has ac, 0 if not
           
         Outputs:

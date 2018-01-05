@@ -31,7 +31,7 @@ def tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW):
             
             
         Outputs:
-            weight - weight of the horizontal tail [kilograms]
+            weight - weight of the horizontal tail               [kilograms]
             
         Source:
             Aircraft Design: A Conceptual Approach by Raymer

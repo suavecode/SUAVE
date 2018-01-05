@@ -1,5 +1,6 @@
-
-""" SUAVE.Methods.Weights.Correlations.Tube_Wing
+## @defgroup Methods-Weights-Correlations-General_Aviation Generational
+# Provides structural and component weight correlations for general aviation aircraft
+""" SUAVE.Methods.Weights.Correlations.General_Aviation
     contains some useful methods or attributes
     for estimating weights with zero-order correlations
 """
@@ -15,6 +16,5 @@ from fuselage import fuselage
 from wing_main import wing_main
 
 
-# Packages
 
 

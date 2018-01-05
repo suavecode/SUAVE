@@ -27,7 +27,7 @@ def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fu
             h_fus - height of the fuselage                      [meters]
             l_fus - length of the fuselage                      [meters]
             l_ht  - length of tail arm                          [meters]
-            q_c    - dynamic pressure                           [Pascals] 
+            q_c    - dynamic pressure at cruise                 [Pascals] 
             V_fuse - volume of pressurized cabin                [meters**3]
             diff_p_fus - Maximum fuselage pressure differential [Pascals]
            

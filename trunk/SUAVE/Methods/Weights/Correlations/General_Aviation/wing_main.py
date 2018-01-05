@@ -16,19 +16,19 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):      
-    """ output = SUAVE.Methods.Weights.Correlations.GA.Raymer.wing_main(S_w, M_w, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
+    """ 
         Calculate the weight of the main wing of an aircraft     
         
         Inputs:
-            S_wing- area of the main wing[meters**2]
-            m_fuel - predicted weight of fuel in the wing [kilograms]
-            AR_w -aspect ratio of main wing
-            sweep_w - quarter chord sweep of the main wing
-            q_c - dynamic pressure at cruise [N/m**2]
-            taper_w - taper ratio of wing
-            t_c_w -thickness to chord ratio of wing
-            Nult - ultimate load of the aircraft [dimensionless]
-            TOW - maximum takeoff weight of the aircraft [kilograms]
+            S_wing- area of the main wing                                              [meters**2]
+            m_fuel - predicted weight of fuel in the wing                              [kilograms]
+            AR_w -aspect ratio of main wing                                            [dimensionless]
+            sweep_w - quarter chord sweep of the main wing                             [radians]
+            q_c - dynamic pressure at cruise                                           [Pascals]
+            taper_w - taper ratio of wing                                              [dimensionless]
+            t_c_w -thickness to chord ratio of wing                                    [dimensionless]
+            Nult - ultimate load of the aircraft                                       [dimensionless]
+            TOW - maximum takeoff weight of the aircraft                               [kilograms]
    
         Outputs:
             output - a dictionary with outputs:
