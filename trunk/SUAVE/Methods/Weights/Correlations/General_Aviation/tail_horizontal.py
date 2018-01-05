@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-General_Aviation
 # tail_horizontal.py
 #
 # Created:  Mar 2016, M Vegh
@@ -13,7 +14,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #   Tail Horizontal
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW):       
     """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h)
         Calculate the weight of the horizontal tail in a standard configuration

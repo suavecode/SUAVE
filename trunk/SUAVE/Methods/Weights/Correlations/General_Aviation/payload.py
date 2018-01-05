@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-General_Aviation
 # payload.py
 # 
 # Created:  Jan 2014, A. Wendorff
@@ -13,7 +14,7 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 #   Payload
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 225.*Units.lbs,wt_baggage = 0.):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.payload(TOW, empty, num_pax, wt_cargo)
         Calculate the weight of the payload and the resulting fuel mass

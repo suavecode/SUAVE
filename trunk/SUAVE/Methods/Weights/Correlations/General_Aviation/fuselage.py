@@ -1,4 +1,5 @@
-# tube.py
+## @ingroup Methods-Weights-Correlations-General_Aviation
+# fuselage.py
 #
 # Created:  Mar 2016, M. Vegh
 # Modified: 
@@ -13,7 +14,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #   Fuselage
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fus):
     """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r)
         Calculate the weight of a fuselage in the state tube and wing configuration

@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-General_Aviation
 # landing_gear.py
 # 
 # Created:  Mar 2016, M. Vegh
@@ -18,7 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #   Landing Gear
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
     """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.landing_gear(TOW)
         Calculate the weight of the landing gear assuming that the gear 

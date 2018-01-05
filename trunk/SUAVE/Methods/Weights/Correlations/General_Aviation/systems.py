@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-General_Aviation
 # systems.py
 # 
 # Created:  Mar 2016, M. Vegh
@@ -13,7 +14,7 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 #   Systems
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, num_seats,  mach_number, has_air_conditioner=1):
     """ output = SUAVE.Methods.Weights.Correlations.General_Avation.systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
         Calculate the weight of the different engine systems on the aircraft

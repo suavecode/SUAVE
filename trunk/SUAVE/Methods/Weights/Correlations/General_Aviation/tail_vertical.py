@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-General_Aviation
 # tail_vertical.py
 #
 # Created:  Mar 2016, M. Vegh
@@ -13,7 +14,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 #   Tail Vertical
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudder_fraction = 0.25):      
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
         Calculate the weight of the vertical fin of an aircraft without the weight of the rudder and then calculate the weight of the rudder        

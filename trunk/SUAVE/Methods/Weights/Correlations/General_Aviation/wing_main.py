@@ -1,4 +1,5 @@
-# tail_vertical.py
+## @ingroup Methods-Weights-Correlations-General_Aviation
+# wing_main.py
 #
 # Created:  Mar 2016, M. Vegh
 # Modified: 
@@ -11,9 +12,9 @@ from SUAVE.Core import Units
 import numpy as np
 
 # ----------------------------------------------------------------------
-#   Tail Vertical
+#   Wing Main
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-General_Aviation
 def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):      
     """ output = SUAVE.Methods.Weights.Correlations.GA.Raymer.wing_main(S_w, M_w, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
         Calculate the weight of the main wing of an aircraft     
