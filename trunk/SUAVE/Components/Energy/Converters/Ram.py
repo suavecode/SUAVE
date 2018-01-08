@@ -81,13 +81,13 @@ class Ram(Energy_Component):
           stagnation_pressure                 [Pa]
           isentropic_expansion_factor         [-]
           specific_heat_at_constant_pressure  [J/(kg K)]
-          universal_gas_constant              [J/(kg K)]
+          gas_specific_constant               [J/(kg K)]
         conditions.freestream.
           stagnation_temperature              [K]
           stagnation_pressure                 [Pa]
           isentropic_expansion_factor         [-]
           specific_heat_at_constant_pressure  [J/(kg K)]
-          universal_gas_constant              [J/(kg K)]
+          gas_specific_constant               [J/(kg K)]
           speed_of_sound                      [m/s]
 
         Properties Used:
@@ -101,7 +101,6 @@ class Ram(Energy_Component):
         #unpack from inputs
         working_fluid          = self.inputs.working_fluid
 
-
         #method to compute the ram properties
 
         #computing the working fluid properties
@@ -112,8 +111,17 @@ class Ram(Energy_Component):
 
         #Compute the stagnation quantities from the input static quantities
         stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
-        stagnation_pressure    = Po* ((1+(gamma-1)/2 *M*M )**((gamma/(gamma-1)))
+        stagnation_pressure    = Po*((1+(gamma-1)/2 *M*M )**((gamma/(gamma-1))))
 
+
+        gamma                  = working_fluid.compute_gamma(To,Po) 
+        Cp                     = working_fluid.compute_cp(To,Po)
+        R                      = working_fluid.gas_specific_constant
+        ao                     = working_fluid.compute_speed_of_sound(To,Po,True)
+
+        #Compute the stagnation quantities from the input static quantities
+        stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
+        stagnation_pressure    = Po*((1+(gamma-1)/2 *M*M )**(gamma/(gamma-1)))
 
 
         #pack computed outputs
@@ -124,5 +132,15 @@ class Ram(Energy_Component):
         self.outputs.isentropic_expansion_factor         = gamma
         self.outputs.specific_heat_at_constant_pressure  = Cp
         self.outputs.gas_specific_constant               = R
+
+
+        #pack the values into outputs
+        conditions.freestream.stagnation_temperature               = stagnation_temperature
+        conditions.freestream.stagnation_pressure                  = stagnation_pressure
+        conditions.freestream.isentropic_expansion_factor          = gamma
+        conditions.freestream.specific_heat_at_constant_pressure   = Cp
+        conditions.freestream.gas_specific_constant                = R
+        conditions.freestream.speed_of_sound                       = ao
+
 
     __call__ = compute

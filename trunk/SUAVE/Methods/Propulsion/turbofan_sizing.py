@@ -201,7 +201,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
  
     U0                = conditions.freestream.velocity
     gamma             = ram.outputs.isentropic_expansion_factor
-    R                 = ram.outputs.universal_gas_constant
+    R                 = ram.outputs.gas_specific_constant
     rho0              = conditions.freestream.density
     
     rho5_fan          = fan_nozzle.outputs.density
