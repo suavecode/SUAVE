@@ -89,7 +89,7 @@ class Supersonic_Nozzle(Energy_Component):
           pressure                            [Pa]
           stagnation_pressure                 [Pa]
           stagnation_temperature              [K]
-          universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+          gas_specific_constant               [J/(kg K)]
           mach_number                         [-]
         self.inputs.
           stagnation_temperature              [K]
@@ -121,7 +121,7 @@ class Supersonic_Nozzle(Energy_Component):
         Po       = conditions.freestream.pressure
         Pto      = conditions.freestream.stagnation_pressure
         Tto      = conditions.freestream.stagnation_temperature
-        R        = conditions.freestream.universal_gas_constant
+        R        = conditions.freestream.gas_specific_constant
         Mo       = conditions.freestream.mach_number
         
         #unpack from inputs
@@ -152,7 +152,7 @@ class Supersonic_Nozzle(Energy_Component):
         
         #Computing output pressure and Mach number for the case Mach <1.0
         P_out[i_low]  = Po[i_low]
-        Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))
+        Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))[:,0]
         
         #Computing the output temperature,enthalpy, velocity and density
         T_out         = Tt_out/(1+(gamma-1)/2*Mach*Mach)
@@ -195,7 +195,7 @@ class Supersonic_Nozzle(Energy_Component):
           pressure                            [Pa]
           stagnation_pressure                 [Pa]
           stagnation_temperature              [K]
-          universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+          gas_specific_constant               [J/(kg K)] 
           mach_number                         [-]
         self.inputs.
           stagnation_temperature              [K]
@@ -228,13 +228,13 @@ class Supersonic_Nozzle(Energy_Component):
         Po       = conditions.freestream.pressure
         Pto      = conditions.freestream.stagnation_pressure
         Tto      = conditions.freestream.stagnation_temperature
-        R        = conditions.freestream.universal_gas_constant
+        R        = conditions.freestream.gas_specific_constant
         Mo       = conditions.freestream.mach_number
         To       = conditions.freestream.temperature
         
         #unpack from inputs
-        Tt_in    = self.inputs.stagnation_temperature
-        Pt_in    = self.inputs.stagnation_pressure
+        Tt_in    = self.inputs.stagnation_temperature       #2400?  Why not 686 due to ray?
+        Pt_in    = self.inputs.stagnation_pressure          #INPUT SEA LEVEL, u=0 Pt?
         
         
         #unpack from self
@@ -285,7 +285,7 @@ class Supersonic_Nozzle(Energy_Component):
         
         #-- Subsonic and sonic flow
         P_out[i_sub]        = Po[i_sub]
-        M_out[i_sub]        = np.sqrt((((Pt_out[i_sub]/P_out[i_sub])**((gamma-1)/gamma))-1)*2/(gamma-1))
+        M_out[i_sub]        = np.sqrt((((Pt_out[i_sub]/P_out[i_sub])**((gamma-1)/gamma))-1)*2/(gamma-1))[:,0]
         A_ratio[i_sub]      = 1./fm_id(M_out[i_sub],gamma)
         
         #-- Shock inside nozzle

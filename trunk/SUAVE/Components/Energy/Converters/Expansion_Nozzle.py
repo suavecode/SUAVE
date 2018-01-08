@@ -83,7 +83,7 @@ class Expansion_Nozzle(Energy_Component):
           pressure                            [Pa]
           stagnation_pressure                 [Pa]
           stagnation_temperature              [K]
-          universal_gas_constant              [J/(kg K)] (this is misnamed - actually refers to the gas specific constant)
+          specific_gas_constant               [J/(kg K)] 
           mach_number                         [-]
         self.inputs.
           stagnation_temperature              [K]
@@ -115,7 +115,7 @@ class Expansion_Nozzle(Energy_Component):
         Po       = conditions.freestream.pressure
         Pto      = conditions.freestream.stagnation_pressure
         Tto      = conditions.freestream.stagnation_temperature
-        R        = conditions.freestream.universal_gas_constant
+        R        = conditions.freestream.gas_specific_constant
         Mo       = conditions.freestream.mach_number
         
         #unpack from inputs

@@ -65,7 +65,7 @@ def mach_area(area_ratio, gamma, subsonic):
     Me            [dimensionless]  
     
     """
-    func = lambda Me : area_ratio**2. - ((1./Me)**2.)*(((2./(gamma+1.))*(1.+((gamma-1.)/2.)*Me**2.))**((gamma+1.)/((gamma-1.))))
+    func = lambda Me : (area_ratio**2. - ((1./Me)**2.)*(((2./(gamma+1.))*(1.+((gamma-1.)/2.)*Me**2.))**((gamma+1.)/((gamma-1.)))))[:,0]
     if subsonic:
         Me_initial_guess = 0.01
     else:

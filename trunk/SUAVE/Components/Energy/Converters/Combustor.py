@@ -215,7 +215,7 @@ class Combustor(Energy_Component):
         Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma)  
         
         # Determine max stagnation temperature to thermally choke flow                                     
-        Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) 
+        Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) # what is going on here
 
         # Choose Tt4 for fuel calculations
         
@@ -226,7 +226,7 @@ class Combustor(Energy_Component):
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
-        M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma,Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh])
+        M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma,Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh]) #Ptr -1m M -1
         Pt_out     = Ptr*Pt_in
             
 
@@ -241,7 +241,7 @@ class Combustor(Energy_Component):
         f       = (ht4 - ht_in)/(eta_b*htf-ht4)
 
         # Computing the exit static and stagnation conditions
-        ht_out  = Cp*Tt4
+        ht_out  = Cp*Tt4   #May be double counting here.....no need (maybe)
         
         # pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt4

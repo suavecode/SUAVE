@@ -1,9 +1,9 @@
 ## @ingroup Attributes-Gases
 # Air.py
 
-# Created:  Mar, 2014, SUAVE Team
-# Modified: Jan, 2016, M. Vegh
-
+# Created:  Mar. 2014, SUAVE Team
+# Modified: Jan. 2016, M. Vegh
+#           Dec. 2017, W. Maier 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -139,7 +139,7 @@ class Air(Gas):
         """   
 
         c = [-7.357e-007, 0.001307, -0.5558, 1074.0]
-        cp = c[0]*T**3. + c[1]*T**2. + c[2]*T + c[3]
+        cp = c[0]*T*T*T + c[1]*T*T + c[2]*T + c[3]
 
         return cp
 
@@ -171,7 +171,7 @@ class Air(Gas):
         """   
 
         c = [1.629e-010, -3.588e-007, 0.0001418, 1.386]
-        g = c[0]*T**3. + c[1]*T**2. + c[2]*T + c[3]
+        g = c[0]*T*T*T + c[1]*T*T + c[2]*T + c[3]
 
         return g
 
