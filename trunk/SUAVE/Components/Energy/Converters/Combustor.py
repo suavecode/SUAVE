@@ -3,6 +3,7 @@
 #
 # Created:  Oct 2014, A. Variyar
 # Modified: Jan 2016, T. MacDonald
+#           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -199,23 +200,23 @@ class Combustor(Energy_Component):
         eta_b  = self.efficiency
         
         # unpacking values from self
-        htf             = self.fuel_data.specific_energy
-        ar              = self.area_ratio
+        htf    = self.fuel_data.specific_energy
+        ar     = self.area_ratio
         
         # Rayleigh flow analysis, constant pressure burner
             
         # Initialize arrays
         M_out  = 1*Pt_in/Pt_in
-        Ptr   = 1*Pt_in/Pt_in
+        Ptr    = 1*Pt_in/Pt_in
 
         # Make i_rayleigh the size of output arrays
         i_rayleigh = Pt_in < 2*Pt_in
         
         # Isentropic decceleration through divergent nozzle
-        Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma)  
+        Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma[i_rayleigh])  
         
         # Determine max stagnation temperature to thermally choke flow                                     
-        Tt4_ray = Tt_in*(1+gamma*Mach**2)**2/((2*(1+gamma)*Mach**2)*(1+(gamma-1)/2*Mach**2)) # what is going on here
+        Tt4_ray = Tt_in*(1.+gamma*Mach*Mach)**2./((2.*(1.+gamma)*Mach*Mach)*(1.+(gamma-1.)/2.*Mach*Mach))
 
         # Choose Tt4 for fuel calculations
         
@@ -226,7 +227,7 @@ class Combustor(Energy_Component):
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
-        M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma,Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh]) #Ptr -1m M -1
+        M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma[i_rayleigh],Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh]) 
         Pt_out     = Ptr*Pt_in
             
 

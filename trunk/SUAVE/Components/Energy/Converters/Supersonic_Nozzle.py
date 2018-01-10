@@ -5,6 +5,7 @@
 # Modified: Jan 2016, T. MacDonald
 #           Jun 2017, P. Goncalves
 #           Sep 2017, E. Botero
+#           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -285,29 +286,31 @@ class Supersonic_Nozzle(Energy_Component):
         
         #-- Subsonic and sonic flow
         P_out[i_sub]        = Po[i_sub]
-        M_out[i_sub]        = np.sqrt((((Pt_out[i_sub]/P_out[i_sub])**((gamma-1)/gamma))-1)*2/(gamma-1))[:,0]
-        A_ratio[i_sub]      = 1./fm_id(M_out[i_sub],gamma)
+        M_out[i_sub]        = np.sqrt((((Pt_out[i_sub]/P_out[i_sub])**((gamma[i_sub]-1.)/gamma[i_sub]))-1.)*2./(gamma[i_sub]-1.))
+        A_ratio[i_sub]      = 1./fm_id(M_out[i_sub],gamma[i_sub])
         
         #-- Shock inside nozzle
         P_out[i_shock]      = Po[i_shock]
-        M_out[i_shock]      = np.sqrt((((Pt_out[i_shock]/P_out[i_shock])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        #M_out[i_shock]      = exit_Mach_shock(A_ratio[i_shock], gamma, Pt_out[i_shock], Po[i_shock])    
-        A_ratio[i_shock]    = 1./fm_id(M_out[i_shock],gamma)
+        M_out[i_shock]      = np.sqrt((((Pt_out[i_shock]/P_out[i_shock])**((gamma[i_shock]-1.)/gamma[i_shock]))-1.)*2./(gamma[i_shock]-1.))   
+        A_ratio[i_shock]    = 1./fm_id(M_out[i_shock],gamma[i_shock])
+        
         #-- Overexpanded flow
-        P_out[i_over]       = supersonic_min_Area*Pt_out[i_over] 
-        M_out[i_over]       = np.sqrt((((Pt_out[i_over]/P_out[i_over])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_over]     = 1./fm_id(M_out[i_over],gamma)
+        P_out[i_over]       = supersonic_min_Area[i_over]*Pt_out[i_over] 
+        M_out[i_over]       = np.sqrt((((Pt_out[i_over]/P_out[i_over])**((gamma[i_over]-1.)/gamma[i_over]))-1.)*2./(gamma[i_over]-1.))
+        A_ratio[i_over]     = 1./fm_id(M_out[i_over],gamma[i_over])
+        
         #-- Isentropic supersonic flow, with variable area adjustments
         P_out[i_sup]        = Po[i_sup]
-        M_out[i_sup]        = np.sqrt((((Pt_out[i_sup]/P_out[i_sup])**((gamma-1)/gamma))-1)*2/(gamma-1))    
-        A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma)
+        M_out[i_sup]        = np.sqrt((((Pt_out[i_sup]/P_out[i_sup])**((gamma[i_sup]-1.)/gamma[i_sup]))-1.)*2./(gamma[i_sup]-1.))    
+        A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma[i_sup])
+        
         #-- Underexpanded flow
-        P_out[i_und]        = supersonic_max_Area*Pt_out[i_und] 
-        M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma-1)/gamma))-1)*2/(gamma-1))
-        A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma)
+        P_out[i_und]        = supersonic_max_Area[i_over]*Pt_out[i_und] 
+        M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
+        A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
        #-- Calculate other flow properties
-        T_out   = Tt_out/(1+(gamma-1)/2*M_out**2)
+        T_out   = Tt_out/(1+(gamma-1)/2*M_out*M_out)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)
         rho_out = P_out/(R*T_out)

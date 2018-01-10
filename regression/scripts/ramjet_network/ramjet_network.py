@@ -1,7 +1,7 @@
 # ramjet_network.py
 # 
-# Created:  P. Goncalves, Sep 2017
-# Modified: 
+# Created:  Sep 2017, P. Goncalves
+# Modified: Jan 2018, W. Maier
 #        
 
 """ create and evaluate a ramjet network
@@ -195,8 +195,8 @@ def energy_network():
     #size the ramjet
     ramjet_sizing(ramjet,0.8,10000.0)
     
-    print "Design thrust ",ramjet.design_thrust
-    print "Sealevel static thrust ",ramjet.sealevel_static_thrust
+    print "Design thrust :",ramjet.design_thrust
+    print "Sealevel static thrust :",ramjet.sealevel_static_thrust
     
     results_design     = ramjet(state_sizing)
     results_off_design = ramjet(state_off_design)
@@ -208,8 +208,8 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 3056962.9065545597
-    expected.mdot   = 203.11136550916942
+    expected.thrust = 3025764.6957800589
+    expected.mdot   = 201.72877231960354
     
     #error data function
     error =  Data()
@@ -219,7 +219,7 @@ def energy_network():
     print error
     
     for k,v in error.items():
-        assert(np.abs(v)<1e-4)    
+        assert(np.abs(v)<1e-6)    
     
     return
     

@@ -2,7 +2,7 @@
 # fm_solver.py
 #
 # Created:  Sep 2017, P Goncalves
-# Modified: Dec 2017, W. Maier
+# Modified: Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,7 +34,7 @@ def fm_solver(area_ratio, M0, gamma):
     https://web.stanford.edu/~cantwell/AA210A_Course_Material/AA210A_Course_Notes/
     """
     #gamma = 1.4
-    func = lambda M1: ((M0/M1*((1+(gamma-1)/2*M1*M1)/(1+(gamma-1)/2*M0*M0))**((gamma+1)/(2*(gamma-1))))-area_ratio)[:,0]
+    func = lambda M1: ((M0/M1*((1+(gamma-1)/2*M1*M1)/(1+(gamma-1)/2*M0*M0))**((gamma+1)/(2*(gamma-1))))-area_ratio)
 
     # Initializing the array
     M1_guess = 1.0*M0/M0

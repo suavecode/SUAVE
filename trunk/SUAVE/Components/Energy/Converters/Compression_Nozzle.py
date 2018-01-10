@@ -3,6 +3,7 @@
 #
 # Created:  Jul 2014, A. Variyar
 # Modified: Jan 2016, T. MacDonald
+#           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -137,28 +138,29 @@ class Compression_Nozzle(Energy_Component):
 
             #-- Inlet Mach <= 1.0, isentropic relations
             Pt_out[i_low]  = Pt_in[i_low]*pid
-            Mach[i_low]    = np.sqrt( (((Pt_out[i_low]/Po[i_low])**((gamma-1.)/gamma))-1.) *2./(gamma-1.) ) #Check this later. Mach constant through compression????
-            T_out[i_low]   = Tt_out[i_low]/(1+(gamma-1)/2*Mach[i_low]*Mach[i_low])
+            Mach[i_low]    = np.sqrt( (((Pt_out[i_low]/Po[i_low])**((gamma[i_low]-1.)/gamma[i_low]))-1.) *2./(gamma[i_low]-1.) ) 
+            T_out[i_low]   = Tt_out[i_low]/(1.+(gamma[i_low]-1.)/2.*Mach[i_low]*Mach[i_low])
 
             #-- Inlet Mach > 1.0, normal shock
-            Mach[i_high]   = np.sqrt((1.+(gamma-1.)/2.*Mo[i_high]**2.)/(gamma*Mo[i_high]**2-(gamma-1.)/2.))
-            T_out[i_high]  = Tt_out[i_high]/(1.+(gamma-1.)/2*Mach[i_high]*Mach[i_high])
-            Pt_out[i_high] = pid*Pt_in[i_high]*((((gamma+1.)*(Mo[i_high]**2.))/((gamma-1.)*Mo[i_high]**2.+2.))**(gamma/(gamma-1.)))*((gamma+1.)/(2.*gamma*Mo[i_high]**2.-(gamma-1.)))**(1./(gamma-1.))
-            P_out[i_high]  = Pt_out[i_high]*(1+(gamma-1)/2*Mach[i_high]**2)**(-gamma/(gamma-1))
+            Mach[i_high]   = np.sqrt((1.+(gamma[i_high]-1.)/2.*Mo[i_high]**2.)/(gamma[i_high]*Mo[i_high]**2-(gamma[i_high]-1.)/2.))
+            T_out[i_high]  = Tt_out[i_high]/(1.+(gamma[i_high]-1.)/2*Mach[i_high]*Mach[i_high])
+            Pt_out[i_high] = pid*Pt_in[i_high]*((((gamma[i_high]+1.)*(Mo[i_high]**2.))/((gamma[i_high]-1.)*Mo[i_high]**2.+2.))**(gamma[i_high]/(gamma[i_high]-1.)))*((gamma[i_high]+1.)/(2.*gamma[i_high]*Mo[i_high]**2.-(gamma[i_high]-1.)))**(1./(gamma[i_high]-1.))
+            P_out[i_high]  = Pt_out[i_high]*(1.+(gamma[i_high]-1.)/2.*Mach[i_high]**2.)**(-gamma[i_high]/(gamma[i_high]-1.))
         else:
             Pt_out  = Pt_in*pid
+            
             # in case pressures go too low
             if np.any(Pt_out<Po):
                 warn('Pt_out goes too low',RuntimeWarning)
                 Pt_out[Pt_out<Po] = Po[Pt_out<Po]
 
             Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
-            T_out  = Tt_out/(1+(gamma-1)/2*Mach*Mach)
+            T_out  = Tt_out/(1.+(gamma-1.)/2.*Mach*Mach)
 
 
         #-- Compute exit velocity and enthalpy
         h_out   = Cp*T_out
-        u_out   = np.sqrt(2*(ht_out-h_out))
+        u_out   = np.sqrt(2.*(ht_out-h_out))
 
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out

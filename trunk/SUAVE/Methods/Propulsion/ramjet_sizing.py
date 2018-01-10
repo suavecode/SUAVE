@@ -16,7 +16,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 
 def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
-    """ create and evaluate a ramjet etwork
+    """ create and evaluate a ramjet network
     """    
     
     #Unpack components
