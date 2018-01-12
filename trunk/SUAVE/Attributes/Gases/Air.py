@@ -4,6 +4,7 @@
 # Created:  Mar. 2014, SUAVE Team
 # Modified: Jan. 2016, M. Vegh
 #           Dec. 2017, W. Maier 
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -101,6 +102,7 @@ class Air(Gas):
             g = self.compute_gamma(T,p)
         else:
             g = 1.40
+            #g=1.4*np.ones_like(T)
 
         return np.sqrt(g*self.gas_specific_constant*T)
 

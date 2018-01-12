@@ -355,8 +355,8 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 42383.01818423 
-    expected.mdot =  0.7657905
+    expected.thrust = 42383.01818402065 
+    expected.mdot =  0.76381994050720003
     
     #error data function
     error =  Data()
@@ -366,7 +366,7 @@ def energy_network():
     print error
     
     for k,v in error.items():
-        assert(np.abs(v)<1e-4)    
+        assert(np.abs(v)<1e-6)    
     
     
     return
