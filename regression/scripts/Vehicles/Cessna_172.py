@@ -57,7 +57,7 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
     vehicle.has_air_conditioner                         = 0
     vehicle.reference_area                              = 16.2  * Units.meter**2  # Wing gross area in square meters
-    vehicle.design_dynamics_pressure =( .5 *freestream0.density*(cruise_speed**2))[0][0]
+    vehicle.design_dynamic_pressure  =( .5 *freestream0.density*(cruise_speed**2))[0][0]
     vehicle.design_mach_number       = mach_number
     
     
@@ -66,26 +66,25 @@ def vehicle_setup():
     wing.tag                      = 'main_wing'
     wing.areas.reference          = 175      *(Units.ft**2)
     wing.aspect_ratio             = 7.44
-    wing.taper                    = 0.672                       # Taper ratio
-    wing.thickness_to_chord       = 0.13                        # Thickness-to-chord ratio
-    wing.sweep                    = 0.       * Units.rad        # sweep angle in degrees
+    wing.taper                    = 0.672                        # Taper ratio
+    wing.thickness_to_chord       = 0.13                         # Thickness-to-chord ratio
+    wing.sweeps.quarter_chord     = 0.       * Units.rad         # sweep angle in degrees
     wing.origin                   = [9.*Units.ft,0,0]            # Location of main wing from origin of the vehicle
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'    
-    #fuselage.areas.wetted             = 12.38899786* Units.meter**2   # Fuselage wetted area 
-    fuselage.differential_pressure    = 8*Units.psi     # Maximum differential pressure
-    fuselage.width                    = 40.         * Units.inches     # Width of the fuselage
-    fuselage.heights.maximum          = 75.         * Units.inches     # Height of the fuselage
-    fuselage.lengths.total            = (27+2./12.) * Units.feet     # Length of the fuselage
-    fuselage.lengths.empennage        = 9           * Units.feet   
-    fuselage.lengths.structure        = fuselage.lengths.total-fuselage.lengths.empennage 
-    fuselage.lengths.cabin            = 140         *Units.inches
-    fuselage.mass_properties.volume   = .4*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.) #try this as approximation
-    fuselage.internal_volume          = .3*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.)
-    fuselage.areas.wetted             = fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum **2)
+    fuselage.differential_pressure           = 8*Units.psi     # Maximum differential pressure
+    fuselage.width                           = 40.         * Units.inches     # Width of the fuselage
+    fuselage.heights.maximum                 = 75.         * Units.inches     # Height of the fuselage
+    fuselage.lengths.total                   = (27+2./12.) * Units.feet     # Length of the fuselage
+    fuselage.lengths.empennage               = 9           * Units.feet   
+    fuselage.lengths.structure               = fuselage.lengths.total-fuselage.lengths.empennage 
+    fuselage.lengths.cabin                   = 140         *Units.inches
+    fuselage.mass_properties.volume          = .4*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.) #try this as approximation
+    fuselage.mass_properties.internal_volume = .3*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.)
+    fuselage.areas.wetted                    = fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum **2)
    
     fuselage.number_coach_seats       = 4.       
     vehicle.append_component(fuselage)
@@ -96,7 +95,7 @@ def vehicle_setup():
     wing.areas.reference          = 34.6    * Units.feet**2 # Area of the horizontal tail
     wing.aspect_ratio             = 3.71
     wing.taper                    = .7
-    wing.sweep                    = 0.     * Units.deg       # Sweep of the horizontal tail
+    wing.sweeps.quarter_chord     = 0.     * Units.deg       # Sweep of the horizontal tail
     wing.thickness_to_chord       = 0.13                      # Thickness-to-chord ratio of the horizontal tail
     wing.origin                 = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
 
@@ -110,12 +109,12 @@ def vehicle_setup():
     #vertical stabilizer
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
-    wing.areas.reference     = 18.4    * Units.feet**2   # Area of the vertical tail
-    wing.aspect_ratio        =1.96
-    wing.taper               = .8
-    wing.thickness_to_chord  = 0.13                      # Thickness-to-chord ratio of the vertical tail
-    wing.sweep               = 0.     * Units.deg       # Sweep of the vertical tail
-    wing.t_tail              = "false"                    # Set to "yes" for a T-tail
+    wing.areas.reference      = 18.4    * Units.feet**2   # Area of the vertical tail
+    wing.aspect_ratio         =1.96
+    wing.taper                = .8
+    wing.thickness_to_chord   = 0.13                      # Thickness-to-chord ratio of the vertical tail
+    wing.sweeps.quarter_chord = 0.     * Units.deg       # Sweep of the vertical tail
+    wing.t_tail               = "false"                    # Set to "yes" for a T-tail
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     vehicle.append_component(wing)   

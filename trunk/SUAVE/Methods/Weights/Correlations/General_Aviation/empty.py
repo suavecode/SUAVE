@@ -31,64 +31,145 @@ def empty(vehicle):
             engine - a data dictionary with the fields:                    
                 thrust_sls - sea level static thrust of a single engine [Newtons]
 
-            wing - a data dictionary with the fields:
-                gross_area - wing gross area [meters**2]
-                span - span of the wing [meters]
-                taper - taper ratio of the wing [dimensionless]
-                t_c - thickness-to-chord ratio of the wing [dimensionless]
-                sweep - sweep angle of the wing [radians]
-                mac - mean aerodynamic chord of the wing [meters]
-                r_c - wing root chord [meters]
+           
 
-            aircraft - a data dictionary with the fields:                    
-                Nult - ultimate load of the aircraft [dimensionless]
-                Nlim - limit load factor at zero fuel weight of the aircraft [dimensionless]
-                TOW - maximum takeoff weight of the aircraft [kilograms]
-                zfw - maximum zero fuel weight of the aircraft [kilograms]
-                num_eng - number of engines on the aircraft [dimensionless]
-                num_pax - number of passengers on the aircraft [dimensionless]
+            vehicle - a data dictionary with the fields:                    
+                reference_area                                          [meters**2]
+                envelope - a data dictionary with the fields:
+                    ultimate_load - ultimate load of the aircraft                         [dimensionless]
+                    limit_load    - limit load factor at zero fuel weight of the aircraft [dimensionless]
+                
+                mass_properties - a data dictionary with the fields:
+                    max_takeoff   - max takeoff weight of the vehicle           [kilograms]
+                    max_zero_fuel - maximum zero fuel weight of the aircraft    [kilograms]
+                    cargo         - cargo weight                                [kilograms]
+                
+                passengers - number of passengers on the aircraft [dimensionless]
+                        
+                design_dynamic_pressure - dynamic pressure at cruise conditions [Pascal]
+                design_mach_number      - mach number at cruise conditions      [dimensionless]
+                
+                propulsors - a data dictionary with the fields: 
+                    keys           - identifier for the type of propulsor; different types have different fields
+                        turbofan
+                            thrust_sls - sealevel standard thrust                               [Newtons]             
+                        internal_combustion
+                            rated_power - maximum rated power of the internal combustion engine [Watts]
+                        
+                    number_engines - integer indicating the number of engines on the aircraft
+                    
+
+              
                 wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
                 num_seats - number of seats installed on the aircraft [dimensionless]
                 ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
                 ac - determines type of instruments, electronics, and operating items based on types: 
                     "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst" [dimensionless]
                 w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
+                
+                fuel - a data dictionary with the fields: 
+                    mass_properties  - a data dictionary with the fields:
+                        mass -mass of fuel [kilograms]
+                    density          - gravimetric density of fuel                [kilograms/meter**3]    
+                    number_of_tanks  - number of external fuel tanks              [dimensionless]
+                    internal_volume  - internal fuel volume contained in the wing [meters**3]
+                wings - a data dictionary with the fields:    
+                    wing - a data dictionary with the fields:
+                        span                      - span of the wing                           [meters]
+                        taper                     - taper ratio of the wing                    [dimensionless]
+                        thickness_to_chord        - thickness-to-chord ratio of the wing       [dimensionless]
+                        chords - a data dictionary with the fields:
+                            mean_aerodynamic - mean aerodynamic chord of the wing              [meters]
+                            root             - root chord of the wing                          [meters]
+                            
+                            
+                        sweeps - a data dictionary with the fields:
+                            quarter_chord - quarter chord sweep angle of the wing              [radians]
+                        mac                       - mean aerodynamic chord of the wing         [meters]
+                        r_c                       - wing root chord                            [meters]
+                        origin  - location of the leading edge of the wing relative to the front of the fuselage                                      [meters,meters,meters]
+                        aerodynamic_center - location of the aerodynamic center of the horizontal_stabilizer relative to the leading edge of the wing [meters,meters,meters]
+        
+                    
+                    
+                    
+                    horizontal_stabilizer - a data dictionary with the fields:
+                        areas -  a data dictionary with the fields:
+                            reference - reference area of the horizontal stabilizer                [meters**2]
+                            exposed  - exposed area for the horizontal tail                        [meters**2]
+                        taper   - taper ratio of the horizontal stabilizer                         [dimensionless]
+                        span    - span of the horizontal tail                                      [meters]
+                        sweeps - a data dictionary with the fields:
+                            quarter_chord - quarter chord sweep angle of the horizontal stabilizer [radians]
+                        chords - a data dictionary with the fields:
+                            mean_aerodynamic - mean aerodynamic chord of the horizontal stabilizer                     [meters]         
+                            root             - root chord of the horizontal stabilizer             
+                        thickness_to_chord - thickness-to-chord ratio of the horizontal tail                           [dimensionless]
+                        mac     - mean aerodynamic chord of the horizontal tail                                        [meters]
+                        origin  - location of the leading of the horizontal tail relative to the front of the fuselage                                                 [meters,meters,meters]
+                        aerodynamic_center - location of the aerodynamic center of the horizontal_stabilizer relative to the leading edge of the horizontal stabilizer [meters,meters,meters]
+        
+                    vertical - a data dictionary with the fields:
+                        areas -  a data dictionary with the fields:
+                            reference - reference area of the vertical stabilizer         [meters**2]
+                        span    - span of the vertical tail                               [meters]
+                        taper   - taper ratio of the horizontal stabilizer                [dimensionless]
+                        t_c     - thickness-to-chord ratio of the vertical tail           [dimensionless]
+                        sweeps   - a data dictionary with the fields:
+                            quarter_chord - quarter chord sweep angle of the vertical stabilizer [radians]
+                        t_tail - flag to determine if aircraft has a t-tail, "yes"        [dimensionless]
 
-            fuselage - a data dictionary with the fields:
-                area - fuselage wetted area [meters**2]
-                diff_p - Maximum fuselage pressure differential [Pascal]
-                width - width of the fuselage [meters]
-                height - height of the fuselage [meters]
-                length - length of the fuselage [meters]                     
 
-            horizontal
-                area - area of the horizontal tail [meters**2]
-                span - span of the horizontal tail [meters]
-                sweep - sweep of the horizontal tail [radians]
-                mac - mean aerodynamic chord of the horizontal tail [meters]
-                t_c - thickness-to-chord ratio of the horizontal tail [dimensionless]
-                exposed - exposed area ratio for the horizontal tail [dimensionless]
-
-            vertical
-                area - area of the vertical tail [meters**2]
-                span - sweight = weight * Units.lbpan of the vertical [meters]
-                t_c - thickness-to-chord ratio of the vertical tail [dimensionless]
-                sweep - sweep angle of the vertical tail [radians]
-                t_tail - factor to determine if aircraft has a t-tail, "yes" [dimensionless]
-
+                
+                fuselages - a data dictionary with the fields:  
+                    fuselage - a data dictionary with the fields:
+                        areas             - a data dictionary with the fields:
+                            wetted - wetted area of the fuselage [meters**2]
+                        differential_pressure  - Maximum fuselage pressure differential   [Pascal]
+                        width             - width of the fuselage                         [meters]
+                        heights - a data dictionary with the fields:
+                            maximum - height of the fuselage                              [meters]
+                        lengths-  a data dictionary with the fields:
+                            structure - structural length of the fuselage                 [meters]                     
+                        mass_properties - a data dictionary with the fields:
+                            volume - total volume of the fuselage                         [meters**3]
+                            internal_volume - internal volume of the fuselage             [meters**3]
+                        number_coach_sets - number of seats on the aircraft               [dimensionless]    
+                landing_gear - a data dictionary with the fields:
+                    main - a data dictionary with the fields:
+                        strut_length - strut length of the main gear                      [meters]
+                    nose - a data dictionary with the fields:
+                        strut_length - strut length of the nose gear                      [meters]
+                avionics - a data dictionary, used to determine if avionics weight is calculated, don't include if vehicle has none
+                air_conditioner - a data dictionary, used to determine if air conditioner weight is calculated, don't include if vehicle has none
+        
+        
         Outputs:
             output - a data dictionary with fields:
-                wt_payload - weight of the passengers plus baggage and paid cargo [kilograms]
-                wt_pax - weight of all the passengers [kilogram]
-                wt_bag - weight of all the baggage [kilogram]
-                wt_fuel - weight of the fuel carried[kilogram]
-                wt_empty - operating empty weight of the aircraft [kilograms]
-
+                wing - wing weight                            [kilograms]
+                fuselage - fuselage weight                    [kilograms]
+                propulsion - propulsion                       [kilograms]
+                landing_gear_main - main gear weight          [kilograms]
+                landing_gear_nose - nose gear weight          [kilograms]
+                horizonal_tail - horizontal stabilizer weight [kilograms]
+                vertical_tail - vertical stabilizer weight    [kilograms]
+                systems - total systems weight                [kilograms]
+                systems_breakdown - a data dictionary with fields:
+                    control_systems - control systems weight  [kilograms]
+                    hydraulics - hydraulics weight            [kilograms]
+                    avionics - avionics weight                [kilograms]
+                    electric - electrical systems weight      [kilograms]
+                    air_conditioner - air conditioner weight  [kilograms]
+                    furnish - furnishing weight               [kilograms]
+                    fuel_system - fuel system weight          [ kilograms]
+           Wing, empannage, fuselage, propulsion and individual systems masses updated with their calculated values
+        
         Assumptions:
             calculated aircraft weight from correlations created per component of historical aircraft
     """     
 
     # Unpack inputs
+    S_gross_w   = vehicle.reference_area
     fuel        = vehicle.fuel
     Nult        = vehicle.envelope.ultimate_load
     Nlim        = vehicle.envelope.limit_load
@@ -96,10 +177,8 @@ def empty(vehicle):
     wt_zf       = vehicle.mass_properties.max_zero_fuel
     num_pax     = vehicle.passengers
     wt_cargo    = vehicle.mass_properties.cargo
-    num_seats   = vehicle.fuselages['fuselage'].number_coach_seats
-    #ctrl_type  = vehicle.systems.control
-    #ac_type    = vehicle.systems.accessories         
-    q_c         = vehicle.design_dynamics_pressure
+        
+    q_c         = vehicle.design_dynamic_pressure
     mach_number = vehicle.design_mach_number
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
@@ -145,8 +224,8 @@ def empty(vehicle):
         V_fuel_int                  = fuel.internal_volume #fuel in internal (as opposed to external tanks)
         V_fuel                      = m_fuel/fuel.density  #total fuel
         fuel.mass_properties.volume = V_fuel 
-    S_gross_w  = vehicle.reference_area
-    #S_gross_w  = vehicle.wings['main_wing'].Areas.reference
+    
+    
     
     #main wing
     if not vehicle.wings.has_key('main_wing'):
@@ -159,20 +238,12 @@ def empty(vehicle):
         AR_w       = (b**2.)/S_gross_w
         taper_w    = vehicle.wings['main_wing'].taper
         t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweep
+        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
+        #now run weight script for the wing
         wt_wing    = wing_main(S_gross_w, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
-
-    S_fus      = vehicle.fuselages['fuselage'].areas.wetted
-    diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
-    w_fus      = vehicle.fuselages['fuselage'].width
-    h_fus      = vehicle.fuselages['fuselage'].heights.maximum
-    l_fus      = vehicle.fuselages['fuselage'].lengths.structure
-    V_fuse     = vehicle.fuselages['fuselage'].mass_properties.volume
-    V_int      = vehicle.fuselages['fuselage'].internal_volume 
-    
     if not vehicle.wings.has_key('horizontal_stabilizer'):
         wt_tail_horizontal = 0.0
         S_h = 0.0
@@ -183,13 +254,14 @@ def empty(vehicle):
         b_h            = vehicle.wings['horizontal_stabilizer'].spans.projected
         AR_h           = (b_h**2.)/S_h
         taper_h        = vehicle.wings['horizontal_stabilizer'].spans.projected
-        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweep
+        sweep_h        = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord
         mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
         l_w2h          = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
         wt_tail_horizontal = tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW)                
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
+    
     #vertical stabilizer
     if not vehicle.wings.has_key('vertical_stabilizer'):   
         output_3 = Data()
@@ -204,11 +276,32 @@ def empty(vehicle):
         AR_v       = (b_v**2.)/S_v
         taper_v    = vehicle.wings['vertical_stabilizer'].taper
         t_c_v      = vehicle.wings['vertical_stabilizer'].thickness_to_chord
-        sweep_v    = vehicle.wings['vertical_stabilizer'].sweep
+        sweep_v    = vehicle.wings['vertical_stabilizer'].sweeps.quarter_chord
         t_tail     = vehicle.wings['vertical_stabilizer'].t_tail  
         output_3   = tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail)
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical
     
+    
+    
+    
+    
+    
+    if not vehicle.has_key('fuselages.fuselage'):
+        
+        S_fus      = vehicle.fuselages['fuselage'].areas.wetted
+        diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
+        w_fus      = vehicle.fuselages['fuselage'].width
+        h_fus      = vehicle.fuselages['fuselage'].heights.maximum
+        l_fus      = vehicle.fuselages['fuselage'].lengths.structure
+        V_fuse     = vehicle.fuselages['fuselage'].mass_properties.volume
+        V_int      = vehicle.fuselages['fuselage'].mass_properties.internal_volume 
+        num_seats  = vehicle.fuselages['fuselage'].number_coach_seats 
+        #calculate fuselage weight
+        wt_fuselage = fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_w2h, q_c, V_fuse, diff_p_fus)
+    else:
+        print 'got here'
+        warnings.warn('There is no Fuselage weight being added to the vehicle', stacklevel=1)
+   
     #landing gear
     if not vehicle.has_key('landing_gear'):
         warnings.warn('There is no Landing Gear weight being added to the vehicle', stacklevel=1)
@@ -234,12 +327,13 @@ def empty(vehicle):
     else:
         avionics = vehicle.avionics
         W_uav = avionics.mass_properties.uninstalled
-    
-    has_air_conditioner = vehicle.has_air_conditioner
+        
+    has_air_conditioner = 0
+    if vehicle.has_key('air_conditioner'):
+        has_air_conditioner = 1
     
     
     # Calculating Empty Weight of Aircraft
-    wt_fuselage        = fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_w2h, q_c, V_fuse, diff_p_fus)
     output_2           = systems(W_uav,V_fuel, V_fuel_int, N_tank, num_eng, l_fus, b, TOW, Nult, num_seats, mach_number, has_air_conditioner)
 
     # Calculate the equipment empty weight of the aircraft
@@ -255,7 +349,6 @@ def empty(vehicle):
     output.wing              = wt_wing
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion
-    output.landing_gear      = Data()
     output.landing_gear_main = wt_landing_gear.main
     output.landing_gear_nose = wt_landing_gear.nose
     output.horizontal_tail   = wt_tail_horizontal
@@ -263,8 +356,7 @@ def empty(vehicle):
     
     output.systems           = output_2.wt_systems       
     output.systems_breakdown = Data()
-    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
-    #output.systems_breakdown.apu               = output_2.wt_apu         
+    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl        
     output.systems_breakdown.hydraulics        = output_2.wt_hyd_pnu     
     output.systems_breakdown.avionics          = output_2.wt_avionics    
     output.systems_breakdown.electrical        = output_2.wt_elec        
@@ -297,6 +389,7 @@ def empty(vehicle):
     
     if has_air_conditioner:
         vehicle.air_conditioner.mass_properties.mass                 = output.systems_breakdown.air_conditioner
+    
     #assign components to vehicle
     vehicle.control_systems                     = control_systems
     vehicle.electrical_systems                  = electrical_systems
