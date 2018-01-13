@@ -68,25 +68,25 @@ def energy_network():
     
 
     # freestream conditions
-    conditions.freestream.mach_number        = ones_1col*0.8
-    conditions.freestream.pressure           = ones_1col*20000.
-    conditions.freestream.temperature        = ones_1col*215.
-    conditions.freestream.density            = ones_1col*0.8
+    conditions.freestream.mach_number                  = ones_1col*0.8
+    conditions.freestream.pressure                     = ones_1col*20000.
+    conditions.freestream.temperature                  = ones_1col*215.
+    conditions.freestream.density                      = ones_1col*0.8
 
-    conditions.freestream.dynamic_viscosity          = ones_1col* 0.000001475
-    conditions.freestream.altitude           = ones_1col* 10.
-    conditions.freestream.gravity            = ones_1col*9.81
-    conditions.freestream.gamma              = ones_1col*1.4
-    conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-    conditions.freestream.R                  = 287.87
-    conditions.M = conditions.freestream.mach_number 
-    conditions.T = conditions.freestream.temperature
-    conditions.p = conditions.freestream.pressure
+    conditions.freestream.dynamic_viscosity            = ones_1col* 0.000001475
+    conditions.freestream.altitude                     = ones_1col* 10.
+    conditions.freestream.gravity                      = ones_1col*9.81
+    conditions.freestream.isentropic_expansion_factor  = ones_1col*1.4
+    conditions.freestream.Cp                           = 1.4*287.87/(1.4-1)
+    conditions.freestream.R                            = 287.87
+    conditions.M                                       = conditions.freestream.mach_number 
+    conditions.T                                       = conditions.freestream.temperature
+    conditions.p                                       = conditions.freestream.pressure
     conditions.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
     conditions.freestream.velocity           = conditions.M * conditions.freestream.speed_of_sound
-    conditions.velocity = conditions.M * conditions.freestream.speed_of_sound
-    conditions.q = 0.5*conditions.freestream.density*conditions.velocity**2
-    conditions.g0 = conditions.freestream.gravity
+    conditions.velocity                      = conditions.M * conditions.freestream.speed_of_sound
+    conditions.q                             = 0.5*conditions.freestream.density*conditions.velocity**2
+    conditions.g0                            = conditions.freestream.gravity
     
     # propulsion conditions
     conditions.propulsion.throttle           =  ones_1col*1.0
@@ -126,7 +126,7 @@ def energy_network():
     conditions_sizing.freestream.altitude           = ones_1col* 10000. #* 0.5
 
     conditions_sizing.freestream.gravity            = ones_1col*9.81
-    conditions_sizing.freestream.gamma              = ones_1col*1.4
+    conditions_sizing.freestream.isentropic_expansion_factor             = ones_1col*1.4
     conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
     conditions_sizing.freestream.R                  = 287.87
     conditions_sizing.freestream.speed_of_sound     = 299.53150968

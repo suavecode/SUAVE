@@ -16,7 +16,7 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Ramjet import Ramjet
+from SUAVE.Components.Energy.Networks.ramjet import Ramjet
 from SUAVE.Methods.Propulsion.ramjet_sizing import ramjet_sizing
 
 # ----------------------------------------------------------------------
@@ -54,7 +54,7 @@ def energy_network():
     conditions.freestream.dynamic_viscosity  = ones_1col* 0.000001475
     conditions.freestream.altitude           = ones_1col* 10.
     conditions.freestream.gravity            = ones_1col*9.81
-    conditions.freestream.gamma              = ones_1col*1.4
+    conditions.freestream.isentropic_expansion_factor = ones_1col*1.4
     conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
     conditions.freestream.R                  = 287.87
     conditions.M                             = conditions.freestream.mach_number 
@@ -88,7 +88,7 @@ def energy_network():
     conditions_sizing.freestream.dynamic_viscosity  = ones_1col* 1.45766126e-05 #*1.789*10**(-5)
     conditions_sizing.freestream.altitude           = ones_1col* 10000. #* 0.5
     conditions_sizing.freestream.gravity            = ones_1col*9.81
-    conditions_sizing.freestream.gamma              = ones_1col*1.4
+    conditions_sizing.freestream.isentropic_expansion_factor             = ones_1col*1.4
     conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
     conditions_sizing.freestream.R                  = 287.87
     conditions_sizing.freestream.speed_of_sound     = 299.96
