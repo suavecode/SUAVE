@@ -160,7 +160,7 @@ class Expansion_Nozzle(Energy_Component):
         rho_out       = P_out/(R*T_out)
         
         #Computing the freestream to nozzle area ratio (mainly from thrust computation)
-        area_ratio    = (fm_id(Mo)/fm_id(Mach)*(1/(Pt_out/Pto))*(np.sqrt(Tt_out/Tto)))
+        area_ratio    = (fm_id(Mo,gamma)/fm_id(Mach,gamma)*(1/(Pt_out/Pto))*(np.sqrt(Tt_out/Tto)))
         
         #pack computed quantities into outputs
         self.outputs.stagnation_temperature  = Tt_out
