@@ -30,22 +30,22 @@ class Ramjet(Propulsor):
     """
 
     def __defaults__(self):
-        """ This sets the default values for the network to function.
+	""" This sets the default values for the network to function.
 
-        Assumptions:
-        None
+            Assumptions:
+            None
 
-        Source:
-        N/A
+            Source:
+            N/A
 
-        Inputs:
-        None
+            Inputs:
+            None
 
-        Outputs:
-        None
+            Outputs:
+            None
 
-        Properties Used:
-        N/A
+            Properties Used:
+            N/A
         """
 
         #setting the default values
@@ -58,37 +58,37 @@ class Ramjet(Propulsor):
 
 
     def evaluate_thrust(self,state):
-        """ Calculate thrust given the current state of the vehicle
+	""" Calculate thrust given the current state of the vehicle
 
-        	Assumptions:
-        	None
+		Assumptions:
+		None
 
-        	Source:
-        	N/A
+		Source:
+		N/A
 
-        	Inputs:
-        	state [state()]
+		Inputs:
+		state [state()]
 
-        	Outputs:
-        	results.thrust_force_vector                   [newtons]
-        	results.vehicle_mass_rate                     [kg/s]
-        	conditions.propulsion.acoustic_outputs:
-        	    core:
-        		exit_static_temperature                  [K]
-        		exit_static_pressure                     [K]
-        		exit_stagnation_temperature              [K]
-        		exit_stagnation_pressure                 [Pa]
-        		exit_velocity                            [m/s]
-        	    fan:
-        		exit_static_temperature                  [K]
-        		exit_static_pressure                     [K]
-        		exit_stagnation_temperature              [K]
-        		exit_stagnation_pressure                 [Pa]
-        		exit_velocity                            [m/s]
+		Outputs:
+		results.thrust_force_vector                   [newtons]
+		results.vehicle_mass_rate                     [kg/s]
+		conditions.propulsion.acoustic_outputs:
+		    core:
+			exit_static_temperature                  [K]
+			exit_static_pressure                     [K]
+			exit_stagnation_temperature              [K]
+			exit_stagnation_pressure                 [Pa]
+			exit_velocity                            [m/s]
+		    fan:
+			exit_static_temperature                  [K]
+			exit_static_pressure                     [K]
+			exit_stagnation_temperature              [K]
+			exit_stagnation_pressure                 [Pa]
+			exit_velocity                            [m/s]
 
-        	Properties Used:
-        	Defaulted values
-            """
+		Properties Used:
+		Defaulted values
+	    """
 
         #Unpack
         conditions = state.conditions
@@ -162,6 +162,7 @@ class Ramjet(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
+	results.specific_impulse    = Isp
 
         return results
 

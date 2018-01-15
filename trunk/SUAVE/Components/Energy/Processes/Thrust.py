@@ -122,6 +122,7 @@ class Thrust(Energy_Component):
           core_mass_flow_rate                [kg/s]
           fuel_flow_rate                     [kg/s]
           power                              [W]
+          Specific Impulse                   [s]
 
         Properties Used:
         self.
@@ -176,7 +177,7 @@ class Thrust(Energy_Component):
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
         #Computing the specific impulse
-        #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
+        Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
@@ -203,7 +204,7 @@ class Thrust(Energy_Component):
         self.outputs.core_mass_flow_rate               = mdot_core
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
-    
+        self.outputs.specific_impulse                   = Isp
         
     
     def size(self,conditions):

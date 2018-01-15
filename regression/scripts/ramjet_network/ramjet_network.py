@@ -16,7 +16,7 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.ramjet import Ramjet
+from SUAVE.Components.Energy.Networks.Ramjet import Ramjet
 from SUAVE.Methods.Propulsion.ramjet_sizing import ramjet_sizing
 
 # ----------------------------------------------------------------------
@@ -52,7 +52,7 @@ def energy_network():
     conditions.freestream.temperature        = ones_1col*215.
     conditions.freestream.density            = ones_1col*0.8
     conditions.freestream.dynamic_viscosity  = ones_1col* 0.000001475
-    conditions.freestream.altitude           = ones_1col* 10.
+    conditions.freestream.altitude           = ones_1col* 10000.
     conditions.freestream.gravity            = ones_1col*9.81
     conditions.freestream.isentropic_expansion_factor = ones_1col*1.4
     conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
@@ -193,7 +193,7 @@ def energy_network():
     ramjet.thrust = thrust    
 
     #size the ramjet
-    ramjet_sizing(ramjet,0.8,10000.0)
+    ramjet_sizing(ramjet,2.5,10000.0)
     
     print "Design thrust :",ramjet.design_thrust
     print "Sealevel static thrust :",ramjet.sealevel_static_thrust
@@ -202,24 +202,28 @@ def energy_network():
     results_off_design = ramjet(state_off_design)
     F                  = results_design.thrust_force_vector
     mdot               = results_design.vehicle_mass_rate
+    Isp                = results_design.specific_impulse
     F_off_design       = results_off_design.thrust_force_vector
     mdot_off_design    = results_off_design.vehicle_mass_rate
+    Isp_off_design     = results_off_design.specific_impulse
     
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 3025764.6957800589
-    expected.mdot   = 201.72877231960354
+    expected.thrust = 335745.84819081065
+    expected.mdot   = 22.384291105450668
+    expected.Isp    = 1529.48813958
     
     #error data function
     error =  Data()
     
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0] - expected.mdot)/expected.mdot
+    error.Isp_error    = (Isp[0][0]- expected.Isp)/expected.Isp
     print error
     
     for k,v in error.items():
-        assert(np.abs(v)<1e-6)    
+         assert(np.abs(v)<1e-6)    
     
     return
     

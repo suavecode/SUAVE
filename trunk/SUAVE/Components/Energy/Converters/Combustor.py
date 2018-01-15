@@ -209,11 +209,9 @@ class Combustor(Energy_Component):
         M_out  = 1*Pt_in/Pt_in
         Ptr    = 1*Pt_in/Pt_in
 
-        # Make i_rayleigh the size of output arrays
-        i_rayleigh = Pt_in < 2*Pt_in
-        
+       
         # Isentropic decceleration through divergent nozzle
-        Mach[i_rayleigh]    = fm_solver(ar,Mach[i_rayleigh],gamma[i_rayleigh])  
+        Mach   = fm_solver(ar,Mach[:,0],gamma[:,0])  
         
         # Determine max stagnation temperature to thermally choke flow                                     
         Tt4_ray = Tt_in*(1.+gamma*Mach*Mach)**2./((2.*(1.+gamma)*Mach*Mach)*(1.+(gamma-1.)/2.*Mach*Mach))
@@ -227,7 +225,7 @@ class Combustor(Energy_Component):
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
-        M_out[i_rayleigh], Ptr[i_rayleigh] = rayleigh(gamma[i_rayleigh],Mach[i_rayleigh],Tt4[i_rayleigh]/Tt_in[i_rayleigh]) 
+        M_out[:,0], Ptr[:,0] = rayleigh(gamma[:,0],Mach,Tt4[:,0]/Tt_in[:,0]) 
         Pt_out     = Ptr*Pt_in
             
 
