@@ -162,7 +162,6 @@ class Ramjet(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-	results.specific_impulse    = Isp
 
         return results
 
