@@ -32,7 +32,8 @@ class JP7(Propellant):
 
         Source:
         Values commonly available
-
+        http://arc.uta.edu/publications/td_files/Kristen%20Roberts%20MS.pdf
+        
         Inputs:
         None
 
@@ -42,16 +43,14 @@ class JP7(Propellant):
         Properties Used:
         None
         """    
-        self.tag                       = 'JP7'
-        self.reactant                  = 'O2'
-        self.density                   = 803.0                          # kg/m^3 (15 C, 1 atm)
-        self.specific_energy           = 43.02e6                        # J/kg
-        self.energy_density            = 35276.4e6                      # J/m^3
-        self.max_mass_fraction         = {'Air' : 0.0633, \
-                                          'O2' : 0.3022}                # kg propellant / kg oxidizer
-
+        self.tag                        = 'JP7'
+        self.reactant                   = 'O2'
+        self.density                    = 803.0             # [kg/m^3] (15 C, 1 atm)
+        self.specific_energy            = 43.5e6            # [J/kg]
+        self.energy_density             = 34930.5e6         # [J/m^3]
+        self.stoichiometric_fuel_to_air = 0.0674
+        
         # critical temperatures
-        self.temperatures.flash        = 311.15                 # K
-        self.temperatures.autoignition = 483.15                 # K
-        self.temperatures.freeze       = 233.15                 # K
-        self.temperatures.boiling      = 0.0                    # K
+        self.temperatures.flash         = 333.15            # [K] 
+        self.temperatures.boiling       = 555.15            # [K]
+        self.temperatures.autoignition  = 514.15            # [K]

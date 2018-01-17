@@ -18,7 +18,7 @@ from warnings import warn
 import numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-
+from SUAVE.Methods.Propulsion.shock_train  import shock_train
 # ----------------------------------------------------------------------
 #  Compression Nozzle Component
 # ----------------------------------------------------------------------
@@ -58,12 +58,14 @@ class Compression_Nozzle(Energy_Component):
         self.polytropic_efficiency           = 1.0
         self.pressure_ratio                  = 1.0
         self.compressibility_effects         = False
-        self.inputs.stagnation_temperature   = 0.
-        self.inputs.stagnation_pressure      = 0.
-        self.outputs.stagnation_temperature  = 0.
-        self.outputs.stagnation_pressure     = 0.
-        self.outputs.stagnation_enthalpy     = 0.
-
+        self.inputs.stagnation_temperature   = 0.0
+        self.inputs.stagnation_pressure      = 0.0
+        self.outputs.stagnation_temperature  = 0.0
+        self.outputs.stagnation_pressure     = 0.0
+        self.outputs.stagnation_enthalpy     = 0.0
+        self.compression_levels              = 1.0
+        self.theta                           = 0.0
+        
     def compute(self,conditions):
         """ This computes the output values from the input values according to
         equations from the source.
@@ -171,5 +173,88 @@ class Compression_Nozzle(Energy_Component):
         self.outputs.static_enthalpy         = h_out
         self.outputs.velocity                = u_out
 
-
+    def compute_scramjet(self,conditions):
+        """This function computes the compression of a scramjet
+        using shock trains. 
+        
+        Assumptions:
+        
+        Source:
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
+        "Hypersonic Airbreathing Propulsion", 1994 
+        
+        Inputs:
+        conditions.freestream.
+            isentropic_expansion_factor        [-]
+            specific_heat_at_constant_pressure [J/(kg K)]
+            pressure                           [Pa]
+            gas_specific_constant              [J/(kg K)]
+            temperature                        [K]
+            mach_number                        [-]
+            velocity                           [m/s]
+         
+        self.inputs.
+            stagnation_temperature             [K]
+            stagnation_pressure                [Pa]
+            
+        Outputs:
+        self.outputs.
+            stagnation_temperature             [K]
+            stagnation_pressure                [Pa]
+            stagnation_enthalpy                [J/kg]
+            mach_number                        [-]
+            static_temperature                 [K]
+            static_enthalpy                    [J/kg]
+            velocity                           [m/s]
+            
+        Properties Used:
+        self.
+            efficiency                         [-]
+            shock_count                        [-]
+            theta                              [-]
+        """
+        
+        # unpack the values
+        
+        # unpack from conditions
+        gamma       = conditions.freestream.isentropic_expansion_factor
+        Cp          = conditions.freestream.specific_heat_at_constant_pressure
+        Po          = conditions.freestream.pressure
+        To          = conditions.temperature
+        Mo          = conditions.freestream.mach_number
+        
+        # unpack from inputs
+        Tt_in       = self.inputs.stagnation_temperature
+        Pt_in       = self.inputs.stagnation_pressure
+        
+        # unpack from self
+        eta         = self.efficiency
+        shock_count = self.compression_levels
+        theta       = self.theta
+        
+        # compute compressed flow variables 
+        
+        # compute inlet conditions, based on geometry and number of shocks
+        psi, Ptr    = shock_train(Mo,gamma,shock_count,theta)
+        
+        # compute outputs
+        T_out       = psi*To
+        P_out       = Po*(psi/(psi*(1.-eta)+eta))**(Cp/R)
+        Pt_out      = Ptr*Pt_in
+        Mach        = np.sqrt((2./(gamma-1.))*((To/T_out)*(1.+(gamma-1.)/2.*Mo*M0)-1.))
+        u_out       = np.sqrt(Vo*Vo-2.*Cp*To*(psi-1.))
+        h_out       = Cp*T_out
+        Tt_out      = Tt_in
+        ht_out      = Cp*Tt_out
+        
+        # packing output values 
+        self.outputs.stagnation_temperature  = Tt_out             
+        self.outputs.stagnation_pressure     = Pt_out               
+        self.outputs.stagnation_enthalpy     = ht_out        
+        self.outputs.mach_number             = Mach       
+        self.outputs.static_temperature      = T_out       
+        self.outputs.static_enthalpy         = h_out         
+        self.outputs.velocity                = u_out        
+        self.outputs.static_pressure         = P_out   
+        
     __call__ = compute
