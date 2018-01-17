@@ -13,5 +13,4 @@ from fm_id import fm_id
 from fm_solver import fm_solver
 from rayleigh import rayleigh
 from nozzle_calculations import exit_Mach_shock, mach_area, normal_shock, pressure_ratio_isentropic, pressure_ratio_shock_in_nozzle
-from shock_train import shock_train
 import electric_motor_sizing

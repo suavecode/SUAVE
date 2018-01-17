@@ -12,6 +12,5 @@ from Turbojet_Super import Turbojet_Super
 from Solar_Low_Fidelity import Solar_Low_Fidelity
 from Dual_Battery_Ducted_Fan import Dual_Battery_Ducted_Fan
 from Ramjet import Ramjet
-from Scramjet import Scramjet
 from Battery_Propeller import Battery_Propeller
 from Lift_Forward_Propulsor import Lift_Forward_Propulsor
