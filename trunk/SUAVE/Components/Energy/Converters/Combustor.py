@@ -120,6 +120,7 @@ class Combustor(Energy_Component):
         Pt_in  = self.inputs.stagnation_pressure
         Tt4    = self.turbine_inlet_temperature
         pib    = self.pressure_ratio
+        eta_b  = self.efficiency
         
         # unpacking values from self
         htf             = self.fuel_data.specific_energy
