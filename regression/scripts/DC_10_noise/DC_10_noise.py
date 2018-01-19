@@ -18,9 +18,9 @@ def main():
     noise = Correlations.shevell(weight_landing, number_of_engines, thrust_sea_level, thrust_landing)
     
     actual = Data()
-    actual.takeoff = 99.7
-    actual.side_line = 97.2
-    actual.landing = 105.2
+    actual.takeoff = 99.982372547196633
+    actual.side_line = 97.482372547196633
+    actual.landing = 105.69577388532885
     
     error = Data()
     error.takeoff = (actual.takeoff - noise.takeoff)/actual.takeoff
@@ -28,7 +28,7 @@ def main():
     error.landing = (actual.landing - noise.landing)/actual.landing
     
     for k,v in error.items():
-        assert(np.abs(v)<0.005)
+        assert(np.abs(v)<1e-6)
         
     return
 

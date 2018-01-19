@@ -60,7 +60,7 @@ def main():
     print error.noise_cumulative_margin
     print error
     for k,v in error.items():
-        assert(np.abs(v)<0.001) 
+        assert(np.abs(v)<1e-6) 
         
     return
         
