@@ -16,7 +16,7 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Boeing_737 import vehicle_setup
-from SUAVE.Methods.Performance  import payload_range
+
 
 
 def main():
@@ -44,25 +44,7 @@ def main():
     actual.vertical_tail   = 629.03876835
     actual.rudder          =  251.61550734
     
-    
-    '''
-    #old errors; original geometry appears to be incorrect
-    actual.payload = 17349.9081525
-    actual.pax = 15036.5870655
-    actual.bag = 2313.321087
-    actual.fuel = -13680.6265874
-    actual.empty = 75346.5184349
-    actual.wing = 27694.192985
-    actual.fuselage = 11423.9380852
-    actual.propulsion = 6855.68572746 
-    actual.landing_gear = 3160.632
-    actual.systems = 16655.7076511
-    actual.wt_furnish = 7466.1304102
-    actual.horizontal_tail = 2191.30720639
-    actual.vertical_tail = 5260.75341411
-    actual.rudder = 2104.30136565    
-    '''
-    
+
     
     error = Data()
     error.payload = (actual.payload - weight.payload)/actual.payload
@@ -81,15 +63,17 @@ def main():
     error.vertical_tail = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder = (actual.rudder - weight.rudder)/actual.rudder
     
-    print 'Results (kg)'
+    print 'Results tube and wing (kg)'
     print weight
     
     print 'Relative Errors'
     print error  
+    
+    
       
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
-   
+  
     
     return
 
