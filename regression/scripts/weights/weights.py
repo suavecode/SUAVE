@@ -16,7 +16,7 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Boeing_737 import vehicle_setup
-
+from SUAVE.Methods.Performance  import payload_range
 
 
 def main():
@@ -32,6 +32,25 @@ def main():
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.5870655
     actual.bag             = 2313.321087
+    actual.fuel            = 12992.2690148 #includes cargo #22177.6377131 #without cargo
+    actual.empty           = 38673.6228327
+    actual.wing            = 6649.70965874
+    actual.fuselage        = 6642.08276948
+    actual.propulsion      = 6836.85200499
+    actual.landing_gear    = 3160.632
+    actual.systems         = 13479.1047906
+    actual.wt_furnish      = 6431.80372889
+    actual.horizontal_tail = 1024.58733327
+    actual.vertical_tail   = 629.03876835
+    actual.rudder          = 251.61550734
+    
+    
+    
+    '''
+    #old errors before vectorization of Gamma
+    actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
+    actual.pax             = 15036.5870655
+    actual.bag             = 2313.321087
     actual.fuel            = 12973.7402681 #includes cargo #22177.6377131 #without cargo
     actual.empty           = 38692.1515794
     actual.wing            = 6649.70965874
@@ -42,9 +61,27 @@ def main():
     actual.wt_furnish      = 6431.80372889
     actual.horizontal_tail = 1024.58733327
     actual.vertical_tail   = 629.03876835
-    actual.rudder          =  251.61550734
+    actual.rudder          = 251.61550734    
+    '''    
     
-
+    '''
+    #old errors; original geometry appears to be incorrect
+    actual.payload = 17349.9081525
+    actual.pax = 15036.5870655
+    actual.bag = 2313.321087
+    actual.fuel = -13680.6265874
+    actual.empty = 75346.5184349
+    actual.wing = 27694.192985
+    actual.fuselage = 11423.9380852
+    actual.propulsion = 6855.68572746 
+    actual.landing_gear = 3160.632
+    actual.systems = 16655.7076511
+    actual.wt_furnish = 7466.1304102
+    actual.horizontal_tail = 2191.30720639
+    actual.vertical_tail = 5260.75341411
+    actual.rudder = 2104.30136565    
+    '''
+    
     
     error = Data()
     error.payload = (actual.payload - weight.payload)/actual.payload
@@ -63,17 +100,15 @@ def main():
     error.vertical_tail = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder = (actual.rudder - weight.rudder)/actual.rudder
     
-    print 'Results tube and wing (kg)'
+    print 'Results (kg)'
     print weight
     
     print 'Relative Errors'
     print error  
-    
-    
       
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
-  
+   
     
     return
 

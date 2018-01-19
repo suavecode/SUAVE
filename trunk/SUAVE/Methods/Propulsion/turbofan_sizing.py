@@ -55,7 +55,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
             conditions.freestream.density            = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
             conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.gamma              = np.atleast_1d(1.4)
+            conditions.freestream.isentropic_expansion_factor             = np.atleast_1d(1.4)
             conditions.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
             conditions.freestream.R                  = p/(rho*T)
             conditions.freestream.speed_of_sound     = np.atleast_1d(a)
@@ -201,7 +201,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
  
     U0                = conditions.freestream.velocity
     gamma             = ram.outputs.isentropic_expansion_factor
-    R                 = ram.outputs.universal_gas_constant
+    R                 = ram.outputs.gas_specific_constant
     rho0              = conditions.freestream.density
     
     rho5_fan          = fan_nozzle.outputs.density
@@ -239,7 +239,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     conditions_sls.freestream.density            = np.atleast_1d(rho)
     conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
     conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-    conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
+    conditions_sls.freestream.isentropic_expansion_factor              = np.atleast_1d(1.4)
     conditions_sls.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
     conditions_sls.freestream.R                  = p/(rho*T)
     conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)

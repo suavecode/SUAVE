@@ -1,7 +1,7 @@
 # sizing_loop.py
 #
 # Created:  Jun 2015, SUAVE Team
-# Modified: 
+# Modified: Jan 2018, W. Maier
 
 """ setup file for a sizing loop with a 737-aircraft
 """
@@ -62,8 +62,8 @@ def main():
     results = nexus.results
 
     err      = nexus.sizing_loop.norm_error
-    err_true = 0.00975078 #for 1E-2 tol
-    error    = abs((err-err_true)/err)
+    err_true = 0.0096765033879161206#for 1E-2 tol
+    error    = abs((err_true-err)/err_true)
     print 'error = ', error
     assert(error<1e-5), 'sizing loop regression failed'    
     

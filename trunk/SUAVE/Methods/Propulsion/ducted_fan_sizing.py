@@ -67,7 +67,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             conditions.freestream.density            = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
             conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.gamma              = np.atleast_1d(1.4)
+            conditions.freestream.isentropic_expansion_factor             = np.atleast_1d(1.4)
             conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
             conditions.freestream.R                  = 287.87
             conditions.freestream.speed_of_sound     = np.atleast_1d(a)
@@ -175,7 +175,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     conditions_sls.freestream.density            = np.atleast_1d(rho)
     conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
     conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-    conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
+    conditions_sls.freestream.isentropic_expansion_factor              = np.atleast_1d(1.4)
     conditions_sls.freestream.Cp                 = 1.4*287.87/(1.4-1)
     conditions_sls.freestream.R                  = 287.87
     conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)

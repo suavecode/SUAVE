@@ -57,7 +57,8 @@ def expand_state(segment,state):
     
     state.numerics.number_control_points = n_points
     
-    state.expand_rows(n_points)      
+    # MADE n_points an integer.......dont know why it wasnt.....please help me ............... 
+    state.expand_rows(int(n_points))   
     
     return
 

@@ -122,6 +122,7 @@ class Thrust(Energy_Component):
           core_mass_flow_rate                [kg/s]
           fuel_flow_rate                     [kg/s]
           power                              [W]
+          Specific Impulse                   [s]
 
         Properties Used:
         self.
@@ -174,20 +175,18 @@ class Thrust(Energy_Component):
       
      
         Fsp              = 1./(gamma*M0)*Thrust_nd
-        
+
         #Computing the specific impulse
-        #Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
+        Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
         
         #Computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
-       
-     
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
-        
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
+
      
         
         #fuel flow rate
@@ -205,9 +204,9 @@ class Thrust(Energy_Component):
         self.outputs.core_mass_flow_rate               = mdot_core
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
-    
+        self.outputs.specific_impulse                  = Isp
         
-    
+                     
     def size(self,conditions):
         """Sizes the core flow for the design condition.
 
@@ -261,14 +260,9 @@ class Thrust(Energy_Component):
     
         #pack outputs
         self.mass_flow_rate_design               = mdot_core
-        self.compressor_nondimensional_massflow  = mdhc
- 
-         
+        self.compressor_nondimensional_massflow  = mdhc   
         
         return
-    
-    
-    
     
     __call__ = compute         
 
