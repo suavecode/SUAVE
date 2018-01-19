@@ -57,8 +57,8 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
     vehicle.has_air_conditioner                         = 0
     vehicle.reference_area                              = 16.2  * Units.meter**2  # Wing gross area in square meters
-    vehicle.design_dynamic_pressure  =( .5 *freestream0.density*(cruise_speed**2))[0][0]
-    vehicle.design_mach_number       = mach_number
+    vehicle.design_dynamic_pressure                     = ( .5 *freestream0.density*(cruise_speed*cruise_speed))[0][0]
+    vehicle.design_mach_number                          =  mach_number
     
     
     #main wing
@@ -97,7 +97,7 @@ def vehicle_setup():
     wing.taper                    = .7
     wing.sweeps.quarter_chord     = 0.     * Units.deg       # Sweep of the horizontal tail
     wing.thickness_to_chord       = 0.13                      # Thickness-to-chord ratio of the horizontal tail
-    wing.origin                 = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
+    wing.origin                    = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
 
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
@@ -110,7 +110,7 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
     wing.areas.reference      = 18.4    * Units.feet**2   # Area of the vertical tail
-    wing.aspect_ratio         =1.96
+    wing.aspect_ratio         = 1.96
     wing.taper                = .8
     wing.thickness_to_chord   = 0.13                      # Thickness-to-chord ratio of the vertical tail
     wing.sweeps.quarter_chord = 0.     * Units.deg       # Sweep of the vertical tail
