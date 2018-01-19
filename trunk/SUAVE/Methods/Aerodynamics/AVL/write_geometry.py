@@ -39,7 +39,7 @@ def write_geometry(avl_object,spanwise_vortices_per_meter):
     geometry_file       = avl_object.settings.filenames.features
 
     # Open the geometry file after purging if it already exists
-    purge_files([geometry_file])
+    purge_files([geometry_file]) 
     geometry             = open(geometry_file,'w')
 
     with open(geometry_file,'w') as geometry:

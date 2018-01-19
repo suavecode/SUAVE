@@ -96,6 +96,9 @@ class AVL_Inviscid(Aerodynamics):
         
         # Surrogate model
         self.surrogates                      = Data()
+        
+        # Regression Status
+        self.regression_flag                 = False
 
     def initialize(self,spanwise_vortices_per_meter):
         """Drives functions to get training samples and build a surrogate.
@@ -251,7 +254,7 @@ class AVL_Inviscid(Aerodynamics):
             CD         = data_array[:,3:4]
 
         # Save the data
-        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
+        np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
 
         # Store training data
         training.coefficients = np.hstack([CL,CD])

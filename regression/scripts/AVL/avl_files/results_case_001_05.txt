@@ -1,0 +1,53 @@
+ ---------------------------------------------------------------
+ Vortex Lattice Output -- Total Forces
+
+ Configuration: cruise                                                      
+     # Surfaces =   7
+     # Strips   = 162
+     # Vortices =3240
+
+  Sref =  124.86       Cref =  4.2350       Bref =  34.320    
+  Xref =  0.0000       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case: case_001_05                             
+
+  Alpha =   7.00000     pb/2V =  -0.00000     p'b/2V =  -0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.050     rb/2V =  -0.00000     r'b/2V =  -0.00000
+
+  CXtot =   0.07168     Cltot =  -0.00104     Cl'tot =   0.00009
+  CYtot =  -0.01007     Cmtot =  -3.59217
+  CZtot =  -0.76803     Cntot =   0.00927     Cn'tot =   0.00933
+
+  CLtot =   0.77104
+  CDtot =   0.02245
+  CDvis =   0.00000     CDind = 0.0224539
+  CLff  =   0.77410     CDff  = 0.0229350    | Trefftz
+  CYff  =  -0.00919         e =    0.8817    | Plane  
+
+
+ ---------------------------------------------------------------
+
+ Stability-axis derivatives...
+
+                             alpha                beta
+                  ----------------    ----------------
+ z' force CL |    CLa =   6.179661    CLb =   0.079297
+ y  force CY |    CYa =  -0.088899    CYb =  -0.651028
+ x' mom.  Cl'|    Cla =   0.011247    Clb =  -0.072405
+ y  mom.  Cm |    Cma = -28.425497    Cmb =  -0.557037
+ z' mom.  Cn'|    Cna =   0.082945    Cnb =   0.457058
+
+                     roll rate  p'      pitch rate  q'        yaw rate  r'
+                  ----------------    ----------------    ----------------
+ z' force CL |    CLp =  -0.005297    CLq =  73.234154    CLr =  -0.157762
+ y  force CY |    CYp =   0.314347    CYq =  -1.622657    CYr =   1.260627
+ x' mom.  Cl'|    Clp =  -0.483659    Clq =   0.036490    Clr =   0.202735
+ y  mom.  Cm |    Cmp =   0.033741    Cmq =-381.197815    Cmr =   1.112888
+ z' mom.  Cn'|    Cnp =  -0.248428    Cnq =   1.518995    Cnr =  -1.035716
+
+ Neutral point  Xnp =  19.480352
+
+ Clb Cnr / Clr Cnb  =   0.809297    (  > 1 if spirally stable )

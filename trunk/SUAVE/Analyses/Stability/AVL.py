@@ -124,6 +124,9 @@ class AVL(Stability):
         self.stability_model.dutch_roll.damping_ratio       = 0.0
         self.stability_model.dutch_roll.natural_frequency   = 0.0
 
+        # Regression Status
+        self.regression_flag                                = False
+
     def finalize(self):
         """Drives functions to get training samples and build a surrogate.
 
@@ -365,7 +368,7 @@ class AVL(Stability):
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6] 
         # Save the data
-        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
 
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])

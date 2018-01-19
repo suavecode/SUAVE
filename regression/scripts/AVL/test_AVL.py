@@ -48,14 +48,21 @@ def main():
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
+
+    # append AVL aerodynamic analysis
+    aerodynamics                                               = SUAVE.Analyses.Aerodynamics.AVL()
+    aerodynamics.process.compute.lift.inviscid.regression_flag = True
+    aerodynamics.process.compute.lift.inviscid.keep_files      = True
+    aerodynamics.geometry                                      = copy.deepcopy(configs.cruise) 
+    aerodynamics.process.compute.lift.inviscid.training_file   = 'base_data_aerodynamics.txt'    
+    configs_analyses.cruise.append(aerodynamics)     
     
-    aerodynamics          = SUAVE.Analyses.Aerodynamics.AVL()
-    stability             = SUAVE.Analyses.Stability.AVL()
-    aerodynamics.geometry = copy.deepcopy(configs.cruise)
-    stability.geometry    = copy.deepcopy(configs.cruise)
-    aerodynamics.process.compute.lift.inviscid.training_file = 'base_data_aerodynamics.txt'
-    stability.training_file                                  = 'base_data_stability.txt'    
-    configs_analyses.cruise.append(aerodynamics)
+    # append AVL stability analysis
+    stability                                                  = SUAVE.Analyses.Stability.AVL()
+    stability.regression_flag                                  = True 
+    stability.keep_files                                       = True
+    stability.geometry                                         = copy.deepcopy(configs.cruise)
+    stability.training_file                                    = 'base_data_stability.txt'    
     configs_analyses.cruise.append(stability)
 
     # mission analyses
@@ -65,7 +72,7 @@ def main():
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
-
+    
     simple_sizing(configs, analyses)
 
     configs.finalize()

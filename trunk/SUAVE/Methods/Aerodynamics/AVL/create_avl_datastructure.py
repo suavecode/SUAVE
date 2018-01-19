@@ -351,12 +351,13 @@ def populate_wing_sections(avl_wing,suave_wing):
                                         dx = l*np.tan(sweep)
                                         origin.append( [origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])  
         else:    
-                symm     = avl_wing.symmetric
-                sweep    = suave_wing.sweeps.quarter_chord
-                dihedral = suave_wing.dihedral
-                span     = suave_wing.spans.projected
-                semispan = suave_wing.spans.projected * 0.5 * (2 - symm)
-                origin   = suave_wing.origin
+                symm                  = avl_wing.symmetric
+                sweep                 = suave_wing.sweeps.quarter_chord
+                dihedral              = suave_wing.dihedral
+                span                  = suave_wing.spans.projected
+                semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
+                avl_wing.semispan     = semispan
+                origin                = suave_wing.origin
 
                 root_section          = Section()
                 root_section.tag      = 'root_section'
