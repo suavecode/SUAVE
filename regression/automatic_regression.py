@@ -40,6 +40,7 @@ modules = [
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/weights/weights.py',
     'scripts/DC_10_noise/DC_10_noise.py',
+    'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/B737/mission_B737.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     'scripts/concorde/concorde.py',

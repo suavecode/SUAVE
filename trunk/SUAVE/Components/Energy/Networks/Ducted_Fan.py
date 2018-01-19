@@ -91,7 +91,7 @@ class Ducted_Fan(Propulsor):
         """          
 
         #Unpack
-        conditions = state.conditions
+        conditions                = state.conditions
         ram                       = self.ram
         inlet_nozzle              = self.inlet_nozzle
         fan                       = self.fan
