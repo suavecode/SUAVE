@@ -368,7 +368,7 @@ class AVL(Stability):
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6] 
         # Save the data
-        np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
 
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])
@@ -489,7 +489,7 @@ class AVL(Stability):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
 
-        spanwise_vortices_per_meter               = run_conditions.spanwise_vortices_per_meter # DEFINE VORTEX NUMBER
+        spanwise_vortices_per_meter      = run_conditions.spanwise_vortices_per_meter 
 
         # stability_output_template = self.settings.filenames.stability_output_template  # SUAVE-AVL dynamic stability under development  
 
