@@ -326,47 +326,49 @@ class AVL(Stability):
         Cm_alpha = np.zeros([len(AoA)*len(mach),1])
         Cn_beta  = np.zeros([len(AoA)*len(mach),1]) 
         NP       = np.zeros([len(AoA)*len(mach),1]) 
+
+        # Calculate aerodynamics for table
+        table_size = len(AoA)*len(mach)
+        xy         = np.zeros([table_size,2])
+        count      = 0
+        time0      = time.time()
+
+        for i,_ in enumerate(mach):
+            for j,_ in enumerate(AoA):
+                xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
+        for j,_ in enumerate(mach):
+            # Set training conditions
+            run_conditions = Aerodynamics()
+            run_conditions.weights.total_mass               = 0 
+            run_conditions.freestream.density               = 1.225
+            run_conditions.freestream.gravity               = 9.81          
+            run_conditions.aerodynamics.angle_of_attack     = AoA
+            run_conditions.freestream.mach_number           = mach[j]
+            run_conditions.spanwise_vortices_per_meter      = self.settings.vortex_density 
+            
+            #Run Analysis at AoA[i] and mach[j]
+            results =  self.evaluate_conditions(run_conditions)
+
+            # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
+            CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.pitch_moment_coefficient[:,0]
+            Cm_alpha[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.cm_alpha[:,0]
+            Cn_beta[count*len(mach):(count+1)*len(mach),0]  = results.aerodynamics.cn_beta[:,0]
+            NP[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.neutral_point[:,0]
+
+            count += 1
+
+        time1 = time.time()
+
+        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        
         if self.training_file is None:
-            # Calculate aerodynamics for table
-            table_size = len(AoA)*len(mach)
-            xy         = np.zeros([table_size,2])
-            count      = 0
-            time0      = time.time()
-
-            for i,_ in enumerate(mach):
-                for j,_ in enumerate(AoA):
-                    xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
-            for j,_ in enumerate(mach):
-                # Set training conditions
-                run_conditions = Aerodynamics()
-                run_conditions.weights.total_mass               = 0 
-                run_conditions.freestream.density               = 1.225
-                run_conditions.freestream.gravity               = 9.81          
-                run_conditions.aerodynamics.angle_of_attack     = AoA
-                run_conditions.freestream.mach_number           = mach[j]
-                run_conditions.spanwise_vortices_per_meter      = self.settings.vortex_density 
-                
-                #Run Analysis at AoA[i] and mach[j]
-                results =  self.evaluate_conditions(run_conditions)
-
-                # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
-                CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.pitch_moment_coefficient[:,0]
-                Cm_alpha[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.cm_alpha[:,0]
-                Cn_beta[count*len(mach):(count+1)*len(mach),0]  = results.aerodynamics.cn_beta[:,0]
-                NP[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.neutral_point[:,0]
-
-                count += 1
-
-            time1 = time.time()
-
-            print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
-        else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
             CM         = data_array[:,2:3]
             Cm_alpha   = data_array[:,3:4]
             Cn_beta    = data_array[:,4:5]
-            NP         = data_array[:,5:6] 
+            NP         = data_array[:,5:6]
+            
         # Save the data
         #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
 

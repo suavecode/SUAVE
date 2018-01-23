@@ -215,39 +215,38 @@ class AVL_Inviscid(Aerodynamics):
         CL       = np.zeros([len(AoA)*len(mach),1])
         CD       = np.zeros([len(AoA)*len(mach),1])
 
+        # Calculate aerodynamics for table
+        table_size = len(AoA)*len(mach)
+        xy         = np.zeros([table_size,2])
+        count      = 0
+        time0      = time.time()
         
-        if self.training_file is None:
-            # Calculate aerodynamics for table
-            table_size = len(AoA)*len(mach)
-            xy         = np.zeros([table_size,2])
-            count      = 0
-            time0      = time.time()
+        for i,_ in enumerate(mach):
+            for j,_ in enumerate(AoA):
+                xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
+        for j,_ in enumerate(mach):
+            # Set training conditions
+            run_conditions = Aerodynamics()
+            run_conditions.weights.total_mass           = 0 # Currently set to zero. Used for dynamic analysis which is under development
+            run_conditions.freestream.density           = 1.225
+            run_conditions.freestream.gravity           = 9.81          
+            run_conditions.aerodynamics.angle_of_attack = AoA
+            run_conditions.freestream.mach_number       = mach[j]
+            run_conditions.spanwise_vortices_per_meter  = spanwise_vortices_per_meter
+            #Run Analysis at AoA[i] and mach[j]
+            results =  self.evaluate_conditions(run_conditions)
             
-            for i,_ in enumerate(mach):
-                for j,_ in enumerate(AoA):
-                    xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
-            for j,_ in enumerate(mach):
-                # Set training conditions
-                run_conditions = Aerodynamics()
-                run_conditions.weights.total_mass           = 0 # Currently set to zero. Used for dynamic analysis which is under development
-                run_conditions.freestream.density           = 1.225
-                run_conditions.freestream.gravity           = 9.81          
-                run_conditions.aerodynamics.angle_of_attack = AoA
-                run_conditions.freestream.mach_number       = mach[j]
-                run_conditions.spanwise_vortices_per_meter  = spanwise_vortices_per_meter
-                #Run Analysis at AoA[i] and mach[j]
-                results =  self.evaluate_conditions(run_conditions)
-                
-                # Obtain CD and CL # Store other variables here as well 
-                CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
-                CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
-           
-                count += 1
-            
-            time1 = time.time()
-            
-            print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
-        else:
+            # Obtain CD and CL # Store other variables here as well 
+            CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
+            CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
+       
+            count += 1
+        
+        time1 = time.time()
+        
+        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        
+        if self.training_file:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
             CL         = data_array[:,2:3]
