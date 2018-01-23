@@ -35,8 +35,8 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)
-
+            atmo_data = atmosphere.compute_values(altitude,delta_isa)          
+            
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
             rho = atmo_data.density          
@@ -54,9 +54,9 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions.freestream.density            = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
             conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-            conditions.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
-            conditions.freestream.R                  = p/(rho*T)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
+            conditions.freestream.Cp                 = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
+            conditions.freestream.R                  = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
             conditions.freestream.speed_of_sound     = np.atleast_1d(a)
             conditions.freestream.velocity           = np.atleast_1d(a*mach_number)
             
