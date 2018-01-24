@@ -305,7 +305,7 @@ class Supersonic_Nozzle(Energy_Component):
         A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma[i_sup])
         
         #-- Underexpanded flow
-        P_out[i_und]        = supersonic_max_Area[i_over]*Pt_out[i_und] 
+        P_out[i_und]        = supersonic_max_Area[i_und]*Pt_out[i_und] 
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
         A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
