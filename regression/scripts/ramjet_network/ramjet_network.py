@@ -47,7 +47,7 @@ def energy_network():
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     # freestream conditions
-    conditions.freestream.mach_number        = ones_1col*3.5
+    conditions.freestream.mach_number        = ones_1col*1.5
     conditions.M                             = conditions.freestream.mach_number
     conditions.freestream.altitude           = ones_1col*10000.
     
