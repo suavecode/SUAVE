@@ -104,24 +104,14 @@ class Ram(Energy_Component):
         #method to compute the ram properties
 
         #computing the working fluid properties
-        gamma                  = working_fluid.compute_gamma(To,Po)
-        Cp                     = working_fluid.compute_cp(To,Po)
-        R                      = working_fluid.gas_specific_constant
-        ao                     = np.sqrt(Cp/(Cp-R)*R*To)
-
-        #Compute the stagnation quantities from the input static quantities
-        stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
-        stagnation_pressure    = Po*((1+(gamma-1)/2 *M*M )**((gamma/(gamma-1))))
-
-
         gamma                  = working_fluid.compute_gamma(To,Po) 
         Cp                     = working_fluid.compute_cp(To,Po)
         R                      = working_fluid.gas_specific_constant
         ao                     = working_fluid.compute_speed_of_sound(To,Po,True)
 
         #Compute the stagnation quantities from the input static quantities
-        stagnation_temperature = To*(1+((gamma-1)/2 *M*M))
-        stagnation_pressure    = Po*((1+(gamma-1)/2 *M*M )**(gamma/(gamma-1)))
+        stagnation_temperature = To*(1.+((gamma-1.)/2.*M*M))
+        stagnation_pressure    = Po*((1.+(gamma-1.)/2.*M*M )**(gamma/(gamma-1.)))
 
 
         #pack computed outputs

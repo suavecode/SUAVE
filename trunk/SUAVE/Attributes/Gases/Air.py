@@ -101,7 +101,7 @@ class Air(Gas):
         if variable_gamma:
             g = self.compute_gamma(T,p)
         else:
-            g=1.4*np.ones_like(T)
+            g = 1.4*np.ones_like(T)
 
         return np.sqrt(g*self.gas_specific_constant*T)
 
