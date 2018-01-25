@@ -230,12 +230,7 @@ class AVL(Stability):
         Cn_beta             = np.zeros([data_len,1]) 
         NP                  = np.zeros([data_len,1]) 
 
-        for ii,_ in enumerate(AoA):
-            #CM[ii]          = moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            #Cm_alpha[ii]    = Cm_alpha_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            #Cn_beta[ii]     = Cn_beta_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            #NP[ii]          = neutral_point_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            
+        for ii,_ in enumerate(AoA):           
             CM[ii]          = moment_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cm_alpha[ii]    = Cm_alpha_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cn_beta[ii]     = Cn_beta_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
@@ -441,12 +436,7 @@ class AVL(Stability):
 
 
         for jj in range(len(AoA_points)):
-            for ii in range(len(mach_points)):
-                #CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                #Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                #Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                #NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                
+            for ii in range(len(mach_points)):              
                 CM_sur[ii,jj]    = cm_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
                 Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
                 Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])

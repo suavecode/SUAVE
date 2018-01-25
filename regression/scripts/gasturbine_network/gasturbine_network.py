@@ -82,11 +82,11 @@ def energy_network():
     conditions.M                                       = conditions.freestream.mach_number 
     conditions.T                                       = conditions.freestream.temperature
     conditions.p                                       = conditions.freestream.pressure
-    conditions.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
-    conditions.freestream.velocity           = conditions.M * conditions.freestream.speed_of_sound
-    conditions.velocity                      = conditions.M * conditions.freestream.speed_of_sound
-    conditions.q                             = 0.5*conditions.freestream.density*conditions.velocity**2
-    conditions.g0                            = conditions.freestream.gravity
+    conditions.freestream.speed_of_sound               = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
+    conditions.freestream.velocity                     = conditions.M * conditions.freestream.speed_of_sound
+    conditions.velocity                                = conditions.M * conditions.freestream.speed_of_sound
+    conditions.q                                       = 0.5*conditions.freestream.density*conditions.velocity**2
+    conditions.g0                                      = conditions.freestream.gravity
     
     # propulsion conditions
     conditions.propulsion.throttle           =  ones_1col*1.0
@@ -113,8 +113,7 @@ def energy_network():
     conditions_sizing.weights      = Data()
     conditions_sizing.energies     = Data()
     '''
-  #  self.conditions = conditions
-    
+    #  self.conditions = conditions
 
     # freestream conditions
     conditions_sizing.freestream.mach_number        = ones_1col*0.8
@@ -135,19 +134,17 @@ def energy_network():
     # propulsion conditions
     conditions_sizing.propulsion.throttle           =  ones_1col*1.0
 
-    state_sizing = Data()
-    state_sizing.numerics = Data()
-    state_sizing.conditions = conditions_sizing
-    state_off_design=Data()
-    state_off_design.numerics=Data()
-    state_off_design.conditions=conditions
+    state_sizing                = Data()
+    state_sizing.numerics       = Data()
+    state_sizing.conditions     = conditions_sizing
+    state_off_design            = Data()
+    state_off_design.numerics   = Data()
+    state_off_design.conditions = conditions
 
 
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------    
-    
-    
     
     #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
@@ -362,7 +359,7 @@ def energy_network():
     error =  Data()
     
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot_error =  (mdot[0][0]-expected.mdot)/expected.mdot
+    error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
     print error
     
     for k,v in error.items():

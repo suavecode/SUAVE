@@ -70,7 +70,7 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_enthalpy     = 1.0
         self.outputs.fuel_to_air_ratio       = 1.0
         self.fuel_data                       = Data()
-        self.area_ratio                      = 1.9
+        self.area_ratio                      = 1.0
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to
@@ -123,11 +123,11 @@ class Combustor(Energy_Component):
         eta_b  = self.efficiency
         
         # unpacking values from self
-        htf             = self.fuel_data.specific_energy
-        ar              = self.area_ratio
+        htf    = self.fuel_data.specific_energy
+        ar     = self.area_ratio
         
         # compute pressure
-        Pt_out      = Pt_in*pib
+        Pt_out = Pt_in*pib
 
 
         # method to compute combustor properties
@@ -150,8 +150,8 @@ class Combustor(Energy_Component):
         self.outputs.fuel_to_air_ratio       = f 
     
     def compute_rayleigh(self,conditions):
-        """ This computes the output values from the input values according to
-        equations from the source.
+        """ This combutes the temperature and pressure change across the
+        the combustor using Rayleigh Line flow; it checks for themal choking.
 
         Assumptions:
         Constant efficiency and pressure ratio
@@ -210,26 +210,20 @@ class Combustor(Energy_Component):
         M_out  = 1*Pt_in/Pt_in
         Ptr    = 1*Pt_in/Pt_in
 
-       
         # Isentropic decceleration through divergent nozzle
         Mach   = fm_solver(ar,Mach[:,0],gamma[:,0])  
         
         # Determine max stagnation temperature to thermally choke flow                                     
         Tt4_ray = Tt_in*(1.+gamma*Mach*Mach)**2./((2.*(1.+gamma)*Mach*Mach)*(1.+(gamma-1.)/2.*Mach*Mach))
-
-        # Choose Tt4 for fuel calculations
         
-        # --Material limitations define Tt4
+        # Rayleigh limitations define Tt4, taking max temperature before choking
         Tt4 = Tt4 * np.ones_like(Tt4_ray)
-        
-        # --Rayleigh limitations define Tt4
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
         M_out[:,0], Ptr[:,0] = rayleigh(gamma[:,0],Mach,Tt4[:,0]/Tt_in[:,0]) 
         Pt_out     = Ptr*Pt_in
             
-
         # method to compute combustor properties
 
         # method - computing the stagnation enthalpies from stagnation temperatures

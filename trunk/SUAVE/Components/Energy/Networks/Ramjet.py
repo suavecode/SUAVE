@@ -2,6 +2,7 @@
 # Ramjet.py
 #
 # Created:  Jun 2017, P. Goncalves
+# Modified: Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,13 +80,7 @@ class Ramjet(Propulsor):
 			exit_stagnation_temperature              [K]
 			exit_stagnation_pressure                 [Pa]
 			exit_velocity                            [m/s]
-		    fan:
-			exit_static_temperature                  [K]
-			exit_static_pressure                     [K]
-			exit_stagnation_temperature              [K]
-			exit_stagnation_pressure                 [Pa]
-			exit_velocity                            [m/s]
-
+		    
 		Properties Used:
 		Defaulted values
 	    """

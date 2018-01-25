@@ -36,7 +36,7 @@ def main():
 
 def energy_network():
     
-        # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     #   Evaluation Conditions
     # ------------------------------------------------------------------    
     
@@ -51,9 +51,9 @@ def energy_network():
     conditions.M                             = conditions.freestream.mach_number
     conditions.freestream.altitude           = ones_1col*10000.
     
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(conditions.freestream.altitude,0,True) 
-    working_fluid  = SUAVE.Attributes.Gases.Air()
+    atmosphere                               = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                                = atmosphere.compute_values(conditions.freestream.altitude,0,True) 
+    working_fluid                            = SUAVE.Attributes.Gases.Air()
     
     conditions.freestream.pressure           = ones_1col*atmo_data.pressure
     conditions.freestream.temperature        = ones_1col*atmo_data.temperature
@@ -87,9 +87,9 @@ def energy_network():
     conditions_sizing.M                             = conditions_sizing.freestream.mach_number
     conditions_sizing.freestream.altitude           = ones_1col*10000.  
     
-    atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(conditions_sizing.freestream.altitude,0,True) 
-    working_fluid  = SUAVE.Attributes.Gases.Air()    
+    atmosphere                                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                                       = atmosphere.compute_values(conditions_sizing.freestream.altitude,0,True) 
+    working_fluid                                   = SUAVE.Attributes.Gases.Air()    
 
     conditions_sizing.freestream.pressure           = ones_1col*atmo_data.pressure
     conditions_sizing.freestream.temperature        = ones_1col*atmo_data.temperature
@@ -222,9 +222,9 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 338740.93040000007
-    expected.mdot   = 22.53988209
-    expected.Isp    = 1532.48010122
+    expected.thrust = 338740.93039999995
+    expected.mdot   = 38.00980461
+    expected.Isp    = 908.76343982
     
     #error data function
     error =  Data()

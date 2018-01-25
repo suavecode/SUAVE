@@ -56,8 +56,6 @@ def expand_state(segment,state):
     n_points      = np.ceil(total_time/dt +1)       
     
     state.numerics.number_control_points = n_points
-    
-    # MADE n_points an integer.......dont know why it wasnt.....please help me ............... 
     state.expand_rows(int(n_points))   
     
     return
