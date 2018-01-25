@@ -12,7 +12,6 @@
 
 import SUAVE
 from SUAVE.Core import Container as ContainerBase
-
 import Segments
 
 # ----------------------------------------------------------------------

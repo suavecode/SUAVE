@@ -17,7 +17,7 @@ import numpy as np
 
 def write_sizing_outputs(sizing_loop, y_save, opt_inputs):
     """
-    This funtion writes out the optimization input variables and the 
+    This function writes out the optimization input variables and the 
     solved sizing inputs at that point
     
     Inputs:
