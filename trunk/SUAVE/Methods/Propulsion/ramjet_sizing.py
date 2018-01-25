@@ -35,7 +35,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)          
+            atmo_data = atmosphere.compute_values(altitude,delta_isa,True)          
             
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
@@ -98,7 +98,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
     
     #flow through the core nozzle
-    core_nozzle(conditions)
+    core_nozzle.compute_limited_geometry(conditions)
 
     # compute the thrust using the thrust component
     #link the thrust component to the core nozzle

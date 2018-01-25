@@ -107,7 +107,6 @@ class Ram(Energy_Component):
         gamma                  = working_fluid.compute_gamma(To,Po) 
         Cp                     = working_fluid.compute_cp(To,Po)
         R                      = working_fluid.gas_specific_constant
-        ao                     = working_fluid.compute_speed_of_sound(To,Po,True)
 
         #Compute the stagnation quantities from the input static quantities
         stagnation_temperature = To*(1.+((gamma-1.)/2.*M*M))
@@ -130,7 +129,5 @@ class Ram(Energy_Component):
         conditions.freestream.isentropic_expansion_factor          = gamma
         conditions.freestream.specific_heat_at_constant_pressure   = Cp
         conditions.freestream.gas_specific_constant                = R
-        conditions.freestream.speed_of_sound                       = ao
-
 
     __call__ = compute

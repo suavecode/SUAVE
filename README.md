@@ -4,7 +4,7 @@
 
 
 SUAVE is a multi-fidelity conceptual design environment.
-Its purpose is to credibly produce conceptual-level design conclusions
+Its purpose is to credibly produce conceptual-level design conclusions 
 for future aircraft incorporating advanced technologies.
 
 [![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)

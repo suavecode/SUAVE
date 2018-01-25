@@ -63,7 +63,7 @@ class US_Standard_1976(Atmospheric):
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
         self.update(atmo_data)        
     
-    def compute_values(self,altitude,temperature_deviation=0.0):
+    def compute_values(self,altitude,temperature_deviation=0.0,var_gamma=False):
 
         """Computes atmospheric values.
 
@@ -159,7 +159,7 @@ class US_Standard_1976(Atmospheric):
         
         T   = T0 - dz*alpha + delta_isa
         rho = gas.compute_density(T,p)
-        a   = gas.compute_speed_of_sound(T)
+        a   = gas.compute_speed_of_sound(T,p,var_gamma)
         mu  = gas.compute_absolute_viscosity(T)
                 
         atmo_data = Conditions()

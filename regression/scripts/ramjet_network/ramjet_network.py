@@ -52,7 +52,7 @@ def energy_network():
     conditions.freestream.altitude           = ones_1col*10000.
     
     atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(conditions.freestream.altitude,0) 
+    atmo_data      = atmosphere.compute_values(conditions.freestream.altitude,0,True) 
     working_fluid  = SUAVE.Attributes.Gases.Air()
     
     conditions.freestream.pressure           = ones_1col*atmo_data.pressure
@@ -88,7 +88,7 @@ def energy_network():
     conditions_sizing.freestream.altitude           = ones_1col*10000.  
     
     atmosphere     = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data      = atmosphere.compute_values(conditions_sizing.freestream.altitude,0) 
+    atmo_data      = atmosphere.compute_values(conditions_sizing.freestream.altitude,0,True) 
     working_fluid  = SUAVE.Attributes.Gases.Air()    
 
     conditions_sizing.freestream.pressure           = ones_1col*atmo_data.pressure
@@ -222,9 +222,9 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 336833.85603858164
-    expected.mdot   = 22.38429110560147
-    expected.Isp    = 1534.44455261
+    expected.thrust = 338740.93040000007
+    expected.mdot   = 22.53988209
+    expected.Isp    = 1532.48010122
     
     #error data function
     error =  Data()

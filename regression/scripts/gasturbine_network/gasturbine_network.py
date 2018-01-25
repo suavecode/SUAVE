@@ -324,7 +324,7 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.total_design                       =42383.01818423
+    thrust.total_design        = 42383.01818423
     
     # add to network
     turbofan.thrust = thrust    
@@ -356,7 +356,7 @@ def energy_network():
     expected = Data()
     
     expected.thrust = 42383.01818402065 
-    expected.mdot =  0.76381994050720003
+    expected.mdot   = 0.76425264
     
     #error data function
     error =  Data()
