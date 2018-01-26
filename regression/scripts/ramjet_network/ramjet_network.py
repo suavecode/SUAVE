@@ -171,6 +171,7 @@ def energy_network():
     combustor.efficiency                = 1.0 
     combustor.turbine_inlet_temperature = 2400.
     combustor.pressure_ratio            = 1.0
+    combustor.area_ratio                = 2.0
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()  
     combustor.rayleigh_analyses         = True
     
@@ -223,8 +224,8 @@ def energy_network():
     expected = Data()
     
     expected.thrust = 338740.93039999995
-    expected.mdot   = 38.00980461
-    expected.Isp    = 908.76343982
+    expected.mdot   = 23.11959727
+    expected.Isp    = 1494.05374047
     
     #error data function
     error =  Data()

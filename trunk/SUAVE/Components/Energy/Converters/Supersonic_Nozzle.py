@@ -272,16 +272,26 @@ class Supersonic_Nozzle(Energy_Component):
         M_out       = np.ones_like(Pt_out)
 
         # Establishing a correspondence between real pressure ratio and limits of each flow condition
-        i_sub               = Po/Pt_out >= subsonic_pressure_ratio     
+        
+        # Determine if flow is within subsonic/sonic range
+        i_sub               = Po/Pt_out >= subsonic_pressure_ratio 
+        
+        # Detemine if there is a shock in nozzle
         i2                  = Po/Pt_out < subsonic_pressure_ratio
-        i3                  = Po/Pt_out >= nozzle_shock_pressure_ratio    
+        i3                  = Po/Pt_out >= nozzle_shock_pressure_ratio
         i_shock             = np.logical_and(i2,i3)      
+        
+        # Determine if flow is overexpanded
         i4                  = Po/Pt_out < nozzle_shock_pressure_ratio
         i5                  = Po/Pt_out > supersonic_min_Area
-        i_over              = np.logical_and(i4,i5)            
+        i_over              = np.logical_and(i4,i5)  
+        
+        # Determine if flow is supersonic
         i6                  = Po/Pt_out <= supersonic_min_Area
         i7                  = Po/Pt_out >= supersonic_max_Area
-        i_sup               = np.logical_and(i6,i7)            
+        i_sup               = np.logical_and(i6,i7) 
+        
+        # Determine if flow is underexpanded
         i_und               = Po/Pt_out < supersonic_max_Area
         
         #-- Subsonic and sonic flow
