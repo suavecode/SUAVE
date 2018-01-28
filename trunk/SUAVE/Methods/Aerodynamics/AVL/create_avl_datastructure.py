@@ -281,7 +281,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                         section.tag               = suave_wing.Segments[i_segs].tag + '_section_at'+ str(ordered_section_spans[section_count]) + '_m'
                                         root_section_chord        = root_chord*suave_wing.Segments[i_segs-1].root_chord_percent
                                         tip_section_chord         = root_chord*suave_wing.Segments[i_segs].root_chord_percent
-                                        semispan_section_fraction = (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location) /(semispan*segment_percent_span)  #check!!!  
+                                        semispan_section_fraction = (ordered_section_spans[section_count] - semispan*suave_wing.Segments[i_segs-1].percent_span_location) /(semispan*segment_percent_span)   
                                         section.chord             = scipy.interp(semispan_section_fraction,[0.,1.],[root_section_chord,tip_section_chord])
                                         root_section_twist        = suave_wing.Segments[i_segs-1].twist
                                         tip_section_twist         = root_chord*suave_wing.Segments[i_segs].twist

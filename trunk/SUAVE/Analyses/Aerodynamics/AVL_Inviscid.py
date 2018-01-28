@@ -83,6 +83,9 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr
         
+        # Default spanwise vortex density 
+        self.spanwise_vortex_density         = 1.5
+        
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
         
@@ -100,7 +103,7 @@ class AVL_Inviscid(Aerodynamics):
         # Regression Status
         self.regression_flag                 = False
 
-    def initialize(self,spanwise_vortices_per_meter):
+    def initialize(self):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -121,9 +124,9 @@ class AVL_Inviscid(Aerodynamics):
         geometry     = self.geometry
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
         run_folder   = self.settings.filenames.run_folder
-        
+                
         # Sample training data
-        self.sample_training(spanwise_vortices_per_meter)
+        self.sample_training()
     
         # Build surrogate
         self.build_surrogate()
@@ -181,7 +184,7 @@ class AVL_Inviscid(Aerodynamics):
         return inviscid_lift, inviscid_drag
         
 
-    def sample_training(self,spanwise_vortices_per_meter):
+    def sample_training(self):
         """Call methods to run AVL for sample point evaluation.
 
         Assumptions:
@@ -205,7 +208,7 @@ class AVL_Inviscid(Aerodynamics):
           Mach             [-]
         self.training_file (optional - file containing previous AVL data)
         """          
-        # Unpack
+        # Unpack 
         geometry = self.geometry
         training = self.training   
         
@@ -227,12 +230,12 @@ class AVL_Inviscid(Aerodynamics):
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.weights.total_mass           = 0 # Currently set to zero. Used for dynamic analysis which is under development
+            run_conditions.weights.total_mass           = 0     # Currently set to zero. Used for dynamic analysis which is under development
             run_conditions.freestream.density           = 1.225
-            run_conditions.freestream.gravity           = 9.81          
-            run_conditions.aerodynamics.angle_of_attack = AoA
+            run_conditions.freestream.gravity           = 9.81  #check      
+            run_conditions.aerodynamics.angle_of_attack = AoA 
             run_conditions.freestream.mach_number       = mach[j]
-            run_conditions.spanwise_vortices_per_meter  = spanwise_vortices_per_meter
+            
             #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions)
             
@@ -365,7 +368,7 @@ class AVL_Inviscid(Aerodynamics):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-        spanwise_vortices_per_meter      = run_conditions.spanwise_vortices_per_meter 
+        spanwise_vortices_per_meter      = self.spanwise_vortex_density
         
         # update current status
         self.current_status.batch_index += 1
@@ -398,43 +401,3 @@ class AVL_Inviscid(Aerodynamics):
             rmtree( run_folder )
     
         return results
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-    
-  

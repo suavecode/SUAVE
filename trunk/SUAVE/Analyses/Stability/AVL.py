@@ -86,8 +86,9 @@ class AVL(Stability):
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
         
-        self.settings.vortex_density                        = 2.5
-        
+        # Default spanwise vortex density 
+        self.spanwise_vortex_density                        = 1.5
+            
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
 
@@ -344,7 +345,6 @@ class AVL(Stability):
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
             run_conditions.freestream.mach_number           = mach[j]
-            run_conditions.spanwise_vortices_per_meter      = self.settings.vortex_density 
             
             #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions)
@@ -361,17 +361,14 @@ class AVL(Stability):
 
         print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
         
-        if self.training_file is None:
+        if self.training_file:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
             CM         = data_array[:,2:3]
             Cm_alpha   = data_array[:,3:4]
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6]
-            
-        # Save the data
-        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
-
+    
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])
         training.grid_points  = xy
@@ -430,7 +427,7 @@ class AVL(Stability):
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate
         self.surrogates.neutral_point               = neutral_point_surrogate
 
-        # Standard subsonic/transolic aircarft  
+        # Standard subsonic/transonic aircarft  
         AoA_points                       = np.linspace(-3.,11.,100)
         mach_points                      = np.linspace(.02,.9,100)         
     
@@ -490,10 +487,7 @@ class AVL(Stability):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-
-        spanwise_vortices_per_meter      = run_conditions.spanwise_vortices_per_meter 
-
-        # stability_output_template = self.settings.filenames.stability_output_template  # SUAVE-AVL dynamic stability under development  
+        spanwise_vortices_per_meter      = self.spanwise_vortex_density
 
         # update current status
         self.current_status.batch_index += 1
