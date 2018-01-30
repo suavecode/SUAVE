@@ -23,7 +23,7 @@ from Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
-from SUAVE.Methods.Aerodynamics import Fidelity_Zero   as FZ_Methods
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super
 
@@ -80,8 +80,8 @@ class SU2_Euler_Super(Markup):
         compute.lift = Process()
 
         # Run SU2
-        compute.lift.inviscid                         = SU2_inviscid_Super()
-        compute.lift.total                            = SUAVE.Methods.Aerodynamics.AERODAS.AERODAS_setup.lift_total
+        compute.lift.inviscid                      = SU2_inviscid_Super()
+        compute.lift.total                         = Common.Lift.aircraft_total
         
         # Do a traditional drag buildup
         compute.drag = Process()
@@ -89,19 +89,19 @@ class SU2_Euler_Super(Markup):
         compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total      
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing
+        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # currently unavailable for supersonic
-        compute.drag.parasite.total                = Methods.Drag.parasite_total
+        compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = SUAVE.Methods.Aerodynamics.SU2_Euler.untrimmed
-        compute.drag.trim                          = Methods.Drag.trim
+        compute.drag.untrimmed                     = Common.Drag.untrimmed
+        compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = FZ_Methods.Drag.spoiler_drag
-        compute.drag.total                         = SUAVE.Methods.Aerodynamics.SU2_Euler.total_aircraft_drag
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):
