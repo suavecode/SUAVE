@@ -41,7 +41,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 17.820611883056927
+    actual.noise_cumulative_margin = 17.7898019866
 
     
     
