@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Cruise
 # Common.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -13,7 +14,27 @@ import numpy as np
 #  Unpack Unknowns
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def unpack_unknowns(segment,state):
+    """ Unpacks the throttle setting and body angle from the solver to the mission
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            state.unknowns:
+                throttle    [Unitless]
+                body_angle  [Radians]
+            
+        Outputs:
+            state.conditions:
+                propulsion.throttle            [Unitless]
+                frames.body.inertial_rotations [Radians]
+
+        Properties Used:
+        N/A
+                                
+    """    
     
     # unpack unknowns
     throttle   = state.unknowns.throttle
@@ -28,7 +49,25 @@ def unpack_unknowns(segment,state):
 #  Residual Total Forces
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Missions-Segments-Cruise
 def residual_total_forces(segment,state):
+    """ Calculates a residual based on forces
+    
+        Assumptions:
+        The vehicle is not accelerating, doesn't use gravity
+        
+        Inputs:
+            state.conditions:
+                frames.inertial.total_force_vector [Newtons]
+                weights.total_mass                 [kg]
+            
+        Outputs:
+            state.residuals.forces [meters/second^2]
+
+        Properties Used:
+        N/A
+                                
+    """        
     
     FT = state.conditions.frames.inertial.total_force_vector
     m  = state.conditions.weights.total_mass[:,0] 

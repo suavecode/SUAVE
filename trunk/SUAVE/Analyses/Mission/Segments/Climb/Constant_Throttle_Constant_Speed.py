@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Throttle_Constant_Speed.py
 #
 # Created:  
@@ -23,9 +24,37 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Climb
 class Constant_Throttle_Constant_Speed(Aerodynamic):
+    """ Climb at a constant throttle setting and true airspeed.
+        This segment may not always converge as the vehicle could be deficient in thrust.
+        Useful as a check to see the climb rate at the top of climb.
+    
+        Assumptions:
+        You set a reasonable throttle setting that can provide enough thrust.
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         # --------------------------------------------------------------
         #   User inputs

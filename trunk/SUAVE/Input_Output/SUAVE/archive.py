@@ -1,17 +1,14 @@
+## @ingroup Input_Output-SUAVE
 # archive.py
 #
 # Created:  Jan 2015, T. Lukaczyk
-# Modified: Jun 2016, T. MacDonald
-
-
-""" Save a native SUAVE file """
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Core.Input_Output import save_data
 import numpy as np
 import types
 import json
@@ -20,11 +17,27 @@ from collections import OrderedDict
 # ----------------------------------------------------------------------
 #  Method
 # ----------------------------------------------------------------------
-
+## @ingroup Input_Output-SUAVE
 def archive(data,filename):
-    """ archive data to file 
-        converts a SUAVE data structure to a JSON file
-    """
+    """Converts a SUAVE data structure to a JSON file for storage. 
+
+    Assumptions:
+    Data must be numpy arrays, strings, booleans, floats, ints, or lists.
+    Functions are ignored and all other data raises an error.
+
+    Source:
+    N/A
+
+    Inputs:
+    data       SUAVE data structure
+    filename   <string> - file to be output
+
+    Outputs:
+    filename   File as specified in JSON format
+
+    Properties Used:
+    N/A
+    """     
     
     # Create a dictionary structure with the results
     res_dict = build_dict_base(data)
@@ -37,8 +50,26 @@ def archive(data,filename):
     f.write(res_string)
     f.close()  
        
-
+## @ingroup Input_Output-SUAVE
 def build_dict_base(base):
+    """Builds a dictionary based on a SUAVE data structure. This is initial case.
+
+    Assumptions:
+    Data must be numpy arrays, strings, booleans, floats, ints, or lists.
+    Functions are ignored and all other data raises an error.
+
+    Source:
+    N/A
+
+    Inputs:
+    data       SUAVE data structure
+
+    Outputs:
+    base_dict  Dictionary built on the data structure.
+
+    Properties Used:
+    N/A
+    """      
     
     keys = base.keys() # keys from top level
     base_dict = OrderedDict() # initialize dictionary
@@ -51,7 +82,26 @@ def build_dict_base(base):
         base_dict[k] = build_dict_r(v) # recursive function
     return base_dict
     
+## @ingroup Input_Output-SUAVE
 def build_dict_r(v):
+    """Builds a dictionary based on a SUAVE data structure. This the recursive step.
+
+    Assumptions:
+    Data must be numpy arrays, strings, booleans, floats, ints, or lists.
+    Functions are ignored and all other data raises an error.
+
+    Source:
+    N/A
+
+    Inputs:
+    v       value in a data structure
+
+    Outputs:
+    ret     value based on type of v
+
+    Properties Used:
+    N/A
+    """      
     tv = type(v) # Get value type
     
     # Transform to basic python data type as appropriate
@@ -65,6 +115,8 @@ def build_dict_r(v):
         ret = v
     elif tv == types.FunctionType: # Functions cannot be stored
         ret = None
+    elif tv == list:
+        ret = v    
     else:
         # Assume other data types are SUAVE data types and check
         try:

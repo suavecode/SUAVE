@@ -1,8 +1,8 @@
-# Constant_Temperature.py: 
-
-# Created:  Mar, 2014, SUAVE Team
-# Modified: Jan, 2016, M. Vegh
-# Modified: Feb 2016, Andrew Wendorff
+## @ingroup Analyses-Atmospheric
+# Constant_Temperature.py
+#
+# Created:  Mar 2014, SUAVE Team
+# Modified: Feb 2016, A. Wendorff
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,44 +21,75 @@ from SUAVE.Attributes.Planets import Earth
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
 from SUAVE.Core import Units
-from SUAVE.Methods.Utilities import atleast_2d_col
+from SUAVE.Core.Arrays import atleast_2d_col
 
 
 # ----------------------------------------------------------------------
 #  Classes
 # ----------------------------------------------------------------------
-
+## @ingroup Analyses-Atmospheric
 class Constant_Temperature(Atmospheric):
 
-    """ Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure
+    """Implements a constant temperature with U.S. Standard Atmosphere (1976 version) freestream pressure
+        
+    Assumptions:
+    None
+    
+    Source:
+    U.S. Standard Atmosphere, 1976, U.S. Government Printing Office, Washington, D.C., 1976
     """
     
     def __defaults__(self):
+        """This sets the default values for the analysis to function.
+    
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        None
+        """
         
         atmo_data = SUAVE.Attributes.Atmospheres.Earth.Constant_Temperature()
-        self.update(atmo_data)        
+        self.update(atmo_data)
     
     def compute_values(self,altitude,temperature=288.15):
 
-        """ Computes values assuming a constant temperature atmosphere
-
+        """Computes atmospheric values.
+    
+        Assumptions:
+        Constant temperature atmosphere
+    
+        Source:
+        U.S. Standard Atmosphere, 1976, U.S. Government Printing Office, Washington, D.C., 1976
+    
         Inputs:
-            altitude     : geometric altitude (elevation) (m)
-                           can be a float, list or 1D array of floats
-            temperature  : temperature you want to use
-         
+        altitude                                 [m]
+        temperature                              [K]
+
         Outputs:
-            list of conditions -
-                pressure       : static pressure (Pa)
-                temperature    : static temperature (K)
-                density        : density (kg/m^3)
-                speed_of_sound : speed of sound (m/s)
-                dynamic_viscosity      : dynamic_viscosity (kg/m-s)
-            
-        Example:
-            atmosphere = SUAVE.Attributes.Atmospheres.Earth.USStandard1976()
-            atmosphere.ComputeValues(1000).pressure
-          
+        atmo_data.
+          pressure                               [Pa]
+          temperature                            [K]
+          speed_of_sound                         [m/s]
+          dynamic_viscosity                      [kg/(m*s)]
+    
+        Properties Used:
+        self.
+          fluid_properties.gas_specific_constant [J/(kg*K)]
+          planet.sea_level_gravity               [m/s^2]
+          planet.mean_radius                     [m]
+          breaks.
+            altitude                             [m]
+            pressure                             [Pa]
         """
 
         # unpack

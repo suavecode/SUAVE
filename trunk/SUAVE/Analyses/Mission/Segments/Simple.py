@@ -1,3 +1,4 @@
+## @ingroup Analyses-Mission-Segments
 # Simple.py
 #
 # Created:  
@@ -14,14 +15,39 @@ from SUAVE.Analyses.Mission.Segments import Conditions
 
 from SUAVE.Methods.Missions import Segments as Methods
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments
 class Simple(Segment):
+    """ The Second basic piece of a mission which each segment will expand upon
+    
+        Assumptions:
+        There's a detailed process flow outline in defaults. A mission must be solved in that order.
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """        
         
         
         # --------------------------------------------------------------
@@ -30,7 +56,6 @@ class Simple(Segment):
         
         # conditions
         self.state.conditions.update( Conditions.Basic() )
-        
         
         # --------------------------------------------------------------
         #   The Solving Process
@@ -81,43 +106,3 @@ class Simple(Segment):
         
         
         return
-
-
-# ----------------------------------------------------------------------
-#  Container
-# ----------------------------------------------------------------------
-
-class Container(Segment.Container):
-    
-    def __defaults__(self):
-        
-        # --------------------------------------------------------------
-        #   The Solving Process
-        # --------------------------------------------------------------
-        
-        # --------------------------------------------------------------
-        #   Initialize
-        # --------------------------------------------------------------
-        self.process.initialize.expand_state        = Methods.expand_state
-        self.process.initialize.expand_sub_segments = Methods.Common.Sub_Segments.expand_sub_segments
-
-        # --------------------------------------------------------------
-        #   Converge
-        # --------------------------------------------------------------
-        self.process.converge.converge_root         = Methods.converge_root
-        
-        # --------------------------------------------------------------
-        #   Iterate
-        # --------------------------------------------------------------        
-        self.process.iterate.sub_segments           = Methods.Common.Sub_Segments.update_sub_segments
-
-        # --------------------------------------------------------------
-        #   Finalize
-        # --------------------------------------------------------------        
-        self.process.finalize.sub_segments          = Methods.Common.Sub_Segments.finalize_sub_segments
-    
-        
-        return
-        
-    
-Simple.Container = Container

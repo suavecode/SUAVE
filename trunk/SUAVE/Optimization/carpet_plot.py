@@ -1,17 +1,55 @@
+## @ingroup Optimization
 # carpet_plot.py
 #
 # Created : Feb 2016, M. Vegh 
+# Modified : Feb 2017, M. Vegh
+
+# ----------------------------------------------------------------------
+#  Imports
+# -------------------------------------------
+ 
 from SUAVE.Core import Data
 import numpy as np
 import matplotlib.pyplot as plt
-def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0): 
-    #SUAVE.Optimization.carpet_plot(problem, ):
-    #takes in an optimization problem and runs a carpet plot of the first 2 variables
+
+# ----------------------------------------------------------------------
+#  carpet_plot
+# ----------------------------------------------------------------------
+
+## @ingroup Optimization
+def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_index_0=0, sweep_index_1=1): 
+    """ Takes in an optimization problem and runs a carpet plot of the first 2 variables
+        sweep_index_0, sweep_index_1 is index of variables you want to run carpet plot (i.e. sweep_index_0=0 means you want to sweep first variable, sweep_index_0 = 4 is the 5th variable)
+    
+        Assumptions:
+        N/A
+    
+        Source:
+        N/A
+    
+        Inputs:
+        problem            [Nexus Class]
+        number_of_points   [int]
+        plot_obj           [int]
+        plot_const         [int]
+        sweep_index_0      [int]
+        sweep_index_1      [int]
+        
+        Outputs:
+        Beautiful Beautiful Plots!
+            Outputs:
+                inputs     [array]
+                objective  [array]
+                constraint [array]
+    
+        Properties Used:
+        N/A
+    """         
 
     #unpack
+    idx0            = sweep_index_0 # local name
+    idx1            = sweep_index_1
     opt_prob        = problem.optimization_problem
-    idx0            = 0   #index of variable location
-    idx1            = 1
     base_inputs     = opt_prob.inputs
     names           = base_inputs[:,0] # Names
     bnd             = base_inputs[:,2] # Bounds
@@ -63,14 +101,15 @@ def carpet_plot(problem, number_of_points, plot_obj=1, plot_const=0):
             cbar.ax.set_ylabel(constraint_names[i])
             plt.xlabel(names[idx0])
             plt.ylabel(names[idx1])
-    plt.show()      
+    plt.show(block=True)      
        
         
     #pack outputs
     outputs= Data()
     outputs.inputs         = inputs
     outputs.objective      = obj
-    outputs.constraint_val =constraint_val
+    outputs.constraint_val = constraint_val
+    
     return outputs
     
     

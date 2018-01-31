@@ -1,3 +1,4 @@
+## @ingroup Input_Output-Results
 #print_compress_drag.py
 
 # Created: SUAVE team
@@ -11,29 +12,42 @@ import numpy as np
 from SUAVE.Core import Units,Data
 
 # Imports
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag.compressibility_drag_wing import compressibility_drag_wing
 import time                     # importing library
 import datetime                 # importing library
 
 # ----------------------------------------------------------------------
 #  Print output file with compressibility drag
 # ----------------------------------------------------------------------
+## @ingroup Input_Output-Results
 def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
-    """ SUAVE.Methods.Results.print_compress_drag(vehicle,filename = 'compress_drag.dat'):
-        
-        Print output file with compressibility drag
-        
-        Inputs:
-            vehicle         - SUave type vehicle
-            analyses        - 
-            filename [optional] - Name of the file to be created
+    """This creates a file showing a breakdown of compressibility drag for the vehicle.
 
-        Outputs:
-            output file
+    Assumptions:
+    None
 
-        Assumptions:
+    Source:
+    N/A
 
-    """ 
+    Inputs:
+    vehicle.wings.main_wing.
+      sweeps.quarter_chord     [-]
+    vehicle.wings.*.
+      tag                     <string>
+      thickness_to_chord      [-]
+    vehicle.
+      tag                     <string>
+      reference_area          [m^2]
+    analyses.configs.cruise.aerodynamics.settings    Used in called function:
+    analyses.configs.cruise.aerodynamics.process.compute.drag.compressibility.wings.wing(state,settings,wing)
+    filename                  Sets file name to save (optional)
+    
+
+    Outputs:
+    filename                  Saved file with name as above
+
+    Properties Used:
+    N/A
+    """    
 
     # Unpack
     sweep           = vehicle.wings['main_wing'].sweeps.quarter_chord  / Units.deg

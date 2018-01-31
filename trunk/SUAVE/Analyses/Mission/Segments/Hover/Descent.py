@@ -1,3 +1,8 @@
+## @ingroup Analyses-Mission-Segments-Hover
+# Descent.py
+# 
+# Created:  Jan 2016, E. Botero
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,9 +25,35 @@ from SUAVE.Core import Units
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Hover
 class Descent(Hover):
+    """ A vertically descending hover for VTOL aircraft. Although the vehicle moves, no aerodynamic drag and lift are used.
+    
+        Assumptions:
+        Your vehicle creates a negligible drag and lift force during a vertical descent.
+        
+        Source:
+        None
+    """      
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """              
         
         # --------------------------------------------------------------
         #   User inputs

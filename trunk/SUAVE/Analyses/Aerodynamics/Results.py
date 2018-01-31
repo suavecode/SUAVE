@@ -1,3 +1,4 @@
+## @ingroup Analyses-Aerodynamics
 # Results
 # Created:   Trent, Jan 2014
 # Modified:  Andrew Wendorff, Feb 2016
@@ -6,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Analyses import Results as Base_Results
+from SUAVE.Core import Data
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -15,11 +16,34 @@ import numpy as np
 
 
 default_result = np.zeros([1,1])
+## @ingroup Analyses-Aerodynamics
+class Results(Data):
+    """A class for storing aerodynamic results.
 
-class Results(Base_Results):
-    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+    """      
     def __defaults__(self):
-        
+        """This sets the default values for the results.
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """               
         self.lift_coefficient  = default_result * 0.
         self.drag_coefficient  = default_result * 0.
         

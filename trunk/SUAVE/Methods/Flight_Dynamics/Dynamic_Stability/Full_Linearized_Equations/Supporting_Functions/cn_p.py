@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 # cn_p.py
 # 
 # Created:  Jun 2014, A. Wendorff
@@ -6,18 +7,27 @@
 # ----------------------------------------------------------------------
 #   Method
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
 def cn_p(cLw,depdalpha):
-    """ output = SUAVE.Methods.Flight_Dynamics.Dynamic_Stablity.Full_Linearized_Equations.Supporting_Functions.cn_p(CLw,depdalpha) 
-        Calculating the yawing moment coefficient with respect to perturbational angular rate around the x-body-axis        
-        Inputs:
-                 
-        Outputs:
-                
-        Assumptions:
-        
-        Source:
-            J.H. Blakelock, "Automatic Control of Aircraft and Missiles" Wiley & Sons, Inc. New York, 1991, (Need page number)
+    """ This calculats the yawing moment coefficient with respect
+    to perturbational angular rate around the x-body-axis            
+
+    Assumptions:
+    None
+    
+    Source:
+    J.H. Blakelock, "Automatic Control of Aircraft and Missiles" 
+    Wiley & Sons, Inc. New York, 1991, (pg 23)
+    
+    Inputs:
+    clw          [dimensionless]
+    dep_alpha    [dimensionless]
+             
+    Outputs:
+    cn_p         [dimensionless]
+            
+    Properties Used:
+    N/A           
     """
 
     # Generating Stability derivative

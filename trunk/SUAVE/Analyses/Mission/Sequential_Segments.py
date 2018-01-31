@@ -1,27 +1,51 @@
+## @ingroup Analyses-Mission
 # Sequential_Segments.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2016, A. Wendorff
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import ContainerOrdered as ContainerBase
-
 from SUAVE.Methods import Missions as Methods
-
 from Mission import Mission
-""" Mission.py: Top-level mission class """
+
 # ----------------------------------------------------------------------
 #   Class
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission
 class Sequential_Segments(Mission):
-    """ Solves each segment one at time """
+    """ Solves each segment one at time
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """
     
     def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """          
         
         self.tag = 'mission'
         
@@ -51,27 +75,3 @@ class Sequential_Segments(Mission):
         self.process.finalize.sub_segments = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
         
         return
-    
-    def finalize(self):
-        pass
-
-# ----------------------------------------------------------------------
-#   Cotnainer Class
-# ----------------------------------------------------------------------
-
-class Container(ContainerBase):
-    
-    def evaluate(self,state=None):
-        results = SUAVE.Analyses.Results()
-        
-        for key,mission in self.items():
-            result = mission.evaluate(state)
-            results[key] = result
-            
-        return results
-    
-    def finalize(self):
-        pass
-
-# Link container
-Mission.Container = Container

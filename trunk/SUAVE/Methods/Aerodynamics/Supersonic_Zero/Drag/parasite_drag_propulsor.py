@@ -1,14 +1,15 @@
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_propulsor.py
 # 
-# Created:  Aug 2014, T. Macdonald
-# Modified: Jan 2016, E. Botero       
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from SUAVE.Analyses import Results
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
+from SUAVE.Core import Data
 
 import numpy as np
 
@@ -16,17 +17,34 @@ import numpy as np
 #   Parasite Drag Propulsors
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_propulsor(state,settings,geometry):
-    """ SUAVE.Methods.parasite_drag_propulsor(conditions,configuration,propulsor)
-        computes the parasite drag associated with a propulsor 
-        
-        Inputs:
+    """Computes the parasite drag due to the propulsor
 
-        Outputs:
+    Assumptions:
+    Basic fit
 
-        Assumptions:
+    Source:
+    Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach) (subsonic)
+    http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML (supersonic)
 
-        
+    Inputs:
+    state.conditions.freestream.
+      mach_number                                [Unitless]
+      temperature                                [K]
+      reynolds_number                            [Unitless]
+    geometry.      
+      nacelle_diameter                           [m^2]
+      areas.wetted                               [m^2]
+      engine_length                              [m]
+    state.conditions.aerodynamics.drag_breakdown.
+      compressible.main_wing.divergence_mach     [Unitless]
+
+    Outputs:
+    propulsor_parasite_drag                      [Unitless]
+
+    Properties Used:
+    N/A
     """
     
     # unpack inputs
@@ -34,17 +52,11 @@ def parasite_drag_propulsor(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     propulsor     = geometry
-    
-    # unpack inputs
-    try:
-        form_factor = configuration.propulsor_parasite_drag_form_factor
-    except(AttributeError):
-        form_factor = 2.3
         
     freestream = conditions.freestream
     
     Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
-    Swet        = propulsor.nacelle_diameter * np.pi * propulsor.engine_length
+    Swet        = propulsor.areas.wetted
     
     l_prop  = propulsor.engine_length
     d_prop  = propulsor.nacelle_diameter
@@ -60,29 +72,26 @@ def parasite_drag_propulsor(state,settings,geometry):
     
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
+
+
+    k_prop = np.array([[0.0]]*len(Mc))
+    # assume that the drag divergence mach number of the propulsor matches the main wing
+    Mdiv = state.conditions.aerodynamics.drag_breakdown.compressible.main_wing.divergence_mach
     
-    # form factor for cylindrical bodies
-    try: # Check if propulsor has an intake
-        A_max = propulsor.nacelle_diameter
-        A_exit = propulsor.A7
-        A_inflow = propulsor.Ao
-        d_d = 1/((propulsor.engine_length + propulsor.D) / np.sqrt(4/np.pi*(A_max - (A_exit+A_inflow)/2)))
-    except:
-        d_d = float(d_prop)/float(l_prop)
-    D = np.array([[0.0]] * len(Mc))
-    a = np.array([[0.0]] * len(Mc))
-    du_max_u = np.array([[0.0]] * len(Mc))
-    k_prop = np.array([[0.0]] * len(Mc))
+    # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
+    k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 
     
-    D[Mc < 0.95] = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
-    a[Mc < 0.95] = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
-    du_max_u[Mc < 0.95] = a[Mc < 0.95] / ( (2-a[Mc < 0.95]) * (1-Mc[Mc < 0.95]**2)**0.5 )
+    # for supersonic flow (http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML)
+    k_prop_sup = 1.
     
-    D[Mc >= 0.95] = np.sqrt(1 - d_d**2)
-    a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
-    du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
+    sb_mask = (Mc <= Mdiv)
+    tn_mask = ((Mc > Mdiv) & (Mc < 1.05))
+    sp_mask = (Mc >= 1.05)
     
-    k_prop = (1 + form_factor*du_max_u)**2
+    k_prop[sb_mask] = k_prop_sub
+    # basic interpolation for transonic
+    k_prop[tn_mask] = (k_prop_sup-k_prop_sub)*(Mc[tn_mask]-Mdiv[tn_mask])/(1.05-Mdiv[tn_mask]) + k_prop_sub
+    k_prop[sp_mask] = k_prop_sup
     
     # --------------------------------------------------------
     # find the final result    
@@ -90,7 +99,7 @@ def parasite_drag_propulsor(state,settings,geometry):
     # --------------------------------------------------------
     
     # dump data to conditions
-    propulsor_result = Results(
+    propulsor_result = Data(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
         parasite_drag_coefficient = propulsor_parasite_drag ,

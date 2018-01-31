@@ -1,11 +1,6 @@
-from weissinger_vortex_lattice import weissinger_vortex_lattice
+## @defgroup Methods-Aerodynamics-Supersonic_Zero-Lift Lift
+# Functions to perform low-fidelity lift calculations for supersonics
+# @ingroup Methods-Aerodynamics-Supersonic_Zero
 
-from compute_max_lift_coeff import compute_max_lift_coeff
-from compute_flap_lift import compute_flap_lift
-from compute_slat_lift import compute_slat_lift
 from vortex_lift import vortex_lift
-from compute_aircraft_lift import compute_aircraft_lift
-
 from wing_compressibility import wing_compressibility
-from fuselage_correction import fuselage_correction
-from aircraft_total import aircraft_total

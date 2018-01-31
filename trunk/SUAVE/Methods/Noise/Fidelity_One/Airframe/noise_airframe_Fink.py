@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 # noise_airframce_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
@@ -32,6 +33,7 @@ import numpy as np
 #  Noise Airframce Fink
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Airframe
 def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
 
     """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
@@ -61,6 +63,11 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
                     atmosphere                  - Airport atmosphere (SUAVE type)
                     altitude                    - Airport altitude
                     delta_isa                   - ISA Temperature deviation
+                    
+                noise segment - flight path data, containing:
+                    distance_vector             - distance from the source location to observer
+                    angle                       - polar angle from the source to the observer
+                    phi                         - azimuthal angle from the source to the observer
 
 
             Outputs: One Third Octave Band SPL [dB]
@@ -99,28 +106,25 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     nose_wheels    =   config.landing_gear.nose_wheels                           #Number of wheels   
     main_wheels    =   config.landing_gear.main_wheels                           #Number of wheels   
     main_units     =   config.landing_gear.main_units                            #Number of main units   
-    velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) 
-    altitude       =   noise_segment.conditions.freestream.altitude[:,0] 
-    time           =   noise_segment.conditions.frames.inertial.time[:,0]    
+    velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) #aircraft velocity 
+    altitude       =   noise_segment.conditions.freestream.altitude[:,0]           #aircraft altitude
+    time           =   noise_segment.conditions.frames.inertial.time[:,0]          #time discretization
 
     noise_time = np.arange(0.,time[-1],.5)  
     altitude = np.interp(noise_time,time,altitude)
 
     # determining flap slot number
-    if wing.main_wing.flaps.type   == 'single_sloted':
+    if wing.main_wing.flaps.type   == 'single_slotted':
         slots = 1
-    elif wing.main_wing.flaps.type == 'double_sloted':
+    elif wing.main_wing.flaps.type == 'double_slotted':
         slots = 2
-    elif wing.main_wing.flaps.type == 'triple_sloted':
-        slots = 3
-    
-    # Calls the function noise_geometric to calculate all the distance and emission angles
-    #geometric = noise_counterplot(noise_segment,analyses,config)  
-   # geometric = noise_geometric(noise_segment,analyses,config)
-    
-    distance_vector = noise_segment.dist #geometric[:][0]    
-    angle = noise_segment.theta #geometric[:][1]
-    phi   = noise_segment.phi #geometric[:][2]
+    elif wing.main_wing.flaps.type == 'triple_slotted':
+        slots = 3    
+
+    # Geometric information from the source to observer position
+    distance_vector = noise_segment.dist    
+    angle = noise_segment.theta 
+    phi   = noise_segment.phi
     
     distance_vector = np.interp(noise_time,time,distance_vector)
     angle = np.interp(noise_time,time,angle)
@@ -237,7 +241,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
        
        
    #Calculation of dBA based on the sound pressure time history
-   # dbA_total                =       max(SPLt_dBA_history)    #(Not used to certification point)
+    dbA_total               =       np.max(SPLt_dBA_history)    #(Not used to certification point)
           
    #Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =       pnl_noise(SPL_total_history)

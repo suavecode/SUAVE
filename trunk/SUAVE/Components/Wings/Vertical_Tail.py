@@ -15,19 +15,41 @@ from Wing import Wing
 # ----------------------------------------------------------------------
 
 class Vertical_Tail(Wing):
-    """ SUAVE.Components.Wing.Vertical_Tail()
+    """This class is used to define vertical tails SUAVE
 
-        Attributes:
+    Assumptions:
+    None
 
-        Methods:
+    Source:
+    N/A
 
-        Assumptions:
-            if needed
+    Inputs:
+    None
 
-    """
+    Outputs:
+    None
 
+    Properties Used:
+    N/A
+    """ 
     def __defaults__(self):
-        # default attributes
+        """This sets the default for vertical tails in SUAVE.
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
         pass
 
 

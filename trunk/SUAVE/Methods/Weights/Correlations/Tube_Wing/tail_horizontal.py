@@ -1,3 +1,4 @@
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 # tail_horizontal.py
 #
 # Created:  Jan 2014, A. Wendorff
@@ -14,29 +15,35 @@ import numpy as np
 #   Tail Horizontal
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Correlations-Tube_Wing
 def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):      
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h)
-        Calculate the weight of the horizontal tail in a standard configuration
+    """ Calculate the weight of the horizontal tail in a standard configuration
+    
+    Assumptions:
+        calculated weight of the horizontal tail including the elevator
+        Assume that the elevator is 25% of the horizontal tail 
+    
+    Source: 
+        N/A
         
-        Inputs:
-            b_h - span of the horizontal tail [meters]
-            sweep_h - sweep of the horizontal tail [radians]
-            Nult - ultimate design load of the aircraft [dimensionless]
-            S_h - area of the horizontal tail [meters**2]
-            TOW - maximum takeoff weight of the aircraft [kilograms]
-            mac_w - mean aerodynamic chord of the wing [meters]
-            mac_h - mean aerodynamic chord of the horizontal tail [meters]
-            l_w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
-            t_c_h - thickness-to-chord ratio of the horizontal tail [dimensionless]
-            exposed - exposed area ratio for the horizontal tail [dimensionless]
-        
-        Outputs:
-            weight - weight of the horizontal tail [kilograms]
-            
-        Assumptions:
-            calculated weight of the horizontal tail including the elevator
-            Assume that the elevator is 25% of the horizontal tail
-    """
+    Inputs:
+        b_h - span of the horizontal tail                                                               [meters]
+        sweep_h - sweep of the horizontal tail                                                          [radians]
+        Nult - ultimate design load of the aircraft                                                     [dimensionless]
+        S_h - area of the horizontal tail                                                               [meters**2]
+        TOW - maximum takeoff weight of the aircraft                                                    [kilograms]
+        mac_w - mean aerodynamic chord of the wing                                                      [meters]
+        mac_h - mean aerodynamic chord of the horizontal tail                                           [meters]
+        l_w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center) [meters]
+        t_c_h - thickness-to-chord ratio of the horizontal tail                                         [dimensionless]
+        exposed - exposed area ratio for the horizontal tail                                            [dimensionless]
+    
+    Outputs:
+        weight - weight of the horizontal tail                                                          [kilograms]
+       
+    Properties Used:
+        N/A
+    """   
     # unpack inputs
     span       = b_h / Units.ft # Convert meters to ft
     sweep      = sweep_h # Convert deg to radians

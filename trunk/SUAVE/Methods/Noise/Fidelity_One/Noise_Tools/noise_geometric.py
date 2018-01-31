@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # noise_geometric.py
 # 
 # Created:  Jul 2015, C. Ilario
@@ -15,6 +16,7 @@ import numpy as np
 #   Noise Geometric
 # ----------------------------------------------------------------------
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_geometric(noise_segment,analyses,config):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric(noise_segment,analyses,config):
             Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
@@ -33,10 +35,10 @@ def noise_geometric(noise_segment,analyses,config):
                 For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground."""
     
     #unpack
-    sideline = 0 #analyses.noise.settings.sideline
-    flyover  = 1 #analyses.noise.settings.flyover
-    approach = 0 #analyses.noise.settings.approach
-    x0       = 0 #analyses.noise.settings.mic_x_position #only sideline
+    sideline = analyses.noise.settings.sideline
+    flyover  = analyses.noise.settings.flyover
+    approach = analyses.noise.settings.approach
+    x0       = analyses.noise.settings.mic_x_position #only sideline
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]

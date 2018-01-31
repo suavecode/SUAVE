@@ -1,3 +1,8 @@
+## @ingroup Analyses-Mission-Segments-Hover
+# Hover.py
+# 
+# Created:  Jan 2016, E. Botero
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,14 +19,39 @@ from SUAVE.Analyses import Process
 # Units
 from SUAVE.Core import Units
 
-
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Mission-Segments-Hover
 class Hover(Aerodynamic):
+    """ A stationary hover for VTOL aircraft. No aerodynamic drag and lift are used, since there is no velocity.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """     
     
     def __defaults__(self):
+        """ This sets the default solver flow. Anything in here can be modified after initializing a segment.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """              
         
         # --------------------------------------------------------------
         #   User inputs

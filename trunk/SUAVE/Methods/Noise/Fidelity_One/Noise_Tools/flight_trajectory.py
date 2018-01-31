@@ -1,3 +1,4 @@
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 #flight_trajectory.py
 #
 # Created:  Jul 2015, C. Ilario
@@ -17,6 +18,7 @@ from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 #   Flight Trajectory
 # ---------------------------------------------------------------------- 
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def flight_trajectory(configs,turbofan,analyses):
     """ SUAVE.Methods.Noise.Fidelity_One.flight_trajectory(configs,turbofan):
             This routine calculates a simplified flight trajectory of an aircraft for the noise calculation procedure. 

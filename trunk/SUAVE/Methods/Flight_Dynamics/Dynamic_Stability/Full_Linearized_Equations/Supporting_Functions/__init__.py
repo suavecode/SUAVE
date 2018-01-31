@@ -1,3 +1,6 @@
+## @defgroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions Supporting_Functions
+# @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations 
+
 from cl_r import cl_r
 from cm_alphadot import cm_alphadot
 from cm_q import cm_q
@@ -12,3 +15,5 @@ from cz_alphadot import cz_alphadot
 from cz_q import cz_q
 from cz_u import cz_u
 from ep_alpha import ep_alpha
+from cl_p import cl_p
+from cl_beta import cl_beta

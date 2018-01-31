@@ -1,3 +1,4 @@
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 # datcom.py
 #
 # Created:  Feb 2014, T. Momose
@@ -20,31 +21,37 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 #  Method
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations
 def datcom(wing,mach):
-    """ cL_alpha = SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom(wing,mach)
-        This method uses the DATCOM formula to compute dCL/dalpha without 
-        correlations for downwash of lifting surfaces further ahead on the 
-        aircraft or upwash resulting from the position of the wing on the body.
-        
-        CAUTION: The method presented here is applicable for subsonic speeds.
-        May be inaccurate for transonic or supersonic flight. A correction factor
-        for supersonic flight is included, but may not be completely accurate.
-        
-        Inputs:
-            wing - a data dictionary with the fields:
-                effective_apsect_ratio - wing aspect ratio [dimensionless]. If 
-                this variable is not inlcuded in the input, the method will look
-                for a variable named 'aspect_ratio'.
-                sweep_le - wing leading-edge sweep angle [radians]
-                taper - wing taper ratio [dimensionless]
-            mach - flight Mach number [dimensionless]. Should be a numpy array
-                with one or more elements.
+    """ This method uses the DATCOM formula to compute dCL/dalpha without 
+    correlations for downwash of lifting surfaces further ahead on the 
+    aircraft or upwash resulting from the position of the wing on the body.
+
+    CAUTION: The method presented here is applicable for subsonic speeds.
+    May be inaccurate for transonic or supersonic flight. A correction factor
+    for supersonic flight is included, but may not be completely accurate.
+
+    Assumptions:
+    Mach number should not be transonic
     
-        Outputs:
-            cL_alpha - The derivative of 3D lift coefficient with respect to AoA
-                
-        Assumptions:
-            -Mach number should not be transonic
+    Source:
+        None
+         
+    Inputs:
+        wing - a data dictionary with the fields:
+            effective_apsect_ratio - wing aspect ratio [dimensionless]. If 
+            this variable is not inlcuded in the input, the method will look
+            for a variable named 'aspect_ratio'.
+            sweep_le - wing leading-edge sweep angle [radians]
+            taper - wing taper ratio [dimensionless]
+        mach - flight Mach number [dimensionless]. Should be a numpy array
+            with one or more elements.
+
+    Outputs:
+        cL_alpha - The derivative of 3D lift coefficient with respect to AoA
+
+    Properties Used:
+    N/A
     """         
     
     #Unpack inputs

@@ -1,7 +1,8 @@
+## @ingroup Analyses-Atmospheric
 # Atmospheric.py
 #
-# Modified  2/16/15, Tim MacDonald
-# Modified: Feb 2016, Andrew Wendorff
+# Created:  Feb 2015, T. MacDonald
+# Modified: Feb 2016, A. Wendorff
 
 
 # ----------------------------------------------------------------------
@@ -16,13 +17,39 @@ from SUAVE.Analyses import Analysis
 #  Analysis
 # ----------------------------------------------------------------------
 
+## @ingroup Analyses-Atmospheric
 class Atmospheric(Analysis):
-    """ SUAVE.Analyses.Aerodynamics.Aerodynamics()
+    """This is the base class for atmospheric analyses. It contains functions
+    that are built into the default class.
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
     """
     def __defaults__(self):
+        """This sets the default values for the analysis to function.
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+        """          
         atmo_data = Atmosphere()
         self.update(atmo_data)
         
         
     def compute_values(self,altitude):
+        """This function is not implemented for the base class."""
         raise NotImplementedError

@@ -1,3 +1,4 @@
+## @ingroup Methods-Missions-Segments-Climb
 # Constant_Speed_Constant_Angle_Noise.py
 # 
 # Created:  Jul 2014, SUAVE Team
@@ -11,7 +12,26 @@ import numpy as np
 # ----------------------------------------------------------------------
 #  Expand State
 # ----------------------------------------------------------------------
+## @ingroup Methods-Missions-Segments-Climb
 def expand_state(segment,state):
+    
+    """Makes all vectors in the state the same size. Determines the minimum amount of points needed to get data for noise certification.
+
+    Assumptions:
+    Half second intervals for certification requirements. Fixed microphone position
+
+    Source:
+    N/A
+
+    Inputs:
+    state.numerics.number_control_points  [Unitless]
+
+    Outputs:
+    N/A
+
+    Properties Used:
+    Position of the flyover microphone is 6500 meters
+    """          
     
     # unpack
     climb_angle  = segment.climb_angle
@@ -27,7 +47,7 @@ def expand_state(segment,state):
     
     #number of time steps (space discretization)
     total_time=(x0+500)/v_x    
-    n_points   = np.ceil(total_time/dt +1)       
+    n_points   = np.int(np.ceil(total_time/dt +1))       
     
     state.numerics.number_control_points = n_points
     
@@ -38,7 +58,32 @@ def expand_state(segment,state):
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
+## @ingroup methods-missions-segments-climb
 def initialize_conditions(segment,state):
+    """Gets the overall time step for the segment type.
+    
+    Assumptions:
+    Constant true airspeed, with a constant climb angle. This segment is specically created for noise calculations.
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.climb_angle                         [radians]
+    segment.air_speed                           [meter/second]
+    segment.altitude_start                      [meters]
+    segment.altitude_end                        [meters]
+    state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density               [kilograms/meter^3]
+
+    Outputs:
+    conditions.frames.inertial.velocity_vector  [meters/second]
+    conditions.frames.inertial.position_vector  [meters]
+    conditions.freestream.altitude              [meters]
+
+    Properties Used:
+    N/A
+    """     
     
     dt=0.5  #time step in seconds for noise calculation
     
