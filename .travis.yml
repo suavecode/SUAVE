@@ -21,7 +21,7 @@ before_install:
     - mkdir OpenVSP
     - cd OpenVSP 
     - mkdir repo build buildlibs
-    - git clone https://github.com/OpenVSP/OpenVSP.git repo
+    - git clone https://github.com/timdmacdo/OpenVSP.git repo
     - sed -i 's/FIND_PACKAGE(PythonLibs)/FIND_PACKAGE(PythonLibs 2.7 REQUIRED)/g' repo/src/python_api/CMakeLists.txt
     - cd buildlibs
     - cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_CPPTEST=false -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=false -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../repo/Libraries -DCMAKE_BUILD_TYPE=Release
