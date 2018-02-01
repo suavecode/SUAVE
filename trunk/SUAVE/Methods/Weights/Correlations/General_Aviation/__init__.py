@@ -4,6 +4,7 @@
     contains some useful methods or attributes
     for estimating weights with zero-order correlations
 """
+# @ingroup Methods-Weights-Correlations
 
 # Attributes
 from empty import empty

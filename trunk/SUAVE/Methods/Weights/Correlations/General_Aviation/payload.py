@@ -18,7 +18,7 @@ from SUAVE.Core import Units, Data
 def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 225.*Units.lbs,wt_baggage = 0.):
     """ 
         Calculate the weight of the payload and the resulting fuel mass
-    
+ 
         Inputs:
             TOW -                                                    [kilograms]
             wt_empty - Operating empty weight of the aircraft        [kilograms]
@@ -36,24 +36,20 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 225.*Units.lbs,wt_bagg
                 fuel - weight of the fuel carried                              [kilograms]
                 empty - operating empty weight of the aircraft                 [kilograms]
             
-        Source:
-            based on the total payload of a Cessna 172 Skyhawk at a full fuel load
-            link: https://disciplesofflight.com/cessna-172-skyhawk/
+     
     """     
     
     # process
     wt_pax     = wt_passenger * num_pax 
     wt_bag     = wt_baggage * num_pax
     wt_payload = wt_pax + wt_bag + wt_cargo
-    #wt_fuel    = TOW - wt_payload - empty
+
     
     # packup outputs
     output = Data()
     output.payload = wt_payload
     output.pax     = wt_pax   
     output.bag     = wt_bag
-    #output.fuel    = wt_fuel
-    
     output.empty   = empty
   
     return output

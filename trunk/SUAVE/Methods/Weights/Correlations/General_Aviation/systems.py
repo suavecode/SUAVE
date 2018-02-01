@@ -18,7 +18,9 @@ from SUAVE.Core import Units, Data
 def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, num_seats,  mach_number, has_air_conditioner=1):
     """ output = SUAVE.Methods.Weights.Correlations.General_Avation.systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)
         Calculate the weight of the different engine systems on the aircraft
-    
+        
+        Source:
+            Raymer, Aircraft Design: A Conceptual Approach
         Inputs:
             V_fuel              - total fuel volume                     [meters**3]
             V_int               - internal fuel volume                  [meters**3]
@@ -41,8 +43,7 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
                 wt_ac - weight of the air conditioning and anti-ice system [kilograms]
                 wt_furnish - weight of the furnishings in the fuselage [kilograms]
             
-        Source:
-                 Aircraft Design: A Conceptual Approach by Raymer
+    
     """ 
     # unpack inputs
     
@@ -85,7 +86,6 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
     # packup outputs
     output = Data()   
     output.wt_flt_ctrl    = flt_ctrl_wt 
-    #output.wt_apu         = apu_wt 
     output.wt_hyd_pnu     = hyd_pnu_wt
     output.wt_avionics    = avionics_wt
     output.wt_elec        = elec_wt

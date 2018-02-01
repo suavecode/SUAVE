@@ -25,8 +25,9 @@ import warnings
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def empty(vehicle):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
-        This is for a standard Tube and Wing aircraft configuration.        
-
+        This is for a standard Tube and Wing aircraft configuration.     
+        
+     
         Inputs:
             engine - a data dictionary with the fields:                    
                 thrust_sls - sea level static thrust of a single engine [Newtons]
@@ -34,7 +35,7 @@ def empty(vehicle):
            
 
             vehicle - a data dictionary with the fields:                    
-                reference_area                                          [meters**2]
+                reference_area                                                            [meters**2]
                 envelope - a data dictionary with the fields:
                     ultimate_load - ultimate load of the aircraft                         [dimensionless]
                     limit_load    - limit load factor at zero fuel weight of the aircraft [dimensionless]
@@ -44,7 +45,7 @@ def empty(vehicle):
                     max_zero_fuel - maximum zero fuel weight of the aircraft    [kilograms]
                     cargo         - cargo weight                                [kilograms]
                 
-                passengers - number of passengers on the aircraft [dimensionless]
+                passengers - number of passengers on the aircraft               [dimensionless]
                         
                 design_dynamic_pressure - dynamic pressure at cruise conditions [Pascal]
                 design_mach_number      - mach number at cruise conditions      [dimensionless]
@@ -70,9 +71,9 @@ def empty(vehicle):
                 fuel - a data dictionary with the fields: 
                     mass_properties  - a data dictionary with the fields:
                         mass -mass of fuel [kilograms]
-                    density          - gravimetric density of fuel                [kilograms/meter**3]    
-                    number_of_tanks  - number of external fuel tanks              [dimensionless]
-                    internal_volume  - internal fuel volume contained in the wing [meters**3]
+                    density          - gravimetric density of fuel                             [kilograms/meter**3]    
+                    number_of_tanks  - number of external fuel tanks                           [dimensionless]
+                    internal_volume  - internal fuel volume contained in the wing              [meters**3]
                 wings - a data dictionary with the fields:    
                     wing - a data dictionary with the fields:
                         span                      - span of the wing                           [meters]
@@ -95,12 +96,12 @@ def empty(vehicle):
                     
                     horizontal_stabilizer - a data dictionary with the fields:
                         areas -  a data dictionary with the fields:
-                            reference - reference area of the horizontal stabilizer                [meters**2]
-                            exposed  - exposed area for the horizontal tail                        [meters**2]
-                        taper   - taper ratio of the horizontal stabilizer                         [dimensionless]
-                        span    - span of the horizontal tail                                      [meters]
+                            reference - reference area of the horizontal stabilizer                                    [meters**2]
+                            exposed  - exposed area for the horizontal tail                                            [meters**2]
+                        taper   - taper ratio of the horizontal stabilizer                                             [dimensionless]
+                        span    - span of the horizontal tail                                                          [meters]
                         sweeps - a data dictionary with the fields:
-                            quarter_chord - quarter chord sweep angle of the horizontal stabilizer [radians]
+                            quarter_chord - quarter chord sweep angle of the horizontal stabilizer                     [radians]
                         chords - a data dictionary with the fields:
                             mean_aerodynamic - mean aerodynamic chord of the horizontal stabilizer                     [meters]         
                             root             - root chord of the horizontal stabilizer             
@@ -117,7 +118,7 @@ def empty(vehicle):
                         t_c     - thickness-to-chord ratio of the vertical tail           [dimensionless]
                         sweeps   - a data dictionary with the fields:
                             quarter_chord - quarter chord sweep angle of the vertical stabilizer [radians]
-                        t_tail - flag to determine if aircraft has a t-tail, "yes"        [dimensionless]
+                        t_tail - flag to determine if aircraft has a t-tail, "yes"               [dimensionless]
 
 
                 
@@ -163,9 +164,10 @@ def empty(vehicle):
                     furnish - furnishing weight               [kilograms]
                     fuel_system - fuel system weight          [ kilograms]
            Wing, empannage, fuselage, propulsion and individual systems masses updated with their calculated values
-        
-        Assumptions:
+       Assumptions:
             calculated aircraft weight from correlations created per component of historical aircraft
+        
+      
     """     
 
     # Unpack inputs
@@ -189,17 +191,12 @@ def empty(vehicle):
     
     
     if propulsor_name == 'turbofan':
-        
-                # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
-                # weight estimation. Engine sizing should return this value.
-                # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
         thrust_sls                       = propulsors.sealevel_static_thrust
         wt_engine_jet                    = Propulsion.engine_jet(thrust_sls)
         wt_propulsion                    = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 
         
     elif propulsor_name == 'internal_combustion':
-    
         rated_power                      = propulsors.rated_power/num_eng
         wt_engine_piston                 = Propulsion.engine_piston(rated_power)
         wt_propulsion                    = Propulsion.integrated_propulsion_general_aviation(wt_engine_piston,num_eng)
@@ -383,8 +380,6 @@ def empty(vehicle):
     passengers.mass_properties.mass                                  = output.pax + output.bag
     furnishings.mass_properties.mass                                 = output.systems_breakdown.furnish
     avionics.mass_properties.mass                                    = output.systems_breakdown.avionics              
-   
-    #fuel.mass_properties.mass                                        = output.fuel
     hydraulics.mass_properties.mass                                  = output.systems_breakdown.hydraulics
     
     if has_air_conditioner:

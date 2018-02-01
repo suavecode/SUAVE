@@ -19,6 +19,9 @@ def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):
     """ 
         Calculate the weight of the main wing of an aircraft     
         
+        Source:
+            Raymer, Aircraft Design: A Conceptual Approach
+        
         Inputs:
             S_wing- area of the main wing                                              [meters**2]
             m_fuel - predicted weight of fuel in the wing                              [kilograms]
@@ -34,8 +37,7 @@ def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):
             output - a dictionary with outputs:
                 wt_main_wing - weight of the vertical fin portion of the vertical tail [kilograms]
             
-        Source:
-            Aircraft Design: A Conceptual Approach by Raymer
+   
     """     
     # unpack inputs
 

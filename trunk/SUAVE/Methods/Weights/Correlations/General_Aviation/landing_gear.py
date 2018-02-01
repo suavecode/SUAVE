@@ -21,9 +21,10 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
-    """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.landing_gear(TOW)
-        Calculate the weight of the landing gear assuming that the gear 
-        weight is 4 percent of the takeoff weight        
+    """ 
+        Calculate the weight of the landing gear
+
+        Source: Raymer- Aircraft Design: a Conceptual Approach
         
         Inputs:
             Nult - ultimate landing load factor
@@ -37,8 +38,6 @@ def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
     """ 
     
     #unpack
-    
-    #process
     W_l = landing_weight/Units.lbs
     l_n = strut_length_nose/Units.inches
     l_m = strut_length_main/Units.inches

@@ -19,6 +19,9 @@ def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudd
     """
         Calculate the weight of the vertical fin of an aircraft without the weight of the rudder and then calculate the weight of the rudder        
         
+        Source:
+            Raymer,  Aircraft Design: A Conceptual Approach
+        
         Inputs:
             S_v - area of the vertical tail (combined fin and rudder)          [meters**2]
             M_w -mass of wing                                                  [kilograms]
@@ -38,9 +41,8 @@ def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudd
                 wt_tail_vertical - weight of the vertical fin portion of the vertical tail [kilograms]
             
         Assumptions:
-            uses correlations from Aircraft Design: A Conceptual Approach by Raymer
             Vertical tail weight is the weight of the vertical fin without the rudder weight.
-            Rudder occupies 25% of the S_v and weighs 60% more per unit area.
+           
    """     
     # unpack inputs
     W_0  = TOW / Units.lb # Convert kg to lbs
