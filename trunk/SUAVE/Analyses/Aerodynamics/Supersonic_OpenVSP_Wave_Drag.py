@@ -99,6 +99,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
         compute.drag.untrimmed                     = Methods.Drag.untrimmed 
         compute.drag.trim                          = Methods.Drag.trim
+        print dir(Methods.Drag)
+        print Methods.Drag.__package__
         compute.drag.total                         = Methods.Drag.total_aircraft
         
         
