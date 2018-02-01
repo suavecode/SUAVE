@@ -17,19 +17,21 @@ branches:
 before_install:
     - sudo apt-get update
     - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
-    - sudo apt-get install git git-gui cmake libxml2-dev libfltk1.3-dev g++ libcpptest-dev libjpeg-dev libglm-dev libeigen3-dev libcminpack-dev libglew-dev 
-    - sudo apt-get install swig
+    - sudo apt-get install git git-gui cmake libxml2-dev libfltk1.3-dev g++ libcpptest-dev libjpeg-dev libglm-dev libeigen3-dev libcminpack-dev libglew-dev swig
     - mkdir OpenVSP
-    - cd OpenVSP
-    - mkdir repo
-    - git clone https://github.com/OpenVSP/OpenVSP.git repo
-    - mkdir build buildlibs
+    - cd OpenVSP 
+    - mkdir repo build buildlibs
+    - git clone https://github.com/timdmacdo/OpenVSP.git repo
+    - sed -i 's/FIND_PACKAGE(PythonLibs)/FIND_PACKAGE(PythonLibs 2.7 REQUIRED)/g' repo/src/python_api/CMakeLists.txt
     - cd buildlibs
     - cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_CPPTEST=false -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_EIGEN=false -DVSP_USE_SYSTEM_FLTK=false -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../repo/Libraries -DCMAKE_BUILD_TYPE=Release
     - make -j8
     - cd ../build
     - cmake ../repo/src/ -DVSP_LIBRARY_PATH=/home/travis/build/suavecode/SUAVE/OpenVSP/buildlibs -DCMAKE_BUILD_TYPE=Release
+    - pwd
+    - cat CMakeCache.txt
     - make -j8
+    - make package
     - ls
     - cd python_api
     - ls

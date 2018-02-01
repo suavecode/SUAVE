@@ -18,6 +18,7 @@ from Vortex_Lattice import Vortex_Lattice
 from Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
+from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
 import numpy as np
 
@@ -80,28 +81,26 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = Methods.Lift.vortex_lift
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
-        compute.lift.fuselage                      = Methods.Lift.fuselage_correction
-        compute.lift.total                         = Methods.Lift.aircraft_total
+        compute.lift.fuselage                      = Common.Lift.fuselage_correction
+        compute.lift.total                         = Common.Lift.aircraft_total
         
         compute.drag = Process()
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.total         = VSP_Methods.compressibility_drag_total       
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing
+        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
-        compute.drag.parasite.total                = Methods.Drag.parasite_total
+        compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
-        compute.drag.untrimmed                     = Methods.Drag.untrimmed 
-        compute.drag.trim                          = Methods.Drag.trim
-        print dir(Methods.Drag)
-        print Methods.Drag.__package__
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.untrimmed                     = Common.Drag.untrimmed
+        compute.drag.trim                          = Common.Drag.trim
+        compute.drag.total                         = Common.Drag.total_aircraft
         
         
     def initialize(self):
