@@ -30,7 +30,7 @@ before_install:
     - cmake ../repo/src/ -DVSP_LIBRARY_PATH=/home/travis/build/suavecode/SUAVE/OpenVSP/buildlibs -DCMAKE_BUILD_TYPE=Release
     - pwd
     - cat CMakeCache.txt
-    - make -j8
+    - make
     - make package
     - ls
     - cd python_api
