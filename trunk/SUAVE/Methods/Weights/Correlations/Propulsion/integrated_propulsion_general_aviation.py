@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #   Integrated Propulsion
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Weights-Correlations-Propulsion
 def integrated_propulsion_general_aviation(engine_piston,num_eng, engine_wt_factor = 2.575, engine_wt_exp = .922):
     """ 
         Calculate the weight of the entire propulsion system        

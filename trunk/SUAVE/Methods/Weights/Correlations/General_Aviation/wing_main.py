@@ -45,7 +45,7 @@ def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):
     W_0  = TOW / Units.lb # Convert kg to lbs
     S_w  = S_wing/ (Units.ft**2) # Convert from meters squared to ft squared  
     W_fw = m_fuel/Units.lbs #convert from kg to lbs
-    q   = q_c /(Units.lbs/(Units.ft**2.))
+    q    = q_c /(Units.lbs/(Units.ft**2.))
 
    
     # Calculate weight of wing for traditional aircraft vertical tail without rudder
