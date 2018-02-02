@@ -45,9 +45,9 @@ def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudd
            
    """     
     # unpack inputs
-    W_0  = TOW / Units.lb # Convert kg to lbs
+    W_0   = TOW / Units.lb # Convert kg to lbs
     S_vt  = S_v/ Units.ft**2 # Convert from meters squared to ft squared  
-    q   = q_c /(Units.force_pound / Units.ft**2.)
+    q     = q_c /(Units.force_pound / Units.ft**2.)
     
     
     
@@ -63,7 +63,7 @@ def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudd
     
     # packup outputs    
     
-    output = Data()
+    output                  = Data()
     output.wt_tail_vertical = tail_vert_English * Units.lbs # Convert from lbs to kg
   
     return output

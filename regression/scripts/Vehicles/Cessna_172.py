@@ -45,8 +45,8 @@ def vehicle_setup():
     vehicle.append_component(propulsors)
     
     #Build an dsize the turbofan to get sls sthrust
-    cruise_speed       = 140 *Units['mph']
-    altitude           = 13500 * Units.ft
+    cruise_speed       = 140. *Units['mph']
+    altitude           = 13500. * Units.ft
     
     atmo               = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream         = atmo.compute_values (0.)
@@ -64,7 +64,7 @@ def vehicle_setup():
     #main wing
     wing                          = SUAVE.Components.Wings.Wing()
     wing.tag                      = 'main_wing'
-    wing.areas.reference          = 175      *(Units.ft**2)
+    wing.areas.reference          = 175.      *(Units.ft**2)
     wing.aspect_ratio             = 7.44
     wing.taper                    = 0.672                        # Taper ratio
     wing.thickness_to_chord       = 0.13                         # Thickness-to-chord ratio
@@ -79,9 +79,9 @@ def vehicle_setup():
     fuselage.width                           = 40.         * Units.inches     # Width of the fuselage
     fuselage.heights.maximum                 = 75.         * Units.inches     # Height of the fuselage
     fuselage.lengths.total                   = (27+2./12.) * Units.feet     # Length of the fuselage
-    fuselage.lengths.empennage               = 9           * Units.feet   
+    fuselage.lengths.empennage               = 9.           * Units.feet   
     fuselage.lengths.structure               = fuselage.lengths.total-fuselage.lengths.empennage 
-    fuselage.lengths.cabin                   = 140         *Units.inches
+    fuselage.lengths.cabin                   = 140.         *Units.inches
     fuselage.mass_properties.volume          = .4*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.) #try this as approximation
     fuselage.mass_properties.internal_volume = .3*fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum**2.)
     fuselage.areas.wetted                    = fuselage.lengths.total*(np.pi/4.)*(fuselage.heights.maximum **2)
@@ -134,7 +134,7 @@ def vehicle_setup():
     vehicle.landing_gear = landing_gear
     
     #find uninstalled avionics weight
-    Wuav                                 = 2 * Units.lbs
+    Wuav                                 = 2. * Units.lbs
     avionics                             = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.mass_properties.uninstalled = Wuav
     vehicle.avionics                     = avionics

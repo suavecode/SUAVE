@@ -4,7 +4,6 @@
 # Created:  Mar 2016, M. Vegh
 # Modified: 
 
-
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -12,13 +11,10 @@
 from SUAVE.Core import Data,Units
 import numpy as np
 
-
-
-
-
 # ----------------------------------------------------------------------
 #   Landing Gear
 # ----------------------------------------------------------------------
+
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
     """ 
