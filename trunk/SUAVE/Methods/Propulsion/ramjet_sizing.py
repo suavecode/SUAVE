@@ -17,6 +17,7 @@ from SUAVE.Core import Data
 #   Sizing
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Propulsion
 def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
     """ This function sizes a ramjet for the input design conditions.
     """    

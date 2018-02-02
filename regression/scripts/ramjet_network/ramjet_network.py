@@ -120,13 +120,13 @@ def energy_network():
     #  Ramjet Network
     # ------------------------------------------------------------------    
     
-    # instantiate the gas turbine network
+    # instantiate the ramjet network
     ramjet = SUAVE.Components.Energy.Networks.Ramjet()
     ramjet.tag = 'ramjet'
     
     # setup
     ramjet.number_of_engines = 2.0
-    ramjet.engine_length     = 12.0
+    ramjet.engine_length     = 6.0
     ramjet.nacelle_diameter  = 1.3 * Units.meter
     ramjet.inlet_diameter    = 1.1 * Units.meter
     

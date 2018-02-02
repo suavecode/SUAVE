@@ -10,6 +10,7 @@ from scipy.optimize import fsolve
 #  rayleigh
 # ----------------------------------------------------------------------
 
+## @ingroup Methods-Propulsion
 def rayleighflow(gamma, M0, TtR):
     """
     Function that takes in a input (output) Mach number and a stagnation
