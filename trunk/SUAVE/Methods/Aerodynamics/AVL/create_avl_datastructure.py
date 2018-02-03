@@ -198,8 +198,8 @@ def populate_wing_sections(avl_wing,suave_wing):
                         if not suave_wing.Segments[i_segs].control_surfaces:
 
                                 # obtain the geometry for each segment in a loop
-                                if (i_segs == n_segments-1):
-                                        sweep = 0
+                                if (i_segs == n_segments-1): 
+                                        sweep = 0   # assigning no sweep at wing tip edge
                                 else: 
                                         if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
                                                 sweep               = suave_wing.Segments[i_segs].sweeps.leading_edge
@@ -247,7 +247,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                         # condition for the presence of control surfaces in segment
                         elif suave_wing.Segments[i_segs].control_surfaces:
                                 if (i_segs == n_segments-1):
-                                        sweep = 0
+                                        sweep = 0   # assigning no sweep at wing tip edge
                                 else: 
                                         if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
                                                 sweep = suave_wing.Segments[i_segs].sweeps.leading_edge
@@ -308,16 +308,15 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                 if (semispan*crtl_surf.span_fraction[0]  <= ordered_section_spans[section_count]) and (semispan*crtl_surf.span_fraction[1]  >= ordered_section_spans[section_count]):
                                                         c                     = Control_Surface()
                                                         c.tag                 = crtl_surf.tag
-                                                        c.gain                = crtl_surf.gain
-                                                if c.tag == 'slat':
-                                                        hinge_index = -1
-                                                        c.x_hinge = hinge_index * (root_chord*crtl_surf.chord_fraction[0])/section.chord  
-                                                else:
-                                                        hinge_index = 1
-                                                        c.x_hinge             = 1 - ( hinge_index * (root_chord*crtl_surf.chord_fraction[0])/section.chord )
-
-                                                c.sign_duplicate      = crtl_surf.deflection_symmetry
-                                                section.append_control_surface(c)
+                                                        c.gain                = crtl_surf.deflection 
+                                                        c.sign_duplicate      = crtl_surf.deflection_symmetry/Units.deg # convert to degrees 
+                                                        if c.tag == 'slat':
+                                                                hinge_index = -1
+                                                                c.x_hinge = hinge_index * crtl_surf.chord_fraction*section.chord 
+                                                        else:
+                                                                hinge_index = 1
+                                                                c.x_hinge             = 1 - crtl_surf.chord_fraction*section.chord 
+                                                        section.append_control_surface(c)
 
                                         # append control surface section onto avlwing        
                                         avl_wing.append_section(section)

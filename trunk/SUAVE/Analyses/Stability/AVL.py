@@ -98,6 +98,9 @@ class AVL(Stability):
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
         self.training.Cn_beta_moment_coefficient            = None
+        self.training.roll_moment_coefficient               = None
+        self.training.pitch_moment_coefficient              = None
+        self.training.yaw_moment_coefficient                = None
         self.training.neutral_point                         = None
         self.training_file                                  = None
 
@@ -106,8 +109,11 @@ class AVL(Stability):
         self.surrogates.moment_coefficient                  = None
         self.surrogates.Cm_alpha_moment_coefficient         = None
         self.surrogates.Cn_beta_moment_coefficient          = None
+        self.surrogates.roll_moment_coefficient             = None
+        self.surrogates.pitch_moment_coefficient            = None
+        self.surrogates.yaw_moment_coefficient              = None        
         self.surrogates.neutral_point                       = None
-
+        
         # Initialize quantities
         self.configuration                                  = Data()    
         self.geometry                                       = Data()
@@ -194,6 +200,9 @@ class AVL(Stability):
            pitch_moment_coefficient [-] CM
            cm_alpha                 [-] Cm_alpha
            cn_beta                  [-] Cn_beta
+           roll_moment_coefficient  [-] RM
+           pitch_moment_coefficient [-] PM
+           yaw_moment_coefficient   [-] YM
            neutral_point            [-] NP
 
         """          
@@ -216,6 +225,9 @@ class AVL(Stability):
         moment_model        = surrogates.moment_coefficient
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient
+        roll_moment_model   = surrogates.roll_moment_coefficient     
+        pitch_moment_model  = surrogates.pitch_moment_coefficient    
+        yaw_moment_model    = surrogates.yaw_moment_coefficient         
         neutral_point_model = surrogates.neutral_point
         
         configuration       = self.configuration
@@ -231,17 +243,26 @@ class AVL(Stability):
         CM                  = np.zeros([data_len,1])
         Cm_alpha            = np.zeros([data_len,1])
         Cn_beta             = np.zeros([data_len,1]) 
+        RM                  = np.zeros([data_len,1])
+        PM                  = np.zeros([data_len,1])
+        YM                  = np.zeros([data_len,1])
         NP                  = np.zeros([data_len,1]) 
 
         for ii,_ in enumerate(AoA):
             CM[ii]          = moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
             Cm_alpha[ii]    = Cm_alpha_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
             Cn_beta[ii]     = Cn_beta_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            RM[ii]          = roll_moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            PM[ii]          = pitch_moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            YM[ii]          = yaw_moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
             NP[ii]          = neutral_point_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
 
         static_stability.CM       = CM
         static_stability.Cm_alpha = Cm_alpha 
         static_stability.Cn_beta  = Cn_beta  
+        static_stability.RM       = RM
+        static_stability.PM       = PM
+        static_stability.YM       = YM        
         static_stability.NP       = NP  
 
         #-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -305,7 +326,7 @@ class AVL(Stability):
 
         Outputs:
         self.training.
-          coefficients     [-] CM, Cm_alpha, Cn_beta CD
+          coefficients     [-] CM, Cm_alpha, Cn_beta,RM, PM, YM
           neutral point    [-] NP
           grid_points      [radians,-] angles of attack and mach numbers 
 
@@ -326,6 +347,9 @@ class AVL(Stability):
         CM       = np.zeros([len(AoA)*len(mach),1])
         Cm_alpha = np.zeros([len(AoA)*len(mach),1])
         Cn_beta  = np.zeros([len(AoA)*len(mach),1]) 
+        RM       = np.zeros([len(AoA)*len(mach),1])
+        PM       = np.zeros([len(AoA)*len(mach),1])
+        YM       = np.zeros([len(AoA)*len(mach),1])
         NP       = np.zeros([len(AoA)*len(mach),1]) 
 
         # Calculate aerodynamics for table
@@ -341,7 +365,7 @@ class AVL(Stability):
             # Set training conditions
             run_conditions = Aerodynamics()
             run_conditions.weights.total_mass               = 0 
-            run_conditions.freestream.density               = 1.225
+            run_conditions.freestream.density               = 0 # 1.225
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
             run_conditions.freestream.mach_number           = mach[j]
@@ -353,6 +377,9 @@ class AVL(Stability):
             CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.pitch_moment_coefficient[:,0]
             Cm_alpha[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.cm_alpha[:,0]
             Cn_beta[count*len(mach):(count+1)*len(mach),0]  = results.aerodynamics.cn_beta[:,0]
+            RM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.roll_moment_coefficient[:,0]
+            PM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.pitch_moment_coefficient[:,0]
+            YM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.yaw_moment_coefficient[:,0]
             NP[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.neutral_point[:,0]
 
             count += 1
@@ -367,10 +394,13 @@ class AVL(Stability):
             CM         = data_array[:,2:3]
             Cm_alpha   = data_array[:,3:4]
             Cn_beta    = data_array[:,4:5]
-            NP         = data_array[:,5:6]
+            RM         = data_array[:,5:6]
+            PM         = data_array[:,6:7]
+            YM         = data_array[:,7:8]
+            NP         = data_array[:,8:9]
     
         # Store training data
-        training.coefficients = np.hstack([CM,Cm_alpha, Cn_beta,NP ])
+        training.coefficients = np.hstack([CM,Cm_alpha,Cn_beta,RM,PM,YM,NP ])
         training.grid_points  = xy
 
 
@@ -387,7 +417,7 @@ class AVL(Stability):
 
         Inputs:
         self.training.
-          coefficients     [-] CM, Cm_alpha, Cn_beta
+          coefficients     [-] CM, Cm_alpha, Cn_beta , RM ,PM, YM
           neutral point    [meters] NP
           grid_points      [radians,-] angles of attack and mach numbers 
 
@@ -396,6 +426,9 @@ class AVL(Stability):
           moment_coefficient             <Guassian process surrogate>
           Cm_alpha_moment_coefficient    <Guassian process surrogate>
           Cn_beta_moment_coefficient     <Guassian process surrogate>
+          roll_moment_coefficient        <Guassian process surrogate>
+          pitch_moment_coefficient       <Guassian process surrogate>
+          yaw_moment_coefficient         <Guassian process surrogate>
           neutral_point                  <Guassian process surrogate>       
 
         Properties Used:
@@ -408,23 +441,35 @@ class AVL(Stability):
         CM_data                                     = training.coefficients[:,0]
         Cm_alpha_data                               = training.coefficients[:,1]
         Cn_beta_data                                = training.coefficients[:,2]
-        NP_data                                     = training.coefficients[:,3]	
+        RM_data                                     = training.coefficients[:,3]
+        PM_data                                     = training.coefficients[:,4]
+        YM_data                                     = training.coefficients[:,5]
+        NP_data                                     = training.coefficients[:,6]	
         xy                                          = training.grid_points 
 
         # Gaussian Process New
         regr_cm                                     = gaussian_process.GaussianProcess()
         regr_cm_alpha                               = gaussian_process.GaussianProcess()
-        regr_cn_beta                                = gaussian_process.GaussianProcess()	
+        regr_cn_beta                                = gaussian_process.GaussianProcess()
+        regr_rm                                     = gaussian_process.GaussianProcess()       
+        regr_pm                                     = gaussian_process.GaussianProcess()
+        regr_ym                                     = gaussian_process.GaussianProcess()
         regr_np                                     = gaussian_process.GaussianProcess()
 
         cm_surrogate                                = regr_cm.fit(xy, CM_data) 
         cm_alpha_surrogate                          = regr_cm_alpha.fit(xy, Cm_alpha_data) 
         cn_beta_surrogate                           = regr_cn_beta.fit(xy, Cn_beta_data)
+        rm_surrogate                                = regr_cm.fit(xy, RM_data) 
+        pm_surrogate                                = regr_cm.fit(xy, PM_data) 
+        ym_surrogate                                = regr_cm.fit(xy, YM_data) 
         neutral_point_surrogate                     = regr_np.fit(xy, NP_data)
 
         self.surrogates.moment_coefficient          = cm_surrogate
         self.surrogates.Cm_alpha_moment_coefficient = cm_alpha_surrogate
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate
+        self.surrogates.roll_moment_coefficient     = rm_surrogate
+        self.surrogates.pitch_moment_coefficient    = pm_surrogate
+        self.surrogates.yaw_moment_coefficient      = ym_surrogate        
         self.surrogates.neutral_point               = neutral_point_surrogate
 
         # Standard subsonic/transonic aircarft  
@@ -436,7 +481,11 @@ class AVL(Stability):
         CM_sur                                      = np.zeros(np.shape(AoA_mesh))
         Cm_a_sur                                    = np.zeros(np.shape(AoA_mesh))
         Cn_b_sur                                    = np.zeros(np.shape(AoA_mesh))
+        RM_sur                                      = np.zeros(np.shape(AoA_mesh))
+        PM_sur                                      = np.zeros(np.shape(AoA_mesh))
+        YM_sur                                      = np.zeros(np.shape(AoA_mesh))
         NP_sur                                      = np.zeros(np.shape(AoA_mesh)) 
+        
 
 
         for jj in range(len(AoA_points)):
@@ -444,6 +493,9 @@ class AVL(Stability):
                 CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                RM_sur[ii,jj]    = rm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                PM_sur[ii,jj]    = pm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                YM_sur[ii,jj]    = ym_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
                 NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
         return
 

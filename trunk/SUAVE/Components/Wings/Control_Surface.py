@@ -38,13 +38,17 @@ class Control_Surface(Lofted_Body):
         N/A
         """         
         
-        self.tag                   = 'control_surface'
-        self.span                  = 0.0
-        self.span_fraction         = 0.0
-        self.chord_fraction        = 0  
-        self.deflection_symmetry   = 1.0
-        self.origin                = [0.0,0.0,0.0]
-        self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]
+   	self.tag                   = 'control_surface'
+	self.span                  = 0.0
+	self.span_fraction         = [0.0,0.0] # [absolute percent span location at start of control surface, absolute percent span location at end of control surface]
+	self.chord_fraction        = 0.0  
+	self.deflection            = 0.0  # Units in degrees
+	self.origin                = [0.0,0.0,0.0]
+	self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]	
+	self.deflection_symmetry   = 1.0    # sign_duplicate: 1.0 or -1.0 - the sign of
+					    # the duplicate control on the mirror wing.
+					    # Use 1.0 for a mirrored control surface,
+					    # like an elevator. Use -1.0 for an aileron.
 
         self.sections = Data()
         

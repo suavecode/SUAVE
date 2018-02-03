@@ -231,7 +231,7 @@ class AVL_Inviscid(Aerodynamics):
             # Set training conditions
             run_conditions = Aerodynamics()
             run_conditions.weights.total_mass           = 0     # Currently set to zero. Used for dynamic analysis which is under development
-            run_conditions.freestream.density           = 1.225
+            run_conditions.freestream.density           = 0# 1.225
             run_conditions.freestream.gravity           = 9.81  #check      
             run_conditions.aerodynamics.angle_of_attack = AoA 
             run_conditions.freestream.mach_number       = mach[j]
