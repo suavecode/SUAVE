@@ -79,6 +79,42 @@ class Segment(Component):
         self.prev = None
         self.next = None # for connectivity
 
+# ------------------------------------------------------------
+#  Segment
+# ------------------------------------------------------------
+
+## @ingroup Components
+class Control_Surface(Component):
+    """ A class that stubs out what a segment is
+    
+    Assumptions:
+    None
+    
+    Source:
+    None
+    """      
+    def __defaults__(self):
+        """This sets the default values.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """         
+        self.tag = 'Control_Surface'
+        
+        self.prev = None
+        self.next = None # for connectivity
         
 # ------------------------------------------------------------
 #  Section
@@ -192,3 +228,6 @@ Section.Container  = SectionContainer
 Curve.Container    = CurveContainer
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
+Lofted_Body.Control_Surface = Control_Surface
+
+

@@ -18,7 +18,7 @@ from SUAVE.Components import Lofted_Body
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings
-class Control_Surface(Lofted_Body):
+class Control_Surface(Lofted_Body.Control_Surface):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE.
 
@@ -81,38 +81,24 @@ class Control_Surface(Lofted_Body):
 
         return
 
-
 ## @ingroup Components-Wings
-class Control_Surface_Section(Lofted_Body.Section):
-    def __defaults__(self):
-        """This sets the default values control surface sections defined in SUAVE.
+class Control_Surface_Container(Lofted_Body.Control_Surface.Container):
+    """ Container for wing segment
 
-        Assumptions:
-        None
+    Assumptions:
+    None
 
-        Source:
-        N/A
+    Source:
+    N/A
 
-        Inputs:
-        None
+    Inputs:
+    None
 
-        Outputs:
-        None
+    Outputs:
+    None
 
-        Properties Used:
-        N/A
-        """         
-        
-        self.tag            = 'control_section'
-        self.chord          = 0.0
-        self.chord_fraction = 0.0
-        self.twist          = 0.0 # Offset / deflection in neutral position
+    Properties Used:
+    N/A
+    """     
 
-        self.origins = Data()
-        self.origins.dimensional    = [0.0,0.0,0.0]
-        self.origins.span_fraction  = 0.0
-        self.origins.chord_fraction = 0.0
-
-        self.points = Data()
-        self.points.leading_edge  = 0.0
-        self.points.trailing_edge = 0.0
+    pass

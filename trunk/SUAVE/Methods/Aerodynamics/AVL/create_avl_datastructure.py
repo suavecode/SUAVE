@@ -15,7 +15,7 @@ import numpy as np
 from copy import deepcopy
 
 # SUAVE Imports
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # SUAVE-AVL Imports
 from .Data.Inputs   import Inputs
