@@ -19,10 +19,10 @@ def tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW):
     """ weight = SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h)
         Calculate the weight of the horizontal tail in a standard configuration
         
-        Assumptions:
-            calculated weight of the horizontal tail including the elevator
-            Assume that the elevator is 25% of the horizontal tail
+        Source:
+            Aircraft Design: A Conceptual Approach by Raymer
         
+      
         Inputs:
             S_h  = trapezoidal area of horizontal tail           [meters**2]
             Ar_h = aspect ratio of horizontal tail               [dimensionless]
@@ -33,8 +33,10 @@ def tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW):
         Outputs:
             weight - weight of the horizontal tail               [kilograms]
             
-        Source:
-            Aircraft Design: A Conceptual Approach by Raymer
+        Assumptions:
+            calculated weight of the horizontal tail including the elevator
+            Assume that the elevator is 25% of the horizontal tail
+        
     """
     # unpack inputs
     W_0   = TOW / Units.lb # Convert kg to lbs

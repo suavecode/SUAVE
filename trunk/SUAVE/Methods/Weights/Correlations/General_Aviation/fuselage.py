@@ -19,7 +19,7 @@ def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fu
     """ 
         Calculate the weight of a fuselage for a GA aircraft
         
-        Source: Raymer: Aircraft Design, a Conceptual Approach
+        Source: Raymer: Aircraft Design, a Conceptual Approach (pages 460-461 in 4th edition)
         
         Inputs:
             S_f - fuselage wetted area                          [meters**2]

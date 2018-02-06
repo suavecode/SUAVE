@@ -20,7 +20,8 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
         Calculate the weight of the different engine systems on the aircraft
         
         Source:
-            Raymer, Aircraft Design: A Conceptual Approach
+            Raymer, Aircraft Design: A Conceptual Approach (pg 461 in 4th edition)
+            
         Inputs:
             V_fuel              - total fuel volume                     [meters**3]
             V_int               - internal fuel volume                  [meters**3]

@@ -20,7 +20,7 @@ def landing_gear(landing_weight, Nult, strut_length_main, strut_length_nose):
     """ 
         Calculate the weight of the landing gear
 
-        Source: Raymer- Aircraft Design: a Conceptual Approach
+        Source: Raymer- Aircraft Design: a Conceptual Approach (pg 460 in 4th edition)
         
         Inputs:
             Nult - ultimate landing load factor

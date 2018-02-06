@@ -40,7 +40,6 @@ def vehicle_setup():
     propulsors = SUAVE.Components.Propulsors.Propulsor() #use weights for the IC engine  
     propulsors.tag = 'internal_combustion'
     propulsors.rated_power = 110 *Units.kW # engine correlation is really off
-    #propulsors.rated_power = 100 *Units.kW
     propulsors.number_of_engines    = 1.
     vehicle.append_component(propulsors)
     

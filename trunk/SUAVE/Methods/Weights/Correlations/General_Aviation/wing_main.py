@@ -20,7 +20,7 @@ def wing_main(S_wing, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW):
         Calculate the weight of the main wing of an aircraft     
         
         Source:
-            Raymer, Aircraft Design: A Conceptual Approach
+            Raymer, Aircraft Design: A Conceptual Approach (pg 460 in 4th edition)
         
         Inputs:
             S_wing- area of the main wing                                              [meters**2]

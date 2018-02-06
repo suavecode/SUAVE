@@ -25,7 +25,7 @@ import warnings
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 def empty(vehicle):
     """ output = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(engine,wing,aircraft,fuselage,horizontal,vertical)
-        This is for a standard Tube and Wing aircraft configuration.     
+        Computes the empty weight breakdown of a General Aviation type aircraft  
         
      
         Inputs:
