@@ -39,7 +39,7 @@ def vehicle_setup():
     
     propulsors = SUAVE.Components.Propulsors.Propulsor() #use weights for the IC engine  
     propulsors.tag = 'internal_combustion'
-    propulsors.rated_power = 110 *Units.kW # engine correlation is really off
+    propulsors.rated_power = 110 *Units.kW # engine correlation is really off; compared weight breakdown to Roskam, who bookkept weights differently
     propulsors.number_of_engines    = 1.
     vehicle.append_component(propulsors)
     
@@ -89,14 +89,14 @@ def vehicle_setup():
     vehicle.append_component(fuselage)
    
     #horizontal tail
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'horizontal_stabilizer'    
+    wing                          = SUAVE.Components.Wings.Wing()
+    wing.tag                      = 'horizontal_stabilizer'    
     wing.areas.reference          = 34.6    * Units.feet**2 # Area of the horizontal tail
     wing.aspect_ratio             = 3.71
     wing.taper                    = .7
     wing.sweeps.quarter_chord     = 0.     * Units.deg       # Sweep of the horizontal tail
     wing.thickness_to_chord       = 0.13                      # Thickness-to-chord ratio of the horizontal tail
-    wing.origin                    = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
+    wing.origin                   = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
 
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
@@ -106,8 +106,8 @@ def vehicle_setup():
     
     
     #vertical stabilizer
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'    
+    wing                      = SUAVE.Components.Wings.Wing()
+    wing.tag                  = 'vertical_stabilizer'    
     wing.areas.reference      = 18.4    * Units.feet**2   # Area of the vertical tail
     wing.aspect_ratio         = 1.96
     wing.taper                = .8
@@ -120,9 +120,9 @@ def vehicle_setup():
     
     
     #Landing Gear
-    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
-    main_gear = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    nose_gear = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
+    landing_gear           = SUAVE.Components.Landing_Gear.Landing_Gear()
+    main_gear              = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
+    nose_gear              = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
     main_gear.strut_length = 12. * Units.inches #guess based on picture
     nose_gear.strut_length = 6. * Units.inches 
     
