@@ -77,48 +77,36 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     #set the working fluid to determine the fluid properties
     ram.inputs.working_fluid                               = ramjet.working_fluid
     
-    #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
+    #Flow through the ram
     ram(conditions)
     
     #link inlet nozzle to ram 
-    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
-    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
+    inlet_nozzle.inputs             = ram.outputs
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
 
-    #link the combustor to the high pressure compressor
-    combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature
-    combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure
-    combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
+    #link the combustor to the inlet nozzle
+    combustor.inputs                = inlet_nozzle.outputs
     
     #flow through the high pressor comprresor
     combustor.compute_rayleigh(conditions)
-
     
-    #link the core nozzle to the low pressure turbine
-    core_nozzle.inputs.stagnation_temperature              = combustor.outputs.stagnation_temperature
-    core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
+    #link the core nozzle to the combustor
+    core_nozzle.inputs              = combustor.outputs
     
     #flow through the core nozzle
     core_nozzle.compute_limited_geometry(conditions)
 
-    # compute the thrust using the thrust component
     #link the thrust component to the core nozzle
-    thrust.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity
-    thrust.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio
     thrust.inputs.core_nozzle                              = core_nozzle.outputs
-    
-    #link the thrust component to the combustor
-    thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
-    
-    #link the thrust component to the low pressure compressor 
-    thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature
-    thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines
     thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
     thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
-
+    
+    #link the thrust component to the combustor
+    thrust.inputs.fuel_to_air_ratio = combustor.outputs.fuel_to_air_ratio
+    
     #compute the thrust
     thrust.inputs.fan_nozzle                               = Data()
     thrust.inputs.fan_nozzle.velocity                      = 0.0
