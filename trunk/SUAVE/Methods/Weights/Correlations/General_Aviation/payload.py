@@ -1,9 +1,8 @@
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 # payload.py
 # 
-# Created:  Jan 2014, A. Wendorff
-# Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero
+# Created:  Feb 2018, M. Vegh
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,7 +1,7 @@
 ## @ingroup Methods-Weights-Correlations-General_Aviation
 # fuselage.py
 #
-# Created:  Mar 2016, M. Vegh
+# Created:  Feb 2018, M. Vegh
 # Modified: 
 
 # ----------------------------------------------------------------------

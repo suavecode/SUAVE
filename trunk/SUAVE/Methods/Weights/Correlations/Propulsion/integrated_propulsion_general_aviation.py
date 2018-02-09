@@ -1,8 +1,8 @@
 ## @ingroup Methods-Weights-Correlations-Propulsion
 # integrated_propulsion_general_aviation.py
 # 
-# Created:  Sept 2016, M. Vegh
-
+# Created:  Feb 2018, M. Vegh
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,7 +18,7 @@ from SUAVE.Core import Units
 def integrated_propulsion_general_aviation(engine_piston,num_eng, engine_wt_factor = 2.575, engine_wt_exp = .922):
     """ 
         Calculate the weight of the entire propulsion system        
-                
+
         Source:
                 Source: Raymer, Aircraft Design, a Conceptual Approach        
                 
@@ -29,11 +29,10 @@ def integrated_propulsion_general_aviation(engine_piston,num_eng, engine_wt_fact
         
         Outputs:
                 weight - weight of the full propulsion system [kilograms]
-            
-      
+
     """     
     engine_dry = engine_piston/Units.lbs
     weight     = engine_wt_factor * (engine_dry**engine_wt_exp)*num_eng
     mass       = weight*Units.lbs #convert to kg
-    
+
     return mass
