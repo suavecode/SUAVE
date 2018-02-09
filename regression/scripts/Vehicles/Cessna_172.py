@@ -1,9 +1,9 @@
 # Cessna_172.py
 #
-# Created:  Feb 2017, M. Vegh (modified from data originally in cmalpha/cmalpha.py)
-# Modified: 
+# Created:  Feb 2017, M. Vegh 
+# Modified: Feb 2018, M. Vegh 
 
-""" setup file for the Beech 99 aircraft, current values only used to test stability cmalpha
+""" setup file for the Cessna_172, current values only used to test General Aviation script
 """
 
 # ----------------------------------------------------------------------
@@ -37,21 +37,21 @@ def vehicle_setup():
     vehicle.fuel                                        = fuel
     
     
-    propulsors = SUAVE.Components.Propulsors.Propulsor() #use weights for the IC engine  
-    propulsors.tag = 'internal_combustion'
-    propulsors.rated_power = 110 *Units.kW # engine correlation is really off; compared weight breakdown to Roskam, who bookkept weights differently
+    propulsors                      = SUAVE.Components.Propulsors.Propulsor() #use weights for the IC engine  
+    propulsors.tag                  = 'internal_combustion'
+    propulsors.rated_power          = 110 *Units.kW # engine correlation is really off; compared weight breakdown to Roskam, who bookkept weights differently
     propulsors.number_of_engines    = 1.
     vehicle.append_component(propulsors)
     
-    #Build an dsize the turbofan to get sls sthrust
     cruise_speed       = 140. *Units['mph']
     altitude           = 13500. * Units.ft
     
     atmo               = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream         = atmo.compute_values (0.)
     freestream0        = atmo.compute_values (altitude)
-    
     mach_number        = (cruise_speed/freestream.speed_of_sound)[0][0]
+    
+    
     vehicle.passengers                                  = 4.  #including pilot                           # Number of passengers
     vehicle.mass_properties.cargo                       = 0.  * Units.kilogram            # Mass of cargo
     vehicle.has_air_conditioner                         = 0
@@ -67,17 +67,17 @@ def vehicle_setup():
     wing.aspect_ratio             = 7.44
     wing.taper                    = 0.672                        # Taper ratio
     wing.thickness_to_chord       = 0.13                         # Thickness-to-chord ratio
-    wing.sweeps.quarter_chord     = 0.       * Units.rad         # sweep angle in degrees
+    wing.sweeps.quarter_chord     = 0.       * Units.rad         # sweep angle in radians
     wing.origin                   = [9.*Units.ft,0,0]            # Location of main wing from origin of the vehicle
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     vehicle.append_component(wing)
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'    
-    fuselage.differential_pressure           = 8*Units.psi     # Maximum differential pressure
+    fuselage.differential_pressure           = 8*Units.psi                    # Maximum differential pressure
     fuselage.width                           = 40.         * Units.inches     # Width of the fuselage
     fuselage.heights.maximum                 = 75.         * Units.inches     # Height of the fuselage
-    fuselage.lengths.total                   = (27+2./12.) * Units.feet     # Length of the fuselage
+    fuselage.lengths.total                   = (27+2./12.) * Units.feet       # Length of the fuselage
     fuselage.lengths.empennage               = 9.           * Units.feet   
     fuselage.lengths.structure               = fuselage.lengths.total-fuselage.lengths.empennage 
     fuselage.lengths.cabin                   = 140.         *Units.inches
@@ -91,12 +91,12 @@ def vehicle_setup():
     #horizontal tail
     wing                          = SUAVE.Components.Wings.Wing()
     wing.tag                      = 'horizontal_stabilizer'    
-    wing.areas.reference          = 34.6    * Units.feet**2 # Area of the horizontal tail
+    wing.areas.reference          = 34.6    * Units.feet**2   # Area of the horizontal tail
     wing.aspect_ratio             = 3.71
     wing.taper                    = .7
-    wing.sweeps.quarter_chord     = 0.     * Units.deg       # Sweep of the horizontal tail
+    wing.sweeps.quarter_chord     = 0.     * Units.deg        # Sweep of the horizontal tail
     wing.thickness_to_chord       = 0.13                      # Thickness-to-chord ratio of the horizontal tail
-    wing.origin                   = [21.*Units.ft,0,0]                # Location of horizontal tail from origin of the vehicle
+    wing.origin                   = [21.*Units.ft,0,0]        # Location of horizontal tail from origin of the vehicle
 
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
@@ -112,8 +112,8 @@ def vehicle_setup():
     wing.aspect_ratio         = 1.96
     wing.taper                = .8
     wing.thickness_to_chord   = 0.13                      # Thickness-to-chord ratio of the vertical tail
-    wing.sweeps.quarter_chord = 0.     * Units.deg       # Sweep of the vertical tail
-    wing.t_tail               = "false"                    # Set to "yes" for a T-tail
+    wing.sweeps.quarter_chord = 0.     * Units.deg        # Sweep of the vertical tail
+    wing.t_tail               = "false"                   # Set to "yes" for a T-tail
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     
     vehicle.append_component(wing)   
@@ -133,14 +133,14 @@ def vehicle_setup():
     vehicle.landing_gear = landing_gear
     
     #find uninstalled avionics weight
-    Wuav                                 = 2. * Units.lbs
-    avionics                             = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.mass_properties.uninstalled = Wuav
-    vehicle.avionics                     = avionics
-    fuel                                                     =SUAVE.Components.Physical_Component()
-    fuel.origin                                              =wing.origin
-    fuel.mass_properties.center_of_gravity                   =wing.mass_properties.center_of_gravity
-    fuel.mass_properties.mass                                =vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    Wuav                                                     = 2. * Units.lbs
+    avionics                                                 = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics.mass_properties.uninstalled                     = Wuav
+    vehicle.avionics                                         = avionics
+    fuel                                                     = SUAVE.Components.Physical_Component()
+    fuel.origin                                              = wing.origin
+    fuel.mass_properties.center_of_gravity                   = wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                                = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
    
     
     
@@ -184,7 +184,7 @@ def configs_setup(vehicle):
     
     configs.append(config)
     
-    #note: takeoff and landing configurations taken from 737 - someone should update
+    
     # ------------------------------------------------------------------
     #   Takeoff Configuration
     # ------------------------------------------------------------------
@@ -193,8 +193,6 @@ def configs_setup(vehicle):
     config.tag = 'takeoff'
     
     config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
-    
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     
@@ -209,8 +207,6 @@ def configs_setup(vehicle):
     config.tag = 'landing'
     
     config.wings['main_wing'].flaps_angle = 30. * Units.deg
-    config.wings['main_wing'].slats_angle = 25. * Units.deg
-
     config.Vref_VS_ratio = 1.23
     config.maximum_lift_coefficient = 2.
     
