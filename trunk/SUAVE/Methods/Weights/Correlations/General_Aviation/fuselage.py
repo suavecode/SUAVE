@@ -42,7 +42,7 @@ def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fu
             fuselage for a general aviation type aircraft
     """
     # unpack inputs
-    
+
     d_fus    = (h_fus+w_fus)/2. #take average as diameter
     d_str    = .025*d_fus+1.*Units.inches   #obtained from http://homepage.ntlworld.com/marc.barbour/structures.html
     diff_p   = diff_p_fus / (Units.force_pound / Units.ft**2.) # Convert Pascals to lbs/ square ft
@@ -54,11 +54,9 @@ def fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_ht, q_c, V_fuse, diff_p_fu
     weight   = TOW / Units.lb    # Convert kg to lbs
     area     = S_fus / (Units.ft**2.) # Convert square meters to square ft 
     q        = q_c /(Units.force_pound / Units.ft**2.)
-  
 
-  
     #Calculate weight of wing for traditional aircraft vertical tail without rudder
     fuselage_weight = .052*(area**1.086)*((Nult*weight)**.177)*(tail_arm**(-.051))*((l_fus/d_str)**(-.072))*(q**.241)+11.9*((V_fuse* diff_p)**.271)
-    
+
     weight = fuselage_weight*Units.lbs #convert to kg
     return weight

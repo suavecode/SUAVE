@@ -43,7 +43,6 @@ def tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW):
     S_ht  = S_h/ Units.ft**2 # Convert from meters squared to ft squared  
     q     = q_c /(Units.force_pound / Units.ft**2.)
 
-    
     #Calculate weight of wing for traditional aircraft horizontal tail
     weight_English = .016*((Nult*W_0)**.414)*(q**.168)*(S_ht**.896)*((100.*t_c_h/np.cos(sweep_h))**(-.12))*((AR_h/(np.cos(sweep_h)**2))**.043)*(taper_h**(-.02))
     weight         = weight_English * Units.lbs # Convert from lbs to kg

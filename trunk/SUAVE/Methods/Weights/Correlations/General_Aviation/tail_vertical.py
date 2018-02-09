@@ -48,22 +48,18 @@ def tail_vertical(S_v, AR_v, sweep_v, q_c, taper_v, t_c_v, Nult,TOW,t_tail, rudd
     W_0   = TOW / Units.lb # Convert kg to lbs
     S_vt  = S_v/ Units.ft**2 # Convert from meters squared to ft squared  
     q     = q_c /(Units.force_pound / Units.ft**2.)
-    
-    
-    
+
     # Determine weight of the vertical portion of the tail
     if t_tail == "yes": 
         T_tail_factor = 1.# Weight of vertical portion of the T-tail is 25% more than a conventional tail
     else: 
         T_tail_factor = 0.
-    
+
     # Calculate weight of wing for traditional aircraft vertical tail without rudder
     tail_vert_English = .073*(1+.2*T_tail_factor)*((Nult*W_0)**(.376))*(q**.122)*(S_vt**.873)*((100.*t_c_v/np.cos(sweep_v))**(-.49))*((AR_v/(np.cos(sweep_v)**2.))**.357)*(taper_v**.039)
-    
-    
+
     # packup outputs    
-    
     output                  = Data()
     output.wt_tail_vertical = tail_vert_English * Units.lbs # Convert from lbs to kg
-  
+
     return output

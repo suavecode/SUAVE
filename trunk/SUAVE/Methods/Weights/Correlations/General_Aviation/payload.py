@@ -35,21 +35,19 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 225.*Units.lbs,wt_bagg
                 bag - weight of all the baggage                                [kilograms]
                 fuel - weight of the fuel carried                              [kilograms]
                 empty - operating empty weight of the aircraft                 [kilograms]
-            
-     
+
     """     
-    
+
     # process
     wt_pax     = wt_passenger * num_pax 
     wt_bag     = wt_baggage * num_pax
     wt_payload = wt_pax + wt_bag + wt_cargo
 
-    
     # packup outputs
     output = Data()
     output.payload = wt_payload
     output.pax     = wt_pax   
     output.bag     = wt_bag
     output.empty   = empty
-  
+
     return output

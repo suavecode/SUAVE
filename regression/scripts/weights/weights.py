@@ -79,33 +79,25 @@ def main():
     #but there is a huge spread among the GA designs, so individual components
     #differ a good deal from the actual design
    
-    vehicle     = vehicle_setup_general_aviation()
-    GTOW        = vehicle.mass_properties.max_takeoff
-    weight      = General_Aviation.empty(vehicle)
-    weight.fuel = vehicle.fuel.mass_properties.mass 
-    actual      = Data()
-    
-
+    vehicle        = vehicle_setup_general_aviation()
+    GTOW           = vehicle.mass_properties.max_takeoff
+    weight         = General_Aviation.empty(vehicle)
+    weight.fuel    = vehicle.fuel.mass_properties.mass 
+    actual         = Data()
     actual.bag     = 0.
-    
-    actual.empty   =  605.585163611
-  
-    actual.fuel    =  114.30527724 
-   
-    actual.wing            = 109.687250943
-    actual.fuselage        = 137.867024567
+    actual.empty   = 618.485310343
+    actual.fuel    = 144.69596603
+
+    actual.wing            = 124.673093906
+    actual.fuselage        = 119.522072873
     actual.propulsion      = 194.477769922 #includes power plant and propeller, does not include fuel system
-    actual.landing_gear    = 45.26037556
-    actual.furnishing      = 28.5944630048
-    actual.electrical      = 34.0149458608
-    actual.control_systems = 22.753226972
-    actual.fuel_systems    = 13.2183176771
-    
-    
-    actual.systems         = 101.412216023
-    
-    
-    #empty weight =1354 * Units.lbs
+    actual.landing_gear    = 44.8033840543+5.27975390045
+    actual.furnishing      = 37.8341395817
+    actual.electrical      = 36.7532226254
+    actual.control_systems = 14.8331955546
+    actual.fuel_systems    = 15.6859717453
+    actual.systems         = 108.096549345
+
     error = Data()
     error.fuel = (actual.fuel - weight.fuel)/actual.fuel
     error.empty = (actual.empty - weight.empty)/actual.empty
@@ -122,14 +114,12 @@ def main():
     print 'actual.systems=', actual.systems
     print 'General Aviation Results (kg)'
     print weight
-    
+
     print 'Relative Errors'
     print error  
-    
+
     for k,v in error.items():
         assert(np.abs(v)<0.001)    
-   
-    
     return
 
 # ----------------------------------------------------------------------        
