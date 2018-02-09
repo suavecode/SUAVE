@@ -64,14 +64,14 @@ class Thrust(Energy_Component):
         self.reference_temperature                    = 288.15
         self.reference_pressure                       = 1.01325*10**5
         self.number_of_engines                        = 0.0
-        self.inputs.fuel_to_air_ratio                 = 0.0  #changed
+        self.inputs.fuel_to_air_ratio                 = 0.0 
         self.outputs.thrust                           = 0.0 
         self.outputs.thrust_specific_fuel_consumption = 0.0
         self.outputs.specific_impulse                 = 0.0
         self.outputs.non_dimensional_thrust           = 0.0
         self.outputs.core_mass_flow_rate              = 0.0
         self.outputs.fuel_flow_rate                   = 0.0
-        self.outputs.fuel_mass                        = 0.0 #changed
+        self.outputs.fuel_mass                        = 0.0
         self.outputs.power                            = 0.0
         self.design_thrust                            = 0.0
         self.mass_flow_rate_design                    = 0.0

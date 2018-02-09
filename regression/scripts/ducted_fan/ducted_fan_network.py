@@ -160,7 +160,6 @@ def energy_network():
     # add to network
     ductedfan.append(inlet_nozzle)
     
-    
     # ------------------------------------------------------------------
     #  Component 3 - Fan
     
