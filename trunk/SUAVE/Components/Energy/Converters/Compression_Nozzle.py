@@ -3,6 +3,7 @@
 #
 # Created:  Jul 2014, A. Variyar
 # Modified: Jan 2016, T. MacDonald
+#           Sep 2017, P. Goncalves
 #           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
@@ -130,11 +131,11 @@ class Compression_Nozzle(Energy_Component):
             i_high = Mo > 1.0
 
             #initializing the arrays
-            Mach     = 1.0 * Pt_in/Pt_in
-            T_out    = 1.0 * Pt_in/Pt_in
-            Mo       = Mo * Pt_in/Pt_in
-            Pt_out   = 1.0 * Pt_in/Pt_in
-            P_out    = 1.0 * Pt_in/Pt_in
+            Mach     = np.ones_like(Pt_in)
+            T_out    = np.ones_like(Pt_in)
+            Mo       = Mo * np.ones_like(Pt_in)
+            Pt_out   = np.ones_like(Pt_in)
+            P_out    = np.ones_like(Pt_in)
 
             #-- Inlet Mach <= 1.0, isentropic relations
             Pt_out[i_low]  = Pt_in[i_low]*pid

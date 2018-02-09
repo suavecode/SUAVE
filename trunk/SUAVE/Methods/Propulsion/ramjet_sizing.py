@@ -1,7 +1,9 @@
+## @ingroup Methods-Propulsion
 # ramjet_sizing.py
 # 
 # Created:  May 2015, T. MacDonald 
 # Modified: Jan 2016, E. Botero        
+#           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -14,9 +16,10 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #   Sizing
 # ----------------------------------------------------------------------
-
+## @ingroup Methods-Propulsion
 def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
-    """ create and evaluate a ramjet network
+    """ This function sizes a ramjet for the input design conditions.
+
     """    
     
     #Unpack components
@@ -35,7 +38,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)
+            atmo_data = atmosphere.compute_values(altitude,delta_isa,True)                    
 
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
@@ -47,19 +50,19 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         
             # freestream conditions    
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
-            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
-            conditions.freestream.pressure           = np.atleast_1d(p)
-            conditions.freestream.temperature        = np.atleast_1d(T)
-            conditions.freestream.density            = np.atleast_1d(rho)
-            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-            conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-            conditions.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
-            conditions.freestream.R                  = p/(rho*T)
-            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
-            conditions.freestream.velocity           = np.atleast_1d(a*mach_number)
-            
+            conditions.freestream.altitude                    = np.atleast_1d(altitude)
+            conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
+            conditions.freestream.pressure                    = np.atleast_1d(p)
+            conditions.freestream.temperature                 = np.atleast_1d(T)
+            conditions.freestream.density                     = np.atleast_1d(rho)
+            conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+            conditions.freestream.gravity                     = np.atleast_1d(9.81)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
+            conditions.freestream.Cp                          = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
+            conditions.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
+            conditions.freestream.speed_of_sound              = np.atleast_1d(a)
+            conditions.freestream.velocity                    = np.atleast_1d(a*mach_number)
+
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
@@ -74,48 +77,36 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     #set the working fluid to determine the fluid properties
     ram.inputs.working_fluid                               = ramjet.working_fluid
     
-    #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
+    #Flow through the ram
     ram(conditions)
     
     #link inlet nozzle to ram 
-    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
-    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
+    inlet_nozzle.inputs             = ram.outputs
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
-
-    #link the combustor to the high pressure compressor
-    combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature
-    combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure
-    combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
+    
+    #link the combustor to the inlet nozzle
+    combustor.inputs                = inlet_nozzle.outputs
     
     #flow through the high pressor comprresor
     combustor.compute_rayleigh(conditions)
-
     
-    #link the core nozzle to the low pressure turbine
-    core_nozzle.inputs.stagnation_temperature              = combustor.outputs.stagnation_temperature
-    core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
+    #link the core nozzle to the combustor
+    core_nozzle.inputs              = combustor.outputs
     
     #flow through the core nozzle
-    core_nozzle(conditions)
+    core_nozzle.compute_limited_geometry(conditions)
 
-    # compute the thrust using the thrust component
     #link the thrust component to the core nozzle
-    thrust.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity
-    thrust.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio
     thrust.inputs.core_nozzle                              = core_nozzle.outputs
-    
-    #link the thrust component to the combustor
-    thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
-    
-    #link the thrust component to the low pressure compressor 
-    thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature
-    thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure
     thrust.inputs.number_of_engines                        = number_of_engines
     thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
     thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
-
+    
+    #link the thrust component to the combustor
+    thrust.inputs.fuel_to_air_ratio = combustor.outputs.fuel_to_air_ratio
+    
     #compute the thrust
     thrust.inputs.fan_nozzle                               = Data()
     thrust.inputs.fan_nozzle.velocity                      = 0.0
@@ -144,18 +135,18 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
 
     # freestream conditions    
-    conditions_sls.freestream.altitude           = np.atleast_1d(0.)
-    conditions_sls.freestream.mach_number        = np.atleast_1d(0.01)
-    conditions_sls.freestream.pressure           = np.atleast_1d(p)
-    conditions_sls.freestream.temperature        = np.atleast_1d(T)
-    conditions_sls.freestream.density            = np.atleast_1d(rho)
-    conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-    conditions_sls.freestream.isentropic_expansion_factor             = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
-    conditions_sls.freestream.R                  = p/(rho*T)
-    conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
-    conditions_sls.freestream.velocity           = np.atleast_1d(a*0.01)
+    conditions_sls.freestream.altitude                    = np.atleast_1d(0.)
+    conditions_sls.freestream.mach_number                 = np.atleast_1d(0.01)
+    conditions_sls.freestream.pressure                    = np.atleast_1d(p)
+    conditions_sls.freestream.temperature                 = np.atleast_1d(T)
+    conditions_sls.freestream.density                     = np.atleast_1d(rho)
+    conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
+    conditions_sls.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
+    conditions_sls.freestream.R                           = p/(rho*T)
+    conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
+    conditions_sls.freestream.velocity                    = np.atleast_1d(a*0.01)
     
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    

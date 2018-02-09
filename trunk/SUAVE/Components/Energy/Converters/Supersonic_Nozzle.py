@@ -153,12 +153,12 @@ class Supersonic_Nozzle(Energy_Component):
         
         #Computing output pressure and Mach number for the case Mach <1.0
         P_out[i_low]  = Po[i_low]
-        Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma-1)/gamma))-1)*2/(gamma-1))[:,0]
+        Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma[i_low]-1.)/gamma[i_low]))-1.)*2./(gamma[i_low]-1.))
         
         #Computing the output temperature,enthalpy, velocity and density
-        T_out         = Tt_out/(1+(gamma-1)/2*Mach*Mach)
+        T_out         = Tt_out/(1.+(gamma-1.)/2.*Mach*Mach)
         h_out         = Cp*T_out
-        u_out         = np.sqrt(2*(ht_out-h_out))
+        u_out         = np.sqrt(2.*(ht_out-h_out))
         rho_out       = P_out/(R*T_out)
         
         #Computing the freestream to nozzle area ratio (mainly from thrust computation)
@@ -234,9 +234,8 @@ class Supersonic_Nozzle(Energy_Component):
         To       = conditions.freestream.temperature
         
         #unpack from inputs
-        Tt_in    = self.inputs.stagnation_temperature       #2400?  Why not 686 due to ray?
-        Pt_in    = self.inputs.stagnation_pressure          #INPUT SEA LEVEL, u=0 Pt?
-        
+        Tt_in    = self.inputs.stagnation_temperature
+        Pt_in    = self.inputs.stagnation_pressure                
         
         #unpack from self
         pid             = self.pressure_ratio
@@ -246,16 +245,14 @@ class Supersonic_Nozzle(Energy_Component):
         
         
         # Method for computing the nozzle properties
-        
         #--Getting the output stagnation quantities
         Pt_out   = Pt_in*pid
-        Tt_out   = Tt_in*pid**((gamma-1)/(gamma)*etapold)
+        Tt_out   = Tt_in*pid**((gamma-1.)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
   
         # Method for computing the nozzle properties
-  
         #-- Initial estimate for exit area
-        area_ratio = (max_area_ratio + min_area_ratio) / 2
+        area_ratio = (max_area_ratio + min_area_ratio)/2.
         
         #-- Compute limits of each possible flow condition       
         subsonic_pressure_ratio     = pressure_ratio_isentropic(area_ratio, gamma, True)
@@ -265,23 +262,32 @@ class Supersonic_Nozzle(Energy_Component):
         supersonic_min_Area         = pressure_ratio_isentropic(min_area_ratio, gamma, False)
 
         #-- Compute the output Mach number guess with freestream pressure
-
         #-- Initializing arrays
-        P_out       = 1.0 *Pt_out/Pt_out
-        A_ratio     = area_ratio*Pt_out/Pt_out
-        M_out       = 1.0 *Pt_out/Pt_out
+        P_out       = np.ones_like(Pt_out)
+        A_ratio     = area_ratio*np.ones_like(Pt_out)
+        M_out       = np.ones_like(Pt_out)
 
         # Establishing a correspondence between real pressure ratio and limits of each flow condition
-        i_sub               = Po/Pt_out >= subsonic_pressure_ratio     
+        
+        # Determine if flow is within subsonic/sonic range
+        i_sub               = Po/Pt_out >= subsonic_pressure_ratio 
+        
+        # Detemine if there is a shock in nozzle
         i2                  = Po/Pt_out < subsonic_pressure_ratio
-        i3                  = Po/Pt_out >= nozzle_shock_pressure_ratio    
+        i3                  = Po/Pt_out >= nozzle_shock_pressure_ratio
         i_shock             = np.logical_and(i2,i3)      
+        
+        # Determine if flow is overexpanded
         i4                  = Po/Pt_out < nozzle_shock_pressure_ratio
         i5                  = Po/Pt_out > supersonic_min_Area
-        i_over              = np.logical_and(i4,i5)            
+        i_over              = np.logical_and(i4,i5)  
+        
+        # Determine if flow is supersonic
         i6                  = Po/Pt_out <= supersonic_min_Area
         i7                  = Po/Pt_out >= supersonic_max_Area
-        i_sup               = np.logical_and(i6,i7)            
+        i_sup               = np.logical_and(i6,i7) 
+        
+        # Determine if flow is underexpanded
         i_und               = Po/Pt_out < supersonic_max_Area
         
         #-- Subsonic and sonic flow
@@ -305,12 +311,12 @@ class Supersonic_Nozzle(Energy_Component):
         A_ratio[i_sup]      = 1./fm_id(M_out[i_sup],gamma[i_sup])
         
         #-- Underexpanded flow
-        P_out[i_und]        = supersonic_max_Area[i_over]*Pt_out[i_und] 
+        P_out[i_und]        = supersonic_max_Area[i_und]*Pt_out[i_und] 
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
         A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
-       #-- Calculate other flow properties
-        T_out   = Tt_out/(1+(gamma-1)/2*M_out*M_out)
+        #-- Calculate other flow properties
+        T_out   = Tt_out/(1.+(gamma-1.)/2.*M_out*M_out)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)
         rho_out = P_out/(R*T_out)

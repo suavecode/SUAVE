@@ -2,6 +2,7 @@
 # Ramjet.py
 #
 # Created:  Jun 2017, P. Goncalves
+# Modified: Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,12 +80,6 @@ class Ramjet(Propulsor):
 			exit_stagnation_temperature              [K]
 			exit_stagnation_pressure                 [Pa]
 			exit_velocity                            [m/s]
-		    fan:
-			exit_static_temperature                  [K]
-			exit_static_pressure                     [K]
-			exit_stagnation_temperature              [K]
-			exit_stagnation_pressure                 [Pa]
-			exit_velocity                            [m/s]
 
 		Properties Used:
 		Defaulted values
@@ -109,40 +104,33 @@ class Ramjet(Propulsor):
         ram(conditions)
 
         #link inlet nozzle to ram
-        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature
-        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure
-
+        inlet_nozzle.inputs          = ram.outputs
+	
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
 
         #link the combustor to the inlet nozzle
-        combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature
-        combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure
-        combustor.inputs.mach_number                           = inlet_nozzle.outputs.mach_number
+        combustor.inputs             = inlet_nozzle.outputs
 
-        #flow through the high pressor comprresor
+        #flow through the combustor
         combustor.compute_rayleigh(conditions)
 
-
-        #link the core nozzle to the low pressure turbine
-        core_nozzle.inputs.stagnation_temperature              = combustor.outputs.stagnation_temperature
-        core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure
+        #link the core nozzle to the combustor
+        core_nozzle.inputs           = combustor.outputs
 
         #flow through the core nozzle
         core_nozzle.compute_limited_geometry(conditions)
 
         # compute the thrust using the thrust component
         #link the thrust component to the core nozzle
-        thrust.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity
-        thrust.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio
         thrust.inputs.core_nozzle                              = core_nozzle.outputs
-
+	thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
+	thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
+	
         #link the thrust component to the combustor
         thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
 
-        #link the thrust component to the low pressure compressor
-        thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature
-        thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure
+        #link the thrust component 
         thrust.inputs.number_of_engines                        = number_of_engines
         thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
         thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation

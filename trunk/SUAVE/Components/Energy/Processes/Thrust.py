@@ -168,8 +168,8 @@ class Thrust(Energy_Component):
         
 
         #computing the non dimensional thrust
-        core_thrust_nondimensional  = flow_through_core*(gamma*M0*M0*(core_nozzle.velocity/u0-1) + core_area_ratio*(core_nozzle.static_pressure/p0-1))
-        fan_thrust_nondimensional   = flow_through_fan*(gamma*M0*M0*(fan_nozzle.velocity/u0-1) + fan_area_ratio*(fan_nozzle.static_pressure/p0-1))
+        core_thrust_nondimensional  = flow_through_core*(gamma*M0*M0*(core_nozzle.velocity/u0-1.) + core_area_ratio*(core_nozzle.static_pressure/p0-1.))
+        fan_thrust_nondimensional   = flow_through_fan*(gamma*M0*M0*(fan_nozzle.velocity/u0-1.) + fan_area_ratio*(fan_nozzle.static_pressure/p0-1.))
         
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
       
@@ -177,21 +177,20 @@ class Thrust(Energy_Component):
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
         #Computing the specific impulse
-        Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
+        Isp              = Fsp*a0*(1.+bypass_ratio)/(f*g)
         
         #Computing the TSFC
-        TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
+        TSFC             = 3600.*f*g/(Fsp*a0*(1.+bypass_ratio))  
+
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
-
-     
-        
+            
         #fuel flow rate
         a = np.array([0.])        
-        fuel_flow_rate   = np.fmax(0.1019715*FD2*TSFC/3600,a) #use units package for the constants
+        fuel_flow_rate   = np.fmax(0.1019715*FD2*TSFC/3600.,a) #use units package for the constants
         
         #computing the power 
         power            = FD2*u0
@@ -255,7 +254,7 @@ class Thrust(Energy_Component):
 
                 
         #compute dimensional mass flow rates
-        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
+        mdot_core                   = design_thrust/(Fsp*a0*(1.+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
     
         #pack outputs
