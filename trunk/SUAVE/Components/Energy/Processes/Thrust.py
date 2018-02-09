@@ -252,8 +252,7 @@ class Thrust(Energy_Component):
         
         #unpack results 
         Fsp                         = self.outputs.non_dimensional_thrust
-
-                
+     
         #compute dimensional mass flow rates
         mdot_core                   = design_thrust/(Fsp*a0*(1.+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
