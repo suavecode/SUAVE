@@ -3,7 +3,7 @@
 #
 # Created:  Mar 2014, SUAVE Team
 # Modified: Feb 2016, A. Wendorff
-
+#           Jan 2018, W. Maier
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -98,7 +98,7 @@ class Constant_Temperature(Atmospheric):
         planet    = self.planet
         grav      = self.planet.sea_level_gravity        
         Rad       = self.planet.mean_radius
-        gamma     = gas.gas_specific_constant
+        R         = gas.gas_specific_constant
         
         # check properties
         if not gas == Air():
@@ -130,7 +130,7 @@ class Constant_Temperature(Atmospheric):
         T     = zeros * 0.0
         rho   = zeros * 0.0
         a     = zeros * 0.0
-        mew   = zeros * 0.0
+        mu    = zeros * 0.0
         z0    = zeros * 0.0
         T0    = zeros * 0.0
         p0    = zeros * 0.0
@@ -151,12 +151,12 @@ class Constant_Temperature(Atmospheric):
         dz = zs-z0
         i_isoth = (alpha == 0.)
 
-        p = p0* np.exp(-1.*dz*grav/(gamma*T0))
+        p = p0* np.exp(-1.*dz*grav/(R*T0))
        
         T   = temperature
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
-        mew = gas.compute_absolute_viscosity(T)
+        mu  = gas.compute_absolute_viscosity(T)
         
 
                 
@@ -166,7 +166,7 @@ class Constant_Temperature(Atmospheric):
         atmo_data.temperature       = T
         atmo_data.density           = rho
         atmo_data.speed_of_sound    = a
-        atmo_data.dynamic_viscosity = mew
+        atmo_data.dynamic_viscosity = mu
         
         return atmo_data
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     T   = data.temperature
     rho = data.density
     a   = data.speed_of_sound
-    mew = data.dynamic_viscosity
+    mu  = data.dynamic_viscosity
     
     print data
     

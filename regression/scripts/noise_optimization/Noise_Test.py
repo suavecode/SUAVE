@@ -46,17 +46,17 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()    
-    actual.noise_cumulative_margin = 17.24473246767988
+    actual.noise_cumulative_margin = 19.7810544184
 
     error = Data()
-    error.noise_cumulative_margin = (actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
+    error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
     
     print 'noise_cumulative_margin=', noise_cumulative_margin
     
     print error.noise_cumulative_margin
     print error
     for k,v in error.items():
-        assert(np.abs(v)<0.001) 
+        assert(np.abs(v)<1e-6) 
         
     return
         

@@ -26,7 +26,7 @@ def vehicle_setup():
     GTOW                                  = 2550. * Units.pounds     
     vehicle.mass_properties.max_takeoff   = GTOW #from Wikipedia
     vehicle.mass_properties.empty         = 1669. * Units.pounds
-    vehicle.mass_properties.max_zero_fuel = 2550. # vehicle.mass_properties.max_takeoff-vehicle.mass_properties.empty+15.*225*Units.lbs #15 passenger ac
+    vehicle.mass_properties.max_zero_fuel = GTOW # vehicle.mass_properties.max_takeoff-vehicle.mass_properties.empty+15.*225*Units.lbs #15 passenger ac
     vehicle.envelope.ultimate_load        = 3.8    
     vehicle.envelope.limit_load           = 1.      
 

@@ -99,7 +99,7 @@ if __name__ == '__main__':
     plt.ylabel('Altitude (km)') 
     
     plt.figure(6)
-    plt.plot(mew,h)
+    plt.plot(mu,h)
     plt.xlabel('Viscosity (kg/m-s)')
     plt.ylabel('Altitude (km)')   
 
