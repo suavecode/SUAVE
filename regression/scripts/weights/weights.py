@@ -93,18 +93,18 @@ def main():
     actual.fuel_systems    = 15.6859717453
     actual.systems         = 108.096549345
 
-    error = Data()
-    error.fuel = (actual.fuel - weight.fuel)/actual.fuel
-    error.empty = (actual.empty - weight.empty)/actual.empty
-    error.wing = (actual.wing - weight.wing)/actual.wing
-    error.fuselage = (actual.fuselage - weight.fuselage)/actual.fuselage
-    error.propulsion = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.landing_gear = (actual.landing_gear - (weight.landing_gear_main+weight.landing_gear_nose))/actual.landing_gear
-    error.furnishing = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
-    error.electrical = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
+    error                 = Data()
+    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
+    error.empty           = (actual.empty - weight.empty)/actual.empty
+    error.wing            = (actual.wing - weight.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - weight.fuselage)/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
+    error.landing_gear    = (actual.landing_gear - (weight.landing_gear_main+weight.landing_gear_nose))/actual.landing_gear
+    error.furnishing      = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
+    error.electrical      = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
     error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems
-    error.fuel_systems = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
-    error.systems = (actual.systems - weight.systems)/actual.systems
+    error.fuel_systems    = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
+    error.systems         = (actual.systems - weight.systems)/actual.systems
 
     print 'actual.systems=', actual.systems
     print 'General Aviation Results (kg)'
