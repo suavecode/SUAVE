@@ -36,7 +36,7 @@ def read_results(avl_object):
     #i = 0 Used in the dynamic stability module (under development)
     for case_name in avl_object.current_status.cases:
         case = avl_object.current_status.cases[case_name]
-        num_ctrl = case.stability_and_control.control_deflections.size
+        num_ctrl =  case.stability_and_control.control_surfaces
         with open(case.result_filename,'r') as res_file:
             
             case_res = Data()  
@@ -88,7 +88,7 @@ def read_results(avl_object):
             case_res.stability.CL_r = float(lines[44+num_ctrl][65:74].strip())
             case_res.stability.CY_p = float(lines[45+num_ctrl][24:34].strip())
             case_res.stability.CY_q = float(lines[45+num_ctrl][43:54].strip())
-            case_res.stability.CY_r = float(lines[44+num_ctrl][65:74].strip())
+            case_res.stability.CY_r = float(lines[45+num_ctrl][65:74].strip())
             case_res.stability.Cl_p = float(lines[46+num_ctrl][24:34].strip())
             case_res.stability.Cl_q = float(lines[46+num_ctrl][43:54].strip())
             case_res.stability.Cl_r = float(lines[44+num_ctrl][65:74].strip())
@@ -97,9 +97,9 @@ def read_results(avl_object):
             case_res.stability.Cm_r = float(lines[44+num_ctrl][65:74].strip())
             case_res.stability.Cn_p = float(lines[48+num_ctrl][24:34].strip())
             case_res.stability.Cn_q = float(lines[48+num_ctrl][43:54].strip())
-            case_res.stability.Cn_r = float(lines[44+num_ctrl][65:74].strip())
+            case_res.stability.Cn_r = float(lines[48+num_ctrl][65:74].strip())
         
-            case_res.stability.neutral_point  = float(lines[50+13*(num_ctrl>0)][22:33].strip())
+            case_res.stability.neutral_point  = float(lines[50+12*(num_ctrl>0)+num_ctrl][22:33].strip())
         
             results.append(case_res)        
        

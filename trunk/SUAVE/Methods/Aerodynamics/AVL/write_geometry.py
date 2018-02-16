@@ -164,7 +164,7 @@ SURFACE
         chordwise_vortices       = 20  
         chordwise_vortex_spacing = 1.0
         spanwise_vortices        = np.ceil(avl_wing.semispan*spanwise_vortices_per_meter)# units [m^-1]
-        spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
+        spanwise_vortex_spacing  = -1.1                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
         
         # Write text    
@@ -293,8 +293,11 @@ AFILE
     wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
         wing_section_text = wing_section_text + airfoil_base.format(airfoil)
-    for cs in avl_section.control_surfaces:
-        control_text = make_controls_text(cs)
+    
+    ordered_cs = []
+    ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)
+    for i in xrange(len(ordered_cs)):
+        control_text = make_controls_text(ordered_cs[i])
         wing_section_text = wing_section_text + control_text
 
     return wing_section_text
@@ -345,11 +348,11 @@ AFILE
     if airfoil:
         body_section_text = body_section_text + airfoil_base.format(airfoil)
     
-    full_control_text = ''
-    for cs in avl_body_section.control_surfaces:
-        control_text = make_controls_text(cs)
-        full_control_text = full_control_text + control_text
-    body_section_text + full_control_text
+    #full_control_text = ''
+    #for cs in avl_body_section.control_surfaces:
+        #control_text = make_controls_text(cs)
+        #full_control_text = full_control_text + control_text
+    #body_section_text + full_control_text
     return body_section_text
 
     

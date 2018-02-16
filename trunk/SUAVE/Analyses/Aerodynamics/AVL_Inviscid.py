@@ -84,7 +84,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.err_filename = sys.stderr
         
         # Default spanwise vortex density 
-        self.spanwise_vortex_density         = 1.5
+        self.settings.spanwise_vortex_density         = 1.5
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -311,20 +311,6 @@ class AVL_Inviscid(Aerodynamics):
         CL_sur                           = np.zeros(np.shape(AoA_mesh))
         CD_sur                           = np.zeros(np.shape(AoA_mesh))
         
-        
-        for jj in range(len(AoA_points)):
-            for ii in range(len(mach_points)):
-                CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-        
-        fig = plt.figure('Coefficient of Lift Surrogate Plot')    
-        plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
-        cbar = plt.colorbar()
-        plt.scatter(xy[:,0]/Units.deg,xy[:,1])
-        plt.xlabel('Angle of Attack (deg)')
-        plt.ylabel('Mach Number')
-        cbar.ax.set_ylabel('Coefficient of Lift')
-
         return
         
     
@@ -368,17 +354,30 @@ class AVL_Inviscid(Aerodynamics):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-        spanwise_vortices_per_meter      = self.spanwise_vortex_density
+        spanwise_vortices_per_meter      = self.settings.spanwise_vortex_density
         
         # update current status
         self.current_status.batch_index += 1
         batch_index                      = self.current_status.batch_index
         self.current_status.batch_file   = batch_template.format(batch_index)
         self.current_status.deck_file    = deck_template.format(batch_index)
-        
+               
+        # control surfaces
+        num_cs = 0       
+        for wing in self.geometry.wings:
+            for segment in wing.Segments:
+                wing_segment =  wing.Segments[segment]
+                section_cs = len(wing_segment.control_surfaces)
+                if section_cs != 0:
+                    cs_shift = True
+                num_cs =  num_cs + section_cs
+
         # translate conditions
-        cases                            = translate_conditions_to_cases(self,run_conditions)
-        self.current_status.cases        = cases        
+        cases                            = translate_conditions_to_cases(self,run_conditions)    
+        for case in cases:
+            cases[case].stability_and_control.control_surfaces= num_cs
+
+        self.current_status.cases        = cases 
         
         # case filenames
         for case in cases:
