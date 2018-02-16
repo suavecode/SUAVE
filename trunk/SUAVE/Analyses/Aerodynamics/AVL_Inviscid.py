@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Aerodynamics
 # AVL_Inviscid.py
 #
-# Created: Apr 2017, M. Clarke 
-
+# Created:  Apr 2017, M. Clarke 
+# Modified: Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -169,7 +169,7 @@ class AVL_Inviscid(Aerodynamics):
         data_len      = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn update fix
             
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
