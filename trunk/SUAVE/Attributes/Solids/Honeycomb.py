@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------------------
 
 from Solid import Solid
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Carbon Fiber Honeycomb Core Solid Class
@@ -19,11 +19,11 @@ class Honeycomb(Solid):
 
     def __defaults__(self):
 
-        self.UTS        = 1e6       # Ultimate Tensile Strength
-        self.USS        = 1e6       # Ultimate Shear Strength
-        self.UBS        = 1e6       # Ultimate Bearing Strength
-        self.YTS        = 1e6       # Yield Tensile Strength
-        self.YSS        = 1e6       # Yield Shear Strength
-        self.YBS        = 1e6       # Yield Bearing Strength
-        self.minThk     = 6.5e-3    # Miminum Gage Thickness
-        self.density    = 55       # Material Density
+        self.ultimateTensileStrength        = 1e6       *Units.Pa
+        self.ultimateShearStrength          = 1e6       *Units.Pa
+        self.ultimateBearingStrength        = 1e6       *Units.Pa
+        self.yieldTensileStrength           = 1e6       *Units.Pa
+        self.yieldShearStrength             = 1e6       *Units.Pa
+        self.yieldBearingStrength           = 1e6       *Units.Pa
+        self.minimumGageThickness           = 6.5e-3    *Units.m
+        self.density                        = 55        *(Units.kg)/((Units.m)**3)

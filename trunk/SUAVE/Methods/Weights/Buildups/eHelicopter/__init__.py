@@ -5,6 +5,3 @@
 """
 
 from empty import empty
-from fuselage import fuselage
-from prop import prop
-from wiring import wiring 

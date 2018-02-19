@@ -7,7 +7,8 @@
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Attributes import Solids                     
+from SUAVE.Attributes.Solids import (
+    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
 import numpy as np
 
 
@@ -15,7 +16,10 @@ import numpy as np
 # Fuselage
 #-------------------------------------------------------------------------------
 
-def fuselage(fLength, fWidth, fHeight, maxSpan, MTOW):
+def fuselage(config,
+             maxGLoad = 3.8,
+             landingImpactFactor = 3.5,
+             safetyFactor = 1.5):
     """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.fuselage(
             fLength,
             fWidth,
@@ -51,18 +55,27 @@ def fuselage(fLength, fWidth, fHeight, maxSpan, MTOW):
             weight:     Fuselage Mass   [kg]
     """
 
-    G_max   = 3.8    # Maximum G's Experienced During Climb
-    LIF     = 3.5    # Landing Load Impact Factor
-    SF      = 1.5    # Factor of Safety
+#-------------------------------------------------------------------------------
+# Unpack Inputs
+#-------------------------------------------------------------------------------
+
+    fLength = config.fuselages.fuselage.lengths.total
+    fWidth  = config.fuselages.fuselage.width
+    fHeight = config.fuselages.fuselage.heights.maximum
+    maxSpan = config.wings["main_wing"].spans.projected
+    MTOW    = config.mass_properties.max_takeoff
+    G_max   = maxGLoad
+    LIF     = landingImpactFactor
+    SF      = safetyFactor
 
     # Calculate Skin Weight Per Unit Area (arealWeight) based on material
     # properties. In this instance we assume the use of
     # Bi-directional Carbon Fiber, a Honeycomb Core, and Paint:
 
     arealWeight =(
-          Solids.BiCF().minThk      * Solids.BiCF().density
-        + Solids.Honeycomb().minThk * Solids.Honeycomb().density
-        + Solids.Paint().minThk     * Solids.Paint().density
+          BiCF().minimumGageThickness      * BiCF().density
+        + Honeycomb().minimumGageThickness * Honeycomb().density
+        + Paint().minimumGageThickness     * Paint().density
         )
 
     # Calculate fuselage area (using assumption of ellipsoid), and weight:
@@ -78,37 +91,37 @@ def fuselage(fLength, fWidth, fHeight, maxSpan, MTOW):
 
     # Calculate the mass of a canopy, assuming Acrylic:
 
-    canopyMass = S_wet/8 * Solids.Acrylic().minThk * Solids.Acrylic().density
+    canopyMass = S_wet/8 * Acrylic().minimumGageThickness * Acrylic().density
 
     # Calculate keel mass needed to carry lifting moment, assuming
     # Uni-directional Carbon Fiber used to carry load
 
-    L_max       = G_max * MTOW * SF       # Max Lifting Load
+    L_max       = G_max * MTOW * 9.8 * SF        # Max Lifting Load
     M_lift      = L_max * fLength/2.       # Max Moment Due to Lift
     beamWidth   = fWidth/3.                # Allowable Keel Width
     beamHeight  = fHeight/10.              # Allowable Keel Height
 
-    beamArea    = M_lift * beamHeight/(4*Solids.UniCF().UTS*(beamHeight/2)**2)
-    massKeel    = beamArea * fLength * Solids.UniCF().density
+    beamArea    = M_lift * beamHeight/(4*UniCF().ultimateTensileStrength*(beamHeight/2)**2)
+    massKeel    = beamArea * fLength * UniCF().density
 
     # Calculate keel mass needed to carry wing bending moment, assuming
     # thin walled Bi-directional Carbon Fiber used to carry load
 
     M_bend      = L_max/2 * maxSpan/2                          # Max Bending Moment
     beamArea    = beamHeight * beamWidth                       # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(Solids.BiCF().USS*beamArea)    # Beam Thickness
-    massKeel   += 2*(beamHeight + beamWidth)*beamThk*Solids.BiCF().density
+    beamThk     = 0.5 * M_bend/(BiCF().ultimateShearStrength*beamArea)    # Beam Thickness
+    massKeel   += 2*(beamHeight + beamWidth)*beamThk*BiCF().density
 
     # Calculate keel mass needed to carry landing impact load assuming
     # Steel bolts, and Bi-directional Carbon Fiber laminate pads used to carry
     # loads in a side landing
 
-    F_landing   = SF * MTOW * LIF * 0.6403              # Side Landing Force
-    boltArea    = F_landing/Solids.Steel().USS              # Required Bolt Area
+    F_landing   = SF * MTOW * 9.8 * LIF * 0.6403              # Side Landing Force
+    boltArea    = F_landing/Steel().ultimateShearStrength              # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
-    lamThk      = F_landing/(boltDiam*Solids.BiCF().UBS)    # Laminate Thickness
+    lamThk      = F_landing/(boltDiam*BiCF().ultimateBearingStrength)    # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
-    massKeel   += 4*lamVol*Solids.BiCF().density            # Mass of 4 Pads
+    massKeel   += 4*lamVol*BiCF().density            # Mass of 4 Pads
 
     # Calculate total mass as the sum of skin mass, bulkhead mass, canopy pass,
     # and keel mass. Called weight by SUAVE convention

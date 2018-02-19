@@ -6,18 +6,24 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from SUAVE.Core import Units
-from SUAVE.Attributes import Solids
-from fuselage import fuselage
-from prop import prop
-from wiring import wiring
+from SUAVE.Core import Units, Data
+from SUAVE.Attributes.Solids import (
+    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
+from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
+from SUAVE.Methods.Weights.Buildups.Common.prop import prop
+from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 import numpy as np
 
 #-------------------------------------------------------------------------------
 # Empty
 #-------------------------------------------------------------------------------
 
-def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLength, fWidth, fHeight):
+def empty(config,
+          speedOfSound       = 340.294,
+          maximumTipMach     = 0.65,
+          diskAreaFactor     = 1.15,
+          maxThrustToWeight  = 1.1,
+          motorEfficiency    = 0.85 * 0.98):
     """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.empty(
             rProp,
             mBattery,
@@ -48,13 +54,12 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
             eTiltrotor
             eStopped_Rotor
 
-        Inputs:
+        Unpacked Inputs:
 
             rProp:      Propeller Radius                [m]
-            mBattery:   Battery Mass                    [m]
-            mMotors:    Total Motor Mass                [m]
-            mPayload:   Payload Mass                    [m]
-            MTOW:       Maximum TO Weight               [N]
+            mBattery:   Battery Mass                    [kg]
+            mPayload:   Payload Mass                    [kg]
+            MTOW:       Maximum TO Weight               [kg]
             propBlades: Number of Propeller Blades      [Unitless]
             tailBlades: Number of Tail Rotor Blades     [Unitless]
             fLength:    Fuselage Length                 [m]
@@ -63,25 +68,41 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
 
         Outputs:
 
-            weight:     Dictionary of Component Masses  [m]
+            output:     Data Dictionary of Component Masses
 
     """
 
-    weight = {}
+    output = Data()
 
 #-------------------------------------------------------------------------------
-# Assumed Weights
+# Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    weight['Payload']       = mPayload
-    weight['Seats']         = 30.
-    weight['Avionics']      = 15.
-    weight['Motors']        = mMotors
-    weight['Battery']       = mBattery
-    weight['Servos']        = 5.2
-    weight['BRS']           = 16.
-    weight['Hub']           = MTOW/9.8 * 0.04
-    weight['Landing Gear']  = MTOW/9.8 * 0.02
+    rProp               = config.propulsors.network.propeller.prop_attributes.tip_radius
+    mBattery            = config.propulsors.network.battery.mass_properties.mass
+    mPayload            = config.propulsors.network.payload.mass_properties.mass
+    MTOW                = config.mass_properties.max_takeoff
+    propBlades          = config.propulsors.network.propeller.prop_attributes.number_blades
+    tailBlades          = config.propulsors.network.propeller.prop_attributes.number_blades
+    fLength             = config.fuselages.fuselage.lengths.total
+    fWidth              = config.fuselages.fuselage.width
+    fHeight             = config.fuselages.fuselage.heights.maximum
+    
+    sound               = speedOfSound
+    tipMach             = maximumTipMach
+    k                   = diskAreaFactor
+    ToverW              = maxThrustToWeight
+    etaMotor            = motorEfficiency
+
+    output.payload      = mPayload
+    output.seats        = 30.
+    output.avionics     = 15.
+    output.motors       = config.propulsors.network.number_of_engines * 20.
+    output.battery      = mBattery
+    output.servos       = 5.2
+    output.brs          = 16.
+    output.hub          = MTOW * 0.04
+    output.landing_gear = MTOW * 0.02
 
 #-------------------------------------------------------------------------------
 # Calculated Weights
@@ -89,15 +110,9 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
 
     # Preparatory Calculations
 
-    sound       = 340.294       # Speed of Sound
-    tipMach     = 0.65          # Propeller Tip Mach limit
-    k           = 1.15          # Effective Disk Area Factor
-    ToverW      = 1.1           # Thrust over MTOW
-    etaMotor    = 0.85 * 0.98   # Collective Motor and Gearbox Efficiencies
-
     Vtip        = sound * tipMach                           # Prop Tip Velocity
     omega       = Vtip/rProp                                # Prop Ang. Velocity
-    maxThrust   = MTOW * ToverW                             # Maximum Thrust
+    maxThrust   = MTOW * ToverW * 9.8                       # Maximum Thrust
     Ct          = maxThrust/(1.225*np.pi*rProp**2*Vtip**2)  # Thrust Coefficient
     bladeSol    = 0.1                                       # Blade Solidity
     AvgCL       = 6 * Ct / bladeSol                         # Average Blade CL
@@ -113,42 +128,45 @@ def empty(rProp, mBattery, mMotors, mPayload, MTOW, propBlades, tailBlades, fLen
 
     # Component Weight Calculations
 
-    weight['Rotor']         = prop(rProp, maxThrust, propBlades)
-    weight['Tail Rotor']    = prop(rProp/5., 1.5*maxTorque/(1.25*rProp), tailBlades)
-    weight['Transmission']  = maxPower * 1.5873e-4          # From NASA OH-58 Study
-    weight['Fuselage']      = fuselage(fLength,fWidth,fHeight,0,MTOW)
-    weight['Wiring']        = wiring(fLength,fHeight,fLength/2,np.ones(8),maxPower/etaMotor)
+    output.rotor         = prop(config.propulsors.network.propeller,
+                                maxThrust,
+                                propBlades)
+    output.tail_rotor    = prop(config.propulsors.network.propeller,
+                                1.5*maxTorque/(1.25*rProp),
+                                tailBlades)*0.2
+    output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
+    output.fuselage      = fuselage(config)
+    output.wiring        = wiring(config,np.ones(8),maxPower/etaMotor)
 
 #-------------------------------------------------------------------------------
 # Weight Summations
 #-------------------------------------------------------------------------------
 
-    weight['Structural'] = (weight['Rotor'] +
-                            weight['Hub'] +
-                            weight['Fuselage'] +
-                            weight['Landing Gear']
-                            )
+    output.structural = (output.rotor +
+                        output.hub +
+                        output.fuselage +
+                        output.landing_gear
+                        ) * Units.kg
 
-    weight['Empty'] = 1.1 * (
-                        weight['Structural'] +
-                        weight['Seats'] +
-                        weight['Avionics'] +
-                        weight['Battery'] +
-                        weight['Motors'] +
-                        weight['Servos'] +
-                        weight['Wiring'] +
-                        weight['BRS']
-                        )
+    output.empty = 1.1 * (
+                        output.structural +
+                        output.seats +
+                        output.avionics +
+                        output.battery +
+                        output.motors +
+                        output.servos +
+                        output.wiring +
+                        output.brs
+                        ) * Units.kg
     
-    weight['Total'] = 1.1 * (
-                        weight['Structural'] +
-                        weight['Payload'] +
-                        weight['Avionics'] +
-                        weight['Battery'] +
-                        weight['Motors'] +
-                        weight['Servos'] +
-                        weight['Wiring'] +
-                        weight['BRS']
-                        )    
-
-    return weight
+    output.total = 1.1 * (
+                        output.structural +
+                        output.payload +
+                        output.avionics +
+                        output.battery +
+                        output.motors +
+                        output.servos +
+                        output.wiring +
+                        output.brs
+                        ) * Units.kg
+    return output

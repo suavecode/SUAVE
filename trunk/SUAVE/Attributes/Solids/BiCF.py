@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------------------
 
 from Solid import Solid
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Bi-Directional Carbon Fiber Solid Class
@@ -19,11 +19,11 @@ class BiCF(Solid):
 
     def __defaults__(self):
 
-        self.UTS        = 600e6    # Ultimate Tensile Strength
-        self.USS        = 90e6     # Ultimate Shear Strength
-        self.UBS        = 600e6    # Ultimate Bearing Strength
-        self.YTS        = 600e6    # Yield Tensile Strength
-        self.YSS        = 90e6     # Yield Shear Strength
-        self.YBS        = 600e6    # Yield Bearing Strength
-        self.minThk     = 420e-6   # Miminum Gage Thickness
-        self.density    = 1600     # Material Density
+        self.ultimateTensileStrength        = 600e6    *Units.Pa
+        self.ultimateShearStrength          = 90e6     *Units.Pa
+        self.ultimateBearingStrength        = 600e6    *Units.Pa
+        self.yieldTensileStrength           = 600e6    *Units.Pa
+        self.yieldShearStrength             = 90e6     *Units.Pa
+        self.yieldBearingStrength           = 600e6    *Units.Pa
+        self.minimumGageThickness           = 420e-6   *Units.m
+        self.density                        = 1600     *(Units.kg)/((Units.m)**3)
