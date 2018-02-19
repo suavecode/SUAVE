@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Aerodynamics
 # AVL_Inviscid.py
 #
-# Created: Apr 2017, M. Clarke 
-
+# Created:  Apr 2017, M. Clarke 
+# Modified: Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -164,7 +164,7 @@ class AVL_Inviscid(Aerodynamics):
         data_len      = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn update fix
             
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
@@ -309,9 +309,9 @@ class AVL_Inviscid(Aerodynamics):
         
         
         for jj in range(len(AoA_points)):
-            for ii in range(len(mach_points)):
-                CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+            for ii in range(len(mach_points)):               
+                CL_sur[ii,jj] = cl_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
+                CD_sur[ii,jj] = cd_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])]) # This is a fix for the sklearn update
         
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)
