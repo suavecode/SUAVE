@@ -7,7 +7,8 @@
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Attributes import Solids
+from SUAVE.Attributes.Solids import (
+    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
 import numpy as np
 
 
@@ -15,7 +16,9 @@ import numpy as np
 # Wiring
 #-------------------------------------------------------------------------------
 
-def wiring(fLength, fHeight, wingspan, xMotor, P_max):
+def wiring(config,
+           xMotor,
+           P_max):
     """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wiring(
             fLength,
             fHeight,
@@ -54,6 +57,14 @@ def wiring(fLength, fHeight, wingspan, xMotor, P_max):
             weight:     Wiring Mass               [kg]
 
     """
+
+    #---------------------------------------------------------------------------
+    # Unpack Inputs
+    #---------------------------------------------------------------------------
+    
+    fLength     = config.fuselages.fuselage.lengths.total
+    fHeight     = config.fuselages.fuselage.heights.maximum
+    wingspan    = config.wings['main_wing'].spans.projected
 
     nMotors = max(len(xMotor),1)    # No. of motors on each half-wing, defaults to 1
 

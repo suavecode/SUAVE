@@ -7,14 +7,30 @@
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units
-from SUAVE.Attributes import Solids
+from SUAVE.Attributes.Solids import (
+    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
 import numpy as np
+import copy as cp
 
 #-------------------------------------------------------------------------------
 # Prop
 #-------------------------------------------------------------------------------
 
-def prop(rProp, maxThrust, nBlades):
+def prop(prop,
+         maximumThrust,
+         numberOfBlades,
+         chordToRadiusRatio = 0.1,
+         thicknessToChordRatio = 0.12,
+         rootToRadiusRatio = 0.1,
+         momentToLiftRatio = 0.02,
+         spanwiseAnalysisPoints = 5,
+         safetyFactor = 1.5,
+         marginFactor = 1.2,
+         forwardWebLocations = [0.25, 0.35],
+         shearCenter = 0.25,
+         speedOfSound = 340.294,
+         tipMaximumMachNumber = 0.65,
+         ):
     """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.prop(
             rProp,
             maxThrust,
@@ -47,17 +63,24 @@ def prop(rProp, maxThrust, nBlades):
             weight:     Propeller Mass              [kg]
     """
 
-    chord       = rProp * 0.1    # Assumed Prop chord
-    N           = 5              # Number of Analysis Points
-    SF          = 1.5            # Saftey Factor
-    toc         = 0.12           # Average Blade t/c
-    fwdWeb      = [0.25, 0.35]   # Forward Web Chord Fraction locations
-    xShear      = 0.25           # Approximate Shear Center
-    rootLength  = rProp * 0.1    # Assumed Root Fitting Length
-    grace       = 1.2            # Grace Factor for Estimation
-    sound       = 340.294        # Assumed Speed of Sound
-    tipMach     = 0.65           # Propeller Tip Mach Number Limit
-    cmocl       = 0.02           # Assumed cm/cl for Sizing Torsion
+#-------------------------------------------------------------------------------
+# Unpack Inputs
+#-------------------------------------------------------------------------------
+
+    rProp       = prop.prop_attributes.tip_radius
+    maxThrust   = maximumThrust
+    nBlades     = numberOfBlades
+    chord       = rProp * chordToRadiusRatio
+    N           = spanwiseAnalysisPoints
+    SF          = safetyFactor
+    toc         = thicknessToChordRatio
+    fwdWeb      = cp.deepcopy(forwardWebLocations)
+    xShear      = shearCenter
+    rootLength  = rProp * rootToRadiusRatio
+    grace       = marginFactor
+    sound       = speedOfSound
+    tipMach     = tipMaximumMachNumber
+    cmocl       = momentToLiftRatio
 
 #-------------------------------------------------------------------------------
 # Airfoil
@@ -95,9 +118,9 @@ def prop(rProp, maxThrust, nBlades):
     skinLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
     maxThickness = (np.amax(box[:,1])-np.amin(box[:,1]))/2
     rootBendingMoment = SF*maxThrust/nBlades*0.75*rProp
-    m = (Solids.UniCF().density*dx*rootBendingMoment/
-        (2*Solids.UniCF().USS*maxThickness))+ \
-        skinLength*Solids.BiCF().minThk*dx*Solids.BiCF().density
+    m = (UniCF().density*dx*rootBendingMoment/
+        (2*UniCF().ultimateShearStrength*maxThickness))+ \
+        skinLength*BiCF().minimumGageThickness*dx*BiCF().density
     m = m*np.ones(N)
     error = 1               # Initialize Error
     tolerance = 1e-8        # Mass Tolerance
@@ -165,38 +188,38 @@ def prop(rProp, maxThrust, nBlades):
 
         # Calculate Skin Weight Based on Torsion
 
-        tTorsion = My/(2*Solids.BiCF().USS*enclosedArea)                          # Torsion Skin Thickness
-        tTorsion = np.maximum(tTorsion,Solids.BiCF().minThk*np.ones(N))           # Gage Constraint
-        mTorsion = tTorsion * skinLength * Solids.BiCF().density                  # Torsion Mass
+        tTorsion = My/(2*BiCF().ultimateShearStrength*enclosedArea)                          # Torsion Skin Thickness
+        tTorsion = np.maximum(tTorsion,BiCF().minimumGageThickness*np.ones(N))           # Gage Constraint
+        mTorsion = tTorsion * skinLength * BiCF().density                  # Torsion Mass
 
         # Calculate Flap Mass Based on Bending
 
-        tFlap = CF/(capLength*Solids.UniCF().UTS) +   \
-            Mx*np.amax(np.abs(box[:,1]))/(capInertia*Solids.UniCF().UTS)
-        mFlap = tFlap*capLength*Solids.UniCF().density
-        mGlue = Solids.Epoxy().minThk*Solids.Epoxy().density*capLength*np.ones(N)
+        tFlap = CF/(capLength*UniCF().ultimateTensileStrength) +   \
+            Mx*np.amax(np.abs(box[:,1]))/(capInertia*UniCF().ultimateTensileStrength)
+        mFlap = tFlap*capLength*UniCF().density
+        mGlue = Epoxy().minimumGageThickness*Epoxy().density*capLength*np.ones(N)
 
         # Calculate Web Mass Based on Shear
 
-        tShear = 1.5*Vz/(Solids.BiCF().USS*shearHeight)
-        tShear = np.maximum(tShear,Solids.BiCF().minThk*np.ones(N))
-        mShear = tShear*shearHeight*Solids.BiCF().density
+        tShear = 1.5*Vz/(BiCF().ultimateShearStrength*shearHeight)
+        tShear = np.maximum(tShear,BiCF().minimumGageThickness*np.ones(N))
+        mShear = tShear*shearHeight*BiCF().density
 
         # Paint Weight
 
-        mPaint = skinLength*Solids.Paint().minThk*Solids.Paint().density*np.ones(N)
+        mPaint = skinLength*Paint().minimumGageThickness*Paint().density*np.ones(N)
 
         # Core Mass
 
-        mCore = coreArea*Solids.Honeycomb().density*np.ones(N)
-        mGlue += Solids.Epoxy().minThk*Solids.Epoxy().density*skinLength*np.ones(N)
+        mCore = coreArea*Honeycomb().density*np.ones(N)
+        mGlue += Epoxy().minimumGageThickness*Epoxy().density*skinLength*np.ones(N)
 
         # Leading Edge Protection
 
         box = coord * chord
         box = box[box[:,0]<(0.1*chord)]
         leLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
-        mLE = leLength*420e-6*Solids.Nickel().density*np.ones(N)
+        mLE = leLength*420e-6*Nickel().density*np.ones(N)
 
         # Section Mass
 
@@ -204,15 +227,15 @@ def prop(rProp, maxThrust, nBlades):
 
         # Rib Weight
 
-        mRib = (enclosedArea+skinLength*Solids.Rib().minWidth)*Solids.Rib().minThk*Solids.Aluminum().density
+        mRib = (enclosedArea+skinLength*Rib().minWidth)*Rib().minimumGageThickness*Aluminum().density
 
         # Root Fitting
 
         box = coord * chord
         rRoot = (np.amax(box[:,1])-np.amin(box[:,1]))/2
-        t = np.amax(CF)/(2*np.pi*rRoot*Solids.Aluminum().UTS) +    \
-            np.amax(Mx)/(3*np.pi*rRoot**2*Solids.Aluminum().UTS)
-        mRoot = 2*np.pi*rRoot*t*rootLength*Solids.Aluminum().density
+        t = np.amax(CF)/(2*np.pi*rRoot*Aluminum().ultimateTensileStrength) +    \
+            np.amax(Mx)/(3*np.pi*rRoot**2*Aluminum().ultimateTensileStrength)
+        mRoot = 2*np.pi*rRoot*t*rootLength*Aluminum().density
 
         # Total Weight
 

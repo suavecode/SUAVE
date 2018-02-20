@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------------------
 
 from Solid import Solid
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Acrylic Solid Class
@@ -19,11 +19,11 @@ class Acrylic(Solid):
 
     def __defaults__(self):
 
-        self.UTS        = 75e6          # Ultimate Tensile Strength
-        self.USS        = 55.2e6        # Ultimate Shear Strength
-        self.UBS        = 0.0           # Ultimate Bearing Strength
-        self.YTS        = 75e6          # Yield Tensile Strength
-        self.YSS        = 55.2e6        # Yield Shear Strength
-        self.YBS        = 0.0           # Yield Bearing Strength
-        self.minThk     = 3.175e-3      # Miminum Gage Thickness
-        self.density    = 1180          # Material Density
+        self.ultimateTensileStrength        = 75e6          *Units.Pa
+        self.ultimateShearStrength          = 55.2e6        *Units.Pa
+        self.ultimateBearingStrength        = 0.0           *Units.Pa
+        self.yieldTensileStrength           = 75e6          *Units.Pa
+        self.yieldShearStrength             = 55.2e6        *Units.Pa
+        self.yieldBearingStrength           = 0.0           *Units.Pa
+        self.minimumGageThickness           = 3.175e-3      *Units.m
+        self.density                        = 1180          *(Units.kg)/((Units.m)**3)

@@ -7,18 +7,24 @@
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units, Data
-from SUAVE.Attributes import Solids
-from fuselage import fuselage
-from prop import prop
-from wiring import wiring
-from wing import wing
+from SUAVE.Attributes.Solids import (
+    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
+from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
+from SUAVE.Methods.Weights.Buildups.Common.prop import prop
+from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
+from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 import numpy as np
 
 #-------------------------------------------------------------------------------
 # Empty
 #-------------------------------------------------------------------------------
 
-def empty(vehicle):
+def empty(config,
+          speedOfSound       = 340.294,
+          maximumTipMach     = 0.65,
+          diskAreaFactor     = 1.15,
+          maxThrustToWeight  = 1.1,
+          motorEfficiency    = 0.85 * 0.98):
     """weight = SUAVE.Methods.Weights.Correlations.eStopped_Rotor.empty(
             rLiftProp,
             rThrustProp,
@@ -46,7 +52,7 @@ def empty(vehicle):
             wiring.py
 
         Originally written as part of an AA 290 project inteded for trade study
-        of the eHelicotor along with the following defined SUAVE vehicle types:
+        of the eHelicotor along with the following defined SUAVE config types:
 
             eTiltwing
             eTiltrotor
@@ -61,7 +67,7 @@ def empty(vehicle):
             mPayload:      Payload Mass                    [m]
             MTOW:          Maximum TO Weight               [N]
             nLiftProps:    Number of Lift Propellers       [Unitless]
-            nThrustProps:  Number of Thrust                [Unitless]
+            nThrustProps:  Number of Thrust Propellers     [Unitless]
             nLiftBlades:   Number of Lift Prop Blades      [Unitless]
             nThrustBlades: Number of Thrust Prop Blades    [Unitless]
             fLength:       Fuselage Length                 [m]
@@ -77,18 +83,37 @@ def empty(vehicle):
     output = Data()
 
 #-------------------------------------------------------------------------------
-# Assumed Weights
+# Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    output.payload          = vehicle.propulsors.network.payload.mass_properties.mass
-    output.seats            = 30.
-    output.avionics         = 15.
-    output.motors           = 10 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
-    output.battery          = vehicle.propulsors.network.battery.mass_properties.mass
-    output.servos           = 0.65 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
-    output.brs              = 16.
-    output.hubs             = 2 * np.ceil(vehicle.mass_properties.max_takeoff * (1/200. + 1/5.))
-    output.landing_gear     = vehicle.mass_properties.max_takeoff * 0.02
+    rProp               = config.propulsors.network.propeller.prop_attributes.tip_radius
+    mBattery            = config.propulsors.network.battery.mass_properties.mass
+    mPayload            = config.propulsors.network.payload.mass_properties.mass
+    MTOW                = config.mass_properties.max_takeoff
+    nLiftProps          = config.propulsors.network.number_of_engines/2
+    nThrustProps        = config.propulsors.network.number_of_engines/2
+    nLiftBlades         = config.propulsors.network.propeller.prop_attributes.number_blades
+    nThrustBlades       = config.propulsors.network.propeller.prop_attributes.number_blades
+    fLength             = config.fuselages.fuselage.lengths.total
+    fWidth              = config.fuselages.fuselage.width
+    fHeight             = config.fuselages.fuselage.heights.maximum
+    maxSpan             = config.wings['main_wing'].spans.projected
+    
+    sound               = speedOfSound
+    tipMach             = maximumTipMach
+    k                   = diskAreaFactor
+    ToverW              = maxThrustToWeight
+    etaMotor            = motorEfficiency
+
+    output.payload          = mPayload * Units.kg
+    output.seats            = 30. *Units.kg
+    output.avionics         = 15. *Units.kg
+    output.motors           = config.propulsors.network.number_of_engines * 10. *Units.kg
+    output.battery          = mBattery *Units.kg
+    output.servos           = config.propulsors.network.number_of_engines * 0.65 *Units.kg
+    output.brs              = 16. *Units.kg
+    output.hubs             = config.propulsors.network.number_of_engines * 2. *Units.kg
+    output.landing_gear     = MTOW * 0.02 *Units.kg
 
 #-------------------------------------------------------------------------------
 # Calculated Weights
@@ -96,15 +121,9 @@ def empty(vehicle):
 
     # Preparatory Calculations
 
-    sound       = 340.294       # Speed of Sound
-    tipMach     = 0.65          # Propeller Tip Mach limit
-    k           = 1.15          # Effective Disk Area Factor
-    ToverW      = 1.1           # Thrust over MTOW
-    etaMotor    = 0.85 * 0.98   # Collective Motor and Gearbox Efficiencies
-
     Vtip        = sound * tipMach                               # Prop Tip Velocity
     omega       = Vtip/0.8                                      # Prop Ang. Velocity
-    maxLift     = vehicle.mass_properties.max_takeoff * ToverW  # Maximum Thrust
+    maxLift     = config.mass_properties.max_takeoff * ToverW   # Maximum Thrust
     Ct          = maxLift/(1.225*np.pi*0.8**2*Vtip**2)          # Thrust Coefficient
     bladeSol    = 0.1                                           # Blade Solidity
     AvgCL       = 6 * Ct / bladeSol                             # Average Blade CL
@@ -119,34 +138,20 @@ def empty(vehicle):
 
     # Component Weight Calculations
 
-    output.lift_rotors      = prop(0.8, maxLift, 4) * (len(vehicle.wings['main wing'].xMotor) + len(vehicle.wings['secondary wing'].xMotor))
-    output.thrust_rotors    = prop(0.8, maxLift/5, 2)
-    output.fuselage         = fuselage(vehicle.fuselages['fuselage'].lengths.total,
-                                       vehicle.fuselages['fuselage'].width,
-                                       vehicle.fuselages['fuselage'].heights.maximum,
-                                       vehicle.wings['main_wing'].spans.projected,
-                                       vehicle.mass_properties.max_takeoff)
-    output.wiring           = wiring(vehicle.fuselages['fuselage'].lengths.total,
-                                     vehicle.fuselages['fuselage'].heights.maximum,
-                                     vehicle.wings['main_wing'].spans.projected,
+    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift, 4) 
+                               * (len(config.wings['main_wing'].xMotor) 
+                                  + len(config.wings['main_wing'].xMotor))) *Units.kg
+    output.thrust_rotors    = prop(config.propulsors.network.propeller, maxLift/5, 2) *Units.kg
+    output.fuselage         = fuselage(config) *Units.kg
+    output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
-                                     maxLiftPower/etaMotor)
-    output.main_wing = wing(vehicle.mass_properties.max_takeoff, 
-                            vehicle.wings['main wing'].spans.projected,
-                            vehicle.wings['main wing'].chords.mean_aerodynamic,
-                            vehicle.wings['main wing'].thickness_to_chord, 
-                            vehicle.wings['main wing'].winglet_fraction, 
-                            vehicle.wings['main wing'].areas.reference/(vehicle.wings['main wing'].areas.reference + vehicle.wings['secondary wing'].areas.reference),
-                            vehicle.wings['main wing'].xMotor, 
-                            maxLift/5)
-    output.sec_wing = wing(vehicle.mass_properties.max_takeoff, 
-                            vehicle.wings['secondary wing'].spans.projected,
-                            vehicle.wings['secondary wing'].chords.mean_aerodynamic,
-                            vehicle.wings['secondary wing'].thickness_to_chord, 
-                            vehicle.wings['secondary wing'].winglet_fraction, 
-                            vehicle.wings['secondary wing'].areas.reference/(vehicle.wings['main wing'].areas.reference + vehicle.wings['secondary wing'].areas.reference),
-                            vehicle.wings['secondary wing'].xMotor, 
-                            maxLift/5)
+                                     maxLiftPower/etaMotor) *Units.kg
+    output.main_wing = wing(config.wings['main_wing'],
+                            config, 
+                            maxLift/5) *Units.kg
+    output.sec_wing = wing(config.wings['secondary_wing'],
+                            config,
+                            maxLift/5) *Units.kg
     
     
 #-------------------------------------------------------------------------------
@@ -161,20 +166,20 @@ def empty(vehicle):
                             output.landing_gear +
                             output.main_wing +
                             output.sec_wing
-                            )
+                            ) *Units.kg
 
     output.empty        = 1.1 * (
                             output.structural +
-                            output.seats +          
+                            output.seats +
                             output.avionics +
                             output.battery +
                             output.motors +
                             output.servos +
                             output.wiring +
                             output.brs
-                            )
+                            ) *Units.kg
     
     output.total        = (output.empty +
-                            output.payload) 
+                            output.payload) *Units.kg
 
     return output

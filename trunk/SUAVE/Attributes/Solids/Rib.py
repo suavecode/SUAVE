@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------------------
 
 from Solid import Solid
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Solid Data Class
@@ -19,12 +19,12 @@ class Rib(Solid):
 
     def __defaults__(self):
 
-        self.UTS        = 310e6    # Ultimate Tensile Strength
-        self.USS        = 206e6    # Ultimate Shear Strength
-        self.UBS        = 607e6    # Ultimate Bearing Strength
-        self.YTS        = 276e6    # Yield Tensile Strength
-        self.YSS        = 206e6    # Yield Shear Strength
-        self.YBS        = 386e6    # Yield Bearing Strength
-        self.minThk     = 1.5e-3   # Miminum Gage Thickness
-        self.minWidth   = 25.4e-3  # Minimum Gage Widths
-        self.density    = 2700     # Material Density
+        self.ultimateTensileStrength        = 310e6    *Units.Pa
+        self.ultimateShearStrength          = 206e6    *Units.Pa
+        self.ultimateBearingStrength        = 607e6    *Units.Pa
+        self.yieldTensileStrength           = 276e6    *Units.Pa
+        self.yieldShearStrength             = 206e6    *Units.Pa
+        self.yieldBearingStrength           = 386e6    *Units.Pa
+        self.minimumGageThickness           = 1.5e-3   *Units.m
+        self.minWidth                       = 25.4e-3  # Minimum Gage Widths
+        self.density                        = 2700     *(Units.kg)/((Units.m)**3)
