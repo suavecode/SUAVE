@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # regression
+    'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/AVL/test_AVL.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/SU2_surrogate/BWB-450.py',
