@@ -3,6 +3,7 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -53,21 +54,3 @@ class System(Component):
         self.position        = [0.0,0.0,0.0]
         self.control         = None
         self.accessories     = None
-
-## @ingroup Components-Systems
-class Container(Component.Container):
-
-    """ SUAVE.Components.Systems.Container()
-    
-        The Systems Container Class
-        
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-    """    
-    
-    pass
-
-System.Container = Container

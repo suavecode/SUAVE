@@ -18,7 +18,7 @@ from warnings    import warn
 
 class ContainerOrdered(DataOrdered):
     """ A dict-type container with attribute, item and index style access
-        intended to hold a attribute-accessible list of DataOrdered(). This is unordered.
+        intended to hold a attribute-accessible list of DataOrdered(). This is ordered.
         
         Assumptions:
         N/A
