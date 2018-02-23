@@ -231,8 +231,8 @@ class AVL_Inviscid(Aerodynamics):
             # Set training conditions
             run_conditions = Aerodynamics()
             run_conditions.weights.total_mass           = 0     # Currently set to zero. Used for dynamic analysis which is under development
-            run_conditions.freestream.density           = 0# 1.225
-            run_conditions.freestream.gravity           = 9.81  #check      
+            run_conditions.freestream.density           = 0     # Density not used in inviscid computation therefore set to zero. Used for dynamic analysis which is under development
+            run_conditions.freestream.gravity           = 9.81        
             run_conditions.aerodynamics.angle_of_attack = AoA 
             run_conditions.freestream.mach_number       = mach[j]
             
@@ -254,9 +254,6 @@ class AVL_Inviscid(Aerodynamics):
             xy         = data_array[:,0:2]
             CL         = data_array[:,2:3]
             CD         = data_array[:,3:4]
-
-        # Save the data
-        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
 
         # Store training data
         training.coefficients = np.hstack([CL,CD])

@@ -263,10 +263,10 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         c.sign_duplicate      = crtl_surf.deflection_symmetry 
                                                         c.order               = index                                                        
                                                         if crtl_surf.tag == 'slat':            
-                                                                # check if section is the beginning of slat or flap/airelon
+                                                                # check if section is the beginning of slat or flap/aileron
                                                                 c.x_hinge =  -1 * crtl_surf.chord_fraction
                                                         else:                                  
-                                                                # if control surface is not a slat, it is a flap/airelon
+                                                                # if control surface is not a slat, it is a flap/aileron
                                                                 c.x_hinge   = 1 - crtl_surf.chord_fraction                                                      
                                                                         
                                                         section.append_control_surface(c)

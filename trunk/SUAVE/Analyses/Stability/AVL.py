@@ -340,8 +340,8 @@ class AVL(Stability):
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.weights.total_mass               = 0 
-            run_conditions.freestream.density               = 0  # Currently set to zero. Used for dynamic analysis which is under development
+            run_conditions.weights.total_mass               = 0    # Currently set to zero. Used for dynamic analysis which is under development
+            run_conditions.freestream.density               = 0    # Density not used in inviscid computation therefore set to zero. Used for dynamic analysis which is under development
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
             run_conditions.freestream.mach_number           = mach[j]

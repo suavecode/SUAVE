@@ -218,7 +218,7 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.roll_moment_coefficient[i][0]      = case_res.aerodynamics.roll_moment_coefficient
         res.aerodynamics.pitch_moment_coefficient[i][0]     = case_res.aerodynamics.pitch_moment_coefficient
         res.aerodynamics.yaw_moment_coefficient[i][0]       = case_res.aerodynamics.yaw_moment_coefficient
-        res.aerodynamics.lift_coefficient[i][0]             = case_res.aerodynamics.pitch_moment_coefficient
+        res.aerodynamics.lift_coefficient[i][0]             = case_res.aerodynamics.total_lift_coefficient
         res.aerodynamics.drag_breakdown.induced.total[i][0] = case_res.aerodynamics.induced_drag_coefficient
         res.aerodynamics.drag_breakdown.induced.efficiency_factor[i][0]  = case_res.aerodynamics.span_efficiency_factor
         res.aerodynamics.cz_alpha[i][0] = -case_res.stability.alpha_derivatives.lift_curve_slope

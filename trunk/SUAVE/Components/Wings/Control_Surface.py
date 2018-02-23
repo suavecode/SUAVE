@@ -20,7 +20,9 @@ from SUAVE.Components import Lofted_Body
 ## @ingroup Components-Wings
 class Control_Surface(Lofted_Body.Control_Surface):
     def __defaults__(self):
-        """This sets the default values of control surfaces defined in SUAVE.
+        """This sets the default values of control surfaces defined in SUAVE. 
+	sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.
+	Use 1.0 for a mirrored control surface, like an elevator. Use -1.0 for an aileron.
 
         Assumptions:
         None
@@ -40,16 +42,12 @@ class Control_Surface(Lofted_Body.Control_Surface):
         
    	self.tag                   = 'control_surface'
 	self.span                  = 0.0
-	self.span_fraction         = [0.0,0.0] # [absolute percent span location at start of control surface, absolute percent span location at end of control surface]
+	self.span_fraction         = [0.0,0.0] # [abs. % span location at beginning of crtl surf, abs. % span location at end  of crtl surf]
 	self.chord_fraction        = 0.0  
-	self.deflection_gain       = 0.0  # Units in degrees
+	self.deflection_gain       = 0.0  
 	self.origin                = [0.0,0.0,0.0]
 	self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]	
-	self.deflection_symmetry   = 1.0    # sign_duplicate: 1.0 or -1.0 - the sign of
-					    # the duplicate control on the mirror wing.
-					    # Use 1.0 for a mirrored control surface,
-					    # like an elevator. Use -1.0 for an aileron.
-
+	self.deflection_symmetry   = 1.0    
         self.sections = Data()
         
 
@@ -83,7 +81,7 @@ class Control_Surface(Lofted_Body.Control_Surface):
 
 ## @ingroup Components-Wings
 class Control_Surface_Container(Lofted_Body.Control_Surface.Container):
-    """ Container for wing segment
+    """ Container for control surface
 
     Assumptions:
     None

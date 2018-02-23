@@ -217,7 +217,7 @@ def make_body_text(avl_body):
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
-{1}           {2}      {2}       {4}
+{1}           {2}      
 '''
     # Unpack inputs
     name = avl_body.tag
@@ -228,7 +228,7 @@ SURFACE
     
     # Form the horizontal part of the + shaped fuselage    
     hname           = name + '_horizontal'
-    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing,'   ','   ','  ')   
+    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing)   
        
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.horizontal, key = lambda x: x.origin[1])
@@ -238,7 +238,7 @@ SURFACE
         
     # Form the vertical part of the + shaped fuselage
     vname         = name + '_vertical'
-    vertical_text = surface_base.format(vname,chordwise_vortices,chordwise_vortex_spacing,'   ','   ','  ')   
+    vertical_text = surface_base.format(vname,chordwise_vortices,chordwise_vortex_spacing)   
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.vertical, key = lambda x: x.origin[2])
     for i in xrange(len(ordered_tags)):
