@@ -1,4 +1,6 @@
-"""SUAVE.Methods.Weights.Buildups.eTiltrotor
+## @defgroup Methods-Weights-Buildups-electricTiltrotor electricTiltrotor
+
+"""SUAVE.Methods.Weights.Buildups.electricTiltrotor
    contains methods and attributes used for estimating
    electric helicopter weights on a component-by-component
    basis.

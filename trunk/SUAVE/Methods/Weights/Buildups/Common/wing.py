@@ -1,6 +1,9 @@
+## @ingroup Methods-Weights-Buildups-Common
+
 # wing.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -29,16 +32,19 @@ def wing(wing,
          shearCenter = 0.25,
          marginFactor = 1.2):
     
-    """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wing(
-            MTOW,
-            wingspan,
-            chord,
-            thicknessToChord,
-            wingletFraction,
-            liftFraction,
-            xMotor,
-            maxThrust
-        )
+    """weight = SUAVE.Methods.Weights.Buildups.Common.wing(
+            wing,
+            config,
+            maxThrust,
+            numAnalysisPoints,
+            safetyFactor,
+            maxGLoad,
+            momentToLiftRatio,
+            liftToDragRatio,
+            forwardWeb = [0.25, 0.35],
+            rearWeb = [0.65, 0.75],
+            shearCenter = 0.25,
+            marginFactor = 1.2)
 
         Calculates the structural mass of a wing for an eVTOL vehicle based on
         assumption of NACA airfoil wing, an assumed L/D, cm/cl, and structural
@@ -47,27 +53,31 @@ def wing(wing,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricTiltwing
+            electricTiltrotor
+            electricStoppedRotor
 
         Originally written as part of an AA 290 project intended for trade study
-        of the above vehicle types plus an eHelicopter.
+        of the above vehicle types plus an electricHelicopter.
 
         Inputs:
 
-            MTOW:               Maximum TO Weight       [kg]
-            wingspan:           Wingspan                [m]
-            chord:              Wing Chord              [m]
-            wingletFraction:    Winglet Length/Wingspan [Unitless]
-            thicknessToChord:   Wing t/c Ratio          [Unitless]
-            liftFraction:       Fraction of Total Lift  [Unitless]
-            xMotor:             Motor Span Fractions    [Unitless]
-            maxThrust:          Maximum Motor Thrust    [N]
+            wing                SUAVE Wing Data Structure
+            config              SUAVE Confiug Data Structure
+            maxThrust           Maximum Thrust                      [N]
+            numAnalysisPoints   Analysis Points for Sizing          [Unitless]
+            safetyFactor        Design Saftey Factor                [Unitless]
+            maxGLoad            Maximum Accelerative Load           [Unitless]
+            momentToLiftRatio   Coeff. of Moment to Coeff. of Lift  [Unitless]
+            liftToDragRatio     Coeff. of Lift to Coeff. of Drag    [Unitess]
+            forwardWeb          Location of Forward Spar Webbing    [m]
+            rearWeb             Location of Rear Spar Webbing       [m]
+            shearCenter         Location of Shear Center            [m]
+            marginFactor        Allowable Extra Mass Fraction       [Unitless]
 
         Outputs:
 
-            weight:             Wing Mass               [kg]
+            weight:             Wing Mass                           [kg]
     """
 
 #-------------------------------------------------------------------------------

@@ -5,6 +5,7 @@
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
+## @ingroup Attributes-Solids
 
 from Solid import Solid
 from SUAVE.Core import Data, Units

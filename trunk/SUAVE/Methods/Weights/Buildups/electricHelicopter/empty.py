@@ -1,6 +1,9 @@
+## @ingroup Methods-Weights-Buildups-electricHelicopter
+
 # empty.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -24,23 +27,18 @@ def empty(config,
           diskAreaFactor     = 1.15,
           maxThrustToWeight  = 1.1,
           motorEfficiency    = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.empty(
-            rProp,
-            mBattery,
-            mMotors,
-            mPayload,
-            MTOW,
-            propBlades,
-            tailBlades,
-            fLength,
-            fWidth,
-            fHeight
-        )
+    """weight = SUAVE.Methods.Weights.Buildups.electricHelicopter.empty(
+            config,
+            speedOfSound       = 340.294,
+            maximumTipMach     = 0.65,
+            diskAreaFactor     = 1.15,
+            maxThrustToWeight  = 1.1,
+            motorEfficiency    = 0.85 * 0.98)
 
         Calculates the empty fuselage mass for an electric helicopter including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
-        results of the following correlation scripts:
+        results of the following common buildup scripts:
 
             fuselage,py
             prop.py
@@ -50,25 +48,21 @@ def empty(config,
         Originally written as part of an AA 290 project inteded for trade study
         of the eHelicotor along with the following defined SUAVE vehicle types:
 
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricTiltrotor
+            electricStoppedRotor
 
-        Unpacked Inputs:
+        Inputs:
 
-            rProp:      Propeller Radius                [m]
-            mBattery:   Battery Mass                    [kg]
-            mPayload:   Payload Mass                    [kg]
-            MTOW:       Maximum TO Weight               [kg]
-            propBlades: Number of Propeller Blades      [Unitless]
-            tailBlades: Number of Tail Rotor Blades     [Unitless]
-            fLength:    Fuselage Length                 [m]
-            fWidth:     Fuselage Width                  [m]
-            fHeight:    Fuselage Height                 [m]
+            config              SUAVE Config Data Structure
+            speedOfSound        Local Speed of Sound                [m/s]
+            maximumTipMach      Allowable Tip Mach Number           [Unitless]
+            diskAreaFactor      Disk Area Factor                    [Unitless]
+            maxThrustToWeight   Allowable Thrust to Weight Ratio    [Unitelss]
+            motorEfficiency     Motor Efficiency                    [Unitless]
 
         Outputs:
 
-            output:     Data Dictionary of Component Masses
+            output:             Data Dictionary of Component Masses
 
     """
 

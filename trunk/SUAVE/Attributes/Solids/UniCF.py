@@ -1,3 +1,5 @@
+## @ingroup Attributes-Solids
+
 # UniCF.py
 #
 # Created: Jul 2017, J. Smart

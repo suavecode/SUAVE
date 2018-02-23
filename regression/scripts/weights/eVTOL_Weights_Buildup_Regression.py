@@ -6,9 +6,9 @@ import sys
 import SUAVE
 import numpy as np
 import pprint as pp
-from SUAVE.Methods.Weights.Buildups.eHelicopter import empty as eHelicopterEmpty
-from SUAVE.Methods.Weights.Buildups.eStopped_Rotor import empty as eStoppedRotorEmpty
-from SUAVE.Methods.Weights.Buildups.eTiltrotor import empty as eTiltrotorEmpty
+from SUAVE.Methods.Weights.Buildups.electricHelicopter import empty as electricHelicopterEmpty
+from SUAVE.Methods.Weights.Buildups.electricStoppedRotor import empty as electricStoppedRotorEmpty
+from SUAVE.Methods.Weights.Buildups.electricTiltrotor import empty as electricTiltrotorEmpty
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
@@ -151,11 +151,11 @@ def configs_setup(vehicle):
     configs.append(base_config)
     
     #---------------------------------------------------------------------------
-    # eHelicopter Configuration
+    # electricHelicopter Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'eHelicopter'
+    config.tag = 'electricHelicopter'
     
     config.propulsors.network.number_of_engines = 1
     
@@ -179,11 +179,11 @@ def configs_setup(vehicle):
     configs.append(config)
     
     #---------------------------------------------------------------------------
-    # eStopped_Rotor Configuration
+    # electricStoppedRotor Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'eStopped_rotor'
+    config.tag = 'electricStoppedRotor'
     
     config.propulsors.network.number_of_engines = 8
     
@@ -207,11 +207,11 @@ def configs_setup(vehicle):
     configs.append(config)
 
     #---------------------------------------------------------------------------
-    # eTiltrotor Configuration
+    # electricTiltrotor Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'eTiltrotor'
+    config.tag = 'electricTiltrotor'
     
     config.propulsors.network.number_of_engines = 8
     
@@ -242,7 +242,7 @@ def full_setup():
     configs = configs_setup(vehicle)
     
     #---------------------------------------------------------------------------
-    # Reference Order: eHelicopter, eStopped_Rotor, eTiltrotor
+    # Reference Order: electricHelicopter, electricStoppedRotor, electricTiltrotor
     #---------------------------------------------------------------------------
     
     referenceWeights = [
@@ -338,13 +338,13 @@ def main():
     
     print "Running Regression Test of eVTOL Weight Buildup Methods.\n"
     
-    eHelicopterEmptyWeights = eHelicopterEmpty(configs["ehelicopter"])
-    eStoppedRotorEmptyWeights = eStoppedRotorEmpty(configs["estopped_rotor"])
-    eTiltrotorEmptyWeights = eTiltrotorEmpty(configs["etiltrotor"])
+    electricHelicopterEmptyWeights = electricHelicopterEmpty(configs["electrichelicopter"])
+    electricStoppedRotorEmptyWeights = electricStoppedRotorEmpty(configs["electricstoppedRotor"])
+    electricTiltrotorEmptyWeights = electricTiltrotorEmpty(configs["electricTiltrotor"])
 
-    refactoredWeights = [eHelicopterEmptyWeights,
-                         eStoppedRotorEmptyWeights,
-                         eTiltrotorEmptyWeights]
+    refactoredWeights = [electricHelicopterEmptyWeights,
+                         electricStoppedRotorEmptyWeights,
+                         electricTiltrotorEmptyWeights]
 
     check_results(referenceWeights, refactoredWeights)
 

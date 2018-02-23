@@ -1,3 +1,5 @@
+## @ingroup Attributes-Solids
+
 # Nickel.py
 #
 # Created: Jul 2017, J. Smart

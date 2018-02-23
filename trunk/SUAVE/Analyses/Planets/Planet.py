@@ -47,6 +47,3 @@ class Planet(Analysis):
         
         from SUAVE.Attributes.Planets.Earth import Earth
         self.features = Earth()
-        
-        
-        

@@ -1,3 +1,5 @@
+## @defgroup Attributes-Solids Solids
+
 from Solid import Solid
 from UniCF import UniCF
 from BiCF import BiCF

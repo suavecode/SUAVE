@@ -1,6 +1,9 @@
+## @ingroup Methods-Weights-Buildups-Common
+
 # fuselage.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -20,13 +23,11 @@ def fuselage(config,
              maxGLoad = 3.8,
              landingImpactFactor = 3.5,
              safetyFactor = 1.5):
-    """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.fuselage(
-            fLength,
-            fWidth,
-            fHeight,
-            maxSpan,
-            MTOW
-        )
+    """ weight = SUAVE.Methods.Weights.Buildups.Common.fuselage(
+            config,
+            maxGLoad = 3.8,
+            landingImpactFactor = 3.5,
+            safetyFactor = 1.5)
 
         Calculates the structural mass of a fuselage for an eVTOL vehicle,
         assuming a structural keel taking bending an torsional loads.
@@ -34,25 +35,22 @@ def fuselage(config,
         Assumes an elliptical fuselage. Intended for use with the following
         SUAVE vehicle types, but may be used elsewhere:
 
-            eHelicopter
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricHelicopter
+            electricTiltrotor
+            electricStoppedRotor
 
         Originally written as part of an AA 290 project intended for trade study
         of the above vehicle types.
 
         Inputs:
 
-            fLength:    Fuselage Length     [m]
-            fWidth:     Fuselage Width      [m]
-            fHeight:    Fuselage Height     [m]
-            maxSpan:    Maximum Wingspan    [m]
-            MTOW:       Max TO weight       [kg]
+            config                  SUAVE Vehicle Configuration
+            maxGLoad                Max Accelerative Load During Flight [Unitless]
+            landingImpactFactor     Maximum Load Multiplier on Landing  [Unitless]
 
         Outputs:
 
-            weight:     Fuselage Mass   [kg]
+            weight:                 Estimated Fuselage Mass             [kg]
     """
 
 #-------------------------------------------------------------------------------

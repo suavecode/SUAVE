@@ -1,3 +1,5 @@
+## @ingroup Attributes-Solids
+
 # Epoxy.py
 #
 # Created: Jul 2017, J. Smart

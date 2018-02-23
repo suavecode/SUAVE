@@ -1,3 +1,5 @@
+## @ingroup Attributs-Solids
+
 # Acrylic.py
 #
 # Created: Jul 2017, J. Smart
@@ -15,7 +17,7 @@ from SUAVE.Core import Data, Units
 
 class Acrylic(Solid):
 
-    """ Physical Constants Specific to Acrylic"""
+    """ Physical Constants Specific to Polymethyl Methacrylate"""
 
     def __defaults__(self):
 

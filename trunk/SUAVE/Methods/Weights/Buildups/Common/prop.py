@@ -1,6 +1,9 @@
+## @ingroup Methods-Weights-Buildups-Common
+
 # prop.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -29,13 +32,22 @@ def prop(prop,
          forwardWebLocations = [0.25, 0.35],
          shearCenter = 0.25,
          speedOfSound = 340.294,
-         tipMaximumMachNumber = 0.65,
-         ):
-    """weight = SUAVE.Methods.Weights.Correlations.eHelicopter.prop(
-            rProp,
-            maxThrust,
-            nBlades
-        )
+         tipMaximumMachNumber = 0.65):
+    """weight = SUAVE.Methods.Weights.Buildups.Common.prop(
+            prop,
+            maximumThrust,
+            numberOfBlades,
+            chordToRadiusRatio = 0.1,
+            thicknessToChordRatio = 0.12,
+            rootToRadiusRatio = 0.1,
+            momentToLiftRatio = 0.02,
+            spanwiseAnalysisPoints = 5,
+            safetyFactor = 1.5,
+            marginFactor = 1.2,
+            forwardWebLocations = [0.25, 0.35],
+            shearCenter = 0.25,
+            speedOfSound = 340.294,
+            tipMaximumMachNumber = 0.65)
 
         Calculates propeller blade pass for an eVTOL vehicle based on assumption
         of a NACA airfoil prop, an assumed cm/cl, tip Mach limit, and structural
@@ -44,23 +56,33 @@ def prop(prop,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            eHelicopter
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricHelicopter
+            electricTiltrotor
+            electricStoppedRotor
 
         Originally written as part of an AA 290 project inteded for trade study
         of the above vehicle types.
 
         Inputs:
 
-            rProp:      Propeller Radius            [m]
-            maxThrust:  Maximum Motor Thrust        [N]
-            nBlades:    Number of Propeller Blades  [Unitless]
+            prop                    SUAVE Propeller Data Structure
+            maximumThrust           Maximum Design Thrust               [N]
+            numberOfBlades          Propeller Blades                    [Unitless]
+            chordToRadiusRatio      Chord to Blade Radius               [Unitless]
+            thicknessToChordRatio   Blade Thickness to Chord            [Unitless]
+            rootToRadiusRatio       Root Structure to Blade Radius      [Unitless]
+            momentToLiftRatio       Coeff. of Moment to Coeff. of Lift  [Unitless]
+            spanwiseAnalysisPoints  Analysis Points for Sizing          [Unitless]
+            safetyFactor            Design Safety Factor                [Unitless]
+            marginFactor            Allowable Extra Mass Fraction       [Unitless]
+            forwardWebLocations     Location of Forward Spar Webbing    [m]
+            shearCenter             Location of Shear Center            [m]
+            speedOfSound            Local Speed of Sound                [m/s]
+            tipMaximumMachNumber    Allowable Tip Mach Number           [Unitless]
 
         Outputs:
 
-            weight:     Propeller Mass              [kg]
+            weight:                 Propeller Mass                      [kg]
     """
 
 #-------------------------------------------------------------------------------

@@ -1,6 +1,9 @@
+## @ingroup Methods-Weights-Buildups-Common
+
 # wiring.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -19,13 +22,10 @@ import numpy as np
 def wiring(config,
            xMotor,
            P_max):
-    """ weight = SUAVE.Methods.Weights.Correlations.eHelicopter.wiring(
-            fLength,
-            fHeight,
-            wingspan,
+    """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
+            config,
             xMotor,
-            P_max
-        )
+            P_max)
 
         Calculates mass of wiring required for a wing, including DC power
         cables and communication cables, assuming power cables run an average of
@@ -36,25 +36,22 @@ def wiring(config,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            eHelicopter
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricHelicopter
+            electricTiltrotor
+            electricStoppedRotor
 
         Originally written as part of an AA 290 project intended for trade study
         of the above vehicle types.
 
         Inputs:
 
-            fLength:    Fuselage Length             [m]
-            fHeight:    Fuselage Height             [m]
-            wingspan:   Wingspan                    [m]
-            xMotor:     Motor Semi-Span Fractions   [Unitless]
-            P_max:      Maximum DC Power Draw       [W]
+            config      SUAVE Config Data Structure
+            xMotor      Motor Semi-Span Fractions       [Unitless]
+            P_max       Maximum DC Power Draw           [W]
 
         Outputs:
 
-            weight:     Wiring Mass               [kg]
+            weight:     Wiring Mass                     [kg]
 
     """
 

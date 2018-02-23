@@ -1,6 +1,7 @@
 # empty.py
 #
 # Created: Jun 2017, J. Smart
+# Modified: Feb 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -19,22 +20,19 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
-def empty(config):
-    """weight = SUAVE.Methods.Weights.Buildups.eTiltrotor.empty(
-            rLiftProp,
-            rThrustProp,
-            mBattery,
-            mMotors,
-            mPayload,
-            MTOW,
-            nLiftRotors,
-            nThrustRotors,
-            liftBlades,
-            thrustBlades,
-            fLength,
-            fWidth,
-            fHeight
-        )
+def empty(config,
+          speedOfSound       = 340.294,
+          maximumTipMach     = 0.65,
+          diskAreaFactor     = 1.15,
+          maxThrustToWeight  = 1.1,
+          motorEfficiency    = 0.85 * 0.98):
+    """weight = SUAVE.Methods.Weights.Buildups.electricTiltrotor.empty(
+            config,
+            speedOfSound       = 340.294,
+            maximumTipMach     = 0.65,
+            diskAreaFactor     = 1.15,
+            maxThrustToWeight  = 1.1,
+            motorEfficiency    = 0.85 * 0.98)
 
         Calculates the empty fuselage mass for an electric tiltrotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
@@ -49,25 +47,18 @@ def empty(config):
         Originally written as part of an AA 290 project inteded for trade study
         of the eHelicotor along with the following defined SUAVE vehicle types:
 
-            eTiltwing
-            eTiltrotor
-            eStopped_Rotor
+            electricTiltwing
+            electricTiltrotor
+            electricStoppedRotor
 
         Inputs:
 
-            rLiftProp:     Lift Propeller Radius           [m]
-            rThrustProp:   Thrust Propeller Radius         [m]
-            mBattery:      Battery Mass                    [m]
-            mMotors:       Total Motor Mass                [m]
-            mPayload:      Payload Mass                    [m]
-            MTOW:          Maximum TO Weight               [N]
-            nLiftProps:    Number of Lift Propellers       [Unitless]
-            nThrustProps:  Number of Thrust Propellers     [Unitless]
-            nLiftBlades:   Number of Lift Prop Blades      [Unitless]
-            nThrustBlades: Number of Thrust Prop Blades    [Unitless]
-            fLength:       Fuselage Length                 [m]
-            fWidth:        Fuselage Width                  [m]
-            fHeight:       Fuselage Height                 [m]
+            config              SUAVE Config Data Structure
+            speedOfSound        Local Speed of Sound                [m/s]
+            maximumTipMach      Allowable Tip Mach Number           [Unitless]
+            diskAreaFactor      Disk Area Factor                    [Unitless]
+            maxThrustToWeight   Allowable Thrust to Weight Ratio    [Unitless]
+            motorEfficiency     Motor Efficiency                    [Unitless]
 
         Outputs:
 
@@ -98,11 +89,12 @@ def empty(config):
 
     # Preparatory Calculations
 
-    sound       = 340.294       # Speed of Sound
-    tipMach     = 0.65          # Propeller Tip Mach limit
-    k           = 1.15          # Effective Disk Area Factor
-    ToverW      = 1.1           # Thrust over MTOW
-    etaMotor    = 0.85 * 0.98   # Collective Motor and Gearbox Efficiencies
+
+    sound               = speedOfSound
+    tipMach             = maximumTipMach
+    k                   = diskAreaFactor
+    ToverW              = maxThrustToWeight
+    etaMotor            = motorEfficiency
 
     Vtip        = sound * tipMach                               # Prop Tip Velocity
     omega       = Vtip/0.8                                      # Prop Ang. Velocity
