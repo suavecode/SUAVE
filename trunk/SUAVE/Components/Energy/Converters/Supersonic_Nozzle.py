@@ -319,7 +319,7 @@ class Supersonic_Nozzle(Energy_Component):
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
         A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
-       #-- Calculate other flow properties
+        #-- Calculate other flow properties
         T_out   = Tt_out/(1.+(gamma-1.)/2.*M_out*M_out)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)

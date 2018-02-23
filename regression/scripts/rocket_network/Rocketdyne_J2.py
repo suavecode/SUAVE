@@ -1,0 +1,195 @@
+# Rocketdyne_J2.py
+# 
+# Created:  Feb 2018, W. Maier
+# Modified: 
+#        
+
+""" Create and evaluate a J2 rocket engine
+    Engine of second stage, S-II, of Saturn V
+"""
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
+import SUAVE
+from SUAVE.Core import Units, Data
+
+import numpy as np
+
+from SUAVE.Components.Energy.Networks.Liquid_Rocket import Liquid_Rocket
+from SUAVE.Methods.Propulsion.liquid_rocket_sizing  import liquid_rocket_sizing
+
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
+
+def main():
+    
+    # call the network function
+    energy_network()    
+
+    return
+
+# ----------------------------------------------------------------------
+#   Energy Network
+# ----------------------------------------------------------------------
+
+def energy_network():
+    
+    # ------------------------------------------------------------------
+    #   Evaluation Conditions
+    # ------------------------------------------------------------------      
+    
+    # setup conditions
+    conditions            = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   
+    ones_1col             = np.ones([1,1])   
+    conditions.freestream = Data()
+    conditions.propulsion = Data()
+    
+    # vacuum conditions
+    vac                   = conditions.freestream
+    vac.altitude          = ones_1col*0.0
+    
+    atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data             = atmosphere.compute_values(vac.altitude,0,True) 
+    
+    vac.gravity           = ones_1col*9.81
+    vac.pressure          = ones_1col*0.0
+    vac.temperature       = ones_1col*atmo_data.temperature
+    vac.density           = ones_1col*atmo_data.density
+    vac.speed_of_sound    = ones_1col* atmo_data.speed_of_sound
+        
+    # propulsion conditions
+    conditions.propulsion.throttle  =  ones_1col*1.0
+
+    # ------------------------------------------------------------------
+    #   Design/sizing conditions
+    # ------------------------------------------------------------------    
+    
+    # setup conditions
+    conditions_sls                    = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()      
+    ones_1col                         = np.ones([1,1]) 
+    conditions_sls.freestream         = Data()
+    conditions_sls.propulsion         = Data()
+    
+    # freestream conditions
+    SLS                               = conditions_sls.freestream
+    SLS.altitude                      = ones_1col*0.0
+    
+    atmosphere                        = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                         = atmosphere.compute_values(SLS.altitude,0,True) 
+    
+    SLS.pressure                      = ones_1col*atmo_data.pressure
+    SLS.temperature                   = ones_1col*atmo_data.temperature
+    SLS.density                       = ones_1col*atmo_data.density
+    SLS.speed_of_sound                = ones_1col* atmo_data.speed_of_sound
+    SLS.gravity                       = ones_1col*9.81
+    
+    # propulsion conditions
+    conditions_sls.propulsion.throttle = ones_1col*1.0
+
+    # setting states
+    state_sls               = Data()
+    state_sls.numerics      = Data()
+    state_sls.conditions    = conditions_sls
+    state_vacuum            = Data()
+    state_vacuum.numerics   = Data()
+    state_vacuum.conditions = conditions
+
+    # ------------------------------------------------------------------
+    #  F-1 Liquid Rocket Network
+    # ------------------------------------------------------------------    
+    
+    # instantiate the ramjet network
+    liquid_rocket = SUAVE.Components.Energy.Networks.Liquid_Rocket()
+    liquid_rocket.tag = 'liquid_rocket'
+    
+    # setup
+    liquid_rocket.number_of_engines = 1.0
+    liquid_rocket.area_throat       = 0.10993526
+    liquid_rocket.contraction_ratio = 1.5946
+    liquid_rocket.expansion_ratio   = 27.1
+    
+    # ------------------------------------------------------------------
+    #   Component 1 - Combustor
+     
+    # instantiate    
+    combustor = SUAVE.Components.Energy.Converters.Rocket_Combustor()   
+    combustor.tag = 'combustor'
+    
+    # setup  
+    combustor.propellant_data                = SUAVE.Attributes.Propellants.LOX_RP1()
+    combustor.inputs.combustion_pressure     = 5260000.0 
+    
+    # add to network
+    liquid_rocket.append(combustor)
+
+    # ------------------------------------------------------------------
+    #  Component 2 - Core Nozzle
+    
+    # instantiate
+    nozzle = SUAVE.Components.Energy.Converters.de_Laval_Nozzle()   
+    nozzle.tag = 'core_nozzle'
+    
+    # setup
+    nozzle.polytropic_efficiency = 1.0
+    nozzle.expansion_ratio       = liquid_rocket.expansion_ratio
+    nozzle.area_throat           = liquid_rocket.area_throat 
+    
+    
+    # add to network
+    liquid_rocket.append(nozzle)
+
+    # ------------------------------------------------------------------
+    #  Component 4 - Thrust
+    
+    # instantiate
+    thrust = SUAVE.Components.Energy.Processes.Rocket_Thrust()       
+    thrust.tag ='thrust'
+    
+    # setup
+    thrust.total_design  = liquid_rocket.number_of_engines*486200 * Units.N
+    thrust.ISP_design    = 200.0
+    
+    # add to network
+    liquid_rocket.thrust = thrust 
+    
+    # size the rocket
+    liquid_rocket_sizing(liquid_rocket,0.0)
+    
+    print "Design thrust :",liquid_rocket.thrust.total_design
+    print "Sealevel static thrust :",liquid_rocket.sealevel_static_thrust
+    
+    results_design     = liquid_rocket(state_sls)
+    results_off_design = liquid_rocket(state_vacuum)
+    F                  = results_design.thrust_force_vector
+    mdot               = results_design.vehicle_mass_rate
+    Isp                = results_design.specific_impulse
+    F_off_design       = results_off_design.thrust_force_vector
+    mdot_off_design    = results_off_design.vehicle_mass_rate
+    Isp_off_design     = results_off_design.specific_impulse
+    
+    #Specify the expected values
+    expected = Data()
+    
+    expected.thrust = 6816185.95743366
+    expected.mdot   = 2624.00049612
+    expected.Isp    = 264.79422553
+    
+    #error data function
+    error =  Data()
+    
+    error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
+    error.mdot_error   = (mdot[0][0] - expected.mdot)/expected.mdot
+    error.Isp_error    = (Isp[0][0]- expected.Isp)/expected.Isp
+    print error
+    
+    for k,v in error.items():
+        assert(np.abs(v)<1e-6)    
+    
+    return
+    
+if __name__ == '__main__':
+    
+    main() 
