@@ -51,7 +51,7 @@ class Control_Surface(Component):
 	self.origin                = [0.0,0.0,0.0]
 	self.transformation_matrix = [[1,0,0],[0,1,0],[0,0,1]]	
 	self.deflection_symmetry   = 1.0    
-        self.sections = Data()  
+	self.sections = Data()  
 	self.prev = None
 	self.next = None # for connectivity
 	
