@@ -12,6 +12,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Components    import Component
+from SUAVE.Components import Lofted_Body
 
 # ------------------------------------------------------------
 #  Control Surfaces
