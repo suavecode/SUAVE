@@ -155,7 +155,7 @@ def configs_setup(vehicle):
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'electricHelicopter'
+    config.tag = 'electric_helicopter'
     
     config.propulsors.network.number_of_engines = 1
     
@@ -183,7 +183,7 @@ def configs_setup(vehicle):
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'electricStoppedRotor'
+    config.tag = 'electric_stopped_rotor'
     
     config.propulsors.network.number_of_engines = 8
     
@@ -211,7 +211,7 @@ def configs_setup(vehicle):
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'electricTiltrotor'
+    config.tag = 'electric_tiltrotor'
     
     config.propulsors.network.number_of_engines = 8
     
@@ -338,9 +338,9 @@ def main():
     
     print "Running Regression Test of eVTOL Weight Buildup Methods.\n"
     
-    electricHelicopterEmptyWeights = electricHelicopterEmpty(configs["electrichelicopter"])
-    electricStoppedRotorEmptyWeights = electricStoppedRotorEmpty(configs["electricstoppedRotor"])
-    electricTiltrotorEmptyWeights = electricTiltrotorEmpty(configs["electricTiltrotor"])
+    electricHelicopterEmptyWeights = electricHelicopterEmpty(configs["electric_helicopter"])
+    electricStoppedRotorEmptyWeights = electricStoppedRotorEmpty(configs["electric_stopped_rotor"])
+    electricTiltrotorEmptyWeights = electricTiltrotorEmpty(configs["electric_tiltrotor"])
 
     refactoredWeights = [electricHelicopterEmptyWeights,
                          electricStoppedRotorEmptyWeights,
