@@ -47,30 +47,31 @@ def energy_network():
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     # freestream conditions
-    conditions.freestream.mach_number        = ones_1col*1.5
-    conditions.M                             = conditions.freestream.mach_number
-    conditions.freestream.altitude           = ones_1col*10000.
+    EVAL                             = conditions.freestream
+    EVAL.mach_number                 = ones_1col*1.5
+    conditions.M                     = EVAL.mach_number
+    EVAL.altitude                    = ones_1col*10000.
     
-    atmosphere                               = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                                = atmosphere.compute_values(conditions.freestream.altitude,0,True) 
-    working_fluid                            = SUAVE.Attributes.Gases.Air()
+    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                        = atmosphere.compute_values(EVAL.altitude,0,True) 
+    working_fluid                    = SUAVE.Attributes.Gases.Air()
     
-    conditions.freestream.pressure           = ones_1col*atmo_data.pressure
-    conditions.freestream.temperature        = ones_1col*atmo_data.temperature
-    conditions.freestream.density            = ones_1col*atmo_data.density
-    conditions.freestream.dynamic_viscosity  = ones_1col* atmo_data.dynamic_viscosity
-    conditions.freestream.gravity            = ones_1col*9.81
-    conditions.freestream.isentropic_expansion_factor = working_fluid.compute_gamma(conditions.freestream.temperature,conditions.freestream.pressure)
-    conditions.freestream.Cp                 = working_fluid.compute_cp(conditions.freestream.temperature,conditions.freestream.pressure)                                                                               
-    conditions.freestream.R                  = working_fluid.gas_specific_constant
-    conditions.freestream.speed_of_sound     = ones_1col* atmo_data.speed_of_sound
-    conditions.freestream.velocity           = conditions.M * conditions.freestream.speed_of_sound
-    conditions.velocity                      = conditions.M * conditions.freestream.speed_of_sound
-    conditions.q                             = 0.5*conditions.freestream.density*conditions.velocity**2
-    conditions.g0                            = conditions.freestream.gravity
+    EVAL.pressure                    = ones_1col*atmo_data.pressure
+    EVAL.temperature                 = ones_1col*atmo_data.temperature
+    EVAL.density                     = ones_1col*atmo_data.density
+    EVAL.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
+    EVAL.gravity                     = ones_1col*9.81
+    EVAL.isentropic_expansion_factor = working_fluid.compute_gamma(EVAL.temperature,EVAL.pressure)
+    EVAL.Cp                          = working_fluid.compute_cp(EVAL.temperature,EVAL.pressure)                                                                               
+    EVAL.R                           = working_fluid.gas_specific_constant
+    EVAL.speed_of_sound              = ones_1col* atmo_data.speed_of_sound
+    EVAL.velocity                    = conditions.M * EVAL.speed_of_sound
+    conditions.velocity              = conditions.M * EVAL.speed_of_sound
+    conditions.q                     = 0.5*EVAL.density*conditions.velocity**2
+    conditions.g0                    = EVAL.gravity
     
     # propulsion conditions
-    conditions.propulsion.throttle           =  ones_1col*1.0
+    conditions.propulsion.throttle   =  ones_1col*1.0
 
     # ------------------------------------------------------------------
     #   Design/sizing conditions
@@ -83,30 +84,31 @@ def energy_network():
     conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
-    conditions_sizing.freestream.mach_number        = ones_1col*2.5
-    conditions_sizing.M                             = conditions_sizing.freestream.mach_number
-    conditions_sizing.freestream.altitude           = ones_1col*10000.  
+    SIZE                             = conditions_sizing.freestream
+    SIZE.mach_number                 = ones_1col*2.5
+    conditions_sizing.M              = SIZE.mach_number
+    SIZE.altitude                    = ones_1col*10000.  
     
-    atmosphere                                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                                       = atmosphere.compute_values(conditions_sizing.freestream.altitude,0,True) 
-    working_fluid                                   = SUAVE.Attributes.Gases.Air()    
+    atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo_data                        = atmosphere.compute_values(SIZE.altitude,0,True) 
+    working_fluid                    = SUAVE.Attributes.Gases.Air()    
 
-    conditions_sizing.freestream.pressure           = ones_1col*atmo_data.pressure
-    conditions_sizing.freestream.temperature        = ones_1col*atmo_data.temperature
-    conditions_sizing.freestream.density            = ones_1col*atmo_data.density
-    conditions_sizing.freestream.dynamic_viscosity  = ones_1col*atmo_data.dynamic_viscosity
-    conditions_sizing.freestream.gravity            = ones_1col*9.81
-    conditions_sizing.freestream.isentropic_expansion_factor = working_fluid.compute_gamma(conditions_sizing.freestream.temperature,conditions_sizing.freestream.pressure)
-    conditions_sizing.freestream.Cp                 = working_fluid.compute_cp(conditions_sizing.freestream.temperature,conditions_sizing.freestream.pressure)                                                                               
-    conditions_sizing.freestream.R                  = working_fluid.gas_specific_constant
-    conditions_sizing.freestream.speed_of_sound     = ones_1col * atmo_data.speed_of_sound
-    conditions_sizing.freestream.velocity           = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-    conditions_sizing.velocity                      = conditions_sizing.M * conditions_sizing.freestream.speed_of_sound
-    conditions_sizing.q                             = 0.5*conditions_sizing.freestream.density*conditions_sizing.velocity**2
-    conditions_sizing.g0                            = conditions_sizing.freestream.gravity
+    SIZE.pressure                    = ones_1col*atmo_data.pressure
+    SIZE.temperature                 = ones_1col*atmo_data.temperature
+    SIZE.density                     = ones_1col*atmo_data.density
+    SIZE.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
+    SIZE.gravity                     = ones_1col*9.81
+    SIZE.isentropic_expansion_factor = working_fluid.compute_gamma(SIZE.temperature,SIZE.pressure)
+    SIZE.Cp                          = working_fluid.compute_cp(SIZE.temperature,SIZE.pressure)                                                                               
+    SIZE.R                           = working_fluid.gas_specific_constant
+    SIZE.speed_of_sound              = ones_1col * atmo_data.speed_of_sound
+    SIZE.velocity                    = conditions_sizing.M * SIZE.speed_of_sound
+    conditions_sizing.velocity       = conditions_sizing.M * SIZE.speed_of_sound
+    conditions_sizing.q              = 0.5*SIZE.density*conditions_sizing.velocity**2
+    conditions_sizing.g0             = SIZE.gravity
     
     # propulsion conditions
-    conditions_sizing.propulsion.throttle           = ones_1col*1.0
+    conditions_sizing.propulsion.throttle = ones_1col*1.0
 
     state_sizing = Data()
     state_sizing.numerics = Data()
@@ -241,4 +243,4 @@ def energy_network():
     
 if __name__ == '__main__':
     
-    main()
+    main() 

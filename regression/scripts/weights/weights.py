@@ -5,6 +5,7 @@ import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
+from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Core import (
     Data, Container,
 )
@@ -16,7 +17,9 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Boeing_737 import vehicle_setup
-from SUAVE.Methods.Performance  import payload_range
+from Cessna_172 import vehicle_setup as vehicle_setup_general_aviation
+
+
 
 
 def main():
@@ -65,9 +68,54 @@ def main():
     print error  
       
     for k,v in error.items():
+        assert(np.abs(v)<1E-6)    
+   
+    #General Aviation weights; note that values are taken from Raymer,
+    #but there is a huge spread among the GA designs, so individual components
+    #differ a good deal from the actual design
+   
+    vehicle        = vehicle_setup_general_aviation()
+    GTOW           = vehicle.mass_properties.max_takeoff
+    weight         = General_Aviation.empty(vehicle)
+    weight.fuel    = vehicle.fuel.mass_properties.mass 
+    actual         = Data()
+    actual.bag     = 0.
+    actual.empty   = 618.485310343
+    actual.fuel    = 144.69596603
+
+    actual.wing            = 124.673093906
+    actual.fuselage        = 119.522072873
+    actual.propulsion      = 194.477769922 #includes power plant and propeller, does not include fuel system
+    actual.landing_gear    = 44.8033840543+5.27975390045
+    actual.furnishing      = 37.8341395817
+    actual.electrical      = 36.7532226254
+    actual.control_systems = 14.8331955546
+    actual.fuel_systems    = 15.6859717453
+    actual.systems         = 108.096549345
+
+    error                 = Data()
+    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
+    error.empty           = (actual.empty - weight.empty)/actual.empty
+    error.wing            = (actual.wing - weight.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - weight.fuselage)/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
+    error.landing_gear    = (actual.landing_gear - (weight.landing_gear_main+weight.landing_gear_nose))/actual.landing_gear
+    error.furnishing      = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
+    error.electrical      = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
+    error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems
+    error.fuel_systems    = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
+    error.systems         = (actual.systems - weight.systems)/actual.systems
+
+    print 'actual.systems=', actual.systems
+    print 'General Aviation Results (kg)'
+    print weight
+
+    print 'Relative Errors'
+    print error  
+
+    for k,v in error.items():
         assert(np.abs(v)<1e-6)    
    
-    
     return
 
 # ----------------------------------------------------------------------        
