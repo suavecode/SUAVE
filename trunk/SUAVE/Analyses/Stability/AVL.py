@@ -87,7 +87,7 @@ class AVL(Stability):
         self.settings.filenames.err_filename                = sys.stderr
         
         # Default spanwise vortex density 
-        self.settings.spanwise_vortex_density                        = 1.5
+        self.settings.spanwise_vortex_density               = 1.5
             
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
