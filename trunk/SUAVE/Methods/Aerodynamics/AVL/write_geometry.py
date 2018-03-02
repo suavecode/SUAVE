@@ -348,11 +348,6 @@ AFILE
     if airfoil:
         body_section_text = body_section_text + airfoil_base.format(airfoil)
     
-    #full_control_text = ''
-    #for cs in avl_body_section.control_surfaces:
-        #control_text = make_controls_text(cs)
-        #full_control_text = full_control_text + control_text
-    #body_section_text + full_control_text
     return body_section_text
 
     
