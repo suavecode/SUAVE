@@ -119,8 +119,8 @@ def energy_network():
     combustor.tag = 'combustor'
     
     # setup  
-    combustor.propellant_data                = SUAVE.Attributes.Propellants.LOX_RP1()
-    combustor.inputs.combustion_pressure     = 5260000.0 
+    combustor.propellant_data                = SUAVE.Attributes.Propellants.LOX_LH2()
+    combustor.inputs.combustion_pressure     = 3000000.0 
     
     # add to network
     liquid_rocket.append(combustor)
@@ -161,28 +161,39 @@ def energy_network():
     print "Design thrust :",liquid_rocket.thrust.total_design
     print "Sealevel static thrust :",liquid_rocket.sealevel_static_thrust
     
-    results_design     = liquid_rocket(state_sls)
-    results_off_design = liquid_rocket(state_vacuum)
-    F                  = results_design.thrust_force_vector
-    mdot               = results_design.vehicle_mass_rate
-    Isp                = results_design.specific_impulse
-    F_off_design       = results_off_design.thrust_force_vector
-    mdot_off_design    = results_off_design.vehicle_mass_rate
-    Isp_off_design     = results_off_design.specific_impulse
+    results_SeaLevel   = liquid_rocket(state_sls)
+    results_Vacuum     = liquid_rocket(state_vacuum)
+    
+    F_SeaLevel         = results_SeaLevel.thrust_force_vector
+    mdot_SeaLevel      = results_SeaLevel.vehicle_mass_rate
+    Isp_SeaLevel       = results_SeaLevel.specific_impulse
+    
+    F_Vacuum           = results_Vacuum.thrust_force_vector
+    mdot_Vacuum        = results_Vacuum.vehicle_mass_rate
+    Isp_Vacuum         = results_Vacuum.specific_impulse
     
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 6816185.95743366
-    expected.mdot   = 2624.00049612
-    expected.Isp    = 264.79422553
+    expected.thrust_SL  = 505930.243348
+    expected.mdot_SL    = 247.80835882
+    expected.Isp_SL     = 208.11610175
+    
+    expected.thrust_Vac = 1020937.07662764
+    expected.mdot_Vac   = 247.80835882
+    expected.Isp_Vac    = 419.96588919   
     
     #error data function
     error =  Data()
     
-    error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot_error   = (mdot[0][0] - expected.mdot)/expected.mdot
-    error.Isp_error    = (Isp[0][0]- expected.Isp)/expected.Isp
+    error.thrust_error_SL = (F_SeaLevel[0][0] -  expected.thrust_SL)/expected.thrust_SL
+    error.mdot_error_SL   = (mdot_SeaLevel[0][0] - expected.mdot_SL)/expected.mdot_SL
+    error.Isp_error_SL    = (Isp_SeaLevel[0][0]- expected.Isp_SL)/expected.Isp_SL
+    
+    error.thrust_error_Vac = (F_Vacuum[0][0] -  expected.thrust_Vac)/expected.thrust_Vac
+    error.mdot_error_Vac   = (mdot_Vacuum[0][0] - expected.mdot_Vac)/expected.mdot_Vac
+    error.Isp_error_Vac    = (Isp_Vacuum[0][0]- expected.Isp_Vac)/expected.Isp_Vac
+    
     print error
     
     for k,v in error.items():

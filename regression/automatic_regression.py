@@ -67,6 +67,8 @@ modules = [
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/lifting_line/lifting_line.py',
     'scripts/sweeps/test_sweeps.py',
+    'scripts/rocket_network/Rocketdyne_F1.py',
+    'scripts/rocket_network/Rocketdyne_J2.py',
 ]
 
 

@@ -22,6 +22,7 @@ class LOX_LH2(Propellant):
     
     Source:
     Sutton, Rocket Propulsion Elements
+    Using CEA
     """
 
     def __defaults__(self):
@@ -43,7 +44,7 @@ class LOX_LH2(Propellant):
         None
         """    
         self.tag                         = 'LOX_RP1'
-        self.molecular_weight            = 23.45
-        self.isentropic_expansion_factor = 1.26
-        self.combustion_temperature      = 3572
+        self.molecular_weight            = 12.63
+        self.isentropic_expansion_factor = 1.24
+        self.combustion_temperature      = 3372
         self.gas_specific_constant       = 8314.45986/self.molecular_weight

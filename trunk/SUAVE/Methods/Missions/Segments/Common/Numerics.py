@@ -85,14 +85,14 @@ def update_differentials_time(segment,state):
     
     # unpack
     numerics = state.numerics
-    x = numerics.dimensionless.control_points
-    D = numerics.dimensionless.differentiate
-    I = numerics.dimensionless.integrate
+    x        = numerics.dimensionless.control_points
+    D        = numerics.dimensionless.differentiate
+    I        = numerics.dimensionless.integrate
     
     # rescale time
     time = state.conditions.frames.inertial.time
-    T = time[-1] - time[0]
-    t = x * T
+    T    = time[-1] - time[0]
+    t    = x * T
     
     # rescale operators
     D = D / T

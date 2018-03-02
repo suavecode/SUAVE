@@ -105,7 +105,6 @@ class Rocket_Thrust(Energy_Component):
         #--Unpack the values--
 
         # unpacking from conditions
-        t0               = conditions.freestream.temperature 
         p0               = conditions.freestream.pressure  
         g0               = conditions.freestream.gravity
         throttle         = conditions.propulsion.throttle
@@ -125,7 +124,6 @@ class Rocket_Thrust(Energy_Component):
        
         #--Computing the thrust coefficient and effective exhaust velocity--
         gmm = gamma*Me*Me
-        Cf = (pe/Pt_combustion)*(expansion_ratio)*(gmm+1.0-p0/pe)
         C  = exhaust_velocity*(1.+1./(gmm)*(1.-p0/pe))
         
         #--Computing specific impulse
@@ -141,7 +139,6 @@ class Rocket_Thrust(Energy_Component):
         self.outputs.thrust                            = thrust  
         self.outputs.vehicle_mass_rate                 = mdot
         self.outputs.specific_impulse                  = Isp
-        self.outputs.coefficient_of_thrust             = Cf
 
     def size(self,conditions):
         """Sizes the engine for the design condition.
