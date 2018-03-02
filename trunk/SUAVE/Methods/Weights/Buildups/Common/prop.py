@@ -141,8 +141,8 @@ def prop(prop,
     maxThickness = (np.amax(box[:,1])-np.amin(box[:,1]))/2
     rootBendingMoment = SF*maxThrust/nBlades*0.75*rProp
     m = (UniCF().density*dx*rootBendingMoment/
-        (2*UniCF().ultimateShearStrength*maxThickness))+ \
-        skinLength*BiCF().minimumGageThickness*dx*BiCF().density
+        (2*UniCF().ultimate_shear_strength*maxThickness))+ \
+        skinLength*BiCF().minimum_gage_thickness*dx*BiCF().density
     m = m*np.ones(N)
     error = 1               # Initialize Error
     tolerance = 1e-8        # Mass Tolerance
@@ -210,31 +210,31 @@ def prop(prop,
 
         # Calculate Skin Weight Based on Torsion
 
-        tTorsion = My/(2*BiCF().ultimateShearStrength*enclosedArea)                          # Torsion Skin Thickness
-        tTorsion = np.maximum(tTorsion,BiCF().minimumGageThickness*np.ones(N))           # Gage Constraint
+        tTorsion = My/(2*BiCF().ultimate_shear_strength*enclosedArea)                          # Torsion Skin Thickness
+        tTorsion = np.maximum(tTorsion,BiCF().minimum_gage_thickness*np.ones(N))           # Gage Constraint
         mTorsion = tTorsion * skinLength * BiCF().density                  # Torsion Mass
 
         # Calculate Flap Mass Based on Bending
 
-        tFlap = CF/(capLength*UniCF().ultimateTensileStrength) +   \
-            Mx*np.amax(np.abs(box[:,1]))/(capInertia*UniCF().ultimateTensileStrength)
+        tFlap = CF/(capLength*UniCF().ultimate_tensile_strength) +   \
+            Mx*np.amax(np.abs(box[:,1]))/(capInertia*UniCF().ultimate_tensile_strength)
         mFlap = tFlap*capLength*UniCF().density
-        mGlue = Epoxy().minimumGageThickness*Epoxy().density*capLength*np.ones(N)
+        mGlue = Epoxy().minimum_gage_thickness*Epoxy().density*capLength*np.ones(N)
 
         # Calculate Web Mass Based on Shear
 
-        tShear = 1.5*Vz/(BiCF().ultimateShearStrength*shearHeight)
-        tShear = np.maximum(tShear,BiCF().minimumGageThickness*np.ones(N))
+        tShear = 1.5*Vz/(BiCF().ultimate_shear_strength*shearHeight)
+        tShear = np.maximum(tShear,BiCF().minimum_gage_thickness*np.ones(N))
         mShear = tShear*shearHeight*BiCF().density
 
         # Paint Weight
 
-        mPaint = skinLength*Paint().minimumGageThickness*Paint().density*np.ones(N)
+        mPaint = skinLength*Paint().minimum_gage_thickness*Paint().density*np.ones(N)
 
         # Core Mass
 
         mCore = coreArea*Honeycomb().density*np.ones(N)
-        mGlue += Epoxy().minimumGageThickness*Epoxy().density*skinLength*np.ones(N)
+        mGlue += Epoxy().minimum_gage_thickness*Epoxy().density*skinLength*np.ones(N)
 
         # Leading Edge Protection
 
@@ -249,14 +249,14 @@ def prop(prop,
 
         # Rib Weight
 
-        mRib = (enclosedArea+skinLength*Rib().minWidth)*Rib().minimumGageThickness*Aluminum().density
+        mRib = (enclosedArea+skinLength*Rib().minimum_width)*Rib().minimum_gage_thickness*Aluminum().density
 
         # Root Fitting
 
         box = coord * chord
         rRoot = (np.amax(box[:,1])-np.amin(box[:,1]))/2
-        t = np.amax(CF)/(2*np.pi*rRoot*Aluminum().ultimateTensileStrength) +    \
-            np.amax(Mx)/(3*np.pi*rRoot**2*Aluminum().ultimateTensileStrength)
+        t = np.amax(CF)/(2*np.pi*rRoot*Aluminum().ultimate_tensile_strength) +    \
+            np.amax(Mx)/(3*np.pi*rRoot**2*Aluminum().ultimate_tensile_strength)
         mRoot = 2*np.pi*rRoot*t*rootLength*Aluminum().density
 
         # Total Weight

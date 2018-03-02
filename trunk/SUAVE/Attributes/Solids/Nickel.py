@@ -21,11 +21,11 @@ class Nickel(Solid):
 
     def __defaults__(self):
 
-        self.ultimateTensileStrength        = 1830e6   *Units.Pa
-        self.ultimateShearStrength          = 1050e6   *Units.Pa
-        self.ultimateBearingStrength        = 1830e6   *Units.Pa
-        self.yieldTensileStrength           = 1550e6   *Units.Pa
-        self.yieldShearStrength             = 1050e6   *Units.Pa
-        self.yieldBearingStrength           = 1550e6   *Units.Pa
-        self.minimumGageThickness           = 0        *Units.m
-        self.density                        = 8430     *(Units.kg)/((Units.m)**3)
+        self.ultimate_tensile_strength        = 1830e6   *Units.Pa
+        self.ultimate_shear_strength          = 1050e6   *Units.Pa
+        self.ultimate_bearing_strength        = 1830e6   *Units.Pa
+        self.yield_tensile_strength           = 1550e6   *Units.Pa
+        self.yield_shear_strength             = 1050e6   *Units.Pa
+        self.yield_bearing_strength           = 1550e6   *Units.Pa
+        self.minimum_gage_thickness           = 0        *Units.m
+        self.density                          = 8430     *(Units.kg)/((Units.m)**3)

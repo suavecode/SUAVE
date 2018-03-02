@@ -243,33 +243,33 @@ def wing(wing,
 
     # Calculate Skin Weight Based on Torsion
 
-    tTorsion = My*dx/(2*BiCF().ultimateShearStrength*torsionArea)                                    # Torsion Skin Thickness
-    tTorsion = np.maximum(tTorsion,BiCF().minimumGageThickness*np.ones(N))                       # Gage Constraint
+    tTorsion = My*dx/(2*BiCF().ultimate_shear_strength*torsionArea)                                    # Torsion Skin Thickness
+    tTorsion = np.maximum(tTorsion,BiCF().minimum_gage_thickness*np.ones(N))                       # Gage Constraint
     mTorsion = tTorsion * torsionLength * BiCF().density                           # Torsion Mass
-    mCore = Honeycomb().minimumGageThickness*torsionLength*Honeycomb().density*np.ones(N) # Core Mass
-    mGlue = Epoxy().minimumGageThickness*Epoxy().density*torsionLength*np.ones(N)         # Epoxy Mass
+    mCore = Honeycomb().minimum_gage_thickness*torsionLength*Honeycomb().density*np.ones(N) # Core Mass
+    mGlue = Epoxy().minimum_gage_thickness*Epoxy().density*torsionLength*np.ones(N)         # Epoxy Mass
 
     # Calculate Flap Mass Based on Bending
 
-    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF().ultimateTensileStrength)                       # Bending Flap Thickness
+    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF().ultimate_tensile_strength)                       # Bending Flap Thickness
     mFlap = tFlap*flapLength*UniCF().density                                       # Bending Flap Mass
-    mGlue += Epoxy().minimumGageThickness*Epoxy().density*flapLength*np.ones(N)           # Updated Epoxy Mass
+    mGlue += Epoxy().minimum_gage_thickness*Epoxy().density*flapLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Drag Flap Mass
 
-    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF().ultimateTensileStrength)                       # Drag Flap Thickness
+    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF().ultimate_tensile_strength)                       # Drag Flap Thickness
     mDrag = tDrag*dragLength*UniCF().density                                       # Drag Flap Mass
-    mGlue += Epoxy().minimumGageThickness*Epoxy().density*dragLength*np.ones(N)           # Updated Epoxy Mass
+    mGlue += Epoxy().minimum_gage_thickness*Epoxy().density*dragLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Shear Spar Mass
 
-    tShear = 1.5*Vz/(BiCF().ultimateShearStrength*h)                                                 # Shear Spar Thickness
-    tShear = np.maximum(tShear, BiCF().minimumGageThickness*np.ones(N))                          # Gage constraint
+    tShear = 1.5*Vz/(BiCF().ultimate_shear_strength*h)                                                 # Shear Spar Thickness
+    tShear = np.maximum(tShear, BiCF().minimum_gage_thickness*np.ones(N))                          # Gage constraint
     mShear = tShear*h*BiCF().density                                               # Shear Spar Mass
 
     # Paint
 
-    mPaint = skinLength*Paint().minimumGageThickness*Paint().density*np.ones(N)           # Paint Mass
+    mPaint = skinLength*Paint().minimum_gage_thickness*Paint().density*np.ones(N)           # Paint Mass
 
     # Section Mass Total
 
@@ -277,7 +277,7 @@ def wing(wing,
 
     # Rib Mass
 
-    mRib = (A+skinLength*Rib().minWidth)*Rib().minimumGageThickness*Aluminum().density
+    mRib = (A+skinLength*Rib().minimum_width)*Rib().minimum_gage_thickness*Aluminum().density
 
     # Total Mass
 

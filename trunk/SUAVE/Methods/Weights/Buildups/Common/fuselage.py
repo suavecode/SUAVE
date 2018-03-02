@@ -71,9 +71,9 @@ def fuselage(config,
     # Bi-directional Carbon Fiber, a Honeycomb Core, and Paint:
 
     arealWeight =(
-          BiCF().minimumGageThickness      * BiCF().density
-        + Honeycomb().minimumGageThickness * Honeycomb().density
-        + Paint().minimumGageThickness     * Paint().density
+          BiCF().minimum_gage_thickness      * BiCF().density
+        + Honeycomb().minimum_gage_thickness * Honeycomb().density
+        + Paint().minimum_gage_thickness     * Paint().density
         )
 
     # Calculate fuselage area (using assumption of ellipsoid), and weight:
@@ -89,7 +89,7 @@ def fuselage(config,
 
     # Calculate the mass of a canopy, assuming Acrylic:
 
-    canopyMass = S_wet/8 * Acrylic().minimumGageThickness * Acrylic().density
+    canopyMass = S_wet/8 * Acrylic().minimum_gage_thickness * Acrylic().density
 
     # Calculate keel mass needed to carry lifting moment, assuming
     # Uni-directional Carbon Fiber used to carry load
@@ -99,7 +99,7 @@ def fuselage(config,
     beamWidth   = fWidth/3.                # Allowable Keel Width
     beamHeight  = fHeight/10.              # Allowable Keel Height
 
-    beamArea    = M_lift * beamHeight/(4*UniCF().ultimateTensileStrength*(beamHeight/2)**2)
+    beamArea    = M_lift * beamHeight/(4*UniCF().ultimate_tensile_strength*(beamHeight/2)**2)
     massKeel    = beamArea * fLength * UniCF().density
 
     # Calculate keel mass needed to carry wing bending moment, assuming
@@ -107,7 +107,7 @@ def fuselage(config,
 
     M_bend      = L_max/2 * maxSpan/2                          # Max Bending Moment
     beamArea    = beamHeight * beamWidth                       # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(BiCF().ultimateShearStrength*beamArea)    # Beam Thickness
+    beamThk     = 0.5 * M_bend/(BiCF().ultimate_shear_strength*beamArea)    # Beam Thickness
     massKeel   += 2*(beamHeight + beamWidth)*beamThk*BiCF().density
 
     # Calculate keel mass needed to carry landing impact load assuming
@@ -115,9 +115,9 @@ def fuselage(config,
     # loads in a side landing
 
     F_landing   = SF * MTOW * 9.8 * LIF * 0.6403              # Side Landing Force
-    boltArea    = F_landing/Steel().ultimateShearStrength              # Required Bolt Area
+    boltArea    = F_landing/Steel().ultimate_shear_strength              # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
-    lamThk      = F_landing/(boltDiam*BiCF().ultimateBearingStrength)    # Laminate Thickness
+    lamThk      = F_landing/(boltDiam*BiCF().ultimate_bearing_strength)    # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
     massKeel   += 4*lamVol*BiCF().density            # Mass of 4 Pads
 

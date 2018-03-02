@@ -23,6 +23,6 @@ class Rib(Aluminum):
     def __defaults__(self):
 
 
-        self.minimumGageThickness           = 1.5e-3   *Units.m
-        self.minWidth                       = 25.4e-3  *Units.m
+        self.minimum_gage_thickness              = 1.5e-3   *Units.m
+        self.minimum_width                       = 25.4e-3  *Units.m
 

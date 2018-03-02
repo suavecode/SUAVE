@@ -21,11 +21,11 @@ class Honeycomb(Solid):
 
     def __defaults__(self):
 
-        self.ultimateTensileStrength        = 1e6       *Units.Pa
-        self.ultimateShearStrength          = 1e6       *Units.Pa
-        self.ultimateBearingStrength        = 1e6       *Units.Pa
-        self.yieldTensileStrength           = 1e6       *Units.Pa
-        self.yieldShearStrength             = 1e6       *Units.Pa
-        self.yieldBearingStrength           = 1e6       *Units.Pa
-        self.minimumGageThickness           = 6.5e-3    *Units.m
-        self.density                        = 55        *(Units.kg)/((Units.m)**3)
+        self.ultimate_tensile_strength        = 1e6       *Units.Pa
+        self.ultimate_shear_strength          = 1e6       *Units.Pa
+        self.ultimate_bearing_strength        = 1e6       *Units.Pa
+        self.yield_tensile_strength           = 1e6       *Units.Pa
+        self.yield_shear_strength             = 1e6       *Units.Pa
+        self.yield_bearing_strength           = 1e6       *Units.Pa
+        self.minimum_gage_thickness           = 6.5e-3    *Units.m
+        self.density                          = 55        *(Units.kg)/((Units.m)**3)
