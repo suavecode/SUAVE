@@ -60,7 +60,7 @@ class Settings(Data):
                 self.flow_symmetry            = Data()
                 self.discretization           = Data()
 
-                self.num_control_surfaces     = 0
+                self.number_control_surfaces     = 0
                 
                 self.discretization.defaults  = Data()
                 self.discretization.surfaces  = Data()
