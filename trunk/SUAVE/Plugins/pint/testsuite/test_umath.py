@@ -2,9 +2,8 @@
 
 from __future__ import division, unicode_literals, print_function, absolute_import
 
-import unittest
-
-from pint.testsuite import TestCase, HAS_NUMPY, np
+from pint.compat import np
+from pint.testsuite import QuantityTestCase, helpers
 
 # Following http://docs.scipy.org/doc/numpy/reference/ufuncs.html
 
@@ -12,8 +11,8 @@ if np:
     pi = np.pi
 
 
-@unittest.skipUnless(HAS_NUMPY, 'Numpy not present')
-class TestUFuncs(TestCase):
+@helpers.requires_numpy()
+class TestUFuncs(QuantityTestCase):
 
     FORCE_NDARRAY = True
 
@@ -41,9 +40,6 @@ class TestUFuncs(TestCase):
     def qi(self):
         return np.asarray([1 + 1j, 2 + 2j, 3 + 3j, 4 + 4j]) * self.ureg.m
 
-    def assertEqual(self, first, second, msg=None):
-        np.testing.assert_equal(first, second, msg)
-
     def assertRaisesMsg(self, msg, ExcType, func, *args, **kwargs):
         try:
             func(*args, **kwargs)
@@ -53,17 +49,29 @@ class TestUFuncs(TestCase):
         except Exception as e:
             self.assertFalse(True, msg='{} not raised but {}\n{}'.format(ExcType, e, msg))
 
-    def _testn(self, func,  ok_with, raise_with=(), results=None):
-        self._test1(func, ok_with, raise_with, output_units=None, results=results)
-
     def _test1(self, func,  ok_with, raise_with=(), output_units='same', results=None, rtol=1e-6):
+        """Test function that takes a single argument and returns Quantity.
+
+        :param func: function callable.
+        :param ok_with: iterables of values that work fine.
+        :param raise_with: iterables of values that raise exceptions.
+        :param output_units: units to be used when building results.
+                             'same': ok_with[n].units (default).
+                             is float: ok_with[n].units ** output_units.
+                             None: no output units, the result should be an ndarray.
+                             Other value will be parsed as unit.
+        :param results: iterable of results.
+                        If None, the result will be obtained by applying
+                        func to each ok_with value
+        :param rtol: relative tolerance.
+        """
         if results is None:
             results = [None, ] * len(ok_with)
         for x1, res in zip(ok_with, results):
             err_msg = 'At {} with {}'.format(func.__name__, x1)
             if output_units == 'same':
                 ou = x1.units
-            elif isinstance(output_units, int):
+            elif isinstance(output_units, (int, float)):
                 ou = x1.units ** output_units
             else:
                 ou = output_units
@@ -71,20 +79,45 @@ class TestUFuncs(TestCase):
             qm = func(x1)
             if res is None:
                 res = func(x1.magnitude)
-                if ou:
+                if ou is not None:
                     res = self.Q_(res, ou)
-            if isinstance(res, self.Q_):
-                self.assertIsInstance(qm, self.Q_, msg=err_msg + ' {!r} is not Quantity'.format(qm))
-                qm = qm.magnitude
-                res = res.magnitude
-            np.testing.assert_allclose(qm, res, rtol=rtol, err_msg=err_msg)
+
+            self.assertQuantityAlmostEqual(qm, res, rtol=rtol, msg=err_msg)
 
         for x1 in raise_with:
             self.assertRaisesMsg('At {} with {}'.format(func.__name__, x1),
                                  ValueError, func, x1)
 
+    def _testn(self, func,  ok_with, raise_with=(), results=None):
+        """Test function that takes a single argument and returns and ndarray (not a Quantity)
+
+        :param func: function callable.
+        :param ok_with: iterables of values that work fine.
+        :param raise_with: iterables of values that raise exceptions.
+        :param results: iterable of results.
+                        If None, the result will be obtained by applying
+                        func to each ok_with value
+        """
+        self._test1(func, ok_with, raise_with, output_units=None, results=results)
+
     def _test1_2o(self, func, ok_with, raise_with=(), output_units=('same', 'same'),
                   results=None, rtol=1e-6):
+        """Test functions that takes a single argument and return two Quantities.
+
+        :param func: function callable.
+        :param ok_with: iterables of values that work fine.
+        :param raise_with: iterables of values that raise exceptions.
+        :param output_units: tuple of units to be used when building the result tuple.
+                             'same': ok_with[n].units (default).
+                             is float: ok_with[n].units ** output_units.
+                             None: no output units, the result should be an ndarray.
+                             Other value will be parsed as unit.
+        :param results: iterable of results.
+                        If None, the result will be obtained by applying
+                        func to each ok_with value
+        :param rtol: relative tolerance.
+        """
+
         if results is None:
             results = [None, ] * len(ok_with)
         for x1, res in zip(ok_with, results):
@@ -96,26 +129,35 @@ class TestUFuncs(TestCase):
             for ndx, (qm, re, ou) in enumerate(zip(qms, res, output_units)):
                 if ou == 'same':
                     ou = x1.units
-                elif isinstance(ou, int):
+                elif isinstance(ou, (int, float)):
                     ou = x1.units ** ou
 
                 if ou is not None:
                     re = self.Q_(re, ou)
 
-                if isinstance(re, self.Q_):
-                    self.assertIsInstance(qm, self.Q_, msg=err_msg)
-                    qm = qm.magnitude
-                    re = re.magnitude
-                np.testing.assert_allclose(qm, re, rtol=rtol, err_msg=err_msg)
+                self.assertQuantityAlmostEqual(qm, re, rtol=rtol, msg=err_msg)
 
         for x1 in raise_with:
             self.assertRaisesMsg('At {} with {}'.format(func.__name__, x1),
                                  ValueError, func, x1)
 
-    def _testn2(self, func, x1, ok_with, raise_with=()):
-        self._test2(func, x1, ok_with, raise_with, output_units=None)
-
     def _test2(self, func, x1, ok_with, raise_with=(), output_units='same', rtol=1e-6, convert2=True):
+        """Test function that takes two arguments and return a Quantity.
+
+        :param func: function callable.
+        :param x1: first argument of func.
+        :param ok_with: iterables of values that work fine.
+        :param raise_with: iterables of values that raise exceptions.
+        :param output_units: units to be used when building results.
+                             'same': x1.units (default).
+                             'prod': x1.units * ok_with[n].units
+                             'div': x1.units / ok_with[n].units
+                             'second': x1.units * ok_with[n]
+                             None: no output units, the result should be an ndarray.
+                             Other value will be parsed as unit.
+        :param rtol: relative tolerance.
+        :param convert2: if the ok_with[n] should be converted to x1.units.
+        """
         for x2 in ok_with:
             err_msg = 'At {} with {} and {}'.format(func.__name__, x1, x2)
             if output_units == 'same':
@@ -137,20 +179,27 @@ class TestUFuncs(TestCase):
                 m2 = getattr(x2, 'magnitude', x2)
 
             res = func(x1.magnitude, m2)
-            if ou:
+            if ou is not None:
                 res = self.Q_(res, ou)
-            if isinstance(res, self.Q_):
-                self.assertIsInstance(qm, self.Q_, msg=err_msg)
-                qm = qm.magnitude
-                res = res.magnitude
-            np.testing.assert_allclose(qm, res, rtol=rtol, err_msg=err_msg)
+
+            self.assertQuantityAlmostEqual(qm, res, rtol=rtol, msg=err_msg)
 
         for x2 in raise_with:
             self.assertRaisesMsg('At {} with {} and {}'.format(func.__name__, x1, x2),
                                  ValueError, func, x1, x2)
 
+    def _testn2(self, func, x1, ok_with, raise_with=()):
+        """Test function that takes two arguments and return a ndarray.
 
-@unittest.skipUnless(HAS_NUMPY, 'Numpy not present')
+        :param func: function callable.
+        :param x1: first argument of func.
+        :param ok_with: iterables of values that work fine.
+        :param raise_with: iterables of values that raise exceptions.
+        """
+        self._test2(func, x1, ok_with, raise_with, output_units=None)
+
+
+@helpers.requires_numpy()
 class TestMathUfuncs(TestUFuncs):
     """Universal functions (ufunc) > Math operations
 
@@ -249,7 +298,7 @@ class TestMathUfuncs(TestUFuncs):
                     self.q1,
                     (self.q2, self.qs, self.qless),
                     (),
-                    'div', convert2=False)
+                    'same', convert2=False)
 
     def test_mod(self):
         self._test2(np.mod,
@@ -323,7 +372,7 @@ class TestMathUfuncs(TestUFuncs):
         self._test1(np.sqrt,
                     (self.q2, self.qs, self.qless, self.qi),
                     (),
-                    'same')
+                    0.5)
 
     def test_square(self):
         self._test1(np.square,
@@ -335,9 +384,10 @@ class TestMathUfuncs(TestUFuncs):
         self._test1(np.reciprocal,
                     (self.q2, self.qs, self.qless, self.qi),
                     (),
-                    2)
+                    -1)
 
-@unittest.skipUnless(HAS_NUMPY, 'Numpy not present')
+
+@helpers.requires_numpy()
 class TestTrigUfuncs(TestUFuncs):
     """Universal functions (ufunc) > Trigonometric functions
 
@@ -365,41 +415,49 @@ class TestTrigUfuncs(TestUFuncs):
         self._test1(np.sin, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                              np.arange(0, pi/2, pi/4) * self.ureg.radian,
                              np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                            ), (self.ureg.m, ), '', results=(None, None, np.sin(np.arange(0, pi/2, pi/4)*0.001)))
+                            ), (1*self.ureg.m, ), '', results=(None, None, np.sin(np.arange(0, pi/2, pi/4)*0.001)))
         self._test1(np.sin, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
                             ), results=(np.sin(np.arange(0, pi/2, pi/4)), ))
 
     def test_cos(self):
         self._test1(np.cos, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                              np.arange(0, pi/2, pi/4) * self.ureg.radian,
-                             np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                            ), (self.ureg.m, ), '', results=(None, None, np.cos(np.arange(0, pi/2, pi/4)*0.001)))
-        self._test1(np.cos, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
-                            ), results=(np.cos(np.arange(0, pi/2, pi/4)), ))
+                             np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m,
+                            ), (1*self.ureg.m, ), '',
+                    results=(None,
+                             None,
+                             np.cos(np.arange(0, pi/2, pi/4)*0.001),
+                    )
+        )
+        self._test1(np.cos,
+                    (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
+                     ),
+                    results=(np.cos(np.arange(0, pi/2, pi/4)), )
+        )
 
     def test_tan(self):
         self._test1(np.tan, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                              np.arange(0, pi/2, pi/4) * self.ureg.radian,
                              np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                            ), (self.ureg.m, ), '', results=(None, None, np.tan(np.arange(0, pi/2, pi/4)*0.001)))
+                            ), (1*self.ureg.m, ), '', results=(None, None, np.tan(np.arange(0, pi/2, pi/4)*0.001)))
         self._test1(np.tan, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
                             ), results=(np.tan(np.arange(0, pi/2, pi/4)), ))
 
     def test_arcsin(self):
         self._test1(np.arcsin, (np.arange(0, .9, .1) * self.ureg.dimensionless,
                                 np.arange(0, .9, .1) * self.ureg.m / self.ureg.m
-                               ), (self.ureg.m, ), 'radian')
+                               ), (1*self.ureg.m, ), 'radian')
 
     def test_arccos(self):
         x = np.arange(0, .9, .1) * self.ureg.m
         self._test1(np.arccos, (np.arange(0, .9, .1) * self.ureg.dimensionless,
                                 np.arange(0, .9, .1) * self.ureg.m / self.ureg.m
-                               ), (self.ureg.m, ), 'radian')
+                               ), (1*self.ureg.m, ), 'radian')
 
     def test_arctan(self):
         self._test1(np.arctan, (np.arange(0, .9, .1) * self.ureg.dimensionless,
                                 np.arange(0, .9, .1) * self.ureg.m / self.ureg.m
-                                ), (self.ureg.m, ), 'radian')
+                                ), (1*self.ureg.m, ), 'radian')
 
     def test_arctan2(self):
         m = self.ureg.m
@@ -421,7 +479,7 @@ class TestTrigUfuncs(TestUFuncs):
         self._test1(np.sinh, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                               np.arange(0, pi/2, pi/4) * self.ureg.radian,
                               np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                              ), (self.ureg.m, ), '', results=(None, None, np.sinh(np.arange(0, pi/2, pi/4)*0.001)))
+                              ), (1*self.ureg.m, ), '', results=(None, None, np.sinh(np.arange(0, pi/2, pi/4)*0.001)))
         self._test1(np.sinh, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
                               ), results=(np.sinh(np.arange(0, pi/2, pi/4)), ))
 
@@ -429,7 +487,7 @@ class TestTrigUfuncs(TestUFuncs):
         self._test1(np.cosh, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                               np.arange(0, pi/2, pi/4) * self.ureg.radian,
                               np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                             ), (self.ureg.m, ), '', results=(None, None, np.cosh(np.arange(0, pi/2, pi/4)*0.001)))
+                             ), (1*self.ureg.m, ), '', results=(None, None, np.cosh(np.arange(0, pi/2, pi/4)*0.001)))
         self._test1(np.cosh, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
                              ), results=(np.cosh(np.arange(0, pi/2, pi/4)), ))
 
@@ -437,34 +495,40 @@ class TestTrigUfuncs(TestUFuncs):
         self._test1(np.tanh, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
                               np.arange(0, pi/2, pi/4) * self.ureg.radian,
                               np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                             ), (self.ureg.m, ), '', results=(None, None, np.tanh(np.arange(0, pi/2, pi/4)*0.001)))
+                             ), (1*self.ureg.m, ), '', results=(None, None, np.tanh(np.arange(0, pi/2, pi/4)*0.001)))
         self._test1(np.tanh, (np.rad2deg(np.arange(0, pi/2, pi/4)) * self.ureg.degrees,
                              ), results=(np.tanh(np.arange(0, pi/2, pi/4)), ))
 
     def test_arcsinh(self):
         self._test1(np.arcsinh, (np.arange(0, .9, .1) * self.ureg.dimensionless,
                                  np.arange(0, .9, .1) * self.ureg.m / self.ureg.m
-                                ), (self.ureg.m, ), 'radian')
+                                ), (1*self.ureg.m, ), 'radian')
 
     def test_arccosh(self):
         self._test1(np.arccosh, (np.arange(1., 1.9, .1) * self.ureg.dimensionless,
                                  np.arange(1., 1.9, .1) * self.ureg.m / self.ureg.m
-                                ), (self.ureg.m, ), 'radian')
+                                ), (1*self.ureg.m, ), 'radian')
 
     def test_arctanh(self):
         self._test1(np.arctanh, (np.arange(0, .9, .1) * self.ureg.dimensionless,
                                  np.arange(0, .9, .1) * self.ureg.m / self.ureg.m
-                                ), (self.ureg.m, ), 'radian')
+                                ), (.1 * self.ureg.m, ), 'radian')
 
     def test_deg2rad(self):
         self._test1(np.deg2rad, (np.arange(0, pi/2, pi/4) * self.ureg.degrees,
-                                 ), (self.ureg.m, ), 'radians')
+                                 ), (1*self.ureg.m, ), 'radians')
 
     def test_rad2deg(self):
-        self._test1(np.rad2deg, (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
-                                 np.arange(0, pi/2, pi/4) * self.ureg.radian,
-                                 np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m
-                                 ), (self.ureg.m, ), 'degree', results=(None, None, np.rad2deg(np.arange(0, pi/2, pi/4)*0.001)))
+        self._test1(np.rad2deg,
+                    (np.arange(0, pi/2, pi/4) * self.ureg.dimensionless,
+                     np.arange(0, pi/2, pi/4) * self.ureg.radian,
+                     np.arange(0, pi/2, pi/4) * self.ureg.mm / self.ureg.m,
+                     ),
+                    (1*self.ureg.m, ), 'degree',
+                    results=(None,
+                             None,
+                             np.rad2deg(np.arange(0, pi/2, pi/4)*0.001) * self.ureg.degree,
+                    ))
 
 
 

@@ -3,32 +3,13 @@
 from __future__ import division, unicode_literals, print_function, absolute_import
 
 import itertools
-import unittest
 from collections import defaultdict
 
-from pint import UnitRegistry
-from pint.context import Context, _freeze
-from pint.unit import UnitsContainer
-from pint.testsuite import TestCase
+from pint import UnitRegistry, errors
+from pint.context import Context
+from pint.util import UnitsContainer
+from pint.testsuite import QuantityTestCase
 
-from pint import logger
-
-from logging.handlers import BufferingHandler
-
-class TestHandler(BufferingHandler):
-    def __init__(self):
-        # BufferingHandler takes a "capacity" argument
-        # so as to know when to flush. As we're overriding
-        # shouldFlush anyway, we can set a capacity of zero.
-        # You can call flush() manually to clear out the
-        # buffer.
-        BufferingHandler.__init__(self, 0)
-
-    def shouldFlush(self):
-        return False
-
-    def emit(self, record):
-        self.buffer.append(record.__dict__)
 
 def add_ctxs(ureg):
     a, b = UnitsContainer({'[length]': 1}), UnitsContainer({'[time]': -1})
@@ -98,7 +79,7 @@ def add_sharedargdef_ctxs(ureg):
     ureg.add_context(d)
 
 
-class TestContexts(unittest.TestCase):
+class TestContexts(QuantityTestCase):
 
     def test_known_context(self):
         ureg = UnitRegistry()
@@ -139,22 +120,22 @@ class TestContexts(unittest.TestCase):
     def test_graph(self):
         ureg = UnitRegistry()
         add_ctxs(ureg)
-        l = _freeze({'[length]': 1.})
-        t = _freeze({'[time]': -1.})
-        c = _freeze({'[current]': -1.})
+        l = UnitsContainer({'[length]': 1.})
+        t = UnitsContainer({'[time]': -1.})
+        c = UnitsContainer({'[current]': -1.})
 
         g_sp = defaultdict(set)
-        g_sp.update({l: {t, },
-                     t: {l, }})
+        g_sp.update({l: set((t,)),
+                     t: set((l,))})
 
         g_ab = defaultdict(set)
-        g_ab.update({l: {c, },
-                     c: {l, }})
+        g_ab.update({l: set((c,)),
+                     c: set((l,))})
 
         g = defaultdict(set)
-        g.update({l: {t, c},
-                  t: {l, },
-                  c: {l, }})
+        g.update({l: set((t, c)),
+                  t: set((l,)),
+                  c: set((l,))})
 
         with ureg.context('lc'):
             self.assertEqual(ureg._active_ctx.graph, g_sp)
@@ -182,22 +163,22 @@ class TestContexts(unittest.TestCase):
     def test_graph_enable(self):
         ureg = UnitRegistry()
         add_ctxs(ureg)
-        l = _freeze({'[length]': 1.})
-        t = _freeze({'[time]': -1.})
-        c = _freeze({'[current]': -1.})
+        l = UnitsContainer({'[length]': 1.})
+        t = UnitsContainer({'[time]': -1.})
+        c = UnitsContainer({'[current]': -1.})
 
         g_sp = defaultdict(set)
-        g_sp.update({l: {t, },
-                     t: {l, }})
+        g_sp.update({l: set((t,)),
+                     t: set((l,))})
 
         g_ab = defaultdict(set)
-        g_ab.update({l: {c, },
-                     c: {l, }})
+        g_ab.update({l: set((c,)),
+                     c: set((l,))})
 
         g = defaultdict(set)
-        g.update({l: {t, c},
-                  t: {l, },
-                  c: {l, }})
+        g.update({l: set((t, c)),
+                  t: set((l,)),
+                  c: set((l,))})
 
         ureg.enable_contexts('lc')
         self.assertEqual(ureg._active_ctx.graph, g_sp)
@@ -472,10 +453,29 @@ class TestContexts(unittest.TestCase):
         ureg = UnitRegistry()
         q = 500 * ureg.meter
         s = (ureg.speed_of_light / q).to('Hz')
+
+        nctx = len(ureg._contexts)
+
+        self.assertNotIn(ctx.name, ureg._contexts)
         ureg.add_context(ctx)
+
+        self.assertIn(ctx.name, ureg._contexts)
+        self.assertEqual(len(ureg._contexts), nctx + 1 + len(ctx.aliases))
+
         with ureg.context(ctx.name):
             self.assertEqual(q.to('Hz'), s)
             self.assertEqual(s.to('meter'), q)
+
+        ureg.remove_context(ctx.name)
+        self.assertNotIn(ctx.name, ureg._contexts)
+        self.assertEqual(len(ureg._contexts), nctx)
+
+    def test_parse_invalid(self):
+        s = ['@context longcontextname',
+             '[length] = 1 / [time]: c / value',
+             '1 / [time] = [length]: c / value']
+
+        self.assertRaises(ValueError, Context.from_lines, s)
 
     def test_parse_simple(self):
 
@@ -549,6 +549,13 @@ class TestContexts(unittest.TestCase):
         self.assertEqual(set(c.funcs.keys()), set((a, b)))
         self._test_ctx(c)
 
+        s = ['@context(n=1, bla=2) longcontextname',
+             '[length] <-> 1 / [time]: n * c / value / bla']
+
+        c = Context.from_lines(s)
+        self.assertEqual(c.defaults, {'n': 1, 'bla': 2})
+        self.assertEqual(set(c.funcs.keys()), set((a, b)))
+
         # If the variable is not present in the definition, then raise an error
         s = ['@context(n=1) longcontextname',
              '[length] <-> 1 / [time]: c / value']
@@ -558,25 +565,23 @@ class TestContexts(unittest.TestCase):
 
         ureg = UnitRegistry()
 
-        th = TestHandler()
-        logger.addHandler(th)
+        with self.capture_log() as buffer:
+            add_ctxs(ureg)
 
-        add_ctxs(ureg)
+            d = Context('ab')
+            ureg.add_context(d)
 
-        d = Context('ab')
-        ureg.add_context(d)
+            self.assertEqual(len(buffer), 1)
+            self.assertIn("ab", str(buffer[-1]))
 
-        self.assertEqual(len(th.buffer), 1)
-        self.assertIn("ab", str(th.buffer[-1]['message']))
+            d = Context('ab1', aliases=('ab',))
+            ureg.add_context(d)
 
-        d = Context('ab1', aliases=('ab',))
-        ureg.add_context(d)
-
-        self.assertEqual(len(th.buffer), 2)
-        self.assertIn("ab", str(th.buffer[-1]['message']))
+            self.assertEqual(len(buffer), 2)
+            self.assertIn("ab", str(buffer[-1]))
 
 
-class TestDefinedContexts(TestCase):
+class TestDefinedContexts(QuantityTestCase):
 
     FORCE_NDARRAY = False
 
@@ -609,8 +614,46 @@ class TestDefinedContexts(TestCase):
                     self.assertTrue(p)
                     msg = '{} <-> {}'.format(a, b)
                     # assertAlmostEqualRelError converts second to first
-                    self.assertAlmostEqualRelError(b, a, rel=.01, msg=msg)
+                    self.assertQuantityAlmostEqual(b, a, rtol=0.01, msg=msg)
 
 
         for a, b in itertools.product(eq, eq):
-            self.assertAlmostEqualRelError(a.to(b.units, 'sp'), b, rel=.01, msg=msg)
+            self.assertQuantityAlmostEqual(a.to(b.units, 'sp'), b, rtol=0.01)
+
+    def test_decorator(self):
+        ureg = self.ureg
+
+        a = 532. * ureg.nm
+        with ureg.context('sp'):
+            b = a.to('terahertz')
+
+        def f(wl):
+            return wl.to('terahertz')
+
+        self.assertRaises(errors.DimensionalityError, f, a)
+
+        @ureg.with_context('sp')
+        def g(wl):
+            return wl.to('terahertz')
+
+        self.assertEqual(b, g(a))
+
+    def test_decorator_composition(self):
+        ureg = self.ureg
+
+        a = 532. * ureg.nm
+        with ureg.context('sp'):
+            b = a.to('terahertz')
+
+        @ureg.with_context('sp')
+        @ureg.check('[length]')
+        def f(wl):
+            return wl.to('terahertz')
+
+        @ureg.with_context('sp')
+        @ureg.check('[length]')
+        def g(wl):
+            return wl.to('terahertz')
+
+        self.assertEqual(b, f(a))
+        self.assertEqual(b, g(a))

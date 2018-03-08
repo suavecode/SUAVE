@@ -3,7 +3,7 @@
  ---------------------------------------------
  Run case  1:   case_005_01
 
- alpha        ->  alpha       =   -2.0
+ alpha        ->  alpha       =   -0.0349065850399 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000
@@ -46,7 +46,7 @@
  ---------------------------------------------
  Run case  2:   case_005_02
 
- alpha        ->  alpha       =   0.0
+ alpha        ->  alpha       =   0.0 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000
@@ -89,7 +89,7 @@
  ---------------------------------------------
  Run case  3:   case_005_03
 
- alpha        ->  alpha       =   2.0
+ alpha        ->  alpha       =   0.0349065850399 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000
@@ -132,7 +132,7 @@
  ---------------------------------------------
  Run case  4:   case_005_04
 
- alpha        ->  alpha       =   5.0
+ alpha        ->  alpha       =   0.0872664625997 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000
@@ -175,7 +175,7 @@
  ---------------------------------------------
  Run case  5:   case_005_05
 
- alpha        ->  alpha       =   7.0
+ alpha        ->  alpha       =   0.12217304764 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000
@@ -218,7 +218,7 @@
  ---------------------------------------------
  Run case  6:   case_005_06
 
- alpha        ->  alpha       =   10.0
+ alpha        ->  alpha       =   0.174532925199 / degree
  beta         ->  beta        =   0
  pb/2V        ->  pb/2V       =   0.00000
  qc/2V        ->  qc/2V       =   0.00000

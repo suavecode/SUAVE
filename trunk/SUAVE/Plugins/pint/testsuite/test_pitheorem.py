@@ -2,27 +2,28 @@
 
 from __future__ import division, unicode_literals, print_function, absolute_import
 
-import unittest
 import itertools
 
 from pint import pi_theorem
 
-from pint.testsuite import TestCase
+from pint.testsuite import QuantityTestCase
 
 
-class TestPiTheorem(TestCase):
+class TestPiTheorem(QuantityTestCase):
 
     FORCE_NDARRAY = False
 
     def test_simple(self):
 
         # simple movement
-        self.assertEqual(pi_theorem({'V': 'm/s', 'T': 's', 'L': 'm'}),
-                                    [{'V': 1, 'T': 1, 'L': -1}])
+        with self.capture_log() as buffer:
+            self.assertEqual(pi_theorem({'V': 'm/s', 'T': 's', 'L': 'm'}),
+                                        [{'V': 1, 'T': 1, 'L': -1}])
 
-        # pendulum
-        self.assertEqual(pi_theorem({'T': 's', 'M': 'grams', 'L': 'm', 'g': 'm/s**2'}),
-                                    [{'g': 1, 'T': 2, 'L': -1}])
+            # pendulum
+            self.assertEqual(pi_theorem({'T': 's', 'M': 'grams', 'L': 'm', 'g': 'm/s**2'}),
+                                        [{'g': 1, 'T': 2, 'L': -1}])
+            self.assertEqual(len(buffer), 7)
 
     def test_inputs(self):
         V = 'km/hour'

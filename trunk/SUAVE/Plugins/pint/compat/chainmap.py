@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-    pint.compat
-    ~~~~~~~~~~~
+    pint.compat.chainmap
+    ~~~~~~~~~~~~~~~~~~~~
 
-    Compatibility layer.
+    Taken from the Python 3.3 source code.
 
-    :copyright: 2013 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+    :copyright: 2013, PSF
+    :license: PSF License
 """
 
 from __future__ import division, unicode_literals, print_function, absolute_import
@@ -16,8 +16,6 @@ import sys
 from collections import MutableMapping
 if sys.version_info < (3, 0):
     from thread import get_ident
-elif sys.version_info < (3, 3):
-    from _thread import get_ident
 else:
     from threading import get_ident
 
