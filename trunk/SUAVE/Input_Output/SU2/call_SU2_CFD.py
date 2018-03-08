@@ -40,7 +40,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     else:
         subprocess.call(['SU2_CFD',tag+'.cfg'])
         
-    f = open(tag + '_forces_breakdown.dat')
+    f = open('history.dat')
         
     SU2_results = Data()    
     
@@ -51,6 +51,12 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     CMx = float(final_state[4])
     CMy = float(final_state[5])
     CMz = float(final_state[6])
+    
+    SU2_results.coefficient_of_lift  = CL
+    SU2_results.coefficient_of_drag  = CD
+    SU2_results.moment_coefficient_x = CMx
+    SU2_results.moment_coefficient_y = CMy
+    SU2_results.moment_coefficient_z = CMz
 
     print 'CL:',CL
     print 'CD:',CD
