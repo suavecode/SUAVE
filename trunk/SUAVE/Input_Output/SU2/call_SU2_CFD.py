@@ -48,26 +48,32 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     lines = f.readlines()
     final_state = lines[-1].split(',')
     
+    # Lift and Drag
+    
     CL  = float(final_state[1])
     CD  = float(final_state[2])
-    CMx = float(final_state[4])
-    CMy = float(final_state[5])
-    CMz = float(final_state[6])
     
     SU2_results.coefficient_of_lift  = CL
     SU2_results.coefficient_of_drag  = CD
-    SU2_results.moment_coefficient_x = CMx
-    SU2_results.moment_coefficient_y = CMy
-    SU2_results.moment_coefficient_z = CMz
-
+    
     print 'CL:',CL
     print 'CD:',CD
-    print 'CMx:',CMx
-    print 'CMy:',CMy
-    print 'CMz:',CMz
-           
-    CL = SU2_results.coefficient_of_lift
-    CD = SU2_results.coefficient_of_drag
+    
+    # Moments
+    # Moments are currently not recorded since no
+    # reasonable reference length has been chosen
+    
+    #CMx = float(final_state[4])
+    #CMy = float(final_state[5])
+    #CMz = float(final_state[6])   
+    
+    #SU2_results.moment_coefficient_x = CMx
+    #SU2_results.moment_coefficient_y = CMy
+    #SU2_results.moment_coefficient_z = CMz
+    
+    #print 'CMx:',CMx
+    #print 'CMy:',CMy
+    #print 'CMz:',CMz    
             
     return CL,CD
 
