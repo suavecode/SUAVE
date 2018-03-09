@@ -3,6 +3,7 @@
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 ## @ingroup Input_Output-SU2
 def write_SU2_cfg(tag,SU2_settings):
@@ -82,7 +83,6 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('LINEAR_SOLVER_ITER = 2\n\n')
     
     # Slope limiter
-    #f.write('REF_ELEM_LENGTH = 0.1\n\n')
     f.write('VENKAT_LIMITER_COEFF = 0.3\n\n')
     f.write('ADJ_SHARP_LIMITER_COEFF = 3.0\n\n')
     f.write('REF_SHARP_EDGES = 3.0\n\n')

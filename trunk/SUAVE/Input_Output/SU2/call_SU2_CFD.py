@@ -3,6 +3,7 @@
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 import subprocess
 from SUAVE.Core import Data
@@ -46,6 +47,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     
     lines = f.readlines()
     final_state = lines[-1].split(',')
+    
     CL  = float(final_state[1])
     CD  = float(final_state[2])
     CMx = float(final_state[4])
