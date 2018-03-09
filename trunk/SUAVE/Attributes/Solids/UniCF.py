@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Uni-Directional Carbon Fiber Solid Class
 #-------------------------------------------------------------------------------
 
-class UniCF(Solid):
+class unidirectional_carbon_fiber(solid):
 
     """ Physical Constants Specific to Uni-Directional Carbon Fiber"""
 

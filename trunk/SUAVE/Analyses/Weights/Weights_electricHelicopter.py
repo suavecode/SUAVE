@@ -17,7 +17,7 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electricHelicopter(Weights):
+class Weights_electric_helicopter(Weights):
     """ SUAVE.Analyses.Weights.Weights_electricHelicopter()
     """
     def __defaults__(self):

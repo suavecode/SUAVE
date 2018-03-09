@@ -8,15 +8,15 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
-from Aluminum import Aluminum
+from Solid import solid
+from Aluminum import aluminum
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Solid Data Class
 #-------------------------------------------------------------------------------
 
-class Rib(Aluminum):
+class rib(aluminum):
 
     """ Physical Constants of an Aluminum 6061-T6 Rib"""
 

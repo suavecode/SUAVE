@@ -7,14 +7,14 @@
 #-------------------------------------------------------------------------------
 ## @ingroup Attributes-Solids
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Aluminum 6061-T6 Solid Class
 #-------------------------------------------------------------------------------
 
-class Aluminum(Solid):
+class aluminum(solid):
 
     """ Physical Constants Specific to Aluminum 6061-T6"""
 

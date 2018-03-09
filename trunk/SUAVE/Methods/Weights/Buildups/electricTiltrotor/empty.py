@@ -9,7 +9,7 @@
 
 from SUAVE.Core import Units, Data
 from SUAVE.Attributes.Solids import (
-    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
+    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
@@ -21,18 +21,18 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 def empty(config,
-          speedOfSound       = 340.294,
-          maximumTipMach     = 0.65,
-          diskAreaFactor     = 1.15,
-          maxThrustToWeight  = 1.1,
-          motorEfficiency    = 0.85 * 0.98):
+          speed_of_sound                = 340.294,
+          max_tip_mach                  = 0.65,
+          disk_area_factor              = 1.15,
+          max_thrust_to_weight_ratio    = 1.1,
+          motor_efficiency              = 0.85 * 0.98):
     """weight = SUAVE.Methods.Weights.Buildups.electricTiltrotor.empty(
             config,
-            speedOfSound       = 340.294,
-            maximumTipMach     = 0.65,
-            diskAreaFactor     = 1.15,
-            maxThrustToWeight  = 1.1,
-            motorEfficiency    = 0.85 * 0.98)
+            speed_of_sound              = 340.294,
+            max_tip_mach                = 0.65,
+            disk_area_factor            = 1.15,
+            max_thrust_to_weight_ratio  = 1.1,
+            motor_efficience            = 0.85 * 0.98)
 
         Calculates the empty fuselage mass for an electric tiltrotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
@@ -53,12 +53,12 @@ def empty(config,
 
         Inputs:
 
-            config              SUAVE Config Data Structure
-            speedOfSound        Local Speed of Sound                [m/s]
-            maximumTipMach      Allowable Tip Mach Number           [Unitless]
-            diskAreaFactor      Disk Area Factor                    [Unitless]
-            maxThrustToWeight   Allowable Thrust to Weight Ratio    [Unitless]
-            motorEfficiency     Motor Efficiency                    [Unitless]
+            config                          SUAVE Config Data Structure
+            speed_of_sound                  Local Speed of Sound                [m/s]
+            max_tip_mach                    Allowable Tip Mach Number           [Unitless]
+            disk_area_factor                Inverse of Disk Area Efficiency     [Unitless]
+            max_thrust_to_weight_ratio      Allowable Thrust to Weight Ratio    [Unitless]
+            motor_efficiency                Motor Efficiency                    [Unitless]
 
         Outputs:
 
@@ -90,11 +90,11 @@ def empty(config,
     # Preparatory Calculations
 
 
-    sound               = speedOfSound
-    tipMach             = maximumTipMach
-    k                   = diskAreaFactor
-    ToverW              = maxThrustToWeight
-    etaMotor            = motorEfficiency
+    sound               = speed_of_sound
+    tipMach             = max_tip_mach
+    k                   = disk_area_factor
+    ToverW              = max_thrust_to_weight_ratio
+    etaMotor            = motor_efficiency
 
     Vtip        = sound * tipMach                               # Prop Tip Velocity
     omega       = Vtip/0.8                                      # Prop Ang. Velocity

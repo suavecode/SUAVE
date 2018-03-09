@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Paint and/or Vinyl Surface Convering Solid Class
 #-------------------------------------------------------------------------------
 
-class Paint(Solid):
+class paint(solid):
 
     """ Physical Constants Specific to Paint and/or Vinyl Surface Covering"""
 

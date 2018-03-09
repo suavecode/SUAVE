@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Carbon Fiber Honeycomb Core Solid Class
 #-------------------------------------------------------------------------------
 
-class Honeycomb(Solid):
+class honeycomb(solid):
 
     """ Physical Constants Specific to Carbon Fiber Honeycomb Core Material"""
 

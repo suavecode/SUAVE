@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Acrylic Solid Class
 #-------------------------------------------------------------------------------
 
-class Acrylic(Solid):
+class acrylic(solid):
 
     """ Physical Constants Specific to Polymethyl Methacrylate"""
 

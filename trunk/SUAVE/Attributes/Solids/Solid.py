@@ -14,7 +14,7 @@ from SUAVE.Core import Data, Units
 # Solid Data Class
 #-------------------------------------------------------------------------------
 
-class Solid(Data):
+class solid(Data):
 
     """ Physical Constants of a Solid"""
 

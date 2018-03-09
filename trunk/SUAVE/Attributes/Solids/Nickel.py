@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Cold Rolled Nickel/Cobalt Chromoly Alloy Solid Class
 #-------------------------------------------------------------------------------
 
-class Nickel(Solid):
+class nickel(solid):
 
     """ Physical Constants Specific to Cold Rolled Nickel/Cobalt Chromoly Alloy"""
 

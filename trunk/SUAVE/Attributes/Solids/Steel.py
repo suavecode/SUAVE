@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # AISI 4340 Steel Solid Class
 #-------------------------------------------------------------------------------
 
-class Steel(Solid):
+class steel(solid):
 
     """ Physical Constants Specific to AISI 4340 Steel"""
 

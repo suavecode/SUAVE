@@ -15,7 +15,7 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electricTiltrotor(Weights):
+class Weights_electric_tiltrotor(Weights):
     """ SUAVE.Analyses.Weights.Weights_electricTiltrotor()
     """
     def __defaults__(self):

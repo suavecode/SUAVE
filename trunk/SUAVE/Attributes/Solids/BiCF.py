@@ -1,6 +1,6 @@
 ## @ingroup Attributes-Solids
 
-# BiCF.py
+# B[a-z]_[a_z]F.py
 #
 # Created: Jul 2017, J. Smart
 
@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Bi-Directional Carbon Fiber Solid Class
 #-------------------------------------------------------------------------------
 
-class BiCF(Solid):
+class bidirectional_carbon_fiber(solid):
 
     """ Physical Constants of a Specific to Bi-Directional Carbon Fiber"""
 

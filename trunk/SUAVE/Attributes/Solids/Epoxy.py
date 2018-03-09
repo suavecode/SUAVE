@@ -8,14 +8,14 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
+from Solid import solid
 from SUAVE.Core import Data, Units
 
 #-------------------------------------------------------------------------------
 # Hardened Epoxy Resin Solid Class
 #-------------------------------------------------------------------------------
 
-class Epoxy(Solid):
+class epoxy(solid):
 
     """ Physical Constants Specific to Hardened Expoy Resin"""
 

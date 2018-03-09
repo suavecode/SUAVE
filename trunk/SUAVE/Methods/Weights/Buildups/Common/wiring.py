@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
+    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 import numpy as np
 
 
@@ -20,12 +20,12 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 def wiring(config,
-           xMotor,
-           P_max):
+           motor_spanwise_locations,
+           max_power_draw):
     """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
             config,
-            xMotor,
-            P_max)
+            motor_spanwise_locations,
+            max_power_draw)
 
         Calculates mass of wiring required for a wing, including DC power
         cables and communication cables, assuming power cables run an average of
@@ -45,9 +45,9 @@ def wiring(config,
 
         Inputs:
 
-            config      SUAVE Config Data Structure
-            xMotor      Motor Semi-Span Fractions       [Unitless]
-            P_max       Maximum DC Power Draw           [W]
+            config                      SUAVE Config Data Structure
+            motor_spanwise_locations    Motor Semi-Span Fractions       [Unitless]
+            max_power_draw              Maximum DC Power Draw           [W]
 
         Outputs:
 
@@ -63,12 +63,12 @@ def wiring(config,
     fHeight     = config.fuselages.fuselage.heights.maximum
     wingspan    = config.wings['main_wing'].spans.projected
 
-    nMotors = max(len(xMotor),1)    # No. of motors on each half-wing, defaults to 1
+    nMotors = max(len(motor_spanwise_locations),1)    # No. of motors on each half-wing, defaults to 1
 
 # Determine mass of Power Cables
 
-    cablePower      = P_max/nMotors      # Power draw through each cable
-    cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(xMotor) * wingspan/2)
+    cablePower      = max_power_draw/nMotors      # Power draw through each cable
+    cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(motor_spanwise_locations) * wingspan/2)
     cableDensity    = 1e-5
     massCables      = cableDensity * cablePower * cableLength
 

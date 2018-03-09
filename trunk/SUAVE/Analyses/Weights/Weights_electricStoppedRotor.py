@@ -18,7 +18,7 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electricStoppedRotor(Weights):
+class Weights_electric_stopped_rotor(Weights):
     """ SUAVE.Analyses.Weights.Weights_electricStoppedRotor()
     """
     def __defaults__(self):

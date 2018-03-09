@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    BiCF, Honeycomb, Paint, UniCF, Acrylic, Steel, Aluminum, Epoxy, Nickel, Rib)
+    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 import numpy as np
 import copy as cp
 
@@ -21,30 +21,30 @@ import copy as cp
 
 def wing(wing,
          config,
-         maxThrust,
-         numAnalysisPoints = 10,
-         safetyFactor = 1.5,
-         maxGLoad = 3.8,
-         momentToLiftRatio = 0.02,
-         liftToDragRatio = 7,
-         forwardWeb = [0.25, 0.35],
-         rearWeb = [0.65, 0.75],
-         shearCenter = 0.25,
-         marginFactor = 1.2):
+         max_thrust,
+         num_analysis_points = 10,
+         safety_factor = 1.5,
+         max_g_load = 3.8,
+         moment_to_lift_ratio = 0.02,
+         lift_to_drag_ratio = 7,
+         forward_web_locations = [0.25, 0.35],
+         rear_web_locations = [0.65, 0.75],
+         shear_center_location = 0.25,
+         margin_factor = 1.2):
     
     """weight = SUAVE.Methods.Weights.Buildups.Common.wing(
             wing,
             config,
             maxThrust,
             numAnalysisPoints,
-            safetyFactor,
-            maxGLoad,
-            momentToLiftRatio,
-            liftToDragRatio,
-            forwardWeb = [0.25, 0.35],
-            rearWeb = [0.65, 0.75],
-            shearCenter = 0.25,
-            marginFactor = 1.2)
+            safety_factor,
+            max_g_load,
+            moment_to_lift_ratio,
+            lift_to_drag_ratio,
+            forward_web_locations = [0.25, 0.35],
+            rear_web_locations = [0.65, 0.75],
+            shear_center = 0.25,
+            margin_factor = 1.2)
 
         Calculates the structural mass of a wing for an eVTOL vehicle based on
         assumption of NACA airfoil wing, an assumed L/D, cm/cl, and structural
@@ -62,22 +62,22 @@ def wing(wing,
 
         Inputs:
 
-            wing                SUAVE Wing Data Structure
-            config              SUAVE Confiug Data Structure
-            maxThrust           Maximum Thrust                      [N]
-            numAnalysisPoints   Analysis Points for Sizing          [Unitless]
-            safetyFactor        Design Saftey Factor                [Unitless]
-            maxGLoad            Maximum Accelerative Load           [Unitless]
-            momentToLiftRatio   Coeff. of Moment to Coeff. of Lift  [Unitless]
-            liftToDragRatio     Coeff. of Lift to Coeff. of Drag    [Unitess]
-            forwardWeb          Location of Forward Spar Webbing    [m]
-            rearWeb             Location of Rear Spar Webbing       [m]
-            shearCenter         Location of Shear Center            [m]
-            marginFactor        Allowable Extra Mass Fraction       [Unitless]
+            wing                    SUAVE Wing Data Structure
+            config                  SUAVE Confiug Data Structure
+            maxThrust               Maximum Thrust                      [N]
+            numAnalysisPoints       Analysis Points for Sizing          [Unitless]
+            safety_factor           Design Saftey Factor                [Unitless]
+            max_g_load              Maximum Accelerative Load           [Unitless]
+            moment_to_lift_ratio    Coeff. of Moment to Coeff. of Lift  [Unitless]
+            lift_to_drag_ratio      Coeff. of Lift to Coeff. of Drag    [Unitess]
+            forward_web_locations   Location of Forward Spar Webbing    [m]
+            rear_web_locations      Location of Rear Spar Webbing       [m]
+            shear_center            Location of Shear Center            [m]
+            margin_factor           Allowable Extra Mass Fraction       [Unitless]
 
         Outputs:
 
-            weight:             Wing Mass                           [kg]
+            weight:                 Wing Mass                           [kg]
     """
 
 #-------------------------------------------------------------------------------
@@ -95,15 +95,15 @@ def wing(wing,
     liftFraction        = wingArea/totalWingArea
     xMotor              = wing.xMotor
 
-    N       = numAnalysisPoints             # Number of spanwise points
-    SF      = safetyFactor                  # Safety Factor
-    G_max   = maxGLoad                      # Maximum G's experienced during climb
-    cmocl   = momentToLiftRatio             # Ratio of cm to cl
-    LoD     = liftToDragRatio               # L/D
-    fwdWeb  = cp.deepcopy(forwardWeb)       # Locations of forward spars
-    aftWeb  = cp.deepcopy(rearWeb)          # Locations of aft spars
-    xShear  = shearCenter                   # Approximate shear center
-    grace   = marginFactor                  # Grace factor for estimation
+    N       = num_analysis_points             # Number of spanwise points
+    SF      = safety_factor                  # Safety Factor
+    G_max   = max_g_load                      # Maximum G's experienced during climb
+    cmocl   = moment_to_lift_ratio             # Ratio of cm to cl
+    LoD     = lift_to_drag_ratio               # L/D
+    fwdWeb  = cp.deepcopy(forward_web_locations)       # Locations of forward spars
+    aftWeb  = cp.deepcopy(rear_web_locations)          # Locations of aft spars
+    xShear  = shear_center_location                   # Approximate shear center
+    grace   = margin_factor                  # Grace factor for estimation
 
     nRibs = len(xMotor) + 2
     xMotor = np.multiply(xMotor,wingspan/2)
@@ -158,7 +158,7 @@ def wing(wing,
     # iterative loop
 
     for i in range(np.size(xMotor)):
-        Vt[x<=xMotor[i]] = Vt[x<=xMotor[i]] + maxThrust
+        Vt[x<=xMotor[i]] = Vt[x<=xMotor[i]] + max_thrust
 
     Mx = np.append(np.cumsum((Vz[0:-1]*np.diff(x))[::-1])[::-1],0)  # Bending Moment
     My = np.append(np.cumsum(( T[0:-1]*np.diff(x))[::-1])[::-1],0)  # Torsion Moment
@@ -243,33 +243,33 @@ def wing(wing,
 
     # Calculate Skin Weight Based on Torsion
 
-    tTorsion = My*dx/(2*BiCF().ultimate_shear_strength*torsionArea)                                    # Torsion Skin Thickness
-    tTorsion = np.maximum(tTorsion,BiCF().minimum_gage_thickness*np.ones(N))                       # Gage Constraint
-    mTorsion = tTorsion * torsionLength * BiCF().density                           # Torsion Mass
-    mCore = Honeycomb().minimum_gage_thickness*torsionLength*Honeycomb().density*np.ones(N) # Core Mass
-    mGlue = Epoxy().minimum_gage_thickness*Epoxy().density*torsionLength*np.ones(N)         # Epoxy Mass
+    tTorsion = My*dx/(2*bidirectional_carbon_fiber().ultimate_shear_strength*torsionArea)                                    # Torsion Skin Thickness
+    tTorsion = np.maximum(tTorsion,bidirectional_carbon_fiber().minimum_gage_thickness*np.ones(N))                       # Gage Constraint
+    mTorsion = tTorsion * torsionLength * bidirectional_carbon_fiber().density                           # Torsion Mass
+    mCore = honeycomb().minimum_gage_thickness*torsionLength*honeycomb().density*np.ones(N) # Core Mass
+    mGlue = epoxy().minimum_gage_thickness*epoxy().density*torsionLength*np.ones(N)         # Epoxy Mass
 
     # Calculate Flap Mass Based on Bending
 
-    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF().ultimate_tensile_strength)                       # Bending Flap Thickness
-    mFlap = tFlap*flapLength*UniCF().density                                       # Bending Flap Mass
-    mGlue += Epoxy().minimum_gage_thickness*Epoxy().density*flapLength*np.ones(N)           # Updated Epoxy Mass
+    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*unidirectional_carbon_fiber().ultimate_tensile_strength)                       # Bending Flap Thickness
+    mFlap = tFlap*flapLength*unidirectional_carbon_fiber().density                                       # Bending Flap Mass
+    mGlue += epoxy().minimum_gage_thickness*epoxy().density*flapLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Drag Flap Mass
 
-    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF().ultimate_tensile_strength)                       # Drag Flap Thickness
-    mDrag = tDrag*dragLength*UniCF().density                                       # Drag Flap Mass
-    mGlue += Epoxy().minimum_gage_thickness*Epoxy().density*dragLength*np.ones(N)           # Updated Epoxy Mass
+    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*unidirectional_carbon_fiber().ultimate_tensile_strength)                       # Drag Flap Thickness
+    mDrag = tDrag*dragLength*unidirectional_carbon_fiber().density                                       # Drag Flap Mass
+    mGlue += epoxy().minimum_gage_thickness*epoxy().density*dragLength*np.ones(N)           # Updated Epoxy Mass
 
     # Calculate Shear Spar Mass
 
-    tShear = 1.5*Vz/(BiCF().ultimate_shear_strength*h)                                                 # Shear Spar Thickness
-    tShear = np.maximum(tShear, BiCF().minimum_gage_thickness*np.ones(N))                          # Gage constraint
-    mShear = tShear*h*BiCF().density                                               # Shear Spar Mass
+    tShear = 1.5*Vz/(bidirectional_carbon_fiber().ultimate_shear_strength*h)                                                 # Shear Spar Thickness
+    tShear = np.maximum(tShear, bidirectional_carbon_fiber().minimum_gage_thickness*np.ones(N))                          # Gage constraint
+    mShear = tShear*h*bidirectional_carbon_fiber().density                                               # Shear Spar Mass
 
     # Paint
 
-    mPaint = skinLength*Paint().minimum_gage_thickness*Paint().density*np.ones(N)           # Paint Mass
+    mPaint = skinLength*paint().minimum_gage_thickness*paint().density*np.ones(N)           # Paint Mass
 
     # Section Mass Total
 
@@ -277,7 +277,7 @@ def wing(wing,
 
     # Rib Mass
 
-    mRib = (A+skinLength*Rib().minimum_width)*Rib().minimum_gage_thickness*Aluminum().density
+    mRib = (A+skinLength*rib().minimum_width)*rib().minimum_gage_thickness*aluminum().density
 
     # Total Mass
 
