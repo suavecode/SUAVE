@@ -96,8 +96,7 @@ class de_Laval_Nozzle(Energy_Component):
                 
         Properties Used:
         self.
-          pressure_ratio_converge             [-]
-          pressure_ratio_diverge              [-]
+          pressure_ratio                      [-]
           polytropic_efficiency               [-]
           area_throat                         [m^2]
           expansion_ratio                     [-]
@@ -112,8 +111,7 @@ class de_Laval_Nozzle(Energy_Component):
         R              = self.inputs.gas_specific_constant     
         
         # unpack from self
-        pi_converge     = self.pressure_ratio_converge
-        pi_diverge      = self.pressure_ratio_diverge
+        pi              = self.pressure_ratio
         etapold         = self.polytropic_efficiency
         expansion_ratio = self.expansion_ratio
         area_throat     = self.area_throat 
@@ -123,8 +121,8 @@ class de_Laval_Nozzle(Energy_Component):
         
         #--Converging Nozzle --
         # getting stagnation quantities at throat
-        Pt_throat   = Pt_combustion*pi_converge
-        Tt_throat   = Tt_combustion*pi_converge**((gamma-1.)/(gamma)*etapold)        
+        Pt_throat   = Pt_combustion*pi
+        Tt_throat   = Tt_combustion*pi**((gamma-1.)/(gamma)*etapold)        
         
         # getting static quantities at throat
         T_throat   = Tt_throat/(1.+(gamma-1.)/2.)
@@ -134,16 +132,17 @@ class de_Laval_Nozzle(Energy_Component):
         
         #--Diverging Nozzle--
         # getting stagnation quantities at exit
-        Pt_out   = Pt_throat*pi_diverge
-        Tt_out   = Tt_throat*pi_diverge**((gamma-1.)/(gamma)*etapold) 
+        Pt_out   = Pt_throat*pi
+        Tt_out   = Tt_throat*pi**((gamma-1.)/(gamma)*etapold) 
         
         # calculation exit mach number
         Me       = fm_solver(expansion_ratio,1.0, gamma)
         
-        # computing the output temperature,enthalpy, and velocity
+        # computing the output temperature, pressure, density, and velocity
         T_out    = Tt_out/(1.+(gamma-1.)/2.*Me*Me)
         P_out    = Pt_out/((1.+(gamma-1.)/2.*Me*Me)**(gamma/(gamma-1.)))
         U_out    = Me*np.sqrt(gamma*R*T_out)
+        rho_out  = P_out/(R*T_out)
         
         #--pack computed quantities into outputs--
         self.outputs.stagnation_temperature      = Tt_out
@@ -156,5 +155,6 @@ class de_Laval_Nozzle(Energy_Component):
         self.outputs.exhaust_velocity            = U_out 
         self.outputs.area_throat                 = area_throat
         self.outputs.isentropic_expansion_factor = gamma
+        self.outputs.density                     = rho_out
         
     __call__ = compute

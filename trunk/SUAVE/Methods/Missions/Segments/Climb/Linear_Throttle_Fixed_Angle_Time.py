@@ -41,33 +41,21 @@ def initialize_conditions(segment,state):
     """
     
     # Unpack
-    climb_angle = segment.climb_angle
-    air_speed   = segment.air_speed
-    alt0        = segment.altitude_start
     flight_time = segment.flight_time
     throttle0   = segment.throttle_start
-    throttlef   = segment.throttle_end
-    cntrl_pts   = state.numerics.dimensionless.control_points
-    conditions  = state.conditions
-    
-    # Discretize on time
-    time        = cntrl_pts*flight_time
-     
+    throttlef   = segment.throttle_end  
+    t_initial   = state.conditions.frames.inertial.time[0,0]
+    t_nondim    = state.numerics.dimensionless.control_points
+        
+    # Setting up time
+    time       = t_nondim*flight_time+t_initial     
+         
     # Set the throttle
-    throttle    = cntrl_pts*(throttlef-throttle0)+throttle0
-    
-    # Process velocity vector
-    v_mag = air_speed
-    v_x   = v_mag * np.cos(climb_angle)
-    v_z   = -v_mag * np.sin(climb_angle)
-    
+    throttle    = t_nondim*(throttlef-throttle0)+throttle0
+
     # Pack conditions
-    conditions.frames.inertial.velocity_vector[:,0] = v_x
-    conditions.frames.inertial.velocity_vector[:,2] = v_z
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context
-    conditions.freestream.time[:,0]                 =  time[:,0]
-    state.conditions.propulsion.throttle[:,0]       = throttle[:,0]
+    conditions.frames.inertial.time[:,0]      = time[:,0]
+    state.conditions.propulsion.throttle[:,0] = throttle[:,0]
     
        
 # ----------------------------------------------------------------------
@@ -86,26 +74,48 @@ def unpack_unknowns(segment,state):
     Inputs:
     state.unknowns.body_angle          [Rads]
     state.unknowns.velocity            [m/s]
-
+    segment.flight_path_angle          [Rads]
 
     Outputs:
-    state.conditions.propulsion.throttle            [-]
-    state.conditions.frames.body.inertial_rotations [Rads]
+    conditions.frames.inertial.velocity_vector  [m/s]
+    conditions.frames.body.inertial_rotations   [Rads]
+    conditions.freestream.altitude              [m]
+    conditions.frames.inertial.position_vector  [m]
 
+    
     Properties Used:
     N/A
     """        
     
+    # Unpack
+    gamma   = segment.flight_path_angle
+    speed0  = segment.air_speed_start
+    alt0    = segment.altitude_start
+    I       = state.numerics.time.integrate
+    
     # Unpack unknowns
-    theta    = self.state.unknowns.body_angle 
-    velocity = self.state.unknowns.velocity
+    theta   = state.unknowns.body_angle 
+    speed   = state.unknowns.air_speed
+    
+    # check for initial altitude
+    if alt0 is None:
+        if not state.initials: raise AttributeError('altitude not set')
+        alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]    
+    
+    # Set initial speed
+    speed[0] = speed0
        
-
-    # integrate velocities to get altitudes
+    # Find Velocity Vector
+    vx     = speed*np.cos(gamma)
+    vz     = speed*np.sin(gamma)
     
-    #
-    
-    # apply unknowns
+    # Integrate velocities to get altitudes
+    alt = alt0 + np.dot(I,vz)
+        
+    # Apply unknowns
     state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]      
-    state.conditions.frames.inertial.velocity_vector[:,:] = velocity
+    conditions.frames.inertial.position_vector[:,2]       = -alt[:,0] # z points down
+    conditions.freestream.altitude[:,0]                   = alt[:,0] # positive altitude in this context    
+    conditions.frames.inertial.velocity_vector[:,0]       = vx
+    conditions.frames.inertial.velocity_vector[:,2]       = vz
     

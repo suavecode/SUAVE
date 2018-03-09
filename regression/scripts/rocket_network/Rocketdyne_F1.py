@@ -135,7 +135,8 @@ def energy_network():
     # setup
     nozzle.polytropic_efficiency = 1.0
     nozzle.expansion_ratio       = liquid_rocket.expansion_ratio
-    nozzle.area_throat           = liquid_rocket.area_throat 
+    nozzle.area_throat           = liquid_rocket.area_throat
+    nozzle.pressure_ratio        = 0.99
     
     
     # add to network

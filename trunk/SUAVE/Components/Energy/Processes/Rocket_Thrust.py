@@ -118,10 +118,8 @@ class Rocket_Thrust(Energy_Component):
         exhaust_velocity = self.inputs.exhaust_velocity
         num_eng          = self.inputs.number_of_engines 
         gamma            = self.inputs.isentropic_expansion_factor
-        
-        # unpacking from self
-        mdot_ideal       = self.mass_flow_rate
-       
+        rho              = self.inputs.density
+              
         #--Computing the thrust coefficient and effective exhaust velocity--
         gmm = gamma*Me*Me
         C  = exhaust_velocity*(1.+1./(gmm)*(1.-p0/pe))
@@ -130,7 +128,8 @@ class Rocket_Thrust(Energy_Component):
         Isp           = C/g0        
         
         #--Computing the propellant/exhaust mass rate
-        mdot          = mdot_ideal*num_eng*throttle
+        Ae            = area_throat*expansion_ratio
+        mdot          = rho*exhaust_velocity*Ae
         
         #--Computing Dimensional Thrust
         thrust        = mdot*C

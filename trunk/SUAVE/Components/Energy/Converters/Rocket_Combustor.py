@@ -55,8 +55,8 @@ class Rocket_Combustor(Energy_Component):
         # setting the default values for the different components
         self.propellant_data                    = SUAVE.Attributes.Propellants.LOX_RP1()
         self.propellant_data                    = Data()
-        self.area_throat                        = 1.0
         self.inputs.combustion_pressure         = 1.0
+        self.inputs.throttle                    = 1.0
         self.efficiency                         = 1.0
     
     def compute(self,conditions):
@@ -91,6 +91,8 @@ class Rocket_Combustor(Energy_Component):
                 
         # unpacking the values form inputs
         Pc     = self.inputs.combustion_pressure
+        thr    = conditions.propulsion.throttle 
+        
                 
         # unpacking values from self
         gamma = self.propellant_data.isentropic_expansion_factor
