@@ -25,7 +25,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     processors (optional)        [-]       The number of processors used for a parallel computation.
 
     Outputs:
-    <tag>._forces_breakdown.dat  This file has standard SU2 run information.
+    <tag>_history.dat  This file has the SU2 convergence history.
     CL                           [-]
     CD                           [-]
 
@@ -41,7 +41,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     else:
         subprocess.call(['SU2_CFD',tag+'.cfg'])
         
-    f = open('history.dat')
+    f = open(tag + '_history.dat')
         
     SU2_results = Data()    
     
