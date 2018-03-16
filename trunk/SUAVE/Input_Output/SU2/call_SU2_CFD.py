@@ -25,7 +25,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     processors (optional)        [-]       The number of processors used for a parallel computation.
 
     Outputs:
-    <tag>_history.dat  This file has the SU2 convergence history.
+    <tag>_history.dat            This file has the SU2 convergence history.
     CL                           [-]
     CD                           [-]
 
