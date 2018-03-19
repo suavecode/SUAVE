@@ -136,7 +136,7 @@ def energy_network():
     nozzle.polytropic_efficiency = 1.0
     nozzle.expansion_ratio       = liquid_rocket.expansion_ratio
     nozzle.area_throat           = liquid_rocket.area_throat
-    nozzle.pressure_ratio        = 0.99
+    nozzle.pressure_ratio        = 1.0
     
     
     # add to network
@@ -176,23 +176,23 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust_SL = 6816185.95743366
-    expected.mdot_SL   = 2624.00049612
-    expected.Isp_SL    = 264.79422553
+    expected.thrust_SL = 7554319.11082433
+    expected.mdot_SL   = 2607.71793795
+    expected.Isp_SL    = 295.3015351
     
-    expected.thrust_Vac = 7852533.92180651
-    expected.mdot_Vac   = 2624.00049612
-    expected.Isp_Vac    = 305.05412429  
+    expected.thrust_Vac = 8644089.75082433
+    expected.mdot_Vac   = 2607.71793795
+    expected.Isp_Vac    = 337.90113119  
     
     #error data function
     error =  Data()
     
     error.thrust_error_SL = (F_SeaLevel[0][0] -  expected.thrust_SL)/expected.thrust_SL
-    error.mdot_error_SL   = (mdot_SeaLevel[0][0] - expected.mdot_SL)/expected.mdot_SL
+    error.mdot_error_SL   = (mdot_SeaLevel[0] - expected.mdot_SL)/expected.mdot_SL
     error.Isp_error_SL    = (Isp_SeaLevel[0][0]- expected.Isp_SL)/expected.Isp_SL
     
     error.thrust_error_Vac = (F_Vacuum[0][0] -  expected.thrust_Vac)/expected.thrust_Vac
-    error.mdot_error_Vac   = (mdot_Vacuum[0][0] - expected.mdot_Vac)/expected.mdot_Vac
+    error.mdot_error_Vac   = (mdot_Vacuum[0] - expected.mdot_Vac)/expected.mdot_Vac
     error.Isp_error_Vac    = (Isp_Vacuum[0][0]- expected.Isp_Vac)/expected.Isp_Vac
     
     print error

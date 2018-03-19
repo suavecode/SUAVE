@@ -107,9 +107,9 @@ def energy_network():
     
     # setup
     liquid_rocket.number_of_engines = 1.0
-    liquid_rocket.area_throat       = 0.10993526
+    liquid_rocket.area_throat       = 0.1092
     liquid_rocket.contraction_ratio = 1.5946
-    liquid_rocket.expansion_ratio   = 27.1
+    liquid_rocket.expansion_ratio   = 27.5
     
     # ------------------------------------------------------------------
     #   Component 1 - Combustor
@@ -120,7 +120,7 @@ def energy_network():
     
     # setup  
     combustor.propellant_data                = SUAVE.Attributes.Propellants.LOX_LH2()
-    combustor.inputs.combustion_pressure     = 3000000.0 
+    combustor.inputs.combustion_pressure     = 5261000.0 
     
     # add to network
     liquid_rocket.append(combustor)
@@ -135,7 +135,9 @@ def energy_network():
     # setup
     nozzle.polytropic_efficiency = 1.0
     nozzle.expansion_ratio       = liquid_rocket.expansion_ratio
-    nozzle.area_throat           = liquid_rocket.area_throat 
+    nozzle.area_throat           = liquid_rocket.area_throat
+    nozzle.pressure_ratio        = 1.0
+    
     
     
     # add to network
@@ -175,23 +177,23 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust_SL  = 505930.243348
-    expected.mdot_SL    = 247.80835882
-    expected.Isp_SL     = 208.11610175
+    expected.thrust_SL  = 791394.48884906
+    expected.mdot_SL    = 247.51206994
+    expected.Isp_SL     = 325.93247313
     
-    expected.thrust_Vac = 1020937.07662764
-    expected.mdot_Vac   = 247.80835882
-    expected.Isp_Vac    = 419.96588919   
+    expected.thrust_Vac = 1095673.46384906
+    expected.mdot_Vac   = 247.51206994
+    expected.Isp_Vac    = 451.24848207   
     
     #error data function
     error =  Data()
     
     error.thrust_error_SL = (F_SeaLevel[0][0] -  expected.thrust_SL)/expected.thrust_SL
-    error.mdot_error_SL   = (mdot_SeaLevel[0][0] - expected.mdot_SL)/expected.mdot_SL
+    error.mdot_error_SL   = (mdot_SeaLevel[0] - expected.mdot_SL)/expected.mdot_SL
     error.Isp_error_SL    = (Isp_SeaLevel[0][0]- expected.Isp_SL)/expected.Isp_SL
     
     error.thrust_error_Vac = (F_Vacuum[0][0] -  expected.thrust_Vac)/expected.thrust_Vac
-    error.mdot_error_Vac   = (mdot_Vacuum[0][0] - expected.mdot_Vac)/expected.mdot_Vac
+    error.mdot_error_Vac   = (mdot_Vacuum[0] - expected.mdot_Vac)/expected.mdot_Vac
     error.Isp_error_Vac    = (Isp_Vacuum[0][0]- expected.Isp_Vac)/expected.Isp_Vac
     
     print error

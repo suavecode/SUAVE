@@ -107,7 +107,6 @@ class Rocket_Thrust(Energy_Component):
         # unpacking from conditions
         p0               = conditions.freestream.pressure  
         g0               = conditions.freestream.gravity
-        throttle         = conditions.propulsion.throttle
         
         # unpacking from inputs
         Pt_combustion    = self.inputs.combustion_pressure

@@ -83,7 +83,7 @@ class Linear_Throttle_Fixed_Angle_Time(Aerodynamic):
         initialize                         = self.process.initialize
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Climb.Linear_Throttle_Fixed_Time_Angle.initialize_conditions
+        initialize.conditions              = Methods.Climb.Linear_Throttle_Fixed_Angle_Time.initialize_conditions
         initialize.differentials.time      = Methods.Common.Numerics.update_differentials_time 
         
         # --------------------------------------------------------------
@@ -106,7 +106,7 @@ class Linear_Throttle_Fixed_Angle_Time(Aerodynamic):
         
         # Unpack Unknowns
         iterate.unknowns                   = Process()
-        iterate.unknowns.mission           = Methods.Climb.Linear_Throttle_Fixed_Time_Angle.unpack_unknowns
+        iterate.unknowns.mission           = Methods.Climb.Linear_Throttle_Fixed_Angle_Time.unpack_unknowns
         
         # Update Conditions
         iterate.conditions                 = Process()

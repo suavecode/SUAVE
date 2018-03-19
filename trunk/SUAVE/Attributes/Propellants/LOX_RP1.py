@@ -43,7 +43,7 @@ class LOX_RP1(Propellant):
         None
         """    
         self.tag                         = 'LOX_RP1'
-        self.molecular_weight            = 23.45
-        self.isentropic_expansion_factor = 1.26
-        self.combustion_temperature      = 3572
+        self.molecular_weight            = 22.193
+        self.isentropic_expansion_factor = 1.1505
+        self.combustion_temperature      = 3545.69
         self.gas_specific_constant       = 8314.45986/self.molecular_weight
