@@ -510,7 +510,7 @@ class AVL(Stability):
         # translate conditions
         cases                            = translate_conditions_to_cases(self,run_conditions)    
         for case in cases:
-            cases[case].stability_and_control.num_crtl_surf = num_cs
+            cases[case].stability_and_control.number_control_surfaces = num_cs
         self.current_status.cases        = cases 
         
 

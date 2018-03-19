@@ -36,7 +36,7 @@ def read_results(avl_object):
     #i = 0 Used in the dynamic stability module (under development)
     for case_name in avl_object.current_status.cases:
         case = avl_object.current_status.cases[case_name]
-        num_ctrl =  case.stability_and_control.num_crtl_surf
+        num_ctrl =  case.stability_and_control.number_control_surfaces
         with open(case.result_filename,'r') as res_file:
             
             case_res = Data()  
