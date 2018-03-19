@@ -319,30 +319,34 @@ def populate_wing_sections(avl_wing,suave_wing):
                 semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
                 avl_wing.semispan     = semispan
                 origin                = suave_wing.origin
-
+               
+                # define root section 
                 root_section          = Section()
                 root_section.tag      = 'root_section'
                 root_section.origin   = origin
                 root_section.chord    = suave_wing.chords.root
                 root_section.twist    = suave_wing.twists.root
                 root_section.semispan  = semispan
-                if suave_wing.Airfoil:
-                        root_section.airfoil_coord_file   = suave_wing.Airfoil.airfoil.coordinate_file          
-                        
+                 
+                # define tip section
                 tip_section           = Section()
                 tip_section.tag       = 'tip_section'
                 tip_section.chord     = suave_wing.chords.tip
                 tip_section.twist     = suave_wing.twists.tip
                 tip_section.semispan  = 0
-                tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
-                if suave_wing.Airfoil:
-                        tip_section.airfoil_coord_file   = suave_wing.Airfoil.airfoil.coordinate_file    
-                        
+             
+                # assign location of wing tip         
                 if avl_wing.vertical:
-                        temp                  = tip_section.origin[2]
-                        tip_section.origin[2] = tip_section.origin[1]
-                        tip_section.origin[1] = temp
-
+                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[1]+semispan]
+                else: 
+                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
+                
+                # assign wing airfoil
+                if suave_wing.Airfoil:
+                        root_section.airfoil_coord_file  = suave_wing.Airfoil.airfoil.coordinate_file          
+                        tip_section.airfoil_coord_file   = suave_wing.Airfoil.airfoil.coordinate_file    
+                          
+                
                 avl_wing.append_section(root_section)
                 avl_wing.append_section(tip_section)
 
