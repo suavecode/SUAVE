@@ -39,7 +39,7 @@ def initialize_differentials_dimensionless(segment,state):
     
     
     # unpack
-    numerics = state.numerics
+    numerics              = state.numerics
     N                     = numerics.number_control_points
     discretization_method = numerics.discretization_method
     

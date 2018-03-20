@@ -69,8 +69,8 @@ class Linear_Throttle_Fixed_Angle_Time(Aerodynamic):
         
         # Initials and unknowns
         ones_row                       = self.state.ones_row
-        self.state.unknowns.body_angle = ones_row(1) * 1.0 * Units.degrees
-        self.state.unknowns.air_speed  = ones_row(1) * 1.0 * Units.m / Units.s
+        self.state.unknowns.body_angle = ones_row(1) * -1.0 * Units.degrees
+        self.state.unknowns.air_speed  = ones_row(1) * 100.0 * Units.m / Units.s
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         # --------------------------------------------------------------
@@ -84,7 +84,7 @@ class Linear_Throttle_Fixed_Angle_Time(Aerodynamic):
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = Methods.Climb.Linear_Throttle_Fixed_Angle_Time.initialize_conditions
-        initialize.differentials.time      = Methods.Common.Numerics.update_differentials_time 
+        initialize.differentials_time      = Methods.Common.Numerics.update_differentials_time 
         
         # --------------------------------------------------------------
         #   Converge - starts iteration

@@ -56,7 +56,7 @@ def initialize_conditions(segment,state):
 
     # Pack conditions
     conditions.frames.inertial.time[:,0]      = time[:,0]
-    state.conditions.propulsion.throttle[:,0] = throttle[:,0]
+    conditions.propulsion.throttle[:,0]       = throttle[:,0]
     
        
 # ----------------------------------------------------------------------
@@ -92,7 +92,7 @@ def unpack_unknowns(segment,state):
     gamma   = segment.flight_path_angle
     speed0  = segment.air_speed_start
     alt0    = segment.altitude_start
-    I       = state.numerics.dimensionless.integrate
+    I       = state.numerics.time.integrate
     
     # Unpack unknowns
     theta   = state.unknowns.body_angle 
@@ -114,7 +114,7 @@ def unpack_unknowns(segment,state):
     alt = alt0 + np.dot(I,vz)
         
     # Apply unknowns
-    state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]      
+    state.conditions.frames.body.inertial_rotations[:,1]        = theta[:,0]      
     state.conditions.frames.inertial.position_vector[:,2]       = -alt[:,0] # z points down
     state.conditions.freestream.altitude[:,0]                   = alt[:,0] # positive altitude in this context    
     state.conditions.frames.inertial.velocity_vector[:,0]       = vx[:,0]

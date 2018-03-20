@@ -611,12 +611,13 @@ def mission_setup(analyses):
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment = Segments.Climb.Linear_Throttle_Fixed_Angle_Time(base_segment)
+    segment.analyses.extend(analyses.takeoff)
     segment.tag = "climb_1"
     segment.altitude_start  = 0.0   * Units.km
-    segment.flight_time     = 20.0  * Units.seconds
-    segment.air_speed_start = 0.0   * Units['m/s']
-    segment.throttle_start  = 36.0  
-    segment.throttle_end    = 40.0  
+    segment.flight_time     = 1.0  * Units.seconds
+    segment.air_speed_start = 100.0   * Units['m/s']
+    segment.throttle_start  = 4.0  
+    segment.throttle_end    = 4.0  
 
     # add to misison
     mission.append_segment(segment)
@@ -662,8 +663,8 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Throttle',axis_font)
         axes.grid(True)	
-        plt.savefig("B737_engine.pdf")
-        plt.savefig("B737_engine.png")
+        #plt.savefig("B737_engine.pdf")
+        #plt.savefig("B737_engine.png")
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -688,8 +689,8 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
-        plt.savefig("B737_aero.pdf")
-        plt.savefig("B737_aero.png")
+        #plt.savefig("B737_aero.pdf")
+        #plt.savefig("B737_aero.png")
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -725,8 +726,8 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
-    plt.savefig("B737_drag.pdf")
-    plt.savefig("B737_drag.png")
+    #plt.savefig("B737_drag.pdf")
+    #plt.savefig("B737_drag.png")
 
     # ------------------------------------------------------------------
     #   Altitude, sfc, vehicle weight
@@ -754,8 +755,8 @@ def plot_mission(results,line_style='bo-'):
         axes.set_ylabel('Weight (lb)',axis_font)
         axes.grid(True)
 
-        plt.savefig("B737_mission.pdf")
-        plt.savefig("B737_mission.png")
+        #plt.savefig("B737_mission.pdf")
+        #plt.savefig("B737_mission.png")
 
     # ------------------------------------------------------------------
     #   Velocities
