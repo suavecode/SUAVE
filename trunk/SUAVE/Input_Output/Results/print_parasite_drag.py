@@ -93,10 +93,10 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     T   = atmo_data.temperature
     rho = atmo_data.density
     a   = atmo_data.speed_of_sound
-    mew = atmo_data.dynamic_viscosity
+    mu = atmo_data.dynamic_viscosity
     
     # Find the dimensional RE, ie. Reynolds number/length
-    re = rho*Mc*a/mew
+    re = rho*Mc*a/mu
 
     # Define variables needed in the aerodynamic method
     state = Data()
@@ -104,7 +104,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     state.conditions.freestream = Data()
     state.conditions.freestream.mach_number       = np.atleast_1d(Mc)
     state.conditions.freestream.density           = np.atleast_1d(rho)
-    state.conditions.freestream.dynamic_viscosity = np.atleast_1d(mew)
+    state.conditions.freestream.dynamic_viscosity = np.atleast_1d(mu)
     state.conditions.freestream.reynolds_number   = np.atleast_1d(re)
     state.conditions.freestream.temperature       = np.atleast_1d(T)
     state.conditions.freestream.pressure          = np.atleast_1d(p)
@@ -133,7 +133,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
     # reynolds number
     
-    Re_w = rho * Mc * a * mean_aerodynamic_chord/mew
+    Re_w = rho * Mc * a * mean_aerodynamic_chord/mu
 
     fid = open(filename,'w')   # Open output file
     fid.write('Output file with parasite drag breakdown\n\n') #Start output printing    
@@ -222,7 +222,7 @@ def solve_altitude(alt,alt_conditions):
     T   = atmo_data.temperature
     rho = atmo_data.density
     a   = atmo_data.speed_of_sound
-    mew = atmo_data.dynamic_viscosity
+    mu  = atmo_data.dynamic_viscosity
 
     # conditions
     Mc  = alt_conditions.Mc
@@ -230,7 +230,7 @@ def solve_altitude(alt,alt_conditions):
     Rey_ref = alt_conditions.Rey
 
     # reynolds number
-    Rey = float( rho * Mc * a * (mac)/mew )
+    Rey = float( rho * Mc * a * (mac)/mu )
 
     # residual
     r = Rey - Rey_ref

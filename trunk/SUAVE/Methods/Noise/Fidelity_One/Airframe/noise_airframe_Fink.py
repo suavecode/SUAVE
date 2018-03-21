@@ -222,7 +222,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
  
          #Total Airframe Noise
         SPL_total = 10.*np.log10(10.0**(0.1*SPL_wing)+10.0**(0.1*SPLht)+10**(0.1*SPL_flap)+ \
-             10.0**(0.1*SPL_slat)+10.0**(0.1*SPL_main_landing_gear)+10.0**(0.1*SPL_nose_landing_gear)) - delta_atmo
+             10.0**(0.1*SPL_slat)+10.0**(0.1*SPL_main_landing_gear)+10.0**(0.1*SPL_nose_landing_gear))
             
         SPL_total_history[i][:] = SPL_total[:]
         SPL_wing_history[i][:]  = SPL_wing[:]
