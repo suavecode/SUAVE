@@ -39,15 +39,36 @@ def write_vsp_fea(geometry,tag):
     wing_id = vsp.FindContainersWithName('main_wing')[0]
     
     wing_fea_id = vsp.AddFeaStruct(wing_id)
-    
     spar_id = vsp.AddFeaPart(wing_id,wing_fea_id,vsp.FEA_SPAR)
     spar_limit_parm = vsp.FindParm(spar_id,'LimitSparToSectionFlag','FeaSpar')
     spar_start_parm = vsp.FindParm(spar_id,'StartWingSection','FeaSpar')
-    spar_end_parm = vsp.FindParm(spar_id,'StartWingSection','FeaSpar')
+    spar_end_parm = vsp.FindParm(spar_id,'EndWingSection','FeaSpar')
     vsp.SetParmVal(spar_limit_parm,1.0)
-    vsp.SetParmVal(spar_start_parm,1)
+    vsp.SetParmVal(spar_start_parm,2)
     vsp.SetParmVal(spar_end_parm,2)
-    vsp.GetParmVal(spar_limit_parm)
+    
+    print vsp.SetParmVal(spar_start_parm,2)
+    print vsp.SetParmVal(spar_end_parm,2)
+    
+    
+    
+    
+    
+    #spar_locs = np.array([0.2])
+    #num_segs = 3
+    
+    #for spar_loc in spar_locs:
+        #for i in range(num_segs):
+            #spar_id = vsp.AddFeaPart(wing_id,wing_fea_id,vsp.FEA_SPAR)
+            #spar_limit_parm = vsp.FindParm(spar_id,'LimitSparToSectionFlag','FeaSpar')
+            #spar_start_parm = vsp.FindParm(spar_id,'StartWingSection','FeaSpar')
+            #spar_end_parm = vsp.FindParm(spar_id,'EndWingSection','FeaSpar')
+            #vsp.SetParmVal(spar_limit_parm,1.0)
+            #vsp.SetParmVal(spar_start_parm,i+1)
+            #vsp.SetParmVal(spar_end_parm,i+1)
+            
+            #print vsp.SetParmVal(spar_start_parm,i+1)
+            #print vsp.SetParmVal(spar_end_parm,i+1)
     
     vsp.WriteVSPFile(tag + "_fea_test_write.vsp3")
     
