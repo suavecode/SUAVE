@@ -614,10 +614,10 @@ def mission_setup(analyses):
     segment.analyses.extend(analyses.takeoff)
     segment.tag = "climb_1"
     segment.altitude_start  = 0.0   * Units.km
-    segment.flight_time     = 1.0  * Units.seconds
-    segment.air_speed_start = 100.0   * Units['m/s']
-    segment.throttle_start  = 4.0  
-    segment.throttle_end    = 4.0  
+    segment.flight_time     = 2.0  * Units.seconds
+    segment.air_speed_start = 1.0   * Units['m/s']
+    segment.throttle_start  = 10.0  
+    segment.throttle_end    = 10.0  
 
     # add to misison
     mission.append_segment(segment)
