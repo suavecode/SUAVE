@@ -36,36 +36,35 @@ def write_vsp_fea(geometry,tag):
     vsp.ReadVSPFile(tag + '.vsp3')
     vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
     
-    wing_id = vsp.FindContainersWithName('main_wing')[0]
+    wing_tag = 'main_wing'
+    
+    wing_tags = [wing_tag]
+    
+    for wt in wing_tags:
+        write_wing(geometry,wt)
+    
+    vsp.WriteVSPFile(tag + "_fea_test_write.vsp3")
+    
+    pass
+
+def write_wing(geometry,wing_tag):
+    
+    wing_id = vsp.FindContainersWithName(wing_tag)[0]
     
     wing_fea_id = vsp.AddFeaStruct(wing_id)
-    #spar_id = vsp.AddFeaPart(wing_id,wing_fea_id,vsp.FEA_SPAR)
-    #spar_limit_parm = vsp.FindParm(spar_id,'LimitSparToSectionFlag','FeaSpar')
-    #spar_start_parm = vsp.FindParm(spar_id,'StartWingSection','FeaSpar')
-    #spar_end_parm = vsp.FindParm(spar_id,'EndWingSection','FeaSpar')
-    #vsp.SetParmVal(spar_limit_parm,1.0)
-    #vsp.SetParmVal(spar_end_parm,2)
-    #vsp.Update()
-    #vsp.SetParmVal(spar_start_parm,2)
     
-    #print vsp.SetParmVal(spar_end_parm,2)
-    #vsp.Update()
-    #print vsp.SetParmVal(spar_start_parm,2)
-    
-    
-    
-    rib_locs = range(2,30,2)
+    rib_locs = geometry.wings[wing_tag].structure.ribs.locations
     
     for rib_loc in rib_locs:
         rib_id = vsp.AddFeaPart(wing_id,wing_fea_id,vsp.FEA_RIB)
         rib_pos_type_flag = vsp.FindParm(rib_id,'AbsRelParmFlag','FeaPart')
         rib_loc_parm      = vsp.FindParm(rib_id,'AbsCenterLocation','FeaPart')
-        vsp.SetParmVal(rib_pos_type_flag,0.0)
+        vsp.SetParmVal(rib_pos_type_flag,0.0) # make rib position absolute
         vsp.SetParmVal(rib_loc_parm,float(rib_loc))        
     
     
-    spar_locs = np.array([0.2,0.65])
-    num_segs = 3
+    spar_locs = geometry.wings[wing_tag].structure.spars.locations
+    num_segs = len(geometry.wings[wing_tag].Segments)-1
     
     for spar_loc in spar_locs:
         for i in range(num_segs):
@@ -75,17 +74,10 @@ def write_vsp_fea(geometry,tag):
             spar_end_parm   = vsp.FindParm(spar_id,'EndWingSection','FeaSpar')
             pos_parm        = vsp.FindParm(spar_id,'RelCenterLocation','FeaPart')
             vsp.SetParmVal(pos_parm,spar_loc)
-            vsp.SetParmVal(spar_limit_parm,1.0)
+            vsp.SetParmVal(spar_limit_parm,1.0) # set spars to be limited to specified sections
             vsp.SetParmVal(spar_end_parm,i+1)
             vsp.Update()
-            vsp.SetParmVal(spar_start_parm,i+1)
-            
-            #print vsp.SetParmVal(spar_start_parm,i+1)
-            #print vsp.SetParmVal(spar_end_parm,i+1)
-    
-    vsp.WriteVSPFile(tag + "_fea_test_write.vsp3")
-    
-    pass
+            vsp.SetParmVal(spar_start_parm,i+1)    
     
 if __name__ == '__main__':
     tag = '/home/tim/Documents/SST_Design/Wing_Weights_Testing/Wing_Creation/SUAVE_CRM'
