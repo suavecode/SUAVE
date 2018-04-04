@@ -27,5 +27,5 @@ class nickel(solid):
         self.yield_tensile_strength           = 1550e6   *Units.Pa
         self.yield_shear_strength             = 1050e6   *Units.Pa
         self.yield_bearing_strength           = 1550e6   *Units.Pa
-        self.minimum_gage_thickness           = 0        *Units.m
-        self.density                          = 8430     *(Units.kg)/((Units.m)**3)
+        self.minimum_gage_thickness           = 0.0        *Units.m
+        self.density                          = 8430.     *(Units.kg)/((Units.m)**3)

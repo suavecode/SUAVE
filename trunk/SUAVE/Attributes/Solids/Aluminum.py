@@ -27,4 +27,4 @@ class aluminum(solid):
         self.yield_shear_strength             = 206e6    *Units.Pa
         self.yield_bearing_strength           = 386e6    *Units.Pa
         self.minimum_gage_thickness           = 0.0      *Units.m
-        self.density                          = 2700     *(Units.kg)/((Units.m)**3)
+        self.density                          = 2700.     *(Units.kg)/((Units.m)**3)

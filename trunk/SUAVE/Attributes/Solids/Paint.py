@@ -28,4 +28,4 @@ class paint(solid):
         self.yield_shear_strength             = 0.0       *Units.Pa
         self.yield_bearing_strength           = 0.0       *Units.Pa
         self.minimum_gage_thickness           = 150e-6    *Units.m
-        self.density                          = 1800       *(Units.kg)/((Units.m)**3)
+        self.density                          = 1800.       *(Units.kg)/((Units.m)**3)

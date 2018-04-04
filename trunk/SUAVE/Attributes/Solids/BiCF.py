@@ -1,6 +1,6 @@
 ## @ingroup Attributes-Solids
 
-# B[a-z]_[a_z]F.py
+# BiCF.py
 #
 # Created: Jul 2017, J. Smart
 
@@ -28,4 +28,4 @@ class bidirectional_carbon_fiber(solid):
         self.yield_shear_strength             = 90e6     *Units.Pa
         self.yield_bearing_strength           = 600e6    *Units.Pa
         self.minimum_gage_thickness           = 420e-6   *Units.m
-        self.density                          = 1600     *(Units.kg)/((Units.m)**3)
+        self.density                          = 1600.     *(Units.kg)/((Units.m)**3)

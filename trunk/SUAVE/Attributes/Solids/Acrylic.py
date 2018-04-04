@@ -28,4 +28,4 @@ class acrylic(solid):
         self.yield_shear_strength             = 55.2e6        *Units.Pa
         self.yield_bearing_strength           = 0.0           *Units.Pa
         self.minimum_gage_thickness           = 3.175e-3      *Units.m
-        self.density                          = 1180          *(Units.kg)/((Units.m)**3)
+        self.density                          = 1180.          *(Units.kg)/((Units.m)**3)

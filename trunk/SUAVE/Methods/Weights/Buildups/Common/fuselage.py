@@ -65,15 +65,47 @@ def fuselage(config,
     G_max   = maximum_g_load
     LIF     = landing_impact_factor
     SF      = safety_factor
+    
+#-------------------------------------------------------------------------------
+# Unpack Material Properties
+#-------------------------------------------------------------------------------
+
+    BiCF = bidirectional_carbon_fiber()
+    BiCF_MGT = BiCF.minimum_gage_thickness
+    BiCF_DEN = BiCF.density
+    BiCF_UTS = BiCF.ultimate_tensile_strength
+    BiCF_USS = BiCF.ultimate_shear_strength
+    BiCF_UBS = BiCF.ultimate_bearing_strength
+    
+    UniCF = unidirectional_carbon_fiber()
+    UniCF_MGT = UniCF.minimum_gage_thickness
+    UniCF_DEN = UniCF.density
+    UniCF_UTS = UniCF.ultimate_tensile_strength
+    UniCF_USS = UniCF.ultimate_shear_strength
+    
+    HCMB = honeycomb()
+    HCMB_MGT = HCMB.minimum_gage_thickness
+    HCMB_DEN = HCMB.density
+    
+    PAINT = paint()
+    PAINT_MGT = PAINT.minimum_gage_thickness
+    PAINT_DEN = PAINT.density
+    
+    ACRYL = acrylic()
+    ACRYL_MGT = ACRYL.minimum_gage_thickness
+    ACRYL_DEN = ACRYL.density
+    
+    STEEL = steel()
+    STEEL_USS = STEEL.ultimate_shear_strength
 
     # Calculate Skin Weight Per Unit Area (arealWeight) based on material
     # properties. In this instance we assume the use of
     # Bi-directional Carbon Fiber, a Honeycomb Core, and Paint:
 
     arealWeight =(
-          bidirectional_carbon_fiber().minimum_gage_thickness      * bidirectional_carbon_fiber().density
-        + honeycomb().minimum_gage_thickness * honeycomb().density
-        + paint().minimum_gage_thickness     * paint().density
+          BiCF_MGT*BiCF_DEN
+        + HCMB_MGT * HCMB_DEN
+        + PAINT_MGT * PAINT_DEN
         )
 
     # Calculate fuselage area (using assumption of ellipsoid), and weight:
@@ -89,7 +121,7 @@ def fuselage(config,
 
     # Calculate the mass of a canopy, assuming Acrylic:
 
-    canopyMass = S_wet/8 * acrylic().minimum_gage_thickness * acrylic().density
+    canopyMass = S_wet/8 * ACRYL_MGT * ACRYL_DEN
 
     # Calculate keel mass needed to carry lifting moment, assuming
     # Uni-directional Carbon Fiber used to carry load
@@ -99,27 +131,27 @@ def fuselage(config,
     beamWidth   = fWidth/3.                # Allowable Keel Width
     beamHeight  = fHeight/10.              # Allowable Keel Height
 
-    beamArea    = M_lift * beamHeight/(4*unidirectional_carbon_fiber().ultimate_tensile_strength*(beamHeight/2)**2)
-    massKeel    = beamArea * fLength * unidirectional_carbon_fiber().density
+    beamArea    = M_lift * beamHeight/(4*UniCF_UTS*(beamHeight/2)**2)
+    massKeel    = beamArea * fLength * UniCF_DEN
 
     # Calculate keel mass needed to carry wing bending moment, assuming
     # thin walled Bi-directional Carbon Fiber used to carry load
 
     M_bend      = L_max/2 * maxSpan/2                          # Max Bending Moment
     beamArea    = beamHeight * beamWidth                       # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(bidirectional_carbon_fiber().ultimate_shear_strength*beamArea)    # Beam Thickness
-    massKeel   += 2*(beamHeight + beamWidth)*beamThk*bidirectional_carbon_fiber().density
+    beamThk     = 0.5 * M_bend/(BiCF_USS * beamArea)    # Beam Thickness
+    massKeel   += 2*(beamHeight + beamWidth)*beamThk*BiCF_DEN
 
     # Calculate keel mass needed to carry landing impact load assuming
     # Steel bolts, and Bi-directional Carbon Fiber laminate pads used to carry
     # loads in a side landing
 
     F_landing   = SF * MTOW * 9.8 * LIF * 0.6403              # Side Landing Force
-    boltArea    = F_landing/steel().ultimate_shear_strength              # Required Bolt Area
+    boltArea    = F_landing/STEEL_USS              # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
-    lamThk      = F_landing/(boltDiam*bidirectional_carbon_fiber().ultimate_bearing_strength)    # Laminate Thickness
+    lamThk      = F_landing/(boltDiam*BiCF_UBS)    # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
-    massKeel   += 4*lamVol*bidirectional_carbon_fiber().density            # Mass of 4 Pads
+    massKeel   += 4*lamVol*BiCF_DEN            # Mass of 4 Pads
 
     # Calculate total mass as the sum of skin mass, bulkhead mass, canopy pass,
     # and keel mass. Called weight by SUAVE convention

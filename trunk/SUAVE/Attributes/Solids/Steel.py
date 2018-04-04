@@ -28,4 +28,4 @@ class steel(solid):
         self.yield_shear_strength             = 410e6     *Units.Pa
         self.yield_bearing_strength           = 710e6     *Units.Pa
         self.minimum_gage_thickness           = 0.0       *Units.m
-        self.density                          = 7850      *(Units.kg)/((Units.m)**3)
+        self.density                          = 7850.      *(Units.kg)/((Units.m)**3)
