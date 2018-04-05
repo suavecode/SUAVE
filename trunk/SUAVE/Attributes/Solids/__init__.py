@@ -1,8 +1,8 @@
 ## @defgroup Attributes-Solids Solids
 
 from Solid import solid
-from UniCF import unidirectional_carbon_fiber
-from BiCF import bidirectional_carbon_fiber
+from Unidirectional_Carbon_Fiber import unidirectional_carbon_fiber
+from Bidirectional_Carbon_Fiber import bidirectional_carbon_fiber
 from Honeycomb import honeycomb
 from Epoxy import epoxy
 from Rib import rib
