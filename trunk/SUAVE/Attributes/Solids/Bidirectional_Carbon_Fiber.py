@@ -1,6 +1,6 @@
 ## @ingroup Attributes-Solids
 
-# BiCF.py
+# Bidirectional_Carbon_Fiber.py
 #
 # Created: Jul 2017, J. Smart
 

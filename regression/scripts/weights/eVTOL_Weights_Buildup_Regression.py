@@ -33,7 +33,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty = 640.  * Units.kg
     vehicle.mass_properties.max_takeoff     = 1000. * Units.kg
     
-    vehicle.reference_area                  = 12.
+    vehicle.reference_area                  = 12.   * Units['meter**2']
     
     #---------------------------------------------------------------------------
     # Fuselage Properties Properties
@@ -42,9 +42,9 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
-    fuselage.lengths.total      = 5.5
-    fuselage.width              = 2
-    fuselage.heights.maximum    = 1.5
+    fuselage.lengths.total      = 5.5 * Units.meter
+    fuselage.width              = 2   * Units.meter
+    fuselage.heights.maximum    = 1.5 * Units.meter
     
     vehicle.append_component(fuselage)
     
@@ -91,7 +91,7 @@ def vehicle_setup():
     
     wing.spans.projected            = 6. * Units.meter
     
-    wing.areas.reference            = 12.
+    wing.areas.reference            = 12.* Units['meter**2']
     
     wing.chords.root                = 2. * Units.meter
     wing.chords.tip                 = 2. * Units.meter
@@ -120,7 +120,7 @@ def vehicle_setup():
     
     wing.spans.projected            = 6. * Units.meter
     
-    wing.areas.reference            = 12.
+    wing.areas.reference            = 12.* Units['meter**2']
     
     wing.chords.root                = 2. * Units.meter
     wing.chords.tip                 = 2. * Units.meter
@@ -161,15 +161,15 @@ def configs_setup(vehicle):
     
     prop_attributes = Data()
     prop_attributes.number_blades       = 4.0
-    prop_attributes.freestream_velocity = 150
+    prop_attributes.freestream_velocity = 150.  * Units['meter/second']
     prop_attributes.angular_velocity    = 3500. * Units['rpm']
-    prop_attributes.tip_radius          = 3800.  * Units.mm #608
-    prop_attributes.hub_radius          = 500. * Units.mm
+    prop_attributes.tip_radius          = 3800. * Units.mm
+    prop_attributes.hub_radius          = 500.  * Units.mm
     prop_attributes.design_Cl           = 0.7
-    prop_attributes.design_altitude     = 1. * Units.km
+    prop_attributes.design_altitude     = 1.    * Units.km
     prop_attributes.design_thrust       = 1600. * 9.81 * Units.newtons
-    prop_attributes.design_power        = 0. * Units.watts
-    prop_attributes                     = propeller_design(prop_attributes)    
+    prop_attributes.design_power        = 0.    * Units.watts
+    prop_attributes                     = propeller_design(prop_attributes)
        
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes    = prop_attributes
@@ -189,7 +189,7 @@ def configs_setup(vehicle):
     
     prop_attributes = Data()
     prop_attributes.number_blades       = 4.0
-    prop_attributes.freestream_velocity = 150
+    prop_attributes.freestream_velocity = 150.  * Units['meter/second']
     prop_attributes.angular_velocity    = 3500. * Units['rpm']
     prop_attributes.tip_radius          = 800.  * Units.mm #608
     prop_attributes.hub_radius          = 150. * Units.mm
@@ -217,14 +217,14 @@ def configs_setup(vehicle):
     
     prop_attributes = Data()
     prop_attributes.number_blades       = 4.0
-    prop_attributes.freestream_velocity = 150
+    prop_attributes.freestream_velocity = 150.  * Units['meter/second']
     prop_attributes.angular_velocity    = 3500. * Units['rpm']
     prop_attributes.tip_radius          = 800.  * Units.mm #608
-    prop_attributes.hub_radius          = 150. * Units.mm
+    prop_attributes.hub_radius          = 150.  * Units.mm
     prop_attributes.design_Cl           = 0.7
-    prop_attributes.design_altitude     = 1. * Units.km
-    prop_attributes.design_thrust       = 200. * 9.81 * Units.newtons
-    prop_attributes.design_power        = 0. * Units.watts
+    prop_attributes.design_altitude     = 1.    * Units.km
+    prop_attributes.design_thrust       = 200.  * 9.81 * Units.newtons
+    prop_attributes.design_power        = 0.    * Units.watts
     prop_attributes                     = propeller_design(prop_attributes)    
        
     prop = SUAVE.Components.Energy.Converters.Propeller()
