@@ -1,6 +1,6 @@
 ## @ ingroup Analyses-Weights
 
-# Weights_electricHelicopter.py
+# Weights_electric_helicopter.py
 #
 # Created: Mar 2017, J. Smart
 

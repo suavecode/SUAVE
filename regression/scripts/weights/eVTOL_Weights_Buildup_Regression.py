@@ -1,6 +1,6 @@
 # eVTOL_Weights_Buildup_Regression.py
 #
-# Author: Jordan Smart, Feb. 2018
+# Created: Jordan Smart, Feb. 2018
 
 import sys
 import SUAVE

@@ -1,6 +1,9 @@
-# Weights_electricTiltrotor.py
+## @ingroup Analyses-Weights
+
+# Weights_electric_stopped_rotor.py
 #
-# Created: Mar 2017, J. Smart
+# Created: Aug 2017, J. Smart
+# Modified: Mar 2018, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,11 +18,11 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electric_tiltrotor(Weights):
-    """ SUAVE.Analyses.Weights.Weights_electricTiltrotor()
+class Weights_electric_stopped_rotor(Weights):
+    """ SUAVE.Analyses.Weights.Weights_electricStoppedRotor()
     """
     def __defaults__(self):
-        self.tag = 'weights_electric_tiltrotor'
+        self.tag = 'weights_electric_stopped_rotor'
         
         self.vehicle  = Data()
         self.settings = Data()
@@ -29,7 +32,7 @@ class Weights_electric_tiltrotor(Weights):
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Buildups.electricTiltrotor.empty
+        empty   = SUAVE.Methods.Weights.Buildups.electricStoppedRotor.empty
 
         
         # evaluate
