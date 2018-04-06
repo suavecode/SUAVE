@@ -3,6 +3,7 @@
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 import subprocess
 from SUAVE.Core import Data
@@ -24,7 +25,7 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     processors (optional)        [-]       The number of processors used for a parallel computation.
 
     Outputs:
-    <tag>._forces_breakdown.dat  This file has standard SU2 run information.
+    <tag>_history.dat            This file has the SU2 convergence history.
     CL                           [-]
     CD                           [-]
 
@@ -40,30 +41,39 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     else:
         subprocess.call(['SU2_CFD',tag+'.cfg'])
         
-    f = open(tag + '_forces_breakdown.dat')
+    f = open(tag + '_history.dat')
         
     SU2_results = Data()    
     
-    # only the total forces have the ":"
-    for line in f:
-        if line.startswith('Total CL:'):
-            print 'CL:',line.split()[2]
-            SU2_results.coefficient_of_lift = float(line.split()[2])
-        elif line.startswith('Total CD:'):
-            print 'CD:',line.split()[2]
-            SU2_results.coefficient_of_drag = float(line.split()[2])
-        elif line.startswith('Total CMx:'):
-            print 'CMx:',line.split()[2]
-            SU2_results.moment_coefficient_x = float(line.split()[2])
-        elif line.startswith('Total CMy:'):
-            print 'CMy:',line.split()[2]
-            SU2_results.moment_coefficient_y = float(line.split()[2])
-        elif line.startswith('Total CMz:'):
-            print 'CMz:',line.split()[2]
-            SU2_results.moment_coefficient_z = float(line.split()[2])
-           
-    CL = SU2_results.coefficient_of_lift
-    CD = SU2_results.coefficient_of_drag
+    lines = f.readlines()
+    final_state = lines[-1].split(',')
+    
+    # Lift and Drag
+    
+    CL  = float(final_state[1])
+    CD  = float(final_state[2])
+    
+    SU2_results.coefficient_of_lift  = CL
+    SU2_results.coefficient_of_drag  = CD
+    
+    print 'CL:',CL
+    print 'CD:',CD
+    
+    # Moments
+    # Moments are currently not recorded since no
+    # reasonable reference length has been chosen
+    
+    #CMx = float(final_state[4])
+    #CMy = float(final_state[5])
+    #CMz = float(final_state[6])   
+    
+    #SU2_results.moment_coefficient_x = CMx
+    #SU2_results.moment_coefficient_y = CMy
+    #SU2_results.moment_coefficient_z = CMz
+    
+    #print 'CMx:',CMx
+    #print 'CMy:',CMy
+    #print 'CMz:',CMz    
             
     return CL,CD
 
