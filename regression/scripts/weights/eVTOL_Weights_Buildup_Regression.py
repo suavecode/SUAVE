@@ -6,9 +6,9 @@ import sys
 import SUAVE
 import numpy as np
 import pprint as pp
-from SUAVE.Methods.Weights.Buildups.electricHelicopter import empty as electricHelicopterEmpty
-from SUAVE.Methods.Weights.Buildups.electricStoppedRotor import empty as electricStoppedRotorEmpty
-from SUAVE.Methods.Weights.Buildups.electricTiltrotor import empty as electricTiltrotorEmpty
+from SUAVE.Methods.Weights.Buildups.Electric_Helicopter import empty as electricHelicopterEmpty
+from SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor import empty as electricStoppedRotorEmpty
+from SUAVE.Methods.Weights.Buildups.Electric_Tiltrotor import empty as electricTiltrotorEmpty
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
