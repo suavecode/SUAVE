@@ -2,7 +2,7 @@
 
 # Weights_electric_tiltrotor.py
 #
-# Created: Mar 2017, J. Smart
+# Created: Mar, 2017, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports

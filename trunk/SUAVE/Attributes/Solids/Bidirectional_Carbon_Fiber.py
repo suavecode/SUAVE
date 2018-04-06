@@ -2,7 +2,7 @@
 
 # Bidirectional_Carbon_Fiber.py
 #
-# Created: Jul 2017, J. Smart
+# Created: Jul, 2017, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports

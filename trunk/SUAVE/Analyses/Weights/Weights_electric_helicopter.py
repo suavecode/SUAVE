@@ -2,7 +2,7 @@
 
 # Weights_electric_helicopter.py
 #
-# Created: Mar 2017, J. Smart
+# Created: Mar, 2017, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports

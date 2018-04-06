@@ -2,8 +2,8 @@
 
 # Weights_electric_stopped_rotor.py
 #
-# Created: Aug 2017, J. Smart
-# Modified: Mar 2018, J. Smart
+# Created: Aug, 2017, J. Smart
+# Modified: Mar, 2018, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports

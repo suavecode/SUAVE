@@ -2,8 +2,8 @@
 
 # prop.py
 #
-# Created: Jun 2017, J. Smart
-# Modified: Feb 2018, J. Smart
+# Created: Jun, 2017, J. Smart
+# Modified: Feb, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
