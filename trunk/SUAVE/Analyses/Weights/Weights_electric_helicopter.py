@@ -1,8 +1,9 @@
-## @ ingroup Analyses-Weights
+## @ingroup Analyses-Weights
 
-# Weights_electric_helicopter.py
+# Weights_Electric_Helicopter.py
 #
 # Created: Mar, 2017, J. Smart
+# ModifiedL Apr, 2018, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,10 +18,45 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electric_helicopter(Weights):
-    """ SUAVE.Analyses.Weights.Weights_electricHelicopter()
+## @ingroup Analyses-Weights
+class Weights_Electric_Helicopter(Weights):
+    """ SUAVE.Analyses.Weights.Weights_Electric_Helicopter()
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
+    
+    Inputs:
+    N/A
+    
+    Outputs:
+    N/A
+    
+    Properties Used:
+    N/A
     """
+
     def __defaults__(self):
+        """Sets the default parameters for the weight analysis
+        
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        N/A
+        
+        Outputs:
+        N/A
+        
+        Properties Used:
+        N/A
+        """
+        
         self.tag = 'weights_electric_helicopter'
         
         self.vehicle  = Data()
@@ -28,10 +64,29 @@ class Weights_electric_helicopter(Weights):
         
         
     def evaluate(self,conditions=None):
+        """Uses the weight buildup method to estimate vehicle weight
+        
+        Assumptions:
+        Analysis has been assigned a vehicle.
+        Weight method to be used is default Electric Helicopter method.
+        
+        Source:
+        N/A
+        
+        Inputs:
+        Flight conditions, optionally
+        
+        Outputs:
+        Weight breakdown of vehicle
+        Vehicle object modified so as to include weight breakdown and empty operating weight
+        
+        Properties Used:
+        Analysis-assigned vehicle
+        """
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Buildups.electricHelicopter.empty
+        empty   = SUAVE.Methods.Weights.Buildups.Electric_Helicopter.empty
 
         
         # evaluate
@@ -48,6 +103,23 @@ class Weights_electric_helicopter(Weights):
     
     
     def finalize(self):
+        """Finalizes the results of the analysis
+        
+        Assumptions:
+        Vehicle has been assigned mass properties
+        
+        Source:
+        N/A
+        
+        Inputs:
+        Analysis-assigned vehicle
+        
+        Outputs:
+        Analysis object assigned vehicle mass properties
+        
+        Properties Used:
+        Analysis-assigned vehicle mass properties
+        """
         
         self.mass_properties = self.vehicle.mass_properties
         

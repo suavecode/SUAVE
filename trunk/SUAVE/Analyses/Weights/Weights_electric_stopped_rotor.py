@@ -1,9 +1,9 @@
 ## @ingroup Analyses-Weights
 
-# Weights_electric_stopped_rotor.py
+# Weights_Electric_Stopped_Rotor.py
 #
 # Created: Aug, 2017, J. Smart
-# Modified: Mar, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,10 +18,45 @@ from Weights import Weights
 #  Analysis
 # ----------------------------------------------------------------------
 
-class Weights_electric_stopped_rotor(Weights):
-    """ SUAVE.Analyses.Weights.Weights_electricStoppedRotor()
+## @ingroup Analyses-Weights
+class Weights_Electric_Stopped_Rotor(Weights):
+    """ SUAVE.Analyses.Weights.Weights_Electric_Stopped_Rotor()
+    
+    Assumptions:
+    None
+    
+    Source:
+    N/A
+    
+    Inputs:
+    N/A
+    
+    Outputs:
+    N/A
+    
+    Properties Used:
+    N/A
     """
+
     def __defaults__(self):
+        """Sets the default parameters for the weight analysis
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        N/A
+
+        Outputs:
+        N/A
+
+        Properties Used:
+        N/A
+        """
+        
         self.tag = 'weights_electric_stopped_rotor'
         
         self.vehicle  = Data()
@@ -29,10 +64,29 @@ class Weights_electric_stopped_rotor(Weights):
         
         
     def evaluate(self,conditions=None):
+        """Uses the weight buildup method to estimate vehicle weight
+
+        Assumptions:
+        Analysis has been assigned a vehicle.
+        Weight method to be used is default Electric Stopped Rotor method.
+
+        Source:
+        N/A
+
+        Inputs:
+        Flight conditions, optionally
+
+        Outputs:
+        Weight breakdown of vehicle
+        Vehicle object modified so as to include weight breakdown and empty operating weight
+
+        Properties Used:
+        Analysis-assigned vehicle
+        """
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Buildups.electricStoppedRotor.empty
+        empty   = SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor.empty
 
         
         # evaluate
@@ -49,6 +103,23 @@ class Weights_electric_stopped_rotor(Weights):
     
     
     def finalize(self):
+        """Finalizes the results of the analysis
+
+        Assumptions:
+        Vehicle has been assigned mass properties
+
+        Source:
+        N/A
+
+        Inputs:
+        Analysis-assigned vehicle
+
+        Outputs:
+        Analysis object assigned vehicle mass properties
+
+        Properties Used:
+        Analysis-assigned vehicle mass properties
+        """
         
         self.mass_properties = self.vehicle.mass_properties
         
