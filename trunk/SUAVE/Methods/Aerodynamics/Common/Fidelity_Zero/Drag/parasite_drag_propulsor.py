@@ -72,10 +72,17 @@ def parasite_drag_propulsor(state,settings,geometry):
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
     
-    ## form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
-    k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))  
-    
-   
+    # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
+    # Checking if engine is internal
+    if propulsor.has_key('internal'):
+        if propulsor.internal:
+            k_prop = 0
+            Sref   = 1
+        else:
+            k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))  
+    else: 
+        k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))
+        
     # find the final result    
     propulsor_parasite_drag = k_prop * cf_prop * Swet / Sref
     

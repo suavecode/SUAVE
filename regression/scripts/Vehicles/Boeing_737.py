@@ -91,7 +91,9 @@ def vehicle_setup():
     wing.chords.tip              = 0.782 * Units.meter
     wing.chords.mean_aerodynamic = 4.235 * Units.meter
     
-    wing.areas.reference         = 124.862 
+    wing.areas.reference         = 124.862    
+    wing.areas.exposed           = 199.7792                  
+    wing.areas.wetted            = 249.724                 
     
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
@@ -136,16 +138,13 @@ def vehicle_setup():
     wing.chords.root             = 4.7
     wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
-
     wing.areas.reference         = 32.488    #
-    wing.areas.exposed           = 199.7792                  # Exposed area of the horizontal tail
-    wing.areas.wetted            = 249.724                   # Wetted area of the horizontal tail
+    #wing.areas.exposed           = 199.7792                  # Exposed area of the horizontal tail
+    #wing.areas.wetted            = 249.724                   # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
-    
     wing.origin                  = [32.83,0,1.14]
-    wing.aerodynamic_center      = [0,0,0]
-    
+    wing.aerodynamic_center      = [0,0,0]   
     wing.vertical                = False 
     wing.symmetric               = True
     
@@ -211,9 +210,7 @@ def vehicle_setup():
     fuselage.lengths.tail          = 8.0
     fuselage.lengths.cabin         = 28.85 #44.0
     fuselage.lengths.total         = 38.02 #58.4
-    fuselage.lengths.fore_space    = 6.
-    fuselage.lengths.aft_space     = 5.    
-    
+   
     fuselage.width                 = 3.74 #4.
     
     fuselage.heights.maximum       = 3.74  #4.    #

@@ -55,7 +55,7 @@ class Linear_Throttle_Fixed_Angle_Time(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude_start    = None 
         self.air_speed_start   = 00. * Units.m / Units.s
-        self.flight_path_angle = 89. * Units.degrees
+        self.flight_path_angle = 90. * Units.degrees
         self.flight_time       = 1.0 * Units.seconds
         self.throttle_start    = 1.0
         self.throttle_end      = 1.0

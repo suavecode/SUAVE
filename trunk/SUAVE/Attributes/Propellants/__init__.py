@@ -10,3 +10,4 @@ from Jet_A1 import Jet_A1
 from Liquid_Natural_Gas import Liquid_Natural_Gas
 from LOX_RP1 import LOX_RP1
 from LOX_LH2 import LOX_LH2
+from LOX_Ethyl import LOX_Ethyl

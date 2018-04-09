@@ -128,10 +128,13 @@ class Rocket_Thrust(Energy_Component):
         
         #--Computing the propellant/exhaust mass rate
         Ae            = area_throat*expansion_ratio
-        mdot          = rho*exhaust_velocity*Ae
+        mdot_temp     = rho*exhaust_velocity*Ae
         
         #--Computing Dimensional Thrust
-        thrust        = mdot*C
+        thrust        = mdot_temp*C
+        
+        #--Make mdot size of thrust
+        mdot         = mdot_temp*np.ones_like(thrust) 
                 
         #--Pack outputs--
         self.outputs.thrust                            = thrust  
