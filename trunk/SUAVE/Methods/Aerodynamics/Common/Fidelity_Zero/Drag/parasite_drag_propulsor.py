@@ -76,8 +76,10 @@ def parasite_drag_propulsor(state,settings,geometry):
     # Checking if engine is internal
     if propulsor.has_key('internal'):
         if propulsor.internal:
-            k_prop = 0
-            Sref   = 1
+            k_prop  = 0.0
+            Sref    = 1.0
+            cf_prop = 0.0
+            k_reyn  = 0.0
         else:
             k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))  
     else: 

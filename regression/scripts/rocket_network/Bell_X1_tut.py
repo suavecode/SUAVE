@@ -95,15 +95,9 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
     analyses.append(aerodynamics)
-
-    # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
 
     # ------------------------------------------------------------------
     #  Energy
@@ -169,11 +163,12 @@ def vehicle_setup():
     wing.chords.root             = 6.183  * Units.feet
     wing.chords.tip              = 3.789  * Units.feet
     wing.chords.mean_aerodynamic = 4.8045 * Units.feet
+    wing.total_length            = 6.183  * Units.feet
     wing.areas.reference         = 130.   * Units['feet**2'] 
     wing.areas.exposed           = 221.82 * Units['feet**2']  
     wing.areas.wetted            = 260.0  * Units['feet**2']      
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
+    wing.twists.root             = 0.0    * Units.degrees
+    wing.twists.tip              = 0.0    * Units.degrees
     wing.origin                  = [12.67*Units.ft,0*Units.ft,0*Units.feet]
     wing.vertical                = False
     wing.symmetric               = True
@@ -183,9 +178,9 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Flaps
     # ------------------------------------------------------------------
-    wing.flaps.chord      =  0.1738 # % of chord, avg
-    wing.flaps.span_start =  0.1607 # % of span
-    wing.flaps.span_end   =  0.5775 # % of span
+    #wing.flaps.chord      =  0.1738 # % of chord, avg
+    #wing.flaps.span_start =  0.1607 # % of span
+    #wing.flaps.span_end   =  0.5775 # % of span
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -204,7 +199,8 @@ def vehicle_setup():
     wing.chords.root             = 2.99 * Units.feet
     wing.chords.tip              = 1.46 * Units.feet
     wing.chords.mean_aerodynamic = 2.31 * Units.feet
-    wing.areas.reference         = 25.3279  * Units['feet**2']  
+    wing.total_length            = 2.99 * Units.feet
+    wing.areas.reference         = 25.3279  * Units['feet**2'] 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
     wing.origin                  = [27.07*Units.ft,0*Units.ft,3.52*Units.feet] 
@@ -229,6 +225,7 @@ def vehicle_setup():
     wing.chords.root             = 5.335  * Units.feet
     wing.chords.tip              = 2.885  * Units.feet
     wing.chords.mean_aerodynamic = 4.232  * Units.feet
+    wing.total_length            = 5.335  * Units.feet
     wing.areas.reference         = 32.995 * Units['feet**2']  
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
@@ -405,7 +402,7 @@ def mission_setup(analyses):
     segment.tag = "climb_1"
     segment.analyses.extend(analyses.cruise)
     segment.altitude_start  = 23000.0 * Units.feet
-    segment.altitude_start  = 43000.0 * Units.feet
+    segment.altitude_end    = 43000.0 * Units.feet
     segment.throttle        = 1.0
     segment.air_speed       = 150.0   * Units.m/Units.s
     
@@ -421,9 +418,11 @@ def mission_setup(analyses):
     segment.altitude        = 43000.0 * Units.feet
     segment.throttle        = 1.0
     segment.air_speed_start = 150.0   * Units.m/Units.s
-    segment.distance        = 69.51   * Units.nautical_miles
+    segment.air_speed_end   = 361.0   * Units['m/s']
+
     # add to misison
     mission.append_segment(segment)
+  
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------
@@ -481,15 +480,20 @@ def plot_mission(results,line_style='bo-'):
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , CLift , line_style )
         axes.set_ylabel('Lift Coefficient',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)        
         axes.grid(True)
+        
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , l_d , line_style )
         axes.set_ylabel('L/D',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.grid(True)
+
         axes = fig.add_subplot(3,1,3)
         axes.plot( time , aoa , 'ro-' )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.grid(True)
         #plt.savefig("B737_aero.pdf")
         #plt.savefig("B737_aero.png")

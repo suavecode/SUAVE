@@ -107,6 +107,7 @@ class Rocket_Thrust(Energy_Component):
         # unpacking from conditions
         p0               = conditions.freestream.pressure  
         g0               = conditions.freestream.gravity
+        throttle         = conditions.propulsion.throttle
         
         # unpacking from inputs
         Pt_combustion    = self.inputs.combustion_pressure
@@ -128,14 +129,15 @@ class Rocket_Thrust(Energy_Component):
         
         #--Computing the propellant/exhaust mass rate
         Ae            = area_throat*expansion_ratio
-        mdot_temp     = rho*exhaust_velocity*Ae
+        mdot_temp     = throttle*rho*exhaust_velocity*Ae
         
         #--Computing Dimensional Thrust
-        thrust        = mdot_temp*C
+        thrust        = num_eng*mdot_temp*C
         
         #--Make mdot size of thrust
-        mdot         = mdot_temp*np.ones_like(thrust) 
-                
+        mdot               = mdot_temp 
+        mdot[mdot<0.0]     = 0.0 
+        thrust[thrust<0.0] = 0.0
         #--Pack outputs--
         self.outputs.thrust                            = thrust  
         self.outputs.vehicle_mass_rate                 = mdot
@@ -181,7 +183,7 @@ class Rocket_Thrust(Energy_Component):
         self.compute(conditions)
         
         # compute flow rate
-        mdot          = design_thrust/(design_ISP*g0)*num_eng*throttle
+        mdot          = design_thrust/(design_ISP*g0)*num_eng
         
         #--Pack outputs--
         self.mass_flow_rate = mdot
