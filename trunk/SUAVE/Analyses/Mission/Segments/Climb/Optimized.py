@@ -145,6 +145,7 @@ class Optimized(Aerodynamic):
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
+        iterate.conditions.position        = Methods.Common.Frames.integrate_inertial_horizontal_position
 
         # Solve Residuals
         iterate.residuals = Process()     

@@ -79,11 +79,12 @@ class Glide(Optimized):
         self.seed_climb_rate = -100. * Units['feet/min']
         self.algorithm       = 'SLSQP'
         
-
-        
         # initials and unknowns
         ones_row    = self.state.ones_row
         self.state.unknowns.__delitem__('throttle')
+        
+        initialize = self.process.initialize
+        initialize.solved_mission          = solve_linear_speed_constant_rate
 
         iterate = self.process.iterate
         iterate.unknowns.mission           = unpack_unknowns
@@ -131,7 +132,7 @@ def unpack_unknowns(segment,state):
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+        v_mag =  np.concatenate([[[vel0]],vel])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
         
@@ -146,7 +147,7 @@ def unpack_unknowns(segment,state):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    state.conditions.propulsion.throttle[:,0]             = np.ones_like(v_x[:,0])
+    state.conditions.propulsion.throttle[:,0]             = np.zeros_like(v_x[:,0])
     state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
     state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
     state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
@@ -179,3 +180,67 @@ def update_thrust(segment,state):
     conditions = state.conditions
     conditions.frames.body.thrust_force_vector = 0. * ones_row(3)
     conditions.weights.vehicle_mass_rate       = 0. * ones_row(1)
+    
+    
+
+## @ingroup Methods-Missions-Segments-Climb
+def solve_linear_speed_constant_rate(segment,state):
+    
+    """ The sets up an solves a mini segment that is a linear speed constant rate segment. The results become the initial conditions for an optimized climb segment later
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.altitude_start             [meters]
+    segment.altitude_end               [meters]
+    segment.air_speed_start            [meters/second]
+    segment.air_speed_end              [meters/second]
+    segment.analyses                   [Data]
+    state.numerics                     [Data]
+
+    Outputs:
+    state.unknowns.throttle            [Unitless]
+    state.unknowns.body_angle          [Radians]
+    state.unknowns.flight_path_angle   [Radians]
+    state.unknowns.velocity            [meters/second]
+    
+    Properties Used:
+    N/A    
+    
+    """
+    
+    mini_mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    
+    LSCR = SUAVE.Analyses.Mission.Segments.Climb.Linear_Speed_Constant_Rate()
+    LSCR.air_speed_start = segment.air_speed_start
+    
+    if segment.air_speed_end is not None:
+        LSCR.air_speed_end   = segment.air_speed_end
+    else:
+        LSCR.air_speed_end   = segment.air_speed_start
+        
+    LSCR.altitude_start   = segment.altitude_start
+    LSCR.altitude_end     = segment.altitude_end
+    LSCR.climb_rate       = segment.seed_climb_rate
+    LSCR.analyses         = segment.analyses
+    LSCR.state.conditions = state.conditions
+    LSCR.state.numerics   = state.numerics
+    mini_mission.append_segment(LSCR)
+    
+    results = mini_mission.evaluate()
+    LSCR_res = results.segments.analysis
+    
+    state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
+    state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    
+    # Make the velocity vector
+    v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
+    
+    if segment.air_speed_end is None:
+        state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))
+    elif segment.air_speed_end is not None:    
+        state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))    

@@ -179,16 +179,17 @@ def make_bnds(unknowns,(segment,state)):
     ones_m1 = state.ones_row_m1(1)
     ones_m2 = state.ones_row_m2(1)
     
-    throttle_bnds = ones*(0.,1.)
-    body_angle    = ones*(0., np.pi/2.)
-    gamma         = ones*(0., np.pi/2.)
+    #throttle_bnds = ones*(0.,1.)
+    body_angle    = ones*(-np.pi/2., np.pi/2.)
+    gamma         = ones*(-np.pi/2., np.pi/2.)
     
     if segment.air_speed_end is None:
         vels      = ones_m1*(0.,2000.)
     elif segment.air_speed_end is not None:    
         vels      = ones_m2*(0.,2000.)
     
-    bnds = np.vstack([vels,throttle_bnds,gamma,body_angle])
+    #bnds = np.vstack([vels,throttle_bnds,gamma,body_angle])
+    bnds = np.vstack([vels,gamma,body_angle])
     
     bnds = list(map(tuple, bnds))
     
@@ -221,6 +222,8 @@ def get_ieconstraints(unknowns,(segment,state)):
         
     if not np.all(state.inputs_last == state.unknowns):       
         segment.process.iterate(segment,state)
+        
+    alt_scale = np.max([segment.altitude_start,segment.altitude_end,1.])
     
     # Time goes forward, not backward
     t_final = state.conditions.frames.inertial.time[-1,0]
@@ -231,7 +234,7 @@ def get_ieconstraints(unknowns,(segment,state)):
     CL_con = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
     # Altitudes are greater than 0
-    alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
+    alt_con = state.conditions.freestream.altitude[:,0]/alt_scale
     
     constraints = np.concatenate((time_con,CL_con,alt_con))
     
@@ -278,7 +281,8 @@ def get_problem_pyopt(unknowns,(segment,state)):
     CL_con   = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
     # Altitudes are greater than 0
-    alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
+    alt_scale = np.max([segment.altitude_start,segment.altitude_end,1.])
+    alt_con   = state.conditions.freestream.altitude[:,0]/alt_scale
     
     # Put the equality and inequality constraints together
     constraints = np.concatenate((state.constraint_values,time_con,CL_con,alt_con))
