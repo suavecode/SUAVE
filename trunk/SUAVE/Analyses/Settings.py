@@ -2,15 +2,14 @@
 # Settings.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2016, A. Wendorff
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Core import Container as ContainerBase
-
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -49,28 +48,3 @@ class Settings(Data):
         self.tag    = 'settings'
         
         self.verbose_process = False
-        
-
-# ----------------------------------------------------------------------
-#  Config Container
-# ----------------------------------------------------------------------
-
-## @ingroup Analyses
-class Container(ContainerBase):
-    """ SUAVE.Analyses.Settings.Container()
-    
-        The Top Level Settings Container Class
-        
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-    """
-    pass
-
-# ------------------------------------------------------------
-#  Handle Linking
-# ------------------------------------------------------------
-
-Settings.Container = Container

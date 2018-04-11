@@ -8,8 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from compressible_turbulent_flat_plate import compressible_turbulent_flat_plate
-from SUAVE.Analyses import Results
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
+from SUAVE.Core import Data
 
 import numpy as np
 
@@ -99,7 +99,7 @@ def parasite_drag_propulsor(state,settings,geometry):
     # --------------------------------------------------------
     
     # dump data to conditions
-    propulsor_result = Results(
+    propulsor_result = Data(
         wetted_area               = Swet    , 
         reference_area            = Sref    , 
         parasite_drag_coefficient = propulsor_parasite_drag ,

@@ -3,6 +3,7 @@
 # Created:  Jun 2014, T. Lukaczyk
 # Modified: Jun 2014, SUAVE Team
 #           Jul 2017, SUAVE Team
+#           Jan 2018, SUAVE Team
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -25,7 +26,6 @@ import matplotlib.pyplot as plt
 # this automatic regression script.
 #
 # For more information, see ../templates/example_test_script.py
-
 
 # ----------------------------------------------------------------------
 #   The Modules to Test
@@ -64,6 +64,9 @@ modules = [
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/sizing_loop/sizing_loop.py',
+    'scripts/ramjet_network/ramjet_network.py',
+    'scripts/lifting_line/lifting_line.py',
+    'scripts/sweeps/test_sweeps.py',
 ]
 
 

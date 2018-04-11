@@ -15,9 +15,9 @@ from SUAVE.Core            import Data
 from SUAVE.Core            import Units
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import windmilling_drag
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import estimate_2ndseg_lift_drag_ratio
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Drag import asymmetry_drag
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import windmilling_drag
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import estimate_2ndseg_lift_drag_ratio
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import asymmetry_drag
 
 # package imports
 import numpy as np
@@ -133,6 +133,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity         = np.array(np.atleast_1d(speed_for_thrust))
     conditions.freestream.mach_number      = np.array(np.atleast_1d(speed_for_thrust/ a))
+    conditions.freestream.speed_of_sound   = np.array(a)
     conditions.freestream.temperature      = np.array(np.atleast_1d(T))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
     conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))

@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Analyses import Analysis, Results 
+from SUAVE.Analyses import Analysis
 
 
 # ----------------------------------------------------------------------
@@ -61,5 +61,5 @@ class Loads(Analysis):
                 Properties Used:
                 N/A                
             """        
-        return Results()
+        return Data()
         
