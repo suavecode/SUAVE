@@ -84,10 +84,17 @@ def converge_opt(segment,state):
         print opt_prob
     
         snopt = pyOpt.pySNOPT.SNOPT()    
-        outputs = snopt(opt_prob) 
+        snopt.setOption('Function precision',1.e-6)
+        snopt.setOption('Major optimality tolerance',1.e-3)
+        outputs = snopt(opt_prob,sens_step=1.e-12) 
     
         print outputs
         print opt_prob.solution(0)
+        
+        unknowns = outputs[1]
+        
+    # run once more to be sure you've run the optimal solution
+    get_objective(unknowns,(segment,state))
 
     return
     
@@ -179,12 +186,12 @@ def make_bnds(unknowns,(segment,state)):
     ones_m1 = state.ones_row_m1(1)
     ones_m2 = state.ones_row_m2(1)
     
-    #throttle_bnds = ones*(0.,1.)
-    body_angle    = ones*(-np.pi/2., np.pi/2.)
-    gamma         = ones*(-np.pi/2., np.pi/2.)
+    throttle_bnds = ones*(0.,1.)
+    body_angle    = ones*(-np.pi/8., np.pi/8.)
+    gamma         = ones*(-np.pi/8., np.pi/8.)
     
     if segment.air_speed_end is None:
-        vels      = ones_m1*(0.,2000.)
+        vels      = ones_m1*(0.,200.)
     elif segment.air_speed_end is not None:    
         vels      = ones_m2*(0.,2000.)
     
@@ -227,7 +234,7 @@ def get_ieconstraints(unknowns,(segment,state)):
     
     # Time goes forward, not backward
     t_final = state.conditions.frames.inertial.time[-1,0]
-    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
+    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/np.abs(t_final)
     
     # Less than a specified CL limit
     CL_limit = segment.CL_limit 
@@ -274,7 +281,7 @@ def get_problem_pyopt(unknowns,(segment,state)):
     
     # Time goes forward, not backward
     t_final  = state.conditions.frames.inertial.time[-1,0]
-    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
+    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/np.abs(t_final)
     
     # Less than a specified CL limit
     CL_limit = segment.CL_limit 

@@ -84,6 +84,7 @@ class Glide(Optimized):
         self.state.unknowns.__delitem__('throttle')
         
         initialize = self.process.initialize
+
         initialize.solved_mission          = solve_linear_speed_constant_rate
 
         iterate = self.process.iterate
@@ -132,9 +133,9 @@ def unpack_unknowns(segment,state):
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel])
+        v_mag =  np.concatenate([[[vel0]],vel*vel0])
     elif segment.air_speed_end is not None:
-        v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+        v_mag = np.concatenate([[[vel0]],vel*vel0,[[velf]]])
         
     if np.all(gamma == 0.):
         gamma[gamma==0.] = 1.e-16
@@ -241,6 +242,6 @@ def solve_linear_speed_constant_rate(segment,state):
     v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
-        state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))
+        state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))/segment.air_speed_start
     elif segment.air_speed_end is not None:    
-        state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))    
+        state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))/segment.air_speed_start
