@@ -118,7 +118,6 @@ def update_weights(segment,state):
     m0         = conditions.weights.total_mass[0,0]
     mdot_fuel  = conditions.weights.vehicle_mass_rate
     g          = conditions.freestream.gravity
-    m_empty    = segment.analyses.weights.mass_properties.operating_empty
     I          = state.numerics.time.integrate
 
     # calculate

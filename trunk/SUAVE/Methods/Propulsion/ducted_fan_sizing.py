@@ -63,19 +63,18 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
         
             # freestream conditions
             
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
-            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
-            
-            conditions.freestream.pressure           = np.atleast_1d(p)
-            conditions.freestream.temperature        = np.atleast_1d(T)
-            conditions.freestream.density            = np.atleast_1d(rho)
-            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-            conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.gamma              = np.atleast_1d(1.4)
-            conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-            conditions.freestream.R                  = 287.87
-            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
-            conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
+            conditions.freestream.altitude                    = np.atleast_1d(altitude)
+            conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
+            conditions.freestream.pressure                    = np.atleast_1d(p)
+            conditions.freestream.temperature                 = np.atleast_1d(T)
+            conditions.freestream.density                     = np.atleast_1d(rho)
+            conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+            conditions.freestream.gravity                     = np.atleast_1d(9.81)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
+            conditions.freestream.Cp                          = 1.4*287.87/(1.4-1)
+            conditions.freestream.R                           = 287.87
+            conditions.freestream.speed_of_sound              = np.atleast_1d(a)
+            conditions.freestream.velocity                    = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
             
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
@@ -93,15 +92,12 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #Creating the network by manually linking the different components
     
-    
     #set the working fluid to determine the fluid properties
     ram.inputs.working_fluid                             = ducted_fan.working_fluid
     
     #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
     ram(conditions)
-    
-    
-    
+        
     #link inlet nozzle to ram 
     inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
     inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
@@ -179,19 +175,18 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
 
     # freestream conditions
     
-    conditions_sls.freestream.altitude           = np.atleast_1d(0.)
-    conditions_sls.freestream.mach_number        = np.atleast_1d(0.01)
-    
-    conditions_sls.freestream.pressure           = np.atleast_1d(p)
-    conditions_sls.freestream.temperature        = np.atleast_1d(T)
-    conditions_sls.freestream.density            = np.atleast_1d(rho)
-    conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-    conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                 = 1.4*287.87/(1.4-1)
-    conditions_sls.freestream.R                  = 287.87
-    conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
-    conditions_sls.freestream.velocity           = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
+    conditions_sls.freestream.altitude                    = np.atleast_1d(0.)
+    conditions_sls.freestream.mach_number                 = np.atleast_1d(0.01)
+    conditions_sls.freestream.pressure                    = np.atleast_1d(p)
+    conditions_sls.freestream.temperature                 = np.atleast_1d(T)
+    conditions_sls.freestream.density                     = np.atleast_1d(rho)
+    conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
+    conditions_sls.freestream.Cp                          = 1.4*287.87/(1.4-1)
+    conditions_sls.freestream.R                           = 287.87
+    conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
+    conditions_sls.freestream.velocity                    = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
     
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    

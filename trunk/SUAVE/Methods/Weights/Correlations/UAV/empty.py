@@ -11,9 +11,7 @@
 import SUAVE
 import autograd.numpy as np
 
-from SUAVE.Core import (
-    Data, Container,
-    )
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Empty

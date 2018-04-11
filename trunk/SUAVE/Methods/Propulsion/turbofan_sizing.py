@@ -48,21 +48,21 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         
             # freestream conditions    
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
-            conditions.freestream.mach_number        = np.atleast_1d(mach_number)
-            conditions.freestream.pressure           = np.atleast_1d(p)
-            conditions.freestream.temperature        = np.atleast_1d(T)
-            conditions.freestream.density            = np.atleast_1d(rho)
-            conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-            conditions.freestream.gravity            = np.atleast_1d(9.81)
-            conditions.freestream.gamma              = np.atleast_1d(1.4)
-            conditions.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
-            conditions.freestream.R                  = p/(rho*T)
-            conditions.freestream.speed_of_sound     = np.atleast_1d(a)
-            conditions.freestream.velocity           = np.atleast_1d(a*mach_number)
+            conditions.freestream.altitude                    = np.atleast_1d(altitude)
+            conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
+            conditions.freestream.pressure                    = np.atleast_1d(p)
+            conditions.freestream.temperature                 = np.atleast_1d(T)
+            conditions.freestream.density                     = np.atleast_1d(rho)
+            conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+            conditions.freestream.gravity                     = np.atleast_1d(9.81)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
+            conditions.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
+            conditions.freestream.R                           = p/(rho*T)
+            conditions.freestream.speed_of_sound              = np.atleast_1d(a)
+            conditions.freestream.velocity                    = np.atleast_1d(a*mach_number)
             
             # propulsion conditions
-            conditions.propulsion.throttle           =  np.atleast_1d(1.0)
+            conditions.propulsion.throttle                    =  np.atleast_1d(1.0)
     
     ram                       = turbofan.ram
     inlet_nozzle              = turbofan.inlet_nozzle
@@ -201,7 +201,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
  
     U0                = conditions.freestream.velocity
     gamma             = ram.outputs.isentropic_expansion_factor
-    R                 = ram.outputs.universal_gas_constant
+    R                 = ram.outputs.gas_specific_constant
     rho0              = conditions.freestream.density
     
     rho5_fan          = fan_nozzle.outputs.density
@@ -232,29 +232,28 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
 
     # freestream conditions    
-    conditions_sls.freestream.altitude           = np.atleast_1d(0.)
-    conditions_sls.freestream.mach_number        = np.atleast_1d(0.01)
-    conditions_sls.freestream.pressure           = np.atleast_1d(p)
-    conditions_sls.freestream.temperature        = np.atleast_1d(T)
-    conditions_sls.freestream.density            = np.atleast_1d(rho)
-    conditions_sls.freestream.dynamic_viscosity  = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity            = np.atleast_1d(9.81)
-    conditions_sls.freestream.gamma              = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                 = 1.4*(p/(rho*T))/(1.4-1)
-    conditions_sls.freestream.R                  = p/(rho*T)
-    conditions_sls.freestream.speed_of_sound     = np.atleast_1d(a)
-    conditions_sls.freestream.velocity           = np.atleast_1d(a*0.01)
+    conditions_sls.freestream.altitude                    = np.atleast_1d(0.)
+    conditions_sls.freestream.mach_number                 = np.atleast_1d(0.01)
+    conditions_sls.freestream.pressure                    = np.atleast_1d(p)
+    conditions_sls.freestream.temperature                 = np.atleast_1d(T)
+    conditions_sls.freestream.density                     = np.atleast_1d(rho)
+    conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
+    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
+    conditions_sls.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
+    conditions_sls.freestream.R                           = p/(rho*T)
+    conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
+    conditions_sls.freestream.velocity                    = np.atleast_1d(a*0.01)
     
     # propulsion conditions
     conditions_sls.propulsion.throttle           =  np.atleast_1d(1.0)    
     
     #size the turbofan
 
-    state_sls = Data()
-    state_sls.numerics = Data()
+    state_sls            = Data()
+    state_sls.numerics   = Data()
     state_sls.conditions = conditions_sls   
-    results_sls = turbofan.evaluate_thrust(state_sls)
-    
+    results_sls          = turbofan.evaluate_thrust(state_sls)
     
     turbofan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
   

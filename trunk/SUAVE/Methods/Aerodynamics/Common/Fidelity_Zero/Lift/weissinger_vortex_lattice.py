@@ -3,13 +3,18 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Apr 2017, T. MacDonald
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # package imports
+<<<<<<< HEAD
 import autograd.numpy as np 
+=======
+import numpy as np 
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
@@ -23,7 +28,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     None
 
     Source:
-    Unknown
+    An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
 
     Inputs:
     wing.
@@ -59,27 +64,30 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     twist_rc    = wing.twists.root
     twist_tc    = wing.twists.tip
     sym_para    = wing.symmetric
-    AR          = wing.aspect_ratio
     Sref        = wing.areas.reference
     orientation = wing.vertical
 
     n  = configuration.number_panels_spanwise
-    nn = configuration.number_panels_chordwise
 
     # conditions
     aoa = conditions.aerodynamics.angle_of_attack
     
     # chord difference
-    dchord=(root_chord-tip_chord)
+    dchord = (root_chord-tip_chord)
     if sym_para is True :
-        span=span/2
-    deltax=span/n
+        span = span/2
+        
+    deltax = span/n
+    
+    sin_aoa = np.sin(aoa)
+    cos_aoa = np.cos(aoa)
 
     if orientation == False :
 
         # discretizing the wing sections into panels            
         i              = np.arange(0,n)
         section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+<<<<<<< HEAD
         area_section   = section_length[i]*deltax
         sl             = section_length[i]
         twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
@@ -95,10 +103,23 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         xloc_trailing = ((i+1)*deltax)*np.tan(sweep) + sl        
                 
         RHS  = np.atleast_2d(np.sin(twist_distri+aoa)).T
+=======
+        twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
+        
+        ya = np.atleast_2d((i)*deltax)
+        yb = np.atleast_2d((i+1)*deltax)
+        xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*section_length)
+        x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*section_length)
+        y  = np.atleast_2d(((i+1)*deltax-deltax/2))      
+                
+        RHS  = np.atleast_2d(np.sin(twist_distri+aoa))
+        
+>>>>>>> develop
         A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
             -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
     
         # Vortex strength computation by matrix inversion
+<<<<<<< HEAD
         T = np.linalg.solve(A.T,RHS)
         
         # Calculating the effective velocty         
@@ -109,6 +130,18 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         Lfk =  T.T * np.cos(twist_tc)   
         Lft = -Lfi*np.sin(twist_tc)+Lfk*np.cos(twist_tc)
         Dg  = Lfi*np.cos(twist_tc)+Lfk*np.sin(twist_tc)
+=======
+        T = np.linalg.solve(A.T,RHS.T).T
+        
+        # Calculating the effective velocty         
+        A_v = A*0.25/np.pi*T
+        v   = np.sum(A_v,axis=1)
+        
+        Lfi = -T * (sin_aoa-v)
+        Lfk =  T * cos_aoa 
+        Lft = -Lfi * sin_aoa + Lfk * cos_aoa
+        Dg  =  Lfi * cos_aoa + Lfk * sin_aoa
+>>>>>>> develop
             
         L  = deltax * Lft
         D  = deltax * Dg

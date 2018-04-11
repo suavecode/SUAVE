@@ -118,7 +118,7 @@ def update_freestream(segment,state):
     Vvec = conditions.frames.inertial.velocity_vector
     rho  = conditions.freestream.density
     a    = conditions.freestream.speed_of_sound
-    mew  = conditions.freestream.dynamic_viscosity
+    mu   = conditions.freestream.dynamic_viscosity
 
     # velocity magnitude
     Vmag2 = np.sum( Vvec**2, axis=1)[:,None] # keep 2d column vector
@@ -131,7 +131,7 @@ def update_freestream(segment,state):
     M = Vmag / a
 
     # Reynolds number
-    Re = rho * Vmag / mew  # per m
+    Re = rho * Vmag / mu  # per m
 
     # pack
     conditions.freestream.velocity         = Vmag

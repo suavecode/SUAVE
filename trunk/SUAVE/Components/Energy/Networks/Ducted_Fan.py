@@ -29,7 +29,7 @@ class Ducted_Fan(Propulsor):
         None
         
         Source:
-        Most of the componentes come from this book:
+        Most of the components come from this book:
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
     """     
     
@@ -158,7 +158,7 @@ class Ducted_Fan(Propulsor):
         results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
         
         # store data
-        results_conditions = Results
+        results_conditions = Data
         
         conditions.propulsion.acoustic_outputs.fan = results_conditions(
         exit_static_temperature             = fan_nozzle.outputs.static_temperature,

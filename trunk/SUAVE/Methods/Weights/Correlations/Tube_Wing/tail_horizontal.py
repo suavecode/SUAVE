@@ -24,7 +24,7 @@ def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):
         Assume that the elevator is 25% of the horizontal tail 
     
     Source: 
-        N/A
+        Aircraft Design: A Conceptual Approach by Raymer
         
     Inputs:
         b_h - span of the horizontal tail                                                               [meters]

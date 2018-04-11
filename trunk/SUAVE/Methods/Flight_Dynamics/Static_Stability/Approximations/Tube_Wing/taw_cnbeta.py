@@ -103,7 +103,7 @@ def taw_cnbeta(geometry,conditions,configuration):
             v_inf - true airspeed                                                         [meters/second]
             M - flight Mach number
             rho - air density                                                             [kg/meters**3]
-            mew - air dynamic dynamic_viscosity                                           [kg/meter/second]
+            mu  - air dynamic dynamic_viscosity                                           [kg/meter/second]
 
         configuration - a data dictionary with the fields:
             mass_properties - a data dictionary with the field:
@@ -181,7 +181,7 @@ def taw_cnbeta(geometry,conditions,configuration):
             h2     = body.heights.at_three_quarters_length 
             #Compute body contribution to Cn_beta
             x_cg_on_body = (x_cg-x_le)/l_b
-            Re_body  = rho*v_inf*l_b/mew
+            Re_body  = rho*v_inf*l_b/mu
             x1       = x_cg_on_body/l_b
             x2       = l_b*l_b/S_bs
             x3       = np.sqrt(h1/h2)
