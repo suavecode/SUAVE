@@ -3,7 +3,7 @@
 # fuselage.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
+    Bidirectional_Carbon_Fiber, Honeycomb, Paint, Unidirectional_Carbon_Fiber, Acrylic, Steel)
 import numpy as np
 
 
@@ -19,6 +19,7 @@ import numpy as np
 # Fuselage
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Common
 def fuselage(config,
              maximum_g_load = 3.8,
              landing_impact_factor = 3.5,
@@ -31,16 +32,20 @@ def fuselage(config,
 
         Calculates the structural mass of a fuselage for an eVTOL vehicle,
         assuming a structural keel taking bending an torsional loads.
-
+        
+        Assumptions:
         Assumes an elliptical fuselage. Intended for use with the following
         SUAVE vehicle types, but may be used elsewhere:
 
-            electricHelicopter
-            electricTiltrotor
-            electricStoppedRotor
+            Electric Helicopter
+            Electric Tiltrotor
+            Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
         of the above vehicle types.
+        
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
@@ -51,6 +56,9 @@ def fuselage(config,
         Outputs:
 
             weight:                 Estimated Fuselage Mass             [kg]
+        
+        Properties Used:
+        Material Properties of Imported SUAVE Solids
     """
 
 #-------------------------------------------------------------------------------
@@ -70,32 +78,32 @@ def fuselage(config,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    BiCF = bidirectional_carbon_fiber()
+    BiCF = Bidirectional_Carbon_Fiber()
     BiCF_MGT = BiCF.minimum_gage_thickness
     BiCF_DEN = BiCF.density
     BiCF_UTS = BiCF.ultimate_tensile_strength
     BiCF_USS = BiCF.ultimate_shear_strength
     BiCF_UBS = BiCF.ultimate_bearing_strength
     
-    UniCF = unidirectional_carbon_fiber()
+    UniCF = Unidirectional_Carbon_Fiber()
     UniCF_MGT = UniCF.minimum_gage_thickness
     UniCF_DEN = UniCF.density
     UniCF_UTS = UniCF.ultimate_tensile_strength
     UniCF_USS = UniCF.ultimate_shear_strength
     
-    HCMB = honeycomb()
+    HCMB = Honeycomb()
     HCMB_MGT = HCMB.minimum_gage_thickness
     HCMB_DEN = HCMB.density
     
-    PAINT = paint()
+    PAINT = Paint()
     PAINT_MGT = PAINT.minimum_gage_thickness
     PAINT_DEN = PAINT.density
     
-    ACRYL = acrylic()
+    ACRYL = Acrylic()
     ACRYL_MGT = ACRYL.minimum_gage_thickness
     ACRYL_DEN = ACRYL.density
     
-    STEEL = steel()
+    STEEL = Steel()
     STEEL_USS = STEEL.ultimate_shear_strength
 
     # Calculate Skin Weight Per Unit Area (arealWeight) based on material
@@ -126,7 +134,7 @@ def fuselage(config,
     # Calculate keel mass needed to carry lifting moment, assuming
     # Uni-directional Carbon Fiber used to carry load
 
-    L_max       = G_max * MTOW * 9.8 * SF        # Max Lifting Load
+    L_max       = G_max * MTOW * 9.8 * SF  # Max Lifting Load
     M_lift      = L_max * fLength/2.       # Max Moment Due to Lift
     beamWidth   = fWidth/3.                # Allowable Keel Width
     beamHeight  = fHeight/10.              # Allowable Keel Height
@@ -137,21 +145,21 @@ def fuselage(config,
     # Calculate keel mass needed to carry wing bending moment, assuming
     # thin walled Bi-directional Carbon Fiber used to carry load
 
-    M_bend      = L_max/2 * maxSpan/2                          # Max Bending Moment
-    beamArea    = beamHeight * beamWidth                       # Enclosed Beam Area
-    beamThk     = 0.5 * M_bend/(BiCF_USS * beamArea)    # Beam Thickness
+    M_bend      = L_max/2 * maxSpan/2                           # Max Bending Moment
+    beamArea    = beamHeight * beamWidth                        # Enclosed Beam Area
+    beamThk     = 0.5 * M_bend/(BiCF_USS * beamArea)            # Beam Thickness
     massKeel   += 2*(beamHeight + beamWidth)*beamThk*BiCF_DEN
 
     # Calculate keel mass needed to carry landing impact load assuming
     # Steel bolts, and Bi-directional Carbon Fiber laminate pads used to carry
     # loads in a side landing
 
-    F_landing   = SF * MTOW * 9.8 * LIF * 0.6403              # Side Landing Force
-    boltArea    = F_landing/STEEL_USS              # Required Bolt Area
+    F_landing   = SF * MTOW * 9.8 * LIF * 0.6403        # Side Landing Force
+    boltArea    = F_landing/STEEL_USS                   # Required Bolt Area
     boltDiam    = 2 * np.sqrt(boltArea/np.pi)           # Bolt Diameter
-    lamThk      = F_landing/(boltDiam*BiCF_UBS)    # Laminate Thickness
+    lamThk      = F_landing/(boltDiam*BiCF_UBS)         # Laminate Thickness
     lamVol      = (np.pi*(20*lamThk)**2)*(lamThk/3)     # Laminate Pad volume
-    massKeel   += 4*lamVol*BiCF_DEN            # Mass of 4 Pads
+    massKeel   += 4*lamVol*BiCF_DEN                     # Mass of 4 Pads
 
     # Calculate total mass as the sum of skin mass, bulkhead mass, canopy pass,
     # and keel mass. Called weight by SUAVE convention

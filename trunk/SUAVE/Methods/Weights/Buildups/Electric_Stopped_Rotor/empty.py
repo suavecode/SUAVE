@@ -1,17 +1,15 @@
-## @ingroup Methods-Weights-Buildups-electricStoppedRotor
+## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
 
 # empty.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units, Data
-from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
@@ -22,13 +20,14 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
 def empty(config,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.electricStoppedRotor.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor.empty(
             config,
             speed_of_sound              = 340.294,
             max_tip_mach                = 0.65,
@@ -47,10 +46,13 @@ def empty(config,
             wiring.py
 
         Originally written as part of an AA 290 project inteded for trade study
-        of the eHelicotor along with the following defined SUAVE config types:
+        of the Electric Stopped Rotor along with the following defined SUAVE config types:
 
-            electricTiltrotor
-            electricHelicopter
+            Electric Helicopter
+            Electric Tiltrotor
+            
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
@@ -63,7 +65,7 @@ def empty(config,
         
         Outputs:
 
-            weight:             Data Dictionary of Component Masses
+            output:                         Data Dictionary of Component Masses       [kg]
 
     """
 
@@ -125,10 +127,10 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift, 4) 
-                               * (len(config.wings['main_wing'].xMotor) 
-                                  + len(config.wings['main_wing'].xMotor))) *Units.kg
-    output.thrust_rotors    = prop(config.propulsors.network.propeller, maxLift/5, 2) *Units.kg
+    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift) 
+                               * (len(config.wings['main_wing'].motor_spanwise_locations) 
+                                  + len(config.wings['main_wing'].motor_spanwise_locations))) *Units.kg
+    output.thrust_rotors    = prop(config.propulsors.network.thrust_propeller, maxLift/5) *Units.kg
     output.fuselage         = fuselage(config) *Units.kg
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,

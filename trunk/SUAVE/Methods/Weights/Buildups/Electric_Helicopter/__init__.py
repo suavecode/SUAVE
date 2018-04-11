@@ -1,6 +1,6 @@
-## @defgroup Methods-Weights-Buildups-electricHelicopter electricHelicopter
+## @defgroup Methods-Weights-Buildups-Electric_Helicopter Electric_Helicopter
 
-"""SUAVE.Methods.Weights.Correlations.electricHelicopter
+"""SUAVE.Methods.Weights.Buildups.Electric_Helicopter
    contains methods and attributes used for estimating
    electric helicopter weights on a component-by-component
    basis.

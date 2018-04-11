@@ -3,7 +3,7 @@
 # wing.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
+    Bidirectional_Carbon_Fiber, Honeycomb, Paint, Unidirectional_Carbon_Fiber, Aluminum, Epoxy, Rib)
 import numpy as np
 import copy as cp
 
@@ -19,6 +19,7 @@ import copy as cp
 # Wing
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Common
 def wing(wing,
          config,
          max_thrust,
@@ -53,12 +54,15 @@ def wing(wing,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            electricTiltwing
-            electricTiltrotor
-            electricStoppedRotor
+            Electric Helicopter
+            Electric Tiltrotor
+            Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
         of the above vehicle types plus an electricHelicopter.
+        
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
@@ -84,66 +88,66 @@ def wing(wing,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    MTOW                = config.mass_properties.max_takeoff
-    wingspan            = wing.spans.projected
-    chord               = wing.chords.mean_aerodynamic,
-    thicknessToChord    = wing.thickness_to_chord, 
-    wingletFraction     = wing.winglet_fraction, 
-    wingArea            = wing.areas.reference
-    totalWingArea       = (config.wings['main_wing'].areas.reference + 
-                           config.wings['secondary_wing'].areas.reference)
-    liftFraction        = wingArea/totalWingArea
-    xMotor              = wing.xMotor
+    MTOW                        = config.mass_properties.max_takeoff
+    wingspan                    = wing.spans.projected
+    chord                       = wing.chords.mean_aerodynamic,
+    thicknessToChord            = wing.thickness_to_chord, 
+    wingletFraction             = wing.winglet_fraction, 
+    wingArea                    = wing.areas.reference
+    totalWingArea               = (config.wings['main_wing'].areas.reference + 
+                                   config.wings['secondary_wing'].areas.reference)
+    liftFraction                = wingArea/totalWingArea
+    motor_spanwise_locations    = wing.motor_spanwise_locations
 
-    N       = num_analysis_points             # Number of spanwise points
-    SF      = safety_factor                  # Safety Factor
-    G_max   = max_g_load                      # Maximum G's experienced during climb
-    cmocl   = moment_to_lift_ratio             # Ratio of cm to cl
-    LoD     = lift_to_drag_ratio               # L/D
-    fwdWeb  = cp.deepcopy(forward_web_locations)       # Locations of forward spars
-    aftWeb  = cp.deepcopy(rear_web_locations)          # Locations of aft spars
-    xShear  = shear_center_location                   # Approximate shear center
-    grace   = margin_factor                  # Grace factor for estimation
+    N       = num_analysis_points                   # Number of spanwise points
+    SF      = safety_factor                         # Safety Factor
+    G_max   = max_g_load                            # Maximum G's experienced during climb
+    cmocl   = moment_to_lift_ratio                  # Ratio of cm to cl
+    LoD     = lift_to_drag_ratio                    # L/D
+    fwdWeb  = cp.deepcopy(forward_web_locations)    # Locations of forward spars
+    aftWeb  = cp.deepcopy(rear_web_locations)       # Locations of aft spars
+    xShear  = shear_center_location                 # Approximate shear center
+    grace   = margin_factor                         # Grace factor for estimation
 
-    nRibs = len(xMotor) + 2
-    xMotor = np.multiply(xMotor,wingspan/2)
+    nRibs = len(motor_spanwise_locations) + 2
+    motor_spanwise_locations = np.multiply(motor_spanwise_locations,wingspan/2)
 
 #-------------------------------------------------------------------------------
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    BiCF = bidirectional_carbon_fiber()
+    BiCF = Bidirectional_Carbon_Fiber()
     BiCF_MGT = BiCF.minimum_gage_thickness
     BiCF_DEN = BiCF.density
     BiCF_UTS = BiCF.ultimate_tensile_strength
     BiCF_USS = BiCF.ultimate_shear_strength
     BiCF_UBS = BiCF.ultimate_bearing_strength
     
-    UniCF = unidirectional_carbon_fiber()
+    UniCF = Unidirectional_Carbon_Fiber()
     UniCF_MGT = UniCF.minimum_gage_thickness
     UniCF_DEN = UniCF.density
     UniCF_UTS = UniCF.ultimate_tensile_strength
     UniCF_USS = UniCF.ultimate_shear_strength
     
-    HCMB = honeycomb()
+    HCMB = Honeycomb()
     HCMB_MGT = HCMB.minimum_gage_thickness
     HCMB_DEN = HCMB.density
     
-    RIB = rib()
+    RIB = Rib()
     RIB_WID = RIB.minimum_width
     RIB_MGT = RIB.minimum_gage_thickness
     RIB_DEN = RIB.density
     
-    ALUM = aluminum()
+    ALUM = Aluminum()
     ALUM_DEN = ALUM.density
     ALUM_MGT = ALUM.minimum_gage_thickness
     ALUM_UTS = ALUM.ultimate_tensile_strength
     
-    EPOXY = epoxy()
+    EPOXY = Epoxy()
     EPOXY_MGT = EPOXY.minimum_gage_thickness
     EPOXY_DEN = EPOXY.density
     
-    PAINT = paint()
+    PAINT = Paint()
     PAINT_MGT = PAINT.minimum_gage_thickness
     PAINT_DEN = PAINT.density
 
@@ -165,7 +169,7 @@ def wing(wing,
 
     x = np.concatenate((np.linspace(0,1,N),np.linspace(1,1+wingletFraction[0],N)),axis=0)
     x = x * wingspan/2
-    x = np.sort(np.concatenate((x,xMotor),axis=0))
+    x = np.sort(np.concatenate((x,motor_spanwise_locations),axis=0))
     dx = x[1] - x[0]
     N = np.size(x)
     fwdWeb[:] = [round(locFwd - xShear,2) for locFwd in fwdWeb]
@@ -175,12 +179,12 @@ def wing(wing,
 # Loads
 #-------------------------------------------------------------------------------
 
-    L = (1-(x/np.max(x))**2)**0.5       # Assumes Elliptic Lift Distribution
+    L = (1-(x/np.max(x))**2)**0.5           # Assumes Elliptic Lift Distribution
     L0 = 0.5*G_max*MTOW*9.8*liftFraction*SF # Total Design Lift Force
-    L = L0/np.sum(L[0:-1]*np.diff(x))*L # Net Lift Distribution
+    L = L0/np.sum(L[0:-1]*np.diff(x))*L     # Net Lift Distribution
 
-    T = L * chord[0] * cmocl               # Torsion Distribution
-    D = L/LoD                           # Drag Distribution
+    T = L * chord[0] * cmocl                # Torsion Distribution
+    D = L/LoD                               # Drag Distribution
 
 #-------------------------------------------------------------------------------
 # Shear/Moments
@@ -196,8 +200,8 @@ def wing(wing,
     # less than or aligned with the motor location under consideration in an
     # iterative loop
 
-    for i in range(np.size(xMotor)):
-        Vt[x<=xMotor[i]] = Vt[x<=xMotor[i]] + max_thrust
+    for i in range(np.size(motor_spanwise_locations)):
+        Vt[x<=motor_spanwise_locations[i]] = Vt[x<=motor_spanwise_locations[i]] + max_thrust
 
     Mx = np.append(np.cumsum((Vz[0:-1]*np.diff(x))[::-1])[::-1],0)  # Bending Moment
     My = np.append(np.cumsum(( T[0:-1]*np.diff(x))[::-1])[::-1],0)  # Torsion Moment
@@ -214,11 +218,11 @@ def wing(wing,
     # Torsion
 
     box = coord                     # Box Initally Matches Airfoil
-    box = box[box[:,0]<=aftWeb[1]]   # Inlcude Only Parts Fwd of Aftmost Spar
-    box = box[box[:,0]>=fwdWeb[0]]   # Include Only Parts Aft of Fwdmost Spar
-    box = box * chord[0]               # Scale by Chord Length
+    box = box[box[:,0]<=aftWeb[1]]  # Inlcude Only Parts Fwd of Aftmost Spar
+    box = box[box[:,0]>=fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
+    box = box * chord[0]            # Scale by Chord Length
 
-        # Use Shoelace Formula to calculate box area
+    # Use Shoelace Formula to calculate box area
 
     torsionArea = 0.5*np.abs(np.dot(box[:,0],np.roll(box[:,1],1))-
         np.dot(box[:,1],np.roll(box[:,0],1)))
@@ -282,33 +286,33 @@ def wing(wing,
 
     # Calculate Skin Weight Based on Torsion
 
-    tTorsion = My*dx/(2*BiCF_USS*torsionArea)                                    # Torsion Skin Thickness
-    tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))                       # Gage Constraint
-    mTorsion = tTorsion * torsionLength * BiCF_DEN                           # Torsion Mass
-    mCore = HCMB_MGT*torsionLength*HCMB_DEN*np.ones(N) # Core Mass
-    mGlue = EPOXY_MGT*EPOXY_DEN*torsionLength*np.ones(N)         # Epoxy Mass
+    tTorsion = My*dx/(2*BiCF_USS*torsionArea)               # Torsion Skin Thickness
+    tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))     # Gage Constraint
+    mTorsion = tTorsion * torsionLength * BiCF_DEN          # Torsion Mass
+    mCore = HCMB_MGT*torsionLength*HCMB_DEN*np.ones(N)      # Core Mass
+    mGlue = EPOXY_MGT*EPOXY_DEN*torsionLength*np.ones(N)    # Epoxy Mass
 
     # Calculate Flap Mass Based on Bending
 
-    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF_UTS)                       # Bending Flap Thickness
-    mFlap = tFlap*flapLength*UniCF_DEN                                       # Bending Flap Mass
-    mGlue += EPOXY_MGT*EPOXY_DEN*flapLength*np.ones(N)           # Updated Epoxy Mass
+    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF_UTS)  # Bending Flap Thickness
+    mFlap = tFlap*flapLength*UniCF_DEN                      # Bending Flap Mass
+    mGlue += EPOXY_MGT*EPOXY_DEN*flapLength*np.ones(N)      # Updated Epoxy Mass
 
     # Calculate Drag Flap Mass
 
-    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF_UTS)                       # Drag Flap Thickness
-    mDrag = tDrag*dragLength*UniCF_DEN                                       # Drag Flap Mass
-    mGlue += EPOXY_MGT*EPOXY_DEN*dragLength*np.ones(N)           # Updated Epoxy Mass
+    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF_UTS)  # Drag Flap Thickness
+    mDrag = tDrag*dragLength*UniCF_DEN                      # Drag Flap Mass
+    mGlue += EPOXY_MGT*EPOXY_DEN*dragLength*np.ones(N)      # Updated Epoxy Mass
 
     # Calculate Shear Spar Mass
 
-    tShear = 1.5*Vz/(BiCF_USS*h)                                                 # Shear Spar Thickness
-    tShear = np.maximum(tShear, BiCF_MGT*np.ones(N))                          # Gage constraint
-    mShear = tShear*h*BiCF_DEN                                               # Shear Spar Mass
+    tShear = 1.5*Vz/(BiCF_USS*h)                            # Shear Spar Thickness
+    tShear = np.maximum(tShear, BiCF_MGT*np.ones(N))        # Gage constraint
+    mShear = tShear*h*BiCF_DEN                              # Shear Spar Mass
 
     # Paint
 
-    mPaint = skinLength*PAINT_MGT*PAINT_DEN*np.ones(N)           # Paint Mass
+    mPaint = skinLength*PAINT_MGT*PAINT_DEN*np.ones(N)      # Paint Mass
 
     # Section Mass Total
 

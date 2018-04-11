@@ -5,6 +5,7 @@
 import sys
 import SUAVE
 import numpy as np
+import copy as cp
 import pprint as pp
 from SUAVE.Methods.Weights.Buildups.Electric_Helicopter import empty as electricHelicopterEmpty
 from SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor import empty as electricStoppedRotorEmpty
@@ -100,7 +101,7 @@ def vehicle_setup():
     wing.sweeps.leading_edge        = 0. * Units.degrees
     wing.sweeps.half_chord          = 0. * Units.degrees
     
-    wing.xMotor                     = [0.5, 0.5]
+    wing.motor_spanwise_locations   = [0.5, 0.5]
     wing.winglet_fraction           = 0.
     
     wing.high_lift                  = True
@@ -131,7 +132,7 @@ def vehicle_setup():
     
     wing.high_lift                  = True
     
-    wing.xMotor                     = [0.5, 0.5]
+    wing.motor_spanwise_locations   = [0.5, 0.5]
     wing.winglet_fraction           = 0.
     
     vehicle.append_component(wing)
@@ -151,7 +152,7 @@ def configs_setup(vehicle):
     configs.append(base_config)
     
     #---------------------------------------------------------------------------
-    # electricHelicopter Configuration
+    # Electric Helicopter Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
@@ -179,7 +180,7 @@ def configs_setup(vehicle):
     configs.append(config)
     
     #---------------------------------------------------------------------------
-    # electricStoppedRotor Configuration
+    # Electric Stopped Rotor Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
@@ -197,17 +198,23 @@ def configs_setup(vehicle):
     prop_attributes.design_altitude     = 1. * Units.km
     prop_attributes.design_thrust       = 200. * 9.81 * Units.newtons
     prop_attributes.design_power        = 0. * Units.watts
-    prop_attributes                     = propeller_design(prop_attributes)    
+    prop_attributes                     = propeller_design(prop_attributes)
        
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop.prop_attributes    = prop_attributes
     prop.origin             = [0.,0.,0.]
     config.propulsors.network.propeller    = prop
     
+    thrust_prop_attributes = cp.deepcopy(prop_attributes)
+    thrust_prop_attributes.number_blades = 2.0
+    thrust_prop = SUAVE.Components.Energy.Converters.Propeller()
+    thrust_prop.prop_attributes = thrust_prop_attributes
+    config.propulsors.network.thrust_propeller = thrust_prop
+    
     configs.append(config)
 
     #---------------------------------------------------------------------------
-    # electricTiltrotor Configuration
+    # Electric Tiltrotor Configuration
     #---------------------------------------------------------------------------
     
     config = SUAVE.Components.Configs.Config(base_config)
@@ -242,7 +249,7 @@ def full_setup():
     configs = configs_setup(vehicle)
     
     #---------------------------------------------------------------------------
-    # Reference Order: electricHelicopter, electricStoppedRotor, electricTiltrotor
+    # Reference Order: Helicopter, Stopped Rotor, Tiltrotor
     #---------------------------------------------------------------------------
     
     referenceWeights = [
@@ -318,7 +325,8 @@ def check_results(referenceWeights, refactoredWeights):
                 if (np.abs(err) < 1e-6):
                     pass
                 else:
-                    print 'Reference Check Failed: Dictionary {}, Value {}.\n'.format(weightDict, k)
+                    print 'Reference Check Failed: Dictionary {}, Value {}.\n'.format(i+1, k)
+                    print 'The reference value is {}, the new value is {}.\n'.format(refVal, newVal)
                     errors += 1
             except KeyError:
                 print "The {} value does not appear in the refactored weights".format(k)

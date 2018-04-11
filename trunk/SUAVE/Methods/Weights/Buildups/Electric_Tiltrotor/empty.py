@@ -1,15 +1,14 @@
+## @ingroup Methods-Weights-Buildups-Electric_Tiltrotor
 # empty.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units, Data
-from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
@@ -20,6 +19,7 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Electric_Tiltrotor
 def empty(config,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
@@ -45,11 +45,13 @@ def empty(config,
             wiring.py
 
         Originally written as part of an AA 290 project inteded for trade study
-        of the eHelicotor along with the following defined SUAVE vehicle types:
+        of the Electric Tiltrotor along with the following defined SUAVE vehicle types:
 
-            electricTiltwing
-            electricTiltrotor
-            electricStoppedRotor
+            Electric Helicopter
+            Electric Stopped Rotor
+            
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
@@ -62,7 +64,7 @@ def empty(config,
 
         Outputs:
 
-            weight:        Dictionary of Component Masses  [m]
+            output:                         Data Dictionary of Component Masses       [kg]
 
     """
 
@@ -78,7 +80,8 @@ def empty(config,
     output.motors           = 10 * config.propulsors.network.number_of_engines
     output.battery          = config.propulsors.network.battery.mass_properties.mass
     output.servos           = 0.65 * config.propulsors.network.number_of_engines
-    output.rotor_servos     = 2 * (len(config.wings['main_wing'].xMotor) + len(config.wings['main_wing'].xMotor))
+    output.rotor_servos     = 2 * (len(config.wings['main_wing'].motor_spanwise_locations) 
+                                   + len(config.wings['main_wing'].motor_spanwise_locations))
     output.brs              = 16.
     output.hubs             = 2 * config.propulsors.network.number_of_engines
     output.landing_gear     = config.mass_properties.max_takeoff * 0.02
@@ -98,7 +101,7 @@ def empty(config,
 
     Vtip        = sound * tipMach                               # Prop Tip Velocity
     omega       = Vtip/0.8                                      # Prop Ang. Velocity
-    maxLift     = config.mass_properties.max_takeoff * ToverW  # Maximum Thrust
+    maxLift     = config.mass_properties.max_takeoff * ToverW   # Maximum Thrust
     Ct          = maxLift/(1.225*np.pi*0.8**2*Vtip**2)          # Thrust Coefficient
     bladeSol    = 0.1                                           # Blade Solidity
     AvgCL       = 6 * Ct / bladeSol                             # Average Blade CL
@@ -113,7 +116,9 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.lift_rotors      = prop(config.propulsors.network.propeller, maxLift, 4) * (len(config.wings['main_wing'].xMotor) + len(config.wings['main_wing'].xMotor))
+    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift)
+                               * (len(config.wings['main_wing'].motor_spanwise_locations) 
+                                  + len(config.wings['main_wing'].motor_spanwise_locations)))
     output.fuselage         = fuselage(config)
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,

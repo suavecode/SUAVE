@@ -3,7 +3,7 @@
 # prop.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
+    Bidirectional_Carbon_Fiber, Honeycomb, Paint, Unidirectional_Carbon_Fiber, Aluminum, Epoxy, Nickel, Rib)
 import numpy as np
 import copy as cp
 
@@ -19,9 +19,9 @@ import copy as cp
 # Prop
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Common
 def prop(prop,
          maximum_thrust,
-         number_of_blades,
          chord_to_radius_ratio = 0.1,
          thickness_to_chord_ratio = 0.12,
          root_to_radius_ratio = 0.1,
@@ -36,7 +36,6 @@ def prop(prop,
     """weight = SUAVE.Methods.Weights.Buildups.Common.prop(
             prop,
             maximum_thrust,
-            number_of_blades,
             chord_to_radius_ratio = 0.1,
             thickness_to_chord_ratio = 0.12,
             root_to_radius_ratio = 0.1,
@@ -49,6 +48,7 @@ def prop(prop,
             speed_of_sound = 340.294,
             tip_max_mach_number = 0.65)
 
+        Assumptions:
         Calculates propeller blade pass for an eVTOL vehicle based on assumption
         of a NACA airfoil prop, an assumed cm/cl, tip Mach limit, and structural
         geometry.
@@ -56,18 +56,20 @@ def prop(prop,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            electricHelicopter
-            electricTiltrotor
-            electricStoppedRotor
+            Electric Helicopter
+            Electric Tiltrotor
+            Electric Stopped Rotor
 
         Originally written as part of an AA 290 project inteded for trade study
         of the above vehicle types.
+        
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
             prop                        SUAVE Propeller Data Structure
             maximum_thrust              Maximum Design Thrust               [N]
-            number_of_blades            Propeller Blades                    [Unitless]
             chord_to_radius_ratio       Chord to Blade Radius               [Unitless]
             thickness_to_chord_ratio    Blade Thickness to Chord            [Unitless]
             root_to_radius_ratio        Root Structure to Blade Radius      [Unitless]
@@ -83,6 +85,9 @@ def prop(prop,
         Outputs:
 
             weight:                 Propeller Mass                      [kg]
+            
+        Properties Used:
+        Material properties of imported SUAVE Solids
     """
 
 #-------------------------------------------------------------------------------
@@ -91,7 +96,7 @@ def prop(prop,
 
     rProp       = prop.prop_attributes.tip_radius
     maxThrust   = maximum_thrust
-    nBlades     = number_of_blades
+    nBlades     = prop.prop_attributes.number_blades
     chord       = rProp * chord_to_radius_ratio
     N           = spanwise_analysis_points
     SF          = safety_factor
@@ -108,41 +113,41 @@ def prop(prop,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    BiCF = bidirectional_carbon_fiber()
+    BiCF = Bidirectional_Carbon_Fiber()
     BiCF_MGT = BiCF.minimum_gage_thickness
     BiCF_DEN = BiCF.density
     BiCF_UTS = BiCF.ultimate_tensile_strength
     BiCF_USS = BiCF.ultimate_shear_strength
     BiCF_UBS = BiCF.ultimate_bearing_strength
     
-    UniCF = unidirectional_carbon_fiber()
+    UniCF = Unidirectional_Carbon_Fiber()
     UniCF_MGT = UniCF.minimum_gage_thickness
     UniCF_DEN = UniCF.density
     UniCF_UTS = UniCF.ultimate_tensile_strength
     UniCF_USS = UniCF.ultimate_shear_strength
     
-    HCMB = honeycomb()
+    HCMB = Honeycomb()
     HCMB_MGT = HCMB.minimum_gage_thickness
     HCMB_DEN = HCMB.density
     
-    RIB = rib()
+    RIB = Rib()
     RIB_WID = RIB.minimum_width
     RIB_MGT = RIB.minimum_gage_thickness
     RIB_DEN = RIB.density
     
-    ALUM = aluminum()
+    ALUM = Aluminum()
     ALUM_DEN = ALUM.density
     ALUM_MGT = ALUM.minimum_gage_thickness
     ALUM_UTS = ALUM.ultimate_tensile_strength
     
-    NICK = nickel()
+    NICK = Nickel()
     NICK_DEN = NICK.density
     
-    EPOXY = epoxy()
+    EPOXY = Epoxy()
     EPOXY_MGT = EPOXY.minimum_gage_thickness
     EPOXY_DEN = EPOXY.density
     
-    PAINT = paint()
+    PAINT = Paint()
     PAINT_MGT = PAINT.minimum_gage_thickness
     PAINT_DEN = PAINT.density
 
@@ -194,18 +199,18 @@ def prop(prop,
 # General Structural Properties
 #-------------------------------------------------------------------------------
 
-    seg = []                        # LIST of Structural Segments
+    seg = []                                            # List of Structural Segments
 
     # Torsion
 
     enclosedArea = 0.5*np.abs(np.dot(box[:,0],np.roll(box[:,1],1))-
-        np.dot(box[:,1],np.roll(box[:,0],1)))   # Shoelace Formula
+        np.dot(box[:,1],np.roll(box[:,0],1)))           # Shoelace Formula
 
     # Flap Properties
 
-    box = coord                     # Box Initially Matches Airfoil
-    box = box[box[:,0]<=fwdWeb[1]]   # Trim Coordinates Aft of Aft Web
-    box = box[box[:,0]>=fwdWeb[0]]   # Trim Coordinates Fwd of Fwd Web
+    box = coord                                         # Box Initially Matches Airfoil
+    box = box[box[:,0]<=fwdWeb[1]]                      # Trim Coordinates Aft of Aft Web
+    box = box[box[:,0]>=fwdWeb[0]]                      # Trim Coordinates Fwd of Fwd Web
     seg.append(box[box[:,1]>np.mean(box[:,1])]*chord)   # Upper Fwd Segment
     seg.append(box[box[:,1]<np.mean(box[:,1])]*chord)   # Lower Fwd Segment
 
@@ -234,7 +239,7 @@ def prop(prop,
     box = box[box[:,0]>=fwdWeb[0]]
     box = box*chord
     coreArea = 0.5*np.abs(np.dot(box[:,0],np.roll(box[:,1],1))-
-        np.dot(box[:,1],np.roll(box[:,0],1)))   # Shoelace Formula
+        np.dot(box[:,1],np.roll(box[:,0],1)))                       # Shoelace Formula
 
     # Shear/Moment Calculations
 
@@ -252,9 +257,9 @@ def prop(prop,
 
         # Calculate Skin Weight Based on Torsion
 
-        tTorsion = My/(2*BiCF_USS*enclosedArea)                          # Torsion Skin Thickness
-        tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))           # Gage Constraint
-        mTorsion = tTorsion * skinLength * BiCF_DEN                  # Torsion Mass
+        tTorsion = My/(2*BiCF_USS*enclosedArea)                 # Torsion Skin Thickness
+        tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))     # Gage Constraint
+        mTorsion = tTorsion * skinLength * BiCF_DEN             # Torsion Mass
 
         # Calculate Flap Mass Based on Bending
 

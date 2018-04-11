@@ -1,17 +1,15 @@
-## @ingroup Methods-Weights-Buildups-electricHelicopter
+## @ingroup Methods-Weights-Buildups-Electric_Helicopter
 
 # empty.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Feb, 2018, J. Smart
+# Modified: Apr, 2018, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units, Data
-from SUAVE.Attributes.Solids import (
-    bidirectional_carbon_fiber, honeycomb, paint, unidirectional_carbon_fiber, acrylic, steel, aluminum, epoxy, nickel, rib)
 from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
@@ -21,15 +19,16 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
+## @ingroup Methods-Weights-Buildups-Electric_Helicopter
 def empty(config,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.electricHelicopter.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.Electric_Helicopter.empty(
             config,
-            speed_of_sound                = 340.294,
+            speed_of_sound              = 340.294,
             maximumTipMach              = 0.65,
             disk_area_factor            = 1.15,
             max_thrust_to_weight_ratio  = 1.1,
@@ -46,10 +45,13 @@ def empty(config,
             wiring.py
 
         Originally written as part of an AA 290 project inteded for trade study
-        of the eHelicotor along with the following defined SUAVE vehicle types:
+        of the Electric Helicopter along with the following defined SUAVE vehicle types:
 
-            electricTiltrotor
-            electricStoppedRotor
+            Electric Tiltrotor
+            Electric Stopped Rotor
+            
+        Sources:
+        Project Vahana Conceptual Trade Study
 
         Inputs:
 
@@ -62,7 +64,7 @@ def empty(config,
 
         Outputs:
 
-            output:             Data Dictionary of Component Masses
+            output:                         Data Dictionary of Component Masses       [kg]
 
     """
 
@@ -76,8 +78,6 @@ def empty(config,
     mBattery            = config.propulsors.network.battery.mass_properties.mass
     mPayload            = config.propulsors.network.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
-    propBlades          = config.propulsors.network.propeller.prop_attributes.number_blades
-    tailBlades          = config.propulsors.network.propeller.prop_attributes.number_blades
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
     fHeight             = config.fuselages.fuselage.heights.maximum
@@ -123,11 +123,9 @@ def empty(config,
     # Component Weight Calculations
 
     output.rotor         = prop(config.propulsors.network.propeller,
-                                maxThrust,
-                                propBlades)
+                                maxThrust)
     output.tail_rotor    = prop(config.propulsors.network.propeller,
-                                1.5*maxTorque/(1.25*rProp),
-                                tailBlades)*0.2
+                                1.5*maxTorque/(1.25*rProp))*0.2
     output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     output.fuselage      = fuselage(config)
     output.wiring        = wiring(config,np.ones(8),maxPower/etaMotor)
