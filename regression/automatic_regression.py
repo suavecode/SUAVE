@@ -49,6 +49,7 @@ modules = [
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     'scripts/gasturbine_network/gasturbine_network.py',
+    'scripts/geometry/NACA_airfoil_compute.py',
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/landing_field_length/landing_field_length.py',
     'scripts/lifting_line/lifting_line.py',
