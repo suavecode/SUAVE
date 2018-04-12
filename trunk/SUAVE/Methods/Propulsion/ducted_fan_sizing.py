@@ -33,7 +33,6 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     #Unpack components
     
     #check if altitude is passed or conditions is passed
-    
     if(conditions):
         #use conditions
         pass
@@ -76,8 +75,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
-    
-    
+    # Setup Components   
     ram                       = ducted_fan.ram
     inlet_nozzle              = ducted_fan.inlet_nozzle
     fan                       = ducted_fan.fan
@@ -137,16 +135,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     thrust.inputs.core_nozzle.area_ratio                   = 0.
     thrust.inputs.core_nozzle.static_pressure              = 0.                                                                                                                
     
-    
     #compute the trust
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
     
-
     #update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
-    
-    
+      
     #compute the sls_thrust
     
     #call the atmospheric model to get the conditions at the specified altitude
@@ -161,8 +156,6 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-
-
 
     # freestream conditions
     conditions_sls.freestream.altitude                    = np.atleast_1d(0.)
@@ -186,9 +179,4 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     state_sls.conditions = conditions_sls   
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
-    ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-   
-    
-    
-    
-    
+    ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines 
