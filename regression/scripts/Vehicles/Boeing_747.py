@@ -25,6 +25,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 def vehicle_setup():
 
     vehicle = SUAVE.Vehicle()
+    
     #print vehicle
     vehicle.mass_properties.max_zero_fuel=238780*Units.kg
     vehicle.mass_properties.max_takeoff  =785000.*Units.lbs
