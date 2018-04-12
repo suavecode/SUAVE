@@ -175,13 +175,6 @@ def vehicle_setup():
     wing.high_lift               = False
     wing.dynamic_pressure_ratio  = 1.0
 
-    # ------------------------------------------------------------------
-    #   Flaps
-    # ------------------------------------------------------------------
-    #wing.flaps.chord      =  0.1738 # % of chord, avg
-    #wing.flaps.span_start =  0.1607 # % of span
-    #wing.flaps.span_end   =  0.5775 # % of span
-
     # add to vehicle
     vehicle.append_component(wing)
 
@@ -397,31 +390,36 @@ def mission_setup(analyses):
 
     # ------------------------------------------------------------------
     # Climb Segment: Constant Throttle, Constant Speed
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------ 
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
-    segment.tag = "climb_1"
+    
+    segment.tag = "climb_self"
     segment.analyses.extend(analyses.cruise)
     segment.altitude_start  = 23000.0 * Units.feet
     segment.altitude_end    = 43000.0 * Units.feet
-    segment.throttle        = 1.0
+    segment.throttle        = 1.00
+   # segment.climb_rate      = 14000   * Units.ft/Units.minute
     segment.air_speed       = 150.0   * Units.m/Units.s
-    
+    segment.state.numerics.number_control_points = 32
+
     # add to misison
-    mission.append_segment(segment)
+    mission.append_segment(segment)    
 
     # ------------------------------------------------------------------
     # Cruise Segment: Constant Throttle, Constant Altitude
     # ------------------------------------------------------------------
-    segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
-    segment.analyses.extend(analyses.cruise)    
-    segment.altitude        = 43000.0 * Units.feet
-    segment.throttle        = 1.0
-    segment.air_speed_start = 150.0   * Units.m/Units.s
-    segment.air_speed_end   = 361.0   * Units['m/s']
+    #segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
+    #segment.tag = "cruise"
+    #segment.analyses.extend(analyses.cruise)    
+    #segment.altitude        = 43000.0 * Units.feet
+    #segment.throttle        = 1.0
+    #segment.air_speed_start = 150.0   * Units.m/Units.s
+    #segment.air_speed_end   = 316.0   * Units['m/s']
+    #segment.state.numerics.number_control_points = 200   
 
     # add to misison
-    mission.append_segment(segment)
+    #mission.append_segment(segment)
   
     # ------------------------------------------------------------------
     #   Mission definition complete    
