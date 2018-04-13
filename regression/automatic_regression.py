@@ -61,6 +61,7 @@ modules = [
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/sizing_loop/sizing_loop.py',
     'scripts/solar_network/solar_network.py',
+    'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
     'scripts/SU2_surrogate/BWB-450.py',   
     'scripts/sweeps/test_sweeps.py',
