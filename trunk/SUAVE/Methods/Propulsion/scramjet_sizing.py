@@ -1,14 +1,13 @@
 ## @ingroup Methods-Propulsion
-# ramjet_sizing.py
+# scramjet_sizing.py
 # 
-# Created:  May 2015, T. MacDonald 
-# Modified: Jan 2016, E. Botero        
-#           Jan 2018, W. Maier
+# Created:  April 2018, W. Maier
+# Modified:        
+#           
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-
 import SUAVE
 import numpy as np
 from SUAVE.Core import Data
@@ -16,10 +15,9 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #   Sizing
 # ----------------------------------------------------------------------
-
 ## @ingroup Methods-Propulsion
-def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
-    """ This function sizes a ramjet for the input design conditions.
+def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
+    """ This function sizes a scramjet for the input design conditions.
     """    
     
     #Unpack components
@@ -50,32 +48,32 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         
             # freestream conditions    
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
+            conditions.freestream.altitude                    = np.atleast_1d(altitude)
             conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
             conditions.freestream.pressure                    = np.atleast_1d(p)
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
             conditions.freestream.gravity                     = np.atleast_1d(9.81)
-            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
-            conditions.freestream.Cp                          = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
-            conditions.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(scramjet.working_fluid.compute_gamma(T,p))
+            conditions.freestream.Cp                          = np.atleast_1d(scramjet.working_fluid.compute_cp(T,p))
+            conditions.freestream.R                           = np.atleast_1d(scramjet.working_fluid.gas_specific_constant)
             conditions.freestream.speed_of_sound              = np.atleast_1d(a)
             conditions.freestream.velocity                    = np.atleast_1d(a*mach_number)
             
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
-    ram                       = ramjet.ram
-    inlet_nozzle              = ramjet.inlet_nozzle
-    combustor                 = ramjet.combustor
-    core_nozzle               = ramjet.core_nozzle
-    thrust                    = ramjet.thrust
-    number_of_engines         = ramjet.number_of_engines
+    ram                       = scramjet.ram
+    inlet_nozzle              = scramjet.inlet_nozzle
+    combustor                 = scramjet.combustor
+    core_nozzle               = scramjet.core_nozzle
+    thrust                    = scramjet.thrust
+    number_of_engines         = scramjet.number_of_engines
     
     #Creating the network by manually linking the different components
     #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                               = ramjet.working_fluid
+    ram.inputs.working_fluid                               = scramjet.working_fluid
     
     #Flow through the ram
     ram(conditions)
@@ -118,7 +116,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     thrust.size(conditions)
     
     #update the design thrust value
-    ramjet.design_thrust = thrust.total_design
+    scramjet.design_thrust = thrust.total_design
 
     #compute the sls_thrust
     #call the atmospheric model to get the conditions at the specified altitude
@@ -154,5 +152,5 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     state_sls            = Data()
     state_sls.numerics   = Data()
     state_sls.conditions = conditions_sls   
-    results_sls          = ramjet.evaluate_thrust(state_sls)
-    ramjet.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+    results_sls          = scramjet.evaluate_thrust(state_sls)
+    scramjet.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines

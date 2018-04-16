@@ -1,10 +1,10 @@
-# ramjet_network.py
+# sramjet_network.py
 # 
-# Created:  Sep 2017, P. Goncalves
-# Modified: Jan 2018, W. Maier
+# Created:  April 2018, W. Maier
+# Modified: 
 #        
 
-""" create and evaluate a ramjet network
+""" create and evaluate a sramjet network
 """
 
 # ----------------------------------------------------------------------
@@ -16,13 +16,12 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 
-from SUAVE.Components.Energy.Networks.Ramjet import Ramjet
-from SUAVE.Methods.Propulsion.ramjet_sizing import ramjet_sizing
+from SUAVE.Components.Energy.Networks.Scramjet import Scramjet
+from SUAVE.Methods.Propulsion.scramjet_sizing import scramjet_sizing
 
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
-
 def main():
     
     # call the network function
@@ -33,7 +32,6 @@ def main():
 # ----------------------------------------------------------------------
 #   Energy Network
 # ----------------------------------------------------------------------
-
 def energy_network():
     
     # ------------------------------------------------------------------
@@ -48,7 +46,7 @@ def energy_network():
     
     # freestream conditions
     EVAL                             = conditions.freestream
-    EVAL.mach_number                 = ones_1col*1.5
+    EVAL.mach_number                 = ones_1col*3.5
     conditions.M                     = EVAL.mach_number
     EVAL.altitude                    = ones_1col*10000.
     
@@ -85,7 +83,7 @@ def energy_network():
 
     # freestream conditions
     SIZE                             = conditions_sizing.freestream
-    SIZE.mach_number                 = ones_1col*2.5
+    SIZE.mach_number                 = ones_1col*6.5
     conditions_sizing.M              = SIZE.mach_number
     SIZE.altitude                    = ones_1col*10000.  
     
@@ -122,29 +120,28 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # instantiate the ramjet network
-    ramjet = SUAVE.Components.Energy.Networks.Ramjet()
-    ramjet.tag = 'ramjet'
+    scramjet = SUAVE.Components.Energy.Networks.Scramjet()
+    scramjet.tag = 'scramjet'
     
     # setup
-    ramjet.number_of_engines = 2.0
-    ramjet.engine_length     = 6.0
-    ramjet.nacelle_diameter  = 1.3 * Units.meter
-    ramjet.inlet_diameter    = 1.1 * Units.meter
+    scramjet.number_of_engines = 1.0
+    scramjet.engine_length     = 6.0
+    scramjet.nacelle_diameter  = 1.3 * Units.meter
+    scramjet.inlet_diameter    = 1.1 * Units.meter
     
     # working fluid
-    ramjet.working_fluid = SUAVE.Attributes.Gases.Air()
+    scramjet.working_fluid = SUAVE.Attributes.Gases.Air()
 
     # ------------------------------------------------------------------
     #   Component 1 - Ram
-    
-    # to convert freestream static to stagnation quantities
-    
+    #   to convert freestream static to stagnation quantities
+   
     # instantiate
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
     # add to the network
-    ramjet.append(ram)
+    scramjet.append(ram)
 
     # ------------------------------------------------------------------
     #  Component 2 - Inlet Nozzle
@@ -156,10 +153,12 @@ def energy_network():
     # setup
     inlet_nozzle.polytropic_efficiency      = 1.0
     inlet_nozzle.pressure_ratio             = 1.0
-    inlet_nozzle.compressibility_effects    = True
+    inlet_nozzle.compressibility_effects    = 3.0
+    inlet_nozzle.compression_levels         = 3.0
+    inlet_nozzle.theta                      = [0.10472,0.122173,0.226893]
     
     # add to network
-    ramjet.append(inlet_nozzle)
+    scramjet.append(inlet_nozzle)
       
     # ------------------------------------------------------------------
     #  Component 3 - Combustor
@@ -173,11 +172,11 @@ def energy_network():
     combustor.turbine_inlet_temperature = 2400.
     combustor.pressure_ratio            = 1.0
     combustor.area_ratio                = 2.0
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()  
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.JP7()  
     combustor.rayleigh_analyses         = True
     
     # add to network
-    ramjet.append(combustor)
+    scramjet.append(combustor)
 
     # ------------------------------------------------------------------
     #  Component 4 - Core Nozzle
@@ -191,7 +190,7 @@ def energy_network():
     nozzle.pressure_ratio        = 1.0   
     
     # add to network
-    ramjet.append(nozzle)
+    scramjet.append(nozzle)
 
     # ------------------------------------------------------------------
     #  Component 5 - Thrust
@@ -201,23 +200,23 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.total_design = ramjet.number_of_engines*169370.4652 * Units.N
+    thrust.total_design = scramjet.number_of_engines*169370.4652 * Units.N
     
     # add to network
-    ramjet.thrust = thrust    
+    scramjet.thrust = thrust    
 
     #size the ramjet
-    ramjet_sizing(ramjet,2.5,10000.0)
+    scramjet_sizing(scramjet,2.5,10000.0)
     
-    print "Design thrust :",ramjet.design_thrust
-    print "Sealevel static thrust :",ramjet.sealevel_static_thrust
+    print "Design thrust :",scramjet.design_thrust
+    print "Sealevel static thrust :",scramjet.sealevel_static_thrust
     
-    results_design     = ramjet(state_sizing)
-    results_off_design = ramjet(state_off_design)
+    results_design     = scramjet(state_sizing)
+    results_off_design = scramjet(state_off_design)
     F                  = results_design.thrust_force_vector
     mdot               = results_design.vehicle_mass_rate
-    Isp                = results_design.specific_impulse
-    F_off_design       = results_off_design.thrust_force_vector
+    Isp                = results_design.specific_impulse   
+    F_off_design = results_off_design.thrust_force_vector
     mdot_off_design    = results_off_design.vehicle_mass_rate
     Isp_off_design     = results_off_design.specific_impulse
     

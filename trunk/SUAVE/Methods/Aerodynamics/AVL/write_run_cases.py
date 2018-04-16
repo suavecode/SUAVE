@@ -84,7 +84,7 @@ def write_run_cases(avl_object):
 '''#{4} is a set of control surface inputs that will vary depending on the control surface configuration
 
     # Open the geometry file after purging if it already exists
-    purge_files([batch_filename])
+    purge_files([batch_filename]) 
     with open(batch_filename,'w') as runcases:
 
         x_cg = aircraft.mass_properties.center_of_gravity[0]

@@ -70,8 +70,13 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_enthalpy     = 1.0
         self.outputs.fuel_to_air_ratio       = 1.0
         self.fuel_data                       = Data()
-        self.area_ratio                      = 1.9
-        self.specific_heat_constant_pressure = 1510.
+        self.area_ratio                      = 1.0
+        self.axial_fuel_velocity_ratio       = 0.0
+        self.fuel_velocity_ratio             = 0.0
+        self.burner_drag_coefficient         = 0.0
+        self.specific_heat_constant_pressure = 1510.0 
+        self.absolute_sensible_enthalpy      = 0.0
+        self.temperature_reference           = 273.0
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to
@@ -124,11 +129,11 @@ class Combustor(Energy_Component):
         eta_b  = self.efficiency
         
         # unpacking values from self
-        htf             = self.fuel_data.specific_energy
-        ar              = self.area_ratio
+        htf    = self.fuel_data.specific_energy
+        ar     = self.area_ratio
         
         # compute pressure
-        Pt_out      = Pt_in*pib
+        Pt_out = Pt_in*pib
 
 
         # method to compute combustor properties
@@ -151,8 +156,8 @@ class Combustor(Energy_Component):
         self.outputs.fuel_to_air_ratio       = f 
     
     def compute_rayleigh(self,conditions):
-        """ This computes the output values from the input values according to
-        equations from the source.
+        """ This combutes the temperature and pressure change across the
+        the combustor using Rayleigh Line flow; it checks for themal choking.
 
         Assumptions:
         Constant efficiency and pressure ratio
@@ -211,26 +216,20 @@ class Combustor(Energy_Component):
         M_out  = 1*Pt_in/Pt_in
         Ptr    = 1*Pt_in/Pt_in
 
-       
         # Isentropic decceleration through divergent nozzle
         Mach   = fm_solver(ar,Mach[:,0],gamma[:,0])  
         
         # Determine max stagnation temperature to thermally choke flow                                     
         Tt4_ray = Tt_in*(1.+gamma*Mach*Mach)**2./((2.*(1.+gamma)*Mach*Mach)*(1.+(gamma-1.)/2.*Mach*Mach))
-
-        # Choose Tt4 for fuel calculations
         
-        # --Material limitations define Tt4
+        # Rayleigh limitations define Tt4, taking max temperature before choking
         Tt4 = Tt4 * np.ones_like(Tt4_ray)
-        
-        # --Rayleigh limitations define Tt4
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
         
         #Rayleigh calculations
         M_out[:,0], Ptr[:,0] = rayleigh(gamma[:,0],Mach,Tt4[:,0]/Tt_in[:,0]) 
         Pt_out     = Ptr*Pt_in
             
-
         # method to compute combustor properties
 
         # method - computing the stagnation enthalpies from stagnation temperatures
@@ -250,110 +249,107 @@ class Combustor(Energy_Component):
         self.outputs.stagnation_enthalpy     = ht_out
         self.outputs.fuel_to_air_ratio       = f    
         self.outputs.mach_number             = M_out
-    
-    
-    def compute_supersonic_combustion(self,conditions):
-        """ This function computes the output values for supersonic 
-        combustion (Scramjet).  This will be done using stream thrust
-        analysis.
         
-        Assumptions:
-        Constant Pressure Combustion
-        Flow is in axial direction at all times
-        Flow properities at exit are 1-Da averages
         
-        Source:
-        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,
-        "Hypersonic Airbreathing Propulsion", 1994
+    def compute_supersonic_combustion(self,conditions): 
+        """ This function computes the output values for supersonic  
+        combustion (Scramjet).  This will be done using stream thrust 
+        analysis. 
         
-        Inputs:
-        conditions.freestream.
-          isentropic_expansion_factor          [-]
-          specific_heat_at_constant_pressure   [J/(kg K)]
-          temperature                          [K]
-          stagnation_temperature               [K]
-          universal_gas_constant               [J/(kg K)] 
-        self.inputs.
-          stagnation_temperature               [K]
-          stagnation_pressure                  [Pa]
-          inlet_nozzle                         [-]
+        Assumptions: 
+        Constant Pressure Combustion      
+        Flow is in axial direction at all times 
+        Flow properities at exit are 1-Da averages 
 
-
-        Outputs:
-        self.outputs.
-          stagnation_temperature               [K]
-          stagnation_pressure                  [Pa]
-          stagnation_enthalpy                  [J/kg]
-          fuel_to_air_ratio                    [-]
-          static_temperature                   [K]
-          static_pressure                      [Pa]
-          velocity                             [m/s]
-          mach_number                          [-]         
-
-
-        Properties Used:
-          self.fuel_data.specific_energy       [J/kg]
+        Source: 
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
+        "Hypersonic Airbreathing Propulsion", 1994 
+        
+        
+        Inputs: 
+        conditions.freestream. 
+           isentropic_expansion_factor          [-] 
+           specific_heat_at_constant_pressure   [J/(kg K)] 
+           temperature                          [K] 
+           stagnation_temperature               [K]
+           universal_gas_constant               [J/(kg K)]  
+        self.inputs. 
+           stagnation_temperature               [K] 
+           stagnation_pressure                  [Pa] 
+           inlet_nozzle                         [-] 
+  
+        Outputs: 
+        self.outputs. 
+           stagnation_temperature               [K] 
+           stagnation_pressure                  [Pa] 
+           stagnation_enthalpy                  [J/kg] 
+           fuel_to_air_ratio                    [-] 
+           static_temperature                   [K] 
+           static_pressure                      [Pa] 
+           velocity                             [m/s] 
+           mach_number                          [-]          
+        
+       Properties Used: 
+          self.fuel_data.specific_energy       [J/kg] 
           self.efficiency                      [-]
-          self.axial_fuel_velocity_ratio       [-]
-          self.fuel_velocity_ratio             [-]
-          self.burner_drag_coefficient         [-]
-          self.temperature_reference           [-]
-          self.absolute_sensible_enthalpy      [J/kg]
-          self.specific_heat_constant_pressure [J/(kg K)]
-
-        """
+          self.axial_fuel_velocity_ratio       [-] 
+          self.fuel_velocity_ratio             [-] 
+          self.burner_drag_coefficient         [-] 
+          self.temperature_reference           [-] 
+          self.absolute_sensible_enthalpy      [J/kg] 
+          self.specific_heat_constant_pressure [J/(kg K)] 
+          """ 
+        # unpack the values 
+  
+        # unpacking the values from conditions 
+        R      = conditions.freestream.gas_specific_constant 
+         
+        # unpacking the values from inputs 
+        nozzle = self.inputs.inlet_nozzle 
+        Pt_in  = self.inputs.stagnation_pressure 
+          
+        # unpacking the values from self 
+        htf     = self.fuel_data.specific_energy 
+        eta_b   = self.efficiency 
+        Vfx_V3  = self.axial_fuel_velocity_ratio 
+        Vf_V3   = self.fuel_velocity_ratio 
+        Cfb     = self.burner_drag_coefficient 
+        hf      = self.absolute_sensible_enthalpy 
+        Cpb     = self.specific_heat_constant_pressure 
+        Tref    = self.temperature_reference
         
-        # unpack the values
+        # compute gamma overburner 
+        gamma_b = (Cpb/R)/(Cpb/R-1.)  
         
-        # unpacking the values from conditions
-        R      = conditions.freestream.gas_specific_constant
+        # unpack nozzle input values 
+        T_in = nozzle.static_temperature 
+        V_in = nozzle.velocity 
+        P_in = nozzle.static_pressure 
         
-        # unpacking the values from inputs
-        nozzle = self.inputs.inlet_nozzle
-        Pt_in  = self.inputs.inputs.stanation_pressure
+        # setting stoichiometric fuel-to-air  
+        f = self.fuel_data.stoichiometric_fuel_to_air  
         
-        # unpacking the values from self
-        htf     = self.fuel_data.specific_energy
-        eta_b   = self.efficiency
-        Vfx_V3  = self.axial_fuel_velocity_ratio
-        Vf_V3   = self.fuel_velocity_ratio
-        Cfb     = self.burner_drag_coefficient
-        Tref    = self.refeence_temperature
-        hf      = self.absolute_sensible_enthalpy
-        Cpb     = self.specific_heat_constant_pressure
+        # compute output velocity, mach and temperature 
+        V_out  = V_in*(((1.+f*Vfx_V3)/(1.+f))-(Cfb/(2.*(1.+f)))) 
+        T_out  = ((T_in/(1.+f))*(1.+(1./(Cpb*T_in ))*(eta_b*f*htf+f*hf+f*Cpb*Tref+(1.+f*Vf_V3*Vf_V3)*V_in*V_in/2.))) - V_out*V_out/(2.*Cpb) 
+        M_out  = V_out/(np.sqrt(gamma_b*R*T_out)) 
+        Tt_out = T_out*(1+(gamma_b-1)/2)*M_out*M_out
         
-        # compute gamma overburner
-        gamma_b = (Cpb/R)/(Cpb/R-1.) 
+        # compute the exity static and stagnation conditions 
+        ht_out = Cpb*Tt_out 
+        P_out  = P_in 
+        Pt_out  = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.))  
         
-        # unpack nozzle input values
-        T_in = nozzle.static_temperature
-        V_in = nozzle.velocity
-        P_in = nozzle.static_pressure
-        
-        # setting stoichiometric fuel-to-air 
-        f = self.fuel_data.stoichiometric_fuel_to_air  #00000000000000000000000000000000000000000000000000000000000000000000
-        
-        # compute output velocity, mach and temperature
-        V_out  = V_in*(((1.+f*Vfx_V3)/(1.+f))-(Cfb/(2.*(1.+f))))
-        T_out  = ((T_in/(1.+f))*(1.+(1./(Cpb*T_in ))*(eta_b*f*htf+f*hf+f*Cpb*Tref+(1.+f*Vf_V3*Vf_V3)*V_in*V_in/2.))) - V_out*V_out/(2.*Cpb)
-        M_out  = V_out/(np.sqrt(gamma_b*R*T_out))
-        Tt_out = T_out*(1+(gamma_b-1)/2)*M_out*M_out()
-        
-        # compute the exity static and stagnation conditions
-        ht_out = Cpb*Tt_out
-        P_out  = P_in
-        Pt_out  = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.)) 
-
-
-        # pack computed quantities into outputs   
-        self.outputs.stagnation_temperature  = Tt_out 
-        self.outputs.stagnation_pressure     = Pt_out       
-        self.outputs.stagnation_enthalpy     = ht_out       
-        self.outputs.fuel_to_air_ratio       = f       
-        self.outputs.static_temperature      = T_out 
-        self.outputs.static_pressure         = P_out        
-        self.outputs.velocity                = V_out 
-        self.outputs.mach_number             = M_out
-        
+        # pack computed quantities into outputs    
+        self.outputs.stagnation_temperature  = Tt_out  
+        self.outputs.stagnation_pressure     = Pt_out        
+        self.outputs.stagnation_enthalpy     = ht_out        
+        self.outputs.fuel_to_air_ratio       = f        
+        self.outputs.static_temperature      = T_out  
+        self.outputs.static_pressure         = P_out         
+        self.outputs.velocity                = V_out  
+        self.outputs.mach_number             = M_out 
+        self.outputs.specific_heat_constant_pressure = Cpb
+        self.outputs.isentropic_expansion_factor    = gamma_b
     __call__ = compute
     

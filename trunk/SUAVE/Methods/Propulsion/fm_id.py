@@ -27,9 +27,9 @@ def fm_id(M,gamma):
     https://web.stanford.edu/~cantwell/AA210A_Course_Material/AA210A_Course_Notes/
     """
 
-    m0 = (gamma+1)/(2*(gamma-1))
-    m1 = ((gamma+1)/2)**m0
-    m2 = (1+(gamma-1)/2*M*M)**m0
+    m0 = (gamma+1.)/(2.*(gamma-1.))
+    m1 = ((gamma+1.)/2.)**m0
+    m2 = (1.+(gamma-1.)/2.*M*M)**m0
     fm = m1*M/m2
 
     return fm

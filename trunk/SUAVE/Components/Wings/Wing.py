@@ -96,7 +96,6 @@ class Wing(Lofted_Body):
         self.twists.tip  = 0.0
 
         self.control_surfaces = Data()
-
         self.flaps = Data()
         self.flaps.chord      = 0.0
         self.flaps.angle      = 0.0

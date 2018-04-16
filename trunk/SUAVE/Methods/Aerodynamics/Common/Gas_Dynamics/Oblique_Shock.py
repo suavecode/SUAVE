@@ -89,6 +89,6 @@ def theta_beta_mach(M0,gamma,theta,n=0):
     b    = (((gamma-1.)/2.)+((gamma+3.)/2.)*c/2.)*np.tan(theta)
     d    = np.sqrt(((4.*(1.-3.*a*b)**3.)/(27.*a*a*c+9.*a*b-2.))-1.)    
     
-    beta = np.arctan((b+9.*a*c)/(2.*(1.-3.*a*b))-(d*(27.*a*a*c+9.*a*b-2.))/(6.*a*(1.-3.*a*b))*np.tan(n*pi/3.+1./3.*np.arctan(1./d)))
+    beta = np.arctan((b+9.*a*c)/(2.*(1.-3.*a*b))-(d*(27.*a*a*c+9.*a*b-2.))/(6.*a*(1.-3.*a*b))*np.tan(np.pi/3.+1./3.*np.arctan(1./d)))
     
     return beta

@@ -32,14 +32,14 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 ## @ingroup Components-Energy-Processes
 class Thrust(Energy_Component):
     """A class that handles computation of thrust and other outputs for a gas turbine engine.
-    
+
     Assumptions:
     Perfect gas
-    
+
     Source:
     https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
     """         
-    
+
     def __defaults__(self):
         """This sets the default value.
 
@@ -76,8 +76,8 @@ class Thrust(Energy_Component):
         self.design_thrust                            = 0.0
         self.mass_flow_rate_design                    = 0.0
 
-	
- 
+
+
     def compute(self,conditions):
         """Computes thrust and other properties as below.
 
@@ -131,7 +131,7 @@ class Thrust(Energy_Component):
           compressor_nondimensional_massflow [-]
         """           
         #unpack the values
-        
+
         #unpacking from conditions
         gamma                = conditions.freestream.isentropic_expansion_factor
         Cp                   = conditions.freestream.specific_heat_at_constant_pressure
@@ -141,7 +141,7 @@ class Thrust(Energy_Component):
         p0                   = conditions.freestream.pressure  
         g                    = conditions.freestream.gravity
         throttle             = conditions.propulsion.throttle        
-        
+
         #unpacking from inputs
         f                           = self.inputs.fuel_to_air_ratio
         total_temperature_reference = self.inputs.total_temperature_reference
@@ -156,29 +156,29 @@ class Thrust(Energy_Component):
         bypass_ratio                = self.inputs.bypass_ratio  
         flow_through_core           = self.inputs.flow_through_core #scaled constant to turn on core thrust computation
         flow_through_fan            = self.inputs.flow_through_fan #scaled constant to turn on fan thrust computation
-        
+
         #unpacking from self
         Tref                 = self.reference_temperature
         Pref                 = self.reference_pressure
         mdhc                 = self.compressor_nondimensional_massflow
 
-        
-    
+
+
         ##--------Cantwell method---------------------------------
-        
+
 
         #computing the non dimensional thrust
         core_thrust_nondimensional  = flow_through_core*(gamma*M0*M0*(core_nozzle.velocity/u0-1) + core_area_ratio*(core_nozzle.static_pressure/p0-1))
         fan_thrust_nondimensional   = flow_through_fan*(gamma*M0*M0*(fan_nozzle.velocity/u0-1) + fan_area_ratio*(fan_nozzle.static_pressure/p0-1))
-        
+
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
-      
-     
+
+
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
         #Computing the specific impulse
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
-        
+
         #Computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
         #computing the core mass flow
@@ -187,17 +187,17 @@ class Thrust(Energy_Component):
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
 
-     
-        
+
+
         #fuel flow rate
         a = np.array([0.])        
         fuel_flow_rate   = np.fmax(0.1019715*FD2*TSFC/3600,a) #use units package for the constants
-        
+
         #computing the power 
         power            = FD2*u0
-        
+
         #pack outputs
-        
+
         self.outputs.thrust                            = FD2 
         self.outputs.thrust_specific_fuel_consumption  = TSFC
         self.outputs.non_dimensional_thrust            = Fsp 
@@ -205,16 +205,16 @@ class Thrust(Energy_Component):
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
         self.outputs.specific_impulse                  = Isp
-        
+
     def compute_stream_thrust(self,conditions):  
         """Computes thrust and other properties as below. 
-     
+
         Assumptions: 
-    
+
         Source: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
         "Hypersonic Airbreathing Propulsion", 1994 
-    
+
         Inputs: 
         conditions.freestream. 
            isentropic_expansion_factor        [-]  
@@ -230,7 +230,7 @@ class Thrust(Energy_Component):
            fuel_to_air_ratio                  [-] 
            total_temperature_reference        [K] 
            total_pressure_reference           [Pa] 
-   
+
         core_nozzle. 
             velocity                         [m/s] 
             static_pressure                  [Pa] 
@@ -244,7 +244,7 @@ class Thrust(Energy_Component):
             bypass_ratio                     [-] 
             flow_through_core                [-] percentage of total flow (.1 is 10%) 
             flow_through_fan                 [-] percentage of total flow (.1 is 10%)
-            
+
         Outputs: 
         self.outputs. 
           thrust                             [N] 
@@ -253,16 +253,16 @@ class Thrust(Energy_Component):
           core_mass_flow_rate                [kg/s] 
           fuel_flow_rate                     [kg/s] 
           power                              [W] 
-           
+
         Properties Used: 
         self. 
           reference_temperature              [K] 
           reference_pressure                 [Pa] 
           compressor_nondimensional_massflow [-] 
         """            
-        
+
         #unpack the values 
-      
+
         #unpacking from conditions 
         gamma                = conditions.freestream.isentropic_expansion_factor 
         Cp                   = conditions.freestream.specific_heat_at_constant_pressure 
@@ -273,8 +273,8 @@ class Thrust(Energy_Component):
         T0                   = conditions.freestream.temperature 
         g                    = conditions.freestream.gravity 
         throttle             = conditions.propulsion.throttle   
-        R                    = conditions.freestream.gas__specific_constant 
-     
+        R                    = conditions.freestream.gas_specific_constant 
+
         #unpacking from inputs 
         f                           = self.inputs.fuel_to_air_ratio 
         total_temperature_reference = self.inputs.total_temperature_reference 
@@ -290,36 +290,36 @@ class Thrust(Energy_Component):
         bypass_ratio                = self.inputs.bypass_ratio   
         flow_through_core           = self.inputs.flow_through_core #scaled constant to turn on core thrust computation 
         flow_through_fan            = self.inputs.flow_through_fan #scaled constant to turn on fan thrust computation 
-           
+
         #unpacking from self 
         Tref                 = self.reference_temperature 
         Pref                 = self.reference_pressure 
         mdhc                 = self.compressor_nondimensional_massflow 
-    
+
         # --------Stream thrust method ---------------------------         
         Sa0         = u0*(1+R*T0/u0**2) 
         Sa_exit     = core_exit_velocity*(1+R*core_exit_temperature/core_exit_velocity**2) 
         Fsp         = ((1+f)*Sa_exit - Sa0 - R*T0/u0*(core_area_ratio-1))/a0 
-    
+
         #Computing the specific impulse 
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g) 
-    
+
         #Computing the TSFC 
         TSFC             = f/(Fsp*a0) 
-        
+
         #computing the core mass flow 
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref) 
-     
+
         #computing the dimensional thrust 
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle 
-   
+
         #fuel flow rate 
         a = np.array([0.])         
         fuel_flow_rate   = np.fmax(0.1019715*FD2*TSFC/3600,a) #use units package for the constants 
-  
+
         #computing the power  
         power            = FD2*u0 
-           
+
         #pack outputs      
         self.outputs.thrust                            = FD2  
         self.outputs.thrust_specific_fuel_consumption  = TSFC 
@@ -327,7 +327,7 @@ class Thrust(Energy_Component):
         self.outputs.core_mass_flow_rate               = mdot_core 
         self.outputs.fuel_flow_rate                    = fuel_flow_rate     
         self.outputs.power                             = power   
-              
+
     def size(self,conditions):
         """Sizes the core flow for the design condition.
 
@@ -357,257 +357,91 @@ class Thrust(Energy_Component):
         #unpack inputs
         a0                   = conditions.freestream.speed_of_sound
         throttle             = 1.0
-        
+
         #unpack from self
         bypass_ratio                = self.inputs.bypass_ratio
         Tref                        = self.reference_temperature
         Pref                        = self.reference_pressure
         design_thrust               = self.total_design
-        
+
         total_temperature_reference = self.inputs.total_temperature_reference  # low pressure turbine output for turbofan
         total_pressure_reference    = self.inputs.total_pressure_reference
         no_eng                      = self.inputs.number_of_engines
-        
+
         #compute nondimensional thrust
         self.compute(conditions)
-        
+
         #unpack results 
         Fsp                         = self.outputs.non_dimensional_thrust
 
-                
+
         #compute dimensional mass flow rates
         mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
-    
+
         #pack outputs
         self.mass_flow_rate_design               = mdot_core
         self.compressor_nondimensional_massflow  = mdhc
- 
-         
-        
+
+
+
         return
 
     def size_stream_thrust(self,conditions): 
         """Sizes the core flow for the design condition. 
-        
+
            Assumptions: 
            Perfect gas 
-    
+
            Source: 
-    
-    
-    
-    +        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
-    
-    
-    
-    +        "Hypersonic Airbreathing Propulsion", 1994 
-    
-    
-    
-    + 
-    
-    
-    
-    +        Inputs: 
-    
-    
-    
-    +        conditions.freestream.speed_of_sound [m/s] (conditions is also passed to self.compute(..)) 
-    
-    
-    
-    +        self.inputs. 
-    
-    
-    
-    +          bypass_ratio                       [-] 
-    
-    
-    
-    +          total_temperature_reference        [K] 
-    
-    
-    
-    +          total_pressure_reference           [Pa] 
-    
-    
-    
-    +          number_of_engines                  [-] 
-    
-    
-    
-    + 
-    
-    
-    
-    +        Outputs: 
-    
-    
-    
-    +        self.outputs.non_dimensional_thrust  [-] 
-    
-    
-    
-    + 
-    
-    
-    
-    +        Properties Used: 
-    
-    
-    
-    +        self. 
-    
-    
-    
-    +          reference_temperature              [K] 
-    
-    
-    
-    +          reference_pressure                 [Pa] 
-    
-    
-    
-    +          total_design                       [N] - Design thrust 
-    
-    
-    
-    +        """              
-    
-    
-    
-    +        #unpack inputs 
-    
-    
-    
-    +        a0                      = conditions.freestream.speed_of_sound 
-    
-    
-    
-    +        throttle                = 1.0 
-    
-    
-    
-    +         
-    
-    
-    
-    +        #unpack from self 
-    
-    
-    
-    +        bypass_ratio                = self.inputs.bypass_ratio 
-    
-    
-    
-    +        Tref                        = self.reference_temperature 
-    
-    
-    
-    +        Pref                        = self.reference_pressure 
-    
-    
-    
-    +        design_thrust               = self.total_design 
-    
-    
-    
-    +         
-    
-    
-    
-    +        total_temperature_reference = self.inputs.total_temperature_reference  # low pressure turbine output for turbofan 
-    
-    
-    
-    +        total_pressure_reference    = self.inputs.total_pressure_reference 
-    
-    
-    
-    +        no_eng                      = self.inputs.number_of_engines 
-    
-    
-    
-    +         
-    
-    
-    
-    +        #compute nondimensional thrust 
-    
-    
-    
-    +        self.compute_stream_thrust(conditions) 
-    
-    
-    
-    +         
-    
-    
-    
-    +        #unpack results  
-    
-    
-    
-    +        Fsp                         = self.outputs.non_dimensional_thrust 
-    
-    
-    
-    + 
-    
-    
-    
-    +                 
-    
-    
-    
-    +        #compute dimensional mass flow rates 
-    
-    
-    
-    +        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)   
-    
-    
-    
-    +        mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)) 
-    
-    
-    
-    
-    
-    
-    
-    -     
-    
-    
-    
-    -     
-    
-    
-    
-    +        #pack outputs 
-    
-    
-    
-    +        self.mass_flow_rate_design               = mdot_core 
-    
-    
-    
-    +        self.compressor_nondimensional_massflow  = mdhc 
-    
-    
-    
-    +          
-    
-    
-    
-    +         
-    
-    
-    
-    +        return     
-    
-    
+           Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
+           "Hypersonic Airbreathing Propulsion", 1994 
+
+           Inputs: 
+           conditions.freestream.speed_of_sound [m/s] (conditions is also passed to self.compute(..)) 
+           self.inputs. 
+              bypass_ratio                       [-] 
+              total_temperature_reference        [K] 
+              total_pressure_reference           [Pa] 
+              number_of_engines                  [-] 
+
+            Outputs: 
+              self.outputs.non_dimensional_thrust  [-] 
+
+            Properties Used: 
+            self. 
+               reference_temperature              [K] 
+               reference_pressure                 [Pa] 
+               total_design                       [N] - Design thrust 
+               """              
+
+        #unpack inputs 
+        a0                      = conditions.freestream.speed_of_sound 
+        throttle                = 1.0 
+        
+        #unpack from self 
+        bypass_ratio                = self.inputs.bypass_ratio 
+        Tref                        = self.reference_temperature 
+        Pref                        = self.reference_pressure 
+        design_thrust               = self.total_design 
+        total_temperature_reference = self.inputs.total_temperature_reference  # low pressure turbine output for turbofan 
+        total_pressure_reference    = self.inputs.total_pressure_reference 
+        no_eng                      = self.inputs.number_of_engines 
+        
+        #compute nondimensional thrust 
+        self.compute_stream_thrust(conditions) 
+        
+        #unpack results  
+        Fsp                         = self.outputs.non_dimensional_thrust 
+        
+        #compute dimensional mass flow rates 
+        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)   
+        mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)) 
+        
+        #pack outputs 
+        self.mass_flow_rate_design               = mdot_core 
+        self.compressor_nondimensional_massflow  = mdhc 
+        
+        return
     
     __call__ = compute         
-
