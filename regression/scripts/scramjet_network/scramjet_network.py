@@ -151,7 +151,7 @@ def energy_network():
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
-    inlet_nozzle.polytropic_efficiency      = 1.0
+    inlet_nozzle.polytropic_efficiency      = 0.90
     inlet_nozzle.pressure_ratio             = 1.0
     inlet_nozzle.compressibility_effects    = 3.0
     inlet_nozzle.compression_levels         = 3.0
@@ -168,8 +168,7 @@ def energy_network():
     combustor.tag = 'combustor'
     
     # setup
-    combustor.efficiency                = 1.0 
-    combustor.turbine_inlet_temperature = 2400.
+    combustor.efficiency                = 0.90 
     combustor.pressure_ratio            = 1.0
     combustor.area_ratio                = 2.0
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Liquid_H2()  
@@ -187,8 +186,8 @@ def energy_network():
     nozzle.tag = 'core_nozzle'
     
     # setup
-    nozzle.polytropic_efficiency = 1.0
-    nozzle.pressure_ratio        = 1.0   
+    nozzle.polytropic_efficiency = 0.9
+    nozzle.pressure_expansion    = 1.1
     
     # add to network
     scramjet.append(nozzle)
@@ -201,7 +200,7 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.total_design = scramjet.number_of_engines*169370.4652 * Units.N
+    thrust.total_design = scramjet.number_of_engines*180000.0 * Units.N
     
     # add to network
     scramjet.thrust = thrust    
@@ -223,9 +222,9 @@ def energy_network():
     
     #Specify the expected values
     expected        = Data()
-    expected.thrust = 338740.93039999995
-    expected.mdot   = 23.11959727
-    expected.Isp    = 1494.05374047
+    expected.thrust = 180000.0
+    expected.mdot   = 7.8394948
+    expected.Isp    = 2340.53651671
     
     #error data function
     error =  Data()

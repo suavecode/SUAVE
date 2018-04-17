@@ -27,8 +27,11 @@ class Scramjet(Propulsor):
     """ This is a scramjet for hypersonic flight. 
 
         Assumptions: 
-        None 
-
+        Currrent Implements Stream Function Method
+        Combustion, Thermochemical Properties are estimated (HAP in below reference unavailable)
+        Assumes no spillage drag at the momement
+        Shock-BL Interaction negected
+        
         Source: 
         Most of the componentes come from this book: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 

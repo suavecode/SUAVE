@@ -69,7 +69,8 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
         self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35     
+        self.min_area_ratio                  = 1.35
+        self.pressure_expansion              = 1.0
     
     
     
@@ -395,14 +396,15 @@ class Supersonic_Nozzle(Energy_Component):
         P_in       = self.inputs.static_pressure 
         u_in       = self.inputs.velocity 
         f          = self.inputs.fuel_to_air_ratio   
-        P_out      = Po  
-        
+        Cpe        = self.inputs.specific_heat_constant_pressure 
+        gamma      = self.inputs.isentropic_expansion_factor                 
+
         # unpack from self 
         eta        = self.polytropic_efficiency 
-        Cpe        = self.inputs.specific_heat_constant_pressure 
-        gamma      = self.inputs.isentropic_expansion_factor 
+        p10_p0     = self.pressure_expansion
         
         # compute output properties 
+        P_out      = Po*p10_p0
         T_out      = T_in*(1.-eta*(1.-((P_out/Po)*(Po/P_in))**(R/Cpe))) 
         u_out      = np.sqrt(u_in*u_in+2.*Cpe*(T_in-T_out)) 
         A_ratio    = (1.+f)*(Po/P_out)*(T_out/To)*(Vo/u_out) 
