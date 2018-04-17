@@ -46,9 +46,9 @@ def energy_network():
     
     # freestream conditions
     EVAL                             = conditions.freestream
-    EVAL.mach_number                 = ones_1col*3.5
+    EVAL.mach_number                 = ones_1col*4.5
     conditions.M                     = EVAL.mach_number
-    EVAL.altitude                    = ones_1col*10000.
+    EVAL.altitude                    = ones_1col*20000.
     
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(EVAL.altitude,0,True) 
@@ -85,7 +85,7 @@ def energy_network():
     SIZE                             = conditions_sizing.freestream
     SIZE.mach_number                 = ones_1col*6.5
     conditions_sizing.M              = SIZE.mach_number
-    SIZE.altitude                    = ones_1col*10000.  
+    SIZE.altitude                    = ones_1col*20000.  
     
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data                        = atmosphere.compute_values(SIZE.altitude,0,True) 
@@ -125,9 +125,9 @@ def energy_network():
     
     # setup
     scramjet.number_of_engines = 1.0
-    scramjet.engine_length     = 6.0
-    scramjet.nacelle_diameter  = 1.3 * Units.meter
-    scramjet.inlet_diameter    = 1.1 * Units.meter
+    scramjet.engine_length     = 4.0
+    scramjet.nacelle_diameter  = 0.3  * Units.meter
+    scramjet.inlet_diameter    = 0.21 * Units.meter
     
     # working fluid
     scramjet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -172,8 +172,9 @@ def energy_network():
     combustor.turbine_inlet_temperature = 2400.
     combustor.pressure_ratio            = 1.0
     combustor.area_ratio                = 2.0
-    combustor.fuel_data                 = SUAVE.Attributes.Propellants.JP7()  
-    combustor.rayleigh_analyses         = True
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Liquid_H2()  
+    combustor.burner_drag_coefficient   = 0.01
+    combustor.fuel_equivalency_ratio    = 1.0
     
     # add to network
     scramjet.append(combustor)
@@ -206,7 +207,7 @@ def energy_network():
     scramjet.thrust = thrust    
 
     #size the ramjet
-    scramjet_sizing(scramjet,2.5,10000.0)
+    scramjet_sizing(scramjet,6.5,20000.0)
     
     print "Design thrust :",scramjet.design_thrust
     print "Sealevel static thrust :",scramjet.sealevel_static_thrust
@@ -216,13 +217,12 @@ def energy_network():
     F                  = results_design.thrust_force_vector
     mdot               = results_design.vehicle_mass_rate
     Isp                = results_design.specific_impulse   
-    F_off_design = results_off_design.thrust_force_vector
+    F_off_design       = results_off_design.thrust_force_vector
     mdot_off_design    = results_off_design.vehicle_mass_rate
     Isp_off_design     = results_off_design.specific_impulse
     
     #Specify the expected values
-    expected = Data()
-    
+    expected        = Data()
     expected.thrust = 338740.93039999995
     expected.mdot   = 23.11959727
     expected.Isp    = 1494.05374047

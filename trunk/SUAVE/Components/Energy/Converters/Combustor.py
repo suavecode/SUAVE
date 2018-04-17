@@ -74,9 +74,8 @@ class Combustor(Energy_Component):
         self.axial_fuel_velocity_ratio       = 0.0
         self.fuel_velocity_ratio             = 0.0
         self.burner_drag_coefficient         = 0.0
-        self.specific_heat_constant_pressure = 1510.0 
         self.absolute_sensible_enthalpy      = 0.0
-        self.temperature_reference           = 273.0
+        self.fuel_equivalency_ratio          = 1.0
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to
@@ -303,11 +302,13 @@ class Combustor(Energy_Component):
   
         # unpacking the values from conditions 
         R      = conditions.freestream.gas_specific_constant 
-         
+        Tref   = conditions.freestream.temperature
+        
         # unpacking the values from inputs 
-        nozzle = self.inputs.inlet_nozzle 
-        Pt_in  = self.inputs.stagnation_pressure 
-          
+        nozzle  = self.inputs.inlet_nozzle 
+        Pt_in   = self.inputs.stagnation_pressure 
+        Cp_c    = nozzle.specific_heat_at_constant_pressure
+        
         # unpacking the values from self 
         htf     = self.fuel_data.specific_energy 
         eta_b   = self.efficiency 
@@ -315,10 +316,10 @@ class Combustor(Energy_Component):
         Vf_V3   = self.fuel_velocity_ratio 
         Cfb     = self.burner_drag_coefficient 
         hf      = self.absolute_sensible_enthalpy 
-        Cpb     = self.specific_heat_constant_pressure 
-        Tref    = self.temperature_reference
+        phi     = self.fuel_equivalency_ratio
         
-        # compute gamma overburner 
+        # compute gamma and Cp over burner 
+        Cpb     = Cp_c*1.45          # Estimate from Heiser and Pratt
         gamma_b = (Cpb/R)/(Cpb/R-1.)  
         
         # unpack nozzle input values 
@@ -327,13 +328,14 @@ class Combustor(Energy_Component):
         P_in = nozzle.static_pressure 
         
         # setting stoichiometric fuel-to-air  
-        f = self.fuel_data.stoichiometric_fuel_to_air  
+        f_st = self.fuel_data.stoichiometric_fuel_to_air
+        f    =  phi*f_st
         
         # compute output velocity, mach and temperature 
         V_out  = V_in*(((1.+f*Vfx_V3)/(1.+f))-(Cfb/(2.*(1.+f)))) 
         T_out  = ((T_in/(1.+f))*(1.+(1./(Cpb*T_in ))*(eta_b*f*htf+f*hf+f*Cpb*Tref+(1.+f*Vf_V3*Vf_V3)*V_in*V_in/2.))) - V_out*V_out/(2.*Cpb) 
         M_out  = V_out/(np.sqrt(gamma_b*R*T_out)) 
-        Tt_out = T_out*(1+(gamma_b-1)/2)*M_out*M_out
+        Tt_out = T_out*(1.+(gamma_b-1.)/2.)*M_out*M_out
         
         # compute the exity static and stagnation conditions 
         ht_out = Cpb*Tt_out 
@@ -341,15 +343,16 @@ class Combustor(Energy_Component):
         Pt_out  = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.))  
         
         # pack computed quantities into outputs    
-        self.outputs.stagnation_temperature  = Tt_out  
-        self.outputs.stagnation_pressure     = Pt_out        
-        self.outputs.stagnation_enthalpy     = ht_out        
-        self.outputs.fuel_to_air_ratio       = f        
-        self.outputs.static_temperature      = T_out  
-        self.outputs.static_pressure         = P_out         
-        self.outputs.velocity                = V_out  
-        self.outputs.mach_number             = M_out 
+        self.outputs.stagnation_temperature          = Tt_out  
+        self.outputs.stagnation_pressure             = Pt_out        
+        self.outputs.stagnation_enthalpy             = ht_out        
+        self.outputs.fuel_to_air_ratio               = f        
+        self.outputs.static_temperature              = T_out  
+        self.outputs.static_pressure                 = P_out         
+        self.outputs.velocity                        = V_out  
+        self.outputs.mach_number                     = M_out 
         self.outputs.specific_heat_constant_pressure = Cpb
-        self.outputs.isentropic_expansion_factor    = gamma_b
+        self.outputs.isentropic_expansion_factor     = gamma_b
+        
     __call__ = compute
     

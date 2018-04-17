@@ -73,7 +73,7 @@ def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0,
     
     #Creating the network by manually linking the different components
     #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                               = scramjet.working_fluid
+    ram.inputs.working_fluid       = scramjet.working_fluid
     
     #Flow through the ram
     ram(conditions)
@@ -82,19 +82,21 @@ def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0,
     inlet_nozzle.inputs             = ram.outputs
     
     #Flow through the inlet nozzle
-    inlet_nozzle(conditions)
+    inlet_nozzle.compute_scramjet(conditions)
 
     #link the combustor to the inlet nozzle
-    combustor.inputs                = inlet_nozzle.outputs
-    
+    combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature 
+    combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure 
+    combustor.inputs.inlet_nozzle                          = inlet_nozzle.outputs
+        
     #flow through the high pressor comprresor
-    combustor.compute_rayleigh(conditions)
+    combustor.compute_supersonic_combustion(conditions)
     
     #link the core nozzle to the combustor
     core_nozzle.inputs              = combustor.outputs
     
     #flow through the core nozzle
-    core_nozzle.compute_limited_geometry(conditions)
+    core_nozzle.compute_scramjet(conditions)
 
     #link the thrust component to the core nozzle
     thrust.inputs.core_nozzle                              = core_nozzle.outputs
@@ -113,7 +115,7 @@ def scramjet_sizing(scramjet,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.bypass_ratio                             = 0.0
     thrust.inputs.flow_through_core                        = 1.0 #scaled constant to turn on core thrust computation
     thrust.inputs.flow_through_fan                         = 0.0 #scaled constant to turn on fan thrust computation     
-    thrust.size(conditions)
+    thrust.size_stream_thrust(conditions)
     
     #update the design thrust value
     scramjet.design_thrust = thrust.total_design

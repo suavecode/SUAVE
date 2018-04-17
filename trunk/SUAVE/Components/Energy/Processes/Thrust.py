@@ -298,8 +298,8 @@ class Thrust(Energy_Component):
 
         # --------Stream thrust method ---------------------------         
         Sa0         = u0*(1+R*T0/u0**2) 
-        Sa_exit     = core_exit_velocity*(1+R*core_exit_temperature/core_exit_velocity**2) 
-        Fsp         = ((1+f)*Sa_exit - Sa0 - R*T0/u0*(core_area_ratio-1))/a0 
+        Sa10        = core_exit_velocity*(1+R*core_exit_temperature/core_exit_velocity**2) 
+        Fsp         = ((1+f)*Sa10 - Sa0 - R*T0/u0*(core_area_ratio-1))/a0 
 
         #Computing the specific impulse 
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g) 
@@ -326,7 +326,8 @@ class Thrust(Energy_Component):
         self.outputs.non_dimensional_thrust            = Fsp  
         self.outputs.core_mass_flow_rate               = mdot_core 
         self.outputs.fuel_flow_rate                    = fuel_flow_rate     
-        self.outputs.power                             = power   
+        self.outputs.power                             = power
+        self.outputs.specific_impulse                  = Isp
 
     def size(self,conditions):
         """Sizes the core flow for the design condition.
@@ -374,7 +375,6 @@ class Thrust(Energy_Component):
         #unpack results 
         Fsp                         = self.outputs.non_dimensional_thrust
 
-
         #compute dimensional mass flow rates
         mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
@@ -382,8 +382,6 @@ class Thrust(Energy_Component):
         #pack outputs
         self.mass_flow_rate_design               = mdot_core
         self.compressor_nondimensional_massflow  = mdhc
-
-
 
         return
 

@@ -405,7 +405,7 @@ class Supersonic_Nozzle(Energy_Component):
         # compute output properties 
         T_out      = T_in*(1.-eta*(1.-((P_out/Po)*(Po/P_in))**(R/Cpe))) 
         u_out      = np.sqrt(u_in*u_in+2.*Cpe*(T_in-T_out)) 
-        A_ratio = (1.+f)*(Po/P_out)*(T_out/To)*(Vo/u_out) 
+        A_ratio    = (1.+f)*(Po/P_out)*(T_out/To)*(Vo/u_out) 
         M_out      = u_out/np.sqrt(gamma*R*T_out) 
         
         #pack computed quantities into outputs          

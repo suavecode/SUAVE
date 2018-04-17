@@ -48,10 +48,10 @@ def shock_train(M0, gamma, nbr_shocks, theta):
     while shock_count<nbr_shocks:
     
         beta         = theta_beta_mach(M0,gamma,theta[shock_count])
-        M1,Tr,Pr,Ptr = oblique_shock_relations(M0,gamma,theta[shock_count],beta)
-        T_ratio      = T_ratio*(1./Tr)
-        Pt_ratio     = Pt_ratio*(1./Ptr)
-        P_ratio      = P_ratio*(1./Pr)
+        M1,Pr,Tr,Ptr = oblique_shock_relations(M0,gamma,theta[shock_count],beta)
+        T_ratio      = T_ratio*Tr
+        Pt_ratio     = Pt_ratio*Ptr
+        P_ratio      = P_ratio*Pr
         M0           = M1
         shock_count  = shock_count+1;
         
