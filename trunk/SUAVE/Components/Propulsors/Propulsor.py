@@ -83,7 +83,7 @@ class Container(Physical_Component.Container):
         N/A
         """        
         
-        return ['Turbofan','Ramjet','Turbojet']
+        return ['Turbofan','Ramjet','Turbojet','Piston','Turboprop']
 
     
     def evaluate_thrust(self,state):

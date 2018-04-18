@@ -53,7 +53,7 @@ class Horizontal_Tail(Wing):
         Properties Used:
         N/A
         """ 
-        pass
+        self.tag = 'horizontal_stabilizer'
 
 
 # ----------------------------------------------------------------------

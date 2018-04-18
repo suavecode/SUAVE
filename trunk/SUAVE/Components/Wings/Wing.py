@@ -225,7 +225,7 @@ class Container(Physical_Component.Container):
         N/A
         """        
         
-        return ['Main_Wing','Horizontal_Tail','Vertical_Tail']
+        return ['main_wing','vertical_stabilizer','vertical_stabilizer','wing']
 
 
 # ------------------------------------------------------------

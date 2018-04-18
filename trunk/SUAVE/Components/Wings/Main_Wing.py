@@ -52,7 +52,7 @@ class Main_Wing(Wing):
         Properties Used:
         N/A
         """ 
-        pass
+        self.tag = 'main_wing'
 
 
 # ----------------------------------------------------------------------
