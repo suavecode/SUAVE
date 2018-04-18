@@ -260,4 +260,3 @@ class Thrust(Energy_Component):
         return
     
     __call__ = compute         
-

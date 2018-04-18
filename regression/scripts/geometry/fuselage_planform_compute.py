@@ -1,4 +1,4 @@
-# NACA_airfoil_compute.py
+# fuselage_planform_compute.py
 # 
 # Created:  April 2018, W. Maier
 # Modified: 

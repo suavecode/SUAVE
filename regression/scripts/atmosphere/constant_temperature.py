@@ -1,4 +1,4 @@
-# constnat_temperature.py
+# constant_temperature.py
 # 
 # Created:  April 2018, W. Maier
 # Modified: 
