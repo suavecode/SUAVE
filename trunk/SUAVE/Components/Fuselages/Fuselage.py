@@ -89,7 +89,26 @@ class Fuselage(Lofted_Body):
         self.cabin_area           = 0.0
         
 class Container(Physical_Component.Container):
-    pass
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return ['Fuselage']
 
 
 # ------------------------------------------------------------

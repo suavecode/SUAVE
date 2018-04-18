@@ -64,7 +64,27 @@ class Container(Physical_Component.Container):
             N/A
     
     """
-    pass
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return ['Turbofan','Ramjet','Turbojet']
+
     
     def evaluate_thrust(self,state):
         """ This is used to evaluate the thrust produced by the propulsor.
