@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+from SUAVE.Components import Component, Lofted_Body, Mass_Properties, Physical_Component
 from Airfoils import Airfoil
 
 # ------------------------------------------------------------
@@ -204,3 +204,32 @@ class Wing(Lofted_Body):
         self.control_surfaces.append(control_surface)
 
         return
+    
+class Container(Physical_Component.Container):
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return ['Main_Wing','Horizontal_Tail','Vertical_Tail']
+
+
+# ------------------------------------------------------------
+#  Handle Linking
+# ------------------------------------------------------------
+
+Wing.Container = Container

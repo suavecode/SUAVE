@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Components import Component
+from SUAVE.Components import Component, Physical_Component
 
 # ----------------------------------------------------------------------
 #  Payload Base Class
@@ -54,3 +54,43 @@ class System(Component):
         self.position        = [0.0,0.0,0.0]
         self.control         = None
         self.accessories     = None
+        
+        
+class Container(Physical_Component.Container):
+    """ SUAVE.Components.Propulsor.Container()
+        
+        The Propulsor Container Class
+    
+            Assumptions:
+            None
+            
+            Source:
+            N/A
+    
+    """
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []
+    
+# ------------------------------------------------------------
+#  Handle Linking
+# ------------------------------------------------------------
+
+System.Container = Container
