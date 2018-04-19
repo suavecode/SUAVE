@@ -11,7 +11,6 @@ from Turbofan import Turbofan
 from Turbojet_Super import Turbojet_Super
 from Solar_Low_Fidelity import Solar_Low_Fidelity
 from Dual_Battery_Ducted_Fan import Dual_Battery_Ducted_Fan
-<<<<<<< HEAD
 from Series_Battery_Propeller_Hybrid import Series_Battery_Propeller_Hybrid
 from Series_Battery_Propeller_Hybrid_Interp import Series_Battery_Propeller_Hybrid_Interp
 from Battery_Propeller import Battery_Propeller
@@ -20,8 +19,6 @@ from Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_Low_Fidelity
 from Battery_Propeller_Low_Fidelity import Battery_Propeller_Low_Fidelity
 from Propulsor_Surrogate import Propulsor_Surrogate
 from Series_Battery_Propeller_Hybrid_Low_Fid import Series_Battery_Propeller_Hybrid_Low_Fid
-=======
 from Ramjet import Ramjet
 from Battery_Propeller import Battery_Propeller
 from Lift_Forward_Propulsor import Lift_Forward_Propulsor
->>>>>>> develop
