@@ -108,7 +108,7 @@ class Container(Physical_Component.Container):
         N/A
         """        
         
-        return ['Fuselage']
+        return [Fuselage]
 
 
 # ------------------------------------------------------------

@@ -81,9 +81,12 @@ class Container(Physical_Component.Container):
     
         Properties Used:
         N/A
-        """        
+        """
+        import SUAVE.Components.Energy.Networks as Nw
         
-        return ['Turbofan','Ramjet','Turbojet','Piston','Turboprop']
+        
+        return [Nw.Battery_Propeller,Nw.Battery_Ducted_Fan,Nw.Lift_Forward_Propulsor,Nw.Ramjet,Nw.Solar, \
+                Nw.Turbofan,Nw.Turbojet_Super]
 
     
     def evaluate_thrust(self,state):
