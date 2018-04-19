@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 """ SUAVE.Methods.Weights.Correlations.Tube_Wing
     contains some useful methods or attributes
@@ -5,6 +6,12 @@
 """
 
 # Attributes
+=======
+## @defgroup Methods-Weights-Correlations-General_Aviation Generational
+# Provides structural and component weight correlations for general aviation aircraft
+# @ingroup Methods-Weights-Correlations
+
+>>>>>>> develop
 from empty import empty
 from landing_gear import landing_gear
 from payload import payload
@@ -15,6 +22,9 @@ from fuselage import fuselage
 from wing_main import wing_main
 
 
+<<<<<<< HEAD
 # Packages
+=======
+>>>>>>> develop
 
 
