@@ -69,7 +69,6 @@ def main():
             takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
                     estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
     
-   
     truth_TOFL = np.array([[ 1118.63611639,   727.97884809,   527.01392339],
                            [ 1182.89024405,   766.11098981,   554.22570668],
                            [ 1249.99344765,   805.78023921,   582.49069546],
@@ -80,7 +79,7 @@ def main():
                            [ 1630.69763999,  1028.03532998,   740.05044723],
                            [ 1716.39912829,  1077.44790196,   774.9005222 ],
                            [ 1805.47300708,  1128.57746562,   810.89501387]])                          
-                             
+                         
     print ' takeoff_field_length=',  takeoff_field_length
     print ' second_seg_clb_grad = ', second_seg_clb_grad                      
                              
@@ -95,7 +94,6 @@ def main():
                                 [ 0.03399137,  0.17157441,  0.30915745],
                                 [ 0.03018298,  0.16395762,  0.29773227]])
 
-                               
     TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length)/truth_TOFL)                           
     GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad)/truth_clb_grad)
     
