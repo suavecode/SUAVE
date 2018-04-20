@@ -169,26 +169,3 @@ class Constant_Temperature(Atmospheric):
         atmo_data.dynamic_viscosity = mu
         
         return atmo_data
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    
-    import pylab as plt
-    
-    h = np.linspace(-1.,60.,200) * Units.km
-    temperature=300
-    h = 5000.
-    atmosphere = Constant_Temperature()
-    
-    data = atmosphere.compute_values(h,temperature)
-    p   = data.pressure
-    T   = data.temperature
-    rho = data.density
-    a   = data.speed_of_sound
-    mu  = data.dynamic_viscosity
-    
-    print data
-    
