@@ -1,6 +1,6 @@
 ## @ingroup Attributes-Solids
 
-# Rib.py
+# Carbon_Fiber_Honeycomb.py
 #
 # Created: Jul, 2017, J. Smart
 # Modified: Apr, 2018, J. Smart
@@ -10,22 +10,21 @@
 #-------------------------------------------------------------------------------
 
 from Solid import Solid
-from Aluminum import Aluminum
 from SUAVE.Core import Units
 
 #-------------------------------------------------------------------------------
-# Aluminim Component Material Property Data Class
+# Carbon Fiber Honeycomb Core Solid Class
 #-------------------------------------------------------------------------------
 
 ## @ingroup Attributes-Solids
-class Rib(Aluminum):
-    """ Physical Constants Specific to 6061-T6 Aluminum Ribs
+class Carbon_Fiber_Honeycomb(Solid):
+    """ Physical Constants Specific to Carbon Fiber Honeycomb Core Material
     
     Assumptions:
-    Limit of machining capability for precision components
+    None
     
     Source:
-    None
+    MatWeb (Median of Mfg. Reported Values)
     
     Inputs:
     N/A
@@ -56,7 +55,11 @@ class Rib(Aluminum):
         None
         """
 
-
-        self.minimum_gage_thickness = 1.5e-3   * Units.m
-        self.minimum_width          = 25.4e-3  * Units.m
-
+        self.ultimate_tensile_strength  = 1e6       * Units.Pa
+        self.ultimate_shear_strength    = 1e6       * Units.Pa
+        self.ultimate_bearing_strength  = 1e6       * Units.Pa
+        self.yield_tensile_strength     = 1e6       * Units.Pa
+        self.yield_shear_strength       = 1e6       * Units.Pa
+        self.yield_bearing_strength     = 1e6       * Units.Pa
+        self.minimum_gage_thickness     = 6.5e-3    * Units.m
+        self.density                    = 55.       * Units['kg/(m**3)']

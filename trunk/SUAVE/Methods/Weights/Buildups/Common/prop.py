@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Units
 from SUAVE.Attributes.Solids import (
-    Bidirectional_Carbon_Fiber, Honeycomb, Paint, Unidirectional_Carbon_Fiber, Aluminum, Epoxy, Nickel, Rib)
+    Bidirectional_Carbon_Fiber, Carbon_Fiber_Honeycomb, Paint, Unidirectional_Carbon_Fiber, Aluminum, Epoxy, Nickel, Aluminum_Rib)
 import numpy as np
 import copy as cp
 
@@ -126,11 +126,11 @@ def prop(prop,
     UniCF_UTS = UniCF.ultimate_tensile_strength
     UniCF_USS = UniCF.ultimate_shear_strength
     
-    HCMB = Honeycomb()
+    HCMB = Carbon_Fiber_Honeycomb()
     HCMB_MGT = HCMB.minimum_gage_thickness
     HCMB_DEN = HCMB.density
     
-    RIB = Rib()
+    RIB = Aluminum_Rib()
     RIB_WID = RIB.minimum_width
     RIB_MGT = RIB.minimum_gage_thickness
     RIB_DEN = RIB.density
