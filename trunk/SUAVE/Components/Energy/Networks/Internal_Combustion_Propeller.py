@@ -1,7 +1,8 @@
-# Battery_Propeller.py
+## @ingroup Components-Energy-Networks
+# Internal_Combustion_Propeller.py
 # 
 # Created:  Sep 2016, E. Botero
-# Modified: 
+# Modified: Apr 2018, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,14 +14,40 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-
 from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
+## @ingroup Components-Energy-Networks
 class Internal_Combustion_Propeller(Propulsor):
-    def __defaults__(self): 
+    """ A simple mock up of an internal combustion propeller engine. Tis network adds an extra
+        unknowns to the mission, the torque matching between motor and propeller.
+    
+        Assumptions:
+        None
+        
+        Source:
+        None
+    """      
+    def __defaults__(self):
+        """ This sets the default values for the network to function.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+        """        
         self.engine            = None
         self.propeller         = None
         self.engine_length     = None
@@ -31,7 +58,27 @@ class Internal_Combustion_Propeller(Propulsor):
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
+        """ Calculate thrust given the current state of the vehicle
     
+            Assumptions:
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state [state()]
+    
+            Outputs:
+            results.thrust_force_vector [newtons]
+            results.vehicle_mass_rate   [kg/s]
+            conditions.propulsion:
+                rpm                  [radians/sec]
+                propeller_torque     [N-M]
+                power                [W]
+    
+            Properties Used:
+            Defaulted values
+        """           
         # unpack
         conditions  = state.conditions
         numerics    = state.numerics
@@ -52,8 +99,9 @@ class Internal_Combustion_Propeller(Propulsor):
         torque       = engine.outputs.torque     
         
         # link
-        propeller.inputs.omega =  engine.speed
+        propeller.inputs.omega = engine.speed
         propeller.thrust_angle = self.thrust_angle
+        
         # step 4
         F, Q, P, Cp = propeller.spin(conditions)
         
