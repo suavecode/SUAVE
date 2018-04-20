@@ -179,14 +179,12 @@ class Thrust(Energy_Component):
         
         # computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1.+bypass_ratio))  
-        
+       
         # computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
 
         # computing the dimensional thrust
-        FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
-
-     
+        FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle   
         
         # fuel flow rate
         a = np.array([0.])        
@@ -262,4 +260,3 @@ class Thrust(Energy_Component):
         return
     
     __call__ = compute         
-
