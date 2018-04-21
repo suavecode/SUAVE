@@ -32,7 +32,6 @@ def main():
     
     outputs_sweep    = linear_sweep(problem)
     truth_obj_sweeps = [[ 6837.02435843,  6654.75194104]]
-
     
     #print outputs_sweep
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))

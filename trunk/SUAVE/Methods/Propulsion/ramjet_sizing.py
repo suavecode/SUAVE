@@ -16,10 +16,10 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #   Sizing
 # ----------------------------------------------------------------------
-
 ## @ingroup Methods-Propulsion
 def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
     """ This function sizes a ramjet for the input design conditions.
+
     """    
     
     #Unpack components
@@ -38,8 +38,8 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa,True)          
-            
+            atmo_data = atmosphere.compute_values(altitude,delta_isa,True)                    
+
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
             rho = atmo_data.density          
@@ -50,7 +50,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
         
             # freestream conditions    
-            conditions.freestream.altitude           = np.atleast_1d(altitude)
+            conditions.freestream.altitude                    = np.atleast_1d(altitude)
             conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
             conditions.freestream.pressure                    = np.atleast_1d(p)
             conditions.freestream.temperature                 = np.atleast_1d(T)
@@ -62,7 +62,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
             conditions.freestream.speed_of_sound              = np.atleast_1d(a)
             conditions.freestream.velocity                    = np.atleast_1d(a*mach_number)
-            
+
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
@@ -85,7 +85,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
-
+    
     #link the combustor to the inlet nozzle
     combustor.inputs                = inlet_nozzle.outputs
     

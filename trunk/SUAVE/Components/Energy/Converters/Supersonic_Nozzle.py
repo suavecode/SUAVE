@@ -235,8 +235,7 @@ class Supersonic_Nozzle(Energy_Component):
         
         #unpack from inputs
         Tt_in    = self.inputs.stagnation_temperature
-        Pt_in    = self.inputs.stagnation_pressure          
-        
+        Pt_in    = self.inputs.stagnation_pressure                
         
         #unpack from self
         pid             = self.pressure_ratio
@@ -246,14 +245,12 @@ class Supersonic_Nozzle(Energy_Component):
         
         
         # Method for computing the nozzle properties
-        
         #--Getting the output stagnation quantities
         Pt_out   = Pt_in*pid
         Tt_out   = Tt_in*pid**((gamma-1.)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
   
         # Method for computing the nozzle properties
-  
         #-- Initial estimate for exit area
         area_ratio = (max_area_ratio + min_area_ratio)/2.
         
@@ -265,7 +262,6 @@ class Supersonic_Nozzle(Energy_Component):
         supersonic_min_Area         = pressure_ratio_isentropic(min_area_ratio, gamma, False)
 
         #-- Compute the output Mach number guess with freestream pressure
-
         #-- Initializing arrays
         P_out       = np.ones_like(Pt_out)
         A_ratio     = area_ratio*np.ones_like(Pt_out)
@@ -319,7 +315,7 @@ class Supersonic_Nozzle(Energy_Component):
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
         A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
-       #-- Calculate other flow properties
+        #-- Calculate other flow properties
         T_out   = Tt_out/(1.+(gamma-1.)/2.*M_out*M_out)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)

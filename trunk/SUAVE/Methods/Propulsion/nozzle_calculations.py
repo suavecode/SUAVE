@@ -36,9 +36,11 @@ def exit_Mach_shock(area_ratio, gamma, Pt_out, P0):
     func = lambda Me : (Pt_out/P0)*(1./area_ratio)-(((gamma+1.)/2.)**((gamma+1.)/(2.*(gamma-1.))))*Me*((1.+(gamma-1.)/2.*Me**2.)**0.5)
 
     #Initializing the array
-    Me_initial_guess = np.ones_like(Pt_out)   
+    Me_initial_guess = np.ones_like(Pt_out) 
     i_sol = Me_initial_guess < 10.0
     Me_initial_guess[i_sol] = 0.1
+
+    # Solving for Me
     Me = fsolve(func,Me_initial_guess)
         
     return Me

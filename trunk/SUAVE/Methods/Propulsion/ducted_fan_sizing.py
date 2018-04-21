@@ -8,11 +8,9 @@
 """ create and evaluate a Ducted Fan network
 """
 
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-
 import SUAVE
 import numpy as np
 from SUAVE.Core import Data
@@ -33,7 +31,6 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     #Unpack components
     
     #check if altitude is passed or conditions is passed
-    
     if(conditions):
         #use conditions
         pass
@@ -58,11 +55,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
         
             # setup conditions
             conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
-        
-        
-        
-            # freestream conditions
-            
+
+            # freestream conditions           
             conditions.freestream.altitude                    = np.atleast_1d(altitude)
             conditions.freestream.mach_number                 = np.atleast_1d(mach_number)
             conditions.freestream.pressure                    = np.atleast_1d(p)
@@ -79,8 +73,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
     
-    
-    
+    # Setup Components   
     ram                       = ducted_fan.ram
     inlet_nozzle              = ducted_fan.inlet_nozzle
     fan                       = ducted_fan.fan
@@ -97,10 +90,10 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     
     #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
     ram(conditions)
-        
+
     #link inlet nozzle to ram 
-    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature #conditions.freestream.stagnation_temperature
-    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure #conditions.freestream.stagnation_pressure
+    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature
+    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
@@ -110,22 +103,16 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     fan.inputs.stagnation_pressure                         = inlet_nozzle.outputs.stagnation_pressure
     
     #flow through the fan
-    fan(conditions)
+    fan(conditions)        
     
-    
-           
-    
-
     #link the dan nozzle to the fan
     fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
     fan_nozzle.inputs.stagnation_pressure                  = fan.outputs.stagnation_pressure
     
-     # flow through the fan nozzle
+    # flow through the fan nozzle
     fan_nozzle(conditions)
     
     # compute the thrust using the thrust component
-    
-    
     
     #link the thrust component to the fan nozzle
     thrust.inputs.fan_exit_velocity                        = fan_nozzle.outputs.velocity
@@ -146,16 +133,13 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     thrust.inputs.core_nozzle.area_ratio                   = 0.
     thrust.inputs.core_nozzle.static_pressure              = 0.                                                                                                                
     
-    
     #compute the trust
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
     
-
     #update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
-    
-    
+      
     #compute the sls_thrust
     
     #call the atmospheric model to get the conditions at the specified altitude
@@ -171,10 +155,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     # setup conditions
     conditions_sls = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
 
-
-
     # freestream conditions
-    
     conditions_sls.freestream.altitude                    = np.atleast_1d(0.)
     conditions_sls.freestream.mach_number                 = np.atleast_1d(0.01)
     conditions_sls.freestream.pressure                    = np.atleast_1d(p)
@@ -196,9 +177,4 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     state_sls.conditions = conditions_sls   
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
-    ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
-   
-    
-    
-    
-    
+    ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines 
