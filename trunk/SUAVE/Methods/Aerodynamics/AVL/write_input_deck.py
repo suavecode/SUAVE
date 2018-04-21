@@ -42,27 +42,29 @@ def write_input_deck(avl_object):
     deck_filename = avl_object.current_status.deck_file 
 
     # purge old versions and write the new input deck
-    purge_files([deck_filename])
-    with open(deck_filename,'w') as input_deck:
-        input_deck.write(open_runs.format(batch))
-        input_deck.write(base_input)
-        for case_name in avl_object.current_status.cases:
-            
-            # write and store aerodynamic and static stability result files 
-            case = avl_object.current_status.cases[case_name]
-            case_command = make_case_command(avl_object,case)
-            input_deck.write(case_command)
-            
-        #-----------------------------------------------------------------
-        #          SUAVE-AVL dynamic stability analysis under development
-        #          
-        # write store dynamics stability result files 
-        # em_case_command = make_eigen_mode_case_command(avl_object,case)
-        # input_deck.write(em_case_command)
-        #
-        #-----------------------------------------------------------------
-         
-        input_deck.write('\n\nQUIT\n')
+    avl_regression_flag = avl_object.regression_flag
+    if not avl_regression_flag:
+        purge_files([deck_filename]) 
+        with open(deck_filename,'w') as input_deck:
+            input_deck.write(open_runs.format(batch))
+            input_deck.write(base_input)
+            for case_name in avl_object.current_status.cases:
+                
+                # write and store aerodynamic and static stability result files 
+                case = avl_object.current_status.cases[case_name]
+                case_command = make_case_command(avl_object,case)
+                input_deck.write(case_command)
+                
+            #-----------------------------------------------------------------
+            #          SUAVE-AVL dynamic stability analysis under development
+            #          
+            # write store dynamics stability result files 
+            # em_case_command = make_eigen_mode_case_command(avl_object,case)
+            # input_deck.write(em_case_command)
+            #
+            #-----------------------------------------------------------------
+             
+            input_deck.write('\n\nQUIT\n')
 
     return
 

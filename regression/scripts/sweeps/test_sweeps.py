@@ -1,6 +1,7 @@
 # test_sweeps.py
 #
 # Created:  Oct 2017, M. Vegh
+#  Modified Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -30,19 +31,18 @@ def main():
     
     
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [[ 6849.67198211,  6667.25756388]]
-
+    truth_obj_sweeps = [[ 6837.02435843,  6654.75194104]]
     
     #print outputs_sweep
-    max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )))
+    max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))
     
     print 'max_err_sweeps = ', max_err_sweeps
     assert(max_err_sweeps<1e-6)
     outputs_carpet = variable_sweep(problem)
     
     #print outputs_carpet
-    truth_obj_carp  =  [[ 6724.95286911,  6687.72466123], [ 7079.25920419,  6584.39407775]] 
-    max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)) 
+    truth_obj_carp  =  [[6711.60449303,  6674.2811524 ],[ 7066.45258873,  6572.22262351]] 
+    max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)/truth_obj_carp) 
     print ' max_err_carp = ',  max_err_carp
     assert(max_err_carp<1e-6)
     return
