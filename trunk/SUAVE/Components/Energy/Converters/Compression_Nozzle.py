@@ -179,7 +179,8 @@ class Compression_Nozzle(Energy_Component):
         Source: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,  
         "Hypersonic Airbreathing Propulsion", 1994  
-    
+        Chapter 4 - pgs. 175-180
+        
         Inputs: 
            conditions.freestream. 
            isentropic_expansion_factor        [-] 
@@ -209,7 +210,7 @@ class Compression_Nozzle(Energy_Component):
         self. 
            efficiency                         [-] 
            shock_count                        [-] 
-           theta                              [-] 
+           theta                              [Rad] 
         """ 
 
         # unpack the values 

@@ -263,7 +263,7 @@ class Combustor(Energy_Component):
         Source: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
         "Hypersonic Airbreathing Propulsion", 1994 
-        
+        Chapter 4 - pgs. 175-180
         
         Inputs: 
         conditions.freestream. 
@@ -294,7 +294,7 @@ class Combustor(Energy_Component):
           self.axial_fuel_velocity_ratio       [-] 
           self.fuel_velocity_ratio             [-] 
           self.burner_drag_coefficient         [-] 
-          self.temperature_reference           [-] 
+          self.temperature_reference           [K] 
           self.absolute_sensible_enthalpy      [J/kg] 
           self.specific_heat_constant_pressure [J/(kg K)] 
           """ 
@@ -329,7 +329,7 @@ class Combustor(Energy_Component):
         
         # setting stoichiometric fuel-to-air  
         f_st = self.fuel_data.stoichiometric_fuel_to_air
-        f    =  phi*f_st
+        f    = phi*f_st
         
         # compute output velocity, mach and temperature 
         V_out  = V_in*(((1.+f*Vfx_V3)/(1.+f))-(Cfb/(2.*(1.+f)))) 
@@ -340,7 +340,7 @@ class Combustor(Energy_Component):
         # compute the exity static and stagnation conditions 
         ht_out = Cpb*Tt_out 
         P_out  = P_in 
-        Pt_out  = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.))  
+        Pt_out = Pt_in*((((gamma_b+1.)*(M_out**2.))/((gamma_b-1.)*M_out**2.+2.))**(gamma_b/(gamma_b-1.)))*((gamma_b+1.)/(2.*gamma_b*M_out**2.-(gamma_b-1.)))**(1./(gamma_b-1.))  
         
         # pack computed quantities into outputs    
         self.outputs.stagnation_temperature          = Tt_out  

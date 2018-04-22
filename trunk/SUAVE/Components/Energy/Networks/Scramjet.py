@@ -27,7 +27,7 @@ class Scramjet(Propulsor):
     """ This is a scramjet for hypersonic flight. 
 
         Assumptions: 
-        Currrent Implements Stream Function Method
+        Currently implements Stream Function Method
         Combustion, Thermochemical Properties are estimated (HAP in below reference unavailable)
         Assumes no spillage drag at the momement
         Shock-BL Interaction negected
@@ -36,7 +36,7 @@ class Scramjet(Propulsor):
         Most of the componentes come from this book: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
         "Hypersonic Airbreathing Propulsion", 1994 
-
+        Chapter 4 - pgs. 175-180
     """       
 
     def __defaults__(self): 
@@ -156,8 +156,7 @@ class Scramjet(Propulsor):
         thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure 
         thrust.inputs.number_of_engines                        = number_of_engines 
 
-        thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation 
-        thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation         
+        thrust.inputs.flow_through_core                        = 1.0 #scaled constant to turn on core thrust computation 
 
         #compute the thrust 
         thrust.compute_stream_thrust(conditions) 
@@ -179,7 +178,7 @@ class Scramjet(Propulsor):
 
 
     def size(self,state):       
-        """ Size the sramjet    
+        """ Size the scramjet    
 
             Assumptions: 
             None 

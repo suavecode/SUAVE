@@ -64,14 +64,14 @@ class Thrust(Energy_Component):
         self.reference_temperature                    = 288.15
         self.reference_pressure                       = 1.01325*10**5
         self.number_of_engines                        = 0.0
-        self.inputs.fuel_to_air_ratio                 = 0.0  #changed
+        self.inputs.fuel_to_air_ratio                 = 0.0
         self.outputs.thrust                           = 0.0 
         self.outputs.thrust_specific_fuel_consumption = 0.0
         self.outputs.specific_impulse                 = 0.0
         self.outputs.non_dimensional_thrust           = 0.0
         self.outputs.core_mass_flow_rate              = 0.0
         self.outputs.fuel_flow_rate                   = 0.0
-        self.outputs.fuel_mass                        = 0.0 #changed
+        self.outputs.fuel_mass                        = 0.0
         self.outputs.power                            = 0.0
         self.design_thrust                            = 0.0
         self.mass_flow_rate_design                    = 0.0
@@ -181,6 +181,7 @@ class Thrust(Energy_Component):
 
         #Computing the TSFC
         TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))  
+     
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
 
@@ -214,7 +215,8 @@ class Thrust(Energy_Component):
         Source: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
         "Hypersonic Airbreathing Propulsion", 1994 
-
+        Chapter 4 - pgs. 175-180
+        
         Inputs: 
         conditions.freestream. 
            isentropic_expansion_factor        [-]  
@@ -305,7 +307,7 @@ class Thrust(Energy_Component):
 
         #fuel flow rate 
         a = np.array([0.])         
-        fuel_flow_rate   = np.fmax(FD2*TSFC/g,a) #use units package for the constants 
+        fuel_flow_rate   = np.fmax(FD2*TSFC/g,a)  
 
         #computing the power  
         power            = FD2*u0 
@@ -384,7 +386,8 @@ class Thrust(Energy_Component):
            Source: 
            Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M., 
            "Hypersonic Airbreathing Propulsion", 1994 
-
+           Chapter 4 - pgs. 175-180
+           
            Inputs: 
            conditions.freestream.speed_of_sound [m/s] (conditions is also passed to self.compute(..)) 
            self.inputs. 

@@ -72,8 +72,6 @@ class Supersonic_Nozzle(Energy_Component):
         self.min_area_ratio                  = 1.35
         self.pressure_expansion              = 1.0
     
-    
-    
     def compute(self,conditions):
         """This computes the output values from the input values according to
         equations from the source.
@@ -339,14 +337,15 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.area_ratio              = A_ratio
         
     def compute_scramjet(self,conditions): 
-        """This exit conditions of a scramjet. This function may not be necessary completely. 
+        """This computes exit conditions of a scramjet. 
         
         Assumptions: 
-        Fixed ouput Cp and Gamma 
+        Fixed output Cp and Gamma 
         
         Source: 
         Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,  
         "Hypersonic Airbreathing Propulsion", 1994  
+        Chapter 4 - pgs. 175-180
         
         Inputs:  
         conditions.freestream.  
@@ -376,9 +375,8 @@ class Supersonic_Nozzle(Energy_Component):
         
         Properties Used:  
         self.  
-           eta                                 [-]  
-           Cpe                                 [J/(kg K)]  
-           g_e                                 [-]  
+           polytropic_efficiency               [-]  
+           pressure_expansion_ratio            [-]                    
         """  
         
         # unpack values  
@@ -401,7 +399,7 @@ class Supersonic_Nozzle(Energy_Component):
 
         # unpack from self 
         eta        = self.polytropic_efficiency 
-        p10_p0     = self.pressure_expansion
+        p10_p0     = self.pressure_expansion_ratio
         
         # compute output properties 
         P_out      = Po*p10_p0

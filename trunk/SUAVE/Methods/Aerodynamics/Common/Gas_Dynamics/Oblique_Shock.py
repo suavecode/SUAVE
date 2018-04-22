@@ -81,8 +81,8 @@ def theta_beta_mach(M0,gamma,theta,n=0):
         """
     
     # Calculate wave angle
-    MU   = np.arcsin(1./M0)
-    c    = np.tan(MU)*np.tan(MU)
+    mu   = np.arcsin(1./M0)
+    c    = np.tan(mu)*np.tan(mu)
     
     # Calculate shock angle
     a    = ((gamma-1.)/2.+(gamma+1.)*c/2.)*np.tan(theta)

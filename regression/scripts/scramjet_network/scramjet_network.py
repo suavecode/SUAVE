@@ -1,4 +1,4 @@
-# sramjet_network.py
+# scramjet_network.py
 # 
 # Created:  April 2018, W. Maier
 # Modified: 
@@ -45,28 +45,28 @@ def energy_network():
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     # freestream conditions
-    EVAL                             = conditions.freestream
-    EVAL.mach_number                 = ones_1col*4.5
-    conditions.M                     = EVAL.mach_number
-    EVAL.altitude                    = ones_1col*20000.
+    eval                             = conditions.freestream
+    eval.mach_number                 = ones_1col*4.5
+    conditions.M                     = eval.mach_number
+    eval.altitude                    = ones_1col*20000.
     
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                        = atmosphere.compute_values(EVAL.altitude,0,True) 
+    atmo_data                        = atmosphere.compute_values(eval.altitude,0,True) 
     working_fluid                    = SUAVE.Attributes.Gases.Air()
-    
-    EVAL.pressure                    = ones_1col*atmo_data.pressure
-    EVAL.temperature                 = ones_1col*atmo_data.temperature
-    EVAL.density                     = ones_1col*atmo_data.density
-    EVAL.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
-    EVAL.gravity                     = ones_1col*9.81
-    EVAL.isentropic_expansion_factor = working_fluid.compute_gamma(EVAL.temperature,EVAL.pressure)
-    EVAL.Cp                          = working_fluid.compute_cp(EVAL.temperature,EVAL.pressure)                                                                               
-    EVAL.R                           = working_fluid.gas_specific_constant
-    EVAL.speed_of_sound              = ones_1col* atmo_data.speed_of_sound
-    EVAL.velocity                    = conditions.M * EVAL.speed_of_sound
-    conditions.velocity              = conditions.M * EVAL.speed_of_sound
-    conditions.q                     = 0.5*EVAL.density*conditions.velocity**2
-    conditions.g0                    = EVAL.gravity
+                            
+    eval.pressure                    = ones_1col*atmo_data.pressure
+    eval.temperature                 = ones_1col*atmo_data.temperature
+    eval.density                     = ones_1col*atmo_data.density
+    eval.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
+    eval.gravity                     = ones_1col* SUAVE.Attributes.Planets.Earth().sea_level_gravity
+    eval.isentropic_expansion_factor = working_fluid.compute_gamma(eval.temperature,eval.pressure)
+    eval.Cp                          = working_fluid.compute_cp(eval.temperature,eval.pressure)                                                                               
+    eval.R                           = working_fluid.gas_specific_constant
+    eval.speed_of_sound              = ones_1col* atmo_data.speed_of_sound
+    eval.velocity                    = conditions.M * eval.speed_of_sound
+    conditions.velocity              = conditions.M * eval.speed_of_sound
+    conditions.q                     = 0.5*eval.density*conditions.velocity**2
+    conditions.g0                    = eval.gravity
     
     # propulsion conditions
     conditions.propulsion.throttle   =  ones_1col*1.0
@@ -82,28 +82,28 @@ def energy_network():
     conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
-    SIZE                             = conditions_sizing.freestream
-    SIZE.mach_number                 = ones_1col*6.5
-    conditions_sizing.M              = SIZE.mach_number
-    SIZE.altitude                    = ones_1col*20000.  
+    size                             = conditions_sizing.freestream
+    size.mach_number                 = ones_1col*6.5
+    conditions_sizing.M              = size.mach_number
+    size.altitude                    = ones_1col*20000.  
     
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                        = atmosphere.compute_values(SIZE.altitude,0,True) 
+    atmo_data                        = atmosphere.compute_values(size.altitude,0,True) 
     working_fluid                    = SUAVE.Attributes.Gases.Air()    
 
-    SIZE.pressure                    = ones_1col*atmo_data.pressure
-    SIZE.temperature                 = ones_1col*atmo_data.temperature
-    SIZE.density                     = ones_1col*atmo_data.density
-    SIZE.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    SIZE.gravity                     = ones_1col*9.81
-    SIZE.isentropic_expansion_factor = working_fluid.compute_gamma(SIZE.temperature,SIZE.pressure)
-    SIZE.Cp                          = working_fluid.compute_cp(SIZE.temperature,SIZE.pressure)                                                                               
-    SIZE.R                           = working_fluid.gas_specific_constant
-    SIZE.speed_of_sound              = ones_1col * atmo_data.speed_of_sound
-    SIZE.velocity                    = conditions_sizing.M * SIZE.speed_of_sound
-    conditions_sizing.velocity       = conditions_sizing.M * SIZE.speed_of_sound
-    conditions_sizing.q              = 0.5*SIZE.density*conditions_sizing.velocity**2
-    conditions_sizing.g0             = SIZE.gravity
+    size.pressure                    = ones_1col*atmo_data.pressure
+    size.temperature                 = ones_1col*atmo_data.temperature
+    size.density                     = ones_1col*atmo_data.density
+    size.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
+    size.gravity                     = ones_1col*SUAVE.Attributes.Planets.Earth().sea_level_gravity
+    size.isentropic_expansion_factor = working_fluid.compute_gamma(size.temperature,size.pressure)
+    size.Cp                          = working_fluid.compute_cp(size.temperature,size.pressure)                                                                               
+    size.R                           = working_fluid.gas_specific_constant
+    size.speed_of_sound              = ones_1col * atmo_data.speed_of_sound
+    size.velocity                    = conditions_sizing.M * size.speed_of_sound
+    conditions_sizing.velocity       = conditions_sizing.M * size.speed_of_sound
+    conditions_sizing.q              = 0.5*size.density*conditions_sizing.velocity**2
+    conditions_sizing.g0             = size.gravity
     
     # propulsion conditions
     conditions_sizing.propulsion.throttle = ones_1col*1.0
@@ -186,8 +186,8 @@ def energy_network():
     nozzle.tag = 'core_nozzle'
     
     # setup
-    nozzle.polytropic_efficiency = 0.9
-    nozzle.pressure_expansion    = 1.1
+    nozzle.polytropic_efficiency    = 0.9
+    nozzle.pressure_expansion_ratio = 1.1
     
     # add to network
     scramjet.append(nozzle)
@@ -224,7 +224,7 @@ def energy_network():
     expected        = Data()
     expected.thrust = 180000.0
     expected.mdot   = 7.8394948
-    expected.Isp    = 2340.53651671
+    expected.Isp    = 2341.33605553
     
     #error data function
     error =  Data()
