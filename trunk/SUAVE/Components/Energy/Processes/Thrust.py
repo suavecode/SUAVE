@@ -173,7 +173,7 @@ class Thrust(Energy_Component):
 
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
 
-
+        #Computing Specifc Thrust
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
         #Computing the specific impulse
@@ -187,8 +187,6 @@ class Thrust(Energy_Component):
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1+bypass_ratio)*mdot_core*no_eng*throttle
-
-
 
         #fuel flow rate
         a = np.array([0.])        

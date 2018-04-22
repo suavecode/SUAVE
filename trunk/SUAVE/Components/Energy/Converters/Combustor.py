@@ -134,9 +134,6 @@ class Combustor(Energy_Component):
         # compute pressure
         Pt_out = Pt_in*pib
 
-
-        # method to compute combustor properties
-
         # method - computing the stagnation enthalpies from stagnation temperatures
         ht4     = Cp*Tt4
         ho      = Cp*To
@@ -220,7 +217,7 @@ class Combustor(Energy_Component):
         
         # Determine max stagnation temperature to thermally choke flow                                     
         Tt4_ray = Tt_in*(1.+gamma*Mach*Mach)**2./((2.*(1.+gamma)*Mach*Mach)*(1.+(gamma-1.)/2.*Mach*Mach))
-        
+
         # Rayleigh limitations define Tt4, taking max temperature before choking
         Tt4 = Tt4 * np.ones_like(Tt4_ray)
         Tt4[Tt4_ray <= Tt4] = Tt4_ray[Tt4_ray <= Tt4]
@@ -230,7 +227,6 @@ class Combustor(Energy_Component):
         Pt_out     = Ptr*Pt_in
             
         # method to compute combustor properties
-
         # method - computing the stagnation enthalpies from stagnation temperatures
         ht4     = Cp*Tt4
         ho      = Cp*To

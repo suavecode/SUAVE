@@ -113,7 +113,6 @@ class Ram(Energy_Component):
         stagnation_pressure    = Po*((1.+(gamma-1.)/2.*M*M )**(gamma/(gamma-1.)))
 
         #pack computed outputs
-
         #pack the values into conditions
         self.outputs.stagnation_temperature              = stagnation_temperature
         self.outputs.stagnation_pressure                 = stagnation_pressure
