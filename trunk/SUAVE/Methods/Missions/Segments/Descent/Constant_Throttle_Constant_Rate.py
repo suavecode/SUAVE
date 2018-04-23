@@ -1,11 +1,8 @@
 ## @ingroup Methods-Missions-Segments-Descent
 # Constant_Throttle_Constant_Rate.py
-# - ref Constant_Throttle_Constant_Speed
 #
-# First attempt: 28 Mar 2018, A.A. Wachman
+# Created: Mar, 2018, A.A. Wachman
 
-# note 1 : uses EAS instead of AS to attempt to preserve rate
-# note 2 : purpose - built to be used to optimise L/D
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,10 +18,10 @@ import numpy as np
 ## @ingroup Methods-Missions-Segments-Descent
 # get initial body angle 
 def unpack_body_angle(segment,state):
-    """Gets the initial value for the body angle
+    """Gets the initial value for the body angle.
 
     Assumptions:
-    :)????
+    None
 
     Source:
     N/A
@@ -55,10 +52,14 @@ def unpack_body_angle(segment,state):
 def initialize_conditions(segment,state):
     """Sets the specified conditions which are given for the segment type.
     
+    Uses estimated air speed instead of air speed to attempt to preserve
+    descent rate.
+    
     Assumptions:
-    Constant throttle setting, with a constant rate of descent
-    # descent_rate could be calculated as an input using a required 
-       L/D ratio
+    Constant throttle setting, with a constant rate of descent.
+    
+    Alternatively, descent_rate could be calculated as an input
+    using a required L/D ratio.
 
     Source:
     N/A
@@ -98,11 +99,15 @@ def initialize_conditions(segment,state):
     # pack conditions, these are the constants.
     conditions.propulsion.throttle[:,0] = throttle
     conditions.frames.inertial.velocity_vector[:,2] = descent_rate # positive because z is down
- # may need to include velocity vector?
 
 ## @ingroup Methods-Missions-Segments-Descent
 def update_differentials_altitude(segment,state):
-    """On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
+    """On each iteration creates the differentials and integration
+    functions from knowns about the problem. Sets the time at each
+    point. Must return in dimensional time, with t[0] = 0.
+    
+    Uses estimated air speed instead of air speed to attempt to 
+    preserve descent rate.
     
     Assumptions:
     Constant throttle setting, with a constant rate of descent
@@ -111,15 +116,15 @@ def update_differentials_altitude(segment,state):
     N/A
 
     Inputs:
-    segment.descent_angle                       [radians]
-    state.conditions.frames.inertial.velocity_vector [meter/second]
-    segment.altitude_start                      [meters]
-    segment.altitude_end                        [meters]
+    segment.descent_angle                               [radians]
+    state.conditions.frames.inertial.velocity_vector    [meter/second]
+    segment.altitude_start                              [meters]
+    segment.altitude_end                                [meters]
 
     Outputs:
-    state.conditions.frames.inertial.time       [seconds]
-    conditions.frames.inertial.position_vector  [meters]
-    conditions.freestream.altitude              [meters]
+    state.conditions.frames.inertial.time               [seconds]
+    conditions.frames.inertial.position_vector          [meters]
+    conditions.freestream.altitude                      [meters]
 
     Properties Used:
     N/A
@@ -135,17 +140,19 @@ def update_differentials_altitude(segment,state):
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end    
     conditions = state.conditions  
-    v          = state.conditions.frames.inertial.velocity_vector # this is our friend the vel vector that we need to change
+    v          = state.conditions.frames.inertial.velocity_vector
     desRate    = segment.descent_rate
     
     # check for initial altitude
     if alt0 is None:
         if not state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2] 
+   
     # check for incorrectly assigned descent direction
     if desRate < 0:
         raise AttributeError('descent rate set as upward (climb), check value - should be positive as z is downwards.')
         desRate = -segment.descent_rate
+    
     # check of zero descent rate
     if desRate == 0:
         raise AttributeError('descent rate set as zero, invalid for mission, please set positive descent value.')
@@ -153,8 +160,8 @@ def update_differentials_altitude(segment,state):
 
 
     # get overall time step
-    vz = -v[:,2,None] # Inertial velocity is z down, this should be pos
-    vx = v[:,0,None] # Inertial forward velocity, assumes plane is not flying backwards (occupational hazard)
+    vz = -v[:,2,None]   # Inertial velocity is z down, this should be pos
+    vx = v[:,0,None]    # Inertial forward velocity, assumes plane is not flying backwards
     dz = altf- alt0    
     dt = dz / np.dot(I[-1,:],vz)[-1] # maintain column array
     
