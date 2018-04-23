@@ -16,3 +16,4 @@ from Battery_Propeller import Battery_Propeller
 from Ramjet import Ramjet
 from Battery_Propeller import Battery_Propeller
 from Lift_Forward_Propulsor import Lift_Forward_Propulsor
+from Scramjet import Scramjet
