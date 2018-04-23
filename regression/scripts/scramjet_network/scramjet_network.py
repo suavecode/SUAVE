@@ -206,7 +206,7 @@ def energy_network():
     scramjet.thrust = thrust    
 
     #size the ramjet
-    scramjet_sizing(scramjet,6.5,20000.0)
+    scramjet_sizing(scramjet,size.mach_number,size.altitude)
     
     print "Design thrust :",scramjet.design_thrust
     print "Sealevel static thrust :",scramjet.sealevel_static_thrust
