@@ -1,8 +1,7 @@
 ## @ingroup Analyses-Mission-Segments-Climb
 # Constant_Throttle_Constant_Speed.py
-# - ref Constant_Throttle_Constant_Speed
 #
-# First attempt: 28 Mar 2018, A.A. Wachman
+# Created: Mar, 2018, A.A. Wachman
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,16 +10,10 @@
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
-
 from SUAVE.Methods.Missions import Segments as Methods
-
 from SUAVE.Analyses import Process
-
 from SUAVE.Methods.Missions.Segments.Descent import Constant_Throttle_Constant_Rate
-
-# Units
 from SUAVE.Core import Units
-
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -29,13 +22,25 @@ from SUAVE.Core import Units
 ## @ingroup Analyses-Mission-Segments-Descent
 class Constant_Throttle_Constant_Rate(Aerodynamic):
     """ Descent at a constant throttle setting and a constant rate of descent.
-        This segment is being designed to work with zero engine configurations for gliding descents, and uses a desired rate of descent which can be calculated using desired L/D ratio (which can then be used to optimize the configuration.
+        This segment is being designed to work with zero engine configurations
+        for gliding descents, and uses a desired rate of descent which can be
+        calculated using desired L/D ratio (which can then be used to optimize
+        the configuration.
 
         Assumptions:
-        I know what letters are.
+        N/A
         
         Source:
         N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        None
     """ 
 
     def __defaults__(self):
@@ -60,11 +65,11 @@ class Constant_Throttle_Constant_Rate(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start       = 20. * Units.km # must be greater than end
-        self.altitude_end         = 0. * Units.km # default is zero
-        self.throttle             = 0.5 # can alter if engines, set engines num to zero if glider
-        self.descent_rate         = 3 * Units.m / Units.s # remember z is down
-        self.dynamic_pressure     = 150 * Units.Pa # calc this off required L/D and required lift
+        self.altitude_start       = 20. * Units.km      # must be greater than end
+        self.altitude_end         = 0.  * Units.km      # default is zero
+        self.throttle             = 0.5                 # can alter if engines, set engines num to zero if glider
+        self.descent_rate         = 3   * Units['m/s']  # remember z is down
+        self.dynamic_pressure     = 150 * Units.Pa      # calc this off required L/D and required lift
         
 
         # --------------------------------------------------------------
