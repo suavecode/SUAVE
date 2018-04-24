@@ -440,7 +440,7 @@ def noise_approach(nexus):
     mission = nexus.missions.landing
     nexus.analyses.landing.noise.settings.approach = 1    
     results = nexus.results
-    #results.approach = mission.evaluate()
+    results.approach = mission.evaluate()
     #SUAVE.Input_Output.SUAVE.archive(results.approach,'approach.res')
     results.approach = SUAVE.Input_Output.SUAVE.load('approach.res')  
     
