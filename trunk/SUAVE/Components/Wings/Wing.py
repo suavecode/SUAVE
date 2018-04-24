@@ -228,7 +228,7 @@ class Container(Physical_Component.Container):
         from Vertical_Tail import Vertical_Tail
         from Horizontal_Tail import Horizontal_Tail
         
-        return [Main_Wing,Vertical_Tail,Horizontal_Tail,Wing]
+        return [Main_Wing,Vertical_Tail,Horizontal_Tail]
 
 
 # ------------------------------------------------------------
