@@ -77,7 +77,7 @@ class Aerodynamic(Simple):
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
         initialize.conditions              = None        
-        
+        initialize.unknown_scaling         = Methods.Common.Numerics.initialize_numerical_scaling
         # --------------------------------------------------------------
         #   Converge - starts iteration
         # --------------------------------------------------------------
