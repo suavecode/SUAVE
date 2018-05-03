@@ -64,7 +64,7 @@ class Solar_Low_Fidelity(Propulsor):
         self.nacelle_dia       = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag         = 'Network'
+        self.tag         = 'Solar_Low_Fidelity'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

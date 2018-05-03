@@ -63,7 +63,7 @@ class Solar(Propulsor):
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag               = 'network'
+        self.tag               = 'Solar'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
