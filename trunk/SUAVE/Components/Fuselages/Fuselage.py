@@ -48,6 +48,7 @@ class Fuselage(Lofted_Body):
         
         self.tag = 'fuselage'
         self.aerodynamic_center = [0.0,0.0,0.0]
+        self.max_per_vehicle = 4
         self.Sections    = Lofted_Body.Section.Container()
         self.Segments    = Lofted_Body.Segment.Container()
         

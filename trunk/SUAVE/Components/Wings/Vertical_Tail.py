@@ -52,6 +52,7 @@ class Vertical_Tail(Wing):
         """ 
         self.tag      = 'vertical_stabilizer'
         self.vertical = True
+        self.max_per_vehicle = 5
 
 
 # ----------------------------------------------------------------------
