@@ -75,6 +75,7 @@ def parasite_drag_wing(state,settings,geometry):
     symm                      = wing.symmetric
     semispan                  = wing.spans.projected*0.5 * (2 - symm)
     t_c_w                     = wing.thickness_to_chord
+    Sref                      = wing.areas.reference
     
     # if wing has segments, compute and sum parasite drag of each segment
     if len(wing.Segments.keys())>0:
@@ -87,7 +88,7 @@ def parasite_drag_wing(state,settings,geometry):
         total_segment_k_comp_u       = 0
         total_k_reyn_l               = 0    
         root_chord                   = wing.chords.root    
-        Sref                         = 0
+        #Sref                         = 0
         
         for i_segs in xrange(num_segments):
             if i_segs == num_segments-1:
@@ -119,7 +120,7 @@ def parasite_drag_wing(state,settings,geometry):
                     Sref_seg = Sref_seg*2
                     S_exposed_seg = S_exposed_seg*2
                 
-                Sref += Sref_seg 
+                #Sref += Sref_seg 
                 
                 # compute wetted area of segment
                 if t_c_w < 0.05:

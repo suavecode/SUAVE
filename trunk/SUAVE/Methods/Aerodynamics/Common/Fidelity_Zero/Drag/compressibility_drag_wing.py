@@ -49,7 +49,9 @@ def compressibility_drag_wing(state,settings,geometry):
     
     # unpack
     conditions    = state.conditions
-    configuration = settings    # unused
+    configuration = settings             # unused
+    Sref          = wing.areas.reference
+    
     
     wing = geometry
     if wing.tag == 'main_wing':
@@ -75,7 +77,7 @@ def compressibility_drag_wing(state,settings,geometry):
         num_segments   = len(wing.Segments.keys())     
         
         weighted_sweep = 0
-        Sref           = 0
+        #Sref           = 0
         for i_segs in xrange(num_segments): 
             if i_segs == num_segments-1:
                 continue 
@@ -85,7 +87,7 @@ def compressibility_drag_wing(state,settings,geometry):
                 chord_tip       = root_chord*wing.Segments[i_segs+1].root_chord_percent
                 Sref_seg        = span_seg *(chord_root+chord_tip)*0.5
                 weighted_sweep += wing.Segments[i_segs].sweeps.quarter_chord*Sref_seg 
-                Sref           += Sref_seg       
+                #Sref           += Sref_seg       
         sweep_w = weighted_sweep/Sref
         
   
