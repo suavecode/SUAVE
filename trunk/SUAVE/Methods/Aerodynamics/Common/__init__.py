@@ -3,3 +3,4 @@
 # @ingroup Methods-Aerodynamics
 
 import Fidelity_Zero
+import Gas_Dynamics
