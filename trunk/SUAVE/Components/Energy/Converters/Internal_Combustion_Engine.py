@@ -89,7 +89,7 @@ class Internal_Combustion_Engine(Energy_Component):
         SFC = BSFC * Units['lb/hp/hr']
 
         #fuel flow rate
-        a = np.array([0.])
+        a = np.zeros_like(altitude)
         fuel_flow_rate   = np.fmax(output_power*SFC,a)
 
         #torque
