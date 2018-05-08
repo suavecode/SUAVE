@@ -50,7 +50,7 @@ def compressibility_drag_wing(state,settings,geometry):
     # unpack
     conditions    = state.conditions
     configuration = settings             # unused
-    Sref          = wing.areas.reference
+
     
     
     wing = geometry
@@ -63,8 +63,9 @@ def compressibility_drag_wing(state,settings,geometry):
         
     mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
-    
+    Sref          = wing.areas.reference    
     # start result
+    
     total_compressibility_drag = 0.0
         
     # unpack wing
