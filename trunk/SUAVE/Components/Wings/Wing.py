@@ -119,6 +119,8 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
+        
+        self.PGM_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference']
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 

@@ -89,6 +89,8 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
         
+        self.PGM_characteristics = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
+        
 class Container(Physical_Component.Container):
     def get_children(self):
         """ Returns the components that can go inside
