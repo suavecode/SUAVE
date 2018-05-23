@@ -68,6 +68,9 @@ class Sizing_Loop(Data):
         self.iteration_options.number_of_surrogate_calls         = 0
         self.iteration_options.newton_raphson_damping_threshhold = 5E-5
         self.iteration_options.err_save                          = 0.
+        self.iteration_options.write_error                       = False            #set to True to write the error at every iteration
+        self.iteration_options.error_file                        = 'y_err_values.txt'
+        
         
         #backtracking 
         backtracking                         = Data()
@@ -259,9 +262,37 @@ class Sizing_Loop(Data):
             dy2 = y-y_save2
             norm_dy  = np.linalg.norm(dy)
             norm_dy2 = np.linalg.norm(dy2)
-            print 'norm(dy) = ', norm_dy
-            print 'norm(dy2) = ', norm_dy2
-    
+            if self.iteration_options.backtracking.backtracking_flag == True:
+                err_save           = iteration_options.err_save
+                backtracking       = iteration_options.backtracking
+                back_thresh        = backtracking.threshhold
+                i_back             = 0
+                min_err_back       = 1000.
+                y_back_list        = [y]
+                err_back_list      = [err]
+                norm_err_back_list = [np.linalg.norm(err)]
+                
+                while np.linalg.norm(err)>back_thresh*np.linalg.norm(err_save) and i_back<backtracking.max_steps  : #while?
+                    print 'backtracking'
+                    print 'err, err_save = ', np.linalg.norm(err), np.linalg.norm(err_save)
+                    p = y-y_save
+                    
+                    backtrack_y = y_save+p*(backtracking.multiplier**(i_back+1))
+                    
+                    
+                    print 'y, y_save, backtrack_y = ', y, y_save, backtrack_y
+                    err,y_back, i     = self.successive_substitution_update(backtrack_y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                    
+                    y_back_list.append(backtrack_y)
+                    err_back_list.append(err)
+                    norm_err_back_list.append(np.linalg.norm(err))
+                    min_err_back = min(np.linalg.norm(err_back_list), min_err_back)
+                    i_back+=1
+                
+                i_min_back = np.argmin(norm_err_back_list)
+                y          = y_back_list[i_min_back]
+                err        = err_back_list[i_min_back]
+        
         
             
             #keep track of previous iterations, as they're used to transition between methods + for saving results
@@ -286,7 +317,25 @@ class Sizing_Loop(Data):
                 err=float('nan')*np.ones(np.size(err))
                 print "###########sizing loop did not converge##########"
                 break
+        
+        if self.iterations.write_error:
+            file=open(self.iteration_options.error_file, 'ab')   
+            file.write('global iteration = ')
+            file.write(str( nexus.total_number_of_iterations))
+            file.write(', iteration = ')
+            file.write(str(i))
+            file.write(', x = ')
+            file.write(str(scaled_inputs))
+            file.write(', y = ')
     
+            file.write(str(y_save2))
+            file.write(', err = ')
+            file.write(str(err.tolist()))
+            file.write('\n') 
+            file.close()
+        
+        
+        
         if i<max_iter and not np.isnan(err).any() and opt_flag == 1:  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
@@ -324,7 +373,7 @@ class Sizing_Loop(Data):
         
         err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
-        iteration_options.err_save = err
+        #iteration_options.err_save = err
         return err_out, y_out, iter
     
     def newton_raphson_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
@@ -356,7 +405,7 @@ class Sizing_Loop(Data):
             #save these values in case of Broyden update
             iteration_options.Jinv     = Jinv 
             iteration_options.y_save   = y
-            iteration_options.err_save = err
+            #iteration_options.err_save = err
            
             print 'err_out=', err_out
             
@@ -371,16 +420,14 @@ class Sizing_Loop(Data):
         """
         uses an approximation to update the Jacobian without
         the use of finite differencing
-        
         """
         y_save      = iteration_options.y_save
-        err_save    = iteration_options.err_save 
+        err_save    = iteration_options.err_save2 
         dy          = y - y_save
         df          = err - err_save
         Jinv        = iteration_options.Jinv
-        print 'Jinv=', Jinv
+
         update_step = ((dy - Jinv*df)/np.linalg.norm(df))* df
-        print 'update_step=', update_step
         Jinv_out    = Jinv + update_step
         
         p                      = -np.dot(Jinv_out,err)
