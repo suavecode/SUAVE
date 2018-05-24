@@ -18,6 +18,9 @@ import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
 from write_sizing_outputs import write_sizing_outputs
 from read_sizing_inputs import read_sizing_inputs
+from write_sizing_residuals import write_sizing_residuals
+
+
 import numpy as np
 import scipy as sp
 import time
@@ -48,9 +51,9 @@ class Sizing_Loop(Data):
         self.min_y                 = None  #vector of lowest allowable y values
         self.hard_max_bound        = False #set to true if you want the solver to backtrack if it reaches this bound, otherwise, just don't allow to start higher than this value
         self.hard_min_bound        = True  #set to true if you want the solver to backtrack if it reaches this bound, otherwise, just don't allow to start lower than this value
-        self.write_threshhold      = 3      #number of iterations before it writes,
-        
-        
+        self.write_threshhold      = 3     #number of iterations before it writes,
+        self.write_residuals       = True  #set to True to write the residuals at every iteration
+        self.residual_filename     = 'y_err_values.txt'
         
         #parameters that may only apply to certain methods
         self.iteration_options     = Data()
@@ -68,8 +71,8 @@ class Sizing_Loop(Data):
         self.iteration_options.number_of_surrogate_calls         = 0
         self.iteration_options.newton_raphson_damping_threshhold = 5E-5
         self.iteration_options.err_save                          = 0.
-        self.iteration_options.write_error                       = False            #set to True to write the error at every iteration
-        self.iteration_options.error_file                        = 'y_err_values.txt'
+       
+        
         
         
         #backtracking 
@@ -121,7 +124,7 @@ class Sizing_Loop(Data):
             
             if read_success:
                 min_norm, i_min_dist = find_min_norm(scaled_inputs, data_inputs)
-
+                
                 if min_norm<iteration_options.max_initial_step: #make sure data is close to current guess
                     if self.initial_step == 'Table' or min_norm<iteration_options.min_surrogate_step or len(data_outputs[:,0])< iteration_options.min_surrogate_length:
                         regr    = neighbors.KNeighborsRegressor( n_neighbors = 1)
@@ -175,9 +178,10 @@ class Sizing_Loop(Data):
                     
                         iteration_options.number_of_surrogate_calls += 1
                     y = []    
+                    input_for_regr = scaled_inputs.reshape(1,-1)
                     for j in range(len(data_outputs[0,:])):
                         y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
-                        y.append(y_surrogate.predict(scaled_inputs)[0])    
+                        y.append(y_surrogate.predict(input_for_regr)[0])    
                         if y[j] > self.max_y[j] or y[j]< self.min_y[j]: 
                             print 'sizing variable range violated, val = ', y[j], ' j = ', j
                             n_neighbors = min(iteration_options.n_neighbors, len(data_outputs))
@@ -190,7 +194,7 @@ class Sizing_Loop(Data):
                     y = np.array(y)
                    
         # initialize previous sizing values
-        y_save   = 2*y  #save values to detect oscillation
+        y_save   = 1*y  #save values to detect oscillation
         y_save2  = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a successive_substitution iteration
   
@@ -302,6 +306,13 @@ class Sizing_Loop(Data):
             print 'y_save = ', y_save
             
             print 'err = ', err
+            
+            if self.write_residuals:  #write residuals at every iteration
+                write_sizing_residuals(self, y_save, scaled_inputs, err)
+        
+        
+            
+            
             '''
             #uncomment this when you want to write error at each iteration
             file=open('y_err_values.txt', 'ab')
@@ -314,28 +325,11 @@ class Sizing_Loop(Data):
             j+=1
             
             if i>max_iter: #
-                err=float('nan')*np.ones(np.size(err))
+                #err=float('nan')*np.ones(np.size(err))
                 print "###########sizing loop did not converge##########"
                 break
         
-        if self.iterations.write_error:
-            file=open(self.iteration_options.error_file, 'ab')   
-            file.write('global iteration = ')
-            file.write(str( nexus.total_number_of_iterations))
-            file.write(', iteration = ')
-            file.write(str(i))
-            file.write(', x = ')
-            file.write(str(scaled_inputs))
-            file.write(', y = ')
-    
-            file.write(str(y_save2))
-            file.write(', err = ')
-            file.write(str(err.tolist()))
-            file.write('\n') 
-            file.close()
-        
-        
-        
+     
         if i<max_iter and not np.isnan(err).any() and opt_flag == 1:  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
@@ -356,10 +350,11 @@ class Sizing_Loop(Data):
         print 'number of iterations total=', nexus.total_number_of_iterations
 
     
-        nexus.sizing_loop.converged = converged
-        nexus.sizing_loop.norm_error  = np.linalg.norm(err)
-        nexus.sizing_loop.max_error   = max(err)
-        nexus.sizing_variables = y_save2
+        nexus.sizing_loop.converged    = converged
+        nexus.sizing_loop.norm_error   = np.linalg.norm(err)
+        nexus.sizing_loop.max_error    = max(err)
+        nexus.sizing_loop.output_error = err  #save in case you want to write this
+        nexus.sizing_variables         = y_save2
     
         
         return nexus
@@ -387,20 +382,13 @@ class Sizing_Loop(Data):
         J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
         try:
             
-            Jinv =np.linalg.inv(J)  
-            p = -np.dot(Jinv,err)
+            Jinv     = np.linalg.inv(J)  
+            p        = -np.dot(Jinv,err)
             y_update = y + p
-      
-            
-            '''
-            for i in range(len(y_update)):  #handle variable bounds
-                if y_update[i]<self.min_y[i]:
-                    y_update[i] = self.min_y[i]*1.
-                elif y_update[i]>self.max_y[i]:
-                    y_update[i] = self.max_y[i]*1.
-            '''
+            y_update = self.stay_inbounds(y, y_update)  #make sure bounds aren't exceeded
+
             err_out, y_out = sizing_evaluation(y_update, nexus, scaling)
-            iter += 1 
+            iter           += 1 
             
             #save these values in case of Broyden update
             iteration_options.Jinv     = Jinv 
@@ -429,14 +417,13 @@ class Sizing_Loop(Data):
 
         update_step = ((dy - Jinv*df)/np.linalg.norm(df))* df
         Jinv_out    = Jinv + update_step
-        
+    
         p                      = -np.dot(Jinv_out,err)
         y_update               = y + p
-        
         err_out, y_out         = sizing_evaluation(y_update, nexus, scaling)
         #pack outputs
         iteration_options.Jinv     = Jinv_out
-        iteration_options.err_save = err  #save previous iteration
+    
         iteration_options.y_save   = y
         iter                       = iter+1
         
@@ -444,13 +431,13 @@ class Sizing_Loop(Data):
         
     def damped_newton_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         #uses newton raphson, does backtracking linesearch if it goes too far
-        tol = self.tolerance
-        h = iteration_options.h
+        tol    = self.tolerance
+        h      = iteration_options.h
         print '###begin Finite Differencing###'
         J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
         try:  
-            Jinv =np.linalg.inv(J)  
-            p = -np.dot(Jinv,err)
+            Jinv     = np.linalg.inv(J)  
+            p        = -np.dot(Jinv,err)
             y_update = y + p
             
             
@@ -462,18 +449,18 @@ class Sizing_Loop(Data):
                     y_update[i] = self.max_y[i]*1.
             '''
             err_out, y_out = sizing_evaluation(y_update, nexus, scaling)
-            iter += 1 
-            norm_error =np.linalg.norm(err_out)
+            iter           += 1 
+            norm_error     = np.linalg.norm(err_out)
             
             if norm_error<self.iteration_options.newton_raphson_damping_threshhold:
-                    old_norm = np.linalg.norm(err)
-                    ydamp = y+.5*p #halve the step
+                    old_norm       = np.linalg.norm(err)
+                    ydamp          = y+.5*p #halve the step
                     err_out, y_out = sizing_evaluation(ydamp, nexus, scaling)
-                    y_update = ydamp
+                    y_update       = ydamp
             #save these values in case of Broyden update
             iteration_options.Jinv     = Jinv 
             iteration_options.y_save   = y
-            iteration_options.err_save = err
+
             
             print 'err_out=', err_out
                 
@@ -484,17 +471,17 @@ class Sizing_Loop(Data):
         
         return err_out, y_update, iter
         
-        def check_bounds(self, y):
-        y_out = 1.*y #create copy
+    def check_bounds(self, y):
+        y_out          = 1.*y #create copy
         bound_violated = 0
         for j in xrange(len(y)):  #handle variable bounds to prevent going to weird areas (such as negative mass)
             if self.hard_min_bound:
                 if y[j]<self.min_y[j]:
-                    y_out[j] = self.min_y[j]*1.
+                    y_out[j]       = self.min_y[j]*1.
                     bound_violated = 1
             if self.hard_max_bound:
                 if y[j]>self.max_y[j]:
-                    y_out[j] = self.max_y[j]*1.
+                    y_out[j]       = self.max_y[j]*1.
                     bound_violated = 1
         return y_out, bound_violated
     
@@ -514,11 +501,9 @@ class Sizing_Loop(Data):
             bound_violated = 0
             for j in xrange(len(y_out)):
                 if not np.isclose(y_out[j], y_update[j]) or np.isnan(y_update).any():
-                    y_update = y+p*backtrack_step
-           
-                    
+                    y_update        = y+p*backtrack_step
                     bounds_violated = bounds_violated+1
-                    backtrack_step = backtrack_step*.5
+                    backtrack_step  = backtrack_step*.5
                     break
 
             y_out, bound_violated = self.check_bounds(y_update)
@@ -547,10 +532,10 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     
     """
 
-    J=np.nan*np.ones([len(x), len(x)])
+    J = np.nan*np.ones([len(x), len(x)])
     for i in range(len(x)):
-        xu=1.*x;
-        xu[i]=x[i]+h *x[i]  #use FD step of H*x
+        xu        = 1.*x;
+        xu[i]     = x[i]+h *x[i]  #use FD step of H*x
         fu, y_out = my_function(xu, inputs,scaling)
         
         print 'fbase=', f
@@ -563,15 +548,15 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     return J, iter
 
 def find_min_norm(scaled_inputs, data_inputs):
-    min_norm = 1E9
-    diff = np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
+    min_norm  = 1E9
+    diff      = np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
     #find minimum entry and corresponding index 
     imin_dist = -1 
     for k in xrange(len(diff[:,-1])):
-        row = diff[k,:]
+        row      = diff[k,:]
         row_norm = np.linalg.norm(row)
         if row_norm < min_norm:
-            min_norm = row_norm
+            min_norm  = row_norm
             imin_dist = k*1 
     
     return min_norm, imin_dist
