@@ -198,14 +198,11 @@ class Sizing_Loop(Data):
         y_save   = 1*y  #save values to detect oscillation
         y_save2  = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a successive_substitution iteration
-  
-        #handle input data
-        
         nr_start = 0 #flag to switch between methods; if you do nr too early, sizing diverges
         
         #now start running the sizing loop
         while np.max(np.abs(err))>tol:
-            #save the previous iterations for backtracking,
+            #save the previous iterations for backtracking
             iteration_options.err_save2 = 1.*np.array(iteration_options.err_save)
             iteration_options.err_save  = err
         
@@ -217,7 +214,6 @@ class Sizing_Loop(Data):
                     nr_start=0  
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
                     err,y, i = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                
 
                 else:          
                     if nr_start==0:
@@ -244,9 +240,9 @@ class Sizing_Loop(Data):
                         
                         else:
                             #from http://www.jnmas.org/jnmas2-5.pdf
-                            D = np.diag((y-y_save2)/(err-self.iteration_options.err_save))
+                            D                             = np.diag((y-y_save2)/(err-self.iteration_options.err_save))
                             self.iteration_options.y_save = y_save
-                            self.iteration_options.Jinv = D
+                            self.iteration_options.Jinv   = D
                         
                             err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                      
@@ -256,9 +252,9 @@ class Sizing_Loop(Data):
                         err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                       
                             
-            y  = self.stay_inbounds(y_save, y)           
-            dy  = y-y_save
-            dy2 = y-y_save2
+            y        = self.stay_inbounds(y_save, y)           
+            dy       = y-y_save
+            dy2      = y-y_save2
             norm_dy  = np.linalg.norm(dy)
             norm_dy2 = np.linalg.norm(dy2)
             if self.iteration_options.backtracking.backtracking_flag == True:
@@ -274,12 +270,8 @@ class Sizing_Loop(Data):
                 while np.linalg.norm(err)>back_thresh*np.linalg.norm(err_save) and i_back<backtracking.max_steps  : #while?
                     print 'backtracking'
                     print 'err, err_save = ', np.linalg.norm(err), np.linalg.norm(err_save)
-                    p = y-y_save
-                    
-                    backtrack_y = y_save+p*(backtracking.multiplier**(i_back+1))
-                    
-                    
-                    print 'y, y_save, backtrack_y = ', y, y_save, backtrack_y
+                    p                 = y-y_save
+                    backtrack_y       = y_save+p*(backtracking.multiplier**(i_back+1))
                     err,y_back, i     = self.successive_substitution_update(backtrack_y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                     
                     y_back_list.append(backtrack_y)
@@ -296,10 +288,8 @@ class Sizing_Loop(Data):
             
             #keep track of previous iterations, as they're used to transition between methods + for saving results
             y_save2 = 1.*y_save
-            y_save = 1. *y  
-            print 'y_save2 = ', y_save2
-            print 'y_save = ', y_save
-            
+            y_save  = 1. *y  
+    
             print 'err = ', err
             
             if self.write_residuals:  #write residuals at every iteration
