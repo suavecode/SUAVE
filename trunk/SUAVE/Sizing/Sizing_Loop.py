@@ -52,7 +52,7 @@ class Sizing_Loop(Data):
         self.hard_max_bound        = False #set to true if you want the solver to backtrack if it reaches this bound, otherwise, just don't allow to start higher than this value
         self.hard_min_bound        = True  #set to true if you want the solver to backtrack if it reaches this bound, otherwise, just don't allow to start lower than this value
         self.write_threshhold      = 3     #number of iterations before it writes,
-        self.write_residuals       = True  #set to True to write the residuals at every iteration
+        self.write_residuals       = False  #set to True to write the residuals at every iteration
         self.residual_filename     = 'y_err_values.txt'
         
         #parameters that may only apply to certain methods
@@ -71,7 +71,7 @@ class Sizing_Loop(Data):
         self.iteration_options.number_of_surrogate_calls         = 0
         self.iteration_options.newton_raphson_damping_threshhold = 5E-5
         self.iteration_options.err_save                          = 0.
-       
+        
         
         
         

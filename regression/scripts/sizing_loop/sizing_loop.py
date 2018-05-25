@@ -30,9 +30,10 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 from SUAVE.Sizing.Sizing_Loop import Sizing_Loop
 from SUAVE.Optimization.Nexus import Nexus
-#from SUAVE.Optimization.write_optimization_outputs import write_optimization_outputs
+from SUAVE.Sizing.write_sizing_residuals import write_sizing_residuals
+from SUAVE.Sizing.read_sizing_residuals import read_sizing_residuals
 
-import sys
+import sys, os
 sys.path.append('../noise_optimization') #import structure from noise_optimization
 sys.path.append('../Vehicles')
 import Analyses
@@ -47,25 +48,39 @@ def main():
     
     #initialize the problem
     nexus                        = Nexus()
-    vehicle = vehicle_setup()
+    vehicle                      = vehicle_setup()
     nexus.vehicle_configurations = configs_setup(vehicle)
     nexus.analyses               = Analyses.setup(nexus.vehicle_configurations)
     nexus.missions               = Missions.setup(nexus.analyses)
     
-    #problem = Data()
-    #nexus.optimization_problem       = problem
-    nexus.procedure                  = setup()
-    nexus.sizing_loop                = Sizing_Loop()
-    nexus.total_number_of_iterations = 0
+    problem        = Data()
+    problem_inputs = np.array([ [ 'dummy'   ,   1.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less], [ 'dummy2'   ,   2.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less],      ]) #create dummy inputs for optimization to test io
+    problem.inputs = problem_inputs
     
+    nexus.optimization_problem       = problem
+    nexus.procedure                  = setup()
+    sizing_loop                      = Sizing_Loop()
+    nexus.sizing_loop                = sizing_loop
+    
+    nexus.total_number_of_iterations = 0
     evaluate_problem(nexus)
     results = nexus.results
 
     err      = nexus.sizing_loop.norm_error
     err_true = 0.00975078 #for 1E-2 tol
     error    = abs((err-err_true)/err)
-    print 'error = ', error
+    
+    data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
+    check_read_res = 0.03535476
+    error_res      = (data_outputs[1]-check_read_res)/check_read_res
+
+    
+    
+    #remove files for later
+    os.remove('sizing_outputs.txt')
+    os.remove('y_err_values.txt')
     assert(error<1e-5), 'sizing loop regression failed'    
+    assert(error_res<1e-7) 'sizing loop io failed'    
     
     #output=nexus._really_evaluate() #run; use optimization setup without inputs
     return
@@ -116,7 +131,7 @@ def run_sizing_loop(nexus):
     #assign to sizing loop
     
     sizing_loop.tolerance                                      = 1E-2 #fraction difference in mass and energy between iterations
-    sizing_loop.initial_step                                   = 'Default' #Default, Table, SVR
+    sizing_loop.initial_step                                   = 'GPR' #Default, Table, SVR
     sizing_loop.update_method                                  = 'successive_substitution' #'successive_substitution','newton-raphson', 'broyden'
     sizing_loop.default_y                                      = y
     sizing_loop.min_y                                          = min_y
@@ -126,7 +141,7 @@ def run_sizing_loop(nexus):
     sizing_loop.maximum_iterations                             = 50
     sizing_loop.write_threshhold                               = 50.
     sizing_loop.output_filename                                = 'sizing_outputs.txt' #used if you run optimization
-    
+    sizing_loop.write_residuals                                = True
     nexus.max_iter                                             = sizing_loop.maximum_iterations  #used to pass it to constraints
   
     #run the sizing loop
