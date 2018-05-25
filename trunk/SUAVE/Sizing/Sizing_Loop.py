@@ -40,7 +40,7 @@ class Sizing_Loop(Data):
         #parameters common to all methods
         self.tolerance             = None
         self.initial_step          = None  #'Default', 'Table', 'SVR', 'GradientBoosting', ExtraTrees', 'RandomForest', 'Bagging', 'GPR', 'RANSAC', 'Neighbors'  
-        self.update_method         = None  #'successive_substitution', 'newton-raphson', broyden, 'damped_newton'
+        self.update_method         = None  #'successive_substitution', 'newton-raphson', 'broyden'
         self.default_y             = None  #default inputs in case the guess is very far from 
         self.default_scaling       = None  #scaling value to make sizing parameters ~1
         self.maximum_iterations    = None  #cutoff point for sizing loop to close
@@ -114,8 +114,8 @@ class Sizing_Loop(Data):
         
         #initialize
         converged         = 0     #marker to tell if it's converged
-        j=0  #major iterations
-        i=0  #function evals
+        #j = 0  #major iterations
+        i = 0  #function evals
         
         
         #determine the initial step
@@ -212,7 +212,7 @@ class Sizing_Loop(Data):
             if self.update_method == 'successive_substitution':
                 err,y, i   = self.successive_substitution_update(y,err, sizing_evaluation, nexus, scaling, i, iteration_options)
                 
-            elif self.update_method == 'newton-raphson' or self.update_method =='damped_newton':
+            elif self.update_method == 'newton-raphson':
                 if i==0:
                     nr_start=0  
                 if np.max(np.abs(err))> self.iteration_options.newton_raphson_tolerance or np.max(np.abs(err))<self.iteration_options.max_newton_raphson_tolerance or i<self.iteration_options.min_fix_point_iterations:
@@ -221,16 +221,10 @@ class Sizing_Loop(Data):
 
                 else:          
                     if nr_start==0:
-                        if self.update_method == 'newton-raphson':
-                            err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                        elif self.update_method == 'damped_newton':
-                            err,y, i   = self.damped_newton_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        err,y, i   = self.newton_raphson_update(y_save2, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start   = 1
                     else:
-                        if self.update_method == 'newton-raphson':
-                            err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
-                        elif self.update_method == 'damped_newton':
-                            err,y, i   = self.damped_newton_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
+                        err,y, i   = self.newton_raphson_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                         nr_start   = 1
             
             elif self.update_method == 'broyden':
@@ -311,22 +305,9 @@ class Sizing_Loop(Data):
             if self.write_residuals:  #write residuals at every iteration
                 write_sizing_residuals(self, y_save, scaled_inputs, err)
         
-        
-            
-            
-            '''
-            #uncomment this when you want to write error at each iteration
-            file=open('y_err_values.txt', 'ab')
-            file.write(str(i))
-            file.write(', ')
-            file.write(str(err.tolist()))
-            file.write('\n') 
-            file.close()
-            '''
-            j+=1
+   
             
             if i>max_iter: #
-                #err=float('nan')*np.ones(np.size(err))
                 print "###########sizing loop did not converge##########"
                 break
         
@@ -430,47 +411,6 @@ class Sizing_Loop(Data):
         
         return err_out, y_update, iter
         
-    def damped_newton_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
-        #uses newton raphson, does backtracking linesearch if it goes too far
-        tol    = self.tolerance
-        h      = iteration_options.h
-        print '###begin Finite Differencing###'
-        J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
-        try:  
-            Jinv     = np.linalg.inv(J)  
-            p        = -np.dot(Jinv,err)
-            y_update = y + p
-            
-            
-            '''
-            for i in range(len(y_update)):  #handle variable bounds
-                if y_update[i]<self.min_y[i]:
-                    y_update[i] = self.min_y[i]*1.
-                elif y_update[i]>self.max_y[i]:
-                    y_update[i] = self.max_y[i]*1.
-            '''
-            err_out, y_out = sizing_evaluation(y_update, nexus, scaling)
-            iter           += 1 
-            norm_error     = np.linalg.norm(err_out)
-            
-            if norm_error<self.iteration_options.newton_raphson_damping_threshhold:
-                    old_norm       = np.linalg.norm(err)
-                    ydamp          = y+.5*p #halve the step
-                    err_out, y_out = sizing_evaluation(ydamp, nexus, scaling)
-                    y_update       = ydamp
-            #save these values in case of Broyden update
-            iteration_options.Jinv     = Jinv 
-            iteration_options.y_save   = y
-
-            
-            print 'err_out=', err_out
-                
-        except np.linalg.LinAlgError:
-            print 'singular Jacobian detected, use successive_substitution'
-            err_out, y_update, iter = self.successive_substitution_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
-        
-        
-        return err_out, y_update, iter
         
     def check_bounds(self, y):
         y_out          = 1.*y #create copy
