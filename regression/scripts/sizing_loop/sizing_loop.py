@@ -1,7 +1,7 @@
 # sizing_loop.py
 #
 # Created:  Jun 2015, SUAVE Team
-# Modified: 
+# Modified: Jan 2018, W. Maier
 
 """ setup file for a sizing loop with a 737-aircraft
 """
@@ -55,42 +55,38 @@ def main():
     nexus.analyses               = Analyses.setup(nexus.vehicle_configurations)
     nexus.missions               = Missions.setup(nexus.analyses)
     
-    problem        = Data()
-    problem_inputs = np.array([ [ 'dummy'   ,   1.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less], [ 'dummy2'   ,   2.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less],      ]) #create dummy inputs for optimization to test io
-    problem.inputs = problem_inputs
-    
-    nexus.optimization_problem       = problem
-    nexus.procedure                  = setup()
-    sizing_loop                      = Sizing_Loop()
-    sizing_loop.output_filename       = 'sizing_outputs.txt'
-    nexus.sizing_loop                = sizing_loop
+    problem                      = Data()
+    problem_inputs               = np.array([ [ 'dummy'   ,   1.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less], [ 'dummy2'   ,   2.   , (.1      ,     10.    ) ,  1.,  ' continuous',               Units.less],      ]) #create dummy inputs for optimization to test io
+    problem.inputs               = problem_inputs 
+    nexus.optimization_problem   = problem
+    nexus.procedure              = setup()
+    sizing_loop                  = Sizing_Loop()
+    sizing_loop.output_filename  = 'sizing_outputs.txt'
+    nexus.sizing_loop            = sizing_loop
     
     #create a fake array of data to test outputs
-    write_sizing_outputs( sizing_loop , np.array([6.]), [5.,5.])
-    write_sizing_outputs( sizing_loop , np.array([12.]), [4.,1.])
-    write_sizing_outputs( sizing_loop , np.array([11.]), [1.,3.])
+    write_sizing_outputs(sizing_loop , np.array([6.]), [5.,5.])
+    write_sizing_outputs(sizing_loop , np.array([12.]), [4.,1.])
+    write_sizing_outputs(sizing_loop , np.array([11.]), [1.,3.])
     
     
     nexus.total_number_of_iterations = 0
     evaluate_problem(nexus)
     results = nexus.results
-
     err      = nexus.sizing_loop.norm_error
-    err_true = 0.000841551340769 #for 1E-2 tol
-    print 'err = ', err
+    err_true = 0.00084305798514 #for 1E-2 tol
     error    = abs((err-err_true)/err)
-    
+
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.06766752626632455
+    check_read_res = -0.06783837567842196
     error_res      = (data_outputs[1]-check_read_res)/check_read_res
     
     #remove files for later
     os.remove('sizing_outputs.txt')
     os.remove('y_err_values.txt')
-    assert(error<1e-5), 'sizing loop regression failed'    
+    assert(error<1e-6), 'sizing loop regression failed'    
     assert(error_res<1e-7), 'sizing loop io failed'    
     
-    #output=nexus._really_evaluate() #run; use optimization setup without inputs
     return
     
 def evaluate_problem(nexus):

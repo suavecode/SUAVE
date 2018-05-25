@@ -1,4 +1,4 @@
-# test_gasturbine_network.py
+# gasturbine_network.py
 # 
 # Created:  Anil Variyar, February 2015
 # Modified: 
@@ -25,7 +25,6 @@ Data, Container,
 )
 
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
-#from SUAVE.Components.Energy.Gas_Turbine import Network
 from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
@@ -50,9 +49,7 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # --- Conditions        
-    ones_1col = np.ones([1,1])    
-    
-    
+    ones_1col = np.ones([1,1])       
     
     # setup conditions
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
@@ -64,46 +61,40 @@ def energy_network():
     conditions.weights      = Data()
     conditions.energies     = Data()
     '''
-  #  self.conditions = conditions
-    
-
+    #  self.conditions = conditions
+   
     # freestream conditions
-    conditions.freestream.mach_number        = ones_1col*0.8
-    conditions.freestream.pressure           = ones_1col*20000.
-    conditions.freestream.temperature        = ones_1col*215.
-    conditions.freestream.density            = ones_1col*0.8
+    conditions.freestream.mach_number                  = ones_1col*0.8
+    conditions.freestream.pressure                     = ones_1col*20000.
+    conditions.freestream.temperature                  = ones_1col*215.
+    conditions.freestream.density                      = ones_1col*0.8
 
-    conditions.freestream.dynamic_viscosity          = ones_1col* 0.000001475
-    conditions.freestream.altitude           = ones_1col* 10.
-    conditions.freestream.gravity            = ones_1col*9.81
-    conditions.freestream.gamma              = ones_1col*1.4
-    conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
-    conditions.freestream.R                  = 287.87
-    conditions.M = conditions.freestream.mach_number 
-    conditions.T = conditions.freestream.temperature
-    conditions.p = conditions.freestream.pressure
-    conditions.freestream.speed_of_sound     = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
-    conditions.freestream.velocity           = conditions.M * conditions.freestream.speed_of_sound
-    conditions.velocity = conditions.M * conditions.freestream.speed_of_sound
-    conditions.q = 0.5*conditions.freestream.density*conditions.velocity**2
-    conditions.g0 = conditions.freestream.gravity
+    conditions.freestream.dynamic_viscosity            = ones_1col* 0.000001475
+    conditions.freestream.altitude                     = ones_1col* 10.
+    conditions.freestream.gravity                      = ones_1col*9.81
+    conditions.freestream.isentropic_expansion_factor  = ones_1col*1.4
+    conditions.freestream.Cp                           = 1.4*287.87/(1.4-1)
+    conditions.freestream.R                            = 287.87
+    conditions.M                                       = conditions.freestream.mach_number 
+    conditions.T                                       = conditions.freestream.temperature
+    conditions.p                                       = conditions.freestream.pressure
+    conditions.freestream.speed_of_sound               = ones_1col* np.sqrt(conditions.freestream.Cp/(conditions.freestream.Cp-conditions.freestream.R)*conditions.freestream.R*conditions.freestream.temperature) #300.
+    conditions.freestream.velocity                     = conditions.M * conditions.freestream.speed_of_sound
+    conditions.velocity                                = conditions.M * conditions.freestream.speed_of_sound
+    conditions.q                                       = 0.5*conditions.freestream.density*conditions.velocity**2
+    conditions.g0                                      = conditions.freestream.gravity
     
     # propulsion conditions
-    conditions.propulsion.throttle           =  ones_1col*1.0
-
-    
-    
+    conditions.propulsion.throttle                     =  ones_1col*1.0
+        
     # ------------------------------------------------------------------
     #   Design/sizing conditions
     # ------------------------------------------------------------------    
     
-    
-    # --- Conditions        
+    # Conditions        
     ones_1col = np.ones([1,1])    
-    
-    
-    
-    # setup conditions
+     
+    # Setup conditions
     conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     '''
     conditions_sizing.frames       = Data()
@@ -113,43 +104,38 @@ def energy_network():
     conditions_sizing.weights      = Data()
     conditions_sizing.energies     = Data()
     '''
-  #  self.conditions = conditions
-    
+    #  self.conditions = conditions
 
     # freestream conditions
-    conditions_sizing.freestream.mach_number        = ones_1col*0.8
-    conditions_sizing.freestream.pressure           = ones_1col*26499.73156529
-    conditions_sizing.freestream.temperature        = ones_1col*223.25186491
-    conditions_sizing.freestream.density            = ones_1col*0.41350854
-
-    conditions_sizing.freestream.dynamic_viscosity  = ones_1col* 1.45766126e-05 #*1.789*10**(-5)
-    conditions_sizing.freestream.altitude           = ones_1col* 10000. #* 0.5
-
-    conditions_sizing.freestream.gravity            = ones_1col*9.81
-    conditions_sizing.freestream.gamma              = ones_1col*1.4
-    conditions_sizing.freestream.Cp                 = 1.4*287.87/(1.4-1)
-    conditions_sizing.freestream.R                  = 287.87
-    conditions_sizing.freestream.speed_of_sound     = 299.53150968
-    conditions_sizing.freestream.velocity           = conditions_sizing.freestream.mach_number * conditions_sizing.freestream.speed_of_sound
+    conditions_sizing.freestream.mach_number                 = ones_1col*0.8
+    conditions_sizing.freestream.pressure                    = ones_1col*26499.73156529
+    conditions_sizing.freestream.temperature                 = ones_1col*223.25186491
+    conditions_sizing.freestream.density                     = ones_1col*0.41350854
+    conditions_sizing.freestream.dynamic_viscosity           = ones_1col* 1.45766126e-05
+    conditions_sizing.freestream.altitude                    = ones_1col* 10000.
+    conditions_sizing.freestream.gravity                     = ones_1col*9.81
+    conditions_sizing.freestream.isentropic_expansion_factor = ones_1col*1.4
+    conditions_sizing.freestream.Cp                          = 1.4*287.87/(1.4-1)
+    conditions_sizing.freestream.R                           = 287.87
+    conditions_sizing.freestream.speed_of_sound              = 299.53150968
+    conditions_sizing.freestream.velocity                    = conditions_sizing.freestream.mach_number * conditions_sizing.freestream.speed_of_sound
     
     # propulsion conditions
-    conditions_sizing.propulsion.throttle           =  ones_1col*1.0
+    conditions_sizing.propulsion.throttle                    =  ones_1col*1.0
 
-    state_sizing = Data()
-    state_sizing.numerics = Data()
-    state_sizing.conditions = conditions_sizing
-    state_off_design=Data()
-    state_off_design.numerics=Data()
-    state_off_design.conditions=conditions
+    state_sizing                = Data()
+    state_sizing.numerics       = Data()
+    state_sizing.conditions     = conditions_sizing
+    state_off_design            = Data()
+    state_off_design.numerics   = Data()
+    state_off_design.conditions = conditions
 
 
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------    
     
-    
-    
-    #instantiate the gas turbine network
+    # Instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbofan'
     
@@ -324,15 +310,12 @@ def energy_network():
     thrust.tag ='thrust'
     
     # setup
-    thrust.total_design                       =42383.01818423
+    thrust.total_design = 42383.01818423
     
     # add to network
     turbofan.thrust = thrust    
-
-    #bypass ratio  closer to fan
-    
-    numerics = Data()
-    
+  
+    numerics = Data()    
     eta=1.0
     
     #size the turbofan
@@ -342,32 +325,29 @@ def energy_network():
     print "Sealevel static thrust ",turbofan.sealevel_static_thrust
     
     
-    results_design = turbofan(state_sizing)
-    results_off_design=turbofan(state_off_design)
-    F    = results_design.thrust_force_vector
-    mdot = results_design.vehicle_mass_rate
-    F_off_design=results_off_design.thrust_force_vector
-    mdot_off_design = results_off_design.vehicle_mass_rate
+    results_design     = turbofan(state_sizing)
+    results_off_design = turbofan(state_off_design)
+    F                  = results_design.thrust_force_vector
+    mdot               = results_design.vehicle_mass_rate
+    F_off_design       = results_off_design.thrust_force_vector
+    mdot_off_design    = results_off_design.vehicle_mass_rate
     
 
     #Test the model 
     
     #Specify the expected values
-    expected = Data()
-    
-    expected.thrust = 42383.01818423 
-    expected.mdot =  0.7657905
+    expected        = Data()
+    expected.thrust = 42383.01818402065 
+    expected.mdot   = 0.76425264
     
     #error data function
-    error =  Data()
-    
+    error              =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
-    error.mdot_error =  (mdot[0][0]-expected.mdot)/expected.mdot
+    error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
     print error
     
     for k,v in error.items():
-        assert(np.abs(v)<1e-4)    
-    
+        assert(np.abs(v)<1e-6)    
     
     return
     

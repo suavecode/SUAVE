@@ -75,7 +75,8 @@ class Run_Case(Data):
         aero.angle_of_attack            = 0.0
         aero.side_slip_angle            = 0.0
 
-        self.stability_and_control.control_deflections = None
+        self.stability_and_control.control_deflections  = None
+        self.stability_and_control.number_control_surfaces = 0
         self.conditions.freestream      = free
         self.conditions.aerodynamics    = aero
 

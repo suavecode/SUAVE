@@ -365,9 +365,8 @@ class Sizing_Loop(Data):
             #save these values in case of Broyden update
             iteration_options.Jinv     = Jinv 
             iteration_options.y_save   = y
-            #iteration_options.err_save = err
            
-            print 'err_out=', err_out
+
             
         except np.linalg.LinAlgError:
             print 'singular Jacobian detected, use successive_substitution'
@@ -395,7 +394,6 @@ class Sizing_Loop(Data):
         err_out, y_out         = sizing_evaluation(y_update, nexus, scaling)
         #pack outputs
         iteration_options.Jinv     = Jinv_out
-    
         iteration_options.y_save   = y
         iter                       = iter+1
         
@@ -496,9 +494,7 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
         xu        = 1.*x;
         xu[i]     = x[i]+h *x[i]  #use FD step of H*x
         fu, y_out = my_function(xu, inputs,scaling)
-        
-        print 'fbase=', f
-        J[:,i] = (fu-f)/(xu[i]-x[i])
+        J[:,i]    = (fu-f)/(xu[i]-x[i])
         iter=iter+1
         
 
