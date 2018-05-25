@@ -70,6 +70,7 @@ class Sizing_Loop(Data):
         self.iteration_options.min_surrogate_length              = 4                #minimum number data points needed before SVR is used
         self.iteration_options.number_of_surrogate_calls         = 0
         self.iteration_options.newton_raphson_damping_threshhold = 5E-5
+        self.iteration_options.n_neighbors                       = 5
         self.iteration_options.err_save                          = 0.
         
         

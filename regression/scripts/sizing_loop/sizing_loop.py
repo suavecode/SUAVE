@@ -66,9 +66,9 @@ def main():
     nexus.sizing_loop                = sizing_loop
     
     #create a fake array of data to test outputs
-    write_sizing_outputs( sizing_loop , np.array([2.]), [5.,5.])
-    write_sizing_outputs( sizing_loop , np.array([8.]), [4.,1.])
-    write_sizing_outputs( sizing_loop , np.array([5.]), [1.,3.])
+    write_sizing_outputs( sizing_loop , np.array([6.]), [5.,5.])
+    write_sizing_outputs( sizing_loop , np.array([12.]), [4.,1.])
+    write_sizing_outputs( sizing_loop , np.array([11.]), [1.,3.])
     
     
     nexus.total_number_of_iterations = 0
@@ -76,18 +76,17 @@ def main():
     results = nexus.results
 
     err      = nexus.sizing_loop.norm_error
-    err_true = 0.00975078 #for 1E-2 tol
+    err_true = 0.000841551340769 #for 1E-2 tol
+    print 'err = ', err
     error    = abs((err-err_true)/err)
     
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = 0.03535476
+    check_read_res = -0.06766752626632455
     error_res      = (data_outputs[1]-check_read_res)/check_read_res
-
-    
     
     #remove files for later
-    #os.remove('sizing_outputs.txt')
-    #os.remove('y_err_values.txt')
+    os.remove('sizing_outputs.txt')
+    os.remove('y_err_values.txt')
     assert(error<1e-5), 'sizing loop regression failed'    
     assert(error_res<1e-7), 'sizing loop io failed'    
     
@@ -141,7 +140,7 @@ def run_sizing_loop(nexus):
     
     sizing_loop.tolerance                                      = 1E-2 #fraction difference in mass and energy between iterations
     sizing_loop.initial_step                                   = 'GPR' #Default, Table, SVR
-    sizing_loop.update_method                                  = 'successive_substitution' #'successive_substitution','newton-raphson', 'broyden'
+    sizing_loop.update_method                                  = 'newton-raphson' #'successive_substitution','newton-raphson', 'broyden'
     sizing_loop.default_y                                      = y
     sizing_loop.min_y                                          = min_y
     sizing_loop.max_y                                          = max_y
@@ -153,6 +152,9 @@ def run_sizing_loop(nexus):
     sizing_loop.write_residuals                                = True
     sizing_loop.iteration_options.max_initial_step             = 50.
     sizing_loop.iteration_options.min_surrogate_length         = 2
+    sizing_loop.max_y                                          = [10. ]
+    sizing_loop.min_y                                          = [1.  ]
+    
     nexus.max_iter                                             = sizing_loop.maximum_iterations  #used to pass it to constraints
   
     #run the sizing loop
