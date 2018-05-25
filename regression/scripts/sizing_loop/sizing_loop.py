@@ -84,7 +84,9 @@ def main():
     #remove files for later
     os.remove('sizing_outputs.txt')
     os.remove('y_err_values.txt')
-    assert(error<1e-6), 'sizing loop regression failed'    
+    print 'error = ', error
+    print 'error_res = ', error_res
+    assert(error<1e-5), 'sizing loop regression failed'    
     assert(error_res<1e-7), 'sizing loop io failed'    
     
     return
