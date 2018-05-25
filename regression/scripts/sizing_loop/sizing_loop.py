@@ -32,6 +32,8 @@ from SUAVE.Sizing.Sizing_Loop import Sizing_Loop
 from SUAVE.Optimization.Nexus import Nexus
 from SUAVE.Sizing.write_sizing_residuals import write_sizing_residuals
 from SUAVE.Sizing.read_sizing_residuals import read_sizing_residuals
+from SUAVE.Sizing.write_sizing_outputs import write_sizing_outputs
+
 
 import sys, os
 sys.path.append('../noise_optimization') #import structure from noise_optimization
@@ -60,7 +62,14 @@ def main():
     nexus.optimization_problem       = problem
     nexus.procedure                  = setup()
     sizing_loop                      = Sizing_Loop()
+    sizing_loop.output_filename       = 'sizing_outputs.txt'
     nexus.sizing_loop                = sizing_loop
+    
+    #create a fake array of data to test outputs
+    write_sizing_outputs( sizing_loop , np.array([2.]), [5.,5.])
+    write_sizing_outputs( sizing_loop , np.array([8.]), [4.,1.])
+    write_sizing_outputs( sizing_loop , np.array([5.]), [1.,3.])
+    
     
     nexus.total_number_of_iterations = 0
     evaluate_problem(nexus)
@@ -77,10 +86,10 @@ def main():
     
     
     #remove files for later
-    os.remove('sizing_outputs.txt')
-    os.remove('y_err_values.txt')
+    #os.remove('sizing_outputs.txt')
+    #os.remove('y_err_values.txt')
     assert(error<1e-5), 'sizing loop regression failed'    
-    assert(error_res<1e-7) 'sizing loop io failed'    
+    assert(error_res<1e-7), 'sizing loop io failed'    
     
     #output=nexus._really_evaluate() #run; use optimization setup without inputs
     return
@@ -140,8 +149,10 @@ def run_sizing_loop(nexus):
     sizing_loop.sizing_evaluation                              = sizing_evaluation
     sizing_loop.maximum_iterations                             = 50
     sizing_loop.write_threshhold                               = 50.
-    sizing_loop.output_filename                                = 'sizing_outputs.txt' #used if you run optimization
+    #sizing_loop.output_filename                                = 'sizing_outputs.txt' #used if you run optimization
     sizing_loop.write_residuals                                = True
+    sizing_loop.iteration_options.max_initial_step             = 50.
+    sizing_loop.iteration_options.min_surrogate_length         = 2
     nexus.max_iter                                             = sizing_loop.maximum_iterations  #used to pass it to constraints
   
     #run the sizing loop
