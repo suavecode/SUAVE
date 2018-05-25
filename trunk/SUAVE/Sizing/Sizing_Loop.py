@@ -195,7 +195,6 @@ class Sizing_Loop(Data):
                     y = np.array(y)
                    
         # initialize previous sizing values
-        print 'y predict = ', y
         y_save   = 1*y  #save values to detect oscillation
         y_save2  = 3*y
         norm_dy2 = 1   #used to determine if it's oscillating; if so, do a successive_substitution iteration

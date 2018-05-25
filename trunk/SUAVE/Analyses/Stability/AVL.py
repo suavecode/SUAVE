@@ -231,10 +231,10 @@ class AVL(Stability):
         NP                  = np.zeros([data_len,1]) 
 
         for ii,_ in enumerate(AoA):
-            CM[ii]          = moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            Cm_alpha[ii]    = Cm_alpha_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            Cn_beta[ii]     = Cn_beta_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
-            NP[ii]          = neutral_point_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            CM[ii]          = moment_model.predict(np.array([AoA[ii][0],mach[ii][0]]).reshape(1,-1))
+            Cm_alpha[ii]    = Cm_alpha_model.predict(np.array([AoA[ii][0],mach[ii][0]]).reshape(1,-1))
+            Cn_beta[ii]     = Cn_beta_model.predict(np.array([AoA[ii][0],mach[ii][0]]).reshape(1,-1))
+            NP[ii]          = neutral_point_model.predict(np.array([AoA[ii][0],mach[ii][0]]).reshape(1,-1))
 
         static_stability.CM       = CM
         static_stability.Cm_alpha = Cm_alpha 
@@ -437,10 +437,10 @@ class AVL(Stability):
 
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
-                CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
+                CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]).reshape(1,-1))
+                Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]).reshape(1,-1))
+                Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]).reshape(1,-1))
+                NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]).reshape(1,-1))
 
         fig = plt.figure('Coefficient of Moment Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CM_sur,levels=None)

@@ -105,8 +105,8 @@ class Propulsor_Surrogate(Propulsor):
         sfc = np.zeros([data_len,1])  
         thr = np.zeros([data_len,1]) 
         for ii,_ in enumerate(altitude):
-            sfc[ii] = sfc_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))    
-            thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))   
+            sfc[ii] = sfc_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]).reshape(1,-1))    
+            thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]).reshape(1,-1))   
         
         F    = thr
         mdot = thr*sfc*self.number_of_engines
