@@ -413,6 +413,19 @@ class Sizing_Loop(Data):
         
         
     def check_bounds(self, y):
+        """
+        checks if the corresponding y value violates the min or max bounds of the sizing loops:
+        returns the violated bound if it does, along with a flag indicating this
+        
+        Inputs:
+        y              [array]
+        
+        Outputs:
+        y_out          [array]
+        bound_violated [int]
+        
+        
+        """
         y_out          = 1.*y #create copy
         bound_violated = 0
         for j in xrange(len(y)):  #handle variable bounds to prevent going to weird areas (such as negative mass)
@@ -427,7 +440,18 @@ class Sizing_Loop(Data):
         return y_out, bound_violated
     
     def stay_inbounds(self, y, y_update):
+        """
+        Checks if the corresponding y_update violates the bounds if so, performs a backtracking linesearch until
+        y_update is within the preset bounds
         
+        Inputs:
+        y        [array]
+        y_update [array]
+        
+        Outputs:
+        y_update  [array]
+        
+        """
         sizing_evaluation     = self.sizing_evaluation
         scaling               = self.default_scaling
         p                     = y_update-y #search step
@@ -471,6 +495,10 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     iter            [int]
     h               [float]
     
+    Outputs:
+    J               [array,array]
+    iter            [int]
+    
     """
 
     J = np.nan*np.ones([len(x), len(x)])
@@ -489,9 +517,20 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     return J, iter
 
 def find_min_norm(scaled_inputs, data_inputs):
+    """
+    Finds the minimum and location of the L2 norm of two sets of data
+    
+    Inputs:
+    scaled_inputs    [array]
+    data_outputs     [array]
+    
+    Outputs:
+    min_norm         [float]
+    imin_dist        [int]
+    """
     min_norm  = 1E9
     diff      = np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
-    #find minimum entry and corresponding index 
+  
     imin_dist = -1 
     for k in xrange(len(diff[:,-1])):
         row      = diff[k,:]
