@@ -1,8 +1,8 @@
 ## @ingroup Sizing
 #read_sizing_inputs.py
 
-# Created: Jun 2016, M. Vegh
-
+# Created : Jun 2016, M. Vegh
+# Modified: May 2018, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------

@@ -1,11 +1,12 @@
-#read_sizing_inputs.py
-# Created: Jun 2016, M. Vegh
+## @ingroup Sizing
+#read_sizing_residuals.py
+# Created : May 2018, M. Vegh
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------
 
-import numpy as np
 from read_sizing_inputs import format_input_data
 
 # ----------------------------------------------------------------------

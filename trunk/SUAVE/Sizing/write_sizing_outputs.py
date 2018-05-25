@@ -1,13 +1,7 @@
 ## @ingroup Sizing
 #write_sizing_inputs.py
-# Created: Jun 2016, M. Vegh
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ---------------
-
-import numpy as np
+# Created : Jun 2016, M. Vegh
+# Modified: May 2017, M. Vegh
 
 
 # ----------------------------------------------------------------------

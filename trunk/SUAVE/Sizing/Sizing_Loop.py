@@ -1,7 +1,7 @@
 ## @ingroup Sizing
 #Sizing_Loop.py
 #Created:  Jun 2016, M. Vegh
-#Modified: Feb 2017, M. Vegh
+#Modified: May 2018, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports
