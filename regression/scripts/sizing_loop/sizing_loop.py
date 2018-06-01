@@ -6,7 +6,6 @@
 """ setup file for a sizing loop with a 737-aircraft
 """
 
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -16,12 +15,8 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 import copy, time
-
 import matplotlib
 import pylab as plt
-
-
-
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
@@ -33,7 +28,6 @@ from SUAVE.Optimization.Nexus import Nexus
 from SUAVE.Sizing.write_sizing_residuals import write_sizing_residuals
 from SUAVE.Sizing.read_sizing_residuals import read_sizing_residuals
 from SUAVE.Sizing.write_sizing_outputs import write_sizing_outputs
-
 
 import sys, os
 sys.path.append('../noise_optimization') #import structure from noise_optimization
