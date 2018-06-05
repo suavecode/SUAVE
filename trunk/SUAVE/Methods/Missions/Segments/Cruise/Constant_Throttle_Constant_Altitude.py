@@ -149,7 +149,7 @@ def solve_residuals(segment,state):
     a  = state.conditions.frames.inertial.acceleration_vector
 
     state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
+    state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]   
     state.residuals.final_velocity_error = (v[-1,0] - vf)
 
     return

@@ -72,8 +72,8 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
     
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.body_angle            = ones_row(1) * 0.10
-        self.state.unknowns.velocity_x            = ones_row(1) * self.air_speed_start
+        self.state.unknowns.body_angle            = ones_row(1) * 0.01
+        self.state.unknowns.velocity_x            = ones_row(1) * 0.01
         self.state.unknowns.time                  = 0.1
         self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0

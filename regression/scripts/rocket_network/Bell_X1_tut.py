@@ -183,7 +183,6 @@ def mission_setup(analyses):
     segment.throttle        = 1.0
     segment.air_speed_start = 150.0   * Units.m/Units.s
     segment.air_speed_end   = 295.0   * Units['m/s']
-    segment.state.numerics.number_control_points = 16   
 
     # add to misison
     mission.append_segment(segment)
@@ -191,17 +190,16 @@ def mission_setup(analyses):
     # ------------------------------------------------------------------
     # Cruise Segment: Constant Throttle, Constant Altitude, M = 1 to supersonic
     # ------------------------------------------------------------------
-    #segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
-    #segment.tag = "cruise_supersonic"
-    #segment.analyses.extend(analyses.general)    
-    #segment.altitude        = 43000.0 * Units.feet
-    #segment.throttle        = 1.0
-    #segment.air_speed_start = 295.0   * Units.m/Units.s
-    #segment.air_speed_end   = 316.0   * Units['m/s']
-    #segment.state.numerics.number_control_points = 64   
+    segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
+    segment.tag = "cruise_supersonic"
+    segment.analyses.extend(analyses.general)    
+    segment.altitude        = 43000.0 * Units.feet
+    segment.throttle        = 1.0
+    segment.air_speed_start = 295.0   * Units.m/Units.s
+    segment.air_speed_end   = 316.0   * Units['m/s']
 
     # add to misison
-    #mission.append_segment(segment)  
+    mission.append_segment(segment)  
     
     # ------------------------------------------------------------------
     #   Mission definition complete    
