@@ -35,8 +35,7 @@ class Sizing_Loop(Data):
         broyden's method, as well as a damped newton method. Also includes machine learning algorithms
         from scikit-learn to aid in finding a good initial guess for your sizing parameters.
         """
-    
-    
+   
         #parameters common to all methods
         self.tolerance             = None
         self.initial_step          = None  #'Default', 'Table', 'SVR', 'GradientBoosting', ExtraTrees', 'RandomForest', 'Bagging', 'GPR', 'RANSAC', 'Neighbors'  
@@ -73,9 +72,6 @@ class Sizing_Loop(Data):
         self.iteration_options.n_neighbors                       = 5
         self.iteration_options.err_save                          = 0.
         
-        
-        
-        
         #backtracking 
         backtracking                         = Data()
         backtracking.backtracking_flag       = True     #True means you do backtracking when err isn't decreased
@@ -90,9 +86,7 @@ class Sizing_Loop(Data):
             unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
             input_scaling   = nexus.optimization_problem.inputs[:,3]
             scaled_inputs   = unscaled_inputs/input_scaling
-            
-            
-            problem_inputs = []
+            problem_inputs  = []
             for value in scaled_inputs:
                 problem_inputs.append(value)  #writing to file is easier when you use list
             
@@ -101,7 +95,6 @@ class Sizing_Loop(Data):
         else:
             opt_flag = 0
   
-        
         #unpack inputs
         tol               = self.tolerance #percentage difference in mass and energy between iterations
         h                 = self.iteration_options.h 
@@ -113,10 +106,8 @@ class Sizing_Loop(Data):
         err               = [1000] #initialize error
         
         #initialize
-        converged         = 0     #marker to tell if it's converged
-        #j = 0  #major iterations
-        i = 0  #function evals
-        
+        converged = 0     #marker to tell if it's converged
+        i         = 0  #function evals
         
         #determine the initial step
         min_norm = 1000.
@@ -146,7 +137,6 @@ class Sizing_Loop(Data):
                             if eps_out<1E-8:
                                 eps_out = 1E-8
             
-                            
                             regr        = svm.SVR(C=c_out,  epsilon = eps_out)
                             
                         elif self.initial_step == 'GradientBoosting':
@@ -251,7 +241,6 @@ class Sizing_Loop(Data):
                     else:
                         err,y, i   = self.broyden_update(y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
                       
-                            
             y        = self.stay_inbounds(y_save, y)           
             dy       = y-y_save
             dy2      = y-y_save2
@@ -284,8 +273,6 @@ class Sizing_Loop(Data):
                 y          = y_back_list[i_min_back]
                 err        = err_back_list[i_min_back]
         
-        
-            
             #keep track of previous iterations, as they're used to transition between methods + for saving results
             y_save2 = 1.*y_save
             y_save  = 1. *y  
@@ -295,13 +282,10 @@ class Sizing_Loop(Data):
             if self.write_residuals:  #write residuals at every iteration
                 write_sizing_residuals(self, y_save, scaled_inputs, err)
         
-   
-            
             if i>max_iter: #
                 print "###########sizing loop did not converge##########"
                 break
         
-     
         if i<max_iter and not np.isnan(err).any() and opt_flag == 1:  #write converged values to file
             converged = 1
             #check how close inputs are to what we already have        
@@ -310,28 +294,20 @@ class Sizing_Loop(Data):
             #use y_save2, as it makes derivatives consistent
                 write_sizing_outputs(self, y_save2, problem_inputs)
                 
-
         nexus.total_number_of_iterations += i
         nexus.number_of_iterations = i #function calls
-        
-        #nexus.mass_guess=mass
         results=nexus.results
         
-    
         print 'number of function calls=', i
         print 'number of iterations total=', nexus.total_number_of_iterations
 
-    
         nexus.sizing_loop.converged    = converged
         nexus.sizing_loop.norm_error   = np.linalg.norm(err)
         nexus.sizing_loop.max_error    = max(err)
         nexus.sizing_loop.output_error = err  #save in case you want to write this
         nexus.sizing_variables         = y_save2
-    
-        
+
         return nexus
-        
-        
         
     def successive_substitution_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
         """
@@ -340,7 +316,6 @@ class Sizing_Loop(Data):
         
         err_out, y_out = sizing_evaluation(y, nexus, scaling)
         iter += 1
-        #iteration_options.err_save = err
         return err_out, y_out, iter
     
     def newton_raphson_update(self,y, err, sizing_evaluation, nexus, scaling, iter, iteration_options):
@@ -398,7 +373,6 @@ class Sizing_Loop(Data):
         iter                       = iter+1
         
         return err_out, y_update, iter
-        
         
     def check_bounds(self, y):
         """
@@ -465,10 +439,6 @@ class Sizing_Loop(Data):
 
     __call__ = evaluate
     
-
-    
-
-
 ## @ingroup Sizing    
 def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
     """
@@ -497,9 +467,6 @@ def Finite_Difference_Gradient(x,f , my_function, inputs, scaling, iter, h):
         J[:,i]    = (fu-f)/(xu[i]-x[i])
         iter=iter+1
         
-
-
-
     return J, iter
 
 def find_min_norm(scaled_inputs, data_inputs):
