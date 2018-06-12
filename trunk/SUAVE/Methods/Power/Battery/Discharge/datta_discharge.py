@@ -111,11 +111,10 @@ def datta_discharge(battery,numerics):
     new_x = np.divide(current_energy,battery.max_energy)
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
-    # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511  
+    # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
     v_normalized         = (-1.031*np.exp(-35.*new_x) + 3.685 + 0.2156*new_x - 0.1178*(new_x**2.) + 0.3201*(new_x**3.))/4.1
     voltage_open_circuit = v_normalized * v_max
-        
-       
+    
     # Voltage under load:
     voltage_under_load   = voltage_open_circuit  - Ibat*R
         

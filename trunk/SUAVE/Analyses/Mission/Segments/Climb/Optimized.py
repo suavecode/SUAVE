@@ -75,7 +75,6 @@ class Optimized(Aerodynamic):
         self.CL_limit        = 1.e20 
         self.seed_climb_rate = 100. * Units['feet/min']
         self.algorithm       = 'SLSQP'
-
         
         
         # --------------------------------------------------------------
@@ -84,7 +83,6 @@ class Optimized(Aerodynamic):
         
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
-        
         # initials and unknowns
         ones_row    = self.state.ones_row
         self.state.unknowns.throttle          = ones_row(1) * 0.8

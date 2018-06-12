@@ -86,8 +86,6 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         V    = conditions.freestream.velocity 
         roc  = conditions.freestream.density 
         nu   = conditions.freestream.dynamic_viscosity
-        
-        ##Mcr  =  segment.M
 
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
@@ -105,10 +103,10 @@ def compute_max_lift_coeff(vehicle,conditions=None):
 
         #---FAR stall speed effect---------------
         #should be optional based on aircraft being modelled
-        Cl_max_FAA= 1.1 * w_Clmax
+        Cl_max_FAA = 1.1 * w_Clmax
 
         #-----------wing mounted engine ----
-        Cl_max_w_eng= Cl_max_FAA - 0.2
+        Cl_max_w_eng = Cl_max_FAA - 0.2
 
         # Compute CL increment due to Slat
         dcl_slat = compute_slat_lift(slat_angle, sweep)
@@ -121,11 +119,6 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Cd_ind += ( 0.01 ) * Swing / Sref
 
     Cl_max_ls = Cl_max_ls * max_lift_coefficient_factor
-
-    output = Data()
-    output.Cl_max_ls = Cl_max_ls
-    output.Cd_ind = Cd_ind
-    #return output
     return Cl_max_ls, Cd_ind
 
 

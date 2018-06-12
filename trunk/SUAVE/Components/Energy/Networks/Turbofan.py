@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Networks
 #Turbofan.py
 # 
-# Created:  Oct 2014, A. Variyar
+# Created:  Oct 2014, A. Variyar, 
 # Modified: Feb 2016, M. Vegh
 #           Jul 2017, M. Clarke
 #           Aug 2017, E. Botero
@@ -17,7 +17,6 @@ import SUAVE
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Analyses import Results
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -269,7 +268,7 @@ class Turbofan(Propulsor):
         results.vehicle_mass_rate   = mdot
         
         # store data
-        results_conditions = Results
+        results_conditions = Data
         conditions.propulsion.acoustic_outputs.core = results_conditions(
         exit_static_temperature             = core_nozzle.outputs.static_temperature,
         exit_static_pressure                = core_nozzle.outputs.static_pressure,

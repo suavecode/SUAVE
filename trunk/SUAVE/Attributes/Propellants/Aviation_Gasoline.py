@@ -15,7 +15,7 @@ from Propellant import Propellant
 # ----------------------------------------------------------------------
 ## @ingroup Attributes-Propellants
 class Aviation_Gasoline(Propellant):
-    """Holds values for this propellant
+    """Contains density and specific energy values for this propellant
     
     Assumptions:
     None

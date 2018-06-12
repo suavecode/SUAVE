@@ -2,7 +2,8 @@
 # get_vsp_areas.py
 # 
 # Created:  --- 2016, T. MacDonald
-# Modified: Jan 2017, T. MacDonald
+# Modified: Aug 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -16,6 +17,11 @@ def get_vsp_areas(tag):
     
     Assumptions:
     Vehicle must be open in OpenVSP (via recently used vsp_write)
+    All components have different tags. Repeated tags are added together under the
+    assumption that this represents multiple engines or similar. Areas computed from
+    repeated tags in this way may need to be divided by the number of entities later 
+    before assignment. This is because some analyses may multiply an assigned area
+    by number of engines, for example.
 
     Source:
     N/A
@@ -52,11 +58,10 @@ def get_vsp_areas(tag):
             break
         else:
             vals = line.split(',')
-            item_tag = vals[0][:-1]
+            item_tag = vals[0][:]
             item_w_area = float(vals[2])
             if item_tag in wetted_areas:
-                # The tag 'Total' will always conflict if used, since this is a default VSP output
-                raise ValueError('Multiple components have identical tags. Wetted areas cannot be assigned.')
+                item_w_area = wetted_areas[item_tag] + item_w_area
             wetted_areas[item_tag] = item_w_area
     
     return wetted_areas

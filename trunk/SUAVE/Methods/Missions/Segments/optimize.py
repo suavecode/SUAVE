@@ -1,4 +1,3 @@
-
 ## @ingroup Methods-Missions-Segments
 # optimize.py
 # 
@@ -52,7 +51,7 @@ def converge_opt(segment,state):
     
     # Setup the bnds of the problem
     bnds = make_bnds(unknowns, (segment,state))
-
+    
     # Solve the problem, based on chosen algorithm
     if segment.algorithm == 'SLSQP':
         unknowns = opt.fmin_slsqp(obj,unknowns,f_eqcons=econ,f_ieqcons=iecon,bounds=bnds,iter=2000)

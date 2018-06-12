@@ -5,6 +5,7 @@
 # Modified:     2014, T. Lukaczyk, A. Variyar, T. Orra
 #           Feb 2016, A. Wendorff
 #           Apr 2017, T. MacDonald
+#           Nov 2017, E. Botero
 
 
 # ----------------------------------------------------------------------
@@ -17,12 +18,10 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import weissinger_vortex_lattice
-
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 # local imports
 from Aerodynamics import Aerodynamics
-
 
 # package imports
 import numpy as np
@@ -74,8 +73,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise  = 5
-        self.settings.number_panels_chordwise = 1
+        self.settings.number_panels_spanwise = 5
 
         # conditions table, used for surrogate model training
         self.training = Data()        
@@ -155,12 +153,9 @@ class Vortex_Lattice(Aerodynamics):
         # unpack
 
         surrogates = self.surrogates        
-
         conditions = state.conditions
         
-        # unpack
-
-        
+        # unpack        
         q    = conditions.freestream.dynamic_pressure
         AoA  = conditions.aerodynamics.angle_of_attack
         Sref = geometry.reference_area

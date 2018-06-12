@@ -12,7 +12,6 @@
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
-from SUAVE.Analyses import Results
 import scipy.optimize as opt
 
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -51,14 +50,13 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.prop_attributes = Data
-        self.prop_attributes.number_blades      = 0.0
-        self.prop_attributes.tip_radius         = 0.0
-        self.prop_attributes.hub_radius         = 0.0
-        self.prop_attributes.twist_distribution = 0.0
-        self.prop_attributes.chord_distribution = 0.0
-        self.prop_attributes.mid_chord_aligment = 0.0
-        self.thrust_angle                       = 0.0
+        self.number_blades      = 0.0
+        self.tip_radius         = 0.0
+        self.hub_radius         = 0.0
+        self.twist_distribution = 0.0
+        self.chord_distribution = 0.0
+        self.mid_chord_aligment = 0.0
+        self.thrust_angle       = 0.0
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -187,6 +185,7 @@ class Propeller(Energy_Component):
         diff   = 1.
         
         ii = 0
+        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -265,11 +264,13 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                broke = True
                 break
                 
             ii+=1
                 
-            if ii>20000:
+            if ii>2000:
+                broke = True
                 break
 
         #There is also RE scaling
@@ -291,7 +292,7 @@ class Propeller(Energy_Component):
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         power    = torque*omega       
-       
+
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
 
@@ -305,7 +306,7 @@ class Propeller(Energy_Component):
         conditions.propulsion.etap = etap
         
         # store data
-        results_conditions = Results       
+        results_conditions = Data      
         conditions.propulsion.acoustic_outputs = results_conditions(
             number_sections    = N,
             r0                 = r,

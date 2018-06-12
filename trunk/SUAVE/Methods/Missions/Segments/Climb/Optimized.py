@@ -145,6 +145,7 @@ def objective(segment,state):
 
     """       
     
+    
     # If you have an objective set, either maximize or minimize
     if segment.objective is not None:
         if segment.minimize ==True:
