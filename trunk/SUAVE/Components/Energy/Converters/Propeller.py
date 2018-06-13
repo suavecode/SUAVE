@@ -101,7 +101,7 @@ class Propeller(Energy_Component):
         Cp                           [-] (coefficient of power)
 
         Properties Used:
-        self.prop_attributes.
+        self. 
           number_blades              [-]
           tip_radius                 [m]
           hub_radius                 [m]
