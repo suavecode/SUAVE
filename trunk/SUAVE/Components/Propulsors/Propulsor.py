@@ -11,6 +11,7 @@
 
 from SUAVE.Components import Physical_Component
 
+
 # ----------------------------------------------------------------------
 #  Propulsor
 # ----------------------------------------------------------------------
@@ -84,7 +85,6 @@ class Container(Physical_Component.Container):
         N/A
         """
         import SUAVE.Components.Energy.Networks as Nw
-        
         
         return [Nw.Battery_Propeller,Nw.Battery_Ducted_Fan,Nw.Lift_Forward_Propulsor,Nw.Ramjet,Nw.Solar, \
                 Nw.Turbofan,Nw.Turbojet_Super]
