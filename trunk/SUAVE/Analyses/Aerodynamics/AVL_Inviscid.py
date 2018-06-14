@@ -300,14 +300,7 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate  
 
-        AoA_points                       = np.linspace(-3.,11.,100)*Units.deg 
-        mach_points                      = np.linspace(.02,.9,100)         
-            
-        AoA_mesh,mach_mesh               = np.meshgrid(AoA_points,mach_points)
-        
-        CL_sur                           = np.zeros(np.shape(AoA_mesh))
-        CD_sur                           = np.zeros(np.shape(AoA_mesh))
-        
+    
         return
         
     
