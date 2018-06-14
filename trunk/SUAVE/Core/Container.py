@@ -90,7 +90,6 @@ class Container(Data):
             N/A
         """           
         
-        #val = self.check_new_val(val)
         Data.append(self,val)
         
     def extend(self,vals):

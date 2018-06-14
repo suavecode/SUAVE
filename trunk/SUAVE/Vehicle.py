@@ -150,6 +150,14 @@ class Vehicle(Data):
 
         # find the place to store data
         component_root = self.find_component_root(component)
+        
+        # See if the component exists, if it does modify the name
+        keys = component_root.keys()
+        if component.tag in keys:
+            string_of_keys = "".join(component_root.keys())
+            n_comps = string_of_keys.count(component.tag)
+            
+            component.tag = component.tag + str(n_comps+1)
 
         # store data
         component_root.append(component)
