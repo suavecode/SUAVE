@@ -185,7 +185,7 @@ class Thrust(Energy_Component):
         Isp              = Fsp*a0*(1+bypass_ratio)/(f*g)
 
         #Computing the TSFC
-        TSFC             = 3600.*f*g/(Fsp*a0*(1+bypass_ratio))*(1.-SFC_adjustment)
+        TSFC             = f*g/(Fsp*a0*(1+bypass_ratio))*(1.-SFC_adjustment) * Units.hour # 1/s is converted to 1/hr here
      
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)

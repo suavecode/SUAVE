@@ -13,7 +13,7 @@ import numpy as np
 from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
-#   turbofan_nox_emission_index
+#   turbofan_emission_index
 # ----------------------------------------------------------------------
 
 
