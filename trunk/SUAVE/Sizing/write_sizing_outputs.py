@@ -1,23 +1,16 @@
 ## @ingroup Sizing
 #write_sizing_inputs.py
-# Created: Jun 2016, M. Vegh
-
-
-# ----------------------------------------------------------------------
-#  Imports
-# ---------------
-
-import numpy as np
-
+# Created : Jun 2016, M. Vegh
+# Modified: May 2017, M. Vegh
 
 # ----------------------------------------------------------------------
 #  write_sizing_outputs
 # ----------------------------------------------------------------------
 
-
+## @ingroup Sizing
 def write_sizing_outputs(sizing_loop, y_save, opt_inputs):
     """
-    This funtion writes out the optimization input variables and the 
+    This function writes out the optimization input variables and the 
     solved sizing inputs at that point
     
     Inputs:

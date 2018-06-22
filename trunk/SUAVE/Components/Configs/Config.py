@@ -46,28 +46,3 @@ class Config(Diffed_Data):
                 N/A
         """
         self.tag    = 'config'
-        
-
-# ----------------------------------------------------------------------
-#  Config Container
-# ----------------------------------------------------------------------
-
-## @ingroup Components-Configs
-class Container(Diffed_Data.Container):
-    """ SUAVE.Components.Config.Container()
-    
-        The top level configuration container class
-        
-            Assumptions:
-            None:
-            
-            Source:
-            N/A
-    """
-    pass
-
-# ------------------------------------------------------------
-#  Handle Linking
-# ------------------------------------------------------------
-
-Config.Container = Container

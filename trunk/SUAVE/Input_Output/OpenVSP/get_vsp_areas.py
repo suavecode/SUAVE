@@ -3,6 +3,7 @@
 # 
 # Created:  --- 2016, T. MacDonald
 # Modified: Aug 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -57,7 +58,7 @@ def get_vsp_areas(tag):
             break
         else:
             vals = line.split(',')
-            item_tag = vals[0][:-1]
+            item_tag = vals[0][:]
             item_w_area = float(vals[2])
             if item_tag in wetted_areas:
                 item_w_area = wetted_areas[item_tag] + item_w_area

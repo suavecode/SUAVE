@@ -3,7 +3,7 @@
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jan 2017, T. MacDonald
 #           Jul 2017, M. Clarke
-
+#           Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -54,12 +54,14 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 563356.60640792653 # this is in lb
-    
+    final_mass_true = 563940.43613379949 # [lbs]
+   
     print final_mass
     
-    assert np.abs(final_mass - final_mass_true) < 1e-3
-
+    # Error Calculation
+    error_final_mass = np.abs(final_mass - final_mass_true)/final_mass_true 
+    print error_final_mass    
+    assert error_final_mass < 1e-6
 
     return
 
