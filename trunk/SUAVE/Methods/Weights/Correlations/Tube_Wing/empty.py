@@ -4,7 +4,7 @@
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2016, M. Vegh
 #           Jul 2017, M. Clarke
-#           Oct 2017, T. MacDonald
+#           Jun 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
