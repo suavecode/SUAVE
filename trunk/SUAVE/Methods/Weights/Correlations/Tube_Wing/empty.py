@@ -26,7 +26,7 @@ import warnings
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
-def empty(vehicle,settings):
+def empty(vehicle,settings=None):
     """ This is for a standard Tube and Wing aircraft configuration.        
 
     Assumptions:
@@ -113,7 +113,13 @@ def empty(vehicle,settings):
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories    
     
-    wt_factors = settings.weight_reduction_factors
+    if settings == None:
+        wt_factors = Data()
+        wt_factors.main_wing = 0.
+        wt_factors.empennage = 0.
+        wt_factors.fuselage  = 0.
+    else:
+        wt_factors = settings.weight_reduction_factors
     
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
