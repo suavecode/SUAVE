@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

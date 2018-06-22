@@ -3,6 +3,8 @@
 #
 # Created:  Jul 2014, A. Variyar
 # Modified: Feb 2016, T. MacDonald, A. Variyar, M. Vegh
+#           Oct 2017, E. Botero
+#           Apr 2018, W. Maier
 
 
 # ----------------------------------------------------------------------
@@ -130,6 +132,7 @@ class Thrust(Energy_Component):
           reference_temperature              [K]
           reference_pressure                 [Pa]
           compressor_nondimensional_massflow [-]
+          SFC_adjustment                     [-]
         """           
         #unpack the values
 

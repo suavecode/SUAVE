@@ -4,6 +4,7 @@
 # Created:  Dec 2013, A. Variyar
 # Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra
 #           Jan 2016, E. Botero 
+#           Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Total Aircraft

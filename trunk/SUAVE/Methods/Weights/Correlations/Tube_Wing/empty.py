@@ -4,6 +4,7 @@
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2016, M. Vegh
 #           Jul 2017, M. Clarke
+#           Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -82,6 +83,12 @@ def empty(vehicle,settings):
           t_c - thickness-to-chord ratio of the vertical tail                    [dimensionless]
           sweep - sweep angle of the vertical tail                               [radians]
           t_tail - factor to determine if aircraft has a t-tail, "yes"           [dimensionless]
+          
+      settings.weight_reduction_factors.
+          main_wing                                                              [dimensionless] (.1 is a 10% weight reduction)
+          empennage                                                              [dimensionless] (.1 is a 10% weight reduction)
+          fuselage                                                               [dimensionless] (.1 is a 10% weight reduction)
+          
 
     Outputs:
         output - a data dictionary with fields:

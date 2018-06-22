@@ -3,7 +3,7 @@
 # 
 # Created:  Sep 2015, M. Vegh
 # Modified: Feb 2016, E. Botero
-#        
+#           Oct 2017, E. Botero (major change/rename from turbofan_nox_emission_index.py, which was removed)
 
 # ----------------------------------------------------------------------
 #   Imports

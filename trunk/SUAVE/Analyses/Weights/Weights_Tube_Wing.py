@@ -1,7 +1,8 @@
 ## @ingroup Analyses-Weights
 # Weights_Tube_Wing.py
 #
-# Created: Apr 2017, Matthew Clarke
+# Created:  Apr 2017, Matthew Clarke
+# Modified: Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
