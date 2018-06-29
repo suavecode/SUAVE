@@ -96,7 +96,7 @@ class Ram(Energy_Component):
         #unpack from conditions
         Po = conditions.freestream.pressure
         To = conditions.freestream.temperature
-        M = conditions.freestream.mach_number
+        M  = conditions.freestream.mach_number
 
         #unpack from inputs
         working_fluid          = self.inputs.working_fluid
@@ -119,7 +119,6 @@ class Ram(Energy_Component):
         self.outputs.isentropic_expansion_factor         = gamma
         self.outputs.specific_heat_at_constant_pressure  = Cp
         self.outputs.gas_specific_constant               = R
-
 
         #pack the values into outputs
         conditions.freestream.stagnation_temperature               = stagnation_temperature
