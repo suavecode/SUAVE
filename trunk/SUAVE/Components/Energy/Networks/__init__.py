@@ -15,9 +15,6 @@ from Propulsor_Surrogate import Propulsor_Surrogate
 from Battery_Propeller import Battery_Propeller
 from Ramjet import Ramjet
 from Battery_Propeller import Battery_Propeller
-<<<<<<< HEAD
-from Lift_Forward_Propulsor import Lift_Forward_Propulsor
-=======
 from Lift_Forward_Propulsor import Lift_Forward_Propulsor
 from Scramjet import Scramjet
->>>>>>> 8de90810c8647b2dae7e7d479c592ccc67267c84
+
