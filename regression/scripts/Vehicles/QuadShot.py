@@ -92,17 +92,17 @@ def vehicle_setup():
     # Component 2 the Propeller
     
     # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = 2.0
-    prop_attributes.freestream_velocity = 15.0 # freestream m/s
-    prop_attributes.angular_velocity    = 7500. * Units['rpm']
-    prop_attributes.tip_radius          = 4.   * Units.inch
-    prop_attributes.hub_radius          = 0.125 * Units.inch
-    prop_attributes.design_Cl           = 0.7
-    prop_attributes.design_altitude     = 0.1 * Units.km
-    prop_attributes.design_thrust       = 0.0#.70*9.81
-    prop_attributes.design_power        = 200. * Units.watts
-    prop_attributes                     = propeller_design(prop_attributes)
+    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_blades       = 2.0
+    prop.freestream_velocity = 15.0 # freestream m/s
+    prop.angular_velocity    = 7500. * Units['rpm']
+    prop.tip_radius          = 4.   * Units.inch
+    prop.hub_radius          = 0.125 * Units.inch
+    prop.design_Cl           = 0.7
+    prop.design_altitude     = 0.1 * Units.km
+    prop.design_thrust       = 0.0#.70*9.81
+    prop.design_power        = 200. * Units.watts
+    prop                     = propeller_design(prop)
     
     #points = Data()
     #points.altitudes  = [0.,1. *Units.km]
@@ -111,8 +111,6 @@ def vehicle_setup():
     
     #prop = propeller_map(prop,points)    
 
-    prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes
     net.propeller        = prop
 
     # Component 3 the Motor
@@ -122,8 +120,8 @@ def vehicle_setup():
     motor.gear_ratio           = 1.  # Gear ratio
     motor.gearbox_efficiency   = 1.  # Gear box efficiency
     motor.expected_current     = 10. # Expected current
-    motor.propeller_radius     = prop_attributes.tip_radius
-    motor.propeller_Cp         = prop_attributes.Cp  
+    motor.propeller_radius     = prop.tip_radius
+    motor.propeller_Cp         = prop.Cp  
     net.motor                  = motor        
     
     # Component 4 the Payload
@@ -150,6 +148,7 @@ def vehicle_setup():
     vehicle.append_component(net)  
 
     return vehicle
+
 
 
 # ----------------------------------------------------------------------
