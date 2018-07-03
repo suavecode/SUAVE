@@ -143,7 +143,7 @@ class Propeller(Energy_Component):
         V = V_thrust[:,0,None]
         
         nu    = mu/rho
-        tol   = 1e-8 # Convergence tolerance
+        tol   = 1e-5 # Convergence tolerance
         
         omega = omega1*1.0
         omega = np.abs(omega)
