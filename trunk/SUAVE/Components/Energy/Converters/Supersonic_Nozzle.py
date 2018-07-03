@@ -69,9 +69,8 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
         self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35     
-    
-    
+        self.min_area_ratio                  = 1.35
+        self.pressure_expansion              = 1.0
     
     def compute(self,conditions):
         """This computes the output values from the input values according to
@@ -235,8 +234,7 @@ class Supersonic_Nozzle(Energy_Component):
         
         #unpack from inputs
         Tt_in    = self.inputs.stagnation_temperature
-        Pt_in    = self.inputs.stagnation_pressure          
-        
+        Pt_in    = self.inputs.stagnation_pressure                
         
         #unpack from self
         pid             = self.pressure_ratio
@@ -246,14 +244,12 @@ class Supersonic_Nozzle(Energy_Component):
         
         
         # Method for computing the nozzle properties
-        
         #--Getting the output stagnation quantities
         Pt_out   = Pt_in*pid
         Tt_out   = Tt_in*pid**((gamma-1.)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
   
         # Method for computing the nozzle properties
-  
         #-- Initial estimate for exit area
         area_ratio = (max_area_ratio + min_area_ratio)/2.
         
@@ -265,7 +261,6 @@ class Supersonic_Nozzle(Energy_Component):
         supersonic_min_Area         = pressure_ratio_isentropic(min_area_ratio, gamma, False)
 
         #-- Compute the output Mach number guess with freestream pressure
-
         #-- Initializing arrays
         P_out       = np.ones_like(Pt_out)
         A_ratio     = area_ratio*np.ones_like(Pt_out)
@@ -319,7 +314,7 @@ class Supersonic_Nozzle(Energy_Component):
         M_out[i_und]        = np.sqrt((((Pt_out[i_und]/P_out[i_und])**((gamma[i_und]-1.)/gamma[i_und]))-1.)*2./(gamma[i_und]-1.))
         A_ratio[i_und]      = 1./fm_id(M_out[i_und],gamma[i_und])
         
-       #-- Calculate other flow properties
+        #-- Calculate other flow properties
         T_out   = Tt_out/(1.+(gamma-1.)/2.*M_out*M_out)
         h_out   = Cp*T_out
         u_out   = M_out*np.sqrt(gamma*R*T_out)
@@ -336,5 +331,87 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.velocity                = u_out
         self.outputs.static_pressure         = P_out
         self.outputs.area_ratio              = A_ratio
+        
+    def compute_scramjet(self,conditions): 
+        """This computes exit conditions of a scramjet. 
+        
+        Assumptions: 
+        Fixed output Cp and Gamma 
+        
+        Source: 
+        Heiser, William H., Pratt, D. T., Daley, D. H., and Unmeel, B. M.,  
+        "Hypersonic Airbreathing Propulsion", 1994  
+        Chapter 4 - pgs. 175-180
+        
+        Inputs:  
+        conditions.freestream.  
+           isentropic_expansion_factor         [-]  
+           specific_heat_at_constant_pressure  [J/(kg K)]  
+           pressure                            [Pa]  
+           stagnation_pressure                 [Pa]  
+           stagnation_temperature              [K]  
+           gas_specific_constant               [J/(kg K)]  
+           mach_number                         [-]  
+        
+        self.inputs.  
+           stagnation_temperature              [K]  
+           stagnation_pressure                 [Pa]  
+        
+        Outputs:  
+        self.outputs.  
+           stagnation_temperature              [K]    
+           stagnation_pressure                 [Pa]  
+           stagnation_enthalpy                 [J/kg]  
+           mach_number                         [-]  
+           static_temperature                  [K]  
+           static_enthalpy                     [J/kg]  
+           velocity                            [m/s]  
+           static_pressure                     [Pa]  
+           area_ratio                          [-]  
+        
+        Properties Used:  
+        self.  
+           polytropic_efficiency               [-]  
+           pressure_expansion_ratio            [-]                    
+        """  
+        
+        # unpack values  
+        
+        # unpack from conditions 
+        Po         = conditions.freestream.pressure   
+        Vo         = conditions.freestream.velocity 
+        To         = conditions.freestream.temperature 
+        R          = conditions.freestream.gas_specific_constant 
+        
+        # unpack from inputs 
+        Tt_in      = self.inputs.stagnation_temperature 
+        Pt_in      = self.inputs.stagnation_pressure 
+        T_in       = self.inputs.static_temperature 
+        P_in       = self.inputs.static_pressure 
+        u_in       = self.inputs.velocity 
+        f          = self.inputs.fuel_to_air_ratio   
+        Cpe        = self.inputs.specific_heat_constant_pressure 
+        gamma      = self.inputs.isentropic_expansion_factor                 
+
+        # unpack from self 
+        eta        = self.polytropic_efficiency 
+        p10_p0     = self.pressure_expansion_ratio
+        
+        # compute output properties 
+        P_out      = Po*p10_p0
+        T_out      = T_in*(1.-eta*(1.-((P_out/Po)*(Po/P_in))**(R/Cpe))) 
+        u_out      = np.sqrt(u_in*u_in+2.*Cpe*(T_in-T_out)) 
+        A_ratio    = (1.+f)*(Po/P_out)*(T_out/To)*(Vo/u_out) 
+        M_out      = u_out/np.sqrt(gamma*R*T_out) 
+        
+        #pack computed quantities into outputs          
+        self.outputs.stagnation_temperature  = Tt_in  
+        self.outputs.stagnation_pressure     = Pt_in        
+        self.outputs.temperature             = T_out         
+        self.outputs.pressure                = P_out      
+        self.outputs.velocity                = u_out   
+        self.outputs.static_pressure         = P_out     
+        self.outputs.area_ratio              = A_ratio  
+        self.outputs.mach_number             = M_out        
         
     __call__ = compute
