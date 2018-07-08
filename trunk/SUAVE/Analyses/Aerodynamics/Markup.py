@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,7 +47,8 @@ class Markup(Aerodynamics):
         self.tag    = 'aerodynamics_markup'
         
         self.geometry = Data()
-        self.settings = Data()
+        self.settings.lift_to_drag_adjustment  = 0. # (.1 is a 10% increase in L/D over base analysis)
+                                                    # this is applied directly to the final drag value
         
         self.process = Process()
         self.process.initialize = Process()
