@@ -107,7 +107,7 @@ def vehicle_setup(source_ratio=1.):
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
-    # set mid section start point
+    # set section 2 start point
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_2'
     segment.percent_span_location = 6.15/(25.6/2) + wing.Segments['section_1'].percent_span_location
@@ -124,7 +124,7 @@ def vehicle_setup(source_ratio=1.):
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
-    # set tip section start point
+    # set section 3 start point
     segment = SUAVE.Components.Wings.Segment() 
     segment.tag                   = 'section_3'
     segment.percent_span_location = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
@@ -138,7 +138,23 @@ def vehicle_setup(source_ratio=1.):
     segment.vsp_mesh.inner_length    = .044/source_ratio
     segment.vsp_mesh.outer_length    = .011/source_ratio 
     segment.append_airfoil(wing_airfoil)
-    wing.Segments.append(segment)    
+    wing.Segments.append(segment)  
+    
+    # set tip section start point
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.1/33.8
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0. * Units.deg 
+    segment.vsp_mesh              = Data()
+    segment.vsp_mesh.inner_radius    = .88/source_ratio
+    segment.vsp_mesh.outer_radius    = .22/source_ratio
+    segment.vsp_mesh.inner_length    = .044/source_ratio
+    segment.vsp_mesh.outer_length    = .011/source_ratio 
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)  
     
     # add to vehicle
     vehicle.append_component(wing)
