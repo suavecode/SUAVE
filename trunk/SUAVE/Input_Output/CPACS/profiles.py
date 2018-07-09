@@ -1,3 +1,9 @@
+## @ingroup Input_Output-CPACS
+# profiles.py
+#
+# Created: J. Jepsen Jul 2018
+# Updated:
+
 from math import sin, cos, pi
 
 

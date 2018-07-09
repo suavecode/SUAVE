@@ -1,3 +1,8 @@
+## @ingroup Input_Output-CPACS
+# airfoils.py
+#
+# Created: J. Jepsen Jul 2018
+# Updated:
 
 NACA0009 = [
     [1.0, 0.00],
