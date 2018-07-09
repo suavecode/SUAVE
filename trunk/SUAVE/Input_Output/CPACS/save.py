@@ -54,6 +54,7 @@ def save(data, filename):
     ## collecting all required data
     aircraft_name = data.base._base.tag
     reference_area = data.base._base.reference_area
+    # collect wings data
     wings = []
     for wing in data.base._base.wings:
         entry = {'name': wing.tag,
@@ -110,7 +111,7 @@ def save(data, filename):
                                                                            mapType="vector")),
                                                            uID=profile_name))
 
-    # TODO: create wings
+    # create wings
     wing_path = objectify.ObjectPath('cpacs.vehicles.aircraft.model.wings.wing')
     for wing in wings:
         section_1_uid = wing['name'] + '_Sec1'
