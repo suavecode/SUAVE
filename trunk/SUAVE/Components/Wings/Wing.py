@@ -120,7 +120,7 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
-        self.Segments           = SUAVE.Components.Wings.SegmentContainer()
+        self.Segments           = SUAVE.Core.ContainerOrdered()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 
