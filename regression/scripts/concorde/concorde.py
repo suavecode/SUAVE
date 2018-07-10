@@ -63,7 +63,7 @@ def main():
     results = mission.evaluate()
     
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -690,9 +690,9 @@ def check_results(new_results,old_results):
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('results_mission_concorde.res')
 
-#def save_results(results):
-    #SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
-    #return    
+def save_results(results):
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
+    return    
     
 def save_results(results):
 
