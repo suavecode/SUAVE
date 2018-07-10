@@ -4,6 +4,7 @@
 # Created:  Jan 2014, A. Wendorff
 # Modified: Feb 2016, M. Vegh
 #           Jul 2017, M. Clarke
+#           Jun 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -25,7 +26,7 @@ import warnings
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
-def empty(vehicle):
+def empty(vehicle,settings=None):
     """ This is for a standard Tube and Wing aircraft configuration.        
 
     Assumptions:
@@ -82,6 +83,12 @@ def empty(vehicle):
           t_c - thickness-to-chord ratio of the vertical tail                    [dimensionless]
           sweep - sweep angle of the vertical tail                               [radians]
           t_tail - factor to determine if aircraft has a t-tail, "yes"           [dimensionless]
+          
+      settings.weight_reduction_factors.
+          main_wing                                                              [dimensionless] (.1 is a 10% weight reduction)
+          empennage                                                              [dimensionless] (.1 is a 10% weight reduction)
+          fuselage                                                               [dimensionless] (.1 is a 10% weight reduction)
+          
 
     Outputs:
         output - a data dictionary with fields:
@@ -104,7 +111,15 @@ def empty(vehicle):
     wt_cargo   = vehicle.mass_properties.cargo
     num_seats  = vehicle.fuselages['fuselage'].number_coach_seats
     ctrl_type  = vehicle.systems.control
-    ac_type    = vehicle.systems.accessories         
+    ac_type    = vehicle.systems.accessories    
+    
+    if settings == None:
+        wt_factors = Data()
+        wt_factors.main_wing = 0.
+        wt_factors.empennage = 0.
+        wt_factors.fuselage  = 0.
+    else:
+        wt_factors = settings.weight_reduction_factors
     
     
     propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
@@ -140,6 +155,7 @@ def empty(vehicle):
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         wt_wing    = wing_main.wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
+        wt_wing    = wt_wing*(1.-wt_factors.main_wing)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
 
     S_fus      = vehicle.fuselages['fuselage'].areas.wetted
@@ -161,7 +177,8 @@ def empty(vehicle):
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
         l_w2h          = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
-        wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)                
+        wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)   
+        wt_tail_horizontal = wt_tail_horizontal*(1.-wt_factors.empennage)
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
 
     if not vehicle.wings.has_key('vertical_stabilizer'):   
@@ -172,23 +189,26 @@ def empty(vehicle):
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
         
     else:     
-        S_v        = vehicle.wings['vertical_stabilizer'].areas.reference
-        b_v        = vehicle.wings['vertical_stabilizer'].spans.projected
-        t_c_v      = vehicle.wings['vertical_stabilizer'].thickness_to_chord
-        sweep_v    = vehicle.wings['vertical_stabilizer'].sweeps.quarter_chord
-        t_tail     = vehicle.wings['vertical_stabilizer'].t_tail  
-        output_3   = tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
-        vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical + output_3.wt_rudder
+        S_v          = vehicle.wings['vertical_stabilizer'].areas.reference
+        b_v          = vehicle.wings['vertical_stabilizer'].spans.projected
+        t_c_v        = vehicle.wings['vertical_stabilizer'].thickness_to_chord
+        sweep_v      = vehicle.wings['vertical_stabilizer'].sweeps.quarter_chord
+        t_tail       = vehicle.wings['vertical_stabilizer'].t_tail  
+        output_3     = tail_vertical(S_v,Nult,b_v,TOW,t_c_v,sweep_v,S_gross_w,t_tail)
+        wt_vtail_tot = output_3.wt_tail_vertical + output_3.wt_rudder
+        wt_vtail_tot = wt_vtail_tot*(1.-wt_factors.empennage)
+        vehicle.wings['vertical_stabilizer'].mass_properties.mass = wt_vtail_tot
         
     # Calculating Empty Weight of Aircraft
     wt_landing_gear    = landing_gear.landing_gear(TOW)
     
     wt_fuselage        = tube(S_fus, diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion, wing_c_r) 
+    wt_fuselage        = wt_fuselage*(1.-wt_factors.fuselage)
     output_2           = systems(num_seats, ctrl_type, S_h, S_v, S_gross_w, ac_type)  
 
     # Calculate the equipment empty weight of the aircraft
     wt_empty           = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
-                          wt_tail_horizontal + output_3.wt_tail_vertical + output_3.wt_rudder) 
+                          wt_tail_horizontal + wt_vtail_tot) 
     vehicle.fuselages['fuselage'].mass_properties.mass = wt_fuselage
 
 
@@ -200,8 +220,8 @@ def empty(vehicle):
     output.propulsion        = wt_propulsion
     output.landing_gear      = wt_landing_gear
     output.horizontal_tail   = wt_tail_horizontal
-    output.vertical_tail     = output_3.wt_tail_vertical
-    output.rudder            = output_3.wt_rudder
+    output.vertical_tail     = output_3.wt_tail_vertical*(1.-wt_factors.empennage)
+    output.rudder            = output_3.wt_rudder*(1.-wt_factors.empennage)
     output.systems           = output_2.wt_systems       
     output.systems_breakdown = Data()
     output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
