@@ -35,14 +35,13 @@ modules = [
 
     # regression
     'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
-    'scripts/VTOL/mission_QuadShot.py'
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
     #'regression/test_mission_AS2.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
-    'scripts/VTOL,test_VTOL',
+    'scripts/VTOL,test_VTOL.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
