@@ -107,6 +107,7 @@ class Propulsor_Surrogate(Propulsor):
         for ii,_ in enumerate(altitude):            
             sfc[ii] = sfc_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])    
             thr[ii] = thr_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])   #This is the fix when sklearn is update.
+
         
         F    = thr
         mdot = thr*sfc*self.number_of_engines

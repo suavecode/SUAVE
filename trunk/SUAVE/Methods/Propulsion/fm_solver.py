@@ -30,7 +30,11 @@ def fm_solver(area_ratio, M0, gamma):
     Source:
     https://web.stanford.edu/~cantwell/AA210A_Course_Material/AA210A_Course_Notes/
     """
+<<<<<<< HEAD
     # Area-Mach Function
+=======
+    #gamma = 1.4
+>>>>>>> develop
     func = lambda M1: ((M0/M1*((1.+(gamma-1.)/2.*M1*M1)/(1.+(gamma-1.)/2.*M0*M0))**((gamma+1.)/(2.*(gamma-1.))))-area_ratio)
 
     # Initializing the array

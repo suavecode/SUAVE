@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 from Propellant import Propellant
 from SUAVE.Attributes.Constants import Composition
+from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Gaseous_H2 Propellant Class
 # ----------------------------------------------------------------------
@@ -44,7 +45,7 @@ class Gaseous_H2(Propellant):
         self.reactant                  = 'O2'
         self.specific_energy           = 141.86e6                           # J/kg
         self.energy_density            = 5591.13e6                          # J/m^3
-        self.max_mass_fraction         = {'Air' : 0.013197, 'O2' : 0.0630}  # kg propellant / kg oxidizer
+        self.max_mass_fraction         = Data({'Air' : 0.013197, 'O2' : 0.0630})  # kg propellant / kg oxidizer
     
 
         # gas properties

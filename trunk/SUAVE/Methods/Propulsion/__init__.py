@@ -4,11 +4,12 @@
 
 from ducted_fan_sizing import ducted_fan_sizing
 from propeller_design import propeller_design
-from turbofan_nox_emission_index import turbofan_nox_emission_index
+from turbofan_emission_index import turbofan_emission_index
 from electric_motor_sizing import size_from_kv, size_from_mass
 from turbofan_sizing import turbofan_sizing
 from turbojet_sizing import turbojet_sizing
 from ramjet_sizing import ramjet_sizing
+from scramjet_sizing import scramjet_sizing
 from fm_id import fm_id
 from fm_solver import fm_solver
 from rayleigh import rayleigh

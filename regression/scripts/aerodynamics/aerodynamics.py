@@ -131,7 +131,7 @@ def main():
     print '\nCompute Lift Test Results\n'
     #print lift_test
         
-    assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
     
     
     # --------------------------------------------------------------------

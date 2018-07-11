@@ -1,7 +1,8 @@
 ## @ingroup Analyses-Weights
 # Weights_Tube_Wing.py
 #
-# Created: Apr 2017, Matthew Clarke
+# Created:  Apr 2017, Matthew Clarke
+# Modified: Oct 2017, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -58,7 +59,11 @@ class Weights_Tube_Wing(Weights):
         
         self.vehicle  = Data()
         self.settings = Data()
-        
+        self.settings.weight_reduction_factors = Data()
+        # Reduction factors are proportional (.1 is a 10% weight reduction)
+        self.settings.weight_reduction_factors.main_wing = 0.
+        self.settings.weight_reduction_factors.fuselage  = 0.
+        self.settings.weight_reduction_factors.empennage = 0. # applied to horizontal and vertical stabilizers
         
     def evaluate(self,conditions=None):
         """Evaluate the weight analysis.
@@ -79,12 +84,13 @@ class Weights_Tube_Wing(Weights):
         N/A
         """         
         # unpack
-        vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        vehicle  = self.vehicle
+        settings = self.settings
+        empty    = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
 
         
         # evaluate
-        results = empty(vehicle)
+        results = empty(vehicle,settings)
         
         # storing weigth breakdown into vehicle
         vehicle.weight_breakdown = results 

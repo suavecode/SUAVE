@@ -80,7 +80,7 @@ class Ramjet(Propulsor):
 			exit_stagnation_temperature              [K]
 			exit_stagnation_pressure                 [Pa]
 			exit_velocity                            [m/s]
-		    
+
 		Properties Used:
 		Defaulted values
 	    """
@@ -114,7 +114,7 @@ class Ramjet(Propulsor):
         # flow through the combustor
         combustor.compute_rayleigh(conditions)
 
-        # link the core nozzle to the low pressure turbine
+        #link the core nozzle to the combustor
         core_nozzle.inputs           = combustor.outputs
 
         # flow through the core nozzle
