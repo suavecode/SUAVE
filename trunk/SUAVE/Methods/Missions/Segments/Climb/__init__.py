@@ -17,4 +17,3 @@ import Constant_Mach_Linear_Altitude
 import Constant_Dynamic_Pressure_Constant_Angle
 import Constant_Speed_Linear_Altitude
 import Optimized
-import Linear_Throttle_Fixed_Angle_Time
