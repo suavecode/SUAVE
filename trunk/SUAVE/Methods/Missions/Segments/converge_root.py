@@ -42,11 +42,7 @@ def converge_root(segment,state):
     N/A
     """       
     
-    unknowns_unscaled = state.unknowns.pack_array()
-    
-    scaling_factor = state.numerics.scaling_factor
-    offset         = state.numerics.offset
-    unknowns       = scaling_factor*(unknowns_unscaled+offset)
+    unknowns = state.unknowns.pack_array()
     
     try:
         root_finder = segment.settings.root_finder
@@ -74,7 +70,7 @@ def converge_root(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments
-def iterate(unknowns_scaled,(segment,state)):
+def iterate(unknowns,(segment,state)):
     
     """Runs one iteration of of all analyses for the mission.
 
@@ -94,10 +90,6 @@ def iterate(unknowns_scaled,(segment,state)):
     Properties Used:
     N/A
     """
-    
-    scaling_factor = state.numerics.scaling_factor
-    offset         = state.numerics.offset
-    unknowns       = scaling_factor*(unknowns_scaled+offset)    
 
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)

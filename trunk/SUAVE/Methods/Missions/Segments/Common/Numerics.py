@@ -104,42 +104,4 @@ def update_differentials_time(segment,state):
     numerics.time.differentiate  = D
     numerics.time.integrate      = I
 
-    return
-
-# ----------------------------------------------------------------------
-#  Update Differentials
-# ----------------------------------------------------------------------
-## @ingroup Methods-Missions-Segments-Common
-def initialize_numerical_scaling(segment,state):
-    """ Scales Unknowns to improve convergence
-    
-        Assumptions:
-        N/A
-        
-        Inputs:
-            state.unknowns
-                            
-        Outputs:
-            numerics.           
-                scaling_factor             [array]
-
-        Properties Used:
-        N/A
-                                
-    """    
-    # Unpack
-    x = state.unknowns.pack_array()
-
-    # Allow zero initial conditions
-    k       = np.zeros_like(x)
-    k[x==0] = 1e-4
-    xk = x+k
-    
-    # Determine Scaling Factor
-    Scaling_Factor = 1.0/(xk) 
-     
-    # Pack
-    state.numerics.scaling_factor = Scaling_Factor
-    state.numerics.offset         = k
-    
     return  
