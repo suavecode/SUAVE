@@ -128,16 +128,18 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
     
-    wing.aspect_ratio            = 6.16      #
+    wing.aspect_ratio            = 6.16      
     wing.sweeps.quarter_chord    = 40 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
-    wing.spans.projected         = 14.2      #
+    wing.spans.projected         = 14.2      
     wing.chords.root             = 4.7
     wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
-    wing.areas.reference         = 32.488    #
+    wing.areas.reference         = 32.488    
+    wing.areas.exposed           = 199.7792  # Can someone check this?  Not quite sure why this is so large
+    wing.areas.wetted            = 249.724   # Same with this....seems awfully large for a horiz stabilizer?  same size as wing
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     wing.origin                  = [32.83,0,1.14]
@@ -205,13 +207,15 @@ def vehicle_setup():
     
     fuselage.lengths.nose          = 6.4
     fuselage.lengths.tail          = 8.0
-    fuselage.lengths.cabin         = 28.85 #44.0
-    fuselage.lengths.total         = 38.02 #58.4
+    fuselage.lengths.cabin         = 28.85 #44.0   comments??
+    fuselage.lengths.total         = 38.02 #58.4 
+    fuselage.lengths.fore_space    = 6. 
+    fuselage.lengths.aft_space     = 5.       
    
     fuselage.width                 = 3.74 #4.
     
     fuselage.heights.maximum       = 3.74  #4.    #
-    fuselage.heights.at_quarter_length          = 3.74 # Not correct
+    fuselage.heights.at_quarter_length          = 3.74 # Not correct uhhh all these not correct?
     fuselage.heights.at_three_quarters_length   = 3.65 # Not correct
     fuselage.heights.at_wing_root_quarter_chord = 3.74 # Not correct
 
