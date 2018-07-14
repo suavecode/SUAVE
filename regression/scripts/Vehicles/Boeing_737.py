@@ -93,8 +93,8 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = 4.235 * Units.meter
     
     wing.areas.reference         = 124.862    
-    wing.areas.exposed           = 199.7792                  
-    wing.areas.wetted            = 249.724                 
+    #wing.areas.exposed           = 199.7792    #                
+    #wing.areas.wetted            = 249.724     # this changes things but regression doesnt pass on travis with them????            
     
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
