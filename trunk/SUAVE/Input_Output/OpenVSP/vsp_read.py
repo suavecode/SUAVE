@@ -10,7 +10,6 @@ def readWing(PLANE):
 	geoms = vsp.FindGeoms()
 	wing_geom_num = 0	#???how to determine this? in symmetry, its listed as ordered list
 	wing_id = str(geoms[wing_geom_num])
-
 	vehicle = SUAVE.Vehicle()
 	vehicle.tag = 'BWB2'	
 	wing = SUAVE.Components.Wings.Wing()
@@ -46,13 +45,12 @@ def readWing(PLANE):
 
 	#WING SEGMENTS	
 
-
 	#get root chord and span for use below
 	total_chord = vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_1')	
 	total_proj_span = vsp.GetParmVal( wing_id, 'TotalProjectedSpan', 'WingGeom')  
 	proj_span_sum = 0.
-	mean_aero_chords = [segment_num+1]
-	segment_spans = [segment_num+1]
+	mean_aero_chords = [None] * (segment_num+1)
+	segment_spans = [None] * (segment_num+1)
 	mean_aero_by_span = 0.
 
 	#iterate getting parms through xsecs of wing
@@ -131,10 +129,9 @@ def printGeoms():
 	return None
 
 def main():
-	print 'test complete'
+
 	return None
 
 def vsp_read(tag):
-	
 	
 	return vehicle
