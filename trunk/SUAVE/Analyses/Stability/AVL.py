@@ -426,27 +426,7 @@ class AVL(Stability):
         self.surrogates.Cm_alpha_moment_coefficient = cm_alpha_surrogate
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate   
         self.surrogates.neutral_point               = neutral_point_surrogate
-
-        # Standard subsonic/transonic aircarft  
-        AoA_points                       = np.linspace(-3.,11.,100)
-        mach_points                      = np.linspace(.02,.9,100)         
-    
-        AoA_mesh,mach_mesh                          = np.meshgrid(AoA_points,mach_points)
-
-        CM_sur                                      = np.zeros(np.shape(AoA_mesh))
-        Cm_a_sur                                    = np.zeros(np.shape(AoA_mesh))
-        Cn_b_sur                                    = np.zeros(np.shape(AoA_mesh))
-        NP_sur                                      = np.zeros(np.shape(AoA_mesh)) 
         
-
-
-        for jj in range(len(AoA_points)):
-            for ii in range(len(mach_points)):
-                CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-
         return
 
 

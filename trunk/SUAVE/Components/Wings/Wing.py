@@ -10,6 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties, Physical_Component
 from Airfoils import Airfoil
@@ -119,8 +120,12 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
+<<<<<<< HEAD
         
         self.PGM_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference']
+=======
+        self.Segments           = SUAVE.Core.ContainerOrdered()
+>>>>>>> develop
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 

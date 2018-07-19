@@ -1,8 +1,8 @@
 ## @ingroup Sizing
 #read_sizing_inputs.py
 
-# Created: Jun 2016, M. Vegh
-
+# Created : Jun 2016, M. Vegh
+# Modified: May 2018, M. Vegh
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------
@@ -86,7 +86,6 @@ def format_input_data(data):
     
     data_out=[]
     for line in data:
-   
         line=line.replace('[','')
         line=line.replace(']','')
         line=line.replace(',',' ')
@@ -94,7 +93,6 @@ def format_input_data(data):
         numbers = line.split(' ')
         numbers_out=[]
         for number in numbers:
-            
             if number != ' ' or number != '\t':
                 numbers_out.append(float(number))
         

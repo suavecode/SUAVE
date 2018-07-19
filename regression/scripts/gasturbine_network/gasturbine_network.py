@@ -1,4 +1,4 @@
-# test_gasturbine_network.py
+# gasturbine_network.py
 # 
 # Created:  Anil Variyar, February 2015
 # Modified: 
@@ -25,7 +25,6 @@ Data, Container,
 )
 
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
-#from SUAVE.Components.Energy.Gas_Turbine import Network
 from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
