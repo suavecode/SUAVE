@@ -9,7 +9,8 @@
 # ----------------------------------------------------------------------
 
 from Planet import Planet
-     
+from SUAVE.Core import Units
+
 # ----------------------------------------------------------------------
 #  Earth Constant Class
 # ----------------------------------------------------------------------
@@ -42,9 +43,7 @@ class Earth(Planet):
         None
         """         
         self.tag = 'Earth'
-        self.mass              = 5.98e24  # [kg]
-        self.mean_radius       = 6.371e6  # [m]
-        self.sea_level_gravity = 9.80665  # [m/s^2]   
+        self.mass              = 5.98e24 *Units['kg']     # [kg]
+        self.mean_radius       = 6.371e6 *Units['m']      # [m]
+        self.sea_level_gravity = 9.80665 *Units['m/s^2']  # [m/s^2] 
         self.HitchHikersGuide  = 'MostlyHarmless'
-
-

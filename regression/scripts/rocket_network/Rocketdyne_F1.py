@@ -56,9 +56,6 @@ def energy_network():
     
     vac.gravity           = ones_1col*9.81
     vac.pressure          = ones_1col*0.0
-    vac.temperature       = ones_1col*atmo_data.temperature
-    vac.density           = ones_1col*atmo_data.density
-    vac.speed_of_sound    = ones_1col* atmo_data.speed_of_sound
         
     # propulsion conditions
     conditions.propulsion.throttle  =  ones_1col*1.0

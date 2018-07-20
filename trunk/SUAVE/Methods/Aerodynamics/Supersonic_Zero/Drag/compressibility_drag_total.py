@@ -72,7 +72,10 @@ def compressibility_drag_total(state,settings,geometry):
     # Use the vehicle for drag coefficients
     Sref_main = geometry.reference_area
     
+    # Get main fuselage data - note that name of fuselage is important here
+    # This should be changed to be general    
     main_fuselage = fuselages['fuselage']
+
     # Iterate through wings
     for k in wings.keys():
         
@@ -82,12 +85,7 @@ def compressibility_drag_total(state,settings,geometry):
         cd_c = np.array([[0.0]] * len(Mc))
         mcc = np.array([[0.0]] * len(Mc))
         MDiv = np.array([[0.0]] * len(Mc))     
-
-
-        # Get main fuselage data - note that name of fuselage is important here
-        # This should be changed to be general 
-        #main_fuselage = fuselages['fuselage']
-        
+       
         # Get number of engines data
         num_engines = propulsor.number_of_engines
 
