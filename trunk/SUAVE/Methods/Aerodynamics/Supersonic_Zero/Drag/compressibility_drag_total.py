@@ -215,40 +215,18 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
 
         # Divergence mach number
         MDiv = np.array([[0.95]] * len(Mc_ii))
-        mcc  = np.array([[0.93]] * len(Mc_ii))
+        mcc = np.array([[0.93]] * len(Mc_ii))
 
     else:
         # Unpack wing
         t_c_w   = wing.thickness_to_chord
-        if len(wing.Segments.keys())>0: # if wing has segments
-            symm           = wing.symmetric
-            semispan       = wing.spans.projected*0.5 * (2 - symm)
-            root_chord     = wing.chords.root
-            num_segments   = len(wing.Segments.keys())     
-            
-            weighted_sweep = 0
-            Sref           = 0
-            for i_segs in xrange(num_segments): 
-                if i_segs == num_segments-1:
-                    continue 
-                else:                    
-                    span_seg        = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )
-                    chord_root      = root_chord*wing.Segments[i_segs].root_chord_percent
-                    chord_tip       = root_chord*wing.Segments[i_segs+1].root_chord_percent
-                    Sref_seg        = span_seg *(chord_root+chord_tip)*0.5
-                    weighted_sweep += wing.Segments[i_segs].sweeps.quarter_chord*Sref_seg 
-                    Sref           += Sref_seg       
-            sweep_w = weighted_sweep/Sref
-        
-  
-        else: # if wing does not have segments          
-            sweep_w = wing.sweeps.quarter_chord
+        sweep_w = wing.sweeps.quarter_chord
 
         # Check if this is the main wing, other wings are assumed to have no lift
         if k == 'main_wing':
             cl_w = cl
         else:
-            cl_w = 0   
+            cl_w = 0
 
         # Get effective Cl and sweep
         cos_sweep = np.cos(sweep_w)
@@ -347,12 +325,12 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     cd_volume_wave = wave_drag_volume(conditions,configuration,wing)
 
     # Pack supersonic results into correct elements
-    cd_c[mach   >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
+    cd_c[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0] + cd_volume_wave[0:len(mach[mach >= 1.05]),0]
     cd_c_l[mach >= 1.05] = cd_lift_wave[0:len(mach[mach >= 1.05]),0]
     cd_c_v[mach >= 1.05] = cd_volume_wave[0:len(mach[mach >= 1.05]),0]
 
     # Convert coefficient to full aircraft value
-    cd_c   = cd_c*wing.areas.reference/Sref_main
+    cd_c = cd_c*wing.areas.reference/Sref_main
     cd_c_l = cd_c_l*wing.areas.reference/Sref_main
     cd_c_v = cd_c_v*wing.areas.reference/Sref_main
 
