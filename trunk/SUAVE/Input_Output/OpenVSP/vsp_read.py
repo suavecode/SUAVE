@@ -48,7 +48,7 @@ def readWing(PLANE):
 	span_sum = 0.
 	segment_dihedral = [None] * (segment_num)
 
-	# check for extra segment at wing root, start at segment exposed
+	# check for extra segment at wing root, then skip XSec_0 to start at exposed segment
 	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0')==1.:
 		start = 1
 	else:
@@ -76,15 +76,22 @@ def readWing(PLANE):
 		
 		wing.Segments.append(segment)
 
-	# Dihedral
-	
-	wing.dihedral = np.arccos(proj_span_sum / span_sum)
+	# Wing dihedral: exclude segments with dihedral values over 70deg
+	proj_span_sum_alt = 0.
+	span_sum_alt = 0.
+	for ii in range( start, segment_num):
+		if segment_dihedral[ii] <= (70. * Units.deg):
+			span_sum_alt += segment_spans[ii]
+			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])
+		else:
+			pass
+	wing.dihedral = np.arccos(proj_span_sum_alt / span_sum_alt)
 
 	# Mean geometric chord
 	wing.chords.mean_geometric = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal( wing_id, 'TotalChord', 'WingGeom')
 
 	# Chords
-	wing.chords.mean_aerodynamic = mean_aero_by_span / vsp.GetParmVal( wing_id, 'TotalSpan', 'WingGeom')
+	#wing.chords.mean_aerodynamic = mean_aero_by_span / vsp.GetParmVal( wing_id, 'TotalSpan', 'WingGeom')
 	wing.chords.root             = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_1')
 	wing.chords.tip              = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1))
 
