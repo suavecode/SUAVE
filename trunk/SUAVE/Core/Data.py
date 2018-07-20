@@ -284,7 +284,11 @@ class Data(dict):
                         val = value.__str2(indent+new_indent)
                     except RuntimeError: # recursion limit
                         val = ''
-                        
+                    except:
+                        val = value.__str__(indent+new_indent)                        
+                    finally:
+                        pass
+                                                
             # everything else
             else:
                 val = str(value) + '\n'
