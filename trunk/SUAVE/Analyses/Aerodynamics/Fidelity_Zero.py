@@ -122,25 +122,25 @@ class Fidelity_Zero(Markup):
         compute.drag.total                         = Common.Drag.total_aircraft
         
         
-    def initialize(self):
-        """Initializes the surrogate needed for lift calculation.
+    #def initialize(self):
+        #"""Initializes the surrogate needed for lift calculation.
 
-        Assumptions:
-        None
+        #Assumptions:
+        #None
 
-        Source:
-        N/A
+        #Source:
+        #N/A
 
-        Inputs:
-        None
+        #Inputs:
+        #None
 
-        Outputs:
-        None
+        #Outputs:
+        #None
 
-        Properties Used:
-        self.geometry
-        """                  
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        #Properties Used:
+        #self.geometry
+        #"""                  
+        #self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        #self.process.compute.lift.inviscid_wings.initialize()
         
-    finalize = initialize
+    #finalize = initialize
