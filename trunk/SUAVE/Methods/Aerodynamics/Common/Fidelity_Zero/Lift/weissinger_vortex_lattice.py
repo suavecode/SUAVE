@@ -17,7 +17,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def weissinger_vortex_lattice(conditions,configuration,wing):
+def weissinger_vortex_lattice(conditions,configuration,wing,propulsion):
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 
     Assumptions:
@@ -115,15 +115,15 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         LT = np.sum(L)
         DT = np.sum(D)
     
-        Cl = 2*LT/(0.5*Sref)
-        Cd = 2*DT/(0.5*Sref)     
+        CL = 2*LT/(0.5*Sref)
+        CD = 2*DT/(0.5*Sref)     
     
     else:
         
-        Cl = 0.0
-        Cd = 0.0         
+        CL = 0.0
+        CD = 0.0         
 
-    return Cl, Cd
+    return L, CL, D, Cd
 
 # ----------------------------------------------------------------------
 #   Helper Functions
