@@ -2,31 +2,46 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data
+from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 import vsp_g as vsp
 import numpy as np
 
-def readWing(PLANE):
+
+
+def vsp_read(tag):
+	
+	vehicle = SUAVE.Vehicle()
+	vehicle.tag = tag
+	
+	
+	readWing()
+	readFuselage()
+	
+	return vehicle
+
+def readWing():
 	
 	geoms = vsp.FindGeoms()
 	wing_geom_num = 0	#???how to determine this? in symmetry, its listed as ordered list
 	wing_id = str(geoms[wing_geom_num])
 	
-	#containers = vsp.FindContainers()
-	vehicle = SUAVE.Vehicle()
-	vehicle.tag = 'BWB2'	
 	wing = SUAVE.Components.Wings.Wing()
 	
+	if vsp.GetGeomName( wing_id ):
+		wing.tag = vsp.GetGeomName( wing_id )
+	else: 
+		wing.tag = 'wing'
+		vsp.SetGeomName( wing_id, 'wing')
 	
-	'''
 	wing.origin[0] = vsp.GetParmVal( wing_id, 'X_Rel_Location', 'XForm')
 	wing.origin[1] = vsp.GetParmVal( wing_id, 'Y_Rel_Location', 'XForm')
 	wing.origin[2] = vsp.GetParmVal( wing_id, 'Z_Rel_Location', 'XForm')	
-	'''
+	
 	#SYMMETRY    
 	sym_planar = vsp.GetParmVal( wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal( wing_id, 'Sym_Ancestor', 'Sym')
 	if sym_planar == 2 and sym_origin == wing_geom_num+1: #origin at wing, not vehicle
-		wing.symmetric == True	#???assuming wing always symmetric across XZ axis...
+		wing.symmetric == True	
 	else:
 		wing.symmetric == False
 
@@ -75,7 +90,7 @@ def readWing(PLANE):
 		span_sum += segment_spans[i]
 		
 		wing.Segments.append(segment)
-
+	
 	# Wing dihedral: exclude segments with dihedral values over 70deg
 	proj_span_sum_alt = 0.
 	span_sum_alt = 0.
@@ -87,15 +102,19 @@ def readWing(PLANE):
 			pass
 	wing.dihedral = np.arccos(proj_span_sum_alt / span_sum_alt)
 
-	# Mean geometric chord
-	wing.chords.mean_geometric = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal( wing_id, 'TotalChord', 'WingGeom')
-
 	# Chords
-	#wing.chords.mean_aerodynamic = mean_aero_by_span / vsp.GetParmVal( wing_id, 'TotalSpan', 'WingGeom')
 	wing.chords.root             = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_1')
-	wing.chords.tip              = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1))
-
+	wing.chords.tip              = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1))	
+	wing.chords.mean_geometric = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal( wing_id, 'TotalChord', 'WingGeom')
+	#wing.chords.mean_aerodynamic = ________ / vsp.GetParmVal( wing_id, 'TotalSpan', 'WingGeom')
+	
+	
+	# Areas
 	wing.areas.reference         = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom')
+	
+	wetted_areas = get_vsp_areas(wing.tag)	
+	wing.areas.wetted   = wetted_areas[wing.tag]
+	wing.areas.exposed   = wetted_areas[wing.tag]
 	#wing.sweeps.quarter_chord    = 33. * Units.degrees
 
 	# Twists
@@ -114,6 +133,24 @@ def readWing(PLANE):
 		
 	return wing
 
+
+
+
+
+def readFuselage():
+	
+	geoms = vsp.FindGeomsWithName('')
+	print geoms
+	fuselage = SUAVE.Components.Fuselages.Fuselage()
+	
+	#fuselage.width = vsp.GetParmVal( fuselage_id, )
+	
+	
+	
+	
+	
+	
+	return fuselage
 
 def printGeoms():
 		
@@ -148,6 +185,3 @@ def main():
 
 	return None
 
-def vsp_read(tag):
-	
-	return vehicle
