@@ -761,7 +761,7 @@ class DataOrdered(OrderedDict):
                     val = '\n'
                 else:
                     try:
-                        val = value.__str__(indent+new_indent)
+                        val = value.__str2(indent+new_indent)
                     except RuntimeError: # recursion limit
                         val = ''
                     except:
