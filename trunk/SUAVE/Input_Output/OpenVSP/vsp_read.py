@@ -3,6 +3,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
+from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
 import vsp_g as vsp
 import numpy as np
 
@@ -10,20 +11,21 @@ import numpy as np
 
 def vsp_read(tag):
 	
+	vsp.ClearVSPModel() 
+	vsp.ReadVSPFile(PLANE)	
+	
 	vehicle = SUAVE.Vehicle()
 	vehicle.tag = tag
 	
+	#for_______ :
+	#	wing_id = listofwings[i]
+		#wing = readWing(wing_id)
 	
-	readWing()
 	readFuselage()
 	
 	return vehicle
 
-def readWing():
-	
-	geoms = vsp.FindGeoms()
-	wing_geom_num = 0	#???how to determine this? in symmetry, its listed as ordered list
-	wing_id = str(geoms[wing_geom_num])
+def readWing(wing_id):
 	
 	wing = SUAVE.Components.Wings.Wing()
 	
@@ -40,7 +42,7 @@ def readWing():
 	#SYMMETRY    
 	sym_planar = vsp.GetParmVal( wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal( wing_id, 'Sym_Ancestor', 'Sym')
-	if sym_planar == 2 and sym_origin == wing_geom_num+1: #origin at wing, not vehicle
+	if sym_planar == 2 and sym_origin == 2: #origin at wing, not vehicle
 		wing.symmetric == True	
 	else:
 		wing.symmetric == False
@@ -49,7 +51,7 @@ def readWing():
 	#OTHER WING-WIDE PARMS
 	wing.aspect_ratio = vsp.GetParmVal(wing_id, 'TotalAR', 'WingGeom')
 	xsec_surf_id = vsp.GetXSecSurf( wing_id, 0) #get number surfaces in geom
-	segment_num = vsp.GetNumXSec( xsec_surf_id)   #get number segments in surface, one more than in GUI	
+	segment_num = vsp.GetNumXSec( xsec_surf_id)   #get # segments, is one more than in GUI	
 
 
 	#WING SEGMENTS	
@@ -62,14 +64,17 @@ def readWing():
 	
 	span_sum = 0.
 	segment_dihedral = [None] * (segment_num)
-
+	'''
 	# check for extra segment at wing root, then skip XSec_0 to start at exposed segment
 	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0')==1.:
 		start = 1
 	else:
 		start = 0
-
-	#iterate getting parms through xsecs of wing
+	'''
+	start = 0  # Not sure if I can scrap the first segment anymore...
+	
+	
+	# Iterate wing xsecs (SUAVE segments)
 	for i in range( start, segment_num):
 		segment = SUAVE.Components.Wings.Segment()
 		segment.tag                   = 'Section_' + str(i)
@@ -88,6 +93,40 @@ def readWing():
 		segment_spans[i] 	      = vsp.GetParmVal( wing_id, 'Span', 'XSec_' + str(i))
 		proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
 		span_sum += segment_spans[i]
+		
+		
+		
+		
+		
+		xsec_id = str(vsp.GetXSec(xsec_surf_id, i))
+		
+		
+		
+		
+		
+		# XSec airfoil	
+		#if vsp.GetAirfoilUpperPnts()
+		airfoil = Airfoil()
+		lower = vsp.GetAirfoilLowerPnts( xsec_id )   # ??? HOW TO GET THIS XSEC ID???
+		upper = vsp.GetAirfoilUpperPnts( xsec_id )
+		
+		# Lednicer airfoil: TE underneath to LE, over top to TE
+		# Airfoil lower points from *TE*
+		if lower[0].x() <= lower[-1].x():  # test for airfoil format
+			for i in range(len(lower)-1, 0, -1):
+				airfoil.points.append( [lower[i].x(), lower[i].y()])
+		else: 
+			for i in range(0, len(lower)-1):
+				airfoil.points.append( [lower[i].x(), lower[i].y()])
+		
+		# Airfoil upper points from *LE*
+		if upper[0].x() <= upper[-1].x():  # test for airfoil format
+			for i in range(0, len(upper)-1):
+				airfoil.points.append( [upper[i].x(), upper[i].y()])
+		else: 
+			for i in range(len(upper)-1, 0, -1):
+				airfoil.points.append( [upper[i].x(), upper[i].y()])			
+		segment.append_airfoil(airfoil)
 		
 		wing.Segments.append(segment)
 	
@@ -111,10 +150,10 @@ def readWing():
 	
 	# Areas
 	wing.areas.reference         = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom')
-	
 	wetted_areas = get_vsp_areas(wing.tag)	
 	wing.areas.wetted   = wetted_areas[wing.tag]
 	wing.areas.exposed   = wetted_areas[wing.tag]
+	
 	#wing.sweeps.quarter_chord    = 33. * Units.degrees
 
 	# Twists
