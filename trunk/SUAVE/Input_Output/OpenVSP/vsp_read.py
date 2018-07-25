@@ -14,14 +14,40 @@ def vsp_read(tag):
 	vsp.ClearVSPModel() 
 	vsp.ReadVSPFile(PLANE)	
 	
+	vsp_fuselages = []
+	vsp_wings = []	
+	vsp_props = []
+	
+	vsp_geoms = vsp.FindGeoms()
+	
+	''' The API call for GETGEOMTYPE was not released as of 07/25/18
+	for geom in vsp_geoms:
+		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
+			vsp_fuselages.append(geom)
+		if vsp.GETGEOMTYPE(str(geom)) == 'WING':
+			vsp_wings.append(geom)
+		if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
+			vsp_props.append(geom)
+	'''
+	
 	vehicle = SUAVE.Vehicle()
 	vehicle.tag = tag
 	
-	#for_______ :
-	#	wing_id = listofwings[i]
-		#wing = readWing(wing_id)
+	'''
+	for vsp_fuselage in vsp_fuselages:
+		fuselage_id = vsp_fuselages[vsp_fuselage]
+		fuselage = readFuselage( fuselage_id )
+		vehicle.append_component(fuselage)
+	for vsp_wing in vsp_wings:
+		wing_id = vsp_wings[vsp_wing]
+		wing = readWing( wing_id )
+		vehicle.append_component(wing)		
+	for vsp_prop in vsp_props:
+		prop_id = vsp_props[vsp_prop]
+		prop = readProp( prop_id )		
+		vehicle.append_component(prop)
 	
-	readFuselage()
+	'''
 	
 	return vehicle
 
@@ -64,18 +90,16 @@ def readWing(wing_id):
 	
 	span_sum = 0.
 	segment_dihedral = [None] * (segment_num)
-	'''
+	
 	# check for extra segment at wing root, then skip XSec_0 to start at exposed segment
 	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0')==1.:
 		start = 1
 	else:
 		start = 0
-	'''
-	start = 0  # Not sure if I can scrap the first segment anymore...
-	
+		
 	
 	# Iterate wing xsecs (SUAVE segments)
-	for i in range( start, segment_num):
+	for i in xrange( start, segment_num):
 		segment = SUAVE.Components.Wings.Segment()
 		segment.tag                   = 'Section_' + str(i)
 		segment.twist                 = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(i)) * Units.deg
@@ -93,53 +117,46 @@ def readWing(wing_id):
 		segment_spans[i] 	      = vsp.GetParmVal( wing_id, 'Span', 'XSec_' + str(i))
 		proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
 		span_sum += segment_spans[i]
-		
-		
-		
-		
-		
-		xsec_id = str(vsp.GetXSec(xsec_surf_id, i))
-		
-		
-		
-		
-		
-		# XSec airfoil	
-		#if vsp.GetAirfoilUpperPnts()
-		airfoil = Airfoil()
-		lower = vsp.GetAirfoilLowerPnts( xsec_id )   # ??? HOW TO GET THIS XSEC ID???
-		upper = vsp.GetAirfoilUpperPnts( xsec_id )
-		
-		# Lednicer airfoil: TE underneath to LE, over top to TE
-		# Airfoil lower points from *TE*
-		if lower[0].x() <= lower[-1].x():  # test for airfoil format
-			for i in range(len(lower)-1, 0, -1):
-				airfoil.points.append( [lower[i].x(), lower[i].y()])
-		else: 
-			for i in range(0, len(lower)-1):
-				airfoil.points.append( [lower[i].x(), lower[i].y()])
-		
-		# Airfoil upper points from *LE*
-		if upper[0].x() <= upper[-1].x():  # test for airfoil format
-			for i in range(0, len(upper)-1):
-				airfoil.points.append( [upper[i].x(), upper[i].y()])
-		else: 
-			for i in range(len(upper)-1, 0, -1):
-				airfoil.points.append( [upper[i].x(), upper[i].y()])			
-		segment.append_airfoil(airfoil)
+
+		# XSec airfoil			
+		xsec_id = str(vsp.GetXSec(xsec_surf_id, i))		
+		if vsp.GetXSecShape( xsec_id ) == 7:
+			camber = vsp.GetParmVal( wing_id, 'Camber', 'XSecCurve_' + str(i))
+		elif vsp.GetXSecShape( xsec_id ) == 12:	# XSec shape: 12 is type AF_FILE
+			airfoil = Airfoil()
+			lower = vsp.GetAirfoilLowerPnts( xsec_id )  
+			upper = vsp.GetAirfoilUpperPnts( xsec_id )
+			
+			# Lednicer airfoil: TE underneath to LE, over top to TE
+			# Airfoil lower points from *TE*
+			if lower[0].x() <= lower[-1].x():  # test for airfoil format
+				for jj in xrange(len(lower)-1, 0, -1):
+					airfoil.points.append( [lower[jj].x(), lower[jj].y()])
+			else: 
+				for jj in xrange(0, len(lower)-1):
+					airfoil.points.append( [lower[jj].x(), lower[jj].y()])
+			
+			# Airfoil upper points from *LE*
+			if upper[0].x() <= upper[-1].x():  # test for airfoil format
+				for jj in xrange(0, len(upper)-1):
+					airfoil.points.append( [upper[jj].x(), upper[jj].y()])
+			else: 
+				for jj in xrange(len(upper)-1, 0, -1):
+					airfoil.points.append( [upper[jj].x(), upper[jj].y()])			
+			segment.append_airfoil(airfoil)
 		
 		wing.Segments.append(segment)
 	
 	# Wing dihedral: exclude segments with dihedral values over 70deg
 	proj_span_sum_alt = 0.
 	span_sum_alt = 0.
-	for ii in range( start, segment_num):
+	for ii in xrange( start, segment_num):
 		if segment_dihedral[ii] <= (70. * Units.deg):
 			span_sum_alt += segment_spans[ii]
 			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])
 		else:
 			pass
-	wing.dihedral = np.arccos(proj_span_sum_alt / span_sum_alt)
+	wing.dihedral = np.arccos(proj_span_sum_alt / span_sum_alt) / Units.deg
 
 	# Chords
 	wing.chords.root             = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_1')
