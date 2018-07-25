@@ -286,8 +286,6 @@ class Data(dict):
                         val = ''
                     except:
                         val = value.__str__(indent+new_indent)                        
-                    finally:
-                        pass
                                                 
             # everything else
             else:
