@@ -17,7 +17,7 @@ from SUAVE.Core import Units
 #  Propeller Design
 # ----------------------------------------------------------------------
     
-def propeller_design(prop_attributes):
+def propeller_design(prop):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -41,15 +41,15 @@ def propeller_design(prop_attributes):
 
     """    
     # Unpack
-    B      = prop_attributes.number_blades
-    R      = prop_attributes.tip_radius
-    Rh     = prop_attributes.hub_radius
-    omega  = prop_attributes.angular_velocity    # Rotation Rate in rad/s
-    V      = prop_attributes.freestream_velocity # Freestream Velocity
-    Cl     = prop_attributes.design_Cl           # Design Lift Coefficient
-    alt    = prop_attributes.design_altitude
-    Thrust = prop_attributes.design_thrust
-    Power  = prop_attributes.design_power
+    B      = prop.number_blades
+    R      = prop.tip_radius
+    Rh     = prop.hub_radius
+    omega  = prop.angular_velocity    # Rotation Rate in rad/s
+    V      = prop.freestream_velocity # Freestream Velocity
+    Cl     = prop.design_Cl           # Design Lift Coefficient
+    alt    = prop.design_altitude
+    Thrust = prop.design_thrust
+    Power  = prop.design_power
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -201,12 +201,12 @@ def propeller_design(prop_attributes):
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
 
-    prop_attributes.twist_distribution = beta
-    prop_attributes.chord_distribution = c
-    prop_attributes.Cp                 = Cp
-    prop_attributes.mid_chord_aligment = MCA
+    prop.twist_distribution = beta
+    prop.chord_distribution = c
+    prop.Cp                 = Cp
+    prop.mid_chord_aligment = MCA
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller
     
-    return prop_attributes
+    return prop 

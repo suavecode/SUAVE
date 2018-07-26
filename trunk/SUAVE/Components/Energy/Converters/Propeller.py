@@ -316,6 +316,9 @@ class Propeller(Energy_Component):
             propeller_diameter = D,
             drag_coefficient   = Cd,
             lift_coefficient   = Cl,
+            aoa                = alpha,
+            Wt                 = Wt,
+            Wa                 = Wa,
             omega              = omega,
             velocity           = V,
             thrust             = thrust,
@@ -323,8 +326,8 @@ class Propeller(Energy_Component):
             mid_chord_aligment = self.mid_chord_aligment
         )
         
-        Cl
-        return thrust, torque, power, Cp
+        
+        return thrust, torque, power, Cp 
     
     
 

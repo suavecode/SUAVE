@@ -75,8 +75,7 @@ class Vortex_Lattice(Aerodynamics):
     def evaluate(self,state,settings,geometry):
         # unpack
         conditions = state.conditions
-        #propulsion = geometry.propulsors['network'].propeller
-        propulsion = geometry.propulsors['turbofan'] 
+        propulsors = geometry.propulsors
         
         # store model for lift coefficients of each wing
         state.conditions.aerodynamics.lift_coefficient_wing             = Data()   
@@ -87,7 +86,7 @@ class Vortex_Lattice(Aerodynamics):
         
         for wing in geometry.wings.values():
             # run vortex lattice at quaried flight conditions
-            [wing_lift,wing_lift_coeff,wing_drag,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing,propulsion)
+            [wing_lift,wing_lift_coeff,wing_drag,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing,propulsors)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
             state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
                
