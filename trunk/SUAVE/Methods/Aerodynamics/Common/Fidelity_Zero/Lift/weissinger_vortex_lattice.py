@@ -494,7 +494,7 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_dis
     DT = sum(Drag_distribution) 
 
     # CL and CD     
-    CL  = 2*LT /(0.5*Sref)
-    CD = 2*DT /(0.5*Sref)
+    CL  = 2*LT /(q_distribution*Sref)
+    CD = 2*DT /(q_distribution*Sref)
     
     return CL, CD ,LT, DT 
