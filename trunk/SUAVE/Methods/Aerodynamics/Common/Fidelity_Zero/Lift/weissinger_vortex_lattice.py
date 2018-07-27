@@ -82,16 +82,13 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     n           = 50            # number_panels_spanwise
     # conditions
     aoa = conditions.aerodynamics.angle_of_attack
-         
+    aoa_distribution = np.ones(n)*aoa[0][0]
     # chord difference
     dchord = (root_chord-tip_chord)
     if sym_para is True :
         span = span/2
         
     deltax = span/n
-    
-    sin_aoa = np.sin(aoa)
-    cos_aoa = np.cos(aoa)
 
     if orientation == False :
 
@@ -176,7 +173,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
         
         
         chord_distribution  = section_length 
-        q_distribution      = conditions.freestream.dynamic_pressure
+        q_distribution      = np.ones(n)*conditions.freestream.dynamic_pressure[0][0]
         
         # Check to see if there are any propellers  
         if propulsors.has_key('network'):
@@ -229,9 +226,9 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                 # modifiy q_distribution
                 
                 
-            CL , CD , LT , DT = compute_forces(x,y,xa,ya,yb,twist_distribution,aoa,q_distribution,chord_distribution)            
+            CL , CD , LT , DT = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_distribution,chord_distribution,Sref)            
         else:
-            CL , CD , LT , DT = compute_forces(x,y,xa,ya,yb,twist_distribution,aoa,q_distribution,chord_distribution)
+            CL , CD , LT , DT = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_distribution,chord_distribution,Sref)
         
         
                   
@@ -465,7 +462,10 @@ def whav(x1,y1,x2,y2):
     return whv 
 
 
-def compute_forces(x,y,xa,ya,yb,twist_distribution,aoa_distribution,q_distribution,chord_distribution):    
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_distribution,chord_distribution,Sref):    
+    sin_aoa = np.sin(aoa_distribution)
+    cos_aoa = np.cos(aoa_distribution)
+    
     RHS  = np.atleast_2d(np.sin(twist_distribution+aoa_distribution))   
     A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
          -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
@@ -486,15 +486,15 @@ def compute_forces(x,y,xa,ya,yb,twist_distribution,aoa_distribution,q_distributi
     D  = deltax * Dg
 
     # Lift & Drag distribution
-    Lift_distribution      = q_distribution *Lft*chord_distribution        
-    Drag_distribution      = q_distribution *Dg*chord_distribution       
+    Lift_distribution      = q_distribution *L[0]*chord_distribution        
+    Drag_distribution      = q_distribution *D[0]*chord_distribution       
     
     # Total Lift and Draf
     LT = sum(Lift_distribution) 
     DT = sum(Drag_distribution) 
 
     # CL and CD     
-    CL  = 2*LT  /(0.5*Sref)
-    CD = 2*DT  /(0.5*Sref)
+    CL  = 2*LT /(0.5*Sref)
+    CD = 2*DT /(0.5*Sref)
     
     return CL, CD ,LT, DT 
