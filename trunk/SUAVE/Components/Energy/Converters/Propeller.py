@@ -192,7 +192,7 @@ class Propeller(Energy_Component):
             cos_psi = np.cos(psi)
             Wa      = 0.5*Ua + 0.5*U*sin_psi
             Wt      = 0.5*Ut + 0.5*U*cos_psi   
-            #va     = Wa - Ua
+            va      = Wa - Ua
             vt      = Ut - Wt
             alpha   = beta - np.arctan2(Wa,Wt)
             W       = (Wa*Wa + Wt*Wt)**0.5
@@ -317,8 +317,10 @@ class Propeller(Energy_Component):
             drag_coefficient   = Cd,
             lift_coefficient   = Cl,
             aoa                = alpha,
-            Wt                 = Wt,
-            Wa                 = Wa,
+            vt                 = vt,
+            va                 = va,            
+            Ut                 = Ut,
+            Ua                 = Ua,
             omega              = omega,
             velocity           = V,
             thrust             = thrust,
