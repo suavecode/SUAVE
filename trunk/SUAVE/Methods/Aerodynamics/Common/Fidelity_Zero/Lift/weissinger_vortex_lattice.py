@@ -215,17 +215,22 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                     del_Vjet0 = np.sqrt(0.25*(k1**2/k2**2)*V_eng**2 + F_eng/(rho*np.pi*k2)) - 0.5*(k1/k2)*V_eng
 
                     for j in xrange(n):
-                        if (propeller.origin[i][1]+b_jet) > r_jet[j] and r_jet[j]  > (propeller.origin[i][1]+c_jet):
-                            del_V_jet = del_Vjet0*(1-((r_jet[j]-c_jet)/(b_jet - c_jet))**1.5)**2
-                        elif (propeller.origin[i][1]-b_jet ) > r_jet[j] and r_jet[j]  > (propeller.origin[i][1]-c_jet):
-                            del_V_jet = del_Vjet0*(((r_jet[j]-c_jet)/(b_jet - c_jet))**1.5)**2   # CHECK
-                        elif (propeller.origin[i][1]+c_jet)  > r_jet[j] :
-                            del_V_jet = del_Vjet0
-                        elif (propeller.origin[i][1]-c_jet) > r_jet[j] :
-                            del_V_jet = del_Vjet0                            
-                        else:
+                        if (propeller.origin[0][1]-b_jet) >= (r_jet[j]):
+                            del_V_jet = 0;
+                                    
+                        elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <=  (propeller.origin[0][1]-c_jet):
+                            start_val = propeller.origin[0][1] - b_jet
+                            end_val   = propeller.origin[0][1] - c_jet
+                            del_V_jet = del_Vjet0* (2*((r_jet[j] - start_val)/(end_val  - start_val))**1.5 -  ((r_jet[j] - start_val)/(end_val - start_val))**3 )  
+                        elif  (propeller.origin[0][1] - c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1]+c_jet):
+                            del_V_jet = del_Vjet0 
+                            
+                        elif  (propeller.origin[0][1] + c_jet) < r_jet[j] and r_jet[j]  <= (propeller.origin[0][1] + b_jet):
+                            del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
+                        
+                        elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
                             del_V_jet = 0
-
+                                                                      
                         V_distribution[j] =  V_distribution[j] + del_V_jet         
 
             q_distribution = 0.5*rho*V_distribution**2    
@@ -322,68 +327,4 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf
 
     return LT , CL , DT, CD  , Lift_distribution, Drag_distribution   
 
-
-#------------------
-# TO IMPLEMENT
-#------------------
-clc;
-clear;
-n = 50;
-del_V_eng = 5;
-V  = 50;
-F_eng = 500;
-rho =1.2;
-V_eng = V;
-R_p = 2;
-prop_origin = 4;
-r_jet = linspace(0,10,n);
-V_distribution   = ones(1,n)*V; 
-
-K_ep = 0.11;
-c = 1;
-b = 1;
-ep_c = K_ep *abs(del_V_eng)/(V_eng + del_V_eng);
-ep_b = K_ep *abs(del_V_eng)/(V_eng + 0.5*del_V_eng) ;                                       
-
-x_jet = 80 ;
-R_p_prime = R_p* sqrt((V_eng + 0.5*del_V_eng)/(V_eng + del_V_eng));                    
-x_mix = R_p_prime/ep_c;
-b_jet = R_p_prime + ep_b*x_jet;
-
-if x_jet < x_mix
-    c_jet = R_p_prime - ep_c*x_jet;
-else
-    c_jet = 0;
-end
-
-k1 = c^2 + (9/10)*c*(b-c) + (9/35)*(b-c)^2;
-k2 = c^2 + (243/385)*c*(b-c) + (243/1820)*(b-c)^2;
-del_Vjet0 =  sqrt(0.25*(k1^2/k2^2)*V_eng^2 + F_eng/(rho* pi*k2)) - 0.5*(k1/k2)*V_eng;
-
-
-for j = 1:n 
-    r_jet(j)
-    if (prop_origin-b_jet) >= (r_jet(j));
-        del_V_jet = 0;
-                
-    elseif  (prop_origin-b_jet) < (r_jet(j)) && (r_jet(j)) <=  (prop_origin-c_jet)  
-        %del_V_jet = del_Vjet0* (2*((   (r_jet(j)-(prop_origin-b_jet))    - (prop_origin-b_jet) )/((prop_origin-c_jet)  - (prop_origin-b_jet))).^1.5 -  ((    (r_jet(j)-(prop_origin-b_jet))    - (prop_origin-b_jet)  )   /((prop_origin-c_jet)  - (prop_origin-b_jet))).^3 );
-        start_val = prop_origin - b_jet;
-        end_val   = prop_origin - c_jet;
-        del_V_jet = del_Vjet0.* (2*((r_jet(j) - start_val)/(end_val  - start_val)).^1.5 -  ((r_jet(j) - start_val)/(end_val - start_val)).^3 );  
-    elseif  (prop_origin - c_jet) < r_jet(j) && r_jet(j) <= (prop_origin+c_jet)
-        del_V_jet = del_Vjet0;          
-        
-    elseif  (prop_origin + c_jet) < r_jet(j) && r_jet(j)  <= (prop_origin + b_jet)
-        del_V_jet = del_Vjet0*(1-(((r_jet(j)-(prop_origin+c_jet))/((prop_origin + b_jet) - (prop_origin+c_jet)))^1.5))^2;                           
-    
-    elseif (prop_origin + b_jet ) < r_jet(j)
-        del_V_jet = 0;
-    end
-        
-    V_distribution(j) =  V_distribution(j) + del_V_jet;
-end 
-    
-figure(2)
-plot(r_jet,V_distribution) 
 
