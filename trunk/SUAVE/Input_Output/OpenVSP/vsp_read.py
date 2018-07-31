@@ -102,72 +102,86 @@ def readWing(wing_id):
 	segment_dihedral = [None] * (segment_num)
 	
 	# check for extra segment at wing root, then skip XSec_0 to start at exposed segment
-	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0')==1.:
+	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0') == 1.:
 		start = 1
 	else:
 		start = 0
 		
 	
-	# Iterate wing xsecs (SUAVE segments)
-	for i in xrange( start, segment_num):
+	# Iterate VSP XSecs into SUAVE segments. Note: Wing segments are defined by outboard sections in VSP 
+	for i in xrange( start, segment_num+1):		# but inboard sections in SUAVE
 		segment = SUAVE.Components.Wings.Segment()
 		segment.tag                   = 'Section_' + str(i)
-		segment.twist                 = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(i)) * Units.deg
-		segment.sweeps.quarter_chord  = vsp.GetParmVal( wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
-		segment.thickness_to_chord    = vsp.GetParmVal( wing_id, 'ThickChord', 'XSecCurve_' + str(i))	
-
-		segment_tip_chord 	      = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(i))
+		thick_cord                    = vsp.GetParmVal( wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
+		segment.thickness_to_chord    = thick_cord	# Also used in airfoil, below.		
 		segment_root_chord            = vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_' + str(i))
-		segment.root_chord_percent    = segment_root_chord / total_chord
-
-		segment_dihedral[i]	      = vsp.GetParmVal( wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg
-		segment.dihedral_outboard     = segment_dihedral[i]
-
-		segment.percent_span_location = proj_span_sum / total_proj_span
-		segment_spans[i] 	      = vsp.GetParmVal( wing_id, 'Span', 'XSec_' + str(i))
-		proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
-		span_sum += segment_spans[i]
-
-		# XSec airfoil			
-		xsec_id = str(vsp.GetXSec(xsec_surf_id, i))
+		segment.root_chord_percent    = segment_root_chord / total_chord		
+		segment.percent_span_location = proj_span_sum / (total_proj_span/2)
+		segment.twist                 = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
+		
+		if i < segment_num:  # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
+			segment.sweeps.quarter_chord  = vsp.GetParmVal( wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
+	
+			segment_dihedral[i]	      = vsp.GetParmVal( wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg
+			segment.dihedral_outboard     = segment_dihedral[i]
+			
+			segment_spans[i] 	      = vsp.GetParmVal( wing_id, 'Span', 'XSec_' + str(i))
+			proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
+			span_sum += segment_spans[i]
+		else:
+			segment.root_chord_percent = (vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(i-1)))/total_chord
+			
+		# XSec airfoil
+		jj = i-1  # Airfoil index
+		xsec_id = str(vsp.GetXSec(xsec_surf_id, jj))
 		airfoil = Airfoil()
 		if vsp.GetXSecShape( xsec_id ) == 7: # XSec shape: NACA 4-series
-			camber = vsp.GetParmVal( wing_id, 'Camber', 'XSecCurve_' + str(i))
-			camber_loc = vsp.GetParmVal( wing_id, 'CamberLoc', 'XSecCurve_' + str(i))
-			thick_cord = vsp.GetParmVal( wing_id, 'ThickChord', 'XSecCurve_' + str(i))
+			camber = vsp.GetParmVal( wing_id, 'Camber', 'XSecCurve_' + str(jj)) 
+			if camber == 0.:	# i-1 because vsp airfoils and sections are one index off relative to SUAVE
+				camber_loc = 0.
+			else:
+				camber_loc = vsp.GetParmVal( wing_id, 'CamberLoc', 'XSecCurve_' + str(jj))
 			airfoil.thickness_to_chord = thick_cord
-			camber_round = int(camber*100)
-			camber_loc_round = int(camber_loc*10)
-			thick_cord_round = int(thick_cord*100)
+			camber_round = int(np.around(camber*100))
+			camber_loc_round = int(np.around(camber_loc*10))  # Camber and TC won't round up for NACA.
+			thick_cord_round = int(np.around(thick_cord*100))
 			airfoil.tag = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
 		
 		elif vsp.GetXSecShape( xsec_id ) == 8: # XSec shape: NACA 6-series
-			camber = 88888888888888888888888888888888888.
-			
-			
+			thick_cord_round = int(np.around(thick_cord*100))
+			a_value = vsp.GetParmVal( wing_id, 'A', 'XSecCurve_' + str(jj))
+			ideal_CL = int(np.around(vsp.GetParmVal( wing_id, 'IdealCl', 'XSecCurve_' + str(jj))*10))
+			series_vsp = vsp.GetParmVal( wing_id, 'Series', 'XSecCurve_' + str(jj))
+			if series_vsp == 0.:
+				series = '63'
+			if series_vsp == 1.:
+				series = '64'
+			if series_vsp == 2.:
+				series = '65'
+			if series_vsp == 3.:
+				series = '66'	
+			if series_vsp == 4.:
+				series = '67'
+			if series_vsp == 5.:
+				series = '63A'
+			if series_vsp == 6.:
+				series = '64A'
+			if series_vsp == 7.:
+				series = '65A'				
+			airfoil.tag = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
+		
 		elif vsp.GetXSecShape( xsec_id ) == 12:	# XSec shape: 12 is type AF_FILE
-			lower = vsp.GetAirfoilLowerPnts( xsec_id )  
-			upper = vsp.GetAirfoilUpperPnts( xsec_id )
-			
-			# Lednicer airfoil: TE underneath to LE, over top to TE
-			# Airfoil lower points from *TE*
-			if lower[0].x() <= lower[-1].x():  # test for airfoil format
-				for jj in xrange(len(lower)-1, 0, -1):
-					airfoil.points.append( [lower[jj].x(), lower[jj].y()])
-			else: 
-				for jj in xrange(0, len(lower)-1):
-					airfoil.points.append( [lower[jj].x(), lower[jj].y()])
-			
-			# Airfoil upper points from *LE*
-			if upper[0].x() <= upper[-1].x():  # test for airfoil format
-				for jj in xrange(0, len(upper)-1):
-					airfoil.points.append( [upper[jj].x(), upper[jj].y()])
-			else: 
-				for jj in xrange(len(upper)-1, 0, -1):
-					airfoil.points.append( [upper[jj].x(), upper[jj].y()])			
+			airfoil.thickness_to_chord = thick_cord
+			airfoil.points = vsp.GetAirfoilCoordinates( wing_id, i/segment_num )
+			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.txt', wing_id, .86)
+			airfoil.coordinate_file = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+			airfoil.tag = 'AF_file'	
+		
 		segment.append_airfoil(airfoil)
 		
 		wing.Segments.append(segment)
+	
+	
 	
 	# Wing dihedral: exclude segments with dihedral values over 70deg
 	proj_span_sum_alt = 0.
