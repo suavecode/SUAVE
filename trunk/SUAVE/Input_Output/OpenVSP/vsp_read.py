@@ -4,6 +4,7 @@ import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
+from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp_g as vsp
 import numpy as np
 
@@ -69,7 +70,7 @@ def readWing(wing_id):
 	if vsp.GetGeomName( wing_id ):
 		wing.tag = vsp.GetGeomName( wing_id )
 	else: 
-		wing.tag = '[wing geometry]'
+		wing.tag = 'WingGeom'
 	
 	wing.origin[0] = vsp.GetParmVal( wing_id, 'X_Rel_Location', 'XForm')
 	wing.origin[1] = vsp.GetParmVal( wing_id, 'Y_Rel_Location', 'XForm')
@@ -151,23 +152,9 @@ def readWing(wing_id):
 			thick_cord_round = int(np.around(thick_cord*100))
 			a_value = vsp.GetParmVal( wing_id, 'A', 'XSecCurve_' + str(jj))
 			ideal_CL = int(np.around(vsp.GetParmVal( wing_id, 'IdealCl', 'XSecCurve_' + str(jj))*10))
-			series_vsp = vsp.GetParmVal( wing_id, 'Series', 'XSecCurve_' + str(jj))
-			if series_vsp == 0.:
-				series = '63'
-			if series_vsp == 1.:
-				series = '64'
-			if series_vsp == 2.:
-				series = '65'
-			if series_vsp == 3.:
-				series = '66'	
-			if series_vsp == 4.:
-				series = '67'
-			if series_vsp == 5.:
-				series = '63A'
-			if series_vsp == 6.:
-				series = '64A'
-			if series_vsp == 7.:
-				series = '65A'				
+			series_vsp = int(vsp.GetParmVal( wing_id, 'Series', 'XSecCurve_' + str(jj)))
+			series_dict = Data({0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'})
+			series = series_dict[series_vsp]
 			airfoil.tag = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
 		
 		elif vsp.GetXSecShape( xsec_id ) == 12:	# XSec shape: 12 is type AF_FILE
@@ -183,7 +170,7 @@ def readWing(wing_id):
 	
 	
 	
-	# Wing dihedral: exclude segments with dihedral values over 70deg
+	# Wing dihedral: exclude segments with dihedral values over 70deg (like wingtips)
 	proj_span_sum_alt = 0.
 	span_sum_alt = 0.
 	for ii in xrange( start, segment_num):
@@ -210,18 +197,16 @@ def readWing(wing_id):
 	#wing.sweeps.quarter_chord    = 33. * Units.degrees
 
 	# Twists
-	wing.twists.root             = vsp.GetParmVal( wing_id, 'Twist', 'XSec_1') * Units.deg
+	wing.twists.root             = vsp.GetParmVal( wing_id, 'Twist', 'XSec_0') * Units.deg
 	wing.twists.tip              = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
 	
 
 
-	#FINISH SYMMETRY/SPAN
+	#FINISH
 	if wing.symmetric == True:
 		wing.spans.projected = proj_span_sum*2
 	else:
 		wing.spans.projected = proj_span_sum	
-		
-		
 		
 	return wing
 
@@ -230,77 +215,52 @@ def readWing(wing_id):
 
 
 def readFuselage( fuselage_id ):
-	# Create SUAVE fuselage.
-	fuselage = SUAVE.Components.Fuselages.Fuselage()
-	# Name fuselage.
+	fuselage = SUAVE.Components.Fuselages.Fuselage()	#Create SUAVE fuselage.
 	if vsp.GetGeomName( fuselage_id ):
 		fuselage.tag = vsp.GetGeomName( fuselage_id )
 	else: 
-		fuselage.tag = '[fuselage geometry]'	
+		fuselage.tag = 'FuselageGeom'	
 	
-	xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) # There is only one XSecSurf (I think always).
-	xsec_num = vsp.GetNumXSec( xsec_surf_id ) # Number of xsecs in fuselage.
-	xsecs_ids = []
-	for ii in xrange( 0, xsec_num ): # Store fuselage xsec ids.
-		xsecs_ids.append(vsp.GetXSec( xsec_surf_id, ii ))
-		
-		print vsp.GetXSecHeight(xsecs_ids[ii])
-		print vsp.GetXSecWidth(xsecs_ids[ii])			
-		#print vsp.GetXSecParm(xsecs_ids[ii], '')
+	xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
+	xsec_num = vsp.GetNumXSec( xsec_surf_id ) 		# Number of xsecs in fuselage.
+	xsec_ids = []
+	xsec_eff_diams = []
+	xsec_rel_locations = []
+	xsec_heights = []
+	xsec_widths = []	
+	ref_length = vsp.GetParmVal( fuselage_id, 'RefLength', 'XSec_0')
+	fuselage.lengths.total = ref_length
+	for ii in xrange( 0, xsec_num ): 			
+		xsec_ids.append(vsp.GetXSec( xsec_surf_id, ii ))# Store fuselage xsec IDs.  
+		height = vsp.GetXSecHeight(xsec_ids[ii])	# xsec height.
+		xsec_heights.append(height)
+		width = vsp.GetXSecWidth(xsec_ids[ii])		# xsec width.
+		xsec_widths.append(width)
+		xsec_eff_diams.append((height+width)/2)		# Effective diameter.
+		x_loc = vsp.GetParmVal( fuselage_id, 'XLocPercent', 'XSec_' + str(ii))
+		xsec_rel_locations.append(x_loc)
+		if ii >= 2 and (x_loc - xsec_rel_locations[ii-1])>= (xsec_rel_locations[ii-1]-xsec_rel_locations[ii-2]) and (xsec_eff_diams[ii]-xsec_eff_diams[ii-1]) < (xsec_eff_diams[ii-1]-xsec_eff_diams[ii-2]):
+			end_nose = ii-1	# This if-clause tests for which fuselage segment is longest and assumes the previous
+			begin_tail = ii	# section is the end of the nose, and the current section is the beginning of the tail. 
+			                # These are used in fineness calculaations, below.
+	fuselage.lengths.nose = ref_length*(xsec_rel_locations[end_nose])	# Reference length by relative locations.
+	fuselage.lengths.tail = ref_length*(1-xsec_rel_locations[begin_tail])
+	fuselage.fineness.nose = fuselage.lengths.nose/xsec_eff_diams[end_nose]		
+	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]		
+	fuselage.heights.maximum = max(xsec_heights)		# Max section height.
+	fuselage.width		 = max(xsec_widths)		# Max section width.
+	fuselage.effective_diameter = max(xsec_eff_diams)	# Max section effective diam.
 	
-	# get location of nose of fuse to calculate how far back everything is...like fuse height at quarter chord etc
-	# to find fineness of nose and tail: find where the cross section stays relatively the same of the fuselage
-	# then back up to before that segment, go from nose to that segment (likely 2 segments, tho maybe 3 or 4 in some cases)
-	
-	# get final length, all other lengths too, maybe in post process
-	# so just get points now, locations etc
-	# relative locations along x axis for fuselage
-	
-	
-	segment = SUAVE.Components.Lofted_Body.Segment()
-	
-	section = SUAVE.Components.Lofted_Body
-	# Which ones are crucial?
-	fuselage.fineness.nose         = 4.3   * Units.meter   
-	fuselage.fineness.tail         = 6.4   * Units.meter   
-	fuselage.lengths.total         = 61.66 * Units.meter    
-	fuselage.width                 = 2.88  * Units.meter   
-	fuselage.heights.maximum       = 3.32  * Units.meter   
-	fuselage.areas.wetted          = 447. * Units['meter**2'] 
-	fuselage.areas.front_projected = 11.9 * Units['meter**2'] 
-	fuselage.effective_diameter    = 3.1 * Units.meter  
+	vsp.SetSetName(5,'fuselage')
+	vsp.SetSetFlag(fuselage_id, 5, True)
+	vsp.SetComputationFileName( 3, str(fuselage_id) + '_wetted_area.csv')
+	vsp.ComputeCompGeom( 5, True, 3 )
+   
+	#fuselage.areas.wetted          = 447. * Units['meter**2'] 
+	#fuselage.areas.front_projected = 11.9 * Units['meter**2'] 
 	
 	
 	return fuselage
-
-def printGeoms():
-		
-	i = 0
-	
-	for parm in parm_ids:
-		#print 'parm_id: ', parm_ids[i]
-		value = vsp.GetParmVal(parm_ids[i])
-		#print 'value:', value
-		valuebool = vsp.GetBoolParmVal(parm_ids[i])
-		#print valuebool
-		name = vsp.GetParmName(parm_ids[i])
-		print name, ',', value, ',', valuebool
-		i += 1
-		
-		#print "\n"
-	
-	print "# of parms in geom #", wing_geom, ": ", len(parm_ids)
-	
-	geomCount = 0
-	for geom in geoms:
-		print geomCount, vsp.GetGeomName(geom)
-		geomCount += 1
-	#for parm in parm_ids:
-		#print parm_ids[parm]
-	
-	print '\ngeoms: \n', geoms	
-	
-	return None
 
 def main():
 

@@ -85,7 +85,7 @@ def write(vehicle,tag):
 
     Properties Used:
     N/A
-    """    
+    """     
     
     # Reset OpenVSP to avoid including a previous vehicle
     try:
