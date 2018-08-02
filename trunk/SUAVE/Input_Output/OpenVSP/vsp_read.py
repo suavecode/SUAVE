@@ -221,6 +221,9 @@ def readFuselage( fuselage_id ):
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 	
+	ref_length = vsp.GetParmVal( fuselage_id, 'RefLength', 'XSec_0')
+	fuselage.lengths.total = ref_length	
+	
 	xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
 	xsec_num = vsp.GetNumXSec( xsec_surf_id ) 		# Number of xsecs in fuselage.
 	xsec_ids = []
@@ -228,8 +231,7 @@ def readFuselage( fuselage_id ):
 	xsec_rel_locations = []
 	xsec_heights = []
 	xsec_widths = []	
-	ref_length = vsp.GetParmVal( fuselage_id, 'RefLength', 'XSec_0')
-	fuselage.lengths.total = ref_length
+
 	for ii in xrange( 0, xsec_num ): 			
 		xsec_ids.append(vsp.GetXSec( xsec_surf_id, ii ))# Store fuselage xsec IDs.  
 		height = vsp.GetXSecHeight(xsec_ids[ii])	# xsec height.
@@ -239,28 +241,79 @@ def readFuselage( fuselage_id ):
 		xsec_eff_diams.append((height+width)/2)		# Effective diameter.
 		x_loc = vsp.GetParmVal( fuselage_id, 'XLocPercent', 'XSec_' + str(ii))
 		xsec_rel_locations.append(x_loc)
+	
+	# Compute end of nose.
+	xsec_eff_diam_gradients = [] 
+	for kk in xrange(1, xsec_num):
+		a = xsec_rel_locations[kk]
+		b = xsec_rel_locations[kk-1]		
+		if a != b:
+			a_diam = xsec_eff_diams[kk]
+			b_diam = xsec_eff_diams[kk-1]
+			gradient = (a_diam-b_diam)/(a-b)
+			xsec_eff_diam_gradients.append(gradient)
+		else:
+			xsec_eff_diam_gradients.append(0.)
+		'''DOUBLE RV CHECK THE GRADIENT CALCS:
+		[17.443416648040067,
+		 9.998693674077336,
+		 2.1632541441318707,
+		 1.7271369099722205,
+		 -5.601749148820762,
+		 0.0]
+		
+		
+	
 		if ii >= 2 and (x_loc - xsec_rel_locations[ii-1])>= (xsec_rel_locations[ii-1]-xsec_rel_locations[ii-2]) and (xsec_eff_diams[ii]-xsec_eff_diams[ii-1]) < (xsec_eff_diams[ii-1]-xsec_eff_diams[ii-2]):
 			end_nose = ii-1	# This if-clause tests for which fuselage segment is longest and assumes the previous
 			begin_tail = ii	# section is the end of the nose, and the current section is the beginning of the tail. 
 			                # These are used in fineness calculaations, below.
+	
+	
+	
 	fuselage.lengths.nose = ref_length*(xsec_rel_locations[end_nose])	# Reference length by relative locations.
 	fuselage.lengths.tail = ref_length*(1-xsec_rel_locations[begin_tail])
 	fuselage.fineness.nose = fuselage.lengths.nose/xsec_eff_diams[end_nose]		
-	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]		
-	fuselage.heights.maximum = max(xsec_heights)		# Max section height.
+	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]'''		
+	fuselage.heights.maximum = max(xsec_heights)		# Max section height.	
 	fuselage.width		 = max(xsec_widths)		# Max section width.
 	fuselage.effective_diameter = max(xsec_eff_diams)	# Max section effective diam.
 	
-	vsp.SetSetName(5,'fuselage')
-	vsp.SetSetFlag(fuselage_id, 5, True)
-	vsp.SetComputationFileName( 3, str(fuselage_id) + '_wetted_area.csv')
-	vsp.ComputeCompGeom( 5, True, 3 )
-   
-	#fuselage.areas.wetted          = 447. * Units['meter**2'] 
-	#fuselage.areas.front_projected = 11.9 * Units['meter**2'] 
+	# Fuselage height at quarter length.
+	for jj in xrange(1, xsec_num):
+		if xsec_rel_locations[jj]>=.25 and xsec_rel_locations[jj-1]<.25:
+			a = xsec_rel_locations[jj]
+			b = xsec_rel_locations[jj-1]
+			a_height = xsec_heights[jj]
+			b_height = xsec_heights[jj-1]
+			slope = (a_height - b_height)/(a-b)
+			fuselage.heights.at_quarter_length = ((.25-xsec_rel_locations[jj-1])*(slope)) + (xsec_heights[jj-1])
+	
+	# Fuselage height at three-quarter length.
+	for jj in xrange(1, xsec_num):
+		if xsec_rel_locations[jj]>=.75 and xsec_rel_locations[jj-1]<.75:
+			a = xsec_rel_locations[jj]
+			b = xsec_rel_locations[jj-1]
+			a_height = xsec_heights[jj]
+			b_height = xsec_heights[jj-1]
+			slope = (a_height - b_height)/(a-b)
+			fuselage.heights.at_three_quarters_length = ((.75-xsec_rel_locations[jj-1])*(slope)) + (xsec_heights[jj-1])	
+	
+	
+	wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
+	fuselage.areas.wetted = wetted_areas[fuselage.tag]
+	
+	#fuselage.areas.front_projected 
 	
 	
 	return fuselage
+
+def getFineness(fuselage):
+	
+	
+	
+	return fuselage
+
 
 def main():
 
