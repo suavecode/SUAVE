@@ -5,4 +5,4 @@
 
 # classes
 from Fuselage import Fuselage
-from Segment import Segment, SegmentContainer
+from Segment import Segment

@@ -1,4 +1,12 @@
-# Theo St Francis 6/28/18
+## @ingroup Input_Output-OpenVSP
+# vsp_read.py
+
+# Created:  Jun 2018, T. St Francis
+# Modified: Aug 2018, T. St Francis
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 
 import SUAVE
 from SUAVE.Core import Units, Data
@@ -9,7 +17,7 @@ import vsp_g as vsp
 import numpy as np
 
 
-
+## @ingroup Input_Output-OpenVSP
 def vsp_read(tag):
 	
 	vsp.ClearVSPModel() 
@@ -53,12 +61,6 @@ def vsp_read(tag):
 		vehicle.append_component(prop)
 	
 	'''
-	
-	# Post-processing
-	
-	fuselage.heights.at_quarter_length          = 3.32 * Units.meter   
-	fuselage.heights.at_wing_root_quarter_chord = 3.32 * Units.meter   
-	fuselage.heights.at_three_quarters_length   = 3.32 * Units.meter 	
 	
 	
 	return vehicle
@@ -159,7 +161,7 @@ def readWing(wing_id):
 		
 		elif vsp.GetXSecShape( xsec_id ) == 12:	# XSec shape: 12 is type AF_FILE
 			airfoil.thickness_to_chord = thick_cord
-			airfoil.points = vsp.GetAirfoilCoordinates( wing_id, i/segment_num )
+			airfoil.points = vsp.GetAirfoilCoordinates( wing_id, jj/segment_num )
 			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.txt', wing_id, .86)
 			airfoil.coordinate_file = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
 			airfoil.tag = 'AF_file'	
@@ -220,30 +222,41 @@ def readFuselage( fuselage_id ):
 		fuselage.tag = vsp.GetGeomName( fuselage_id )
 	else: 
 		fuselage.tag = 'FuselageGeom'	
-	
-	ref_length = vsp.GetParmVal( fuselage_id, 'RefLength', 'XSec_0')
-	fuselage.lengths.total = ref_length	
-	
-	xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
-	xsec_num = vsp.GetNumXSec( xsec_surf_id ) 		# Number of xsecs in fuselage.
-	xsec_ids = []
-	xsec_eff_diams = []
-	xsec_rel_locations = []
-	xsec_heights = []
-	xsec_widths = []	
 
-	for ii in xrange( 0, xsec_num ): 			
-		xsec_ids.append(vsp.GetXSec( xsec_surf_id, ii ))# Store fuselage xsec IDs.  
-		height = vsp.GetXSecHeight(xsec_ids[ii])	# xsec height.
-		xsec_heights.append(height)
-		width = vsp.GetXSecWidth(xsec_ids[ii])		# xsec width.
-		xsec_widths.append(width)
-		xsec_eff_diams.append((height+width)/2)		# Effective diameter.
-		x_loc = vsp.GetParmVal( fuselage_id, 'XLocPercent', 'XSec_' + str(ii))
-		xsec_rel_locations.append(x_loc)
+	fuselage.lengths.total = vsp.GetParmVal( fuselage_id, 'Length', 'Design')	
+	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
+	fuselage.vsp.xsec_num = vsp.GetNumXSec( fuselage.vsp.xsec_surf_id ) 		# Number of xsecs in fuselage.	
 	
+	
+	for ii in xrange(0, fuselage.vsp.xsec_num):
+		segment = SUAVE.Components.Fuselages.Segment()
+		segment.vsp.xsec_id	= vsp.GetXSec( fuselage.vsp.xsec_surf_id, ii )
+		segment.tag = 'segment_' + str(ii)
+		segment.percent_x_location = vsp.GetParmVal( fuselage_id, 'XLocPercent', 'XSec_' + str(ii))
+		segment.percent_z_location = vsp.GetParmVal( fuselage_id, 'ZLocPercent', 'XSec_' + str(ii))
+		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id)
+		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id)
+		
+		if ii !=0: # Segment length: stored as length since previous segment. First segment will have length 0.0.
+			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location)
+		else:
+			segment.length = 0.0
+			
+		shape		= vsp.GetXSecShape(segment.vsp.xsec_id)
+		shape_dict 	= {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
+		segment.vsp.shape             = shape_dict[shape]	
+	
+		fuselage.Segments.append(segment)
+
+	fuselage.heights.at_quarter_length = get_fuselage_height(fuselage, .25)
+	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75)
+
+	fuselage.heights.maximum = get_segment_max(fuselage, 'height')			# Max segment height.	
+	fuselage.width		 = get_segment_max(fuselage, 'width')			# Max segment width.
+	fuselage.effective_diameter = get_segment_max(fuselage, 'effective_diameter')	# Max segment effective diam.
+
+	'''
 	# Compute end of nose.
-	xsec_eff_diam_gradients = [] 
 	for kk in xrange(1, xsec_num):
 		a = xsec_rel_locations[kk]
 		b = xsec_rel_locations[kk-1]		
@@ -254,63 +267,43 @@ def readFuselage( fuselage_id ):
 			xsec_eff_diam_gradients.append(gradient)
 		else:
 			xsec_eff_diam_gradients.append(0.)
-		'''DOUBLE RV CHECK THE GRADIENT CALCS:
-		[17.443416648040067,
-		 9.998693674077336,
-		 2.1632541441318707,
-		 1.7271369099722205,
-		 -5.601749148820762,
-		 0.0]
-		
-		
-	
-		if ii >= 2 and (x_loc - xsec_rel_locations[ii-1])>= (xsec_rel_locations[ii-1]-xsec_rel_locations[ii-2]) and (xsec_eff_diams[ii]-xsec_eff_diams[ii-1]) < (xsec_eff_diams[ii-1]-xsec_eff_diams[ii-2]):
-			end_nose = ii-1	# This if-clause tests for which fuselage segment is longest and assumes the previous
-			begin_tail = ii	# section is the end of the nose, and the current section is the beginning of the tail. 
-			                # These are used in fineness calculaations, below.
+				
 	
 	
-	
-	fuselage.lengths.nose = ref_length*(xsec_rel_locations[end_nose])	# Reference length by relative locations.
-	fuselage.lengths.tail = ref_length*(1-xsec_rel_locations[begin_tail])
-	fuselage.fineness.nose = fuselage.lengths.nose/xsec_eff_diams[end_nose]		
-	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]'''		
-	fuselage.heights.maximum = max(xsec_heights)		# Max section height.	
-	fuselage.width		 = max(xsec_widths)		# Max section width.
-	fuselage.effective_diameter = max(xsec_eff_diams)	# Max section effective diam.
-	
-	# Fuselage height at quarter length.
-	for jj in xrange(1, xsec_num):
-		if xsec_rel_locations[jj]>=.25 and xsec_rel_locations[jj-1]<.25:
-			a = xsec_rel_locations[jj]
-			b = xsec_rel_locations[jj-1]
-			a_height = xsec_heights[jj]
-			b_height = xsec_heights[jj-1]
-			slope = (a_height - b_height)/(a-b)
-			fuselage.heights.at_quarter_length = ((.25-xsec_rel_locations[jj-1])*(slope)) + (xsec_heights[jj-1])
-	
-	# Fuselage height at three-quarter length.
-	for jj in xrange(1, xsec_num):
-		if xsec_rel_locations[jj]>=.75 and xsec_rel_locations[jj-1]<.75:
-			a = xsec_rel_locations[jj]
-			b = xsec_rel_locations[jj-1]
-			a_height = xsec_heights[jj]
-			b_height = xsec_heights[jj-1]
-			slope = (a_height - b_height)/(a-b)
-			fuselage.heights.at_three_quarters_length = ((.75-xsec_rel_locations[jj-1])*(slope)) + (xsec_heights[jj-1])	
-	
-	
-	wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
-	fuselage.areas.wetted = wetted_areas[fuselage.tag]
-	
-	#fuselage.areas.front_projected 
-	
+	'''
+	#wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
+	#fuselage.areas.wetted = wetted_areas[fuselage.tag]	
 	
 	return fuselage
 
-def getFineness(fuselage):
+def get_fuselage_height(fuselage, location):	# Linearly estimate the height of the fuselage at *any* point.
+	for jj in xrange(1, fuselage.vsp.xsec_num):
+		if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:
+			a = fuselage.Segments[jj].percent_x_location
+			b = fuselage.Segments[jj-1].percent_x_location
+			a_height = fuselage.Segments[jj].height
+			b_height = fuselage.Segments[jj-1].height
+			slope = (a_height - b_height)/(a-b)
+			height = ((location-b)*(slope)) + (b_height)	
+	return height
+
+def get_segment_max(fuselage, var):
+	var = 0.0
+	for jj in xrange(0, fuselage.vsp.xsec_num):
+		if fuselage.Segments[jj] + '.' + str(var) > var:
+			var = fuselage.Segments[jj] + '.' + str(var)
+	return var
+
+
+def get_fineness(fuselage):
 	
 	
+	'''
+	fuselage.lengths.nose = length*(xsec_rel_locations[end_nose])	# Reference length by relative locations.
+	fuselage.lengths.tail = length*(1-xsec_rel_locations[begin_tail])
+	fuselage.fineness.nose = fuselage.lengths.nose/xsec_eff_diams[end_nose]		
+	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]	
+	'''
 	
 	return fuselage
 
