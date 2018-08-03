@@ -227,6 +227,11 @@ def readFuselage( fuselage_id ):
 	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
 	fuselage.vsp.xsec_num = vsp.GetNumXSec( fuselage.vsp.xsec_surf_id ) 		# Number of xsecs in fuselage.	
 	
+	x_locs = []
+	heights = []
+	widths = []
+	eff_diams = []
+	lengths = []
 	
 	for ii in xrange(0, fuselage.vsp.xsec_num):
 		segment = SUAVE.Components.Fuselages.Segment()
@@ -237,40 +242,36 @@ def readFuselage( fuselage_id ):
 		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id)
 		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id)
 		
+		x_locs.append(segment.percent_x_location)
+		heights.append(segment.height)
+		widths.append(segment.width)
+		eff_diams.append((segment.height+segment.width)/2)
+		
 		if ii !=0: # Segment length: stored as length since previous segment. First segment will have length 0.0.
 			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location)
 		else:
 			segment.length = 0.0
-			
+		lengths.append(segment.length)
+		
 		shape		= vsp.GetXSecShape(segment.vsp.xsec_id)
 		shape_dict 	= {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
-		segment.vsp.shape             = shape_dict[shape]	
+		segment.vsp.shape = shape_dict[shape]	
 	
 		fuselage.Segments.append(segment)
 
 	fuselage.heights.at_quarter_length = get_fuselage_height(fuselage, .25)
 	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75)
 
-	fuselage.heights.maximum = get_segment_max(fuselage, 'height')			# Max segment height.	
-	fuselage.width		 = get_segment_max(fuselage, 'width')			# Max segment width.
-	fuselage.effective_diameter = get_segment_max(fuselage, 'effective_diameter')	# Max segment effective diam.
+	fuselage.heights.maximum = max(heights)			# Max segment height.	
+	fuselage.width		 = max(widths)			# Max segment width.
+	fuselage.effective_diameter = max(eff_diams)		# Max segment effective diam.
 
-	'''
-	# Compute end of nose.
-	for kk in xrange(1, xsec_num):
-		a = xsec_rel_locations[kk]
-		b = xsec_rel_locations[kk-1]		
-		if a != b:
-			a_diam = xsec_eff_diams[kk]
-			b_diam = xsec_eff_diams[kk-1]
-			gradient = (a_diam-b_diam)/(a-b)
-			xsec_eff_diam_gradients.append(gradient)
-		else:
-			xsec_eff_diam_gradients.append(0.)
-				
+	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])
+	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
 	
+	eff_diam_gradients_bk = np.array(eff_diams[:-1]) - np.array(eff_diams[1:])
+	eff_diam_gradients_bk = np.multiply(eff_diam_gradients_bk, np.reciprocal(lengths[1:]))	
 	
-	'''
 	#wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
 	#fuselage.areas.wetted = wetted_areas[fuselage.tag]	
 	
