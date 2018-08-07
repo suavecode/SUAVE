@@ -50,14 +50,17 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
+        self.tag                                = 'propeller'
         self.prop_attributes = Data
         self.prop_attributes.number_blades      = 0.0
         self.prop_attributes.tip_radius         = 0.0
         self.prop_attributes.hub_radius         = 0.0
         self.prop_attributes.twist_distribution = 0.0
         self.prop_attributes.chord_distribution = 0.0
-        self.prop_attributes.mid_chord_aligment = 0.0
+        self.prop_attributes.mid_chord_alignment = 0.0
         self.thrust_angle                       = 0.0
+        self.location                           = [0.0,0.0,0.0] # [X,Y,Z]
+        self.rotation                           = [0.0,0.0,0.0]
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.

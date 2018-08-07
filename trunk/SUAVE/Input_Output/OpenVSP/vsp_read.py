@@ -18,8 +18,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag):
-	
+def vsp_read(tag): 	
 	vsp.ClearVSPModel() 
 	vsp.ReadVSPFile(PLANE)	
 	
@@ -216,10 +215,10 @@ def readWing(wing_id):
 
 
 
-def readFuselage( fuselage_id ):
+def readFuselage(fuselage_id):
 	fuselage = SUAVE.Components.Fuselages.Fuselage()	#Create SUAVE fuselage.
-	if vsp.GetGeomName( fuselage_id ):
-		fuselage.tag = vsp.GetGeomName( fuselage_id )
+	if vsp.GetGeomName(fuselage_id):
+		fuselage.tag = vsp.GetGeomName(fuselage_id)
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 
@@ -241,7 +240,7 @@ def readFuselage( fuselage_id ):
 		segment.percent_z_location = vsp.GetParmVal( fuselage_id, 'ZLocPercent', 'XSec_' + str(ii))
 		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id)
 		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id)
-		
+		segment.effective_diameter = (segment.height+segment.width)/2.
 		x_locs.append(segment.percent_x_location)
 		heights.append(segment.height)
 		widths.append(segment.width)
@@ -268,14 +267,109 @@ def readFuselage( fuselage_id ):
 
 	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])
 	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
+		
+	# Compute nose fineness.    
+	x_locs = np.array(x_locs)
+	eff_diams = np.array(eff_diams)
+	min_val = np.min(eff_diam_gradients_fwd[x_locs[:-1]<=0.5])
+	x_loc = x_locs[eff_diam_gradients_fwd==min_val][0]
+	index_seg = np.where(x_locs==x_loc)[0][0]
+	fuselage.lengths.nose = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total
+	fuselage.fineness.nose = fuselage.lengths.nose/(eff_diams[x_locs==x_loc][0])
 	
-	eff_diam_gradients_bk = np.array(eff_diams[:-1]) - np.array(eff_diams[1:])
-	eff_diam_gradients_bk = np.multiply(eff_diam_gradients_bk, np.reciprocal(lengths[1:]))	
+	# Compute tail fineness.
+	x_locsg5 = x_locs>=0.5
+	eff_diam_gradients_fwd_g5 = eff_diam_gradients_fwd[x_locsg5[1:]]
+	min_val = np.min(-eff_diam_gradients_fwd_g5)
+	x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1]
+	fuselage.lengths.tail = (fuselage.Segments[0].percent_x_location-x_loc)*fuselage.lengths.total
+	fuselage.fineness.tail = fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])
 	
-	#wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
-	#fuselage.areas.wetted = wetted_areas[fuselage.tag]	
+	wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
+	fuselage.areas.wetted = wetted_areas[fuselage.tag]	
 	
 	return fuselage
+
+def readProp(prop_id):
+	prop = SUAVE.Components.Energy.Converters.Propeller()
+	
+	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
+		fuselage.tag = vsp.GetGeomName(prop_id)
+	else: 
+		fuselage.tag = 'PropGeom'	
+	
+	prop.prop_attributes.number_blades = vsp.GetParmVal(prop_id, 'NumBlade', 'Design')
+	tip_radius = vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.
+	prop.prop_attributes.tip_radius = tip_radius
+	prop.prop_attributes.hub_radius = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
+	
+	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Location', 'XForm')
+	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Location', 'XForm')
+	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Location', 'XForm')
+	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rotation', 'XForm')
+	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rotation', 'XForm')
+	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rotation', 'XForm')
+	
+	prop.thrust_angle = prop.rotation[1]
+	
+	xsecsurf_id = vsp.GetXSecSurf(prop_id, 0)
+	
+	curve_type = {0:'linear',1:'spline',2:'Bezier_cubic'}
+	
+	# Chord
+	chord_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
+	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
+	chords = []
+	chords_rad = [] # This is r/R value.
+	chords_num = 10  # Find this with API somehow 
+	for ii in xrange(chord_num):
+		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord'))
+		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
+	
+	# Twist
+	twist_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Twist'))]
+	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
+	twists = []
+	twists_rad = []
+	twists_num = 3
+	for ii in xrange(twist_num):
+		twist = vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist')
+		twists.append(twist)
+		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
+	
+	# Skew
+	skew_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Skew'))]
+	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
+	skews = []
+	skews_rad = []
+	skews_num = 10
+	for ii in xrange(skews_num):
+		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew'))
+		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
+	
+	# Rake
+	rake_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Rake'))]
+	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
+	rakes = []
+	rakes_rad = []
+	rakes_num = 3
+	for ii in xrange(rakes_num):
+		skews.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake'))
+		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
+		
+	# Sweep
+	sweep_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Sweep'))]
+	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
+	sweeps = []
+	sweeps_rad = []
+	sweeps_num = 3
+	for ii in xrange(sweeps_num):
+		skews.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep'))
+		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
+
+	return prop
+
+
 
 def get_fuselage_height(fuselage, location):	# Linearly estimate the height of the fuselage at *any* point.
 	for jj in xrange(1, fuselage.vsp.xsec_num):
@@ -288,28 +382,4 @@ def get_fuselage_height(fuselage, location):	# Linearly estimate the height of t
 			height = ((location-b)*(slope)) + (b_height)	
 	return height
 
-def get_segment_max(fuselage, var):
-	var = 0.0
-	for jj in xrange(0, fuselage.vsp.xsec_num):
-		if fuselage.Segments[jj] + '.' + str(var) > var:
-			var = fuselage.Segments[jj] + '.' + str(var)
-	return var
-
-
-def get_fineness(fuselage):
-	
-	
-	'''
-	fuselage.lengths.nose = length*(xsec_rel_locations[end_nose])	# Reference length by relative locations.
-	fuselage.lengths.tail = length*(1-xsec_rel_locations[begin_tail])
-	fuselage.fineness.nose = fuselage.lengths.nose/xsec_eff_diams[end_nose]		
-	fuselage.fineness.tail = fuselage.lengths.tail/xsec_eff_diams[begin_tail]	
-	'''
-	
-	return fuselage
-
-
-def main():
-
-	return None
 
