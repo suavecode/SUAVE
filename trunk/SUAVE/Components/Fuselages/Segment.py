@@ -41,8 +41,7 @@ class Segment(Lofted_Body.Segment):
         self.height                = 0.0
         self.width                 = 0.0
         self.length                = 0.0    
-        self.effective_diameter    = (self.height + self.width)/2   # Effective diameter
+        self.effective_diameter    = 0.0
         self.vsp                   = Data()
-        self.vsp.xsec_id           = ''                             # OpenVSP XSec ID such as 'MWLKSGTGDD'
+        self.vsp.xsec_id           = ''      # OpenVSP XSec ID such as 'MWLKSGTGDD'
         self.vsp.shape             = ''
-        self.vsp.eff_diam_gradient = None

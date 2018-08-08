@@ -18,20 +18,104 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag): 	
+def vsp_read(tag, units): 	
+	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
+	Includes wings, fuselages, and propellers.
+
+	Assumptions:
+	OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
+	
+	Source:
+	N/A
+
+	Inputs:
+	An XML file in format .vsp3.
+
+	Outputs:
+	Writes SUAVE vehicle with these geometries from VSP:
+		Wings.Wing.    (* is all keys)
+			origin                                  [m] in all three dimensions
+			spans.projected                         [m]
+			chords.root                             [m]
+			chords.tip                              [m]
+			aspect_ratio                            [-]
+			sweeps.quarter_chord                    [radians]
+			twists.root                             [radians]
+			twists.tip                              [radians]
+			thickness_to_chord                      [-]
+			dihedral                                [radians]
+			symmetric                               <boolean>
+			tag                                     <string>
+			areas.exposed                           [m^2]
+			areas.reference                         [m^2]
+			areas.wetted                            [m^2]
+			Segments.
+			  tag                                   <string>
+			  twist                                 [radians]
+			  percent_span_location                 [-]  .1 is 10%
+			  root_chord_percent                    [-]  .1 is 10%
+			  dihedral_outboard                     [radians]
+			  sweeps.quarter_chord                  [radians]
+			  thickness_to_chord                    [-]
+			  airfoil                               <NACA 4-series, 6 series, or airfoil file>
+			
+		Fuselages.Fuselage.			
+			origin                                  [m] in all three dimensions
+			width                                   [m]
+			lengths.
+			  total                                 [m]
+			  nose                                  [m]
+			  tail                                  [m]
+			heights.
+			  maximum                               [m]
+			  at_quarter_length                     [m]
+			  at_three_quarters_length              [m]
+			effective_diameter                      [m]
+			fineness.nose                           [-] ratio of nose section length to fuselage effective diameter
+			fineness.tail                           [-] ratio of tail section length to fuselage effective diameter
+			areas.wetted                            [m^2]
+			tag                                     <string>
+			segment[].   (segments are in ordered container and callable by number)
+			  vsp.shape                               [point,circle,round_rect,general_fuse,fuse_file]
+			  vsp.xsec_id                             <10 digit string>
+			  percent_x_location
+			  percent_z_location
+			  height
+			  width
+			  length
+			  effective_diameter
+			  tag
+			vsp.xsec_num                              <integer of fuselage segment quantity>
+			vsp.xsec_surf_id                          <10 digit string>
+	
+		Propellers.Propeller.
+		
+	
+	Properties Used:
+	N/A
+	"""  	
+	
 	vsp.ClearVSPModel() 
-	vsp.ReadVSPFile(PLANE)	
+	vsp.ReadVSPFile(tag)	
 	
 	vsp_fuselages = []
 	vsp_wings = []	
 	vsp_props = []
 	
-	vsp_geoms = vsp.FindGeoms()
-	
-	# Label each geom type. 
-	# The API call for GETGEOMTYPE was not released as of 07/25/18
+	vsp_geoms  = vsp.FindGeoms()
+	geom_names = []
 
 	'''
+	print "VSP geometry IDs: " 	# Until OpenVSP is released with a call for GetGeomType, each geom must be manually processed.
+	
+	for geom in vsp_geoms:
+		geom_name = vsp.GetGeomName(geom)
+		geom_names.append(geom_name)
+		print str(geom_name) + ': ' + geom
+		
+	
+	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 08/06/18, v 3.16.1)
+	
 	for geom in vsp_geoms:
 		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
 			vsp_fuselages.append(geom)
@@ -44,253 +128,119 @@ def vsp_read(tag):
 	vehicle = SUAVE.Vehicle()
 	vehicle.tag = tag
 	
-	# Read VSP geoms and store in SUAVE.
+	# Read VSP geoms and store in SUAVE components.
 	'''
 	for vsp_fuselage in vsp_fuselages:
 		fuselage_id = vsp_fuselages[vsp_fuselage]
-		fuselage = readFuselage( fuselage_id )
+		fuselage = read_vsp_fuselage(fuselage_id, units)
 		vehicle.append_component(fuselage)
+	
 	for vsp_wing in vsp_wings:
 		wing_id = vsp_wings[vsp_wing]
-		wing = readWing( wing_id )
+		wing = read_vsp_wing(wing_id, units)
 		vehicle.append_component(wing)		
+	
 	for vsp_prop in vsp_props:
 		prop_id = vsp_props[vsp_prop]
-		prop = readProp( prop_id )		
+		prop = read_vsp_prop(prop_id, units)		
 		vehicle.append_component(prop)
 	
 	'''
 	
-	
 	return vehicle
 
-def readWing(wing_id):
-	
-	wing = SUAVE.Components.Wings.Wing()
-	
-	if vsp.GetGeomName( wing_id ):
-		wing.tag = vsp.GetGeomName( wing_id )
-	else: 
-		wing.tag = 'WingGeom'
-	
-	wing.origin[0] = vsp.GetParmVal( wing_id, 'X_Rel_Location', 'XForm')
-	wing.origin[1] = vsp.GetParmVal( wing_id, 'Y_Rel_Location', 'XForm')
-	wing.origin[2] = vsp.GetParmVal( wing_id, 'Z_Rel_Location', 'XForm')	
-	
-	#SYMMETRY    
-	sym_planar = vsp.GetParmVal( wing_id, 'Sym_Planar_Flag', 'Sym')
-	sym_origin = vsp.GetParmVal( wing_id, 'Sym_Ancestor', 'Sym')
-	if sym_planar == 2 and sym_origin == 2: #origin at wing, not vehicle
-		wing.symmetric == True	
-	else:
-		wing.symmetric == False
 
+def vsp_read_fuselage(fuselage_id, fineness=True):
 
-	#OTHER WING-WIDE PARMS
-	wing.aspect_ratio = vsp.GetParmVal(wing_id, 'TotalAR', 'WingGeom')
-	xsec_surf_id = vsp.GetXSecSurf( wing_id, 0) #get number surfaces in geom
-	segment_num = vsp.GetNumXSec( xsec_surf_id)   #get # segments, is one more than in GUI	
-
-
-	#WING SEGMENTS	
-
-	#get root chord and proj_span_sum for use below
-	total_chord = vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_1')	
-	total_proj_span = vsp.GetParmVal( wing_id, 'TotalProjectedSpan', 'WingGeom')  
-	proj_span_sum = 0.
-	segment_spans = [None] * (segment_num) # these spans are non-projected
+	fuselage = SUAVE.Components.Fuselages.Fuselage()	
 	
-	span_sum = 0.
-	segment_dihedral = [None] * (segment_num)
-	
-	# check for extra segment at wing root, then skip XSec_0 to start at exposed segment
-	if vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_0') == 1.:
-		start = 1
-	else:
-		start = 0
-		
-	
-	# Iterate VSP XSecs into SUAVE segments. Note: Wing segments are defined by outboard sections in VSP 
-	for i in xrange( start, segment_num+1):		# but inboard sections in SUAVE
-		segment = SUAVE.Components.Wings.Segment()
-		segment.tag                   = 'Section_' + str(i)
-		thick_cord                    = vsp.GetParmVal( wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
-		segment.thickness_to_chord    = thick_cord	# Also used in airfoil, below.		
-		segment_root_chord            = vsp.GetParmVal( wing_id, 'Root_Chord', 'XSec_' + str(i))
-		segment.root_chord_percent    = segment_root_chord / total_chord		
-		segment.percent_span_location = proj_span_sum / (total_proj_span/2)
-		segment.twist                 = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
-		
-		if i < segment_num:  # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
-			segment.sweeps.quarter_chord  = vsp.GetParmVal( wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
-	
-			segment_dihedral[i]	      = vsp.GetParmVal( wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg
-			segment.dihedral_outboard     = segment_dihedral[i]
-			
-			segment_spans[i] 	      = vsp.GetParmVal( wing_id, 'Span', 'XSec_' + str(i))
-			proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
-			span_sum += segment_spans[i]
-		else:
-			segment.root_chord_percent = (vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(i-1)))/total_chord
-			
-		# XSec airfoil
-		jj = i-1  # Airfoil index
-		xsec_id = str(vsp.GetXSec(xsec_surf_id, jj))
-		airfoil = Airfoil()
-		if vsp.GetXSecShape( xsec_id ) == 7: # XSec shape: NACA 4-series
-			camber = vsp.GetParmVal( wing_id, 'Camber', 'XSecCurve_' + str(jj)) 
-			if camber == 0.:	# i-1 because vsp airfoils and sections are one index off relative to SUAVE
-				camber_loc = 0.
-			else:
-				camber_loc = vsp.GetParmVal( wing_id, 'CamberLoc', 'XSecCurve_' + str(jj))
-			airfoil.thickness_to_chord = thick_cord
-			camber_round = int(np.around(camber*100))
-			camber_loc_round = int(np.around(camber_loc*10))  # Camber and TC won't round up for NACA.
-			thick_cord_round = int(np.around(thick_cord*100))
-			airfoil.tag = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
-		
-		elif vsp.GetXSecShape( xsec_id ) == 8: # XSec shape: NACA 6-series
-			thick_cord_round = int(np.around(thick_cord*100))
-			a_value = vsp.GetParmVal( wing_id, 'A', 'XSecCurve_' + str(jj))
-			ideal_CL = int(np.around(vsp.GetParmVal( wing_id, 'IdealCl', 'XSecCurve_' + str(jj))*10))
-			series_vsp = int(vsp.GetParmVal( wing_id, 'Series', 'XSecCurve_' + str(jj)))
-			series_dict = Data({0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'})
-			series = series_dict[series_vsp]
-			airfoil.tag = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
-		
-		elif vsp.GetXSecShape( xsec_id ) == 12:	# XSec shape: 12 is type AF_FILE
-			airfoil.thickness_to_chord = thick_cord
-			airfoil.points = vsp.GetAirfoilCoordinates( wing_id, jj/segment_num )
-			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.txt', wing_id, .86)
-			airfoil.coordinate_file = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
-			airfoil.tag = 'AF_file'	
-		
-		segment.append_airfoil(airfoil)
-		
-		wing.Segments.append(segment)
-	
-	
-	
-	# Wing dihedral: exclude segments with dihedral values over 70deg (like wingtips)
-	proj_span_sum_alt = 0.
-	span_sum_alt = 0.
-	for ii in xrange( start, segment_num):
-		if segment_dihedral[ii] <= (70. * Units.deg):
-			span_sum_alt += segment_spans[ii]
-			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])
-		else:
-			pass
-	wing.dihedral = np.arccos(proj_span_sum_alt / span_sum_alt) / Units.deg
-
-	# Chords
-	wing.chords.root             = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_1')
-	wing.chords.tip              = vsp.GetParmVal( wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1))	
-	wing.chords.mean_geometric = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal( wing_id, 'TotalChord', 'WingGeom')
-	#wing.chords.mean_aerodynamic = ________ / vsp.GetParmVal( wing_id, 'TotalSpan', 'WingGeom')
-	
-	
-	# Areas
-	wing.areas.reference         = vsp.GetParmVal( wing_id, 'TotalArea', 'WingGeom')
-	wetted_areas = get_vsp_areas(wing.tag)	
-	wing.areas.wetted   = wetted_areas[wing.tag]
-	wing.areas.exposed   = wetted_areas[wing.tag]
-	
-	#wing.sweeps.quarter_chord    = 33. * Units.degrees
-
-	# Twists
-	wing.twists.root             = vsp.GetParmVal( wing_id, 'Twist', 'XSec_0') * Units.deg
-	wing.twists.tip              = vsp.GetParmVal( wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
-	
-
-
-	#FINISH
-	if wing.symmetric == True:
-		wing.spans.projected = proj_span_sum*2
-	else:
-		wing.spans.projected = proj_span_sum	
-		
-	return wing
-
-
-
-
-
-def readFuselage(fuselage_id):
-	fuselage = SUAVE.Components.Fuselages.Fuselage()	#Create SUAVE fuselage.
 	if vsp.GetGeomName(fuselage_id):
 		fuselage.tag = vsp.GetGeomName(fuselage_id)
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 
-	fuselage.lengths.total = vsp.GetParmVal( fuselage_id, 'Length', 'Design')	
-	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf( fuselage_id, 0 ) 	# There is only one XSecSurf in geom.
-	fuselage.vsp.xsec_num = vsp.GetNumXSec( fuselage.vsp.xsec_surf_id ) 		# Number of xsecs in fuselage.	
+	fuselage.origin[0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm')
+	fuselage.origin[1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
+	fuselage.origin[2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
+
+	fuselage.lengths.total    = vsp.GetParmVal(fuselage_id, 'Length', 'Design')	
+	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
+	fuselage.vsp.xsec_num     = vsp.GetNumXSec(fuselage.vsp.xsec_surf_id) 		# Number of xsecs in fuselage.	
 	
-	x_locs = []
-	heights = []
-	widths = []
+	x_locs    = []
+	heights   = []
+	widths    = []
 	eff_diams = []
-	lengths = []
+	lengths   = []
+	
+	# -------------
+	# Fuselage segments
+	# -------------	
 	
 	for ii in xrange(0, fuselage.vsp.xsec_num):
 		segment = SUAVE.Components.Fuselages.Segment()
-		segment.vsp.xsec_id	= vsp.GetXSec( fuselage.vsp.xsec_surf_id, ii )
-		segment.tag = 'segment_' + str(ii)
-		segment.percent_x_location = vsp.GetParmVal( fuselage_id, 'XLocPercent', 'XSec_' + str(ii))
-		segment.percent_z_location = vsp.GetParmVal( fuselage_id, 'ZLocPercent', 'XSec_' + str(ii))
+		segment.vsp.xsec_id	   = vsp.GetXSec(fuselage.vsp.xsec_surf_id, ii)	# VSP XSec ID.
+		segment.tag                = 'segment_' + str(ii)
+		segment.percent_x_location = vsp.GetParmVal(fuselage_id, 'XLocPercent', 'XSec_' + str(ii)) # Along fuselage length.
+		segment.percent_z_location = vsp.GetParmVal(fuselage_id, 'ZLocPercent', 'XSec_' + str(ii)) # Vertical deviation of fuselage center.
 		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id)
 		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id)
 		segment.effective_diameter = (segment.height+segment.width)/2.
-		x_locs.append(segment.percent_x_location)
+		
+		x_locs.append(segment.percent_x_location)	 # Save into arrays for later computation.
 		heights.append(segment.height)
 		widths.append(segment.width)
-		eff_diams.append((segment.height+segment.width)/2)
+		eff_diams.append(segment.effective_diameter)
 		
-		if ii !=0: # Segment length: stored as length since previous segment. First segment will have length 0.0.
+		if ii !=0: # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
 			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location)
 		else:
 			segment.length = 0.0
 		lengths.append(segment.length)
 		
-		shape		= vsp.GetXSecShape(segment.vsp.xsec_id)
-		shape_dict 	= {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
+		shape	 	  = vsp.GetXSecShape(segment.vsp.xsec_id)
+		shape_dict 	  = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
 		segment.vsp.shape = shape_dict[shape]	
 	
 		fuselage.Segments.append(segment)
 
-	fuselage.heights.at_quarter_length = get_fuselage_height(fuselage, .25)
+	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25)	# Calls get_fuselage_height function.
 	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75)
 
-	fuselage.heights.maximum = max(heights)			# Max segment height.	
-	fuselage.width		 = max(widths)			# Max segment width.
+	fuselage.heights.maximum    = max(heights)		# Max segment height.	
+	fuselage.width		    = max(widths)		# Max segment width.
 	fuselage.effective_diameter = max(eff_diams)		# Max segment effective diam.
 
-	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])
+	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
 	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
 		
+	fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)
+
+	return fuselage
+	
+def compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd):
 	# Compute nose fineness.    
-	x_locs = np.array(x_locs)
+	x_locs    = np.array(x_locs)					# Make numpy arrays.
 	eff_diams = np.array(eff_diams)
-	min_val = np.min(eff_diam_gradients_fwd[x_locs[:-1]<=0.5])
-	x_loc = x_locs[eff_diam_gradients_fwd==min_val][0]
-	index_seg = np.where(x_locs==x_loc)[0][0]
-	fuselage.lengths.nose = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total
+	min_val   = np.min(eff_diam_gradients_fwd[x_locs[:-1]<=0.5])	# Computes smallest eff_diam gradient value in front 50% of fuselage.
+	x_loc     = x_locs[eff_diam_gradients_fwd==min_val][0]		# Determines x-location of the first instance of that value (if gradient=0, gets frontmost x-loc).
+	fuselage.lengths.nose = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total	# Subtracts first segment x-loc in case not at global origin.
 	fuselage.fineness.nose = fuselage.lengths.nose/(eff_diams[x_locs==x_loc][0])
 	
 	# Compute tail fineness.
-	x_locsg5 = x_locs>=0.5
-	eff_diam_gradients_fwd_g5 = eff_diam_gradients_fwd[x_locsg5[1:]]
-	min_val = np.min(-eff_diam_gradients_fwd_g5)
-	x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1]
-	fuselage.lengths.tail = (fuselage.Segments[0].percent_x_location-x_loc)*fuselage.lengths.total
-	fuselage.fineness.tail = fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])
+	x_locs_tail		    = x_locs>=0.5				# Searches aft 50% of fuselage.
+	eff_diam_gradients_fwd_tail = eff_diam_gradients_fwd[x_locs_tail[1:]]	# Smaller array of tail gradients.
+	min_val 		    = np.min(-eff_diam_gradients_fwd_tail)	# Computes min gradient, where fuselage tapers (minus sign makes positive).
+	x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1] # Saves aft-most value (useful for straight fuselage with multiple zero gradients.) 
+	fuselage.lengths.tail       = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total
+	fuselage.fineness.tail      = -fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])	# Minus sign converts tail fineness to positive value.
 	
-	wetted_areas = get_vsp_areas(fuselage.tag)		# Wetted_areas array contains areas for all vehicle geometries.
+	wetted_areas = get_vsp_areas(fuselage.tag)				# Wetted_areas array contains areas for all vehicle geometries.
 	fuselage.areas.wetted = wetted_areas[fuselage.tag]	
 	
 	return fuselage
 
-def readProp(prop_id):
+def vsp_read_prop(prop_id):
 	prop = SUAVE.Components.Energy.Converters.Propeller()
 	
 	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
@@ -303,12 +253,12 @@ def readProp(prop_id):
 	prop.prop_attributes.tip_radius = tip_radius
 	prop.prop_attributes.hub_radius = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
 	
-	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Location', 'XForm')
-	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Location', 'XForm')
-	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Location', 'XForm')
-	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rotation', 'XForm')
-	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rotation', 'XForm')
-	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rotation', 'XForm')
+	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm')
+	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm')
+	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm')
+	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rel_Rotation', 'XForm')
+	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Rotation', 'XForm')
+	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Rotation', 'XForm')
 	
 	prop.thrust_angle = prop.rotation[1]
 	
@@ -316,12 +266,16 @@ def readProp(prop_id):
 	
 	curve_type = {0:'linear',1:'spline',2:'Bezier_cubic'}
 	
+	# -------------
+	# Blade geometry
+	# -------------	
+	
 	# Chord
 	chord_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
 	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
 	chords = []
-	chords_rad = [] # This is r/R value.
-	chords_num = 10  # Find this with API somehow 
+	chords_rad = []  # This is r/R value.
+	chords_num = 10  # Find this with API somehow.  HARDCODED
 	for ii in xrange(chord_num):
 		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord'))
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
@@ -331,7 +285,7 @@ def readProp(prop_id):
 	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
 	twists = []
 	twists_rad = []
-	twists_num = 3
+	twists_num = 3	# HARDCODED
 	for ii in xrange(twist_num):
 		twist = vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist')
 		twists.append(twist)
@@ -342,7 +296,7 @@ def readProp(prop_id):
 	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
 	skews = []
 	skews_rad = []
-	skews_num = 10
+	skews_num = 10	#HARDCODED
 	for ii in xrange(skews_num):
 		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew'))
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
@@ -352,7 +306,7 @@ def readProp(prop_id):
 	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
 	rakes = []
 	rakes_rad = []
-	rakes_num = 3
+	rakes_num = 3	#HARDCODED
 	for ii in xrange(rakes_num):
 		skews.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake'))
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
@@ -362,13 +316,16 @@ def readProp(prop_id):
 	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
 	sweeps = []
 	sweeps_rad = []
-	sweeps_num = 3
+	sweeps_num = 3	#HARDCODED
 	for ii in xrange(sweeps_num):
 		skews.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep'))
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
 
 	return prop
 
+
+vsp.PCurveGetTVec
+vsp.PCurveGetValVec
 
 
 def get_fuselage_height(fuselage, location):	# Linearly estimate the height of the fuselage at *any* point.
@@ -381,5 +338,3 @@ def get_fuselage_height(fuselage, location):	# Linearly estimate the height of t
 			slope = (a_height - b_height)/(a-b)
 			height = ((location-b)*(slope)) + (b_height)	
 	return height
-
-
