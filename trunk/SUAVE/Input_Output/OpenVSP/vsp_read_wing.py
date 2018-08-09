@@ -19,19 +19,21 @@ import numpy as np
 ## @ingroup Input_Output-OpenVSP
 def vsp_read_wing(wing_id, units='SI'): 	
 	"""This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
-	Includes wings, fuselages, and propellers.
 
 	Assumptions:
-	OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
+	1. OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers.
+	2. Written for OpenVSP 3.16.1
 
 	Source:
 	N/A
 
 	Inputs:
-	
+	0. Pre-loaded VSP vehicle in memory, via vsp_read.
+	1. VSP 10-digit geom ID for wing.
+	2. Units set to 'SI' (default) or 'Imperial'.
 
 	Outputs:
-	Writes SUAVE vehicle with these geometries from VSP:
+	Writes SUAVE wing object, with these geometries, from VSP:
 		Wings.Wing.    (* is all keys)
 			origin                                  [m] in all three dimensions
 			spans.projected                         [m]
@@ -63,7 +65,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	"""  
 	if units == 'SI':
 		units = Units.meter 
-	if units == 'Imperial':
+	elif units == 'Imperial':
 		units = Units.foot 
 	
 	wing = SUAVE.Components.Wings.Wing()
@@ -89,15 +91,15 @@ def vsp_read_wing(wing_id, units='SI'):
 	xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)			# This is how VSP stores surfaces.
 	segment_num       = vsp.GetNumXSec(xsec_surf_id)		# Get number of wing segments (is one more than the VSP GUI shows).
 	
-	# Get root chord and proj_span_sum for use below.
-	total_chord = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_1')	
-	total_proj_span = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom')  
-	proj_span_sum = 0.
-	segment_spans = [None] * (segment_num) # These spans are non-projected.
-	span_sum = 0.
+	total_chord      = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_1')	
+	total_proj_span  = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom')  
+	span_sum         = 0.				# Non-projected.
+	proj_span_sum    = 0.				# Projected.
+	segment_spans    = [None] * (segment_num) 	# Non-projected.
 	segment_dihedral = [None] * (segment_num)
+	segment_sweeps_quarter_chord = [None] * (segment_num)
 	
-	# Check for intra-fuselage segment at wing root, then skip XSec_0 to start at first exposed segment.
+	# Check for wing segment *inside* fuselage, then skip XSec_0 to start at first exposed segment.
 	if vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_0') == 1.:
 		start = 1
 	else:
@@ -107,8 +109,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	# Wing segments
 	# -------------		
 	
-	# Iterate VSP XSecs into SUAVE segments. 
-	# (Wing segments are defined by outboard sections in VSP, but inboard sections in SUAVE.) 
+	# Convert VSP XSecs to SUAVE segments. (Wing segments are defined by outboard sections in VSP, but inboard sections in SUAVE.) 
 	for i in xrange(start, segment_num+1):		
 		segment = SUAVE.Components.Wings.Segment()
 		segment.tag                   = 'Section_' + str(i)
@@ -120,16 +121,17 @@ def vsp_read_wing(wing_id, units='SI'):
 		segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
 	
 		if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
-			segment.sweeps.quarter_chord  = vsp.GetParmVal(wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
+			segment_sweeps_quarter_chord[i]   = vsp.GetParmVal(wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
+			segment.sweeps.quarter_chord      = segment_sweeps_quarter_chord[i]  # Used again, below
 	
-			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg
+			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg # Used for dihedral computation, below.
 			segment.dihedral_outboard     = segment_dihedral[i]
 	
 			segment_spans[i] 	      = vsp.GetParmVal(wing_id, 'Span', 'XSec_' + str(i))
 			proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
-			span_sum += segment_spans[i]
+			span_sum      += segment_spans[i]
 		else:
-			segment.root_chord_percent = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1)))/total_chord
+			segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1)))/total_chord
 	
 		# XSec airfoil
 		jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
@@ -137,29 +139,31 @@ def vsp_read_wing(wing_id, units='SI'):
 		airfoil = Airfoil()
 		if vsp.GetXSecShape(xsec_id) == 7: 	# XSec shape: NACA 4-series
 			camber = vsp.GetParmVal(wing_id, 'Camber', 'XSecCurve_' + str(jj)) 
+			
 			if camber == 0.:
 				camber_loc = 0.
 			else:
 				camber_loc = vsp.GetParmVal(wing_id, 'CamberLoc', 'XSecCurve_' + str(jj))
+			
 			airfoil.thickness_to_chord = thick_cord
-			camber_round     = int(np.around(camber*100))
-			camber_loc_round = int(np.around(camber_loc*10)) 
-			thick_cord_round = int(np.around(thick_cord*100))
-			airfoil.tag      = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
+			camber_round               = int(np.around(camber*100))
+			camber_loc_round           = int(np.around(camber_loc*10)) 
+			thick_cord_round           = int(np.around(thick_cord*100))
+			airfoil.tag                = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
 	
 		elif vsp.GetXSecShape(xsec_id) == 8: 	# XSec shape: NACA 6-series
 			thick_cord_round = int(np.around(thick_cord*100))
 			a_value          = vsp.GetParmVal(wing_id, 'A', 'XSecCurve_' + str(jj))
 			ideal_CL         = int(np.around(vsp.GetParmVal(wing_id, 'IdealCl', 'XSecCurve_' + str(jj))*10))
 			series_vsp       = int(vsp.GetParmVal(wing_id, 'Series', 'XSecCurve_' + str(jj)))
-			series_dict      = Data({0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'}) # VSP series values.
+			series_dict      = {0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'} # VSP series values.
 			series           = series_dict[series_vsp]
 			airfoil.tag      = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
 	
 		elif vsp.GetXSecShape(xsec_id) == 12:	# XSec shape: 12 is type AF_FILE
 			airfoil.thickness_to_chord = thick_cord
-			airfoil.points             = vsp.GetAirfoilCoordinates(wing_id, float(jj/segment_num)) # VSP airfoil API calls get
-			# coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
+			airfoil.points             = vsp.GetAirfoilCoordinates(wing_id, float(jj/segment_num))
+			# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
 			# (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
 			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
 			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
@@ -171,24 +175,26 @@ def vsp_read_wing(wing_id, units='SI'):
 	
 	
 	
-	# Wing dihedral: exclude segments with dihedral values over 70deg (like wingtips)
+	# Wing dihedral 
 	proj_span_sum_alt = 0.
 	span_sum_alt      = 0.
+	sweeps_sum        = 0.
+	
 	for ii in xrange(start, segment_num):
-		if segment_dihedral[ii] <= (70. * Units.deg):
+		if segment_dihedral[ii] <= (70. * Units.deg): # Stop at segment with dihedral value over 70deg (wingtips).
 			span_sum_alt += segment_spans[ii]
-			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])
+			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])  # Use projected span to find total wing dihedral.
+			sweeps_sum += segment_spans[ii] * np.tan(segment_sweeps_quarter_chord[ii])
 		else:
-			pass
-	wing.dihedral             = np.arccos(proj_span_sum_alt / span_sum_alt) / Units.deg
-	#wing.sweeps.quarter_chord = 
+			break  
+	
+	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) / Units.deg
+	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt) / Units.deg  # Minus sign makes it positive sweep.
 	
 	# Chords
 	wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_1')
 	wing.chords.tip               = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1))	
 	wing.chords.mean_geometric    = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal(wing_id, 'TotalChord', 'WingGeom')
-	#wing.chords.mean_aerodynamic = ________ / vsp.GetParmVal(wing_id, 'TotalSpan', 'WingGeom')
-	
 	
 	# Areas
 	wing.areas.reference  = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom')

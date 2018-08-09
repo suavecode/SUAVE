@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-OpenVSP
-# vsp_read.py
+# vsp_read_prop.py
 
 # Created:  Jun 2018, T. St Francis
 # Modified: Aug 2018, T. St Francis
@@ -12,19 +12,17 @@ import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
-from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp_g as vsp
 import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
 def vsp_read(tag, units='SI'): 	
-	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
-	Includes wings, fuselages, and propellers.
+	"""This reads an OpenVSP propeller geometry and writes it to a SUAVE propeller format.
 
 	Assumptions:
-	OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
-	
+	Written for OpenVSP 3.16.1
+
 	Source:
 	N/A
 
@@ -59,7 +57,7 @@ def vsp_read(tag, units='SI'):
 			  sweeps.quarter_chord                  [radians]
 			  thickness_to_chord                    [-]
 			  airfoil                               <NACA 4-series, 6 series, or airfoil file>
-			
+
 		Fuselages.Fuselage.			
 			origin                                  [m] in all three dimensions
 			width                                   [m]
@@ -88,75 +86,107 @@ def vsp_read(tag, units='SI'):
 			  tag
 			vsp.xsec_num                              <integer of fuselage segment quantity>
 			vsp.xsec_surf_id                          <10 digit string>
-	
+
 		Propellers.Propeller.
 			location[X,Y,Z]                            [radians]
 			rotation[X,Y,Z]                            [radians]
 			prop_attributes.tip_radius                 [m]
 		        prop_attributes.hub_radius                 [m]
 			thrust_angle                               [radians]
-	
+
 	Properties Used:
 	N/A
 	"""  	
-	
-	vsp.ClearVSPModel() 
-	vsp.ReadVSPFile(tag)	
-	
-	vsp_fuselages = []
-	vsp_wings = []	
-	vsp_props = []
-	
-	vsp_geoms  = vsp.FindGeoms()
-	geom_names = []
 
-	'''
-	print "VSP geometry IDs: " 	# Until OpenVSP is released with a call for GetGeomType, each geom must be manually processed.
+prop = SUAVE.Components.Energy.Converters.Propeller()
 	
-	for geom in vsp_geoms:
-		geom_name = vsp.GetGeomName(geom)
-		geom_names.append(geom_name)
-		print str(geom_name) + ': ' + geom
-		
-	
-	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 08/06/18, v 3.16.1)
-	
-	for geom in vsp_geoms:
-		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
-			vsp_fuselages.append(geom)
-		if vsp.GETGEOMTYPE(str(geom)) == 'WING':
-			vsp_wings.append(geom)
-		if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
-			vsp_props.append(geom)
-	'''
-	
-	vehicle = SUAVE.Vehicle()
-	vehicle.tag = tag
-
 	if units == 'SI':
 		units = Units.meter 
-	else:
-		units = Units.foot 	
+	else units == 'Imperial':
+		units = Units.foot	
 	
-	# Read VSP geoms and store in SUAVE components.
-	'''
-	for vsp_fuselage in vsp_fuselages:
-		fuselage_id = vsp_fuselages[vsp_fuselage]
-		fuselage = read_vsp_fuselage(fuselage_id, units)
-		vehicle.append_component(fuselage)
+	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
+		prop.tag = vsp.GetGeomName(prop_id)
+	else: 
+		prop.tag = 'PropGeom'	
 	
-	for vsp_wing in vsp_wings:
-		wing_id = vsp_wings[vsp_wing]
-		wing = read_vsp_wing(wing_id, units)
-		vehicle.append_component(wing)		
+	prop.prop_attributes.number_blades = vsp.GetParmVal(prop_id, 'NumBlade', 'Design')
+	tip_radius = (vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.) * units
+	prop.prop_attributes.tip_radius = tip_radius
+	prop.prop_attributes.hub_radius = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
 	
-	for vsp_prop in vsp_props:
-		prop_id = vsp_props[vsp_prop]
-		prop = read_vsp_prop(prop_id, units)		
-		vehicle.append_component(prop)
+	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm') * units
+	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm') * units
+	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm') * units
+	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rel_Rotation', 'XForm') * Units.deg
+	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Rotation', 'XForm') * Units.deg
+	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Rotation', 'XForm') * Units.deg
 	
-	'''
+	prop.thrust_angle = prop.rotation[1]			# Y-rotation
 	
-	return vehicle
+	xsecsurf_id = vsp.GetXSecSurf(prop_id, 0)
+	
+	curve_type = {0:'linear',1:'spline',2:'Bezier_cubic'}
+	
+	# -------------
+	# Blade geometry
+	# -------------	
+	
+	# Chord
+	chord_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
+	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
+	chords = []
+	chords_rad = []  # This is r/R value.
+	chords_num = 10  # Find this with API somehow.  HARDCODED
+	for ii in xrange(chords_num):
+		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord'))
+		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
+	
+	# Twist
+	twist_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Twist'))]
+	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
+	twists = []
+	twists_rad = []
+	twists_num = 3	# HARDCODED
+	for ii in xrange(twists_num):
+		twist = vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist')
+		twists.append(twist)
+		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
+	
+	# Skew
+	skew_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Skew'))]
+	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
+	skews = []
+	skews_rad = []
+	skews_num = 10	#HARDCODED
+	for ii in xrange(skews_num):
+		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew'))
+		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
+	
+	# Rake
+	rake_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Rake'))]
+	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
+	rakes = []
+	rakes_rad = []
+	rakes_num = 3	#HARDCODED
+	for ii in xrange(rakes_num):
+		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake'))
+		rakes_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
+		
+	# Sweep
+	sweep_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Sweep'))]
+	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
+	sweeps = []
+	sweeps_rad = []
+	sweeps_num = 3	#HARDCODED
+	for ii in xrange(sweeps_num):
+		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep'))
+		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
+
+	return prop
+
+
+	#vsp.PCurveGetTVec
+	#vsp.PCurveGetValVec
 
 
