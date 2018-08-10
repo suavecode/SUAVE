@@ -24,11 +24,11 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	1. OpenVSP fuselage is "conventionally shaped" (generally narrow at nose and tail, wider in center). 
 	2. Fuselage is designed in VSP as it appears in real life. That is, the VSP model does not rely on
 	   superficial elements such as canopies, stacks, or additional fuselages to cover up internal lofting oddities.
-	3. This program will not account for multiple geometries comprising the fuselage, for example a wingbox mounted beneath
-	   is a separate geometry and will not be processed.
-	4. Fuselage origin is located at nose.
-	5. Uses exterior function get_vsp_areas, in SUAVE/trunk/SUAVE/Input_Output/OpenVSP.
-	6. Written for OpenVSP 3.16.1
+	3. This program will NOT account for multiple geometries comprising the fuselage. For example: a wingbox mounted beneath
+	   is a separate geometry and will NOT be processed.
+	4. Fuselage origin is located at nose. VSP file origin can be located anywhere, preferably at the forward tip
+	   of the vehicle or in front (to make all X-coordinates of vehicle positive).
+	5. Written for OpenVSP 3.16.1
 	
 	Source:
 	N/A
@@ -38,7 +38,8 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	1. VSP 10-digit geom ID for fuselage.
 	2. Units set to 'SI' (default) or 'Imperial'.
 	3. Boolean for whether or not to compute fuselage finenesses (default = True).
-
+	4. Uses exterior function get_vsp_areas, in SUAVE/trunk/SUAVE/Input_Output/OpenVSP.
+	
 	Outputs:
 	Writes SUAVE fuselage, with these geometries:           (all defaults are SI, but user may specify Imperial)
 
@@ -78,7 +79,7 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	
 	if units == 'SI':
 		units = Units.meter 
-	else units == 'Imperial':
+	else:
 		units = Units.foot 
 		
 	if vsp.GetGeomName(fuselage_id):
@@ -90,7 +91,7 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	fuselage.origin[1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
 	fuselage.origin[2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
 
-	fuselage.lengths.total    = vsp.GetParmVal(fuselage_id, 'Length', 'Design')	
+	fuselage.lengths.total    = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units
 	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
 	fuselage.vsp.xsec_num     = vsp.GetNumXSec(fuselage.vsp.xsec_surf_id) 		# Number of xsecs in fuselage.	
 	
@@ -110,9 +111,9 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 		segment.tag                = 'segment_' + str(ii)
 		segment.percent_x_location = vsp.GetParmVal(fuselage_id, 'XLocPercent', 'XSec_' + str(ii)) 	# Along fuselage length.
 		segment.percent_z_location = vsp.GetParmVal(fuselage_id, 'ZLocPercent', 'XSec_' + str(ii)) 	# Vertical deviation of fuselage center.
-		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id)
-		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id)
-		segment.effective_diameter = (segment.height+segment.width)/2.
+		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id) * units
+		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id) * units
+		segment.effective_diameter = (segment.height+segment.width)/2. 
 		
 		x_locs.append(segment.percent_x_location)	 # Save into arrays for later computation.
 		heights.append(segment.height)
@@ -120,7 +121,7 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 		eff_diams.append(segment.effective_diameter)
 		
 		if ii !=0: # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
-			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location)
+			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location) * units
 		else:
 			segment.length = 0.0
 		lengths.append(segment.length)
@@ -131,11 +132,11 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	
 		fuselage.Segments.append(segment)
 
-	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25)	# Calls get_fuselage_height function (below).
-	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75)
+	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25) * units # Calls get_fuselage_height function (below).
+	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75) * units
 
-	fuselage.heights.maximum    = max(heights)		# Max segment height.	
-	fuselage.width		    = max(widths)		# Max segment width.
+	fuselage.heights.maximum    = max(heights) 		# Max segment height.	
+	fuselage.width		    = max(widths) 		# Max segment width.
 	fuselage.effective_diameter = max(eff_diams)		# Max segment effective diam.
 
 	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
@@ -143,7 +144,7 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 		
 	fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)
 
-	wetted_areas          = get_vsp_areas(fuselage.tag)					# Wetted_areas array contains areas for all vehicle geometries.
+	wetted_areas          = get_vsp_areas(fuselage.tag) 					# Wetted_areas array contains areas for all vehicle geometries.
 	fuselage.areas.wetted = wetted_areas[fuselage.tag]	
 
 	return fuselage

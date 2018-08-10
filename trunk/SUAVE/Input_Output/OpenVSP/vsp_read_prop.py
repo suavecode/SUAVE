@@ -17,7 +17,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units='SI'): 	
+def vsp_read_prop(prop_id, units='SI'): 	
 	"""This reads an OpenVSP propeller geometry and writes it to a SUAVE propeller format.
 
 	Assumptions:
@@ -31,78 +31,30 @@ def vsp_read(tag, units='SI'):
 	2. Units set to 'SI' (default) or 'Imperial'
 
 	Outputs:
-	Writes SUAVE vehicle with these geometries from VSP:    (all defaults are SI, but user may specify Imperial)
-		Wings.Wing.    (* is all keys)
-			origin                                  [m] in all three dimensions
-			spans.projected                         [m]
-			chords.root                             [m]
-			chords.tip                              [m]
-			aspect_ratio                            [-]
-			sweeps.quarter_chord                    [radians]
-			twists.root                             [radians]
-			twists.tip                              [radians]
-			thickness_to_chord                      [-]
-			dihedral                                [radians]
-			symmetric                               <boolean>
-			tag                                     <string>
-			areas.exposed                           [m^2]
-			areas.reference                         [m^2]
-			areas.wetted                            [m^2]
-			Segments.
-			  tag                                   <string>
-			  twist                                 [radians]
-			  percent_span_location                 [-]  .1 is 10%
-			  root_chord_percent                    [-]  .1 is 10%
-			  dihedral_outboard                     [radians]
-			  sweeps.quarter_chord                  [radians]
-			  thickness_to_chord                    [-]
-			  airfoil                               <NACA 4-series, 6 series, or airfoil file>
-
-		Fuselages.Fuselage.			
-			origin                                  [m] in all three dimensions
-			width                                   [m]
-			lengths.
-			  total                                 [m]
-			  nose                                  [m]
-			  tail                                  [m]
-			heights.
-			  maximum                               [m]
-			  at_quarter_length                     [m]
-			  at_three_quarters_length              [m]
-			effective_diameter                      [m]
-			fineness.nose                           [-] ratio of nose section length to fuselage effective diameter
-			fineness.tail                           [-] ratio of tail section length to fuselage effective diameter
-			areas.wetted                            [m^2]
-			tag                                     <string>
-			segment[].   (segments are in ordered container and callable by number)
-			  vsp.shape                               [point,circle,round_rect,general_fuse,fuse_file]
-			  vsp.xsec_id                             <10 digit string>
-			  percent_x_location
-			  percent_z_location
-			  height
-			  width
-			  length
-			  effective_diameter
-			  tag
-			vsp.xsec_num                              <integer of fuselage segment quantity>
-			vsp.xsec_surf_id                          <10 digit string>
-
+	Writes SUAVE propeller with these geometries from VSP:    (all defaults are SI, but user may specify Imperial)
 		Propellers.Propeller.
 			location[X,Y,Z]                            [radians]
 			rotation[X,Y,Z]                            [radians]
 			prop_attributes.tip_radius                 [m]
 		        prop_attributes.hub_radius                 [m]
 			thrust_angle                               [radians]
-
+	
+	Note: fills arrays with parametric curve points for:
+	        twists
+		chords
+		skews
+		rakes
+		sweeps
+		
 	Properties Used:
 	N/A
 	"""  	
 
-prop = SUAVE.Components.Energy.Converters.Propeller()
+	prop = SUAVE.Components.Energy.Converters.Propeller()
 	
 	if units == 'SI':
 		units = Units.meter 
-	else units == 'Imperial':
+	else:
 		units = Units.foot	
 	
 	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
@@ -122,7 +74,7 @@ prop = SUAVE.Components.Energy.Converters.Propeller()
 	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Rotation', 'XForm') * Units.deg
 	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Rotation', 'XForm') * Units.deg
 	
-	prop.thrust_angle = prop.rotation[1]			# Y-rotation
+	prop.thrust_angle = prop.rotation[1]			# Y-rotation for thrust angle.
 	
 	xsecsurf_id = vsp.GetXSecSurf(prop_id, 0)
 	
@@ -136,57 +88,75 @@ prop = SUAVE.Components.Energy.Converters.Propeller()
 	chord_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
 	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
 	chords = []
-	chords_rad = []  # This is r/R value.
-	chords_num = 10  # Find this with API somehow.  HARDCODED
-	for ii in xrange(chords_num):
-		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord'))
+	chords_rad = []  							# This is r/R value.
+	chords_num = 50  							# HARDCODED, see break below.
+	for ii in xrange(chords_num):						# Future API call goes for Pcurve chord number goes here.
+		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
+		if ii!=0 and chords[ii] == 0.0 and chords[ii-1] == 0.0:		# Allows for two zero conditions before breaking, then resizes array.
+			chords.remove(chords[-1])
+			chords.remove(chords[-1])
+			break
 	
 	# Twist
 	twist_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Twist'))]
 	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
 	twists = []
-	twists_rad = []
-	twists_num = 3	# HARDCODED
+	twists_rad = []								# This is r/R value.
+	twists_num = 50								# HARDCODED
 	for ii in xrange(twists_num):
-		twist = vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist')
-		twists.append(twist)
+		twists.append(vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist') * Units.deg) 
 		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
+		if ii!=0 and twists[ii] == 0.0 and twists[ii-1] == 0.0:
+			twists.remove(twists[-1])
+			twists.remove(twists[-1])
+			break
 	
 	# Skew
 	skew_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Skew'))]
 	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
 	skews = []
 	skews_rad = []
-	skews_num = 10	#HARDCODED
+	skews_num = 50								#HARDCODED
 	for ii in xrange(skews_num):
-		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew'))
+		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew') * Units.deg)
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
+		if ii!=0 and skews[ii] == 0.0 and skews[ii-1] == 0.0:
+			skews.remove(skews[-1])
+			skews.remove(skews[-1])
+			break
 	
 	# Rake
 	rake_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Rake'))]
 	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
 	rakes = []
-	rakes_rad = []
-	rakes_num = 3	#HARDCODED
+	rakes_rad = []	
+	rakes_num = 50								#HARDCODED
 	for ii in xrange(rakes_num):
-		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake'))
+		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake') * Units.deg)
 		rakes_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
+		if ii!=0 and rakes[ii] == 0.0 and rakes[ii-1] == 0.0:
+			rakes.remove(rakes[-1])
+			rakes.remove(rakes[-1])
+			break
 		
 	# Sweep
 	sweep_curve = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Sweep'))]
 	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
 	sweeps = []
 	sweeps_rad = []
-	sweeps_num = 3	#HARDCODED
+	sweeps_num = 50								#HARDCODED
 	for ii in xrange(sweeps_num):
-		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep'))
+		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep') * Units.deg)
 		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
-
+		if ii!=0 and sweeps[ii] == 0.0 and sweeps[ii-1] == 0.0:
+			sweeps.remove(sweeps[-1])
+			sweeps.remove(sweeps[-1])
+			break
+		
 	return prop
 
 
-	#vsp.PCurveGetTVec
-	#vsp.PCurveGetValVec
+
 
 

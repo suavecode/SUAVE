@@ -23,7 +23,15 @@ def vsp_read(tag, units='SI'):
 	Includes wings, fuselages, and propellers.
 
 	Assumptions:
-	OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
+	1. OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers. 
+	1a. OpenVSP fuselage: generally narrow at nose and tail, wider in center). 
+	1b. Fuselage is designed in VSP as it appears in real life. That is, the VSP model does not rely on
+	   superficial elements such as canopies, stacks, or additional fuselages to cover up internal lofting oddities.
+	1c. This program will NOT account for multiple geometries comprising the fuselage. For example: a wingbox mounted beneath
+	   is a separate geometry and will NOT be processed.
+	2. Fuselage origin is located at nose. VSP file origin can be located anywhere, preferably at the forward tip
+	   of the vehicle or in front (to make all X-coordinates of vehicle positive).
+	3. Written for OpenVSP 3.16.1
 	
 	Source:
 	N/A
@@ -104,8 +112,8 @@ def vsp_read(tag, units='SI'):
 	vsp.ReadVSPFile(tag)	
 	
 	vsp_fuselages = []
-	vsp_wings = []	
-	vsp_props = []
+	vsp_wings     = []	
+	vsp_props     = []
 	
 	vsp_geoms  = vsp.FindGeoms()
 	geom_names = []
@@ -118,9 +126,9 @@ def vsp_read(tag, units='SI'):
 		geom_names.append(geom_name)
 		print str(geom_name) + ': ' + geom
 		
-	
-	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 08/06/18, v 3.16.1)
-	
+	'''
+	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
+	'''
 	for geom in vsp_geoms:
 		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
 			vsp_fuselages.append(geom)
@@ -130,7 +138,7 @@ def vsp_read(tag, units='SI'):
 			vsp_props.append(geom)
 	'''
 	
-	vehicle = SUAVE.Vehicle()
+	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
 
 	if units == 'SI':

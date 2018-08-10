@@ -21,7 +21,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	"""This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
 
 	Assumptions:
-	1. OpenVSP vehicle is composed of conventionally shaped fuselages, wings, and propellers.
+	1. OpenVSP wing is divided into segments ("XSecs" in VSP).
 	2. Written for OpenVSP 3.16.1
 
 	Source:
@@ -65,7 +65,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	"""  
 	if units == 'SI':
 		units = Units.meter 
-	elif units == 'Imperial':
+	else:
 		units = Units.foot 
 	
 	wing = SUAVE.Components.Wings.Wing()
@@ -122,7 +122,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	
 		if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
 			segment_sweeps_quarter_chord[i]   = vsp.GetParmVal(wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
-			segment.sweeps.quarter_chord      = segment_sweeps_quarter_chord[i]  # Used again, below
+			segment.sweeps.quarter_chord      = -segment_sweeps_quarter_chord[i]  # Used again, below
 	
 			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg # Used for dihedral computation, below.
 			segment.dihedral_outboard     = segment_dihedral[i]
@@ -172,8 +172,6 @@ def vsp_read_wing(wing_id, units='SI'):
 		segment.append_airfoil(airfoil)
 	
 		wing.Segments.append(segment)
-	
-	
 	
 	# Wing dihedral 
 	proj_span_sum_alt = 0.
