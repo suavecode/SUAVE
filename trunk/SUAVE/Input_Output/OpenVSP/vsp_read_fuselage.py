@@ -17,7 +17,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
+def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	"""This reads an OpenVSP fuselage geometry and writes it to a SUAVE fuselage format.
 
 	Assumptions:
@@ -36,7 +36,7 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	Inputs:
 	0. Pre-loaded VSP vehicle in memory, via vsp_read.
 	1. VSP 10-digit geom ID for fuselage.
-	2. Units set to 'SI' (default) or 'Imperial'.
+	2. Units_type set to 'SI' (default) or 'Imperial'.
 	3. Boolean for whether or not to compute fuselage finenesses (default = True).
 	4. Uses exterior function get_vsp_areas, in SUAVE/trunk/SUAVE/Input_Output/OpenVSP.
 	
@@ -77,10 +77,10 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	"""  	
 	fuselage = SUAVE.Components.Fuselages.Fuselage()	
 	
-	if units == 'SI':
-		units = Units.meter 
+	if units_type == 'SI':
+		units_factor = Units.meter 
 	else:
-		units = Units.foot 
+		units_factor = Units.foot 
 		
 	if vsp.GetGeomName(fuselage_id):
 		fuselage.tag = vsp.GetGeomName(fuselage_id)
@@ -91,9 +91,9 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	fuselage.origin[1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
 	fuselage.origin[2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
 
-	fuselage.lengths.total    = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units
-	fuselage.vsp.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
-	fuselage.vsp.xsec_num     = vsp.GetNumXSec(fuselage.vsp.xsec_surf_id) 		# Number of xsecs in fuselage.	
+	fuselage.lengths.total         = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units_factor
+	fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
+	fuselage.vsp_data.xsec_num     = vsp.GetNumXSec(fuselage.vsp_data.xsec_surf_id) 		# Number of xsecs in fuselage.	
 	
 	x_locs    = []
 	heights   = []
@@ -101,18 +101,18 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 	eff_diams = []
 	lengths   = []
 	
-	# -------------
+	# -----------------
 	# Fuselage segments
-	# -------------	
+	# -----------------
 	
-	for ii in xrange(0, fuselage.vsp.xsec_num):
-		segment = SUAVE.Components.Fuselages.Segment()
-		segment.vsp.xsec_id	   = vsp.GetXSec(fuselage.vsp.xsec_surf_id, ii)				# VSP XSec ID.
+	for ii in xrange(0, fuselage.vsp_data.xsec_num):
+		segment                    = SUAVE.Components.Fuselages.Segment()
+		segment.vsp_data.xsec_id   = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)		   # VSP XSec ID.
 		segment.tag                = 'segment_' + str(ii)
-		segment.percent_x_location = vsp.GetParmVal(fuselage_id, 'XLocPercent', 'XSec_' + str(ii)) 	# Along fuselage length.
-		segment.percent_z_location = vsp.GetParmVal(fuselage_id, 'ZLocPercent', 'XSec_' + str(ii)) 	# Vertical deviation of fuselage center.
-		segment.height             = vsp.GetXSecHeight(segment.vsp.xsec_id) * units
-		segment.width              = vsp.GetXSecWidth(segment.vsp.xsec_id) * units
+		segment.percent_x_location = vsp.GetParmVal(fuselage_id, 'XLocPercent', 'XSec_' + str(ii)) # Along fuselage length.
+		segment.percent_z_location = vsp.GetParmVal(fuselage_id, 'ZLocPercent', 'XSec_' + str(ii)) # Vertical deviation of fuselage center.
+		segment.height             = vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor
+		segment.width              = vsp.GetXSecWidth(segment.vsp_data.xsec_id) * units_factor
 		segment.effective_diameter = (segment.height+segment.width)/2. 
 		
 		x_locs.append(segment.percent_x_location)	 # Save into arrays for later computation.
@@ -121,19 +121,19 @@ def vsp_read_fuselage(fuselage_id, units='SI', fineness=True):
 		eff_diams.append(segment.effective_diameter)
 		
 		if ii !=0: # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
-			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location) * units
+			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location) * units_factor
 		else:
 			segment.length = 0.0
 		lengths.append(segment.length)
 		
-		shape	 	  = vsp.GetXSecShape(segment.vsp.xsec_id)
-		shape_dict 	  = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
-		segment.vsp.shape = shape_dict[shape]	
+		shape	   = vsp.GetXSecShape(segment.vsp_data.xsec_id)
+		shape_dict = {0:'point',1:'circle',2:'ellipse',3:'super ellipse',4:'rounded rectangle',5:'general fuse',6:'fuse file'}
+		segment.vsp_data.shape = shape_dict[shape]	
 	
 		fuselage.Segments.append(segment)
 
-	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25) * units # Calls get_fuselage_height function (below).
-	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75) * units
+	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25) * units_factor # Calls get_fuselage_height function (below).
+	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75) * units_factor
 
 	fuselage.heights.maximum    = max(heights) 		# Max segment height.	
 	fuselage.width		    = max(widths) 		# Max segment width.
@@ -200,7 +200,7 @@ def get_fuselage_height(fuselage, location):
 
 	Inputs:
 	0. Pre-loaded VSP vehicle in memory, via vsp_read.
-	1. Suave fuselage [object], containing fuselage.vsp.xsec_num in its data structure.
+	1. Suave fuselage [object], containing fuselage.vsp_data.xsec_num in its data structure.
 	2. Fuselage percentage point [float].
 	
 	Outputs:
@@ -209,9 +209,10 @@ def get_fuselage_height(fuselage, location):
 	Properties Used:
 	N/A
 	"""
-	for jj in xrange(1, fuselage.vsp.xsec_num):			# Begin at second section, working toward tail.
-		if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:  # Find two sections on either side (or including)
-			a        = fuselage.Segments[jj].percent_x_location							# the desired fuselage length percentage.
+	for jj in xrange(1, fuselage.vsp_data.xsec_num):		# Begin at second section, working toward tail.
+		if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:  
+			# Find two sections on either side (or including) the desired fuselage length percentage.
+			a        = fuselage.Segments[jj].percent_x_location							
 			b        = fuselage.Segments[jj-1].percent_x_location
 			a_height = fuselage.Segments[jj].height		# Linear approximation.
 			b_height = fuselage.Segments[jj-1].height

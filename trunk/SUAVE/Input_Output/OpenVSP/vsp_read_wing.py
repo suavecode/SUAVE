@@ -17,7 +17,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read_wing(wing_id, units='SI'): 	
+def vsp_read_wing(wing_id, units_type='SI'): 	
 	"""This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
 
 	Assumptions:
@@ -30,7 +30,7 @@ def vsp_read_wing(wing_id, units='SI'):
 	Inputs:
 	0. Pre-loaded VSP vehicle in memory, via vsp_read.
 	1. VSP 10-digit geom ID for wing.
-	2. Units set to 'SI' (default) or 'Imperial'.
+	2. units_type set to 'SI' (default) or 'Imperial'.
 
 	Outputs:
 	Writes SUAVE wing object, with these geometries, from VSP:
@@ -63,10 +63,10 @@ def vsp_read_wing(wing_id, units='SI'):
 	Properties Used:
 	N/A
 	"""  
-	if units == 'SI':
-		units = Units.meter 
+	if units_type == 'SI':
+		units_factor = Units.meter 
 	else:
-		units = Units.foot 
+		units_factor = Units.foot 
 	
 	wing = SUAVE.Components.Wings.Wing()
 	
@@ -115,7 +115,7 @@ def vsp_read_wing(wing_id, units='SI'):
 		segment.tag                   = 'Section_' + str(i)
 		thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
 		segment.thickness_to_chord    = thick_cord	# Thick_cord stored for use in airfoil, below.		
-		segment_root_chord            = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units
+		segment_root_chord            = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units_factor
 		segment.root_chord_percent    = segment_root_chord / total_chord		
 		segment.percent_span_location = proj_span_sum / (total_proj_span/2)
 		segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
@@ -123,8 +123,9 @@ def vsp_read_wing(wing_id, units='SI'):
 		if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
 			segment_sweeps_quarter_chord[i]   = vsp.GetParmVal(wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
 			segment.sweeps.quarter_chord      = -segment_sweeps_quarter_chord[i]  # Used again, below
-	
-			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg # Used for dihedral computation, below.
+			
+			# Used for dihedral computation, below.
+			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg 
 			segment.dihedral_outboard     = segment_dihedral[i]
 	
 			segment_spans[i] 	      = vsp.GetParmVal(wing_id, 'Span', 'XSec_' + str(i))

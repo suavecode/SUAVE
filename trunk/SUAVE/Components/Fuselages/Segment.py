@@ -35,13 +35,13 @@ class Segment(Lofted_Body.Segment):
         Properties Used:
         N/A
         """         
-        self.tag = 'segment'
-        self.percent_x_location = 0.0       # Percent location along fuselage length.
-        self.percent_z_location = 0.0       # Vertical translation of segment.
-        self.height                = 0.0
-        self.width                 = 0.0
-        self.length                = 0.0    
-        self.effective_diameter    = 0.0
-        self.vsp                   = Data()
-        self.vsp.xsec_id           = ''      # OpenVSP XSec ID such as 'MWLKSGTGDD'
-        self.vsp.shape             = ''
+        self.tag                = 'segment'
+        self.percent_x_location = 0.0      # Percent location along fuselage length.
+        self.percent_z_location = 0.0      # Vertical translation of segment.
+        self.height             = 0.0
+        self.width              = 0.0
+        self.length             = 0.0    
+        self.effective_diameter = 0.0
+        self.vsp_data           = Data()
+        self.vsp_data.xsec_id   = ''       # OpenVSP XSec ID such as 'MWLKSGTGDD'
+        self.vsp_data.shape     = ''

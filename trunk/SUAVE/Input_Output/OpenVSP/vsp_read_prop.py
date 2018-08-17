@@ -17,7 +17,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read_prop(prop_id, units='SI'): 	
+def vsp_read_prop(prop_id, units_type='SI'): 	
 	"""This reads an OpenVSP propeller geometry and writes it to a SUAVE propeller format.
 
 	Assumptions:
@@ -28,7 +28,7 @@ def vsp_read_prop(prop_id, units='SI'):
 
 	Inputs:
 	1. A tag for an XML file in format .vsp3.
-	2. Units set to 'SI' (default) or 'Imperial'
+	2. units_type set to 'SI' (default) or 'Imperial'
 
 	Outputs:
 	Writes SUAVE propeller with these geometries from VSP:    (all defaults are SI, but user may specify Imperial)
@@ -52,10 +52,10 @@ def vsp_read_prop(prop_id, units='SI'):
 
 	prop = SUAVE.Components.Energy.Converters.Propeller()
 	
-	if units == 'SI':
-		units = Units.meter 
+	if units_type == 'SI':
+		units_factor = Units.meter 
 	else:
-		units = Units.foot	
+		units_factor = Units.foot	
 	
 	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
 		prop.tag = vsp.GetGeomName(prop_id)
@@ -63,13 +63,13 @@ def vsp_read_prop(prop_id, units='SI'):
 		prop.tag = 'PropGeom'	
 	
 	prop.prop_attributes.number_blades = vsp.GetParmVal(prop_id, 'NumBlade', 'Design')
-	tip_radius = (vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.) * units
+	tip_radius = (vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.) * units_factor
 	prop.prop_attributes.tip_radius = tip_radius
 	prop.prop_attributes.hub_radius = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
 	
-	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm') * units
-	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm') * units
-	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm') * units
+	prop.location[0] = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm') * units_factor
+	prop.location[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm') * units_factor
+	prop.location[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm') * units_factor
 	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rel_Rotation', 'XForm') * Units.deg
 	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Rotation', 'XForm') * Units.deg
 	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Rotation', 'XForm') * Units.deg
@@ -91,7 +91,7 @@ def vsp_read_prop(prop_id, units='SI'):
 	chords_rad = []  							# This is r/R value.
 	chords_num = 50  							# HARDCODED, see break below.
 	for ii in xrange(chords_num):						# Future API call goes for Pcurve chord number goes here.
-		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units
+		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units_factor
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
 		if ii!=0 and chords[ii] == 0.0 and chords[ii-1] == 0.0:		# Allows for two zero conditions before breaking, then resizes array.
 			chords.remove(chords[-1])

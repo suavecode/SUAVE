@@ -18,7 +18,7 @@ import numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read(tag, units='SI'): 	
+def vsp_read(tag, units_type='SI'): 	
 	"""This reads an OpenVSP vehicle geometry and writes it into a SUAVE vehicle format.
 	Includes wings, fuselages, and propellers.
 
@@ -38,10 +38,10 @@ def vsp_read(tag, units='SI'):
 
 	Inputs:
 	1. A tag for an XML file in format .vsp3.
-	2. Units set to 'SI' (default) or 'Imperial'
+	2. Units_type set to 'SI' (default) or 'Imperial'
 
 	Outputs:
-	Writes SUAVE vehicle with these geometries from VSP:    (all defaults are SI, but user may specify Imperial)
+	Writes SUAVE vehicle with these geometries from VSP:    (All values default to SI. Any other 2nd argument outputs Imperial.)
 		Wings.Wing.    (* is all keys)
 			origin                                  [m] in all three dimensions
 			spans.projected                         [m]
@@ -115,56 +115,70 @@ def vsp_read(tag, units='SI'):
 	vsp_wings     = []	
 	vsp_props     = []
 	
-	vsp_geoms  = vsp.FindGeoms()
-	geom_names = []
+	vsp_geoms     = vsp.FindGeoms()
+	geom_names    = []
 
-	'''
-	print "VSP geometry IDs: " 	# Until OpenVSP is released with a call for GetGeomType, each geom must be manually processed.
-	
-	for geom in vsp_geoms:
-		geom_name = vsp.GetGeomName(geom)
-		geom_names.append(geom_name)
-		print str(geom_name) + ': ' + geom
-		
-	'''
-	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
-	'''
-	for geom in vsp_geoms:
-		if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
-			vsp_fuselages.append(geom)
-		if vsp.GETGEOMTYPE(str(geom)) == 'WING':
-			vsp_wings.append(geom)
-		if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
-			vsp_props.append(geom)
-	'''
-	
 	vehicle     = SUAVE.Vehicle()
 	vehicle.tag = tag
 
-	if units == 'SI':
-		units = Units.meter 
+	if units_type == 'SI':
+		units_type = 'SI' 
 	else:
-		units = Units.foot 	
+		units_type = 'Imperial' 
+
+	# The two for-loops below are in anticipation of an OpenVSP API update with a call for GETGEOMTYPE.
+	# This print function allows user to enter VSP GeomID manually as first argument in vsp_read functions.
+	
+	print "VSP geometry IDs: " 	
+	
+	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
+	
+	for geom in vsp_geoms: 
+		geom_name = vsp.GetGeomName(geom)
+		geom_names.append(geom_name)
+		print str(geom_name) + ': ' + geom
+	
+	# -----------------------------
+	# MANUAL VSP ENTRY & PROCESSING
+	# -----------------------------		
+	
+	#fuselage = read_vsp_fuselage(fuselage_id, units_type=units_type) # Replace fuselage_id manually.
+	#vehicle.append_component(fuselage)
+	
+	#wing = read_vsp_wing(wing_id, units_type=units_type)		# Replace wing_id manually.
+	#vehicle.append_component(wing)		
+	
+	#prop = read_vsp_prop(prop_id, units_type=units_type)		# Replace prop_id manually.	
+	#vehicle.append_component(prop)
+	
+
+	# --------------------------------
+	# AUTOMATIC VSP ENTRY & PROCESSING
+	# --------------------------------		
+		
+	#for geom in vsp_geoms:
+		#if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
+			#vsp_fuselages.append(geom)
+		#if vsp.GETGEOMTYPE(str(geom)) == 'WING':
+			#vsp_wings.append(geom)
+		#if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
+			#vsp_props.append(geom)
 	
 	# Read VSP geoms and store in SUAVE components.
-	'''
-	for vsp_fuselage in vsp_fuselages:
-		fuselage_id = vsp_fuselages[vsp_fuselage]
-		fuselage = read_vsp_fuselage(fuselage_id, units)
-		vehicle.append_component(fuselage)
 	
-	for vsp_wing in vsp_wings:
-		wing_id = vsp_wings[vsp_wing]
-		wing = read_vsp_wing(wing_id, units)
-		vehicle.append_component(wing)		
+	#for vsp_fuselage in vsp_fuselages:
+		#fuselage_id = vsp_fuselages[vsp_fuselage]
+		#fuselage = read_vsp_fuselage(fuselage_id, units_type)
+		#vehicle.append_component(fuselage)
 	
-	for vsp_prop in vsp_props:
-		prop_id = vsp_props[vsp_prop]
-		prop = read_vsp_prop(prop_id, units)		
-		vehicle.append_component(prop)
+	#for vsp_wing in vsp_wings:
+		#wing_id = vsp_wings[vsp_wing]
+		#wing = read_vsp_wing(wing_id, units_type)
+		#vehicle.append_component(wing)		
 	
-	'''
+	#for vsp_prop in vsp_props:
+		#prop_id = vsp_props[vsp_prop]
+		#prop = read_vsp_prop(prop_id, units_type)		
+		#vehicle.append_component(prop)
 	
 	return vehicle
-
-

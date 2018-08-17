@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data
+from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body
 
 # ------------------------------------------------------------
@@ -92,9 +92,9 @@ class Fuselage(Lofted_Body):
         self.cabin_area           = 0.0
         
         # For VSP
-        self.vsp                = Data()
-        self.vsp.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
-        self.vsp.xsec_num       = None  # Number if XSecs in fuselage geom.
+        self.vsp_data                = Data()
+        self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
+        self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
         
         self.Segments           = SUAVE.Core.ContainerOrdered()
         
