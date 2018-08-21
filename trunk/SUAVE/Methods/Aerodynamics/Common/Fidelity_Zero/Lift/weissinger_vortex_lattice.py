@@ -74,8 +74,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     aoa              = conditions.aerodynamics.angle_of_attack
     q_inf            = conditions.freestream.dynamic_pressure[0][0]
     q_distribution   = np.ones(n)*q_inf
-    V                = conditions.propulsion.acoustic_outputs.velocity[0][0]
-    V_distribution   = np.ones(n)*V 
+    V_distribution   = np.ones(n)*conditions.freestream.velocity[0][0]
     aoa_distribution = np.ones(n)*aoa[0][0]
     
     # chord difference
@@ -174,13 +173,13 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
 
         if propeller_status : # If propellers present, find propeller location and re-vectorize wing with embedded propeller 
             if propeller.origin[0][0] <= wing.origin[0] and propeller.origin[0][1] < span :
-                num_prop = len(propeller.origin)                  # number of propellers  
-                R_p = propeller.tip_radius
-                A_eng = np.pi*R_p**2           
-                V_eng      =  V
-                F_eng      = -conditions.propulsion.acoustic_outputs.thrust[0][0]
-                del_V_eng  =  np.sqrt(V_eng**2 + 2*F_eng/(rho*A_eng))              
-                r_jet      = y[0] 
+                num_prop = len(propeller.origin)                                   # number of propellers  
+                R_p = propeller.tip_radius                                         # propeller radius
+                A_eng = np.pi*R_p**2                                               # area of propeller disc
+                V_eng      = conditions.propulsion.acoustic_outputs.velocity[0][0]                                                    # total velocity 
+                F_eng      = -conditions.propulsion.acoustic_outputs.thrust[0][0]  # thurst 
+                del_V_eng  =  np.sqrt(V_eng**2 + 2*F_eng/(rho*A_eng))              # 
+                r_jet      = y[0]                                                  # spanwise coordinates of wing
 
                 for i in xrange(num_prop):
                     K_ep = 0.11
@@ -203,8 +202,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
 
                     for j in xrange(n):
                         if (propeller.origin[0][1]-b_jet) >= (r_jet[j]):
-                            del_V_jet = 0;
-                                    
+                            del_V_jet = 0;                                    
                         elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <=  (propeller.origin[0][1]-c_jet):
                             start_val = propeller.origin[0][1] - b_jet
                             end_val   = propeller.origin[0][1] - c_jet
@@ -216,16 +214,14 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                             del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
                         
                         elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
-                            del_V_jet = 0
-                                                                      
-                        V_distribution[j] =  V_distribution[j] + del_V_jet         
+                            del_V_jet = 0                                                                      
+                        V_distribution[j] = V_distribution[j] + del_V_jet         
 
             q_distribution = 0.5*rho*V_distribution**2    
             LT , CL , DT, CD   ,Lift_distribution, Drag_distribution   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)            
         else:
-            q_distribution = 0.5*rho*V_distribition**2    
+            q_distribution = 0.5*rho*V_distribution**2    
             LT , CL , DT, CD   ,Lift_distribution, Drag_distribution   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
-
 
         #-----------------------------------------------------------
         # PLOT LIFT & DRAF DISTRIBUTION
@@ -277,7 +273,6 @@ def whav(x1,y1,x2,y2):
     whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
 
     return whv 
-
 
 def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf,q_distribution,chord_distribution,Sref):    
     sin_aoa = np.sin(aoa_distribution)
