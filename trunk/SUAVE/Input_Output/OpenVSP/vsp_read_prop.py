@@ -84,17 +84,18 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	# Blade geometry
 	# -------------	
 	
+	max_quantity = 100  # Of possible chord/skew/twist/rake/sweep parametric curve points (HARDCODED).
+	
 	# Chord
 	chord_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
 	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
 	chords            = []
 	chords_rad        = []  						# This is r/R value.
-	chords_num        = 50  						# HARDCODED, see break below.
-	for ii in xrange(chords_num):						# Future API call goes for Pcurve chord number goes here.
+	for ii in xrange(max_quantity):						
 		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units_factor
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
-		if ii!=0 and chords[ii] == 0.0 and chords[ii-1] == 0.0:		# Allows for two zero conditions before breaking, then resizes array.
-			chords     = chords[:-2]
+		if ii!=0 and chords[ii] == 0.0 and chords[ii-1] == 0.0:		# Checks for two consecutive zero conditions before breaking.
+			chords     = chords[:-2]				# Resize arrays to omit zero values.
 			chords_rad = chords_rad[:-2]
 			break
 	
@@ -103,8 +104,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
 	twists            = []
 	twists_rad        = []							# This is r/R value.
-	twists_num        = 50							# HARDCODED
-	for ii in xrange(twists_num):
+	for ii in xrange(max_quantity):
 		twists.append(vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist') * Units.deg) 
 		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
 		if ii!=0 and twists[ii] == 0.0 and twists[ii-1] == 0.0:
@@ -117,8 +117,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
 	skews            = []
 	skews_rad        = []
-	skews_num        = 50							#HARDCODED
-	for ii in xrange(skews_num):
+	for ii in xrange(max_quantity):
 		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew') * Units.deg)
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
 		if ii!=0 and skews[ii] == 0.0 and skews[ii-1] == 0.0:
@@ -131,8 +130,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
 	rakes            = []
 	rakes_rad        = []	
-	rakes_num        = 50							#HARDCODED
-	for ii in xrange(rakes_num):
+	for ii in xrange(max_quantity):
 		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake') * Units.deg)
 		rakes_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
 		if ii!=0 and rakes[ii] == 0.0 and rakes[ii-1] == 0.0:
@@ -145,8 +143,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
 	sweeps            = []
 	sweeps_rad        = []
-	sweeps_num        = 50							#HARDCODED
-	for ii in xrange(sweeps_num):
+	for ii in xrange(max_quantity):
 		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep') * Units.deg)
 		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
 		if ii!=0 and sweeps[ii] == 0.0 and sweeps[ii-1] == 0.0:
@@ -155,8 +152,3 @@ def vsp_read_prop(prop_id, units_type='SI'):
 			break
 		
 	return prop
-
-
-
-
-
