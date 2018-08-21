@@ -68,19 +68,6 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     Sref        = wing.areas.reference
     orientation = wing.vertical
     
-    ##-----------------------------------
-    ## test parameters  
-    #V_inf = 65
-    #V_j = 70    
-    #rho = 1.2 
-        
-    #prop_Cl= 0.8 # propeller.sectional_lift_coefficent
-    #C_T    =  1 #propeller.thrust_coeffient
-    #T = 1 # thrust     
-    
-    #aoa  = 1 * np.pi/180  
-    ##-----------------------------------
-
     n           = 50            # number_panels_spanwise
     # conditions
     rho              = conditions.freestream.density[0][0]
@@ -177,16 +164,16 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
             xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*chord_distribution) # x coordinate of horseshoe vortex on panel
             x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*chord_distribution) # x coordinate of control points on panel
             y  = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
-
+        
         # Check to see if there are any propellers  
         if propulsors.has_key('network'):
             propeller   =  propulsors['network'].propeller            
             propeller_status = True
         else: 
             propeller_status = False
-        print propeller_status    
+
         if propeller_status : # If propellers present, find propeller location and re-vectorize wing with embedded propeller 
-            if propeller.origin[0][0] < wing.origin[0] and propeller.origin[0][1] < span :
+            if propeller.origin[0][0] <= wing.origin[0] and propeller.origin[0][1] < span :
                 num_prop = len(propeller.origin)                  # number of propellers  
                 R_p = propeller.tip_radius
                 A_eng = np.pi*R_p**2           
@@ -240,7 +227,6 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
             LT , CL , DT, CD   ,Lift_distribution, Drag_distribution   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
 
 
-
         #-----------------------------------------------------------
         # PLOT LIFT & DRAF DISTRIBUTION
         #-----------------------------------------------------------
@@ -255,18 +241,21 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
         axes2.set_ylabel(r'Local Velocity $m/s$')
         axes2.grid(True)        
 
-
         axes3 = fig.add_subplot(2,1,2)
         axes3.plot( wing_span , Lift_distribution, 'bo-' )
         axes3.set_xlabel('Span (m)')
         axes3.set_ylabel(r'$Spanwise Lift$')
         axes3.grid(True)        
-        plt.show()           
-
-        return  LT , CL , DT, CD       
-
-
-
+        #plt.show()
+        
+    else:
+        LT =  0 
+        CL =  0
+        DT =  0
+        CD =  0
+        
+    return  LT , CL , DT, CD   
+        
 # ----------------------------------------------------------------------
 #   Helper Functions
 # ----------------------------------------------------------------------
