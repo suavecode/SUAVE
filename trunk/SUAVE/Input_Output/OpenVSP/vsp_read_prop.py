@@ -33,18 +33,18 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	Outputs:
 	Writes SUAVE propeller with these geometries from VSP:    (all defaults are SI, but user may specify Imperial)
 		Propellers.Propeller.
-			location[X,Y,Z]                            [radians]
+			origin[X,Y,Z]                              [radians]
 			rotation[X,Y,Z]                            [radians]
 			prop_attributes.tip_radius                 [m]
 		        prop_attributes.hub_radius                 [m]
 			thrust_angle                               [radians]
 	
-	Note: fills arrays with parametric curve points for:
-	        twists
-		chords
-		skews
-		rakes
-		sweeps
+	Not outputted: fills 10 total arrays with parametric curve points for:
+	        twists & twists_rad (twist angle & radial distance from hub of each point)
+		chords & chords_rad (chord length & radial distance from hub of each point)
+		skews & skews_rad (skew angle & radial distance from hub of each point)
+		rakes & rakes_rad (rake angle & radial distance from hub of each point)
+		sweeps & sweeps_rad (sweep angle & radial distance from hub of each point)
 		
 	Properties Used:
 	N/A
@@ -62,19 +62,19 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	else: 
 		prop.tag = 'PropGeom'	
 	
-	prop.prop_attributes.number_blades = vsp.GetParmVal(prop_id, 'NumBlade', 'Design')
-	tip_radius = (vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.) * units_factor
-	prop.prop_attributes.tip_radius = tip_radius
-	prop.prop_attributes.hub_radius = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
+	prop.prop_attributes.number_blades = int(vsp.GetParmVal(prop_id, 'NumBlade', 'Design'))
+	tip_radius                         = (vsp.GetParmVal(prop_id, 'Diameter', 'Design')/2.) * units_factor
+	prop.prop_attributes.tip_radius    = tip_radius
+	prop.prop_attributes.hub_radius    = vsp.GetParmVal(prop_id, 'RadiusFrac', 'XSec_0') * tip_radius	
 	
-	prop.origin[0] = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm') * units_factor
-	prop.origin[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm') * units_factor
-	prop.origin[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm') * units_factor
+	prop.origin[0]   = vsp.GetParmVal(prop_id, 'X_Rel_Location', 'XForm') * units_factor
+	prop.origin[1]   = vsp.GetParmVal(prop_id, 'Y_Rel_Location', 'XForm') * units_factor
+	prop.origin[2]   = vsp.GetParmVal(prop_id, 'Z_Rel_Location', 'XForm') * units_factor
 	prop.rotation[0] = vsp.GetParmVal(prop_id, 'X_Rel_Rotation', 'XForm') * Units.deg
 	prop.rotation[1] = vsp.GetParmVal(prop_id, 'Y_Rel_Rotation', 'XForm') * Units.deg
 	prop.rotation[2] = vsp.GetParmVal(prop_id, 'Z_Rel_Rotation', 'XForm') * Units.deg
 	
-	prop.thrust_angle = prop.rotation[1]			# Y-rotation for thrust angle.
+	prop.thrust_angle = prop.rotation[1]		# Y-rotation indicates thrust angle relative to horizontal.
 	
 	xsecsurf_id = vsp.GetXSecSurf(prop_id, 0)
 	
