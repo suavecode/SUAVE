@@ -70,11 +70,11 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     
     n           = 50            # number_panels_spanwise
     # conditions
-    rho              = conditions.freestream.density[0][0]
-    aoa              = conditions.aerodynamics.angle_of_attack
-    q_inf            = conditions.freestream.dynamic_pressure[0][0]
+    rho              = conditions.freestream.density[0][0]            # NOT CORRECT, should be one value
+    aoa              = conditions.aerodynamics.angle_of_attack        # NOT CORRECT, should be one value
+    q_inf            = conditions.freestream.dynamic_pressure[0][0]  # NOT CORRECT, should be one value
     q_distribution   = np.ones(n)*q_inf
-    V_distribution   = np.ones(n)*conditions.freestream.velocity[0][0]
+    V_distribution   = np.ones(n)*conditions.freestream.velocity[0][0]  # NOT CORRECT, should be one value
     aoa_distribution = np.ones(n)*aoa[0][0]
     
     # chord difference
