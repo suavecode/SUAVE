@@ -98,10 +98,7 @@ class Rocket_Combustor(Energy_Component):
         gamma = self.propellant_data.isentropic_expansion_factor
         Tc    = self.propellant_data.combustion_temperature
         R     = self.propellant_data.gas_specific_constant
-        
-        #--Compute combustion quantities--
-        # This is where the combustion surrogate would be utilized
-                
+                      
         #--Pack outputs--
         self.outputs.combustion_temperature      = Tc
         self.outputs.combustion_pressure         = Pc

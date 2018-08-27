@@ -50,10 +50,6 @@ def energy_network():
     # vacuum conditions
     vac                   = conditions.freestream
     vac.altitude          = ones_1col*0.0
-    
-    atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data             = atmosphere.compute_values(vac.altitude,0,True) 
-    
     vac.gravity           = ones_1col*9.81
     vac.pressure          = ones_1col*0.0
         

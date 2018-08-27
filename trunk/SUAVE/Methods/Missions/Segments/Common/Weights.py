@@ -82,7 +82,7 @@ def update_gravity(segment,state):
     g      = g0*(R/(Rh*Rh))  # [m/s^2] 
 
     # Pack
-    state.conditions.freestream.gravity[:,0] = g0
+    state.conditions.freestream.gravity[:,0] = g[:,0]
 
     return
 
