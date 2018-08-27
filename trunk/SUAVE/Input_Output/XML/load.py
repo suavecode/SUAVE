@@ -45,7 +45,7 @@ def load(file_in):
     
     # build xml tree
     builder = TreeBuilder()
-    if isinstance(src,basestring):
+    if isinstance(src,str):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)
@@ -128,7 +128,7 @@ class TreeBuilder(xml.sax.handler.ContentHandler):
         
         self.text_parts = []
         
-        for k, v in attrs.items():
+        for k, v in list(attrs.items()):
             self.current.attributes[k] = v
             
     def endElement(self, name):

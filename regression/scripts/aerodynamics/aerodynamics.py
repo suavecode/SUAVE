@@ -124,11 +124,11 @@ def main():
     lift_r = np.array( [-2.17277359, -0.77516232, -0.41769607, -0.16530511, 0.19456498, 0.49425496, \
                         0.67481247, 0.93041268, 1.41531217, 2.1033578, 1.71822138])[:,None]
     
-    print 'lift = ', lift
+    print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)
     
-    print '\nCompute Lift Test Results\n'
+    print('\nCompute Lift Test Results\n')
     #print lift_test
         
     assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
@@ -154,7 +154,7 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
    
-    print 'cd_m =', cd_m
+    print('cd_m =', cd_m)
     
    
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
@@ -175,10 +175,10 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print '\nCompute Drag Test Results\n'    
-    print 'cd_tot=', cd_tot
+    print('\nCompute Drag Test Results\n')    
+    print('cd_tot=', cd_tot)
    
-    for i, tests in drag_tests.items(): 
+    for i, tests in list(drag_tests.items()): 
        
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
         
@@ -238,5 +238,5 @@ if __name__ == '__main__':
 
     main()
     
-    print 'Aero regression test passed!'
+    print('Aero regression test passed!')
       

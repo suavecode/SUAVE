@@ -265,7 +265,7 @@ def post_process(nexus):
     
     # Static stability calculations
     CMA = -10.
-    for segment in results.base.segments.values():
+    for segment in list(results.base.segments.values()):
         max_CMA=np.max(segment.conditions.stability.static.cm_alpha[:,0])
         if max_CMA>CMA:
             CMA=max_CMA
@@ -276,7 +276,7 @@ def post_process(nexus):
     
     #throttle in design mission
     max_throttle=0
-    for segment in results.base.segments.values():
+    for segment in list(results.base.segments.values()):
         max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
         if max_segment_throttle > max_throttle:
             max_throttle = max_segment_throttle

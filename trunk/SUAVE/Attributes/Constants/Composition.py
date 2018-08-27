@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 # initialized constants
-from Constant import Constant
+from .Constant import Constant
 
 # exceptions/warnings
 from warnings import warn
@@ -70,13 +70,13 @@ class Composition(Constant):
         """            
         # check that composition sums to 1.0
         total = 0.0
-        for v in self.values():
+        for v in list(self.values()):
             total += v
         other = 1.0 - total
 
         # set other if needed
         if other != 0.0: 
-            if self.has_key('Other'):
+            if 'Other' in self:
                 other += self.Other
             self.Other = other
             self.swap('Other',-1)

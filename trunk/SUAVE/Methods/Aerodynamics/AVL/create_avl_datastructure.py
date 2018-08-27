@@ -183,7 +183,7 @@ def populate_wing_sections(avl_wing,suave_wing):
         """         
 
         
-        if len(suave_wing.Segments.keys())>0: 
+        if len(list(suave_wing.Segments.keys()))>0: 
                 # obtain the geometry for each segment in a loop                                            
                 symm                 = avl_wing.symmetric
                 semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
@@ -192,10 +192,10 @@ def populate_wing_sections(avl_wing,suave_wing):
                 origin.append(suave_wing.origin)
                 root_chord           =  suave_wing.chords.root
                 segment_percent_span = 0;   
-                n_segments           = len(suave_wing.Segments.keys())
+                n_segments           = len(list(suave_wing.Segments.keys()))
 
                 segment_sweeps = []
-                for i_segs in xrange(n_segments):
+                for i_segs in range(n_segments):
                         if (i_segs == n_segments-1):
                                 segment_sweeps.append(0)                                  
                         else: 
@@ -225,7 +225,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 ordered_section_spans = sorted(list(set(section_spans)))     # sort the section_spans in order to create sections in chronological order
                                 num_sections = len(ordered_section_spans)                    # count the number of sections breaks that the segment will contain    \
                                 
-                                for section_count in xrange(num_sections):        
+                                for section_count in range(num_sections):        
                                         # create and append sections onto avl wing structure  
                                         if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs-1].percent_span_location:  
                                                 # if control surface begins at beginning of segment, redundant section is removed

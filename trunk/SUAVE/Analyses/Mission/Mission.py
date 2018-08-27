@@ -12,7 +12,7 @@
 
 import SUAVE
 from SUAVE.Core import Container as ContainerBase
-import Segments
+from . import Segments
 
 # ----------------------------------------------------------------------
 #   Class
@@ -108,7 +108,7 @@ class Container(ContainerBase):
         """         
         results = SUAVE.Core.Data()
         
-        for key,mission in self.items():
+        for key,mission in list(self.items()):
             result = mission.evaluate(state)
             results[key] = result
             

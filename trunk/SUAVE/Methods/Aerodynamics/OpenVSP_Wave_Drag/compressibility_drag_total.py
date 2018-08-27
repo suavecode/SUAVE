@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import wave_drag_lift
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.compressibility_drag_total import drag_div
-from wave_drag_volume import wave_drag_volume
+from .wave_drag_volume import wave_drag_volume
 
 import copy
 
@@ -61,7 +61,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
-    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
@@ -78,7 +78,7 @@ def compressibility_drag_total(state,settings,geometry):
     drag105_total = np.zeros(np.shape(Mc))
 
     # Iterate through wings
-    for k in wings.keys():
+    for k in list(wings.keys()):
         
         wing = wings[k]
 
@@ -134,7 +134,7 @@ def compressibility_drag_total(state,settings,geometry):
     cd_c_l  = np.array([[0.0]] * len(Mc))
 
     # For subsonic mach numbers, use drag divergence correlations to find the drag
-    for k in wings.keys():
+    for k in list(wings.keys()):
         wing = wings[k]    
         (a,b,c) = drag_div(Mc[Mc <= 0.99],wing,k,cl[Mc <= 0.99],Sref_main)
         cd_c[Mc <= 0.99] = cd_c[Mc <= 0.99] + a

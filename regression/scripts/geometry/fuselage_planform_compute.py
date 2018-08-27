@@ -63,11 +63,11 @@ def main():
     error.front_area  = np.abs(fuselage.areas.front_projected-frontal_area_truth)/frontal_area_truth
     error.diameter    = np.abs(fuselage.effective_diameter-dia_effective_truth)/dia_effective_truth
             
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert np.any(np.abs(v)<1e-6)
     
 if __name__ == '__main__':
     
     main()
     
-    print 'Fuselage planform regression test passed!'   
+    print('Fuselage planform regression test passed!')   

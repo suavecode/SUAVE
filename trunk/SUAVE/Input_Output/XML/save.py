@@ -68,7 +68,7 @@ def save(xml_data,filename):
 			node = et.SubElement(prev, data.tag)
 
 		# attributes
-		for k,v in data.attributes.items():
+		for k,v in list(data.attributes.items()):
 			node.set(k,v)
 
 		# content

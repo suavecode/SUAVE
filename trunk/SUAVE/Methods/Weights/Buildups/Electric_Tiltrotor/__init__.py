@@ -6,4 +6,4 @@
    basis.
 """
 
-from empty import empty
+from .empty import empty

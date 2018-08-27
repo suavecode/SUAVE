@@ -10,8 +10,8 @@
 # ----------------------------------------------------------------------
 
 from copy import deepcopy
-from Container import Container as ContainerBase
-from Data import Data
+from .Container import Container as ContainerBase
+from .Data import Data
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -304,8 +304,8 @@ def diff(A,B):
     """      
 
     keys = set([])
-    keys.update( A.keys() )
-    keys.update( B.keys() )
+    keys.update( list(A.keys()) )
+    keys.update( list(B.keys()) )
 
     if isinstance(A,Diffed_Data):
         keys.remove('_base')

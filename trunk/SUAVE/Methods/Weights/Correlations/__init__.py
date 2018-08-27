@@ -2,9 +2,9 @@
 #Correlation methods provide component weight breakdowns for different vehicle configurations based on regressed data
 # @ingroup Methods-Weights
 
-import Propulsion
-import Tube_Wing
-import BWB
-import Human_Powered
-import UAV
-import Common
+from . import Propulsion
+from . import Tube_Wing
+from . import BWB
+from . import Human_Powered
+from . import UAV
+from . import Common

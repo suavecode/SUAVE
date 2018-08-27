@@ -13,7 +13,7 @@ import SUAVE
 from SUAVE.Core import Data, Units
 
 # Local imports
-from Aerodynamics import Aerodynamics
+from .Aerodynamics import Aerodynamics
 from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
 
@@ -214,7 +214,7 @@ class SU2_inviscid_Super(Aerodynamics):
             
             time1 = time.time()
             
-            print 'The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds'
+            print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
         else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]

@@ -60,7 +60,7 @@ def compressibility_drag_total(state,settings,geometry):
     
     wings          = geometry.wings
     fuselages      = geometry.fuselages
-    propulsor_name = geometry.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    propulsor_name = list(geometry.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     propulsor      = geometry.propulsors[propulsor_name]
 
     Mc             = conditions.freestream.mach_number
@@ -74,7 +74,7 @@ def compressibility_drag_total(state,settings,geometry):
     
 
     # Iterate through wings
-    for k in wings.keys():
+    for k in list(wings.keys()):
         
         wing = wings[k]
 
@@ -167,7 +167,7 @@ def compressibility_drag_total(state,settings,geometry):
     total_volume_wave_drag     = 0.0
     total_lift_wave_drag       = 0.0
         
-    for k in wings.keys():
+    for k in list(wings.keys()):
         total_compressibility_drag = drag_breakdown.compressible[k].compressibility_drag + total_compressibility_drag
         total_volume_wave_drag     = drag_breakdown.compressible[k].volume_wave_drag + total_volume_wave_drag
         total_lift_wave_drag       = drag_breakdown.compressible[k].lift_wave_drag + total_lift_wave_drag

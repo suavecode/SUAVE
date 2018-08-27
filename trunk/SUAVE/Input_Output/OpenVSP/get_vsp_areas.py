@@ -41,7 +41,7 @@ def get_vsp_areas(tag):
     try:
         file_type = vsp.COMP_GEOM_CSV_TYPE
     except NameError:
-        print 'VSP import failed'
+        print('VSP import failed')
         return -1
 
     vsp.ComputeCompGeom(vsp.SET_ALL, half_mesh, file_type)

@@ -148,4 +148,4 @@ if __name__ == '__main__':
     wing.flaps.span_end   = 1.00
 
     wing_planform(wing)
-    print wing
+    print(wing)

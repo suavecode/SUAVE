@@ -122,10 +122,10 @@ class US_Standard_1976(Atmospheric):
         
         # check ranges
         if np.amin(zs) < zmin:
-            print "Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km"
+            print("Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km")
             zs[zs < zmin] = zmin
         if np.amax(zs) > zmax:
-            print "Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km"   
+            print("Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km")   
             zs[zs > zmax] = zmax        
 
         # initialize return data
@@ -142,7 +142,7 @@ class US_Standard_1976(Atmospheric):
         
         # populate the altitude breaks
         # this uses >= and <= to capture both edges and because values should be the same at the edges
-        for i in xrange( len(self.breaks.altitude)-1 ): 
+        for i in range( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
             z0[ i_inside ]    = self.breaks.altitude[i]
             T0[ i_inside ]    = self.breaks.temperature[i]
@@ -192,5 +192,5 @@ if __name__ == '__main__':
     a   = data.speed_of_sound
     mu = data.dynamic_viscosity
     
-    print data
+    print(data)
     

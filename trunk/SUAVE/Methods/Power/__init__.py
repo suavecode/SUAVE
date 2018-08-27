@@ -2,5 +2,5 @@
 # Power methods contain the functions for electric systems such as batteries and fuel cells.
 # @ingroup Methods
 
-import Battery
-import Fuel_Cell
+from . import Battery
+from . import Fuel_Cell

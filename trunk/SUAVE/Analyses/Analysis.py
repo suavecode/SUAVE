@@ -191,7 +191,7 @@ class Container(ContainerBase):
                 Properties Used:
                 N/A
             """            
-        for tag,analysis in self.items():
+        for tag,analysis in list(self.items()):
             if hasattr(analysis,'compile'):
                 analysis.compile(*args,**kwarg)
         
@@ -238,7 +238,7 @@ class Container(ContainerBase):
                 N/A
             """
         results = Data()
-        for tag,analysis in self.items(): 
+        for tag,analysis in list(self.items()): 
             if hasattr(analysis,'evaluate'):
                 result = analysis.evaluate(*args,**kwarg)
             else:
@@ -266,7 +266,7 @@ class Container(ContainerBase):
                 N/A
             """        
         
-        for tag,analysis in self.items():
+        for tag,analysis in list(self.items()):
             if hasattr(analysis,'finalize'):
                 analysis.finalize(*args,**kwarg)
     

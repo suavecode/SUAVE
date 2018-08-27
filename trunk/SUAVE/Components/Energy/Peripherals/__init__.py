@@ -7,7 +7,7 @@
 # Created:  
 # Modified: Feb 2016, T. MacDonald
 
-from Avionics import Avionics
-from Payload import Payload
+from .Avionics import Avionics
+from .Payload import Payload
 
 

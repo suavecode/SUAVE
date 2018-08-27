@@ -64,19 +64,19 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     #unpack
     masses = vehicle.mass_properties
     if not masses.operating_empty:
-        print "Error calculating Payload Range Diagram: Vehicle Operating Empty not defined"
+        print("Error calculating Payload Range Diagram: Vehicle Operating Empty not defined")
         return True
     else:
         OEW = masses.operating_empty
 
     if not masses.max_zero_fuel:
-        print "Error calculating Payload Range Diagram: Vehicle MZFW not defined"
+        print("Error calculating Payload Range Diagram: Vehicle MZFW not defined")
         return True
     else:
         MZFW = vehicle.mass_properties.max_zero_fuel
 
     if not masses.max_takeoff:
-        print "Error calculating Payload Range Diagram: Vehicle MTOW not defined"
+        print("Error calculating Payload Range Diagram: Vehicle MTOW not defined")
         return True
     else:
         MTOW = vehicle.mass_properties.max_takeoff
@@ -111,7 +111,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     for i in range(len(TOW)):
 ##    for i in [2]:
         if iprint:
-            print('   EVALUATING POINT : ' + str(i+1))
+            print(('   EVALUATING POINT : ' + str(i+1)))
 
         # Define takeoff weight
         mission.segments[0].analyses.weights.vehicle.mass_properties.takeoff = TOW[i]
@@ -158,9 +158,9 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
             err = ( TOW[i] - results.segments[-1].conditions.weights.total_mass[-1,0] ) - FUEL[i] + reserves
 
             if iprint:
-                print('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
+                print(('     iter: ' +str('%2g' % iter) + ' | Target Fuel: '   \
                   + str('%8.0F' % FUEL[i]) + ' (kg) | Current Fuel: ' \
-                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Residual : '+str('%8.0F' % err))
+                  + str('%8.0F' % (err+FUEL[i]))+' (kg) | Residual : '+str('%8.0F' % err)))
 
         # Allocating resulting range in ouput array.
         R[i] = ( results.segments[-1].conditions.frames.inertial.position_vector[-1,0] ) * Units.m / Units.nautical_mile      #Distance [nm]
@@ -208,8 +208,8 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
         print( '    RANGE    |   PAYLOAD   |   FUEL      |    TOW      |')
         print( '     nm      |     kg      |    kg       |     kg      |')
         for i in range(len(TOW)):
-            print( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |')
-        print('\n\n   Elapsed time: ' + str('%6.2f' % (time.time() - start_time)) + 's')
+            print(( str('%10.0f' % R[i]) + '   |' + str('%10.0f' % PLD[i]) + '   |' + str('%10.0f' % FUEL[i]) + '   |' + ('%10.0f' % TOW[i]) + '   |'))
+        print(('\n\n   Elapsed time: ' + str('%6.2f' % (time.time() - start_time)) + 's'))
 
     #   Plot Payload Range
     if iplot:
