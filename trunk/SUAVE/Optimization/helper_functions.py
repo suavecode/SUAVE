@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------    
 
 import numpy as np
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------        
 #   Set_values
@@ -110,7 +111,7 @@ def find_a_star(dictionary,string):
                 newkeys = list(dictionary.keys())
             elif ii !=0:
                 strtoeval = 'dictionary.'+'.'.join(splitstring[0:ii])+'.keys()'
-                newkeys = eval(strtoeval)
+                newkeys = list(eval(strtoeval))
             lastindex   = ii
             
     newstrings = []
