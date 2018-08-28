@@ -26,7 +26,7 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=200):
     N/A
     """        
 
-    half_pnts = int(npoints)/2
+    half_pnts = int(npoints/2)
     
     upper = []
     lower = []
