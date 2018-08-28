@@ -20,10 +20,10 @@ before_install:
 install:
     - cd trunk
     - pip3 install --upgrade pip
-    - pip3 install numpy
-    - pip3 install scipy
-    - pip3 install scikit-learn
-    - pip3 install matplotlib
+    - pip3 install --upgrade numpy
+    - pip3 install --upgrade scipy
+    - pip3 install --upgrade scikit-learn
+    - pip3 install --upgrade matplotlib
     - pip3 install coveralls
     - python3 setup.py develop
     - cd ../regression
