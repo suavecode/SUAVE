@@ -112,17 +112,17 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
         if imperial:
             fid.write('\n' + 8 * ' ' + '|' + 40 * ' ' + ' SPEED [KTAS]' + 48 * ' ' + '|' + 27 * ' ' + ' SPEED [KTAS]' + 33 * ' ')
             fid.write('\n' + 8 * ' ' + '|')
-            fid.write(np.transpose(list(map('{:10.0f}'.format, speed_vec / Units.knots))))
+            fid.write(str(np.transpose(list(map('{:10.0f}'.format, speed_vec / Units.knots)))))
             fid.write(' |' + 3 * ' ')
-            fid.write(np.transpose(list(map('{:6.0f} '.format, speed_vec / Units.knots))))
+            fid.write(str(np.transpose(list(map('{:6.0f} '.format, speed_vec / Units.knots)))))
             fid.write( '\n HP[ft] |' + 40 * ' ' + ' THRUST [lbf]' + 48 * ' ' + '|' + 30 * ' ' + ' SFC [adm]' + 33 * ' ' + '|\n')
 
         elif SI:
             fid.write('\n' + 8 * ' ' + '|' + 40 * ' ' + ' SPEED [m/s]' + 48 * ' ' + '|' + 27 * ' ' + ' SPEED [m/s]' + 33 * ' ')
             fid.write('\n' + 8 * ' ' + '|')
-            fid.write(np.transpose(list(map('{:10.0f}'.format, speed_vec / Units['m/s']))))
+            fid.write(str(np.transpose(list(map('{:10.0f}'.format, speed_vec / Units['m/s'])))))
             fid.write(' |' + 3 * ' ')
-            fid.write(np.transpose(list(map('{:6.0f} '.format, speed_vec / Units['m/s']))))
+            fid.write(str(np.transpose(list(map('{:6.0f} '.format, speed_vec / Units['m/s'])))))
             fid.write('\n HP[m] |' + 40 * ' ' + ' THRUST [N]' + 48 * ' ' + '|' + 30 * ' ' + ' SFC * 10^6 [kg/Ns]' + 33 * ' ' + '|\n')
 
         for altitude in hp_vec:
@@ -168,10 +168,10 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
             elif SI:
                 fid.write('{:7.0f} |'.format(float(altitude / Units['m'])))
 
-            fid.write(np.transpose(list(map('{:10.1f}'.format, thrust))))
+            fid.write(str(np.transpose(list(map('{:10.1f}'.format, thrust)))))
 
             fid.write(' |' + 3 * ' ')
-            fid.write(np.transpose(list(map('{:6.3f} '.format, scf))))
+            fid.write(str(np.transpose(list(map('{:6.3f} '.format, scf)))))
             fid.write('|')
             fid.write('\n')
 
