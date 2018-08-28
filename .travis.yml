@@ -19,13 +19,13 @@ before_install:
   
 install:
     - cd trunk
-    - python setup.py develop
-    - cd ../regression
     - pip3 install --upgrade pip
     - pip3 install numpy
     - pip3 install scipy
     - pip3 install scikit-learn
     - pip3 install coveralls
+    - python3 setup.py develop
+    - cd ../regression
   
 # run test
 script:  
