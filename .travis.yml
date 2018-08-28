@@ -15,7 +15,7 @@ branches:
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
+    - sudo apt-get install -qq python3-numpy python3-scipy python3-matplotlib python3-scikits-learn python3-pip
   
 install:
     - cd trunk
