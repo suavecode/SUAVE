@@ -76,9 +76,9 @@ def update_sub_segments(segment):
     """      
     
     for tag,sub_segment in list(segment.segments.items()):
-        sub_segment.initialize(segment.state.segments[tag])
-        sub_segment.iterate(segment.state.segments[tag])
-        sub_segment.finalize(segment.state.segments[tag])
+        sub_segment.initialize()
+        sub_segment.iterate()
+        sub_segment.finalize()
                          
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments

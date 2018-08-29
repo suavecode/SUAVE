@@ -100,7 +100,7 @@ def residual_landing_weight(segment):
     """      
     
     # unpack
-    landing_weight = segment.state.segments[-1].conditions.weights.total_mass[-1]
+    landing_weight = segment.segments[-1].state.conditions.weights.total_mass[-1]
     target_weight  = segment.target_landing_weight
     
     # this needs to go to zero for the solver to complete
