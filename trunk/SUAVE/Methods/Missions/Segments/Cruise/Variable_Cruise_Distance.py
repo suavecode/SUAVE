@@ -64,7 +64,7 @@ def unknown_cruise_distance(segment):
     """      
     
     # unpack
-    distance = state.unknowns.cruise_distance
+    distance = segment.state.unknowns.cruise_distance
     cruise_tag = segment.cruise_tag
     
     # apply the unknown
