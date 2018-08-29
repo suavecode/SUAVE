@@ -2,4 +2,4 @@
 # Functions to perform low-fidelity calculations
 # @ingroup Methods-Aerodynamics
 
-import Lift
+from . import Lift

@@ -68,7 +68,7 @@ def converge_opt(segment,state):
         opt_prob = pyOpt.Optimization('SUAVE',obj_pyopt)
         opt_prob.addObj(segment.objective)
     
-        for ii in xrange(0,len(unknowns)):
+        for ii in range(0,len(unknowns)):
             lbd = (bnds[ii][0])
             ubd = (bnds[ii][1])
             vartype = 'c'
@@ -76,18 +76,18 @@ def converge_opt(segment,state):
     
         # Setup constraints
         segment_points = state.numerics.number_control_points
-        for ii in xrange(0,2*segment_points):
+        for ii in range(0,2*segment_points):
             opt_prob.addCon(str(ii), type='e', equal=0.)
-        for ii in xrange(0,3*segment_points-1):
+        for ii in range(0,3*segment_points-1):
             opt_prob.addCon(str(ii+segment_points*2), type='i', lower=0.,upper=np.inf)
     
-        print opt_prob
+        print(opt_prob)
     
         snopt = pyOpt.pySNOPT.SNOPT()    
         outputs = snopt(opt_prob) 
     
-        print outputs
-        print opt_prob.solution(0)
+        print(outputs)
+        print(opt_prob.solution(0))
 
     return
     
@@ -96,7 +96,7 @@ def converge_opt(segment,state):
 # ----------------------------------------------------------------------
     
 ## @ingroup Methods-Missions-Segments
-def get_objective(unknowns,(segment,state)):
+def get_objective(unknowns, xxx_todo_changeme):
     """ Runs the mission if the objective value is needed
     
         Assumptions:
@@ -112,7 +112,7 @@ def get_objective(unknowns,(segment,state)):
         N/A
                                 
     """      
-    
+    (segment,state) = xxx_todo_changeme
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:
@@ -126,7 +126,7 @@ def get_objective(unknowns,(segment,state)):
     return objective
 
 ## @ingroup Methods-Missions-Segments
-def get_econstraints(unknowns,(segment,state)):
+def get_econstraints(unknowns, xxx_todo_changeme1):
     """ Runs the mission if the equality constraint values are needed
     
         Assumptions:
@@ -142,7 +142,7 @@ def get_econstraints(unknowns,(segment,state)):
         N/A
                                 
     """       
-    
+    (segment,state) = xxx_todo_changeme1
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:
@@ -156,7 +156,7 @@ def get_econstraints(unknowns,(segment,state)):
     return constraints
 
 ## @ingroup Methods-Missions-Segments
-def make_bnds(unknowns,(segment,state)):
+def make_bnds(unknowns, xxx_todo_changeme2):
     """ Automatically sets the bounds of the optimization.
     
         Assumptions:
@@ -174,7 +174,7 @@ def make_bnds(unknowns,(segment,state)):
         N/A
                                 
     """      
-    
+    (segment,state) = xxx_todo_changeme2
     ones    = state.ones_row(1)
     ones_m1 = state.ones_row_m1(1)
     ones_m2 = state.ones_row_m2(1)
@@ -195,7 +195,7 @@ def make_bnds(unknowns,(segment,state)):
     return bnds
 
 ## @ingroup Methods-Missions-Segments
-def get_ieconstraints(unknowns,(segment,state)):
+def get_ieconstraints(unknowns, xxx_todo_changeme3):
     """ Runs the mission if the inequality constraint values are needed
     
         Assumptions:
@@ -213,7 +213,7 @@ def get_ieconstraints(unknowns,(segment,state)):
         N/A
                                 
     """      
-    
+    (segment,state) = xxx_todo_changeme3
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:
@@ -238,7 +238,7 @@ def get_ieconstraints(unknowns,(segment,state)):
     return constraints
 
 ## @ingroup Methods-Missions-Segments
-def get_problem_pyopt(unknowns,(segment,state)):
+def get_problem_pyopt(unknowns, xxx_todo_changeme4):
     """ Runs the mission and obtains the objective and all constraints. This is formatted for pyopt
     
         Assumptions:
@@ -258,7 +258,7 @@ def get_problem_pyopt(unknowns,(segment,state)):
         N/A
                                 
     """       
-    
+    (segment,state) = xxx_todo_changeme4
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:

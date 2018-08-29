@@ -54,7 +54,7 @@ def save(data,filename):
     def build_nodes(prev,data):
         
         if isinstance(data,dict):
-            for key,val in data.items():
+            for key,val in list(data.items()):
                 node = new_fm_node(prev,key)
                 build_nodes(node,val)
                 

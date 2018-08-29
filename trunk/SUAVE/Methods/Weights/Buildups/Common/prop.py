@@ -219,7 +219,7 @@ def prop(prop,
     capInertia = 0
     capLength = 0
 
-    for i in xrange(0,2):
+    for i in range(0,2):
         l = np.sqrt(np.sum(np.diff(seg[i],axis=0)**2,axis=1))   # Segment Lengths
         c = (seg[i][1::]+seg[i][0::-1])/2                       # Segment Centroids
 

@@ -200,7 +200,7 @@ def wing(wing,
     # less than or aligned with the motor location under consideration in an
     # iterative loop
 
-    for i in xrange(np.size(motor_spanwise_locations)):
+    for i in range(np.size(motor_spanwise_locations)):
         Vt[x<=motor_spanwise_locations[i]] = Vt[x<=motor_spanwise_locations[i]] + max_thrust
 
     Mx = np.append(np.cumsum((Vz[0:-1]*np.diff(x))[::-1])[::-1],0)  # Bending Moment
@@ -252,7 +252,7 @@ def wing(wing,
     dragInertia = 0
     dragLength  = 0
 
-    for i in xrange(0,4):
+    for i in range(0,4):
         l = np.sqrt(np.sum(np.diff(seg[i],axis=0)**2,axis=1))    # Segment lengths
         c = (seg[i][1::]+seg[i][0:-1])/2                         # Segment centroids
 

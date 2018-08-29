@@ -71,7 +71,7 @@ def build_dict_base(base):
     N/A
     """      
     
-    keys = base.keys() # keys from top level
+    keys = list(base.keys()) # keys from top level
     base_dict = OrderedDict() # initialize dictionary
     # Ordered is used because some post processing currently
     # relies on the segments being in order
@@ -120,7 +120,7 @@ def build_dict_r(v):
     else:
         # Assume other data types are SUAVE data types and check
         try:
-            keys = v.keys()
+            keys = list(v.keys())
         except:
             raise TypeError('Unexpected data type in SUAVE data structure')
         # Recursively assign values

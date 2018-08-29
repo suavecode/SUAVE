@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Tree_Element import Tree_Element
+from .Tree_Element import Tree_Element
 import json
 
 
@@ -85,7 +85,7 @@ def to_d3(tree,data):
     
     tree.children = []
     
-    for k,v in data.items():
+    for k,v in list(data.items()):
         
         e = Tree_Element(k)
         tree.children.append(e)

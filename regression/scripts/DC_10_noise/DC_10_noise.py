@@ -32,7 +32,7 @@ def main():
     error.side_line = (actual.side_line - noise.side_line)/actual.side_line
     error.landing = (actual.landing - noise.landing)/actual.landing
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
         
     return

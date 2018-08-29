@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Liquid import Liquid
+from .Liquid import Liquid
 from SUAVE.Core import Data
 
 

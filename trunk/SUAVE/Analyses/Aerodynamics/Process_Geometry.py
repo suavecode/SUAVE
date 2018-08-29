@@ -71,7 +71,7 @@ class Process_Geometry(Process):
         
         results = Data()
         
-        for key, this_geometry in geometry_items.items():
+        for key, this_geometry in list(geometry_items.items()):
             result = Process.evaluate(self,state,settings,this_geometry)
             results[key] = result
             

@@ -4,7 +4,7 @@ The Common buildup methods are those which are shared between vehicle types
 utilizing buildup weight methods.
 '''
 
-import fuselage
-import prop
-import wing
-import wiring
+from . import fuselage
+from . import prop
+from . import wing
+from . import wiring

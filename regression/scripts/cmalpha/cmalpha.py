@@ -81,8 +81,8 @@ def main():
    
     expected = -0.54071741 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected
-    print error
-    for k,v in error.items():
+    print(error)
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
         
     return

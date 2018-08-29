@@ -2,4 +2,4 @@
 # Correlation type methods for calculating noise
 # @ingroup Methods-Noise
 
-from shevell import shevell
+from .shevell import shevell

@@ -5,7 +5,7 @@
 # Modified: Feb 2016, T. MacDonald
 
 import os, glob
-from Airfoil import Airfoil
+from .Airfoil import Airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil import import_airfoil_dat
 
 ## @ingroup Components-Wings-Airfoils

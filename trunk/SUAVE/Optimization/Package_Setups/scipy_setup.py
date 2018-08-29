@@ -54,7 +54,7 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08): #
     
     x   = ini/scl
     bnds = np.zeros((len(inp),2))
-    for ii in xrange(0,len(inp)):
+    for ii in range(0,len(inp)):
         # Scaled bounds
         bnds[ii] = (bnd[ii][0]/scl[ii]),(bnd[ii][1]/scl[ii])
 
@@ -89,11 +89,11 @@ def SciPy_Problem(problem,x):
         None
     """      
     
-    print 'Inputs'
-    print x        
+    print('Inputs')
+    print(x)        
     obj   = problem.objective(x)
-    print 'Obj'
-    print obj
+    print('Obj')
+    print(obj)
 
     
     return obj

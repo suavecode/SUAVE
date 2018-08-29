@@ -85,7 +85,7 @@ class Container(Physical_Component.Container):
                 N/A
         """
 
-        for propulsor in self.values():
+        for propulsor in list(self.values()):
             results = propulsor.evaluate_thrust(state) 
             
         return results

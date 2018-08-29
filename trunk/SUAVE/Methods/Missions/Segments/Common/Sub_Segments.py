@@ -39,10 +39,15 @@ def expand_sub_segments(segment,state):
 
     last_tag = None
     
-    for tag,sub_segment in segment.segments.items():
+    for tag,sub_segment in list(segment.segments.items()):
         
+<<<<<<< HEAD
         #if Process.verbose:
             #print 'segment start :' , tag
+=======
+        if Process.verbose:
+            print('segment start :' , tag)
+>>>>>>> feature-P3
         
         #sub_state = deepcopy( sub_segment.state )
         
@@ -58,8 +63,13 @@ def expand_sub_segments(segment,state):
         #state.conditions[tag]   = sub_state.conditions
         #state.residuals[tag]    = sub_state.residuals
         
+<<<<<<< HEAD
         #if Process.verbose:
             #print 'segment end :' , tag        
+=======
+        if Process.verbose:
+            print('segment end :' , tag)        
+>>>>>>> feature-P3
 
 
 # ----------------------------------------------------------------------
@@ -84,7 +94,7 @@ def update_sub_segments(segment,state):
                                 
     """      
     
-    for tag,sub_segment in segment.segments.items():
+    for tag,sub_segment in list(segment.segments.items()):
         sub_segment.initialize(state.segments[tag])
         sub_segment.iterate(state.segments[tag])
         sub_segment.finalize(state.segments[tag])
@@ -113,10 +123,16 @@ def finalize_sub_segments(segment,state):
     
     from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
     
+<<<<<<< HEAD
     for tag,sub_segment in segment.segments.items():
         #sub_segment.finalize(state.segments[tag])
         sub_segment.finalize(sub_segment.state)
         #state.segments[tag].initials = Conditions()
+=======
+    for tag,sub_segment in list(segment.segments.items()):
+        sub_segment.finalize(state.segments[tag])
+        state.segments[tag].initials = Conditions()
+>>>>>>> feature-P3
 
 # ----------------------------------------------------------------------
 #  Sequential Sub Segments
@@ -142,5 +158,10 @@ def sequential_sub_segments(segment,state):
     """       
     
     
+<<<<<<< HEAD
     for tag,sub_segment in segment.segments.items():
         sub_segment.evaluate()
+=======
+    for tag,sub_segment in list(segment.segments.items()):
+        sub_segment.evaluate(state.segments[tag])
+>>>>>>> feature-P3

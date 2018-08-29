@@ -80,6 +80,74 @@ def main():
     T = T[:,None]
     pressure = pressure[:,None]
     
+    Mc = np.array([[0.9  ],
+       [0.475],
+       [0.05 ],
+       [0.39 ],
+       [0.815],
+       [0.645],
+       [0.305],
+       [0.22 ],
+       [0.56 ],
+       [0.73 ],
+       [0.135]])
+    
+    rho = np.array([[0.8],
+           [1. ],
+           [0.5],
+           [1.1],
+           [0.4],
+           [1.3],
+           [0.6],
+           [0.3],
+           [0.9],
+           [0.7],
+           [1.2]])
+    mu = np.array([[1.85e-05],
+           [1.55e-05],
+           [1.40e-05],
+           [1.10e-05],
+           [2.00e-05],
+           [8.00e-06],
+           [6.50e-06],
+           [9.50e-06],
+           [1.70e-05],
+           [1.25e-05],
+           [5.00e-06]])
+    T = np.array([[270.],
+           [250.],
+           [280.],
+           [260.],
+           [240.],
+           [200.],
+           [290.],
+           [230.],
+           [210.],
+           [300.],
+           [220.]])
+    pressure = np.array([[ 100000.],
+           [ 190000.],
+           [ 280000.],
+           [ 370000.],
+           [ 460000.],
+           [ 550000.],
+           [ 640000.],
+           [ 730000.],
+           [ 820000.],
+           [ 910000.],
+           [1000000.]])
+    re = np.array([[12819987.97468646],
+           [ 9713525.47464844],
+           [  599012.59815633],
+           [12606549.94372309],
+           [ 5062187.10214493],
+           [29714816.00808047],
+           [ 9611290.40694227],
+           [ 2112171.68320523],
+           [ 8612638.72342302],
+           [14194381.78364854],
+           [ 9633881.90543247]])    
+    
     air = Air()
     a = air.compute_speed_of_sound(T,pressure)
     
@@ -124,11 +192,11 @@ def main():
     lift_r = np.array( [-2.17277359, -0.77516232, -0.41769607, -0.16530511, 0.19456498, 0.49425496, \
                         0.67481247, 0.93041268, 1.41531217, 2.1033578, 1.71822138])[:,None]
     
-    print 'lift = ', lift
+    print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)
     
-    print '\nCompute Lift Test Results\n'
+    print('\nCompute Lift Test Results\n')
     #print lift_test
         
     assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
@@ -154,7 +222,7 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
    
-    print 'cd_m =', cd_m
+    print('cd_m =', cd_m)
     
    
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
@@ -175,10 +243,10 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print '\nCompute Drag Test Results\n'    
-    print 'cd_tot=', cd_tot
+    print('\nCompute Drag Test Results\n')    
+    print('cd_tot=', cd_tot)
    
-    for i, tests in drag_tests.items(): 
+    for i, tests in list(drag_tests.items()): 
        
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
         
@@ -238,5 +306,5 @@ if __name__ == '__main__':
 
     main()
     
-    print 'Aero regression test passed!'
+    print('Aero regression test passed!')
       

@@ -59,9 +59,9 @@ def windmilling_drag(geometry,state):
             n_wing = n_wing + 1
             reference_area = wing.sref
         if n_wing > 1:
-            print ' More than one Main_Wing in the vehicle. Last one will be considered.'
+            print(' More than one Main_Wing in the vehicle. Last one will be considered.')
         elif n_wing == 0:
-            print  'No Main_Wing defined! Using the 1st wing found'
+            print('No Main_Wing defined! Using the 1st wing found')
             for wing in vehicle.wings:
                 if not isinstance(wing,Wings.Wing): continue
                 reference_area = wing.sref
@@ -74,7 +74,7 @@ def windmilling_drag(geometry,state):
         except:
             try:
                 D_nac = propulsor.nacelle_diameter
-                if propulsor.engine_length <> 0.:
+                if propulsor.engine_length != 0.:
                     l_nac = propulsor.engine_length
                 else:
                     try:
@@ -84,7 +84,7 @@ def windmilling_drag(geometry,state):
                     D_nac_in = D_nac / Units.inches
                     l_nac = (2.36 * D_nac_in - 0.01*(D_nac_in*MMO)**2) * Units.inches
             except AttributeError:
-                print 'Error calculating windmilling drag. Engine dimensions missing.'
+                print('Error calculating windmilling drag. Engine dimensions missing.')
             swet_nac = 5.62 * D_nac * l_nac
 
     # Compute

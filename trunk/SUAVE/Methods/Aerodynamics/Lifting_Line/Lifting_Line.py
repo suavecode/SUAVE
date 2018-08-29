@@ -91,13 +91,13 @@ def lifting_line(conditions,settings,geometry):
     etam   = np.pi*np.sin(thetan)/(2*r) # Useful mulitplier
     
     # Project the spanwise y locations into the chords
-    segment_keys = wing.Segments.keys()
+    segment_keys = list(wing.Segments.keys())
     n_segments   = len(segment_keys)
     # If spanwise stations are setup
     if n_segments>0:
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
-        for i_seg in xrange(n_segments):
+        for i_seg in range(n_segments):
             
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
