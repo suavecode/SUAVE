@@ -43,6 +43,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
     
  
     # envelope properties

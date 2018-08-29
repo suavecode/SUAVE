@@ -10,9 +10,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Core import (
-    Data, Container
-)
+from SUAVE.Core import Data
 from SUAVE.Components import Wings
 
 # package imports

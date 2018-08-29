@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Components.Wings.Control_Surface import Control_Surface_Section
+from SUAVE.Components.Wings.Control_Surface import Control_Surface
 
 # ----------------------------------------------------------------------
 #  Methods

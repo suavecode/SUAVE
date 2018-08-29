@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
+from SUAVE.Components import Lofted_Body
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 from SUAVE.Components.Wings.Control_Surface import Control_Surface 
 # ------------------------------------------------------------ 
@@ -71,7 +72,32 @@ class Segment(Lofted_Body.Segment):
         # store data
         self.Airfoil.append(airfoil)
 
+    def append_control_surface(self,control_surface):
+        """ Adds an control_surface to the segment
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """  
+        # assert database type
+        if not isinstance(control_surface,Data):
+            raise Exception, 'input component must be of type Data()'
+
+        # store data
+        self.control_surfaces.append(control_surface)
         return    
+        
 
 ## @ingroup Components-Wings
 class SegmentContainer(Lofted_Body.Segment.Container):

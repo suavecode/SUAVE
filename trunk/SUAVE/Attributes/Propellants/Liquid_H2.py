@@ -1,18 +1,18 @@
 ## @ingroup Attributes-Propellants
-# Liquid_H2.py:
+# Liquid H2
 #
-# Created:  Unk 2013, SUAVE TEAM
-# Modified: Apr 2015, SUAVE TEAM
-#           Feb 2016, M. Vegh
+# Created:  Unk 2013, SUAVE TEAM 
+# Modified: Apr 2015, SUAVE TEAM 
+#           Feb 2016, M. Vegh 
+#           Jan 2018, W. Maier 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
 from Propellant import Propellant
 
 # ----------------------------------------------------------------------
-#  Liquid_H2 Propellant Class
+#  Liquid H2 Propellant Class
 # ----------------------------------------------------------------------
 ## @ingroup Attributes-Propellants
 class Liquid_H2(Propellant):
@@ -33,6 +33,7 @@ class Liquid_H2(Propellant):
 
         Source:
         Values commonly available
+        http://arc.uta.edu/publications/td_files/Kristen%20Roberts%20MS.pdf
 
         Inputs:
         None
@@ -42,9 +43,12 @@ class Liquid_H2(Propellant):
 
         Properties Used:
         None
-        """    
-        self.tag             = 'Liquid_H2'
-        self.reactant        = 'O2'
-        self.density         = 59.9                             # kg/m^3
-        self.specific_energy = 141.86e6                         # J/kg
-        self.energy_density  = 8491.0e6                         # J/m^3
+        """ 
+        
+        self.tag                        = 'Liquid_H2' 
+        self.reactant                   = 'O2' 
+        self.density                    = 59.9                             # [kg/m^3] 
+        self.specific_energy            = 141.86e6                         # [J/kg] 
+        self.energy_density             = 8491.0e6                         # [J/m^3] 
+        self.stoichiometric_fuel_to_air = 0.0291 
+        self.temperatures.autoignition  = 845.15                           # [K]         
