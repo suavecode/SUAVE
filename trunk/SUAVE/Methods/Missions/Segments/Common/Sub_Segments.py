@@ -18,7 +18,7 @@ from SUAVE.Analyses import Process
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common   
-def expand_sub_segments(segment,state):
+def expand_sub_segments(segment):
     """ Fills in the segments to a mission with data, sets initials data if necessary
     
         Assumptions:
@@ -44,19 +44,10 @@ def expand_sub_segments(segment,state):
         if Process.verbose:
             print('segment start :' , tag)
         
-        #sub_state = deepcopy( sub_segment.state )
-        
         if last_tag:
-            #sub_state.initials = state.segments[last_tag]
             sub_segment.state.initials = segment.segments[last_tag].state
         last_tag = tag        
-        
-        #sub_segment.initialize(sub_state)
-        
-        #state.segments[tag]     = sub_state
-        #state.unknowns[tag]     = sub_state.unknowns
-        #state.conditions[tag]   = sub_state.conditions
-        #state.residuals[tag]    = sub_state.residuals
+
                
         if Process.verbose:
             print('segment end :' , tag)        
@@ -67,7 +58,7 @@ def expand_sub_segments(segment,state):
 # ----------------------------------------------------------------------        
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_sub_segments(segment,state):
+def update_sub_segments(segment):
     """ Loops through the segments and fills them in
     
         Assumptions:
@@ -85,16 +76,16 @@ def update_sub_segments(segment,state):
     """      
     
     for tag,sub_segment in list(segment.segments.items()):
-        sub_segment.initialize(state.segments[tag])
-        sub_segment.iterate(state.segments[tag])
-        sub_segment.finalize(state.segments[tag])
+        sub_segment.initialize(segment.state.segments[tag])
+        sub_segment.iterate(segment.state.segments[tag])
+        sub_segment.finalize(segment.state.segments[tag])
                          
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def finalize_sub_segments(segment,state):
+def finalize_sub_segments(segment):
     """ Sets the conditions in each sub segment for a mission
     
         Assumptions:
@@ -110,10 +101,9 @@ def finalize_sub_segments(segment,state):
         N/A
                                 
     """           
-    from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
     for tag,sub_segment in list(segment.segments.items()):
-        sub_segment.finalize(sub_segment.state)
+        sub_segment.finalize()
 
 
 # ----------------------------------------------------------------------
@@ -121,7 +111,7 @@ def finalize_sub_segments(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def sequential_sub_segments(segment,state):
+def sequential_sub_segments(segment):
     
     """ Evaluates all the segments in a mission one by one
     

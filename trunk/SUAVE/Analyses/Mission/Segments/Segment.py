@@ -126,10 +126,10 @@ class Segment(Analysis):
             Properties Used:
             None
         """        
-        self.process.iterate(self,state)
+        self.process.iterate(self)
         return
     
-    def finalize(self,state):
+    def finalize(self):
         """ This executes the finalize process
     
             Assumptions:
@@ -147,7 +147,7 @@ class Segment(Analysis):
             Properties Used:
             None
         """         
-        self.process.finalize(self,state)
+        self.process.finalize(self)
         return
  
     def compile(self):
@@ -191,7 +191,7 @@ class Segment(Analysis):
         """          
         if state is None:
             state = self.state
-        self.process(self,state)
+        self.process(self)
         return self
     
     

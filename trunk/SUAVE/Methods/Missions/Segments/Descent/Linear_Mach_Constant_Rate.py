@@ -14,7 +14,7 @@ import SUAVE
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -48,17 +48,17 @@ def initialize_conditions(segment,state):
     Mf           = segment.mach_end
     alt0         = segment.altitude_start 
     altf         = segment.altitude_end
-    t_nondim     = state.numerics.dimensionless.control_points
-    conditions   = state.conditions  
+    t_nondim     = segment.state.numerics.dimensionless.control_points
+    conditions   = segment.state.conditions  
     
     # Update freestream to get speed of sound
-    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
+    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
     a          = conditions.freestream.speed_of_sound    
 
     # check for initial altitude
     if alt0 is None:
-        if not state.initials: raise AttributeError('initial altitude not set')
-        alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('initial altitude not set')
+        alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
 
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
