@@ -59,27 +59,9 @@ def main():
         
     # --------------------------------------------------------------------
     # Initialize variables needed for CL and CD calculations
-    # Use a seeded random order for values
+    # Use a pre-run random order for values
     # --------------------------------------------------------------------
-    
-    random.seed(1)
-    Mc = np.linspace(0.05,0.9,test_num)
-    random.shuffle(Mc)
-    rho = np.linspace(0.3,1.3,test_num)
-    random.shuffle(rho)
-    mu = np.linspace(5*10**-6,20*10**-6,test_num)
-    random.shuffle(mu)
-    T = np.linspace(200,300,test_num)
-    random.shuffle(T)
-    pressure = np.linspace(10**5,10**6,test_num)
-    
-    # Changed after to preserve seed for initial testing
-    Mc = Mc[:,None]
-    rho = rho[:,None]
-    mu = mu[:,None]
-    T = T[:,None]
-    pressure = pressure[:,None]
-    
+
     Mc = np.array([[0.9  ],
        [0.475],
        [0.05 ],
@@ -103,6 +85,7 @@ def main():
            [0.9],
            [0.7],
            [1.2]])
+    
     mu = np.array([[1.85e-05],
            [1.55e-05],
            [1.40e-05],
@@ -114,6 +97,7 @@ def main():
            [1.70e-05],
            [1.25e-05],
            [5.00e-06]])
+    
     T = np.array([[270.],
            [250.],
            [280.],
@@ -125,6 +109,7 @@ def main():
            [210.],
            [300.],
            [220.]])
+    
     pressure = np.array([[ 100000.],
            [ 190000.],
            [ 280000.],
@@ -136,6 +121,7 @@ def main():
            [ 820000.],
            [ 910000.],
            [1000000.]])
+    
     re = np.array([[12819987.97468646],
            [ 9713525.47464844],
            [  599012.59815633],
