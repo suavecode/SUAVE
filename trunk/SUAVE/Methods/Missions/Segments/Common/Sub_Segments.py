@@ -39,13 +39,8 @@ def expand_sub_segments(segment):
 
     last_tag = None
     
-<<<<<<< HEAD
-    for tag,sub_segment in list(segment.segments.items()):
-
-=======
     for tag,sub_segment in segment.segments.items():
         
->>>>>>> feature-P3
         if Process.verbose:
             print('segment start :' , tag)
         
@@ -80,18 +75,11 @@ def update_sub_segments(segment):
                                 
     """      
     
-<<<<<<< HEAD
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         sub_segment.initialize()
         sub_segment.iterate()
         sub_segment.finalize()
-=======
-    for tag,sub_segment in segment.segments.items():
-        sub_segment.initialize(state.segments[tag])
-        sub_segment.iterate(state.segments[tag])
-        sub_segment.finalize(state.segments[tag])
->>>>>>> feature-P3
-                         
+   
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments
 # ----------------------------------------------------------------------
@@ -112,21 +100,11 @@ def finalize_sub_segments(segment):
         Properties Used:
         N/A
                                 
-<<<<<<< HEAD
     """           
 
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         sub_segment.finalize()
 
-=======
-    """       
-    
-    from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
-    
-    for tag,sub_segment in segment.segments.items():
-        sub_segment.finalize(state.segments[tag])
-        state.segments[tag].initials = Conditions()
->>>>>>> feature-P3
 
 # ----------------------------------------------------------------------
 #  Sequential Sub Segments
@@ -150,13 +128,7 @@ def sequential_sub_segments(segment):
         N/A
                                 
     """       
-<<<<<<< HEAD
 
-    for tag,sub_segment in list(segment.segments.items()):
-        sub_segment.evaluate()
-=======
-    
-    
     for tag,sub_segment in segment.segments.items():
-        sub_segment.evaluate(state.segments[tag])
->>>>>>> feature-P3
+        sub_segment.evaluate()
+
