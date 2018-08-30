@@ -144,7 +144,7 @@ class Lifting_Line(Aerodynamics):
         
         # store model for lift coefficients of each wing
         state.conditions.aerodynamics.lift_coefficient_wing             = Data()        
-        for wing in list(geometry.wings.keys()):
+        for wing in geometry.wings.keys():
             wings_lift_model = surrogates.wing_lift_coefficients[wing]
             inviscid_wings_lift[wing] = wings_lift_model(AoA)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
@@ -183,7 +183,7 @@ class Lifting_Line(Aerodynamics):
         AoA = training.angle_of_attack
         CL  = np.zeros_like(AoA)
         
-        wing_CLs = Data.fromkeys(list(geometry.wings.keys()), np.zeros_like(AoA))
+        wing_CLs = Data.fromkeys(geometry.wings.keys(), np.zeros_like(AoA))
         # The above performs the function of:
         #wing_CLs = Data() 
         #for wing in geometry.wings.values():
@@ -201,7 +201,7 @@ class Lifting_Line(Aerodynamics):
             
             # these functions are inherited from Aerodynamics() or overridden
             CL[i], wing_lifts = calculate_lift_lifting_line(konditions, settings, geometry)
-            for wing in list(geometry.wings.values()):
+            for wing in geometry.wings.values():
                 wing_CLs[wing.tag][i] = wing_lifts[wing.tag]
 
         # store training data
@@ -249,7 +249,7 @@ class Lifting_Line(Aerodynamics):
         
         wing_cl_surrogates = Data()
         
-        for wing in list(wing_CL_data.keys()):
+        for wing in wing_CL_data.keys():
             wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
 
 
@@ -294,7 +294,7 @@ def calculate_lift_lifting_line(conditions,settings,geometry):
     # iterate over wings
     total_lift_coeff = 0.0
     wing_lifts = Data()
-    for wing in list(geometry.wings.values()):
+    for wing in geometry.wings.values():
 
         [wing_lift_coeff,wing_drag_coeff] = LL(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area

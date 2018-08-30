@@ -91,7 +91,7 @@ def lifting_line(conditions,settings,geometry):
     etam   = np.pi*np.sin(thetan)/(2*r) # Useful mulitplier
     
     # Project the spanwise y locations into the chords
-    segment_keys = list(wing.Segments.keys())
+    segment_keys = wing.Segments.keys()
     n_segments   = len(segment_keys)
     # If spanwise stations are setup
     if n_segments>0:

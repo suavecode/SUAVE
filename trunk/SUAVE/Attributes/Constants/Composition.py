@@ -70,7 +70,7 @@ class Composition(Constant):
         """            
         # check that composition sums to 1.0
         total = 0.0
-        for v in list(self.values()):
+        for v in self.values():
             total += v
         other = 1.0 - total
 

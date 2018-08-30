@@ -85,7 +85,7 @@ def to_d3(tree,data):
     
     tree.children = []
     
-    for k,v in list(data.items()):
+    for k,v in data.items():
         
         e = Tree_Element(k)
         tree.children.append(e)

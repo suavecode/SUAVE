@@ -304,8 +304,8 @@ def diff(A,B):
     """      
 
     keys = set([])
-    keys.update( list(A.keys()) )
-    keys.update( list(B.keys()) )
+    keys.update( A.keys() )
+    keys.update( B.keys() )
 
     if isinstance(A,Diffed_Data):
         keys.remove('_base')

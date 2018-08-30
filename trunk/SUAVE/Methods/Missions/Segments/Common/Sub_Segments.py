@@ -37,7 +37,7 @@ def expand_sub_segments(segment,state):
 
     last_tag = None
     
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         
         if Process.verbose:
             print('segment start :' , tag)
@@ -81,7 +81,7 @@ def update_sub_segments(segment,state):
                                 
     """      
     
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         sub_segment.initialize(state.segments[tag])
         sub_segment.iterate(state.segments[tag])
         sub_segment.finalize(state.segments[tag])
@@ -110,7 +110,7 @@ def finalize_sub_segments(segment,state):
     
     from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
     
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         sub_segment.finalize(state.segments[tag])
         state.segments[tag].initials = Conditions()
 
@@ -138,5 +138,5 @@ def sequential_sub_segments(segment,state):
     """       
     
     
-    for tag,sub_segment in list(segment.segments.items()):
+    for tag,sub_segment in segment.segments.items():
         sub_segment.evaluate(state.segments[tag])

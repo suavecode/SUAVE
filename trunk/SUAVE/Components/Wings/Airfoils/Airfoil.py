@@ -94,7 +94,7 @@ class Airfoil(Lofted_Body.Section):
             point = list(map(float,line.split()))
             data[section].append(point)
             
-        for k,v in list(data.items()):
+        for k,v in data.items():
             data[k] = np.array(v)            
         
         self.points = data['upper'] 
