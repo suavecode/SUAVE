@@ -50,7 +50,6 @@ def energy_network():
     # vacuum conditions
     vac                   = conditions.freestream
     vac.altitude          = ones_1col*0.0
-    
     vac.gravity           = ones_1col*9.81
     vac.pressure          = ones_1col*0.0
         
