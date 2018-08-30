@@ -436,7 +436,8 @@ class Nexus(Data):
                                
                                
     def add_mission_variables(self,mission_key):
-        """Make a pretty table view of the problem with objective and constraints at the current inputs
+        """Make a pretty table view of the problem with objective and constraints at the current inputs for the dummy solver
+        
     
             Assumptions:
             N/A
@@ -467,11 +468,11 @@ class Nexus(Data):
         for segment in mis.segments:
             
             # Change the mission solve to dummy solver
-            print 'Overwriting the solver in ' + segment + ' segment.'
+            print('Overwriting the solver in ' + segment + ' segment.')
             mis.segments[segment].settings.root_finder = SUAVE.Methods.Missions.Segments.dummy_mission_solver
             
             # Start putting together the inputs
-            print 'Adding in the new inputs for ' + segment + '.'
+            print ('Adding in the new inputs for ' + segment + '.')
             n_points = mis.segments[segment].state.numerics.number_control_points
             unknown_keys = mis.segments[segment].state.unknowns.keys()
             unknown_keys.remove('tag')  
