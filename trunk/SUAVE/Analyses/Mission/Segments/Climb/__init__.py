@@ -14,7 +14,6 @@ from Constant_Speed_Linear_Altitude import Constant_Speed_Linear_Altitude
 from Constant_Throttle_Constant_Speed import Constant_Throttle_Constant_Speed
 from Linear_Mach_Constant_Rate import Linear_Mach_Constant_Rate
 from Linear_Speed_Constant_Rate import Linear_Speed_Constant_Rate
-
 from Constant_EAS_Constant_Rate import Constant_EAS_Constant_Rate
 
 from Optimized import Optimized

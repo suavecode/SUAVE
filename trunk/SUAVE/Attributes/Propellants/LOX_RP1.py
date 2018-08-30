@@ -1,29 +1,29 @@
-## @ingroup Attributes-Planets
-# Earth.py
+## @ingroup Attributes-Propellants
+# LOX_RP1.py
 # 
-# Created:  Unk, 2013, J. Sinsay
-# Modified: Apr, 2015, E. Botero
+# Created:  Feb 2018, W. Maier
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from Planet import Planet
-from SUAVE.Core import Units
-
+from Propellant import Propellant
 # ----------------------------------------------------------------------
-#  Earth Constant Class
+#  Class
 # ----------------------------------------------------------------------
-## @ingroup Attributes-Planets
-class Earth(Planet):
-    """Holds constants for Earth
+## @ingroup Attributes-Propellants
+class LOX_RP1(Propellant):
+    """Holds values for this propellant
     
     Assumptions:
-    None
+    At an O/F ratio 2.27
+    
     
     Source:
-    None
+    Sutton, Rocket Propulsion Elements
     """
+
     def __defaults__(self):
         """This sets the default values.
 
@@ -41,9 +41,9 @@ class Earth(Planet):
 
         Properties Used:
         None
-        """         
-        self.tag = 'Earth'
-        self.mass              = 5.98e24 *Units['kg']     # [kg]
-        self.mean_radius       = 6.371e6 *Units['m']      # [m]
-        self.sea_level_gravity = 9.80665 *Units['m/s^2']  # [m/s^2] 
-        self.HitchHikersGuide  = 'MostlyHarmless'
+        """    
+        self.tag                         = 'LOX_RP1'
+        self.molecular_weight            = 22.193
+        self.isentropic_expansion_factor = 1.1505
+        self.combustion_temperature      = 3545.69
+        self.gas_specific_constant       = 8314.45986/self.molecular_weight

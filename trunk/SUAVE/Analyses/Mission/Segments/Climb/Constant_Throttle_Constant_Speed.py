@@ -149,4 +149,3 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
        
         return
-

@@ -79,7 +79,14 @@ def parasite_drag_propulsor(state,settings,geometry):
     Mdiv = state.conditions.aerodynamics.drag_breakdown.compressible.main_wing.divergence_mach
     
     # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
-    k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 
+    if propulsor.has_key('internal'):
+        if propulsor.internal:
+            k_prop_sub = 0.0
+            Sref       = 1.0
+            cf_prop    = 0.0
+            k_reyn     = 0.0
+    else:
+        k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 
     
     # for supersonic flow (http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML)
     k_prop_sup = 1.

@@ -89,7 +89,7 @@ def iterate(unknowns,(segment,state)):
 
     Properties Used:
     N/A
-    """       
+    """
 
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)

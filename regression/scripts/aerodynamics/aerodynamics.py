@@ -8,8 +8,6 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-
-
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
@@ -41,19 +39,16 @@ def main():
     aerodynamics.geometry = vehicle
         
     aerodynamics.initialize()    
-    
-    
+       
     #no of test points
     test_num = 11
     
     #specify the angle of attack
     angle_of_attacks = np.linspace(-.174,.174,test_num)[:,None] #* Units.deg
     
-    
     # Cruise conditions (except Mach number)
     state = SUAVE.Analyses.Mission.Segments.Conditions.State()
     state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    
     
     state.expand_rows(test_num)    
         
@@ -85,7 +80,6 @@ def main():
     
     re = rho*a*Mc/mu
 
-    
     state.conditions.freestream.mach_number = Mc
     state.conditions.freestream.density = rho
     state.conditions.freestream.dynamic_viscosity = mu
@@ -93,14 +87,12 @@ def main():
     state.conditions.freestream.pressure = pressure
     state.conditions.freestream.reynolds_number = re
     
-    state.conditions.aerodynamics.angle_of_attack = angle_of_attacks   
-    
+    state.conditions.aerodynamics.angle_of_attack = angle_of_attacks       
     
     # --------------------------------------------------------------------
     # Surrogate
     # --------------------------------------------------------------------    
-    
-            
+               
     #call the aero model        
     results = aerodynamics.evaluate(state)
     
@@ -111,12 +103,9 @@ def main():
     polar.lift = CL
     polar.drag = CD    
     
-    
     # --------------------------------------------------------------------
     # Test compute Lift
     # --------------------------------------------------------------------
-    
-    
     
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
@@ -132,7 +121,6 @@ def main():
     #print lift_test
         
     assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
-    
     
     # --------------------------------------------------------------------
     # Test compute drag 
@@ -155,8 +143,7 @@ def main():
     cd_tot         = drag_breakdown.total
    
     print 'cd_m =', cd_m
-    
-   
+       
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
     
     drag_tests = Data()
@@ -202,7 +189,6 @@ def reg_values():
                          0.0011513, 0.0011513,0.0011513]]).T
 
 
-
     cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
 
     cd_m_fuse_up_r   = np.array([[  4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
@@ -228,9 +214,7 @@ def reg_values():
     cd_tot_r        = np.array([[ 0.21076757,  0.04258766,  0.03483314,  0.01825048,  0.02121556,
                                   0.02500965,  0.03688168,  0.05969971,  0.10128573,  0.19939653,
                                   0.14154442]]).T
-    
-    
-    
+        
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
            cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
@@ -239,4 +223,3 @@ if __name__ == '__main__':
     main()
     
     print 'Aero regression test passed!'
-      

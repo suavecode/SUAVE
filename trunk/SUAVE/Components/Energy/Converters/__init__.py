@@ -14,6 +14,8 @@ from Motor_Lo_Fid import Motor_Lo_Fid
 from Propeller import Propeller
 from Propeller_Lo_Fid import Propeller_Lo_Fid
 from Ram import Ram
+from Rocket_Combustor import Rocket_Combustor
+from de_Laval_Nozzle import de_Laval_Nozzle
 from Solar_Panel import Solar_Panel
 from Turbine import Turbine
 from Supersonic_Nozzle import Supersonic_Nozzle

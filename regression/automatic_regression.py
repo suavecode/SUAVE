@@ -71,6 +71,8 @@ modules = [
     'scripts/solar_radiation/solar_radiation.py',
     'scripts/SU2_surrogate/BWB-450.py',   
     'scripts/sweeps/test_sweeps.py',
+    'scripts/rocket_network/Rocketdyne_F1.py',
+    'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/take_off_field_length/take_off_field_length.py',
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',    

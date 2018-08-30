@@ -80,7 +80,4 @@ def update_thrust(segment,state):
     # pack conditions
     conditions = state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
-    conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
-    
-
-    
+    conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate   
