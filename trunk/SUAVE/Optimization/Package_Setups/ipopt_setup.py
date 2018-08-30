@@ -60,7 +60,7 @@ def Ipopt_Solve(problem):
     # Bounds for inputs and constraints
     flbd = np.zeros_like(ini)
     fubd = np.zeros_like(ini)
-    for ii in xrange(0,nvar):
+    for ii in range(0,nvar):
         flbd[ii] = (bnd[ii][0]/scl[ii])
         fubd[ii] = (bnd[ii][1]/scl[ii])
 
@@ -68,7 +68,7 @@ def Ipopt_Solve(problem):
     g_U = np.zeros_like(con)
     
     # Setup constraints
-    for ii in xrange(0,len(con)):
+    for ii in range(0,len(con)):
         name = con[ii][0]
         edge = con[ii][2]
         if con[ii][1]=='<':
@@ -249,12 +249,12 @@ def make_structure(problem):
     botrow = np.zeros(ncon*nvar).astype(int)
     
     # All of the rows
-    for nn in xrange(0,nvar*ncon):
+    for nn in range(0,nvar*ncon):
         val        = (np.floor(nn/nvar)).astype(int)
         toprow[nn] = val
     
     # All of the columns
-    for nn in xrange(0,nvar*ncon):
+    for nn in range(0,nvar*ncon):
         val        = (np.remainder(nn,nvar)).astype(int)
         botrow[nn] = val
     

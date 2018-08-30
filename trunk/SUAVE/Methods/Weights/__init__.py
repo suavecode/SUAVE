@@ -2,6 +2,6 @@
 #Weights methods provide different means of estimating vehicle weight breakdowns
 # @ingroup Methods
 
-import Correlations
-import Buildups
+from . import Correlations
+from . import Buildups
 

@@ -2,4 +2,4 @@
 # This the the analysis that controls planetary evaluations.
 # @ingroup Analyses
 
-from Planet import Planet
+from .Planet import Planet

@@ -209,8 +209,8 @@ def energy_network():
     #size the ramjet
     ramjet_sizing(ramjet,2.5,10000.0)
     
-    print "Design thrust :",ramjet.design_thrust
-    print "Sealevel static thrust :",ramjet.sealevel_static_thrust
+    print("Design thrust :",ramjet.design_thrust)
+    print("Sealevel static thrust :",ramjet.sealevel_static_thrust)
     
     results_design     = ramjet(state_sizing)
     results_off_design = ramjet(state_off_design)
@@ -234,9 +234,9 @@ def energy_network():
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0] - expected.mdot)/expected.mdot
     error.Isp_error    = (Isp[0][0]- expected.Isp)/expected.Isp
-    print error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
     
     return

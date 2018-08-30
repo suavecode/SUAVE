@@ -39,7 +39,7 @@ def initialize_battery(segment,state):
     
     if state.initials:
         energy_initial  = state.initials.conditions.propulsion.battery_energy[-1,0]
-    elif segment.has_key('battery_energy'):
+    elif 'battery_energy' in segment:
         energy_initial  = segment.battery_energy
     else:
         energy_initial = 0.0

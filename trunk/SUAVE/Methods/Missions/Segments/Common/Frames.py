@@ -91,7 +91,7 @@ def initialize_time(segment,state):
     if state.initials:
         state.conditions.frames.planet.start_time = state.initials.conditions.frames.planet.start_time
         
-    elif segment.has_key('start_time'):
+    elif 'start_time' in segment:
         state.conditions.frames.planet.start_time = segment.start_time
     
     return
@@ -128,7 +128,7 @@ def initialize_planet_position(segment,state):
     if state.initials:
         longitude_initial = state.initials.conditions.frames.planet.longitude[-1,0]
         latitude_initial  = state.initials.conditions.frames.planet.latitude[-1,0] 
-    elif segment.has_key('latitude'):
+    elif 'latitude' in segment:
         longitude_initial = segment.longitude
         latitude_initial  = segment.latitude      
     else:

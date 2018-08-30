@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from Constant_Speed_Linear_Altitude import Constant_Speed_Linear_Altitude
+from .Constant_Speed_Linear_Altitude import Constant_Speed_Linear_Altitude
 
 from SUAVE.Methods.Missions import Segments as Methods
 

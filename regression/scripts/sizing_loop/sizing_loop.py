@@ -78,15 +78,15 @@ def main():
     #remove files for later
     os.remove('sizing_outputs.txt')
     os.remove('y_err_values.txt')
-    print 'error = ', error
-    print 'error_res = ', error_res
+    print('error = ', error)
+    print('error_res = ', error_res)
     assert(error<1e-5), 'sizing loop regression failed'    
     assert(error_res<1e-7), 'sizing loop io failed'    
     
     return
     
 def evaluate_problem(nexus):
-    for key,step in nexus.procedure.items():
+    for key,step in list(nexus.procedure.items()):
         if hasattr(step,'evaluate'):
             self = step.evaluate(nexus)
         else:

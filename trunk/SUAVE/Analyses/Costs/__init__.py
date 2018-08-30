@@ -2,4 +2,4 @@
 # Cost Analysis 
 # @ingroup Analyses
 
-from Costs import Costs
+from .Costs import Costs

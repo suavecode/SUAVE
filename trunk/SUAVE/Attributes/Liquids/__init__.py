@@ -2,5 +2,5 @@
 # Common liquids
 # @ingroup Attributes
 # classes
-from Water import Water
-from Liquid import Liquid
+from .Water import Water
+from .Liquid import Liquid

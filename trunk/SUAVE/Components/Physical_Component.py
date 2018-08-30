@@ -8,8 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Component import Component
-from Mass_Properties import Mass_Properties
+from .Component import Component
+from .Mass_Properties import Mass_Properties
 
 
 # ----------------------------------------------------------------------
@@ -79,7 +79,7 @@ class Container(Component.Container):
             None
         """   
         total = 0.0
-        for key,Comp in self.iteritems():
+        for key,Comp in self.items():
             if isinstance(Comp,PhysicalComponentContainer):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):

@@ -51,12 +51,12 @@ def size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_
 
     OEW = masses.operating_empty
     if not OEW:
-        print "Error calculating fuel for given mission: Vehicle Operating Empty not defined"
+        print("Error calculating fuel for given mission: Vehicle Operating Empty not defined")
         return True
 
     MZFW = vehicle.mass_properties.max_zero_fuel
     if not MZFW:
-        print "Error calculating fuel for given mission: Vehicle MZFW not defined"
+        print("Error calculating fuel for given mission: Vehicle MZFW not defined")
         return True
 
     MaxPLD = vehicle.mass_properties.max_payload
@@ -67,7 +67,7 @@ def size_weights_given_mission_range(vehicle,mission,cruise_segment_tag,mission_
     if not MaxFuel:
         MaxFuel = vehicle.mass_properties.max_takeoff - OEW # If not defined, calculate based in design weights
         if MaxFuel < 0. :
-            print "Error calculating fuel for given mission: Vehicle MTOW not defined"
+            print("Error calculating fuel for given mission: Vehicle MTOW not defined")
             return True
 
     # Defining arrays for input and output

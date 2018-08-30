@@ -20,10 +20,10 @@ from SUAVE.Analyses import Analysis
 class Stability(Analysis):
     """ SUAVE.Analyses.Stability.Stability()
     """
-    
+
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
-    
+
         Assumptions:
         None
 
@@ -42,10 +42,10 @@ class Stability(Analysis):
         self.tag    = 'stability'
         self.geometry = Data()
         self.settings = Data()
-        
+
     def evaluate(self,conditions):
         """Evaluate the stability analysis.
-    
+
         Assumptions:
         None
 
@@ -62,13 +62,13 @@ class Stability(Analysis):
         N/A
         """          
         results = Data()
-        
+
         return results
-    
-    
+
+
     def finalize(self):
         """Finalize the stability analysis.
-    
+
         Assumptions:
         None
 
@@ -84,8 +84,7 @@ class Stability(Analysis):
         Properties Used:
         N/A
         """          
-        
+
         return
-    
-    
-        
+
+

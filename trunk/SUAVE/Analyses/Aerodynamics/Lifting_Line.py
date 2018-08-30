@@ -11,7 +11,7 @@
 import numpy as np
 from SUAVE.Core import Data, Units
 from SUAVE.Methods.Aerodynamics.Lifting_Line import lifting_line as LL
-from Aerodynamics import Aerodynamics
+from .Aerodynamics import Aerodynamics
 
 # ----------------------------------------------------------------------
 #  Class
