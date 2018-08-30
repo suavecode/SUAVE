@@ -128,7 +128,7 @@ class TreeBuilder(xml.sax.handler.ContentHandler):
         
         self.text_parts = []
         
-        for k, v in list(attrs.items()):
+        for k, v in attrs.items():
             self.current.attributes[k] = v
             
     def endElement(self, name):

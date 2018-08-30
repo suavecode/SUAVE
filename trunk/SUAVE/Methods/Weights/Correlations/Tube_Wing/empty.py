@@ -122,7 +122,7 @@ def empty(vehicle,settings=None):
         wt_factors = settings.weight_reduction_factors
     
     
-    propulsor_name = list(vehicle.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
+    propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
     
     propulsors     = vehicle.propulsors[propulsor_name]
     num_eng        = propulsors.number_of_engines

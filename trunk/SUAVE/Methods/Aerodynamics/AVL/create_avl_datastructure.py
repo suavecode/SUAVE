@@ -183,7 +183,7 @@ def populate_wing_sections(avl_wing,suave_wing):
         """         
 
         
-        if len(list(suave_wing.Segments.keys()))>0: 
+        if uave_wing.Segments.keys()>0: 
                 # obtain the geometry for each segment in a loop                                            
                 symm                 = avl_wing.symmetric
                 semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
@@ -192,7 +192,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 origin.append(suave_wing.origin)
                 root_chord           =  suave_wing.chords.root
                 segment_percent_span = 0;   
-                n_segments           = len(list(suave_wing.Segments.keys()))
+                n_segments           = len(suave_wing.Segments.keys())
 
                 segment_sweeps = []
                 for i_segs in range(n_segments):

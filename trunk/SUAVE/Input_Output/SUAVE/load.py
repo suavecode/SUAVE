@@ -71,7 +71,7 @@ def read_SUAVE_json_dict(res_dict):
     Properties Used:
     N/A
     """      
-    keys = list(res_dict.keys()) # keys from top level
+    keys = res_dict.keys() # keys from top level
     SUAVE_data = Data() # initialize SUAVE data structure
     
     # Assign all values
@@ -104,7 +104,7 @@ def build_data_r(v):
     
     # Transform to SUAVE data structure with appropriate types
     if tv == OrderedDict:
-        keys = list(v.keys())
+        keys = v.keys()
         # Recursively assign values
         ret = DataOrdered()
         for k in keys:

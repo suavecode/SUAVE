@@ -108,7 +108,7 @@ def find_a_star(dictionary,string):
     for ii in range(0,len(splitstring)):
         if '*' in splitstring[ii]:
             if ii==0:
-                newkeys = list(dictionary.keys())
+                newkeys = dictionary.keys()
             elif ii !=0:
                 strtoeval = 'dictionary.'+'.'.join(splitstring[0:ii])+'.keys()'
                 newkeys = list(eval(strtoeval))

@@ -64,7 +64,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
 
 
         # Propulsion
-        propulsor_name                    = list(vehicle.propulsors.keys())[0]
+        propulsor_name                    = vehicle.propulsors.keys()[0]
         propulsor                         = vehicle.propulsors[propulsor_name]        
         propulsor_cg_base                 = propulsor.mass_properties.center_of_gravity
         propulsor_cg                      = 0
@@ -78,10 +78,10 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         # ---------------------------------------------------------------------------------
         # configurations with fuselages (BWB, Tube and Wing)  
         # ---------------------------------------------------------------------------------
-        if list(vehicle.fuselages.keys()) != []: 
+        if vehicle.fuselages.keys() != []: 
 
                 landing_gear       = vehicle.landing_gear
-                propulsor_name     = list(vehicle.propulsors.keys())[0]
+                propulsor_name     = vehicle.propulsors.keys()[0]
                 propulsor          = vehicle.propulsors[propulsor_name]
                 electrical_systems = vehicle.electrical_systems
                 avionics           = vehicle.avionics
