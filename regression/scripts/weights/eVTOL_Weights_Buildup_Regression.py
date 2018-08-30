@@ -321,7 +321,7 @@ def check_results(referenceWeights, refactoredWeights):
     i = 0
     
     for weightDict in referenceWeights:
-        for k, v in weightDict.iteritems():
+        for k, v in weightDict.items():
             try:
                 refVal = referenceWeights[i].get(k)
                 newVal = refactoredWeights[i].get(k)
@@ -329,18 +329,18 @@ def check_results(referenceWeights, refactoredWeights):
                 if (np.abs(err) < 1e-6):
                     pass
                 else:
-                    print 'Reference Check Failed: Dictionary {}, Value {}.\n'.format(i+1, k)
-                    print 'The reference value is {}, the new value is {}.\n'.format(refVal, newVal)
+                    print('Reference Check Failed: Dictionary {}, Value {}.\n'.format(i+1, k))
+                    print('The reference value is {}, the new value is {}.\n'.format(refVal, newVal))
                     errors += 1
             except KeyError:
-                print "The {} value does not appear in the refactored weights".format(k)
+                print("The {} value does not appear in the refactored weights".format(k))
         
         i += 1
         
     if errors == 0:
-        print 'Regression Test Passed.'
+        print('Regression Test Passed.')
     else:
-        print 'Regression Test Failed with {} errors'.format(errors)
+        print('Regression Test Failed with {} errors'.format(errors))
         raise  ValueError
 
 
@@ -348,7 +348,7 @@ def main():
     
     vehicle, configs, referenceWeights = full_setup()
     
-    print "Running Regression Test of eVTOL Weight Buildup Methods.\n"
+    print("Running Regression Test of eVTOL Weight Buildup Methods.\n")
     
     electricHelicopterEmptyWeights = electricHelicopterEmpty(configs["electric_helicopter"])
     electricStoppedRotorEmptyWeights = electricStoppedRotorEmpty(configs["electric_stopped_rotor"])

@@ -48,11 +48,11 @@ def main():
     error.upper = np.abs(upper-truth_upper)
     error.lower = np.abs(lower-truth_lower)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert np.any(np.abs(v)<1e-6)
     
 if __name__ == '__main__':
     
     main()
     
-    print 'NACA regression test passed!'   
+    print('NACA regression test passed!')   

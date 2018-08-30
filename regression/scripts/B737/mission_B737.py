@@ -84,7 +84,7 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
+    plot_mission_new(results)
     plot_mission(old_results,'k-')
     plt.show(block=True)
     # check the results
@@ -127,7 +127,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -208,7 +208,7 @@ def plot_mission(results,line_style='bo-'):
 
 
     fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -240,7 +240,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -313,7 +313,173 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        aoa    = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        l_d    = CLift/CDrag
+        mass   = segment.conditions.weights.total_mass[:,0]*2.20462
+        altitude = segment.conditions.freestream.altitude[:,0] / Units.km *3.28084 *1000
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust	
+
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , altitude , line_style )
+        #axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Altitude (ft)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , sfc , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , mass , 'ro-' )
+        #axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Weight (lb)',axis_font)
+        axes.grid(True)
+
+
+        #plt.savefig("B737_mission.pdf")
+        #plt.savefig("B737_mission.png")
+
+    return
+
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
+
+def plot_mission_new(results,line_style='bo-'):
+
+    axis_font = {'fontname':'Arial', 'size':'14'}    
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+
+
+    fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
+    for seg in list(results.segments.values()):
+        segment = seg.state
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]*0.224808943
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]*0.224808943
+        eta  = segment.conditions.propulsion.throttle[:,0]
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust	
+
+
+        axes = fig.add_subplot(2,1,1)
+        axes.plot( time , Thrust , line_style )
+        #axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Thrust (lbf)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(2,1,2)
+        axes.plot( time , eta , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
+        axes.grid(True)	
+
+        #plt.savefig("B737_engine.pdf")
+        #plt.savefig("B737_engine.png")
+
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
+    for seg in list(results.segments.values()):
+        
+        segment = seg.state
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        l_d = CLift/CDrag
+
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , CLift , line_style )
+        #axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Lift Coefficient',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , l_d , line_style )
+        #axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('L/D',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , aoa , 'ro-' )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('AOA (deg)',axis_font)
+        axes.grid(True)
+
+        #plt.savefig("B737_aero.pdf")
+        #plt.savefig("B737_aero.png")
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components",figsize=(8,10))
+    axes = plt.gca()
+    for i, seg in enumerate(results.segments.values()):
+        
+        segment = seg.state
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+
+        if line_style == 'bo-':
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , 'bo-', label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )
+            if i == 0:
+                axes.legend(loc='upper center')            
+        else:
+            axes.plot( time , cdp , line_style )
+            axes.plot( time , cdi , line_style )
+            axes.plot( time , cdc , line_style )
+            axes.plot( time , cdm , line_style )
+            axes.plot( time , cd  , line_style )            
+
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
+    #plt.savefig("B737_drag.pdf")
+    #plt.savefig("B737_drag.png")
+
+    # ------------------------------------------------------------------
+    #   Altitude,sfc,vehiclde weight
+    # ------------------------------------------------------------------
+
+    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
+    for seg in list(results.segments.values()):
+        
+        segment = seg.state
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -667,21 +833,21 @@ def check_results(new_results,old_results):
 
     # do the check
     for k in check_list:
-        print k
+        print(k)
 
         old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
+        print('Error at Max:' , err)
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )        
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
+        print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print ''
+        print('')
 
     ## check high level outputs
     #def check_vals(a,b):

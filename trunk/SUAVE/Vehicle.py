@@ -116,11 +116,11 @@ class Vehicle(Data):
         component_type = type(component)
 
         # find component root by type, allow subclasses
-        for component_type, component_root in self._component_root_map.iteritems():
+        for component_type, component_root in self._component_root_map.items():
             if isinstance(component,component_type):
                 break
         else:
-            raise Exception , "Unable to place component type %s" % component.typestring()
+            raise Exception("Unable to place component type %s" % component.typestring())
 
         return component_root
 
@@ -146,7 +146,7 @@ class Vehicle(Data):
 
         # assert database type
         if not isinstance(component,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # find the place to store data
         component_root = self.find_component_root(component)

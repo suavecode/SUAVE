@@ -8,7 +8,7 @@
 """
 
 # Attributes
-from empty          import empty
-from systems        import systems
-from aft_centerbody import aft_centerbody
-from cabin          import cabin
+from .empty          import empty
+from .systems        import systems
+from .aft_centerbody import aft_centerbody
+from .cabin          import cabin

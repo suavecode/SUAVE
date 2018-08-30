@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
 # local imports 
-from Stability import Stability
+from .Stability import Stability
 
 # Package imports
 import time
@@ -151,7 +151,7 @@ class AVL(Stability):
         configuration                  = self.configuration
         stability_model                = self.stability_model
         configuration.mass_properties  = geometry.mass_properties
-        if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
+        if 'fuel' in geometry: #fuel has been assigned(from weight statements)
             configuration.fuel         = geometry.fuel
         else: #assign as zero to planes with no fuel such as UAVs
             fuel                       = SUAVE.Components.Physical_Component()
@@ -359,7 +359,7 @@ class AVL(Stability):
 
         time1 = time.time()
 
-        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
@@ -426,27 +426,7 @@ class AVL(Stability):
         self.surrogates.Cm_alpha_moment_coefficient = cm_alpha_surrogate
         self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate   
         self.surrogates.neutral_point               = neutral_point_surrogate
-
-        # Standard subsonic/transonic aircarft  
-        AoA_points                       = np.linspace(-3.,11.,100)
-        mach_points                      = np.linspace(.02,.9,100)         
-    
-        AoA_mesh,mach_mesh                          = np.meshgrid(AoA_points,mach_points)
-
-        CM_sur                                      = np.zeros(np.shape(AoA_mesh))
-        Cm_a_sur                                    = np.zeros(np.shape(AoA_mesh))
-        Cn_b_sur                                    = np.zeros(np.shape(AoA_mesh))
-        NP_sur                                      = np.zeros(np.shape(AoA_mesh)) 
         
-
-
-        for jj in range(len(AoA_points)):
-            for ii in range(len(mach_points)):
-                CM_sur[ii,jj]    = cm_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cm_a_sur[ii,jj]  = cm_alpha_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                Cn_b_sur[ii,jj]  = cn_beta_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                NP_sur[ii,jj]    = neutral_point_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))                
-                
         return
 
 

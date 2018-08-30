@@ -10,9 +10,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
-from Airfoils import Airfoil
+from .Airfoils import Airfoil
 
 # ------------------------------------------------------------
 #   Wing
@@ -119,6 +120,7 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
+        self.Segments           = SUAVE.Core.ContainerOrdered()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 
@@ -141,7 +143,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(segment,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Segments.append(segment)
@@ -169,7 +171,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(airfoil,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Airfoil.append(airfoil)
@@ -198,7 +200,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(control_surface,Data):
-            raise Exception, 'input control surface must be of type Data()'
+            raise Exception('input control surface must be of type Data()')
 
         # Store data
         self.control_surfaces.append(control_surface)

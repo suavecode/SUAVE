@@ -63,9 +63,9 @@ def estimate_2ndseg_lift_drag_ratio(config):
         n_wing += 1
 
     if n_wing > 1:
-        print ' More than one Main_Wing in the config. Last one will be considered.'
+        print(' More than one Main_Wing in the config. Last one will be considered.')
     elif n_wing == 0:
-        print  'No Main_Wing defined! Using the 1st wing found'
+        print('No Main_Wing defined! Using the 1st wing found')
         for wing in config.wings:
             if not isinstance(wing,Wings.Wing): continue
             reference_area = wing.areas.reference
@@ -94,7 +94,7 @@ def estimate_2ndseg_lift_drag_ratio(config):
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(config,conditions)
             config.maximum_lift_coefficient = maximum_lift_coefficient
         except:
-            raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
+            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
 
     # Compute CL in V2
     lift_coeff = maximum_lift_coefficient / (V2_VS_ratio ** 2)

@@ -189,12 +189,12 @@ class Trust_Region_Optimization(Data):
             if self.optimizer == 'SNOPT':
                 opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
                 
-                for ii in xrange(len(obj)):
+                for ii in range(len(obj)):
                     opt_prob.addObj('f',f_center) 
-                for ii in xrange(0,len(inp)):
+                for ii in range(0,len(inp)):
                     vartype = 'c'
                     opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
-                for ii in xrange(0,len(con)):
+                for ii in range(0,len(con)):
                     if con[ii][1]=='<':
                         opt_prob.addCon(name[ii], type='i', upper=con_up_edge[ii])  
                     elif con[ii][1]=='>':
@@ -221,7 +221,7 @@ class Trust_Region_Optimization(Data):
                 fOpt_corr = outputs[0][0]
                 xOpt_corr = outputs[1]
                 gOpt_corr = np.zeros([1,len(con)])[0]  
-                for ii in xrange(len(con)):
+                for ii in range(len(con)):
                     gOpt_corr[ii] = opt_prob._solutions[0]._constraints[ii].value  
 
             else:
@@ -232,14 +232,14 @@ class Trust_Region_Optimization(Data):
             
             # Constraint minization ------------------------------------------------------------------------
             if feasible_flag == False:
-                print 'Infeasible within trust region, attempting to minimize constraint'
+                print('Infeasible within trust region, attempting to minimize constraint')
                 
                 if self.optimizer == 'SNOPT':
                     opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_constraints, corrections=corrections,tr=tr,
                                                   lb=con_low_edge,ub=con_up_edge)
-                    for ii in xrange(len(obj)):
+                    for ii in range(len(obj)):
                         opt_prob.addObj('constraint violation',0.) 
-                    for ii in xrange(0,len(inp)):
+                    for ii in range(0,len(inp)):
                         vartype = 'c'
                         opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])           
                     opt = pyOpt.pySNOPT.SNOPT()            
@@ -256,7 +256,7 @@ class Trust_Region_Optimization(Data):
         
                     fOpt_corr = new_outputs[0][0][0]
                     gOpt_corr = np.zeros([1,len(con)])[0]   
-                    for ii in xrange(len(con)):
+                    for ii in range(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]
                 else:
                     raise ValueError('Selected optimizer not implemented')
@@ -264,9 +264,9 @@ class Trust_Region_Optimization(Data):
                 # Constraint minization end ------------------------------------------------------------------------
                 
 
-            print 'fOpt_corr = ', fOpt_corr
-            print 'xOpt_corr = ', xOpt_corr
-            print 'gOpt_corr = ', gOpt_corr
+            print('fOpt_corr = ', fOpt_corr)
+            print('xOpt_corr = ', xOpt_corr)
+            print('gOpt_corr = ', gOpt_corr)
             
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
@@ -283,21 +283,21 @@ class Trust_Region_Optimization(Data):
             # Acceptance Test
             accepted = 0
             if( fOpt_hi < f_center ):
-                print 'Trust region update accepted since objective value is lower\n'
+                print('Trust region update accepted since objective value is lower\n')
                 accepted = 1
             elif( g_violation_opt_hi < g_violation_hi_center ):
-                print 'Trust region update accepted since nonlinear constraint violation is lower\n'
+                print('Trust region update accepted since nonlinear constraint violation is lower\n')
                 accepted = 1
             else:
-                print 'Trust region update rejected (filter)\n'        
+                print('Trust region update rejected (filter)\n')        
             
             # Update Trust Region Size
-            print tr
+            print(tr)
             tr_action = self.update_tr_size(rho,tr,accepted)  
                 
             # Terminate if trust region too small
             if( tr.size < tr.minimum_size ):
-                print 'Trust region too small'
+                print('Trust region too small')
                 f_out.write('Trust region too small')
                 f_out.close()
                 if print_output == False:
@@ -307,7 +307,7 @@ class Trust_Region_Optimization(Data):
             # Terminate if solution is infeasible, no change is detected, and trust region does not expand
             if( success_flag == False and tr_action < 3 and\
                 np.sum(np.isclose(xOpt_corr,x,rtol=1e-15,atol=1e-14)) == len(x) ):
-                print 'Solution infeasible, no improvement can be made'
+                print('Solution infeasible, no improvement can be made')
                 f_out.write('Solution infeasible, no improvement can be made')
                 f_out.close()
                 if print_output == False:
@@ -321,7 +321,7 @@ class Trust_Region_Optimization(Data):
             
             # Convergence check
             if (accepted==1 and (np.abs(f_center-fOpt_hi) < self.convergence_tolerance)):
-                print 'Hard convergence reached'
+                print('Hard convergence reached')
                 f_out.write('Hard convergence reached')
                 f_out.close()
                 if print_output == False:
@@ -333,13 +333,13 @@ class Trust_Region_Optimization(Data):
                 x = xOpt_corr*1.
                 tr.center = x*1.             
             
-            print 'Iteration number: ' + str(iterations)
-            print 'x value: ' + str(x.tolist())
-            print 'Objective value: ' + str(fOpt_hi)
+            print('Iteration number: ' + str(iterations))
+            print('x value: ' + str(x.tolist()))
+            print('Objective value: ' + str(fOpt_hi))
         
         f_out.write('Max iteration limit reached')
         f_out.close()
-        print 'Max iteration limit reached'
+        print('Max iteration limit reached')
         if print_output == False:
             sys.stdout = sys.__stdout__          
         return (fOpt_corr,xOpt_corr,'Max iteration limit reached')
@@ -420,12 +420,12 @@ class Trust_Region_Optimization(Data):
         const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
         const = const.tolist()
     
-        print 'Inputs'
-        print x
-        print 'Obj'
-        print obj
-        print 'Con'
-        print const
+        print('Inputs')
+        print(x)
+        print('Obj')
+        print(obj)
+        print('Con')
+        print(const)
             
         return obj,const,fail
     
@@ -471,10 +471,10 @@ class Trust_Region_Optimization(Data):
         obj_cons = self.calculate_constraint_violation(const,lb,ub)
         const    = None
         
-        print 'Inputs'
-        print x
-        print 'Cons violation'
-        print obj_cons         
+        print('Inputs')
+        print(x)
+        print('Cons violation')
+        print(obj_cons)         
             
         return obj_cons,const,fail    
         
@@ -593,11 +593,11 @@ class Trust_Region_Optimization(Data):
         con_up_edge  = []
         con_low_edge = []
         
-        for ii in xrange(0,len(inp)):
+        for ii in range(0,len(inp)):
             x_low_bound.append(bnd[ii][0]/scl[ii])
             x_up_bound.append(bnd[ii][1]/scl[ii])
 
-        for ii in xrange(0,len(con)):
+        for ii in range(0,len(con)):
             name.append(con[ii][0])
             edge.append(scaled_constraints[ii])
             if con[ii][1]=='<':
@@ -685,24 +685,24 @@ class Trust_Region_Optimization(Data):
         if( not accepted ): # shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)        
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))        
         elif( rho < 0. ): # bad fit, shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))
         elif( rho <= tr.contract_threshold ): # okay fit, shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))
         elif( rho <= tr.expand_threshold ): # pretty good fit, retain trust region
             tr_action = 2
-            print 'Trust region size remains the same at %f\n\n' % tr.size
+            print('Trust region size remains the same at %f\n\n' % tr.size)
         elif( rho <= 1.25 ): # excellent fit, expand trust region
             tr.size = tr.size*tr.expansion_factor
             tr_action = 3
-            print 'Trust region expanded from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region expanded from %f to %f\n\n' % (tr_size_previous,tr.size))
         else: # rho > 1.25, okay-bad fit, but good for us, retain trust region
             tr_action = 2
-            print 'Trust region size remains the same at %f\n\n' % tr.size        
+            print('Trust region size remains the same at %f\n\n' % tr.size)        
             
         return tr_action

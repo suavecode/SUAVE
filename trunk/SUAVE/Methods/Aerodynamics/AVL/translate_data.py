@@ -193,8 +193,8 @@ def translate_results_to_conditions(cases,results):
 
     res.expand_rows(len(cases))
 
-    mach_case = results.keys()[0][5:8]   
-    for i in xrange(len(results.keys())):
+    mach_case = list(results.keys())[0][5:8]   
+    for i in range(len(results.keys())):
         aoa_case = '{:02d}'.format(i+1)
         tag = 'case_' + mach_case + '_' + aoa_case
         case_res = results[tag]
