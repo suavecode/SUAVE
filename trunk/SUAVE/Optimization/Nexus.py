@@ -122,7 +122,7 @@ class Nexus(Data):
         
         self.evaluation_count += 1
         
-        for key,step in list(nexus.procedure.items()):
+        for key,step in nexus.procedure.items():
             if hasattr(step,'evaluate'):
                 self = step.evaluate(nexus)
             else:

@@ -74,7 +74,7 @@ def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
     fid.write('\n')
     
     fid.write(' EMPTY WEIGHT BREAKDOWN \n')       
-    for tag,value in list(weight_breakdown.items()):
+    for tag,value in weight_breakdown.items():
         if tag=='payload' or tag=='pax' or tag=='bag' or tag=='fuel' or tag=='empty' or tag=='systems_breakdown':
             continue
         tag = tag.replace('_',' ')
@@ -85,7 +85,7 @@ def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
     fid.write('\n')
     
     fid.write(' SYSTEMS WEIGHT BREAKDOWN  \n')       
-    for tag,value in list(weight_breakdown.systems_breakdown.items()):
+    for tag,value in weight_breakdown.systems_breakdown.items():
         tag = tag.replace('_',' ')
         string = ' ' + tag[0].upper() + tag[1:] + ' '
         string = string.ljust(33,'.') + ' :' 

@@ -108,7 +108,7 @@ class Container(ContainerBase):
         """         
         results = SUAVE.Core.Data()
         
-        for key,mission in list(self.items()):
+        for key,mission in self.items():
             result = mission.evaluate(state)
             results[key] = result
             

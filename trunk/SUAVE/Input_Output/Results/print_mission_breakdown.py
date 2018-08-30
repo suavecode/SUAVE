@@ -65,7 +65,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
     TotalRange = 0
     i = 0
-    for key in list(results.segments.keys()):        #loop for all segments
+    for key in results.segments.keys():        #loop for all segments
         segment = results.segments[key]
 
         if imperial:

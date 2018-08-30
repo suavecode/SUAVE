@@ -54,7 +54,7 @@ class Process(ContainerOrdered):
         if self.verbose:
             print('process start')
         
-        for tag,step in list(self.items()): 
+        for tag,step in self.items(): 
             
             if self.verbose:
                 print('step :' , tag)

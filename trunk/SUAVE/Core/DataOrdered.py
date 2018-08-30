@@ -206,7 +206,7 @@ class DataOrdered(OrderedDict):
         if not isinstance(k,int):
             return super(DataOrdered,self).__getattribute__(k)
         else:
-            return super(DataOrdered,self).__getattribute__(list(self.keys())[k])
+            return super(DataOrdered,self).__getattribute__(self.keys()[k])
     
     def __new__(cls,*args,**kwarg):
         """ Creates a new Data() class
@@ -311,7 +311,7 @@ class DataOrdered(OrderedDict):
                 append_value(key,items[key])
 
         elif hasattr(items, 'keys'):
-            for key in list(items.keys()):
+            for key in items.keys():
                 append_value(key,items[key])
                 
         # items lists
@@ -610,7 +610,7 @@ class DataOrdered(OrderedDict):
             N/A    
         """           
         if isinstance(other, (DataOrdered,OrderedDict)):
-            return len(self)==len(other) and np.all(list(self.items()) == list(other.items()))
+            return len(self)==len(other) and np.all(self.items() == other.items())
         return dict.__eq__(self, other)
         
     def __len__(self):

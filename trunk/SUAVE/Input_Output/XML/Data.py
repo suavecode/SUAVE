@@ -127,7 +127,7 @@ class Data(Data_Base):
         else:
             result.tag = 'node'
         
-        for key,value in list(data.items()):
+        for key,value in data.items():
             if isinstance( value, dict ):
                 element = Data.from_dict(value)
                 element.tag = key

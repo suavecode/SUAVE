@@ -120,8 +120,8 @@ def write(vehicle,tag):
         dihedral   = wing.dihedral / Units.deg
         
         # Check to see if segments are defined. Get count
-        if len(list(wing.Segments.keys()))>0:
-            n_segments = len(list(wing.Segments.keys()))
+        if len(wing.Segments.keys())>0:
+            n_segments = len(wing.Segments.keys())
         else:
             n_segments = 0
 
