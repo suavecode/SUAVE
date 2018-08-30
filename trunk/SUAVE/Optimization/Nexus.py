@@ -69,7 +69,7 @@ class Nexus(Data):
         self.evaluation_count       = 0
         
         opt_prob = self.optimization_problem
-        opt_prob.objective      = None
+        opt_prob.objective     = None
         opt_prob.inputs        = None 
         opt_prob.constraints   = None
         opt_prob.aliases       = None
@@ -474,7 +474,7 @@ class Nexus(Data):
             # Start putting together the inputs
             print ('Adding in the new inputs for ' + segment + '.')
             n_points = mis.segments[segment].state.numerics.number_control_points
-            unknown_keys = mis.segments[segment].state.unknowns.keys()
+            unknown_keys = list(mis.segments[segment].state.unknowns.keys())
             unknown_keys.remove('tag')  
             len_inputs     = n_points*len(unknown_keys)
             unknown_value  = Data()
@@ -488,7 +488,7 @@ class Nexus(Data):
             initial_values    = full_unkn_vals.pack_array()
             input_len_strings = np.tile('Mission_Input_', len_inputs)
             input_numbers     = np.linspace(1,len_inputs,len_inputs,dtype=np.int16)
-            input_names       = np.core.defchararray.add(input_len_strings,np.array(map(str,input_numbers+input_count)))
+            input_names       = np.core.defchararray.add(input_len_strings,np.array(input_numbers+input_count).astype(str))
             bounds            = np.broadcast_to((-np.inf,np.inf),(len_inputs,2))
             units             = np.broadcast_to(Units.less,(len_inputs,))
             new_inputs        = np.reshape(np.tile(np.atleast_2d(np.array([None,None,(None,None),None,None])),len_inputs), (-1, 5))
@@ -507,7 +507,7 @@ class Nexus(Data):
             new_con = np.reshape(np.tile(np.atleast_2d(np.array([None,None,None,None,None])),len_inputs), (-1, 5))
         
             con_len_strings = np.tile('Residual_', len_inputs)
-            con_names       = np.core.defchararray.add(con_len_strings,np.array(map(str,input_numbers+input_count))) 
+            con_names       = np.core.defchararray.add(con_len_strings,np.array(input_numbers+input_count).astype(str))
             equals          = np.broadcast_to('=',(len_inputs,))
             zeros           = np.zeros(len_inputs)
             ones            = np.ones(len_inputs)
@@ -528,7 +528,7 @@ class Nexus(Data):
             input_string = []
             for unkn in unknown_keys:
                 basic_string_con[unkn] = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns.'+unkn+'[', n_points)
-                input_string.append(np.core.defchararray.add(basic_string_con[unkn],np.array(map(str,output_numbers))))
+                input_string.append(np.core.defchararray.add(basic_string_con[unkn],np.array(output_numbers).astype(str)))
             input_string  = np.ravel(input_string)
             input_string  = np.core.defchararray.add(input_string, np.tile(']',len_inputs))
             input_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
@@ -538,8 +538,8 @@ class Nexus(Data):
             
             
             # setup the aliases for the residuals
-            basic_string_res = np.tile('missions.' + mission_key + '.state.residuals.' + segment + '.pack_array()[', len_inputs)
-            residual_string  = np.core.defchararray.add(basic_string_res,np.array(map(str,input_numbers-1)))
+            basic_string_res = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.residuals.pack_array()[', len_inputs)
+            residual_string  = np.core.defchararray.add(basic_string_res,np.array(input_numbers-1).astype(str))
             residual_string  = np.core.defchararray.add(residual_string, np.tile(']',len_inputs))
             residual_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
             
@@ -547,12 +547,12 @@ class Nexus(Data):
             residual_aliases[:,1] = residual_string
             
             # Put all the aliases in!
-            for ii in xrange(len_inputs):
+            for ii in range(len_inputs):
                 ali.append(residual_aliases[ii].tolist())
                 ali.append(input_aliases[ii].tolist())
                 
             # The mission needs the state expanded now
-            mis.segments[segment].process.initialize.expand_state(mis.segments[segment],mis.segments[segment].state)
+            mis.segments[segment].process.initialize.expand_state(mis.segments[segment])
             
             # Update the count of inputs
             input_count = input_count+input_numbers[-1]            
