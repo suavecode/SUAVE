@@ -49,9 +49,9 @@ def expand_state(segment):
     total_time=(x0+500)/v_x    
     n_points   = np.int(np.ceil(total_time/dt +1))       
     
-    state.numerics.number_control_points = n_points
+    segment.state.numerics.number_control_points = n_points
     
-    state.expand_rows(n_points)      
+    segment.state.expand_rows(n_points)      
     
     return
 

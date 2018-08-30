@@ -66,6 +66,8 @@ class Segment(Analysis):
         self.process.finalize              = Process()
         self.process.finalize.post_process = Process()
         
+        self.conditions = self.state.conditions
+        
         return
         
 
