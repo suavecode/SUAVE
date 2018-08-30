@@ -183,7 +183,7 @@ def populate_wing_sections(avl_wing,suave_wing):
         """         
 
         
-        if uave_wing.Segments.keys()>0: 
+        if suave_wing.Segments.keys()>0: 
                 # obtain the geometry for each segment in a loop                                            
                 symm                 = avl_wing.symmetric
                 semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
