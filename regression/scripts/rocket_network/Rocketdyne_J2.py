@@ -182,11 +182,11 @@ def energy_network():
     error =  Data()
     
     error.thrust_error_SL = (F_SeaLevel[0][0] -  expected.thrust_SL)/expected.thrust_SL
-    error.mdot_error_SL   = (mdot_SeaLevel[0] - expected.mdot_SL)/expected.mdot_SL
+    error.mdot_error_SL   = (mdot_SeaLevel[0][0] - expected.mdot_SL)/expected.mdot_SL
     error.Isp_error_SL    = (Isp_SeaLevel[0][0]- expected.Isp_SL)/expected.Isp_SL
     
     error.thrust_error_Vac = (F_Vacuum[0][0] -  expected.thrust_Vac)/expected.thrust_Vac
-    error.mdot_error_Vac   = (mdot_Vacuum[0] - expected.mdot_Vac)/expected.mdot_Vac
+    error.mdot_error_Vac   = (mdot_Vacuum[0][0] - expected.mdot_Vac)/expected.mdot_Vac
     error.Isp_error_Vac    = (Isp_Vacuum[0][0]- expected.Isp_Vac)/expected.Isp_Vac
     
     print(error)
