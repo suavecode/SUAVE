@@ -70,7 +70,7 @@ class de_Laval_Nozzle(Energy_Component):
         
         Assumptions:
         Constant polytropic efficiency and pressure ratio
-        Isentropic Process from chmaber to throat (Pt_throat = Pt2)
+        Isentropic Process from chamber to throat (Pt_throat = Pt2)
         Supersonic/Throat is Choked
         
         Source:

@@ -34,8 +34,10 @@ def liquid_rocket_sizing(liquid_rocket, altitude = None, delta_isa = 0, conditio
         
         else:
             # call the atmospheric model to get the conditions at the specified altitude
+            # will need update for use on other celestial bodies!
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa,True)          
+            atmo_data  = atmosphere.compute_values(altitude,delta_isa,True)          
+            planet     = SUAVE.Attributes.Planets.Earth()
             
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
@@ -48,7 +50,7 @@ def liquid_rocket_sizing(liquid_rocket, altitude = None, delta_isa = 0, conditio
             conditions.freestream.altitude    = np.atleast_1d(altitude)
             conditions.freestream.pressure    = np.atleast_1d(p)
             conditions.freestream.temperature = np.atleast_1d(T)
-            conditions.freestream.gravity     = np.atleast_1d(9.81)
+            conditions.freestream.gravity     = np.atleast_1d(planet.sea_level_gravity)
             
             # propulsion conditions
             conditions.propulsion.throttle    = np.atleast_1d(1.0)
@@ -70,8 +72,8 @@ def liquid_rocket_sizing(liquid_rocket, altitude = None, delta_isa = 0, conditio
     core_nozzle.compute(conditions)
 
     # link the thrust component to the core nozzle
-    thrust.inputs                                          = core_nozzle.outputs
-    thrust.inputs.number_of_engines                        = number_of_engines
+    thrust.inputs                   = core_nozzle.outputs
+    thrust.inputs.number_of_engines = number_of_engines
         
     # compute the thrust 
     thrust.size(conditions)
