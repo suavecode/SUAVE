@@ -55,7 +55,15 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         myrank = comm.Get_rank()      
    
     # Instantiate the problem and set objective
-    import pyOpt
+    try:
+        import pyOpt as pyOpt
+    except:
+        try:
+            import pyoptsparse as pyOpt
+        except:
+            raise ImportError('No version of pyOpt found')
+        
+    
     opt_prob = pyOpt.Optimization('SUAVE',mywrap)
     for ii in range(len(obj)):
         opt_prob.addObj(obj[ii,0])    
