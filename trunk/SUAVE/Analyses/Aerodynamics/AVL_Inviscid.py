@@ -247,7 +247,7 @@ class AVL_Inviscid(Aerodynamics):
         
         time1 = time.time()
         
-        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)

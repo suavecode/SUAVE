@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from Analysis import Analysis
+from .Analysis import Analysis
 
 
 # ----------------------------------------------------------------------
@@ -138,11 +138,11 @@ class Vehicle(Analysis.Container):
                 
                 
         """
-        for analysis_type, analysis_root in self._analyses_map.iteritems():
+        for analysis_type, analysis_root in self._analyses_map.items():
             if isinstance(analysis,analysis_type):
                 break
         else:
-            raise Exception , "Unable to place analysis type %s" % analysis.typestring()
+            raise Exception("Unable to place analysis type %s" % analysis.typestring())
 
         return analysis_root
 

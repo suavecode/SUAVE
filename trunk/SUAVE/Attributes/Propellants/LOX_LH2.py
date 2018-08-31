@@ -7,7 +7,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from Propellant import Propellant
+from .Propellant import Propellant
+from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Class
@@ -44,7 +45,7 @@ class LOX_LH2(Propellant):
         None
         """    
         self.tag                         = 'LOX_RP1'
-        self.molecular_weight            = 12.644
+        self.molecular_weight            = 12.644                             # [kg/kmol]
         self.isentropic_expansion_factor = 1.145
-        self.combustion_temperature      = 3331
-        self.gas_specific_constant       = 8314.45986/self.molecular_weight
+        self.combustion_temperature      = 3331.0*Units.kelvin                # [K]                      
+        self.gas_specific_constant       = (8314.45986/self.molecular_weight)*Units['J/(kg*K)'] # [J/(kg-K)]

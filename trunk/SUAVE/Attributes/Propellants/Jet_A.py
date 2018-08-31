@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Propellant import Propellant
+from .Propellant import Propellant
 from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------

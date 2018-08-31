@@ -153,8 +153,8 @@ def energy_network():
     # size the rocket
     liquid_rocket_sizing(liquid_rocket,0.0)
     
-    print "Design thrust :",liquid_rocket.thrust.total_design
-    print "Sealevel static thrust :",liquid_rocket.sealevel_static_thrust
+    print("Design thrust :",liquid_rocket.thrust.total_design)
+    print("Sealevel static thrust :",liquid_rocket.sealevel_static_thrust)
     
     results_SeaLevel   = liquid_rocket(state_sls)
     results_Vacuum     = liquid_rocket(state_vacuum)
@@ -189,7 +189,7 @@ def energy_network():
     error.mdot_error_Vac   = (mdot_Vacuum[0] - expected.mdot_Vac)/expected.mdot_Vac
     error.Isp_error_Vac    = (Isp_Vacuum[0][0]- expected.Isp_Vac)/expected.Isp_Vac
     
-    print error
+    print(error)
     
     for k,v in error.items():
         assert(np.abs(v)<1e-6)    

@@ -53,11 +53,11 @@ class Rocket_Combustor(Energy_Component):
         self.tag = 'Rocket_Combustor'
         
         # setting the default values for the different components
-        self.propellant_data                    = SUAVE.Attributes.Propellants.LOX_RP1()
+        self.propellant_data                    = None
         self.propellant_data                    = Data()
-        self.inputs.combustion_pressure         = 1.0
-        self.inputs.throttle                    = 1.0
-        self.efficiency                         = 1.0
+        self.inputs.combustion_pressure         = None
+        self.inputs.throttle                    = None
+        self.efficiency                         = None
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to

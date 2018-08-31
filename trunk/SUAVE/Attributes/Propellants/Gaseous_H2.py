@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from Propellant import Propellant
+from .Propellant import Propellant
 from SUAVE.Attributes.Constants import Composition
 from SUAVE.Core import Data
 # ----------------------------------------------------------------------

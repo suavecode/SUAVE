@@ -174,9 +174,9 @@ def main():
     error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
-    print  error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
         
     

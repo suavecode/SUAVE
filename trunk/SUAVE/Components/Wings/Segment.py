@@ -67,7 +67,7 @@ class Segment(Lofted_Body.Segment):
         """  
         # assert database type
         if not isinstance(airfoil,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # store data
         self.Airfoil.append(airfoil)
@@ -92,7 +92,7 @@ class Segment(Lofted_Body.Segment):
         """  
         # assert database type
         if not isinstance(control_surface,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # store data
         self.control_surfaces.append(control_surface)

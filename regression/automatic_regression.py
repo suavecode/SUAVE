@@ -111,7 +111,7 @@ def main():
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write('Final Results \n')
-    for module,result in results.items():
+    for module,result in list(results.items()):
         sys.stdout.write('%s - %s\n' % (result,module))
 
     if all_pass:
@@ -143,7 +143,7 @@ def test_module(module_path):
         # see if file exists
         os.chdir(test_dir)
         if not os.path.exists(module_name) and not os.path.isfile(module_name):
-            raise ImportError, 'file %s does not exist' % module_name
+            raise ImportError('file %s does not exist' % module_name)
 
         # add module directory
         sys.path.append(test_dir)

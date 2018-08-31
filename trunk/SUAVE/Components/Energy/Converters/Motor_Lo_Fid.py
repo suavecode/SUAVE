@@ -96,7 +96,7 @@ class Motor_Lo_Fid(Energy_Component):
         
 
         # Omega
-        omega1 = (Kv*v)/2 + (Kv*(Res*Res*io*io - 2*Res*etam*io*v - 2*Res*io*v + etam*etam*v*v - 2*etam*v*v + v*v)**(1/2))/2 - (Kv*Res*io)/2 + (Kv*etam*v)/2
+        omega1 = (Kv*v)/2. + (Kv*(Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
         Q = ((v-omega1/Kv)/Res -io)/Kv
         
         omega1[v==0] = 0.

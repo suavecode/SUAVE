@@ -56,8 +56,8 @@ def converge_root(segment,state):
                                          full_output=1)
 
     if ier!=1:
-        print "Segment did not converge. Segment Tag: " + segment.tag
-        print "Error Message:\n" + msg
+        print("Segment did not converge. Segment Tag: " + segment.tag)
+        print("Error Message:\n" + msg)
         segment.state.numerics.converged = False
     else:
         segment.state.numerics.converged = True
@@ -70,7 +70,7 @@ def converge_root(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments
-def iterate(unknowns,(segment,state)):
+def iterate(unknowns, xxx_todo_changeme):
     
     """Runs one iteration of of all analyses for the mission.
 
@@ -90,7 +90,7 @@ def iterate(unknowns,(segment,state)):
     Properties Used:
     N/A
     """       
-
+    (segment,state) = xxx_todo_changeme
     if isinstance(unknowns,array_type):
         state.unknowns.unpack_array(unknowns)
     else:

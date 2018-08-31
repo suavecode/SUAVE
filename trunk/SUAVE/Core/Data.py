@@ -12,8 +12,8 @@
 import string
 from warnings import warn
 chars = string.punctuation + string.whitespace
-t_table = string.maketrans( chars          + string.uppercase , 
-                            '_'*len(chars) + string.lowercase )
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
 
 dictgetitem = dict.__getitem__
 objgetattrib = object.__getattribute__
@@ -269,7 +269,7 @@ class Data(dict):
         if indent: args += '\n'
         
         # print values   
-        for key,value in self.iteritems():
+        for key,value in self.items():
             
             # skip 'hidden' items
             if isinstance(key,str) and key.startswith('_'):
@@ -339,7 +339,7 @@ class Data(dict):
             Properties Used:
             N/A    
         """           
-        return self.itervalues()
+        return iter(self.values())
     
     def itervalues(self):
         """ Finds all the values that can be iterated over.
@@ -421,8 +421,8 @@ class Data(dict):
             N/A    
         """           
         if not isinstance(other,dict):
-            raise TypeError , 'input is not a dictionary type'
-        for k,v in other.iteritems():
+            raise TypeError('input is not a dictionary type')
+        for k,v in other.items():
             # recurse only if self's value is a Dict()
             if k.startswith('_'):
                 continue
@@ -460,7 +460,7 @@ class Data(dict):
             else:
                 klass = None
         if not klasses: # empty list
-            raise TypeError , 'class %s is not of type Data()' % self.__class__
+            raise TypeError('class %s is not of type Data()' % self.__class__)
         return klasses    
     
     def append(self,value,key=None):
@@ -487,7 +487,7 @@ class Data(dict):
         key = key.translate(t_table)
         if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
         if key is None: key = value.tag
-        if key in self: raise KeyError, 'key "%s" already exists' % key
+        if key in self: raise KeyError('key "%s" already exists' % key)
         self[key] = value        
     
     def deep_set(self,keys,val):
@@ -581,10 +581,10 @@ class Data(dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from Arrays import atleast_2d_col, array_type, matrix_type
+        from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
-        if not output in ('vector','array'): raise Exception , 'output type must be "vector" or "array"'        
+        if not output in ('vector','array'): raise Exception('output type must be "vector" or "array"')        
         vector = output == 'vector'
         
         # list to pre-dump array elements
@@ -600,7 +600,7 @@ class Data(dict):
         
         # the packing function
         def do_pack(D):
-            for v in D.itervalues():
+            for v in D.values():
                 # type checking
                 if isinstance( v, dict ): 
                     do_pack(v) # recursion!
@@ -663,7 +663,7 @@ class Data(dict):
         
         # dont require dict to have numpy
         import numpy as np
-        from Arrays import atleast_2d_col, array_type, matrix_type
+        from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
         vector = np.rank(M) == 1
@@ -678,7 +678,7 @@ class Data(dict):
         
         # the unpacking function
         def do_unpack(D):
-            for k,v in D.iteritems():
+            for k,v in D.items():
                 
                 # type checking
                 if isinstance(v, dict): 
@@ -767,9 +767,9 @@ class Data(dict):
     
         # the update function
         def do_operation(A,B,C):
-            for k,a in A.iteritems():
+            for k,a in A.items():
                 if isinstance(B,Data):
-                    if B.has_key(k):
+                    if k in B:
                         b = B[k]
                     else: 
                         continue
@@ -808,7 +808,7 @@ if __name__ == '__main__':
     d.options = Data()
     d.options.field = 'of greens'
     d.options.half  = 0.5
-    print d
+    print(d)
     
     import numpy as np
     ones = np.ones([10,1])
@@ -822,5 +822,5 @@ if __name__ == '__main__':
     m.rates.special = 'nope'
     m.value = 1.0
     
-    print m
+    print(m)
     

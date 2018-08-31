@@ -4,4 +4,4 @@
 ## @ingroup Components
 
 # classes
-from Fuselage import Fuselage
+from .Fuselage import Fuselage

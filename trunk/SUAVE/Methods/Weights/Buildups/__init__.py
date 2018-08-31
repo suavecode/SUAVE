@@ -5,7 +5,7 @@ sizing.
 '''
 
 
-import Electric_Helicopter
-import Electric_Stopped_Rotor
-import Electric_Tiltrotor
-import Common
+from . import Electric_Helicopter
+from . import Electric_Stopped_Rotor
+from . import Electric_Tiltrotor
+from . import Common

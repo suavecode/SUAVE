@@ -9,9 +9,9 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core     import Units, Data
-from cabin          import cabin
-from aft_centerbody import aft_centerbody
-from systems        import systems
+from .cabin          import cabin
+from .aft_centerbody import aft_centerbody
+from .systems        import systems
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
@@ -116,7 +116,7 @@ def empty(vehicle):
     
     S_gross_w  = vehicle.reference_area
 
-    if not vehicle.wings.has_key('main_wing'):
+    if 'main_wing' not in vehicle.wings:
         wt_wing  = 0.0
         wing_c_r = 0.0
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)

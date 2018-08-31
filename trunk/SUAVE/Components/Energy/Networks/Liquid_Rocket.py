@@ -52,13 +52,13 @@ class Liquid_Rocket(Propulsor):
 
         #setting the default values
         self.tag = 'Liquid_Rocket'
-        self.number_of_engines = 1.0
-        self.engine_length     = 1.0
-        self.nacelle_diameter  = 1.0
+        self.number_of_engines = None
+        self.engine_length     = None
+        self.nacelle_diameter  = None
 
         # For Drag calculations 
         self.areas             = Data()
-        self.areas.wetted      = 0.0        
+        self.areas.wetted      = None       
         self.internal          = True
 
     _component_root_map = None

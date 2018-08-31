@@ -14,8 +14,8 @@ from collections import OrderedDict
 # for enforcing attribute style access names
 import string
 chars = string.punctuation + string.whitespace
-t_table = string.maketrans( chars          + string.uppercase , 
-                            '_'*len(chars) + string.lowercase )
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
 
 from warnings import warn
 import numpy as np
@@ -162,7 +162,7 @@ class DataOrdered(OrderedDict):
         key = key.translate(t_table)
         if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
         if key is None: key = value.tag
-        if key in self: raise KeyError, 'key "%s" already exists' % key
+        if key in self: raise KeyError('key "%s" already exists' % key)
         self[key] = value    
 
     def __defaults__(self):
@@ -229,7 +229,7 @@ class DataOrdered(OrderedDict):
         # Make the new:
         self = OrderedDict.__new__(cls)
         
-        if hasattr(self,'_root'):
+        if self.hasattr('_root'):
             self._root
         else:
             root = [] # sentinel node
@@ -248,6 +248,14 @@ class DataOrdered(OrderedDict):
             klass.__defaults__(self)
             
         return self
+    
+    def hasattr(self,k):
+        try:
+            elf.__getitem__(k)
+            return True
+        except:
+            return False
+            
     
     def __init__(self,*args,**kwarg):
         """ Initializes a new Data() class
@@ -299,7 +307,7 @@ class DataOrdered(OrderedDict):
         
         # a dictionary
         if hasattr(items, 'iterkeys'):
-            for key in items.iterkeys():
+            for key in items.keys():
                 append_value(key,items[key])
 
         elif hasattr(items, 'keys'):
@@ -312,7 +320,7 @@ class DataOrdered(OrderedDict):
                 append_value(key,value)
                 
         # key words
-        for key, value in kwds.iteritems():
+        for key, value in kwds.items():
             append_value(key,value)     
 
     # iterate on values, not keys
@@ -334,7 +342,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        return self.itervalues()
+        return iter(self.values())
             
     def __str__(self,indent=''):
         """ This function is used for printing the class. This starts the first line of printing.
@@ -414,7 +422,7 @@ class DataOrdered(OrderedDict):
             else:
                 klass = None
         if not klasses: # empty list
-            raise TypeError , 'class %s is not of type DataBunch()' % self.__class__
+            raise TypeError('class %s is not of type DataBunch()' % self.__class__)
         return klasses
     
     def typestring(self):
@@ -546,8 +554,8 @@ class DataOrdered(OrderedDict):
             N/A    
         """          
         if not isinstance(other,dict):
-            raise TypeError , 'input is not a dictionary type'
-        for k,v in other.iteritems():
+            raise TypeError('input is not a dictionary type')
+        for k,v in other.items():
             # recurse only if self's value is a Dict()
             if k.startswith('_'):
                 continue
@@ -749,7 +757,7 @@ class DataOrdered(OrderedDict):
         if indent: args += '\n'
         
         # print values   
-        for key,value in self.iteritems():
+        for key,value in self.items():
             
             # skip 'hidden' items
             if isinstance(key,str) and key.startswith('_'):
@@ -796,7 +804,7 @@ class DataOrdered(OrderedDict):
         """        
         
         try:
-            for node in self._map.itervalues():
+            for node in self._map.values():
                 del node[:]
             root = self._root
             root[:] = [root, root, None]
@@ -843,7 +851,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """             
-        return self.__dict__.has_key(k)
+        return k in self.__dict__
 
     # allow override of iterators
     __iter = __iter__
@@ -1008,7 +1016,7 @@ if __name__ == '__main__':
     d.options = DataOrdered()
     d.options.field = 'of greens'
     d.options.half  = 0.5
-    print d
+    print(d)
     
     import numpy as np
     ones = np.ones([10,1])
@@ -1022,17 +1030,17 @@ if __name__ == '__main__':
     m.rates.special = 'nope'
     m.value = 1.0
     
-    print m
+    print(m)
     
     V = m.pack_array('vector')
     M = m.pack_array('array')
     
-    print V
-    print M
+    print(V)
+    print(M)
     
     V = V*10
     M = M-10
     
-    print m.unpack_array(V)
-    print m.unpack_array(M)
+    print(m.unpack_array(V))
+    print(m.unpack_array(M))
     

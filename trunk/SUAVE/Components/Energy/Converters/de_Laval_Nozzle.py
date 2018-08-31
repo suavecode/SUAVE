@@ -58,11 +58,11 @@ class de_Laval_Nozzle(Energy_Component):
         
         #set the defaults
         self.tag = 'Nozzle'
-        self.polytropic_efficiency           = 1.0
-        self.pressure_ratio_converge         = 1.0
-        self.pressure_ratio_diverge          = 1.0
-        self.expansion_ratio                 = 1.0     
-        self.area_throat                     = 1.0
+        self.polytropic_efficiency           = None
+        self.pressure_ratio_converge         = None
+        self.pressure_ratio_diverge          = None
+        self.expansion_ratio                 = None    
+        self.area_throat                     = None
         
     def compute(self,conditions):
         """This computes the output values from the input values according to

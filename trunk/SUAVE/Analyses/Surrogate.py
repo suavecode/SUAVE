@@ -11,7 +11,7 @@
 # imports
 
 from SUAVE.Core import Data
-from Analysis import Analysis
+from .Analysis import Analysis
 
 
 # ----------------------------------------------------------------------

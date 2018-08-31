@@ -137,6 +137,7 @@ class Rocket_Thrust(Energy_Component):
         mdot               = mdot_temp 
         mdot[mdot<0.0]     = 0.0 
         thrust[thrust<0.0] = 0.0
+        
         #--Pack outputs--
         self.outputs.thrust                            = thrust  
         self.outputs.vehicle_mass_rate                 = mdot

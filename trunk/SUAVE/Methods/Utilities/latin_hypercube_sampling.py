@@ -135,7 +135,7 @@ if __name__ == '__main__':
     ti = time.time()
     latin_hypercube_sampling(40,10000)
     tf = time.time()
-    print 'Time for 40D, 10000 samples: ' + str(tf-ti) + ' s'
+    print('Time for 40D, 10000 samples: ' + str(tf-ti) + ' s')
     # 0.12 s on Surface Pro 3
     
     pass

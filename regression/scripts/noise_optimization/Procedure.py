@@ -490,7 +490,7 @@ def compute_noise(config,analyses,noise_segment):
 
 def weight(nexus):   
     
-    for tag,config in nexus.analyses.items():
+    for tag,config in list(nexus.analyses.items()):
         weights = config.weights.evaluate()
     
     return nexus
@@ -640,9 +640,9 @@ def post_process(nexus):
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
     
-    print "Sideline = ", summary.noise.sideline
-    print "Flyover = ", summary.noise.flyover
-    print "Approach = ", summary.noise.approach
+    print("Sideline = ", summary.noise.sideline)
+    print("Flyover = ", summary.noise.flyover)
+    print("Approach = ", summary.noise.approach)
   
     return nexus    
 

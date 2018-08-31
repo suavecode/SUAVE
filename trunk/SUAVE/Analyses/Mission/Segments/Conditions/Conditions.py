@@ -121,7 +121,7 @@ class Conditions(Data):
         # recursively initialize condition and unknown arrays 
         # to have given row length
         
-        for k,v in self.iteritems():
+        for k,v in self.items():
             # recursion
             if isinstance(v,Conditions):
                 v.expand_rows(rows)
