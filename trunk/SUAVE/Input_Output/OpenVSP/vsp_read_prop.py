@@ -90,7 +90,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	chords            = [vsp.GetParmVal(prop_id, 'crd_0', 'Chord') * units_factor]
 	chords_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Chord')]  						# This is r/R value.
 	ii                = 1
-	while chords_rad[ii-1]!=1.:
+	while np.round(chords_rad[ii-1], 3)!=1.:
 		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units_factor
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
 		ii += 1
@@ -101,7 +101,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	twists            = [vsp.GetParmVal(prop_id, 'tw_0', 'Twist') * Units.deg]
 	twists_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Twist')]							# This is r/R value.
 	ii                = 1
-	while twists_rad[ii-1]!=1.:
+	while np.round(twists_rad[ii-1], 3)!=1.:
 		twists.append(vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist') * Units.deg) 
 		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
 		ii += 1
@@ -112,7 +112,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	skews            = [vsp.GetParmVal(prop_id, 'skw_0', 'Skew') * Units.deg]
 	skews_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Skew')]
 	ii		 = 1
-	while skews_rad[ii-1]!=1.:
+	while np.round(skews_rad[ii-1], 3)!=1.:
 		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew') * Units.deg)
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
 		ii += 1
@@ -123,7 +123,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	rakes            = [vsp.GetParmVal(prop_id, 'rak_0', 'Rake') * Units.deg]
 	rakes_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Rake')]	
 	ii 		 = 1
-	while rakes_rad[ii-1]!=1.:
+	while np.round(rakes_rad[ii-1], 3)!=1.:
 		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake') * Units.deg)
 		rakes_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
 		ii += 1
@@ -134,7 +134,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	sweeps            = [vsp.GetParmVal(prop_id, 'sw_0', 'Sweep') * Units.deg]
 	sweeps_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Sweep')]
 	ii                = 1
-	while sweeps_rad[ii-1]!=1.:
+	while np.round(sweeps_rad[ii-1], 3)!=1.:
 		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep') * Units.deg)
 		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
 		ii += 1
