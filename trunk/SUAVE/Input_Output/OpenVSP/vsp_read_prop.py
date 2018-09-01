@@ -88,9 +88,9 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	chord_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
 	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
 	chords            = [vsp.GetParmVal(prop_id, 'crd_0', 'Chord') * units_factor]
-	chords_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Chord')]  						# This is r/R value.
+	chords_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Chord')]  			# This is r/R value.
 	ii                = 1
-	while np.round(chords_rad[ii-1], 3)!=1.:
+	while np.round(chords_rad[ii-1], 3)!=1.:					# np.round for safety. Sometimes 1.0 returns .999 repeating.
 		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units_factor
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
 		ii += 1
@@ -99,7 +99,7 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	twist_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Twist'))]
 	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
 	twists            = [vsp.GetParmVal(prop_id, 'tw_0', 'Twist') * Units.deg]
-	twists_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Twist')]							# This is r/R value.
+	twists_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Twist')]			# This is r/R value.
 	ii                = 1
 	while np.round(twists_rad[ii-1], 3)!=1.:
 		twists.append(vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist') * Units.deg) 
@@ -138,5 +138,10 @@ def vsp_read_prop(prop_id, units_type='SI'):
 		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep') * Units.deg)
 		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
 		ii += 1
+
+	# -------------
+	# All 10 arrays above are now ready for processing, which should be included here. 
+	# Note: They are not included in the prop object.
+	# -------------	
 		
 	return prop
