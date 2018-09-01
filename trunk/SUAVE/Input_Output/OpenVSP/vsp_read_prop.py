@@ -83,72 +83,60 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	# -------------
 	# Blade geometry
 	# -------------	
-	
-	max_quantity = 100  # Of possible chord/skew/twist/rake/sweep parametric curve points (HARDCODED).
-	
+		
 	# Chord
 	chord_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Chord'))]
 	chord_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Chord')
-	chords            = []
-	chords_rad        = []  						# This is r/R value.
-	for ii in xrange(max_quantity):						
+	chords            = [vsp.GetParmVal(prop_id, 'crd_0', 'Chord') * units_factor]
+	chords_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Chord')]  						# This is r/R value.
+	ii                = 1
+	while chords_rad[ii-1]!=1.:
 		chords.append(vsp.GetParmVal(prop_id, 'crd_' + str(ii), 'Chord')) * units_factor
 		chords_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Chord'))
-		if ii!=0 and chords[ii] == 0.0 and chords[ii-1] == 0.0:		# Checks for two consecutive zero conditions before breaking.
-			chords     = chords[:-2]				# Resize arrays to omit zero values.
-			chords_rad = chords_rad[:-2]
-			break
-	
+		ii += 1
+		
 	# Twist
 	twist_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Twist'))]
 	twist_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Twist')	
-	twists            = []
-	twists_rad        = []							# This is r/R value.
-	for ii in xrange(max_quantity):
+	twists            = [vsp.GetParmVal(prop_id, 'tw_0', 'Twist') * Units.deg]
+	twists_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Twist')]							# This is r/R value.
+	ii                = 1
+	while twists_rad[ii-1]!=1.:
 		twists.append(vsp.GetParmVal(prop_id, 'tw_' + str(ii), 'Twist') * Units.deg) 
 		twists_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Twist'))		
-		if ii!=0 and twists[ii] == 0.0 and twists[ii-1] == 0.0:
-			twists     = twists[:-2]
-			twists_rad = twists_rad[:-2]
-			break
-	
+		ii += 1
+		
 	# Skew
 	skew_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Skew'))]
 	skew_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Skew')
-	skews            = []
-	skews_rad        = []
-	for ii in xrange(max_quantity):
+	skews            = [vsp.GetParmVal(prop_id, 'skw_0', 'Skew') * Units.deg]
+	skews_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Skew')]
+	ii		 = 1
+	while skews_rad[ii-1]!=1.:
 		skews.append(vsp.GetParmVal(prop_id, 'skw_' + str(ii), 'Skew') * Units.deg)
 		skews_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Skew'))	
-		if ii!=0 and skews[ii] == 0.0 and skews[ii-1] == 0.0:
-			skews     = skews[:-2]
-			skews_rad = skews_rad[:-2]
-			break
+		ii += 1
 	
 	# Rake
 	rake_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Rake'))]
 	rake_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Rake')
-	rakes            = []
-	rakes_rad        = []	
-	for ii in xrange(max_quantity):
+	rakes            = [vsp.GetParmVal(prop_id, 'rak_0', 'Rake') * Units.deg]
+	rakes_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Rake')]	
+	ii 		 = 1
+	while rakes_rad[ii-1]!=1.:
 		rakes.append(vsp.GetParmVal(prop_id, 'rak_' + str(ii), 'Rake') * Units.deg)
 		rakes_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Rake'))
-		if ii!=0 and rakes[ii] == 0.0 and rakes[ii-1] == 0.0:
-			rakes     = rakes[:-2]
-			rakes_rad = rakes_rad[:-2]
-			break
+		ii += 1
 		
 	# Sweep
 	sweep_curve       = curve_type[int(vsp.GetParmVal(prop_id, 'CrvType', 'Sweep'))]
 	sweep_split_point = vsp.GetParmVal(prop_id, 'SplitPt', 'Sweep')
-	sweeps            = []
-	sweeps_rad        = []
-	for ii in xrange(max_quantity):
+	sweeps            = [vsp.GetParmVal(prop_id, 'sw_0', 'Sweep') * Units.deg]
+	sweeps_rad        = [vsp.GetParmVal(prop_id, 'r_0', 'Sweep')]
+	ii                = 1
+	while sweeps_rad[ii-1]!=1.:
 		sweeps.append(vsp.GetParmVal(prop_id, 'sw_' + str(ii), 'Sweep') * Units.deg)
 		sweeps_rad.append(vsp.GetParmVal(prop_id, 'r_' + str(ii), 'Sweep'))	
-		if ii!=0 and sweeps[ii] == 0.0 and sweeps[ii-1] == 0.0:
-			sweeps     = sweeps[:-2]
-			sweeps_rad = sweeps_rad[:-2]			
-			break
+		ii += 1
 		
 	return prop
