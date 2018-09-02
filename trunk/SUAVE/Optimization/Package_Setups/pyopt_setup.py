@@ -95,11 +95,11 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         edge = scaled_constraints[ii]
        
         if con[ii][1]=='<':
-            opt_prob.addCon(name, type='i', upper=edge)
+            opt_prob.addCon(name, upper=edge)
         elif con[ii][1]=='>':
-            opt_prob.addCon(name, type='i', lower=edge,upper=np.inf)
+            opt_prob.addCon(name, lower=edge)
         elif con[ii][1]=='=':
-            opt_prob.addCon(name, type='e', equal=edge)
+            opt_prob.addCon(name, lower=edge,upper=edge)
 
     # Finalize problem statement and run  
     print(opt_prob)
