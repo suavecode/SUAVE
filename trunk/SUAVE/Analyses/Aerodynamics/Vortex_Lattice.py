@@ -84,28 +84,32 @@ class Vortex_Lattice(Aerodynamics):
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()
+        sectional_inviscid_wings_lift                                              = Data()
         inviscid_wings_lift.total                                        = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total 
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total 
         state.conditions.aerodynamics.lift_coefficient_wing              = Data() 
         
+        #state.conditions.aerodynamics.inviscid_lift_force                = Data() 
+        #state.conditions.aerodynamics.inviscid_drag_force                = Data() 
+        
         for wing in geometry.wings.values():
-            [wing_lift, wing_lift_coeff  ,wing_drag , wing_drag_coeff ]          = weissinger_vortex_lattice(conditions,settings,wing,propulsors)
+            [wing_lift_coeff ,wing_lift, wing_drag_coeff , wing_drag]          = weissinger_vortex_lattice(conditions,settings,wing,propulsors)
             inviscid_wings_lift[wing.tag] = wing_lift_coeff 
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag] = inviscid_wings_lift[wing.tag]
-            state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]        = wing_lift_coeff 
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]    = inviscid_wings_lift[wing.tag]
+            state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]           = inviscid_wings_lift[wing.tag]     
+            total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area  
             
             # lift 
-            total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
             total_lift  += wing_lift  
             
             # inviscid drag 
-            total_drag_coeff += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
-            total_drag  += wing_drag  
+            total_drag  += wing_drag 
         
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = total_lift_coeff
         state.conditions.aerodynamics.lift_coefficient                   = total_lift_coeff
+        state.conditions.aerodynamics.inviscid_lift  =   total_lift  
         inviscid_wings_lift.total  = total_lift_coeff
         
         return inviscid_wings_lift

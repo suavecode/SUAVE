@@ -54,7 +54,6 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     """ 
  
 
-        
     orientation = wing.vertical    
     
     span        = wing.spans.projected
@@ -233,25 +232,25 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                 q_distribution = 0.5*rho*V_distribution**2    
                 LT[index][0]   , CL[index][0]   , DT[index][0]  , CD[index][0]     ,Lift_distribution[index][:], Drag_distribution[index][:] = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
     
-            #-----------------------------------------------------------
-            # PLOT LIFT & DRAF DISTRIBUTION
-            #-----------------------------------------------------------
-            wing_span          = np.array(np.linspace(0,span,n))
+            ##-----------------------------------------------------------
+            ## PLOT LIFT & DRAF DISTRIBUTION
+            ##-----------------------------------------------------------
+            #wing_span          = np.array(np.linspace(0,span,n))
             
-            fig = plt.figure('Semi Span Aerodynamics')
-            fig.set_size_inches(10, 8)
+            #fig = plt.figure('Semi Span Aerodynamics')
+            #fig.set_size_inches(10, 8)
     
-            axes2 = fig.add_subplot(2,1,1)
-            axes2.plot( wing_span , V_distribution , 'ro-' )
-            axes2.set_xlabel('Span (m)')
-            axes2.set_ylabel(r'Local Velocity $m/s$')
-            axes2.grid(True)        
+            #axes2 = fig.add_subplot(2,1,1)
+            #axes2.plot( wing_span , V_distribution , 'ro-' )
+            #axes2.set_xlabel('Span (m)')
+            #axes2.set_ylabel(r'Local Velocity $m/s$')
+            #axes2.grid(True)        
     
-            axes3 = fig.add_subplot(2,1,2)
-            axes3.plot( wing_span , Lift_distribution[0], 'bo-' )
-            axes3.set_xlabel('Span (m)')
-            axes3.set_ylabel(r'$Spanwise Lift$')
-            axes3.grid(True)        
+            #axes3 = fig.add_subplot(2,1,2)
+            #axes3.plot( wing_span , Lift_distribution[0], 'bo-' )
+            #axes3.set_xlabel('Span (m)')
+            #axes3.set_ylabel(r'$Spanwise Lift$')
+            #axes3.grid(True)        
             #plt.show()
             
     return  LT , CL , DT, CD   
@@ -301,18 +300,28 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf
     L  = deltax * Lft
     D  = deltax * Dg
 
+    # Total lift
+    LT = np.sum(L)
+    DT = np.sum(D)
+
+    CL1 = 2*LT/(0.5*Sref)
+    CD1 = 2*DT/(0.5*Sref) 
+    
     # Lift & Drag distribution
-    Lift_distribution      = q_distribution *L[0]*chord_distribution        
-    Drag_distribution      = q_distribution *D[0]*chord_distribution       
+    Lift_distribution      = q_distribution *L[0]        
+    Drag_distribution      = q_distribution *D[0]       
 
-    # Total Lift and Draf
-    LT = sum(Lift_distribution) 
-    DT = sum(Drag_distribution) 
-
-    # CL and CD     
-    CL  = 2*LT /( q_inf*Sref)
-    CD =  2*DT /( q_inf*Sref)    
-
-    return LT , CL , DT, CD  , Lift_distribution, Drag_distribution   
+    # Total Lift and Drag
+    Total_Lift_Force = sum(2*Lift_distribution) 
+    Total_Drag_Force = sum(2*Drag_distribution)
+    
+    CL2 = Total_Lift_Force/(0.5*Sref*q_inf)
+    CD2 = Total_Drag_Force/(0.5*Sref*q_inf)  
+    
+    print "CL"
+    print CL1
+    print CL2
+    
+    return LT , CL1 , DT, CD1  , Lift_distribution, Drag_distribution   
 
 

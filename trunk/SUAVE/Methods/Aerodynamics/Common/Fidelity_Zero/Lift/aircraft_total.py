@@ -25,12 +25,12 @@ def aircraft_total(state,settings,geometry):
     state.conditions.aerodynamics.lift_coefficient    [Unitless]
 
     Outputs:
-    aircraft_lift_total (lift coefficient)            [Unitless]
+    aircraft_lift_total              [Force]
 
     Properties Used:
     N/A
     """      
     
-    aircraft_lift_total = state.conditions.aerodynamics.lift_coefficient
+    aircraft_lift_total = state.conditions.aerodynamics.lift_coefficient  
 
     return aircraft_lift_total

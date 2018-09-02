@@ -36,8 +36,8 @@ def fuselage_correction(state,settings,geometry):
    
     # unpack
     fus_correction  = settings.fuselage_lift_correction
-    Mc              = state.conditions.freestream.mach_number        # NOT CORRECT, should be one value
-    AoA             = state.conditions.aerodynamics.angle_of_attack  # NOT CORRECT, should be one value
+    Mc              = state.conditions.freestream.mach_number        
+    AoA             = state.conditions.aerodynamics.angle_of_attack 
     wings_lift_comp = state.conditions.aerodynamics.lift_coefficient
     
     # total lift, accounting one fuselage

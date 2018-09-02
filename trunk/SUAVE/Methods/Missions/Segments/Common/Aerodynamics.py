@@ -182,7 +182,7 @@ def update_aerodynamics(segment,state):
     results = aerodynamics_model( state )    
     
     # unpack results
-    CL = results.lift.total
+    CL  = results.lift.total
     CD = results.drag.total
 
     CL[q<=0.0] = 0.0
@@ -197,6 +197,7 @@ def update_aerodynamics(segment,state):
     L = state.ones_row(3) * 0.0
     D = state.ones_row(3) * 0.0
 
+    
     L[:,2] = ( -CL * q * Sref )[:,0]
     D[:,0] = ( -CD * q * Sref )[:,0]
 
