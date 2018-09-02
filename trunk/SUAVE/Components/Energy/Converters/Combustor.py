@@ -72,6 +72,11 @@ class Combustor(Energy_Component):
         self.outputs.fuel_to_air_ratio       = 1.0
         self.fuel_data                       = Data()
         self.area_ratio                      = 1.0
+        self.axial_fuel_velocity_ratio       = 0.0
+        self.fuel_velocity_ratio             = 0.0
+        self.burner_drag_coefficient         = 0.0
+        self.absolute_sensible_enthalpy      = 0.0
+        self.fuel_equivalency_ratio          = 1.0        
         self.inputs.nondim_mass_ratio        = 1.0 # allows fuel already burned to be added to the flow
     
     def compute(self,conditions):
