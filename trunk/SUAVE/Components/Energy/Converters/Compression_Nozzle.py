@@ -20,6 +20,7 @@ from warnings import warn
 import numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Methods.Propulsion.shock_train import shock_train
 
 # ----------------------------------------------------------------------
 #  Compression Nozzle Component
@@ -66,6 +67,8 @@ class Compression_Nozzle(Energy_Component):
         self.outputs.stagnation_temperature  = 0.0
         self.outputs.stagnation_pressure     = 0.0
         self.outputs.stagnation_enthalpy     = 0.0
+        self.compression_levels              = 0.0
+        self.theta                           = 0.0
        
     def compute(self,conditions):
         """ This computes the output values from the input values according to
