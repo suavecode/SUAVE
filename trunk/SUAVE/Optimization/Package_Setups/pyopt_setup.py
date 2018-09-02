@@ -55,15 +55,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         myrank = comm.Get_rank()      
    
     # Instantiate the problem and set objective
-    try:
-        import pyOpt as pyOpt
-    except:
-        try:
-            import pyoptsparse as pyOpt
-        except:
-            raise ImportError('No version of pyOpt found')
-        
-    
+    import pyOpt
     opt_prob = pyOpt.Optimization('SUAVE',mywrap)
     for ii in range(len(obj)):
         opt_prob.addObj(obj[ii,0])    
@@ -95,11 +87,11 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         edge = scaled_constraints[ii]
        
         if con[ii][1]=='<':
-            opt_prob.addCon(name, upper=edge)
+            opt_prob.addCon(name, type='i', upper=edge)
         elif con[ii][1]=='>':
-            opt_prob.addCon(name, lower=edge)
+            opt_prob.addCon(name, type='i', lower=edge,upper=np.inf)
         elif con[ii][1]=='=':
-            opt_prob.addCon(name, lower=edge,upper=edge)
+            opt_prob.addCon(name, type='e', equal=edge)
 
     # Finalize problem statement and run  
     print(opt_prob)
