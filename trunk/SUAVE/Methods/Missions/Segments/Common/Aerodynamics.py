@@ -16,25 +16,25 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_altitude(segment,state):
+def update_altitude(segment):
     """ Updates freestream altitude from inertial position
         
         Assumptions:
         N/A
         
         Inputs:
-            state.conditions:
+            segment.state.conditions:
                 frames.inertial.position_vector [meters]
         Outputs:
-            state.conditions:
+            segment.state.conditions:
                 freestream.altitude             [meters]
       
         Properties Used:
         N/A
                     
     """    
-    altitude = -state.conditions.frames.inertial.position_vector[:,2]
-    state.conditions.freestream.altitude[:,0] = altitude
+    altitude = -segment.state.conditions.frames.inertial.position_vector[:,2]
+    segment.state.conditions.freestream.altitude[:,0] = altitude
     
 
 # ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ def update_altitude(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_atmosphere(segment,state):
+def update_atmosphere(segment):
     """ Computes conditions of the atmosphere at given altitudes
     
         Assumptions:
@@ -67,7 +67,7 @@ def update_atmosphere(segment,state):
     """
     
     # unpack
-    conditions            = state.conditions
+    conditions            = segment.state.conditions
     h                     = conditions.freestream.altitude
     temperature_deviation = segment.temperature_deviation
     atmosphere            = segment.analyses.atmosphere
@@ -90,21 +90,21 @@ def update_atmosphere(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_freestream(segment,state):
+def update_freestream(segment):
     """ Computes freestream values
         
         Assumptions:
         N/A
 
         Inputs:
-            state.conditions:
+            segment.state.conditions:
                 frames.inertial.velocity_vector [meter/second]
                 freestream.density              [kilogram/meter^3]
                 freestream.speed_of_sound       [meter/second]
                 freestream.dynamic_viscosity    [pascals-seconds]
 
         Outputs:
-            state.conditions:
+            segment.state.conditions:
                 freestream.dynamic pressure     [pascals]
                 freestream.mach number          [Unitless]
                 freestream.reynolds number      [1/meter]
@@ -114,7 +114,7 @@ def update_freestream(segment,state):
     """
     
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     Vvec = conditions.frames.inertial.velocity_vector
     rho  = conditions.freestream.density
     a    = conditions.freestream.speed_of_sound
@@ -147,7 +147,7 @@ def update_freestream(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_aerodynamics(segment,state):
+def update_aerodynamics(segment):
     """ Gets aerodynamics conditions
     
         Assumptions:
@@ -156,10 +156,10 @@ def update_aerodynamics(segment,state):
         +Z down
 
         Inputs:
-            segment.analyses.aerodynamics_model                  [Function]
-            aerodynamics_model.settings.maximum_lift_coefficient [unitless]
-            aerodynamics_model.geometry.reference_area           [meter^2]
-            state.conditions.freestream.dynamic_pressure         [pascals]
+            segment.analyses.aerodynamics_model                    [Function]
+            aerodynamics_model.settings.maximum_lift_coefficient   [unitless]
+            aerodynamics_model.geometry.reference_area             [meter^2]
+            segment.state.conditions.freestream.dynamic_pressure   [pascals]
 
         Outputs:
             conditions.aerodynamics.lift_coefficient [unitless]
@@ -172,14 +172,14 @@ def update_aerodynamics(segment,state):
     """
     
     # unpack
-    conditions         = state.conditions
+    conditions         = segment.state.conditions
     aerodynamics_model = segment.analyses.aerodynamics
-    q                  = state.conditions.freestream.dynamic_pressure
+    q                  = segment.state.conditions.freestream.dynamic_pressure
     Sref               = aerodynamics_model.geometry.reference_area
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
-    results = aerodynamics_model( state )    
+    results = aerodynamics_model( segment.state )    
     
     # unpack results
     CL = results.lift.total
@@ -194,8 +194,8 @@ def update_aerodynamics(segment,state):
     CL[CL< -CLmax] = -CLmax
         
     # dimensionalize
-    L = state.ones_row(3) * 0.0
-    D = state.ones_row(3) * 0.0
+    L = segment.state.ones_row(3) * 0.0
+    D = segment.state.ones_row(3) * 0.0
 
     L[:,2] = ( -CL * q * Sref )[:,0]
     D[:,0] = ( -CD * q * Sref )[:,0]
@@ -215,7 +215,7 @@ def update_aerodynamics(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_stability(segment,state):
+def update_stability(segment):
     
     """ Initiates the stability model
     
@@ -223,7 +223,7 @@ def update_stability(segment,state):
         N/A
 
         Inputs:
-            state.conditions           [Data]
+            segment.state.conditions   [Data]
             segment.analyses.stability [function]
 
         Outputs:
@@ -234,12 +234,12 @@ def update_stability(segment,state):
     """    
 
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     stability_model = segment.analyses.stability
     
     # call aerodynamics model
     if stability_model:
-        results = stability_model( state.conditions )        
+        results = stability_model( segment.state.conditions )        
         conditions.stability.update(results)
     
     return

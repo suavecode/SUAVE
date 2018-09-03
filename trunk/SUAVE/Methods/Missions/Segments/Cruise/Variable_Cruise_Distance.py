@@ -8,7 +8,7 @@
 #   Initialize - for cruise distance
 # --------------------------------------------------------------
 ## @ingroup Methods-Missions-Segments-Cruise
-def initialize_cruise_distance(segment,state):
+def initialize_cruise_distance(segment):
     """This is a method that allows your vehicle to land at prescribed landing weight
 
     Assumptions:
@@ -33,7 +33,7 @@ def initialize_cruise_distance(segment,state):
     distance   = segment.segments[cruise_tag].distance
     
     # apply, make a good first guess
-    state.unknowns.cruise_distance = distance
+    segment.state.unknowns.cruise_distance = distance
     
     return
 
@@ -43,7 +43,7 @@ def initialize_cruise_distance(segment,state):
 # --------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Cruise
-def unknown_cruise_distance(segment,state):
+def unknown_cruise_distance(segment):
     """This is a method that allows your vehicle to land at prescribed landing weight
 
     Assumptions:
@@ -64,7 +64,7 @@ def unknown_cruise_distance(segment,state):
     """      
     
     # unpack
-    distance = state.unknowns.cruise_distance
+    distance = segment.state.unknowns.cruise_distance
     cruise_tag = segment.cruise_tag
     
     # apply the unknown
@@ -78,7 +78,7 @@ def unknown_cruise_distance(segment,state):
 # --------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Cruise
-def residual_landing_weight(segment,state):
+def residual_landing_weight(segment):
     """This is a method that allows your vehicle to land at prescribed landing weight.
     This takes the final weight and compares it against the prescribed landing weight.
 
@@ -89,22 +89,22 @@ def residual_landing_weight(segment,state):
     N/A
 
     Inputs:
-    state.segments[-1].conditions.weights.total_mass [kilogram]
-    segment.target_landing_weight                    [kilogram]
+    segment.state.segments[-1].conditions.weights.total_mass [kilogram]
+    segment.target_landing_weight                            [kilogram]
 
     Outputs:
-    state.residuals.landing_weight                   [kilogram]
+    segment.state.residuals.landing_weight                   [kilogram]
 
     Properties Used:
     N/A
     """      
     
     # unpack
-    landing_weight = state.segments[-1].conditions.weights.total_mass[-1]
+    landing_weight = segment.segments[-1].state.conditions.weights.total_mass[-1]
     target_weight  = segment.target_landing_weight
     
     # this needs to go to zero for the solver to complete
-    state.residuals.landing_weight = landing_weight - target_weight
+    segment.state.residuals.landing_weight = landing_weight - target_weight
     
     return
     
