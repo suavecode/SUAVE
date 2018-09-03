@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Cruise
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -40,28 +40,28 @@ def initialize_conditions(segment,state):
     v0  = segment.air_speed_start
     vf  = segment.air_speed_end
     ax  = segment.acceleration   
-    conditions = state.conditions 
+    conditions = segment.state.conditions 
     
     # check for initial altitude
     if alt is None:
-        if not state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
         segment.altitude = alt
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = (vf-v0)/ax + t_initial
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # Figure out vx
     vx = v0+time*ax
     
     # pack
-    state.conditions.freestream.altitude[:,0] = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
-    state.conditions.frames.inertial.time[:,0] = time[:,0]
+    segment.state.conditions.freestream.altitude[:,0] = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
+    segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
     
 
 # ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ def initialize_conditions(segment,state):
 # ----------------------------------------------------------------------
     
 ## @ingroup Methods-Missions-Segments-Cruise    
-def residual_total_forces(segment,state):
+def residual_total_forces(segment):
     """ Calculates a residual based on forces
     
         Assumptions:
@@ -92,16 +92,16 @@ def residual_total_forces(segment,state):
     """      
     
     # Unpack
-    FT      = state.conditions.frames.inertial.total_force_vector
+    FT      = segment.state.conditions.frames.inertial.total_force_vector
     ax      = segment.acceleration 
-    m       = state.conditions.weights.total_mass  
+    m       = segment.state.conditions.weights.total_mass  
     one_row = segment.state.ones_row
     
     a_x    = ax*one_row(1)
     
     # horizontal
-    state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a_x[:,0]
+    segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a_x[:,0]
     # vertical
-    state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
+    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
 
     return
