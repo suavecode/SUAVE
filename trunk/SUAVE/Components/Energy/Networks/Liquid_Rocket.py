@@ -1,8 +1,8 @@
 ## @ingroup Components-Energy-Networks
-# Ramjet.py
+# Liquid_Rocket.py
 #
-# Created:  Jun 2017, P. Goncalves
-# Modified: Jan 2018, W. Maier
+# Created:  Feb 2018, W. Maier
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,17 +15,19 @@ from SUAVE.Core import Data, Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
-#  Ramjet Network
+#  Liquid Rocket Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Ramjet(Propulsor):
-    """ This is a ramjet for supersonic flight.
+class Liquid_Rocket(Propulsor):
+    """ This sets up the equations for a liquid rocket.
 
         Assumptions:
-        None
+        Quasi 1-D flow
+        Adiabatic Nozzles
+        Throat Always Choked
 
         Source:
-        Most of the componentes come from this book:
+        Chapter 7
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
     """
 
@@ -49,10 +51,15 @@ class Ramjet(Propulsor):
         """
 
         #setting the default values
-        self.tag = 'Ramjet'
-        self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
-        self.engine_length     = 1.0
+        self.tag = 'Liquid_Rocket'
+        self.number_of_engines = None
+        self.engine_length     = None
+        self.nacelle_diameter  = None
+
+        # For Drag calculations 
+        self.areas             = Data()
+        self.areas.wetted      = None       
+        self.internal          = True
 
     _component_root_map = None
 
@@ -87,8 +94,6 @@ class Ramjet(Propulsor):
 
         # unpack
         conditions                = state.conditions
-        ram                       = self.ram
-        inlet_nozzle              = self.inlet_nozzle
         combustor                 = self.combustor
         core_nozzle               = self.core_nozzle
         thrust                    = self.thrust
@@ -96,53 +101,30 @@ class Ramjet(Propulsor):
 
         # creating the network by manually linking the different components
 
-        # set the working fluid to determine the fluid properties
-        ram.inputs.working_fluid                               = self.working_fluid
-
-        # flow through the ram
-        ram(conditions)
-
-        # link inlet nozzle to ram
-        inlet_nozzle.inputs          = ram.outputs
-
-        # flow through the inlet nozzle
-        inlet_nozzle(conditions)
-
-        # link the combustor to the inlet nozzle
-        combustor.inputs             = inlet_nozzle.outputs
-
         # flow through the combustor
-        combustor.compute_rayleigh(conditions)
+        combustor.compute(conditions)
 
-        #link the core nozzle to the combustor
-        core_nozzle.inputs           = combustor.outputs
+        # link the core nozzle to the low pressure turbine
+        core_nozzle.inputs        = combustor.outputs
 
         # flow through the core nozzle
-        core_nozzle.compute_limited_geometry(conditions)
+        core_nozzle.compute(conditions)
 
         # compute the thrust using the thrust component
 
         # link the thrust component to the core nozzle
-        thrust.inputs.core_nozzle                              = core_nozzle.outputs
-        thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
-        thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
-
-        # link the thrust component to the combustor
-        thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
+        thrust.inputs                                          = core_nozzle.outputs
 
         # link the thrust component 
         thrust.inputs.number_of_engines                        = number_of_engines
-        thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
-        thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation
 
         # compute the thrust
         thrust(conditions)
 
         # getting the network outputs from the thrust outputs
         F            = thrust.outputs.thrust*[1,0,0]
-        mdot         = thrust.outputs.fuel_flow_rate
+        mdot         = thrust.outputs.vehicle_mass_rate
         Isp          = thrust.outputs.specific_impulse
-        output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
         F_vec[:,0]   = F[:,0]
         F            = F_vec
@@ -176,47 +158,23 @@ class Ramjet(Propulsor):
 
         # Unpack components
         conditions                = state.conditions
-        ram                       = self.ram
-        inlet_nozzle              = self.inlet_nozzle
         combustor                 = self.combustor
         core_nozzle               = self.core_nozzle
         thrust                    = self.thrust
 
-        # Creating the network by manually linking the different components
-
-        # set the working fluid to determine the fluid properties
-        ram.inputs.working_fluid = self.working_fluid
-
-        # flow through the ram
-        ram(conditions)
-
-        # link inlet nozzle to ram
-        inlet_nozzle.inputs = ram.outputs
-
-        # flow through the inlet nozzle
-        inlet_nozzle(conditions)
-
-        # link the combustor to the high pressure compressor
-        combustor.inputs = inlet_nozzle.outputs
+        #--Creating the network by manually linking the different components--
 
         # flow through the high pressure compressor
-        combustor.compute_rayleigh(conditions)
+        combustor.compute(conditions)
 
         # link the core nozzle to the low pressure turbine
         core_nozzle.inputs = combustor.outputs
 
         # flow through the core nozzle
-        core_nozzle.compute_limited_geometry(conditions)
-
-        # compute the thrust using the thrust component
+        core_nozzle(conditions)
 
         # link the thrust component to the core nozzle
-        thrust.inputs.stagnation_temperature                   = core_nozzle.outputs.stagnation_temperature
-        thrust.inputs.stagnation_pressure                      = core_nozzle.outputs.stagnation_pressure
-        thrust.inputs.core_nozzle                              = core_nozzle.outputs
-
-        # link the thrust component to the combustor
-        thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
+        thrust.inputs      = core_nozzle.outputs
 
         # compute the thrust
         thrust.size(conditions)
