@@ -18,21 +18,21 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Ground
-def unpack_unknowns(segment,state):
+def unpack_unknowns(segment):
     """ Unpacks the times and velocities from the solver to the mission
     
         Assumptions:
         Overrides the velocities if they go to zero
         
         Inputs:
-            state.unknowns:
+            segment.state.unknowns:
                 velocity_x         [meters/second]
                 time               [second]
             segment.velocity_start [meters/second]
             segment.velocity_start [meters/second]
             
         Outputs:
-            state.conditions:
+            segment.state.conditions:
                 frames.inertial.velocity_vector [meters/second]
                 frames.inertial.time            [second]
 
@@ -42,13 +42,13 @@ def unpack_unknowns(segment,state):
     """       
     
     # unpack unknowns
-    unknowns   = state.unknowns
+    unknowns   = segment.state.unknowns
     velocity_x = unknowns.velocity_x
     time       = unknowns.time
     v0         = segment.velocity_start 
     vf         = segment.velocity_start 
-    t_initial  = state.conditions.frames.inertial.time[0,0]
-    t_nondim   = state.numerics.dimensionless.control_points    
+    t_initial  = segment.state.conditions.frames.inertial.time[0,0]
+    t_nondim   = segment.state.numerics.dimensionless.control_points    
     
     # Velocity cannot be zero
     velocity_x[velocity_x==0.0,0] = 0.01
@@ -59,7 +59,7 @@ def unpack_unknowns(segment,state):
     time       = t_nondim * (t_final-t_initial) + t_initial  
 
     #apply unknowns
-    conditions = state.conditions
+    conditions = segment.state.conditions
     conditions.frames.inertial.velocity_vector[:,0] = velocity_x
     conditions.frames.inertial.time[:,0]            = time[:,0]
 
@@ -68,7 +68,7 @@ def unpack_unknowns(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Ground
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -94,7 +94,7 @@ def initialize_conditions(segment,state):
     N/A
     """   
 
-    conditions = state.conditions
+    conditions = segment.state.conditions
 
     # unpack inputs
     v0       = segment.velocity_start
@@ -110,7 +110,7 @@ def initialize_conditions(segment,state):
     segment.velocity_end   = vf
 
     # pack conditions
-    state.unknowns.velocity_x                       = np.linspace(v0,vf,N)
+    segment.state.unknowns.velocity_x               = np.linspace(v0,vf,N)
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     conditions.ground.incline[:,0]                  = segment.ground_incline
     conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
@@ -120,7 +120,7 @@ def initialize_conditions(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Ground
-def compute_ground_forces(segment,state):
+def compute_ground_forces(segment):
     """ Compute the rolling friction on the aircraft 
     
     Assumptions:
@@ -143,7 +143,7 @@ def compute_ground_forces(segment,state):
     """   
 
     # unpack
-    conditions             = state.conditions
+    conditions             = segment.state.conditions
     W                      = conditions.frames.inertial.gravity_force_vector[:,2,None]
     friction_coeff         = conditions.ground.friction_coefficient
     wind_lift_force_vector = conditions.frames.wind.lift_force_vector
@@ -167,7 +167,7 @@ def compute_ground_forces(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Ground
-def compute_forces(segment,state):
+def compute_forces(segment):
     """ Adds the rolling friction to the traditional 4 forces of flight
     
     Assumptions:
@@ -189,10 +189,10 @@ def compute_forces(segment,state):
     """       
 
 
-    SUAVE.Methods.Missions.Segments.Common.Frames.update_forces(segment,state)
+    SUAVE.Methods.Missions.Segments.Common.Frames.update_forces(segment)
 
     # unpack forces
-    conditions                   = state.conditions
+    conditions                   = segment.state.conditions
     total_aero_forces            = conditions.frames.inertial.total_force_vector
     inertial_ground_force_vector = conditions.frames.inertial.ground_force_vector
 
@@ -200,28 +200,28 @@ def compute_forces(segment,state):
     F = total_aero_forces + inertial_ground_force_vector
 
     # pack
-    frames.inertial.ground_force_vector[:,:] = F[:,:]
+    conditions.frames.inertial.ground_force_vector[:,:] = F[:,:]
 
 # ----------------------------------------------------------------------
 #  Solve Residual
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Ground
-def solve_residuals(segment,state):
+def solve_residuals(segment):
     """ Calculates a residual based on forces
     
         Assumptions:
         
         Inputs:
-            state.conditions:
-                frames.inertial.total_force_vector [Newtons]
-                frames.inertial.velocity_vector    [meters/second]
-                weights.total_mass                 [kg]
-            state.numerics.time.differentiate      [vector]
-            segment.velocity_end                   [meters/second]
+            segment.state.conditions:
+                frames.inertial.total_force_vector    [Newtons]
+                frames.inertial.velocity_vector       [meters/second]
+                weights.total_mass                    [kg]
+            segment.state.numerics.time.differentiate [vector]
+            segment.velocity_end                      [meters/second]
             
         Outputs:
-            state:
+            segment.state:
                 residuals.acceleration_x           [meters/second^2]
                 residuals.final_velocity_error     [meters/second]
 
@@ -231,7 +231,7 @@ def solve_residuals(segment,state):
     """   
 
     # unpack inputs
-    conditions = state.conditions
+    conditions = segment.state.conditions
     FT = conditions.frames.inertial.total_force_vector
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
@@ -242,5 +242,5 @@ def solve_residuals(segment,state):
     acceleration = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
 
-    state.residuals.final_velocity_error = (v[-1,0] - vf)
-    state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
+    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+    segment.state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
