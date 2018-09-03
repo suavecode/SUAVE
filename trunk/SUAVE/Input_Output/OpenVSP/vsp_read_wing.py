@@ -110,7 +110,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	# -------------		
 	
 	# Convert VSP XSecs to SUAVE segments. (Wing segments are defined by outboard sections in VSP, but inboard sections in SUAVE.) 
-	for i in xrange(start, segment_num+1):		
+	for i in range(start, segment_num+1):		
 		segment = SUAVE.Components.Wings.Segment()
 		segment.tag                   = 'Section_' + str(i)
 		thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
@@ -179,7 +179,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	span_sum_alt      = 0.
 	sweeps_sum        = 0.
 	
-	for ii in xrange(start, segment_num):
+	for ii in range(start, segment_num):
 		if segment_dihedral[ii] <= (70. * Units.deg): # Stop at segment with dihedral value over 70deg (wingtips).
 			span_sum_alt += segment_spans[ii]
 			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])  # Use projected span to find total wing dihedral.

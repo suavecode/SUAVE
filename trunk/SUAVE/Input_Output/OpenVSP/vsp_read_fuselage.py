@@ -87,9 +87,9 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 
-	fuselage.origin[0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm')
-	fuselage.origin[1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
-	fuselage.origin[2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
+	fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm')
+	fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
+	fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
 
 	fuselage.lengths.total         = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units_factor
 	fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
@@ -105,7 +105,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	# Fuselage segments
 	# -----------------
 	
-	for ii in xrange(0, fuselage.vsp_data.xsec_num):
+	for ii in range(0, fuselage.vsp_data.xsec_num):
 		segment                    = SUAVE.Components.Fuselages.Segment()
 		segment.vsp_data.xsec_id   = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)		   # VSP XSec ID.
 		segment.tag                = 'segment_' + str(ii)
@@ -175,7 +175,7 @@ def compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fw
 	x_locs    = np.array(x_locs)					# Make numpy arrays.
 	eff_diams = np.array(eff_diams)
 	min_val   = np.min(eff_diam_gradients_fwd[x_locs[:-1]<=0.5])	# Computes smallest eff_diam gradient value in front 50% of fuselage.
-	x_loc     = x_locs[eff_diam_gradients_fwd==min_val][0]		# Determines x-location of the first instance of that value (if gradient=0, gets frontmost x-loc).
+	x_loc     = x_locs[:-1][eff_diam_gradients_fwd==min_val][0]		# Determines x-location of the first instance of that value (if gradient=0, gets frontmost x-loc).
 	fuselage.lengths.nose  = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total	# Subtracts first segment x-loc in case not at global origin.
 	fuselage.fineness.nose = fuselage.lengths.nose/(eff_diams[x_locs==x_loc][0])
 	
@@ -209,7 +209,7 @@ def get_fuselage_height(fuselage, location):
 	Properties Used:
 	N/A
 	"""
-	for jj in xrange(1, fuselage.vsp_data.xsec_num):		# Begin at second section, working toward tail.
+	for jj in range(1, fuselage.vsp_data.xsec_num):		# Begin at second section, working toward tail.
 		if fuselage.Segments[jj].percent_x_location>=location and fuselage.Segments[jj-1].percent_x_location<location:  
 			# Find two sections on either side (or including) the desired fuselage length percentage.
 			a        = fuselage.Segments[jj].percent_x_location							
