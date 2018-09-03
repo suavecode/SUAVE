@@ -70,8 +70,8 @@ class Supersonic_Nozzle(Energy_Component):
         self.outputs.stagnation_temperature  = 0.
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
-        self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35     
+        self.max_area_ratio                  = 1000.
+        self.min_area_ratio                  = 0.    
     
     
     
