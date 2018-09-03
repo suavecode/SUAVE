@@ -60,7 +60,7 @@ def vehicle_setup():
     wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = 1.
+    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 25.6    
     
@@ -272,7 +272,6 @@ def vehicle_setup():
     turbojet.engine_length     = 12.0
     turbojet.nacelle_diameter  = 1.3
     turbojet.inlet_diameter    = 1.1
-    #turbojet.bypass_ratio      = 0.0001
     turbojet.areas             = Data()
     turbojet.areas.wetted      = 12.5*4.7*2. # 4.7 is outer perimeter on one side
     turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]]
@@ -424,15 +423,6 @@ def vehicle_setup():
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
- 
-    ##total design thrust (includes all the engines)
-    #thrust.total_design             = 4*140000. * Units.N #Newtons
- 
-    ## Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
-    ##design sizing conditions
-    #altitude      = 0.0*Units.ft
-    #mach_number   = 0.01
-    #isa_deviation = 0.
     
     #total design thrust (includes all the engines)
     thrust.total_design             = 40000. * Units.lbf

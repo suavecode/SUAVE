@@ -236,7 +236,7 @@ class Turbojet_Super(Propulsor):
 
     def size(self,state):  
 
-        """ Size the turbofan
+        """ Size the turbojet
 
 		Assumptions:
 		None

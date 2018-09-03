@@ -589,7 +589,7 @@ def mission_setup(analyses):
     ## Cruise-climb
     
     segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
-    segment.tag = "climb_6"
+    segment.tag = "cruise"
     
     segment.analyses.extend( analyses.cruise )
     
