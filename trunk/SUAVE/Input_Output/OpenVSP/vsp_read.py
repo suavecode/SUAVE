@@ -129,14 +129,14 @@ def vsp_read(tag, units_type='SI'):
 	# The two for-loops below are in anticipation of an OpenVSP API update with a call for GETGEOMTYPE.
 	# This print function allows user to enter VSP GeomID manually as first argument in vsp_read functions.
 	
-	print "VSP geometry IDs: " 	
+	print("VSP geometry IDs: ")	
 	
 	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
 	
 	for geom in vsp_geoms: 
 		geom_name = vsp.GetGeomName(geom)
 		geom_names.append(geom_name)
-		print str(geom_name) + ': ' + geom
+		print(str(geom_name) + ': ' + geom)
 	
 	# -----------------------------
 	# MANUAL VSP ENTRY & PROCESSING

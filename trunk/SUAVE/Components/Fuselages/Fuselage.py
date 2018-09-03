@@ -119,7 +119,7 @@ class Fuselage(Lofted_Body):
 
         # Assert database type
         if not isinstance(segment,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Segments.append(segment)
