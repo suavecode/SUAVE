@@ -47,7 +47,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
 
     OEW = masses.operating_empty
     if not OEW:
-        print "Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined"
+        print("Error calculating Range for a Given TOW and Payload: Vehicle Operating Empty not defined")
         return True
 
     # Defining arrays for input and output
@@ -58,7 +58,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
     if not takeoff_weight[0]:
         takeoff_weight = np.multiply(np.ones_like(mission_payload),vehicle.mass_properties.max_takeoff)
         if not takeoff_weight[0]:
-            print "Error calculating Range for a Given TOW and Payload: Vehicle takeoff weight not defined"
+            print("Error calculating Range for a Given TOW and Payload: Vehicle takeoff weight not defined")
             return True
 
     # Check if # payload input is equal to # takeoff weights
@@ -78,7 +78,7 @@ def size_mission_range_given_weights(vehicle,mission,cruise_segment_tag,mission_
         if mission.segments[i].tag.upper() == cruise_segment_tag.upper() :
             segmentNum = i
             break
-    print mission.segments
+    print(mission.segments)
     TOW_ref = mission.segments[0].analyses.weights.mass_properties.takeoff 
     
     # Loop for range calculation of each input case

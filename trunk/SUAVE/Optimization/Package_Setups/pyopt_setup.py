@@ -57,7 +57,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     # Instantiate the problem and set objective
     import pyOpt
     opt_prob = pyOpt.Optimization('SUAVE',mywrap)
-    for ii in xrange(len(obj)):
+    for ii in range(len(obj)):
         opt_prob.addObj(obj[ii,0])    
        
     # Set inputs
@@ -72,7 +72,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     scaled_constraints = help_fun.scale_const_values(con,bnd_constraints)
     x   = ini/scl
    
-    for ii in xrange(0,len(inp)):
+    for ii in range(0,len(inp)):
         lbd = (bnd[ii][0]/scl[ii])
         ubd = (bnd[ii][1]/scl[ii])
         #if typ[ii] == 'continuous':
@@ -82,7 +82,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt_prob.addVar(nam[ii],vartype,lower=lbd,upper=ubd,value=x[ii])
        
     # Setup constraints  
-    for ii in xrange(0,len(con)):
+    for ii in range(0,len(con)):
         name = con[ii][0]
         edge = scaled_constraints[ii]
        
@@ -94,7 +94,7 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
             opt_prob.addCon(name, type='e', equal=edge)
 
     # Finalize problem statement and run  
-    print opt_prob
+    print(opt_prob)
    
     if solver == 'SNOPT':
         import pyOpt.pySNOPT
@@ -185,11 +185,11 @@ def PyOpt_Problem(problem,x):
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
 
        
-    print 'Inputs'
-    print x
-    print 'Obj'
-    print obj
-    print 'Con'
-    print const
+    print('Inputs')
+    print(x)
+    print('Obj')
+    print(obj)
+    print('Con')
+    print(const)
    
     return obj,const,fail

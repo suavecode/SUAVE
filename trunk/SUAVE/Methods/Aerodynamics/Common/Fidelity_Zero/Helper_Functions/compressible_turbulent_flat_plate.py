@@ -66,6 +66,6 @@ if __name__ == '__main__':
     
     (cf_comp, k_comp, k_reyn) = compressible_turbulent_flat_plate(1.0*10.0**7.0,0.0,216.0)
     
-    print cf_comp
-    print k_comp
-    print k_reyn    
+    print(cf_comp)
+    print(k_comp)
+    print(k_reyn)    

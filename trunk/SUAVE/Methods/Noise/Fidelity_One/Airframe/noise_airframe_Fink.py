@@ -12,10 +12,10 @@
 from SUAVE.Core            import Data
 from SUAVE.Core            import Units
 
-from noise_clean_wing import noise_clean_wing
-from noise_landing_gear import noise_landing_gear
-from noise_leading_edge_slat import noise_leading_edge_slat
-from noise_trailing_edge_flap import noise_trailing_edge_flap
+from .noise_clean_wing import noise_clean_wing
+from .noise_landing_gear import noise_landing_gear
+from .noise_leading_edge_slat import noise_leading_edge_slat
+from .noise_trailing_edge_flap import noise_trailing_edge_flap
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction

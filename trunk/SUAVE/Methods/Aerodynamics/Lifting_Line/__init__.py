@@ -2,4 +2,4 @@
 # Functions to perform lifting line calculations
 # @ingroup Methods-Aerodynamics
 
-from Lifting_Line import lifting_line
+from .Lifting_Line import lifting_line

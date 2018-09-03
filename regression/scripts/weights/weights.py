@@ -61,13 +61,13 @@ def main():
     error.vertical_tail   = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
     error.rudder          = (actual.rudder - weight.rudder)/actual.rudder
     
-    print 'Results (kg)'
-    print weight
+    print('Results (kg)')
+    print(weight)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1E-6)    
    
     #General Aviation weights; note that values are taken from Raymer,
@@ -106,14 +106,14 @@ def main():
     error.fuel_systems    = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
     error.systems         = (actual.systems - weight.systems)/actual.systems
 
-    print 'actual.systems=', actual.systems
-    print 'General Aviation Results (kg)'
-    print weight
+    print('actual.systems=', actual.systems)
+    print('General Aviation Results (kg)')
+    print(weight)
 
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
 
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
    
     return

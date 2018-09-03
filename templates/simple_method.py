@@ -123,4 +123,4 @@ def helper_function(input1,inputs2=None):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':    
-    raise RuntimeError , 'test failed, not implemented'
+    raise RuntimeError('test failed, not implemented')

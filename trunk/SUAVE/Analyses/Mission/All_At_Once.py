@@ -10,7 +10,7 @@
 
 from SUAVE.Methods import Missions as Methods
 
-from Mission import Mission
+from .Mission import Mission
 
 # ----------------------------------------------------------------------
 #   Class

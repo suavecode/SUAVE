@@ -9,9 +9,9 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from purge_files import purge_files
+from .purge_files import purge_files
 import numpy as np
-from create_avl_datastructure import translate_avl_wing, translate_avl_body 
+from .create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_geometry(avl_object,spanwise_vortices_per_meter):
@@ -169,7 +169,7 @@ SURFACE
         
         # Write text    
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)     
-        for i in xrange(len(ordered_tags)):
+        for i in range(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text    = surface_text + section_text
             
@@ -184,7 +184,7 @@ SURFACE
     
         # Write text    
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)     
-        for i in xrange(len(ordered_tags)):
+        for i in range(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text    = surface_text + section_text
 
@@ -232,7 +232,7 @@ SURFACE
        
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.horizontal, key = lambda x: x.origin[1])
-    for i in xrange(len(ordered_tags)):
+    for i in range(len(ordered_tags)):
         section_text    = make_body_section_text(ordered_tags[i])
         horizontal_text = horizontal_text + section_text
         
@@ -241,7 +241,7 @@ SURFACE
     vertical_text = surface_base.format(vname,chordwise_vortices,chordwise_vortex_spacing)   
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.vertical, key = lambda x: x.origin[2])
-    for i in xrange(len(ordered_tags)):
+    for i in range(len(ordered_tags)):
         section_text    = make_body_section_text(ordered_tags[i])
         vertical_text = vertical_text + section_text
         
@@ -296,7 +296,7 @@ AFILE
     
     ordered_cs = []
     ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)
-    for i in xrange(len(ordered_cs)):
+    for i in range(len(ordered_cs)):
         control_text = make_controls_text(ordered_cs[i])
         wing_section_text = wing_section_text + control_text
 

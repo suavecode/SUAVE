@@ -123,8 +123,8 @@ def main():
     
     lift_test = np.abs((lift-lift_r)/lift)
     
-    print '\nCompute Lift Test Results\n'
-    print lift_test
+    print('\nCompute Lift Test Results\n')
+    print(lift_test)
         
     assert(np.max(lift_test)<1e-4), 'Supersonic Aero regression failed at compute lift test'    
     
@@ -150,16 +150,16 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
     
-    print cd_c
-    print cd_i
-    print cd_m
-    print cd_m_fuse_base
-    print cd_m_fuse_up
-    print cd_m_nac_base
-    print cd_m_ctrl 
-    print cd_p_fuse
-    print cd_p_wing
-    print cd_tot 
+    print(cd_c)
+    print(cd_i)
+    print(cd_m)
+    print(cd_m_fuse_base)
+    print(cd_m_fuse_up)
+    print(cd_m_nac_base)
+    print(cd_m_ctrl) 
+    print(cd_p_fuse)
+    print(cd_p_wing)
+    print(cd_tot) 
     
     
     # Truth values
@@ -188,10 +188,10 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print '\nCompute Drag Test Results\n'
+    print('\nCompute Drag Test Results\n')
     #print drag_tests
     
-    for i, tests in drag_tests.items():
+    for i, tests in list(drag_tests.items()):
         assert(np.max(tests)<1e-4),'Supersonic Aero regression test failed at ' + i
     
     #return state.conditions, configuration, geometry, test_num  
@@ -395,7 +395,7 @@ if __name__ == '__main__':
     #(conditions, configuration, geometry, test_num) = main()
     main()
     
-    print 'Supersonic Aero regression test passed!'
+    print('Supersonic Aero regression test passed!')
     
     # --------------------------------------------------------------------
     # Drag Polar

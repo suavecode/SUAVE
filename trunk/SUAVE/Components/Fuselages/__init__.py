@@ -4,5 +4,5 @@
 ## @ingroup Components
 
 # classes
-from Fuselage import Fuselage
-from Segment import Segment
+from .Fuselage import Fuselage
+from .Segment import Segment

@@ -2,5 +2,5 @@
 # Functions to perform low-fidelity lift calculations for supersonics
 # @ingroup Methods-Aerodynamics-Supersonic_Zero
 
-from vortex_lift import vortex_lift
-from wing_compressibility import wing_compressibility
+from .vortex_lift import vortex_lift
+from .wing_compressibility import wing_compressibility

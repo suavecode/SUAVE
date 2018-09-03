@@ -1,2 +1,2 @@
-import Industrial_Costs
-import Operating_Costs
+from . import Industrial_Costs
+from . import Operating_Costs
