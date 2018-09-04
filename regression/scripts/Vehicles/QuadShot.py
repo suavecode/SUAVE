@@ -18,7 +18,7 @@ from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
-import cProfile, pstats, StringIO
+import cProfile, pstats, io
 #from SUAVE.Components.Energy.Processes.propeller_map import propeller_map
 
 # ----------------------------------------------------------------------
