@@ -101,7 +101,7 @@ def propeller_noise_frequency(noise_data):
     
     #*********************
     # Loop over the time 
-    for jj in xrange(0,np.size(timej)):
+    for jj in range(0,np.size(timej)):
     #*********************
         time = timej[jj]    #time
 
@@ -109,7 +109,7 @@ def propeller_noise_frequency(noise_data):
         
         #************************************************
         # Loop over the number of harmonics of interest
-        for m in xrange (1,n_harmonic+1):
+        for m in range (1,n_harmonic+1):
         #************************************************
             
             Pvm_section = np.zeros(number_sections)
@@ -131,7 +131,7 @@ def propeller_noise_frequency(noise_data):
             
             #********************************************
             #Loop over the blade geometry - sections
-            for i in xrange (0,number_sections):    
+            for i in range (0,number_sections):    
             #********************************************
                 
                 max_thickness = 0.094*airfoil_chord[i]
@@ -187,7 +187,7 @@ def propeller_noise_frequency(noise_data):
                # print "z = ",z, "  Mach section = ", Mach_section
          #       print "Phi0 = ", phi_zero, "  Phis = ", phi_s
             
-            for i in xrange(1,number_sections-2):
+            for i in range(1,number_sections-2):
                 I_pvm = I_pvm + Pvm_section[i]
                 I_pdm = I_pdm + Pdm_section[i]
                 I_plm = I_plm + Plm_section[i]

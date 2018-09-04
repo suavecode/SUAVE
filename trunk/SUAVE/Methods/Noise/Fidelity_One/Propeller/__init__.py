@@ -1,1 +1,1 @@
-from propeller_noise_frequency import propeller_noise_frequency
+from .propeller_noise_frequency import propeller_noise_frequency

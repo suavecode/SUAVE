@@ -60,8 +60,8 @@ def run_propeller(prop,points):
     alts = []
     J    = []
     vels = []
-    for ii in xrange(0,len(altitudes)):
-        for jj in xrange(0,len(Js)):
+    for ii in range(0,len(altitudes)):
+        for jj in range(0,len(Js)):
             alts.append(altitudes[ii])
             vels.append(vel[jj])
             J.append(Js[jj])
@@ -113,8 +113,8 @@ def test_surrogate(prop,thrust, torque, power, J, Cp, eta, alts ):
     D = R*2 
     
     
-    for ii in xrange(len(Jnew)):
-        for jj in xrange(len(altnew)):
+    for ii in range(len(Jnew)):
+        for jj in range(len(altnew)):
             jjj  = Jmesh[ii,jj]
             altj = altmesh[ii,jj]
             

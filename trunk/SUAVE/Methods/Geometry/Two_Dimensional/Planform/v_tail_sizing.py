@@ -242,10 +242,10 @@ if __name__ == '__main__':
 
     # First size considering the given baseline dihedral
     v_tail, c_ht, c_vt = v_tail_sizing(wing,v_tail,c_ht,c_vt)
-    print v_tail.areas.reference
-    print 'Final c_ht', c_ht
-    print 'Final c_vt', c_vt
-    print '.................'
+    print(v_tail.areas.reference)
+    print('Final c_ht', c_ht)
+    print('Final c_vt', c_vt)
+    print('.................')
 
     # Desired tail volume coefficients
     c_ht = 0.60
@@ -257,10 +257,10 @@ if __name__ == '__main__':
     v_tail, c_ht, c_vt = v_tail_sizing(wing,v_tail,c_ht,c_vt,1)
     tfinal = time.time()
     total_time = tfinal - tinit
-    print v_tail.areas.reference
-    print 'Final c_ht', c_ht
-    print 'Final c_vt', c_vt
-    print 'Optimal dihedral', v_tail.dihedral/Units.deg
+    print(v_tail.areas.reference)
+    print('Final c_ht', c_ht)
+    print('Final c_vt', c_vt)
+    print('Optimal dihedral', v_tail.dihedral/Units.deg)
 
 ##    x_w = wing.origin[0] + wing.aerodynamic_center[0]
 ##    sweep_t = v_tail.sweeps.leading_edge

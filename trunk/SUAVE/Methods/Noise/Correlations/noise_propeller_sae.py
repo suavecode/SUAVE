@@ -149,7 +149,7 @@ def noise_propeller_sae(noise_data, ioprint = 0):
             elif Vtip_Mach[id] <= 0.9:
                 PNL_factor[id] = 0.0001869235*(diameter)**4 - 0.0108618115*diameter**3 + 0.2292260658*diameter**2 - 2.468037691*diameter + 13.2430172278
         else:
-            print 'ERROR: Method limited for 2 bladed propellers right now!!'
+            print('ERROR: Method limited for 2 bladed propellers right now!!')
             return
         
 # ****************** CALCULATION OF NOISE LEVELS *********************        
