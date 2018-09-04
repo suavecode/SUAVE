@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Landing_Gear import Landing_Gear
+from .Landing_Gear import Landing_Gear
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -57,4 +57,4 @@ class Main_Landing_Gear(Landing_Gear):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
-    raise RuntimeError , 'test failed, not implemented'
+    raise RuntimeError('test failed, not implemented')

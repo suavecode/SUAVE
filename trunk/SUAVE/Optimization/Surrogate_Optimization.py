@@ -14,7 +14,7 @@ from SUAVE.Surrogate.kriging_surrogate_functions import build_kriging_models
 from SUAVE.Surrogate.scikit_surrogate_functions import build_scikit_models
 
 from SUAVE.Optimization.Package_Setups.pyopt_surrogate_setup import pyopt_surrogate_setup
-from read_optimization_outputs import read_optimization_outputs
+from .read_optimization_outputs import read_optimization_outputs
 import numpy as np
 import time
 
@@ -172,7 +172,7 @@ class Surrogate_Optimization(Data):
                     #reassign to surrogate_function
                     surrogate_function.obj_surrogate  = obj_surrogate
                     surrogate_function.constraints_surrogates =constraints_surrogates
-                    print 'time to train model=', xt2-xt1
+                    print('time to train model=', xt2-xt1)
         
             else: #directly call scikit learn models
                 obj_surrogate, constraints_surrogates ,surrogate_function = build_scikit_models(self, surr_obj_values, surr_inputs ,surr_constraints)
@@ -181,36 +181,36 @@ class Surrogate_Optimization(Data):
             t3 = time.time()
         
             surrogate_outputs = optimizer(surrogate_problem) 
-            print 'j=', j
-            print 'surrogate_outputs[0]=',surrogate_outputs[0]
-            print 'x_out=', surrogate_outputs[1]
+            print('j=', j)
+            print('surrogate_outputs[0]=',surrogate_outputs[0])
+            print('x_out=', surrogate_outputs[1])
             
             
             if j>1:
                 x_diff = surrogate_outputs[1]-x_out
-                print 'x_diff=', x_diff 
+                print('x_diff=', x_diff) 
                 if np.linalg.norm(x_diff)<.0001:  #exit for loop if surrogate optimization converges
-                    print 'surrogate optimization terminated successfully'
+                    print('surrogate optimization terminated successfully')
                     break
             x_out = surrogate_outputs[1]*1.
             t4 = time.time()
-            print 'surrogate optimization time=', t4-t3
-            print surrogate_outputs
+            print('surrogate optimization time=', t4-t3)
+            print(surrogate_outputs)
             
             
             
         
             f_out, g_out, fail_out = surrogate_function(np.array(x_out))
           
-            print 'f_out    = ', f_out
-            print 'g_out    = ', g_out
-            print 'fail_out = ', fail_out
+            print('f_out    = ', f_out)
+            print('g_out    = ', g_out)
+            print('fail_out = ', fail_out)
             opt_prob.inputs[:,1] = surrogate_outputs[1]*scl/base_units
             
             output_real = problem.objective(surrogate_outputs[1])
-            print 'opt_prob.inputs[:,1]=', opt_prob.inputs[:,1]
-            print 'output_real=', output_real
-            print 'constraints_out=', problem.all_constraints()
+            print('opt_prob.inputs[:,1]=', opt_prob.inputs[:,1])
+            print('output_real=', output_real)
+            print('constraints_out=', problem.all_constraints())
            
             
         return output_real, surrogate_problem

@@ -189,12 +189,12 @@ def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=1
                 f_out.write('x1_opt  : ' + str(xOpt[1]) + '\n')                
                 f_out.write('final opt : ' + str(fOpt) + '\n')
                 
-            print 'Iteration Limit Reached'
+            print('Iteration Limit Reached')
             break        
             
         
         if np.abs(fOpt-f[1][-1]) < tolerance: # Converged within a tolerance
-            print 'Convergence reached'      
+            print('Convergence reached')      
             f_out.write('Convergence reached')
             f_diff = f[1,:] - f[0,:]
             converged = True
@@ -222,14 +222,14 @@ def Additive_Solve(problem,num_fidelity_levels=2,num_samples=10,max_iterations=1
         fOpt = f[1][-1]*1.
     
     if converged == False:
-        print 'Iteration Limit reached'
+        print('Iteration Limit reached')
         f_out.write('Maximum iteration limit reached')
     
     # Save sample data
     np.save('x_samples.npy',x_samples)
     np.save('f_data.npy',f)
     f_out.close()
-    print fOpt,xOpt
+    print(fOpt,xOpt)
     if print_output == False:
         sys.stdout = sys.__stdout__     
     return (fOpt,xOpt)
@@ -301,12 +301,12 @@ def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=No
     const = const + cons_addition
     const = const.tolist()[0]
 
-    print 'Inputs'
-    print x
-    print 'Obj'
-    print obj
-    print 'Con'
-    print const
+    print('Inputs')
+    print(x)
+    print('Obj')
+    print(obj)
+    print('Con')
+    print(const)
         
     return obj,const,fail
 
@@ -363,12 +363,12 @@ def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surroga
     const = const*signs - offset*signs
     const = const.tolist()[0]
 
-    print 'Inputs'
-    print x
-    print 'Obj'
-    print -EI
-    print 'Con'
-    print const
+    print('Inputs')
+    print(x)
+    print('Obj')
+    print(-EI)
+    print('Con')
+    print(const)
         
     return -EI,const,fail
 
@@ -425,9 +425,9 @@ def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fst
             const     = const + cons_addition
             const     = const.tolist()[0]
             
-            print ii
-            print jj
-            print 'Expected Improvement: ' + str(EI[ii,jj])
+            print(ii)
+            print(jj)
+            print('Expected Improvement: ' + str(EI[ii,jj]))
             
     import matplotlib.pyplot as plt
             
@@ -441,7 +441,7 @@ def expected_improvement_carpet(lbs,ubs,problem,obj_surrogate,cons_surrogate,fst
     
     if show_log_improvement == True: # Display log expected information as well
         EI = np.log(EI)
-        print np.min(EI[EI!=-np.inf])
+        print(np.min(EI[EI!=-np.inf]))
         if np.min(EI[EI!=-np.inf]) > -100:
             levals = np.linspace(np.min(EI[EI!=-np.inf]),np.max(EI),num_levels)
         else:
@@ -495,11 +495,11 @@ def scale_vals(inp,con,ini,bnd,scl):
     con_up_edge  = []
     con_low_edge = []
 
-    for ii in xrange(0,len(inp)):
+    for ii in range(0,len(inp)):
         x_low_bound.append(bnd[ii][0]/scl[ii])
         x_up_bound.append(bnd[ii][1]/scl[ii])
 
-    for ii in xrange(0,len(con)):
+    for ii in range(0,len(con)):
         edge.append(scaled_constraints[ii])
         if con[ii][1]=='<':
             con_up_edge.append(edge[ii])
@@ -548,15 +548,15 @@ def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con
     
     """        
     
-    for ii in xrange(len(obj)):
+    for ii in range(len(obj)):
         opt_prob.addObj('f',100) 
-    for ii in xrange(0,len(inp)):
+    for ii in range(0,len(inp)):
         vartype = 'c'
         if x_eval == None:
             opt_prob.addVar(nam[ii],vartype,lower=x_low_bound[ii],upper=x_up_bound[ii]) 
         else:
             opt_prob.addVar(nam[ii],vartype,lower=x_low_bound[ii],upper=x_up_bound[ii],value=x_eval[ii])    
-    for ii in xrange(0,len(con)):
+    for ii in range(0,len(con)):
         if con[ii][1]=='<':
             opt_prob.addCon(nam[ii], type='i', upper=con_up_edge[ii])
         elif con[ii][1]=='>':

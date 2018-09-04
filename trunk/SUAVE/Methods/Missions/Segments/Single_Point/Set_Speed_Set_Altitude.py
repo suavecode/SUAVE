@@ -16,7 +16,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Single_Point
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -47,22 +47,22 @@ def initialize_conditions(segment,state):
     air_speed  = segment.air_speed  
     x_accel    = segment.x_accel
     z_accel    = segment.z_accel
-    conditions = state.conditions 
+    conditions = segment.state.conditions 
     
     # check for initial altitude
     if alt is None:
-        if not state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
         segment.altitude = alt
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    state.conditions.frames.inertial.acceleration_vector  = np.array([[x_accel,0.0,z_accel]])
+    segment.state.conditions.freestream.altitude[:,0]             = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    segment.state.conditions.frames.inertial.acceleration_vector  = np.array([[x_accel,0.0,z_accel]])
 
 ## @ingroup Methods-Missions-Segments-Single_Point
-def update_weights(segment,state):
+def update_weights(segment):
     """Sets the gravity force vector during the segment
 
     Assumptions:
@@ -85,7 +85,7 @@ def update_weights(segment,state):
     """         
     
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     m0         = conditions.weights.total_mass[0,0]
     g          = conditions.freestream.gravity
 

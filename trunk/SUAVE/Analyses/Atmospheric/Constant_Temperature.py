@@ -118,10 +118,10 @@ class Constant_Temperature(Atmospheric):
         
         # check ranges
         if np.amin(zs) < zmin:
-            print "Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km"
+            print("Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km")
             zs[zs < zmin] = zmin
         if np.amax(zs) > zmax:
-            print "Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km"   
+            print("Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km")   
             zs[zs > zmax] = zmax        
 
         # initialize return data

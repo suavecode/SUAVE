@@ -321,8 +321,8 @@ def energy_network():
     #size the turbofan
     turbofan_sizing(turbofan,0.8,10000.0)
     
-    print "Design thrust ",turbofan.design_thrust
-    print "Sealevel static thrust ",turbofan.sealevel_static_thrust
+    print("Design thrust ",turbofan.design_thrust)
+    print("Sealevel static thrust ",turbofan.sealevel_static_thrust)
     
     
     results_design     = turbofan(state_sizing)
@@ -344,9 +344,9 @@ def energy_network():
     error              =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0]-expected.mdot)/expected.mdot
-    print error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
     
     return

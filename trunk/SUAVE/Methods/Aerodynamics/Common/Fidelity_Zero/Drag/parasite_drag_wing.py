@@ -77,8 +77,8 @@ def parasite_drag_wing(state,settings,geometry):
     xtl          = wing.transition_x_lower
     
     # compute wetted area 
-    if wing.has_key('areas'):
-        if wing.areas.has_key('wetted'):
+    if 'areas' in wing:
+        if 'wetted' in wing.areas:
             Swet = wing.areas.wetted
         else:
             Swet = 1. * (1.0+ 0.2*t_c_w) * S_exposed_w

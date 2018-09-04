@@ -18,7 +18,7 @@ def setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base(config)
         analyses[tag] = analysis
 

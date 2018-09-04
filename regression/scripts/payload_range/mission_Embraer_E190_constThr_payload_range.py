@@ -124,7 +124,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -489,7 +489,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -528,7 +528,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -607,21 +607,21 @@ def check_results(new_results,old_results):
 
     # do the check
     for k in check_list:
-        print k
+        print(k)
 
         old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
+        print('Error at Max:' , err)
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
+        print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print ''
+        print('')
 
     ## check high level outputs
     #def check_vals(a,b):
