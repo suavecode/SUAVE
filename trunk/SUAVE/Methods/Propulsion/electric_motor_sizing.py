@@ -83,5 +83,10 @@ def size_from_mass(motor,mass):
     kv = B_KV/mass
     res  = B_RA/(kv**2.)
     i0   =  B_i0/(res**0.6)
+    
+    motor.speed_constant       = kv     
+    motor.resistance           = res
+    motor.no_load_current      = i0
+    motor.mass_properties.mass = mass
 
     return motor
