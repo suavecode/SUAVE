@@ -53,9 +53,9 @@ def vsp_read_prop(prop_id, units_type='SI'):
 	prop = SUAVE.Components.Energy.Converters.Propeller()
 	
 	if units_type == 'SI':
-		units_factor = Units.meter 
+		units_factor = Units.meter * 1.
 	else:
-		units_factor = Units.foot	
+		units_factor = Units.foot * 1.
 	
 	if vsp.GetGeomName(prop_id): # Mostly relevant for eVTOLs with > 1 propeller.
 		prop.tag = vsp.GetGeomName(prop_id)

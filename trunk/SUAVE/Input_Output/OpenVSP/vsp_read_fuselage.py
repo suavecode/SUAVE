@@ -78,9 +78,9 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	fuselage = SUAVE.Components.Fuselages.Fuselage()	
 	
 	if units_type == 'SI':
-		units_factor = Units.meter 
+		units_factor = Units.meter * 1.
 	else:
-		units_factor = Units.foot 
+		units_factor = Units.foot * 1.
 		
 	if vsp.GetGeomName(fuselage_id):
 		fuselage.tag = vsp.GetGeomName(fuselage_id)

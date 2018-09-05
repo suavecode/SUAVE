@@ -64,9 +64,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	N/A
 	"""  
 	if units_type == 'SI':
-		units_factor = Units.meter 
+		units_factor = Units.meter * 1.
 	else:
-		units_factor = Units.foot 
+		units_factor = Units.foot * 1.
 	
 	wing = SUAVE.Components.Wings.Wing()
 	
