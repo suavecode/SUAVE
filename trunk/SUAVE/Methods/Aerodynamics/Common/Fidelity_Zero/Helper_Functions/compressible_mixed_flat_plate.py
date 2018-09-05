@@ -137,6 +137,6 @@ if __name__ == '__main__':
         xt = 0.6
         (cf_comp, k_comp, k_reyn) = compressible_mixed_flat_plate(Re, Ma, Tc, xt)
         
-    print cf_comp
-    print k_comp
-    print k_reyn    
+    print(cf_comp)
+    print(k_comp)
+    print(k_reyn)    

@@ -66,6 +66,7 @@ class Battery_Propeller(Propulsor):
         self.voltage           = None
         self.thrust_angle      = 0.0
         self.tag               = 'network'
+        self.use_surrogate     = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -112,6 +113,7 @@ class Battery_Propeller(Propulsor):
 
         # Step 1 battery power
         esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        #esc.inputs.voltagein = self.voltage
         # Step 2
         esc.voltageout(conditions)
         # link
@@ -121,9 +123,13 @@ class Battery_Propeller(Propulsor):
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
-        # step 4
-        F, Q, P, Cp = propeller.spin(conditions)
         
+        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
+            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+        else:            
+            # step 4
+            F, Q, P, Cp = propeller.spin(conditions)
+            
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
@@ -183,7 +189,7 @@ class Battery_Propeller(Propulsor):
         return results
     
     
-    def unpack_unknowns(self,segment,state):
+    def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
             Assumptions:
@@ -205,12 +211,12 @@ class Battery_Propeller(Propulsor):
         """                  
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
-        state.conditions.propulsion.battery_voltage_under_load  = state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         
         return
     
-    def residuals(self,segment,state):
+    def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
     
             Assumptions:
@@ -236,15 +242,15 @@ class Battery_Propeller(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack
-        q_motor   = state.conditions.propulsion.motor_torque
-        q_prop    = state.conditions.propulsion.propeller_torque
-        v_actual  = state.conditions.propulsion.voltage_under_load
-        v_predict = state.unknowns.battery_voltage_under_load
+        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_prop    = segment.state.conditions.propulsion.propeller_torque
+        v_actual  = segment.state.conditions.propulsion.voltage_under_load
+        v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = self.voltage
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
+        segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
         
         return    
             

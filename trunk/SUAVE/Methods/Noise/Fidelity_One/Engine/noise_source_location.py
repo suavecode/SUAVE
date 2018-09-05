@@ -20,7 +20,7 @@ def noise_source_location (B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_se
     #Primary jet source location
     XJ = np.zeros(24)
     
-    for i in xrange(24):
+    for i in range(24):
         residual = Diameter_primary
         XJ[i]    = (zk*Diameter_primary)*(4.+4.*np.arctan((18.*theta_p[i]/np.pi)-9.)+(Area_secondary/Area_primary))
         B[i]     = (1./np.sin(theta))*(((Xo+XJ[i])/distance_microphone)+np.cos(theta))

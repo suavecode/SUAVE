@@ -39,7 +39,7 @@ def read_sizing_inputs(sizing_loop, opt_inputs):
         read_success   = 1
     
     except IOError:
-        print 'no data to read, use default values'
+        print('no data to read, use default values')
         read_success   = 0
         
         
@@ -54,7 +54,7 @@ def read_sizing_inputs(sizing_loop, opt_inputs):
             data_inputs = data[:, 0:len(opt_inputs)]  #values from optimization problem
             data_outputs= data[:,len(opt_inputs):len(opt_inputs)+len(sizing_loop.default_y)]  #variables we iterate on in sizing loop
         else:
-            print 'empty sizing variable file, use default inputs'
+            print('empty sizing variable file, use default inputs')
             data_inputs  = 0
             data_outputs = 0
             read_success = 0

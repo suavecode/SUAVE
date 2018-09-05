@@ -17,6 +17,7 @@ from SUAVE.Core import Units
 #  Propeller Design
 # ----------------------------------------------------------------------
     
+
 def propeller_design(prop):
     """ Optimizes propeller chord and twist given input parameters.
           
@@ -67,7 +68,6 @@ def propeller_design(prop):
     Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))    
     
     tol   = 1e-10 # Convergence tolerance
-    N     = 20   # Number of Stations
 
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
@@ -209,4 +209,8 @@ def propeller_design(prop):
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller
     
+<<<<<<< HEAD
     return prop 
+=======
+    return prop
+>>>>>>> 4a38c84b8a65406aeea08af813ec06f6c5e3383c

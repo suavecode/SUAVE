@@ -2,5 +2,5 @@
 # Contains basic data for atmospheres.
 # @ingroup Attributes
 # classes
-from Constant import Constant
-from Composition import Composition
+from .Constant import Constant
+from .Composition import Composition

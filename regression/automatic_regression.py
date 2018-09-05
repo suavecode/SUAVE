@@ -41,6 +41,7 @@ modules = [
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
+    'scripts/VTOL,test_VTOL.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
@@ -64,7 +65,9 @@ modules = [
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
-    'scripts/scramjet_network/scramjet_network.py',    
+    'scripts/scramjet_network/scramjet_network.py',
+    'scripts/rocket_network/Rocketdyne_F1.py',
+    'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/sizing_loop/sizing_loop.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
@@ -109,7 +112,7 @@ def main():
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write('Final Results \n')
-    for module,result in results.items():
+    for module,result in list(results.items()):
         sys.stdout.write('%s - %s\n' % (result,module))
 
     if all_pass:
@@ -141,7 +144,7 @@ def test_module(module_path):
         # see if file exists
         os.chdir(test_dir)
         if not os.path.exists(module_name) and not os.path.isfile(module_name):
-            raise ImportError, 'file %s does not exist' % module_name
+            raise ImportError('file %s does not exist' % module_name)
 
         # add module directory
         sys.path.append(test_dir)

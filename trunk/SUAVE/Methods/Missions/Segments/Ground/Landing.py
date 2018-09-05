@@ -8,14 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import Common
+from . import Common
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Missions-Segments-Ground
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -37,8 +37,8 @@ def initialize_conditions(segment,state):
     """      
     
     # use the common initialization
-    conditions = state.conditions
-    Common.initialize_conditions(segment,state)
+    conditions = segment.state.conditions
+    Common.initialize_conditions(segment)
     
     # Unpack
     throttle  = segment.throttle

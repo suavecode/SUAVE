@@ -21,7 +21,7 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 # local imports
-from Aerodynamics import Aerodynamics
+from .Aerodynamics import Aerodynamics
 
 # package imports
 import numpy as np

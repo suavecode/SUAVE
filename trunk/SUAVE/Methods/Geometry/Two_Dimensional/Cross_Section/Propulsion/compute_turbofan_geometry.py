@@ -74,4 +74,4 @@ def compute_turbofan_geometry(turbofan, conditions):
 #   Module Tests
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
-    print
+    print()

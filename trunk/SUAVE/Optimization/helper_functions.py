@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------    
 
 import numpy as np
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------        
 #   Set_values
@@ -45,18 +46,18 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
         
     # Correspond aliases to inputs
     pointer = []
-    for ii in xrange(0,len(provided_names)):
-        for jj in xrange(0,len(aliases)):
+    for ii in range(0,len(provided_names)):
+        for jj in range(0,len(aliases)):
             if provided_names[ii] == aliases[jj][0]:
                 pointer.append(aliases[jj][1])
 
-    for ii in xrange(0,len(pointer)):
+    for ii in range(0,len(pointer)):
         pointers = pointer[ii][:]
         if isinstance(pointers,str):
             length = 0
             if '*' in pointers:
                 newstrings = find_a_star(dictionary,pointer[ii])
-                for jj in xrange(0,len(newstrings)):
+                for jj in range(0,len(newstrings)):
                     localstrs = newstrings[jj].split('.')
                     correctname = '.'.join(localstrs[0:])
                     dictionary.deep_set(correctname,converted_values[ii])
@@ -66,10 +67,10 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
                 correctname = '.'.join(localstrs[0:])
                 dictionary.deep_set(correctname,converted_values[ii])              
         else:
-            for zz in xrange(1,len(pointers)+1):
+            for zz in range(1,len(pointers)+1):
                 if '*' in pointers[zz-1]:
                     newstrings = find_a_star(dictionary,pointer[ii][zz-1])
-                    for jj in xrange(0,len(newstrings)):
+                    for jj in range(0,len(newstrings)):
                         localstrs = newstrings[jj].split('.')
                         correctname = '.'.join(localstrs[0:])
                         dictionary.deep_set(correctname,converted_values[ii])
@@ -104,17 +105,17 @@ def find_a_star(dictionary,string):
     N/A
     """
     splitstring = string.split('.')
-    for ii in xrange(0,len(splitstring)):
+    for ii in range(0,len(splitstring)):
         if '*' in splitstring[ii]:
             if ii==0:
                 newkeys = dictionary.keys()
             elif ii !=0:
                 strtoeval = 'dictionary.'+'.'.join(splitstring[0:ii])+'.keys()'
-                newkeys = eval(strtoeval)
+                newkeys = list(eval(strtoeval))
             lastindex   = ii
             
     newstrings = []
-    for ii in xrange(0,len(newkeys)):
+    for ii in range(0,len(newkeys)):
         newstrings.append('.'.join(splitstring[0:lastindex])+'.'+newkeys[ii]+'.'+'.'.join(splitstring[lastindex+1:]))
         
     return newstrings
@@ -207,13 +208,13 @@ def get_values(dictionary,outputs,aliases):
         
     # Correspond aliases to outputs
     pointer = []
-    for ii in xrange(0,len(output_names)):
-        for jj in xrange(0,len(aliases)):
+    for ii in range(0,len(output_names)):
+        for jj in range(0,len(aliases)):
             if output_names[ii] == aliases[jj][0]:
                 pointer.append(aliases[jj][1])    
                 
     values = np.zeros(len(outputs))
-    for ii in xrange(0,len(outputs)):
+    for ii in range(0,len(outputs)):
         splitstring = pointer[ii].split('.')
         values[ii]  = eval('dictionary.'+'.'.join(splitstring[0:]))
     

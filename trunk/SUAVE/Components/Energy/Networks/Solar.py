@@ -64,6 +64,7 @@ class Solar(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'network'
+        self.use_surrogate     = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -130,8 +131,14 @@ class Solar(Propulsor):
         motor.omega(conditions)
         # link
         propeller.inputs.omega =  motor.outputs.omega
+        
         # step 6
-        F, Q, P, Cplast = propeller.spin(conditions)
+        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
+            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+        else:            
+            # step 4
+            F, Q, P, Cp = propeller.spin(conditions)
+        
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -189,7 +196,7 @@ class Solar(Propulsor):
         return results
     
     
-    def unpack_unknowns(self,segment,state):
+    def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
             Assumptions:
@@ -209,11 +216,11 @@ class Solar(Propulsor):
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
 
         return
     
-    def residuals(self,segment,state):
+    def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
     
             Assumptions:
@@ -237,11 +244,11 @@ class Solar(Propulsor):
         # Here we are going to pack the residuals from the network
         
         # Unpack
-        q_motor   = state.conditions.propulsion.motor_torque
-        q_prop    = state.conditions.propulsion.propeller_torque
+        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_prop    = segment.state.conditions.propulsion.propeller_torque
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
         
         return        
             

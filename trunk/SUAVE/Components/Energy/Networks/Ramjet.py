@@ -30,22 +30,22 @@ class Ramjet(Propulsor):
     """
 
     def __defaults__(self):
-	""" This sets the default values for the network to function.
+        """ This sets the default values for the network to function.
 
-            Assumptions:
-            None
+        Assumptions:
+        None
 
-            Source:
-            N/A
+        Source:
+        N/A
 
-            Inputs:
-            None
+        Inputs:
+        None
 
-            Outputs:
-            None
+        Outputs:
+        None
 
-            Properties Used:
-            N/A
+        Properties Used:
+        N/A
         """
 
         #setting the default values
@@ -58,32 +58,32 @@ class Ramjet(Propulsor):
 
 
     def evaluate_thrust(self,state):
-	""" Calculate thrust given the current state of the vehicle
+        """ Calculate thrust given the current state of the vehicle
 
-		Assumptions:
-		None
+        	Assumptions:
+        	None
 
-		Source:
-		N/A
+        	Source:
+        	N/A
 
-		Inputs:
-		state [state()]
+        	Inputs:
+        	state [state()]
 
-		Outputs:
-		results.thrust_force_vector                      [newtons]
-		results.vehicle_mass_rate                        [kg/s]
-		results.specific_impulse                         [s]
-		conditions.propulsion.acoustic_outputs:
-		    core:
-			exit_static_temperature                  [K]
-			exit_static_pressure                     [K]
-			exit_stagnation_temperature              [K]
-			exit_stagnation_pressure                 [Pa]
-			exit_velocity                            [m/s]
+        	Outputs:
+        	results.thrust_force_vector                      [newtons]
+        	results.vehicle_mass_rate                        [kg/s]
+        	results.specific_impulse                         [s]
+        	conditions.propulsion.acoustic_outputs:
+        	    core:
+        		exit_static_temperature                  [K]
+        		exit_static_pressure                     [K]
+        		exit_stagnation_temperature              [K]
+        		exit_stagnation_pressure                 [Pa]
+        		exit_velocity                            [m/s]
 
-		Properties Used:
-		Defaulted values
-	    """
+        	Properties Used:
+        	Defaulted values
+            """
 
         # unpack
         conditions                = state.conditions
@@ -104,7 +104,7 @@ class Ramjet(Propulsor):
 
         # link inlet nozzle to ram
         inlet_nozzle.inputs          = ram.outputs
-	
+
         # flow through the inlet nozzle
         inlet_nozzle(conditions)
 
@@ -121,12 +121,12 @@ class Ramjet(Propulsor):
         core_nozzle.compute_limited_geometry(conditions)
 
         # compute the thrust using the thrust component
-        
+
         # link the thrust component to the core nozzle
         thrust.inputs.core_nozzle                              = core_nozzle.outputs
-	thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
-	thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
-	
+        thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
+        thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
+
         # link the thrust component to the combustor
         thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio
 
@@ -150,8 +150,8 @@ class Ramjet(Propulsor):
         results                     = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-	results.specific_impulse    = Isp
-	
+        results.specific_impulse    = Isp
+
         return results
 
     def size(self,state):
@@ -183,7 +183,7 @@ class Ramjet(Propulsor):
         thrust                    = self.thrust
 
         # Creating the network by manually linking the different components
-        
+
         # set the working fluid to determine the fluid properties
         ram.inputs.working_fluid = self.working_fluid
 
@@ -197,23 +197,23 @@ class Ramjet(Propulsor):
         inlet_nozzle(conditions)
 
         # link the combustor to the high pressure compressor
-        combustor.inputs = inlet_nozzle.outputs.mach_number
+        combustor.inputs = inlet_nozzle.outputs
 
         # flow through the high pressure compressor
         combustor.compute_rayleigh(conditions)
 
         # link the core nozzle to the low pressure turbine
-        core_nozzle.inputs = combustor.outputs.stagnation_pressure
+        core_nozzle.inputs = combustor.outputs
 
         # flow through the core nozzle
-        core_nozzle(conditions)
+        core_nozzle.compute_limited_geometry(conditions)
 
         # compute the thrust using the thrust component
-        
+
         # link the thrust component to the core nozzle
         thrust.inputs.stagnation_temperature                   = core_nozzle.outputs.stagnation_temperature
         thrust.inputs.stagnation_pressure                      = core_nozzle.outputs.stagnation_pressure
-	thrust.inputs.core_nozzle                              = core_nozzle.outputs
+        thrust.inputs.core_nozzle                              = core_nozzle.outputs
 
         # link the thrust component to the combustor
         thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio

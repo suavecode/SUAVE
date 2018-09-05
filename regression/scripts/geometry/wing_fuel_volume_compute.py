@@ -40,10 +40,10 @@ def main():
     error        = Data() 
     error.volume = np.abs(wing.fuel_volume-truth_volume)/truth_volume
 
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert np.any(np.abs(v)<1e-6)
     
 if __name__ == '__main__':
     
     main()  
-    print 'Fuel volume regression test passed!'   
+    print('Fuel volume regression test passed!')   

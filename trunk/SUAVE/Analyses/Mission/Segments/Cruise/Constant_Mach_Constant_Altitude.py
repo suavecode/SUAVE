@@ -11,7 +11,7 @@
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
 
-from Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
+from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
 # Units
 from SUAVE.Core import Units

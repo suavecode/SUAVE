@@ -52,6 +52,8 @@ class Motor_Lo_Fid(Energy_Component):
         self.gearbox_efficiency = 0.0
         self.expected_current   = 0.0
         self.motor_efficiency   = 0.0
+        self.rated_power        = 0.0
+        self.rated_voltage      = 0.0
     
     def omega(self,conditions):
         """Calculates the motor's rotation rate
@@ -96,7 +98,7 @@ class Motor_Lo_Fid(Energy_Component):
         
 
         # Omega
-        omega1 = (Kv*v)/2 + (Kv*(Res*Res*io*io - 2*Res*etam*io*v - 2*Res*io*v + etam*etam*v*v - 2*etam*v*v + v*v)**(1/2))/2 - (Kv*Res*io)/2 + (Kv*etam*v)/2
+        omega1 = (Kv*v)/2. + (Kv*(Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
         Q = ((v-omega1/Kv)/Res -io)/Kv
         
         omega1[v==0] = 0.
@@ -158,3 +160,25 @@ class Motor_Lo_Fid(Energy_Component):
         conditions.propulsion.etam = etam
         
         return i
+    
+    def power_lo(self,conditions):
+        
+        etam   = self.motor_efficiency
+        power  = self.rated_power
+        v_rate = self.rated_voltage
+        v_in   = self.inputs.voltage
+        
+        power_out = power*etam*v_in/v_rate
+    
+        
+        i = power_out/(etam*v_in)
+        
+        i[power_out == 0.] = 0.
+        
+        self.outputs.power   = power_out
+        self.outputs.current = i
+        
+        return power_out, i
+    
+        
+        

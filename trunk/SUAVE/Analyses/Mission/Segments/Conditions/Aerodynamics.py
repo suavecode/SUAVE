@@ -12,8 +12,8 @@
 import numpy as np
 
 # SUAVE imports
-from Basic import Basic
-from Conditions import Conditions
+from .Basic import Basic
+from .Conditions import Conditions
 
 # ----------------------------------------------------------------------
 #  Conditions
@@ -87,6 +87,7 @@ class Aerodynamics(Basic):
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0
         self.freestream.dynamic_pressure   = ones_1col * 0
+        self.freestream.delta_ISA          = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        

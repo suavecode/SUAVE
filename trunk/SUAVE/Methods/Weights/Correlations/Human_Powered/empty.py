@@ -8,9 +8,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import tail as tail
-import wing as wing
-import fuselage as fuselage
+from . import tail as tail
+from . import wing as wing
+from . import fuselage as fuselage
 import warnings
 
 from SUAVE.Core import Data
@@ -88,7 +88,7 @@ def empty(vehicle):
     qm     = vehicle.envelope.maximum_dynamic_pressure
     
     # Wing weight
-    if not vehicle.wings.has_key('main_wing'):
+    if 'main_wing' not in vehicle.wings:
         wt_wing = 0.0
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
     else:
@@ -102,7 +102,7 @@ def empty(vehicle):
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
     
     # Horizontal Tail weight
-    if not vehicle.wings.has_key('horizontal_stabilizer'):
+    if 'horizontal_stabilizer' not in vehicle.wings:
         wt_ht = 0.0
         warnings.warn("There is no Horizontal Tail Weight being added to the Configuration", stacklevel=1)
     else:      
@@ -115,7 +115,7 @@ def empty(vehicle):
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_ht
     
     # Vertical Tail weight
-    if not vehicle.wings.has_key('vertical_stabilizer'):   
+    if 'vertical_stabilizer' not in vehicle.wings:   
         wt_vt = 0.0
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
     else:    
@@ -128,7 +128,7 @@ def empty(vehicle):
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = wt_vt
 
     # Fuselage weight
-    if not vehicle.fuselages.has_key('fuselage'):   
+    if 'fuselage' not in vehicle.fuselages:   
         wt_tb = 0.0
         warnings.warn("There is no Fuselage Weight being added to the Configuration", stacklevel=1)    
     else: 

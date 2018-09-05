@@ -14,7 +14,7 @@ import SUAVE
 from SUAVE.Core import Data, DataOrdered
 from SUAVE.Analyses import Process
 from copy import deepcopy
-import helper_functions as help_fun
+from . import helper_functions as help_fun
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -191,7 +191,7 @@ class Nexus(Data):
         
         # Setup constraints  
         indices = []
-        for ii in xrange(0,len(constraints)):
+        for ii in range(0,len(constraints)):
             if constraints[ii][1]==('='):
                 indices.append(ii)        
         iqconstraints = np.delete(constraints,indices,axis=0)
@@ -233,7 +233,7 @@ class Nexus(Data):
         
         # Setup constraints  
         indices = []
-        for ii in xrange(0,len(constraints)):
+        for ii in range(0,len(constraints)):
             if constraints[ii][1]=='>':
                 indices.append(ii)
             elif constraints[ii][1]=='<':
@@ -367,7 +367,7 @@ class Nexus(Data):
         
         con2 = (con*np.ones_like(jac_con))
         
-        for ii in xrange(0,inplen):
+        for ii in range(0,inplen):
             newx     = np.asarray(x)*1.0
             newx[ii] = newx[ii] + diff_interval
             
@@ -410,7 +410,7 @@ class Nexus(Data):
         # Pull out the inputs and print them
         inpu       = self.optimization_problem.inputs
         print('Design Variable Table:\n')
-        print inpu
+        print(inpu)
         
         # Pull out the constraints
         const       = self.optimization_problem.constraints
@@ -422,7 +422,7 @@ class Nexus(Data):
         const_table = np.insert(const_table,1,const_scale,axis=1)
 
         print('\nConstraint Table:\n')
-        print const_table
+        print(const_table)
         
         return inpu,const_table
                                
