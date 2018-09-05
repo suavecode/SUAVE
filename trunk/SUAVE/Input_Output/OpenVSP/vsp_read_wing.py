@@ -197,9 +197,6 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	
 	# Areas
 	wing.areas.reference  = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom')
-	wetted_areas          = get_vsp_areas(wing.tag)	
-	wing.areas.wetted     = wetted_areas[wing.tag]	# Meters
-	wing.areas.exposed    = wetted_areas[wing.tag]	# Meters
 		
 	# Twists
 	wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg

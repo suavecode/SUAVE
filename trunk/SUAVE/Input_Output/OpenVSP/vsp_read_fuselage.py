@@ -142,10 +142,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
 	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
 		
-	fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)
-
-	wetted_areas          = get_vsp_areas(fuselage.tag) 					# Wetted_areas array contains areas for all vehicle geometries.
-	fuselage.areas.wetted = wetted_areas[fuselage.tag]	
+	fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)	
 
 	return fuselage
 	

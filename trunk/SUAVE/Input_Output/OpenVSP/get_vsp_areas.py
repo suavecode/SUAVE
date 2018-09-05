@@ -12,7 +12,7 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def get_vsp_areas(tag):
+def get_vsp_areas():
     """This calls OpenVSP to compute the wetted areas of a previously written vehicle.
     
     Assumptions:
@@ -64,5 +64,7 @@ def get_vsp_areas(tag):
             if item_tag in wetted_areas:
                 item_w_area = wetted_areas[item_tag] + item_w_area
             wetted_areas[item_tag] = item_w_area
+            
+    f.close()
     
     return wetted_areas
