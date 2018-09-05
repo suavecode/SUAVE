@@ -53,6 +53,7 @@ class AERODAS(Markup):
         settings = self.settings
         settings.section_zero_lift_angle_of_attack = 0.0 * Units.deg
         settings.section_lift_curve_slope          = 2.0 * np.pi
+        settings.drag_coefficient_increment        = 0.0
 
         # build the evaluation process
         compute = self.process.compute
