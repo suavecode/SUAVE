@@ -267,10 +267,10 @@ class Lift_Forward_Low_Fidelity(Propulsor):
     def residuals(self,segment):
         
         # Here we are going to pack the residuals (torque,voltage) from the network
-        q_motor_forward = segment.state.conditions.propulsion.motor_torque_forward
-        q_prop_forward  = segment.state.conditions.propulsion.propeller_torque_forward
-        q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
-        q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
+        #q_motor_forward = segment.state.conditions.propulsion.motor_torque_forward
+        #q_prop_forward  = segment.state.conditions.propulsion.propeller_torque_forward
+        #q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
+        #q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
         
         #v_actual        = state.conditions.propulsion.voltage_under_load
         #v_predict       = state.unknowns.battery_voltage_under_load
