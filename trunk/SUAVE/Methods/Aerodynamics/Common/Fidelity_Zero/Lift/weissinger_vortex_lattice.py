@@ -318,10 +318,6 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf
     CL2 = Total_Lift_Force/(0.5*Sref*q_inf)
     CD2 = Total_Drag_Force/(0.5*Sref*q_inf)  
     
-    print "CL"
-    print CL1
-    print CL2
-    
     return LT , CL1 , DT, CD1  , Lift_distribution, Drag_distribution   
 
 
