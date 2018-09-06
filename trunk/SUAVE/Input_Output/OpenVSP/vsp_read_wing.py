@@ -187,8 +187,8 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		else:
 			break  
 	
-	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) / Units.deg
-	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt) / Units.deg  # Minus sign makes it positive sweep.
+	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
+	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.
 	
 	# Chords
 	wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_1') * units_factor
