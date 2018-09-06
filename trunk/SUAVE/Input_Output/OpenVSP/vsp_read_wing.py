@@ -82,6 +82,14 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	sym_planar = vsp.GetParmVal(wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor', 'Sym')
 	
+	# Get the initial rotation to get the dihedral angles
+	x_rot = vsp.GetParmVal( wing_id,'X_Rel_Rotation','XForm')	
+	# Check if this is vertical tail and get the rotation
+	if  x_rot >=70:
+		wing.vertical = True
+		
+
+	
 	if sym_planar == 2. and sym_origin == 2.: #origin at wing, not vehicle
 		wing.symmetric == True	
 	else:
@@ -189,12 +197,12 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	sweeps_sum        = 0.
 	
 	for ii in range(start, segment_num):
-		if segment_dihedral[ii] <= (70. * Units.deg): # Stop at segment with dihedral value over 70deg (wingtips).
-			span_sum_alt += segment_spans[ii]
-			proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])  # Use projected span to find total wing dihedral.
-			sweeps_sum += segment_spans[ii] * np.tan(segment_sweeps_quarter_chord[ii])
-		else:
-			break  
+		#if segment_dihedral[ii] <= (70. * Units.deg): # Stop at segment with dihedral value over 70deg (wingtips).
+		span_sum_alt += segment_spans[ii]
+		proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])  # Use projected span to find total wing dihedral.
+		sweeps_sum += segment_spans[ii] * np.tan(segment_sweeps_quarter_chord[ii])
+		#else:
+			#break  
 	
 	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
 	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.
