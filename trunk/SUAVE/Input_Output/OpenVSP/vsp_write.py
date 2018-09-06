@@ -221,8 +221,8 @@ def write(vehicle,tag):
                 vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
                 xsec1 = vsp.GetXSec(xsecsurf,0)
                 xsec2 = vsp.GetXSec(xsecsurf,1)
-                vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
-                vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil[0].coordinate_file)
                 vsp.Update()                
         
         # Thickness to chords
@@ -283,7 +283,7 @@ def write(vehicle,tag):
                 vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FILE_AIRFOIL)
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
                 xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)
-                vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
+                vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil[0].coordinate_file)                
             else:
                 vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FOUR_SERIES)
             
@@ -402,9 +402,7 @@ def write(vehicle,tag):
     # Fuselage
     # -------------    
     
-    if 'fuselage' in vehicle.fuselages:
-        # Unpack
-        fuselage = vehicle.fuselages.fuselage
+    for key, fuselage in vehicle.fuselages.items():
         width    = fuselage.width
         length   = fuselage.lengths.total
         hmax     = fuselage.heights.maximum
@@ -428,6 +426,16 @@ def write(vehicle,tag):
         fuse_id = vsp.AddGeom("FUSELAGE") 
         vsp.SetGeomName(fuse_id, fuselage.tag)
         area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
+        
+        # Set the origins:
+        x = fuselage.origin[0][0]
+        y = fuselage.origin[0][1]
+        z = fuselage.origin[0][2]
+        vsp.SetParmVal(fuse_id,'X_Location','XForm',x)
+        vsp.SetParmVal(fuse_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(fuse_id,'Z_Location','XForm',z)
+        vsp.SetParmVal(fuse_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+        vsp.SetParmVal(fuse_id,'Origin','XForm',0.0)            
     
         tail_z_pos = 0.02 # default value
         if 'OpenVSP_values' in fuselage:

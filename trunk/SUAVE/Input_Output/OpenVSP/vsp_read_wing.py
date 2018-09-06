@@ -75,9 +75,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	else: 
 		wing.tag = 'WingGeom'
 	
-	wing.origin[0] = vsp.GetParmVal(wing_id, 'X_Rel_Location', 'XForm')
-	wing.origin[1] = vsp.GetParmVal(wing_id, 'Y_Rel_Location', 'XForm')
-	wing.origin[2] = vsp.GetParmVal(wing_id, 'Z_Rel_Location', 'XForm')	
+	wing.origin[0] = vsp.GetParmVal(wing_id, 'X_Rel_Location', 'XForm') * units_factor 
+	wing.origin[1] = vsp.GetParmVal(wing_id, 'Y_Rel_Location', 'XForm') * units_factor 
+	wing.origin[2] = vsp.GetParmVal(wing_id, 'Z_Rel_Location', 'XForm') * units_factor 
 	
 	sym_planar = vsp.GetParmVal(wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor', 'Sym')
@@ -151,6 +151,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			camber_loc_round           = int(np.around(camber_loc*10)) 
 			thick_cord_round           = int(np.around(thick_cord*100))
 			airfoil.tag                = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
+			
+			# Always write the airfoil file
+			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
+			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'			
 	
 		elif vsp.GetXSecShape(xsec_id) == 8: 	# XSec shape: NACA 6-series
 			thick_cord_round = int(np.around(thick_cord*100))
@@ -160,6 +164,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			series_dict      = {0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'} # VSP series values.
 			series           = series_dict[series_vsp]
 			airfoil.tag      = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
+			
+			# Always write the airfoil file
+			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
+			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'			
+				
 	
 		elif vsp.GetXSecShape(xsec_id) == 12:	# XSec shape: 12 is type AF_FILE
 			airfoil.thickness_to_chord = thick_cord

@@ -87,9 +87,9 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 
-	fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm')
-	fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm')
-	fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm')
+	fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm') * units_factor
+	fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm') * units_factor
+	fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm') * units_factor
 
 	fuselage.lengths.total         = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units_factor
 	fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
@@ -132,12 +132,15 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	
 		fuselage.Segments.append(segment)
 
-	fuselage.heights.at_quarter_length        = get_fuselage_height(fuselage, .25) * units_factor # Calls get_fuselage_height function (below).
-	fuselage.heights.at_three_quarters_length = get_fuselage_height(fuselage, .75) * units_factor
+	fuselage.heights.at_quarter_length          = get_fuselage_height(fuselage, .25)  # Calls get_fuselage_height function (below).
+	fuselage.heights.at_three_quarters_length   = get_fuselage_height(fuselage, .75) 
+	fuselage.heights.at_wing_root_quarter_chord = get_fuselage_height(fuselage, .5) 
 
 	fuselage.heights.maximum    = max(heights) 		# Max segment height.	
 	fuselage.width		    = max(widths) 		# Max segment width.
 	fuselage.effective_diameter = max(eff_diams)		# Max segment effective diam.
+	
+	fuselage.areas.front_projected  = np.pi*((fuselage.effective_diameter)/2)**2
 
 	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
 	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
