@@ -190,21 +190,25 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
 	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.
 	
-	# Chords
-	wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_1') * units_factor
-	wing.chords.tip               = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor	
-	wing.chords.mean_geometric    = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal(wing_id, 'TotalChord', 'WingGeom') * units_factor
-	
+	# Wing spans
+	if wing.symmetric == True:
+		wing.spans.projected = 2 * proj_span_sum * units_factor
+	else:
+		wing.spans.projected = proj_span_sum	* units_factor	
+		
 	# Areas
-	wing.areas.reference  = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') * units_factor**2 
+	wing.areas.reference  = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') * units_factor**2 	
+	
+	# Chords
+	wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0') * units_factor
+	wing.chords.tip               = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor	
+	wing.chords.mean_geometric    = wing.areas.reference /wing.spans.projected
+
 		
 	# Twists
 	wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg
 	wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
 	
-	if wing.symmetric == True:
-		wing.spans.projected = proj_span_sum*2
-	else:
-		wing.spans.projected = proj_span_sum	
+
 	
 	return wing
