@@ -119,7 +119,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                    0],
                  'full-screen': False,
                  'notebook_display': 'normal',
-                 'notebook_percent': 0.20439100888656558,
+                 'notebook_percent': 0.16175548589341693,
                  'override_title': None,
                  'pagelist': [('project',
                                'tall',
@@ -131,40 +131,17 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
          0),
         (1,
          0,
-         5),
-        (1,
-         0,
-         5,
-         0),
-        (1,
-         0,
-         5,
-         0,
          2),
         (1,
          0,
-         5,
-         0,
          2,
-         0),
-        (1,
-         0,
-         5,
-         0,
-         2,
-         0,
-         0)],
+         8)],
                                  'selected-nodes': [(1,
         0,
-        5,
-        0,
         2,
-        0,
-        0,
-        5)],
-                                 'top-node': (1,
-        0,
-        4)}},
+        8,
+        4)],
+                                 'top-node': (0,)}},
         'tree-style': 'deep'}}),
                               ('browser',
                                'tall',
@@ -252,8 +229,8 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                {})],
                  'primary_view_state': {'area': 'wide',
         'constraint': None,
-        'current_pages': [0,
-                          1],
+        'current_pages': [3,
+                          0],
         'notebook_display': 'normal',
         'notebook_percent': 0.5,
         'override_title': None,
@@ -303,7 +280,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                        'fRegexFlags': 42,
                                        'fReplaceText': u'  ',
                                        'fReverse': False,
-                                       'fSearchText': u'deg',
+                                       'fSearchText': u'rot',
                                        'fStartPos': 0,
                                        'fStyle': 'text',
                                        'fWholeWords': False,
@@ -359,7 +336,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         -1),
                        'attrib-starts': [],
                        'code-line': '',
-                       'first-line': 958L,
+                       'first-line': 2635L,
                        'folded-linenos': [],
                        'history': {u'file:/Users/emiliobotero/Dropbox/SUAVE/Experimental/NASA_Cora/cora.py': ['v'\
         '_stall\n',
@@ -403,13 +380,8 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'thrust*12\n',
         'thrust*12 / Units.lb\n',
         'omega1\n'],
-                                   u'file:/Users/emiliobotero/Dropbox/SUAVE/Experimental/NASA_Cora/cora_lo_lo_fid.py': ['n'\
-        '\n',
-        'x0\n',
-        'segment.state.residuals\n',
-        'surrogates.wing_lift_coefficients\n',
-        'geometry.wings.items()\n',
-        'list(geometry.wings.items())\n',
+                                   u'file:/Users/emiliobotero/Dropbox/SUAVE/Experimental/NASA_Cora/cora_lo_lo_fid.py': ['l'\
+        'ist(geometry.wings.items())\n',
         'wing_CL_data\n',
         'wing.tag\n',
         'segment.state.unknowns\n',
@@ -434,15 +406,12 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'fuselage.effective_diameter\n',
         'fuselage_parasite_drag\n',
         'segment.tag\n',
-        'W\n',
         'T\n',
-        'L\n',
         'ref_area\n',
         'conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].para'\
         'site_drag_coefficient \n',
         'Tf\n',
         'parasite_drag\n',
-        'D\n',
         'parasite_total\n',
         'induced_total\n',
         'miscellaneous_drag\n',
@@ -458,7 +427,6 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'sweep_w\n',
         'cd_c\n',
         'total_compressibility_drag\n',
-        'F\n',
         'propulsor_parasite_drag\n',
         'Mc\n',
         're\n',
@@ -477,12 +445,49 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'cf_inc\n',
         'np.log10(Re))\n',
         'np.log10(Re)\n',
-        'total_parasite_drag\n'],
+        'total_parasite_drag\n',
+        'D\n',
+        'F\n',
+        'L\n',
+        'F_lift\n',
+        'P_lift\n',
+        'vehicle.referene_area\n',
+        '10.582754755540334 *3.2**2\n',
+        'S\n',
+        'rho\n',
+        'CLmax\n',
+        'float(np.sqrt(2.*W/(rho*S*CLmax)))\n',
+        'W\n',
+        '2*W/(rho)\n',
+        '2*W/(rho*CL*S)\n',
+        '2*W/(rho*CLmax*S)\n',
+        "np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)\n",
+        'vehicle.fuselages.keys()\n',
+        'vehicle.fuselages.boommr\n',
+        'print(vehicle.fuselages.boommr)\n',
+        'suave_wing.Segments[i_segs].Airfoil\n',
+        'print(suave_wing.Segments[i_segs].Airfoil)\n',
+        'suave_wing.Segments[i_segs].Airfoil.keys()\n',
+        'vehicle.reference_area\n',
+        'vehicle.wings.main_wing\n',
+        'print(vehicle.wings.main_wing)\n',
+        'Segment\n',
+        'Segment.keys()\n',
+        'Segment.keys().Airfoils.keys()\n',
+        'Segment.keys().Airfoil.keys()\n',
+        'Segment.Airfoil.pop()\n',
+        'Segment.Airfoil.clear()\n',
+        'Segment.Airfoil\n',
+        'Segment.Airfoil.keys()\n',
+        'fuselage\n',
+        'fuselage.tag\n',
+        'wing.Segments[0].\n',
+        'wing.Segments[0]\n',
+        'wing.Segments[0].keys()\n'],
                                    u'file:/Users/emiliobotero/Dropbox/SUAVE/Experimental/NASA_Cora/cora_read_test.py': ['c'\
         'omponent_root\n',
         'k\n',
         'v\n',
-        'vehicle.wings.keys()\n',
         'vehicle.wings.items()\n',
         'value.tag\n',
         'fuselage.Segment.keys()\n',
@@ -493,12 +498,66 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'print(fuselage.Segments.segment_1)\n',
         'vsp.GetXSecHeight(segment.vsp_data.xsec_id)\n',
         'units_factor\n',
-        'vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor\n']},
+        'vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor\n',
+        'vehicle.fuselages.boomor\n',
+        'print(vehicle.fuselages.boomor)\n',
+        'fuse\n',
+        'fuse.keys()\n',
+        'fuse.tag\n',
+        'new_fuse\n',
+        'vehicle.fuselages.keys()\n',
+        'wing.chords.mean_geometric \n',
+        "vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') \n",
+        "vsp.GetParmVal(wing_id, 'TotalChord', 'WingGeom')\n",
+        "(vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') / vsp.GetParmVal("\
+        "wing_id, 'TotalChord', 'WingGeom'))\n",
+        "vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i))\n",
+        "vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(0))\n",
+        "(vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') / proj_span_sum )"\
+        " * units_factor\n",
+        "vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_1')\n",
+        "vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0')\n",
+        'print(wing)\n',
+        'vsp.GetAirfoilCoordinates(wing_id, float(jj/segment_num))\n',
+        "vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'"\
+        ".dat', wing_id, float(jj/segment_num))\n",
+        'xsec1,wing.Segments[0].Airfoil[0]\n',
+        'xsec1,wing.Segments[0].Airfoil\n',
+        'xsec1,wing.Segments[0].Airfoil.items()\n',
+        'xsec1,wing.Segments[0].Airfoil.XCZHBECCTO\n',
+        'xsec1,wing.Segments[0].Airfoil.keys()\n',
+        'print(air)\n',
+        'print(airfoil)\n',
+        'segment.append_airfoil(airfoil)\n',
+        'segment.Airfoil.keys()\n',
+        'segment.Airfoil\n',
+        'wing.tag\n',
+        'vsp.GetXSecShape(xsec_id)\n',
+        'airfoil\n',
+        'segment.tag\n',
+        'start\n',
+        'wing.Segments[0]\n',
+        'wing.Segments[0].Airfoil\n',
+        'wing.Segments[0].Airfoil[0]\n',
+        'wing.Segments[0].Airfoil[0].keys()\n',
+        'wing.Segments[0].Airfoil.keys()\n',
+        'fuselage.heights.at_quarter_length \n',
+        'get_fuselage_height(fuselage, .25) * units_factor \n',
+        'fuselage.origin\n',
+        'fuse_id\n',
+        'fuselage.tag\n',
+        'x\n',
+        'y\n',
+        'z\n',
+        'vehicle.wings.keys()\n',
+        'vehicle.wings.verttail.keys()\n',
+        'vehicle.wings.verttail.symmetric\n',
+        'x_rot\n']},
                        'launch-id': None,
-                       'sel-line': 973L,
-                       'sel-line-start': 30313L,
-                       'selection_end': 30313L,
-                       'selection_start': 30313L,
+                       'sel-line': 2655L,
+                       'sel-line-start': 78563L,
+                       'selection_end': 78563L,
+                       'selection_start': 78563L,
                        'zoom': 0L}),
                      ('debug-watch',
                       'wide',
@@ -540,850 +599,395 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         'primary_view_state': {'editor_states': ('horizontal',
         1.0,
         ('horizontal',
-         0.6123260437375746,
-         ({'bookmarks': ([[loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    Re[Re<=1.] = 1. \n',
-                            'first-line': 22L,
+         0.8014469453376206,
+         ({'bookmarks': ([[loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': "        vsp.SetParmVal( wing_id,'Z"\
+        "_Rel_Location','XForm',wing_z)\n",
+                            'first-line': 119L,
                             'folded-linenos': [],
-                            'sel-line': 42L,
-                            'sel-line-start': 1508L,
-                            'selection_end': 1527L,
-                            'selection_start': 1527L,
+                            'sel-line': 150L,
+                            'sel-line-start': 6123L,
+                            'selection_end': 6185L,
+                            'selection_start': 6185L,
                             'zoom': 0L},
-                           1536195738.299432],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           {'attrib-starts': [('parasite_drag_propulsor|0|',
-        25)],
-                            'code-line': '    cf_prop, k_comp, k_reyn = comp'\
-        'ressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                            'first-line': 45L,
+                           1536273389.199724],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+                           {'attrib-starts': [('vsp_read_fuselage|0|',
+        19)],
+                            'code-line': "\tfuselage.origin[0][2] = vsp.GetP"\
+        "armVal(fuselage_id, 'Z_Rel_Location', 'XForm') * units_factor\n",
+                            'first-line': 68L,
                             'folded-linenos': [],
-                            'sel-line': 72L,
-                            'sel-line-start': 2122L,
-                            'selection_end': 2122L,
-                            'selection_start': 2122L,
+                            'sel-line': 91L,
+                            'sel-line-start': 3665L,
+                            'selection_end': 3759L,
+                            'selection_start': 3759L,
                             'zoom': 0L},
-                           1536195741.458722],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                           {'attrib-starts': [('parasite_total|0|',
-        18)],
-                            'code-line': '    try:\n',
-                            'first-line': 43L,
+                           1536273393.169649],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                           {'attrib-starts': [('vsp_read_wing|0|',
+        19)],
+                            'code-line': '\t\n',
+                            'first-line': 51L,
                             'folded-linenos': [],
-                            'sel-line': 78L,
-                            'sel-line-start': 3200L,
-                            'selection_end': 3200L,
-                            'selection_start': 3200L,
+                            'sel-line': 85L,
+                            'sel-line-start': 2984L,
+                            'selection_end': 2985L,
+                            'selection_start': 2985L,
                             'zoom': 0L},
-                           1536195768.78853],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           {'attrib-starts': [('parasite_drag_propulsor|0|',
-        25)],
-                            'code-line': '    cf_prop, k_comp, k_reyn = comp'\
-        'ressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                            'first-line': 45L,
+                           1536273435.617319],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': "            vsp.SetParmVal( wing_i"\
+        "d,'X_Rel_Rotation','XForm',90)     \n",
+                            'first-line': 119L,
                             'folded-linenos': [],
-                            'sel-line': 72L,
-                            'sel-line-start': 2122L,
-                            'selection_end': 2122L,
-                            'selection_start': 2122L,
+                            'sel-line': 146L,
+                            'sel-line-start': 5910L,
+                            'selection_end': 5978L,
+                            'selection_start': 5922L,
                             'zoom': 0L},
-                           1536195769.998084],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    Re[Re<=1.] = 1. \n',
-                            'first-line': 22L,
+                           1536273441.023648],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+                           {'attrib-starts': [('vsp_read_fuselage|0|',
+        19)],
+                            'code-line': "\tfuselage.origin[0][2] = vsp.GetP"\
+        "armVal(fuselage_id, 'Z_Rel_Location', 'XForm') * units_factor\n",
+                            'first-line': 68L,
                             'folded-linenos': [],
-                            'sel-line': 42L,
-                            'sel-line-start': 1508L,
-                            'selection_end': 1527L,
-                            'selection_start': 1527L,
+                            'sel-line': 91L,
+                            'sel-line-start': 3665L,
+                            'selection_end': 3759L,
+                            'selection_start': 3759L,
                             'zoom': 0L},
-                           1536195771.073139],
-                          [loc('../../trunk/SUAVE/Methods/Missions/Segments/Common/Frames.py'),
-                           {'attrib-starts': [('update_forces|0|',
-        -1)],
-                            'code-line': '    return\n',
-                            'first-line': 327L,
+                           1536273441.836421],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                           {'attrib-starts': [('vsp_read_wing|0|',
+        19)],
+                            'code-line': '\t\twing.ver\n',
+                            'first-line': 51L,
                             'folded-linenos': [],
-                            'sel-line': 366L,
-                            'sel-line-start': 13317L,
-                            'selection_end': 13317L,
-                            'selection_start': 13317L,
+                            'sel-line': 86L,
+                            'sel-line-start': 3044L,
+                            'selection_end': 3054L,
+                            'selection_start': 3054L,
                             'zoom': 0L},
-                           1536195772.308292],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    Re[Re<=1.] = 1. \n',
-                            'first-line': 22L,
+                           1536273471.362746],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': "            vsp.SetParmVal( wing_i"\
+        "d,'X_Rel_Rotation','XForm',90)     \n",
+                            'first-line': 119L,
                             'folded-linenos': [],
-                            'sel-line': 42L,
-                            'sel-line-start': 1508L,
-                            'selection_end': 1527L,
-                            'selection_start': 1527L,
+                            'sel-line': 146L,
+                            'sel-line-start': 5910L,
+                            'selection_end': 5978L,
+                            'selection_start': 5922L,
                             'zoom': 0L},
-                           1536195774.002118],
-                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           {'attrib-starts': [('mission_setup|0|',
-        242)],
-                            'code-line': "    segment.air_speed_start = 1.  "\
-        " * Units['ft/min']\n",
-                            'first-line': 304L,
-                            'folded-linenos': [],
-                            'sel-line': 320L,
-                            'sel-line-start': 11272L,
-                            'selection_end': 11304L,
-                            'selection_start': 11304L,
-                            'zoom': 0L},
-                           1536195774.974247],
-                          [loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Common.py'),
-                           {'attrib-starts': [('unpack_unknowns|0|',
-        17)],
-                            'code-line': '    segment.state.conditions.frame'\
-        's.body.inertial_rotations[:,1] = body_angle[:,0]   \n',
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 44L,
-                            'sel-line-start': 1288L,
-                            'selection_end': 1352L,
-                            'selection_start': 1292L,
-                            'zoom': 0L},
-                           1536195777.419385],
-                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           {'attrib-starts': [('mission_setup|0|',
-        242)],
-                            'code-line': "    segment.air_speed_start = 1.  "\
-        " * Units['ft/min']\n",
-                            'first-line': 304L,
-                            'folded-linenos': [],
-                            'sel-line': 320L,
-                            'sel-line-start': 11272L,
-                            'selection_end': 11304L,
-                            'selection_start': 11304L,
-                            'zoom': 0L},
-                           1536195782.887748],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                           {'attrib-starts': [('parasite_total|0|',
-        18)],
-                            'code-line': '    try:\n',
-                            'first-line': 43L,
-                            'folded-linenos': [],
-                            'sel-line': 78L,
-                            'sel-line-start': 3200L,
-                            'selection_end': 3200L,
-                            'selection_start': 3200L,
-                            'zoom': 0L},
-                           1536195785.447992],
-                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           {'attrib-starts': [('mission_setup|0|',
-        242)],
-                            'code-line': "    segment.air_speed_start = 1.  "\
-        " * Units['ft/min']\n",
-                            'first-line': 304L,
-                            'folded-linenos': [],
-                            'sel-line': 320L,
-                            'sel-line-start': 11272L,
-                            'selection_end': 11304L,
-                            'selection_start': 11304L,
-                            'zoom': 0L},
-                           1536195791.243343],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                           {'attrib-starts': [('parasite_total|0|',
-        18)],
-                            'code-line': '    for propulsor in propulsors.va'\
-        'lues():\n',
-                            'first-line': 43L,
-                            'folded-linenos': [],
-                            'sel-line': 71L,
-                            'sel-line-start': 2676L,
-                            'selection_end': 2676L,
-                            'selection_start': 2676L,
-                            'zoom': 0L},
-                           1536195822.044793],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    Re[Re<=1.] = 1. \n',
-                            'first-line': 22L,
-                            'folded-linenos': [],
-                            'sel-line': 42L,
-                            'sel-line-start': 1508L,
-                            'selection_end': 1527L,
-                            'selection_start': 1527L,
-                            'zoom': 0L},
-                           1536195828.729533],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           {'attrib-starts': [('parasite_drag_propulsor|0|',
-        25)],
-                            'code-line': '    cf_prop, k_comp, k_reyn = comp'\
-        'ressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                            'first-line': 45L,
-                            'folded-linenos': [],
-                            'sel-line': 72L,
-                            'sel-line-start': 2122L,
-                            'selection_end': 2122L,
-                            'selection_start': 2122L,
-                            'zoom': 0L},
-                           1536195837.14636],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    return cf_comp, k_comp, k_reyn'\
-        '\n',
-                            'first-line': 22L,
-                            'folded-linenos': [],
-                            'sel-line': 59L,
-                            'sel-line-start': 1956L,
-                            'selection_end': 1956L,
-                            'selection_start': 1956L,
-                            'zoom': 0L},
-                           1536195842.786403],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           {'attrib-starts': [('parasite_drag_propulsor|0|',
-        25)],
-                            'code-line': '    cf_prop, k_comp, k_reyn = comp'\
-        'ressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                            'first-line': 45L,
-                            'folded-linenos': [],
-                            'sel-line': 72L,
-                            'sel-line-start': 2122L,
-                            'selection_end': 2122L,
-                            'selection_start': 2122L,
-                            'zoom': 0L},
-                           1536195846.856142],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           {'attrib-starts': [('compressible_turbulent_flat_'\
-        'plate|0|',
-        16)],
-                            'code-line': '    Re[Re<=1.] = 2. \n',
-                            'first-line': 22L,
-                            'folded-linenos': [],
-                            'sel-line': 42L,
-                            'sel-line-start': 1508L,
-                            'selection_end': 1526L,
-                            'selection_start': 1526L,
-                            'zoom': 0L},
-                           1536195897.529625],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           {'attrib-starts': [('parasite_drag_propulsor|0|',
-        25)],
-                            'code-line': '    cf_prop, k_comp, k_reyn = comp'\
-        'ressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                            'first-line': 45L,
-                            'folded-linenos': [],
-                            'sel-line': 72L,
-                            'sel-line-start': 2122L,
-                            'selection_end': 2122L,
-                            'selection_start': 2122L,
-                            'zoom': 0L},
-                           1536195901.717544],
-                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                           {'attrib-starts': [('parasite_total|0|',
-        18)],
-                            'code-line': '    return total_parasite_drag',
-                            'first-line': 43L,
+                           1536273474.222574],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                           {'attrib-starts': [('vsp_read_wing|0|',
+        19)],
+                            'code-line': '\t\twing.vertical = True\n',
+                            'first-line': 51L,
                             'folded-linenos': [],
                             'sel-line': 88L,
-                            'sel-line-start': 3561L,
-                            'selection_end': 3561L,
-                            'selection_start': 3561L,
+                            'sel-line-start': 3116L,
+                            'selection_end': 3116L,
+                            'selection_start': 3116L,
                             'zoom': 0L},
-                           1536195930.15011]],
+                           1536273576.70712],
+                          [loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+                           {'attrib-starts': [('import_cora|0|',
+        14)],
+                            'code-line': "    vsp_write.write(vehicle,'test'"\
+        ")\n",
+                            'first-line': 18L,
+                            'folded-linenos': [],
+                            'sel-line': 65L,
+                            'sel-line-start': 2076L,
+                            'selection_end': 2076L,
+                            'selection_start': 2076L,
+                            'zoom': 0L},
+                           1536274002.702956],
+                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                           {'attrib-starts': [],
+                            'code-line': 'from SUAVE.Components.Energy.Netwo'\
+        'rks.Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_Low_Fid'\
+        'elity\n',
+                            'first-line': 5L,
+                            'folded-linenos': [],
+                            'sel-line': 10L,
+                            'sel-line-start': 302L,
+                            'selection_end': 302L,
+                            'selection_start': 302L,
+                            'zoom': 0L},
+                           1536274008.75872],
+                          [loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                           {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                            'code-line': '            return super(DataOrder'\
+        'ed,self).__getattribute__(k)\r\n',
+                            'first-line': 167L,
+                            'folded-linenos': [],
+                            'sel-line': 206L,
+                            'sel-line-start': 4743L,
+                            'selection_end': 4743L,
+                            'selection_start': 4743L,
+                            'zoom': 0L},
+                           1536274011.47556],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': '                vsp.ReadFileAirfoi'\
+        'l(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)\n',
+                            'first-line': 174L,
+                            'folded-linenos': [],
+                            'sel-line': 223L,
+                            'sel-line-start': 9484L,
+                            'selection_end': 9543L,
+                            'selection_start': 9526L,
+                            'zoom': 0L},
+                           1536274135.734855],
+                          [loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+                           {'attrib-starts': [],
+                            'code-line': 'import SUAVE\n',
+                            'first-line': 0L,
+                            'folded-linenos': [],
+                            'sel-line': 9L,
+                            'sel-line-start': 267L,
+                            'selection_end': 279L,
+                            'selection_start': 279L,
+                            'zoom': 0L},
+                           1536274150.062254],
+                          [loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                           {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                            'code-line': '            return super(DataOrder'\
+        'ed,self).__getattribute__(k)\r\n',
+                            'first-line': 167L,
+                            'folded-linenos': [],
+                            'sel-line': 206L,
+                            'sel-line-start': 4743L,
+                            'selection_end': 4743L,
+                            'selection_start': 4743L,
+                            'zoom': 0L},
+                           1536274152.867596],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': '                vsp.ReadFileAirfoi'\
+        'l(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)\n',
+                            'first-line': 174L,
+                            'folded-linenos': [],
+                            'sel-line': 223L,
+                            'sel-line-start': 9484L,
+                            'selection_end': 9484L,
+                            'selection_start': 9484L,
+                            'zoom': 0L},
+                           1536274166.62257],
+                          [loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                           {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                            'code-line': '            return super(DataOrder'\
+        'ed,self).__getattribute__(k)\r\n',
+                            'first-line': 167L,
+                            'folded-linenos': [],
+                            'sel-line': 206L,
+                            'sel-line-start': 4743L,
+                            'selection_end': 4743L,
+                            'selection_start': 4743L,
+                            'zoom': 0L},
+                           1536274168.158773],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': '                vsp.ReadFileAirfoi'\
+        'l(xsec1,wing.Airfoil[0].coordinate_file)\n',
+                            'first-line': 174L,
+                            'folded-linenos': [],
+                            'sel-line': 203L,
+                            'sel-line-start': 8184L,
+                            'selection_end': 8240L,
+                            'selection_start': 8240L,
+                            'zoom': 0L},
+                           1536274202.699301],
+                          [loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                           {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                            'code-line': '            return super(DataOrder'\
+        'ed,self).__getattribute__(k)\r\n',
+                            'first-line': 167L,
+                            'folded-linenos': [],
+                            'sel-line': 206L,
+                            'sel-line-start': 4743L,
+                            'selection_end': 4743L,
+                            'selection_start': 4743L,
+                            'zoom': 0L},
+                           1536274204.371721],
+                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           {'attrib-starts': [('write|0|',
+        22)],
+                            'code-line': '                vsp.ReadFileAirfoi'\
+        'l(xsec, wing.Segments[i_segs-1].Airfoil[0].coordinate_file)        '\
+        '        \n',
+                            'first-line': 236L,
+                            'folded-linenos': [],
+                            'sel-line': 285L,
+                            'sel-line-start': 12316L,
+                            'selection_end': 12391L,
+                            'selection_start': 12391L,
+                            'zoom': 0L},
+                           1536274221.354964],
+                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+                           {'attrib-starts': [('populate_wing_sections|0|',
+        -1)],
+                            'code-line': '                                  '\
+        '      section.airfoil_coord_file   = suave_wing.Segments[i_segs].Ai'\
+        'rfoil[0].coordinate_file\n',
+                            'first-line': 244L,
+                            'folded-linenos': [],
+                            'sel-line': 291L,
+                            'sel-line-start': 15913L,
+                            'selection_end': 16023L,
+                            'selection_start': 16023L,
+                            'zoom': 0L},
+                           1536274253.594972]],
                          20),
            'current-loc': loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-           'editor-state-list': [(loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                                  {'attrib-starts': [('compressible_turbulen'\
-        't_flat_plate|0|',
-        16)],
-                                   'code-line': '    Re[Re<=1.] = 2. \n',
-                                   'first-line': 22L,
+           'editor-state-list': [(loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                                  {'attrib-starts': [],
+                                   'code-line': 'from SUAVE.Components.Energ'\
+        'y.Networks.Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_'\
+        'Low_Fidelity\n',
+                                   'first-line': 5L,
                                    'folded-linenos': [],
-                                   'sel-line': 42L,
-                                   'sel-line-start': 1508L,
-                                   'selection_end': 1526L,
-                                   'selection_start': 1526L,
+                                   'sel-line': 10L,
+                                   'sel-line-start': 302L,
+                                   'selection_end': 302L,
+                                   'selection_start': 302L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-                                  {'attrib-starts': [('initialize_conditions'\
-        '|0|',
-        11)],
-                                   'code-line': '    segment.air_speed_start'\
-        '         [meters/second]\n',
-                                   'first-line': 1L,
+                                 (loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+                                  {'attrib-starts': [('import_cora|0|',
+        14)],
+                                   'code-line': "    vsp_write.write(vehicle"\
+        ",'test')\n",
+                                   'first-line': 18L,
                                    'folded-linenos': [],
-                                   'sel-line': 22L,
-                                   'sel-line-start': 631L,
-                                   'selection_end': 631L,
-                                   'selection_start': 631L,
+                                   'sel-line': 65L,
+                                   'sel-line-start': 2076L,
+                                   'selection_end': 2076L,
+                                   'selection_start': 2076L,
                                    'zoom': 0L}),
-                                 (loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                                  {'attrib-starts': [('mission_setup|0|',
-        242)],
-                                   'code-line': '\n',
-                                   'first-line': 304L,
+                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+                                  {'attrib-starts': [('populate_wing_section'\
+        's|0|',
+        -1)],
+                                   'code-line': '                           '\
+        '             section.airfoil_coord_file   = suave_wing.Segments[i_s'\
+        'egs].Airfoil[0].coordinate_file\n',
+                                   'first-line': 244L,
                                    'folded-linenos': [],
-                                   'sel-line': 316L,
-                                   'sel-line-start': 11184L,
-                                   'selection_end': 11184L,
-                                   'selection_start': 11184L,
+                                   'sel-line': 291L,
+                                   'sel-line-start': 15913L,
+                                   'selection_end': 16023L,
+                                   'selection_start': 16023L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                                  {'attrib-starts': [('parasite_drag_propuls'\
-        'or|0|',
-        25)],
-                                   'code-line': '    cf_prop, k_comp, k_reyn'\
-        ' = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                                   'first-line': 45L,
+                                 (loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                                  {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                                   'code-line': '            return super(Da'\
+        'taOrdered,self).__getattribute__(k)\r\n',
+                                   'first-line': 167L,
                                    'folded-linenos': [],
-                                   'sel-line': 72L,
-                                   'sel-line-start': 2122L,
-                                   'selection_end': 2122L,
-                                   'selection_start': 2122L,
+                                   'sel-line': 206L,
+                                   'sel-line-start': 4743L,
+                                   'selection_end': 4743L,
+                                   'selection_start': 4743L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                                  {'attrib-starts': [('parasite_total|0|',
-        18)],
-                                   'code-line': '    return total_parasite_d'\
-        'rag',
-                                   'first-line': 43L,
+                                 (loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+                                  {'attrib-starts': [],
+                                   'code-line': 'import SUAVE\n',
+                                   'first-line': 0L,
                                    'folded-linenos': [],
-                                   'sel-line': 88L,
-                                   'sel-line-start': 3561L,
-                                   'selection_end': 3561L,
-                                   'selection_start': 3561L,
+                                   'sel-line': 9L,
+                                   'sel-line-start': 267L,
+                                   'selection_end': 279L,
+                                   'selection_start': 279L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+                                  {'attrib-starts': [],
+                                   'code-line': '',
+                                   'first-line': 0L,
+                                   'folded-linenos': [],
+                                   'sel-line': 0L,
+                                   'sel-line-start': 0L,
+                                   'selection_end': 0L,
+                                   'selection_start': 0L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                                  {'attrib-starts': [],
+                                   'code-line': '',
+                                   'first-line': 0L,
+                                   'folded-linenos': [],
+                                   'sel-line': 0L,
+                                   'sel-line-start': 0L,
+                                   'selection_end': 0L,
+                                   'selection_start': 0L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                                  {'attrib-starts': [('write|0|',
+        22)],
+                                   'code-line': '                vsp.ReadFil'\
+        'eAirfoil(xsec, wing.Segments[i_segs-1].Airfoil[0].coordinate_file) '\
+        '               \n',
+                                   'first-line': 236L,
+                                   'folded-linenos': [],
+                                   'sel-line': 285L,
+                                   'sel-line-start': 12316L,
+                                   'selection_end': 12391L,
+                                   'selection_start': 12391L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Components/Wings/Wing.py'),
+                                  {'attrib-starts': [('Wing|0|',
+        22),
+        ('Wing|0|.__defaults__|0|',
+         40)],
+                                   'code-line': '        self.Segments      '\
+        '     = SUAVE.Core.ContainerOrdered()\n',
+                                   'first-line': 98L,
+                                   'folded-linenos': [],
+                                   'sel-line': 122L,
+                                   'sel-line-start': 3148L,
+                                   'selection_end': 3211L,
+                                   'selection_start': 3182L,
                                    'zoom': 0L})],
            'has-focus': True,
            'locked': False},
-          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-           loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-           loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py')]),
-         ({'bookmarks': ([[loc('../../trunk/SUAVE/Components/Energy/Converters/Propeller.py'),
-                           {'attrib-starts': [],
-                            'code-line': '## @ingroup Components-Energy-Conv'\
-        'erters\n',
-                            'first-line': 14L,
-                            'folded-linenos': [],
-                            'sel-line': 24L,
-                            'sel-line-start': 765L,
-                            'selection_end': 776L,
-                            'selection_start': 767L,
-                            'zoom': 0L},
-                           1536187781.258586],
-                          [loc('../../../workspace/NASA Modular UAV/Optimization_Feb_2017_hifi/Plot_Mission.py'),
-                           {'attrib-starts': [],
-                            'code-line': '# Plot_Mission.py\n',
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536187781.603093],
-                          [loc('../../../workspace/NASA Modular UAV/Optimization_Feb_2017_hifi/Missions.py'),
-                           {'attrib-starts': [],
-                            'code-line': '# Missions.py\r\n',
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536187781.933745],
-                          [loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
-                           {'attrib-starts': [],
-                            'code-line': '',
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536188914.970583],
-                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           {'attrib-starts': [],
-                            'code-line': '# Cora.py\n',
-                            'first-line': 244L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536188916.189121],
-                          [loc('../../trunk/SUAVE/Analyses/Aerodynamics/Vortex_Lattice.py'),
-                           {'attrib-starts': [('Vortex_Lattice|0|',
-        -1),
-        ('Vortex_Lattice|0|.build_surrogate|0|',
-         -1)],
-                            'code-line': '        for wing in wing_CL_data.k'\
-        'eys():\n',
-                            'first-line': 228L,
-                            'folded-linenos': [],
-                            'sel-line': 276L,
-                            'sel-line-start': 8333L,
-                            'selection_end': 8333L,
-                            'selection_start': 8333L,
-                            'zoom': 0L},
-                           1536188928.8124],
-                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           {'attrib-starts': [],
-                            'code-line': '# Cora.py\n',
-                            'first-line': 247L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536190007.604466],
-                          [loc('../../trunk/SUAVE/Core/Data.py'),
-                           {'attrib-starts': [('Data|0|',
-        25),
-        ('Data|0|.__getattribute__|0|',
-         37)],
-                            'code-line': '            return objgetattrib(se'\
-        'lf,k)\n',
-                            'first-line': 8L,
-                            'folded-linenos': [],
-                            'sel-line': 58L,
-                            'sel-line-start': 1609L,
-                            'selection_end': 1609L,
-                            'selection_start': 1609L,
-                            'zoom': 0L},
-                           1536190009.42234],
-                          [loc('../../trunk/SUAVE/Components/Energy/Networks/Lift_Forward_Propulsor_Low_Fidelity.py'),
-                           {'attrib-starts': [],
-                            'code-line': '# Lift_Forward_propulsor.py\n',
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536190009.771982],
-                          [loc('../../../../../../../Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/scipy/optimize/minpack.py'),
-                           {'attrib-starts': [('_check_func|0|',
-        24)],
-                            'code-line': '            raise TypeError(msg)\n',
-                            'first-line': 11L,
-                            'folded-linenos': [],
-                            'sel-line': 40L,
-                            'sel-line-start': 1614L,
-                            'selection_end': 1614L,
-                            'selection_start': 1614L,
-                            'zoom': 0L},
-                           1536190010.138311],
-                          [loc('../../trunk/SUAVE/Methods/Flight_Dynamics/Static_Stability/Approximations/Tube_Wing/taw_cmalpha.py'),
-                           {'attrib-starts': [('taw_cmalpha|0|',
-        -1)],
-                            'code-line': '        derivative (d(Cm_cg)/d(alp'\
-        'ha))\n',
-                            'first-line': 28L,
-                            'folded-linenos': [],
-                            'sel-line': 66L,
-                            'sel-line-start': 3790L,
-                            'selection_end': 3816L,
-                            'selection_start': 3816L,
-                            'zoom': 0L},
-                           1536190010.502466],
-                          [loc('../../../Experimental/NASA_Cora/cora_vehicle.res'),
-                           {'attrib-starts': [],
-                            'code-line': "{\"tag\": \"vehicle\", \"fuselages"\
-        "\": {\"fuselage\": {\"tag\": \"Fuselage\", \"origin\": [[0.0, 0.0, "\
-        "0.0]], \"mass_properties\": {\"mass\": 0.0, \"volume\": 0.0, \"cent"\
-        "er_of_gravity\": [0.0, 0.0, 0.0], \"moments_of_inertia\": {\"center"\
-        "\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0],"\
-        " [0.0, 0.0, 0.0]]}}, \"symmetric\": false, \"Segments\": {\"segment"\
-        "_0\": {\"tag\": \"segment_0\", \"origin\": [[0.0, 0.0, 0.0]], \"pre"\
-        "v\": null, \"next\": null, \"percent_x_location\": 0.0, \"percent_z"\
-        "_location\": -0.07608695652173914, \"height\": 0.0, \"width\": 0.0,"\
-        " \"length\": 0.0, \"effective_diameter\": 0.0, \"vsp_data\": {\"xse"\
-        "c_id\": \"VFETGRKIPX\", \"shape\": \"point\"}}, \"segment_1\": {\""\
-        "tag\": \"segment_1\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null"\
-        ", \"next\": null, \"percent_x_location\": 0.22826086956521738, \"pe"\
-        "rcent_z_location\": -0.03260869565217395, \"height\": 3.38915439519"\
-        "15857, \"width\": 3.8636363636363638, \"length\": 0.873152608695652"\
-        "3, \"effective_diameter\": 3.6263953794139745, \"vsp_data\": {\"xse"\
-        "c_id\": \"ZBIUDJDFCF\", \"shape\": \"rounded rectangle\"}}, \"segme"\
-        "nt_2\": {\"tag\": \"segment_2\", \"origin\": [[0.0, 0.0, 0.0]], \""\
-        "prev\": null, \"next\": null, \"percent_x_location\": 0.39272211720"\
-        "22684, \"percent_z_location\": 0.0, \"height\": 4.3328925619834715,"\
-        " \"width\": 4.318181818181818, \"length\": 0.6291037429111531, \"ef"\
-        "fective_diameter\": 4.325537190082645, \"vsp_data\": {\"xsec_id\": "\
-        "\"FJPXIVFRKR\", \"shape\": \"rounded rectangle\"}}, \"segment_3\": "\
-        "{\"tag\": \"segment_3\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": n"\
-        "ull, \"next\": null, \"percent_x_location\": 0.75, \"percent_z_loca"\
-        "tion\": 0.0270557655954633, \"height\": 3.840909090909091, \"width"\
-        "\": 3.2386363636363638, \"length\": 1.366673648393195, \"effective_"\
-        "diameter\": 3.5397727272727275, \"vsp_data\": {\"xsec_id\": \"OLSFA"\
-        "KTYTT\", \"shape\": \"ellipse\"}}, \"segment_4\": {\"tag\": \"segme"\
-        "nt_4\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": nu"\
-        "ll, \"percent_x_location\": 0.99, \"percent_z_location\": 0.075, \""\
-        "height\": 1.6818181818181819, \"width\": 1.6818181818181819, \"leng"\
-        "th\": 0.9180576, \"effective_diameter\": 1.6818181818181819, \"vsp_"\
-        "data\": {\"xsec_id\": \"OVSTPGSFKJ\", \"shape\": \"circle\"}}, \"se"\
-        "gment_5\": {\"tag\": \"segment_5\", \"origin\": [[0.0, 0.0, 0.0]], "\
-        "\"prev\": null, \"next\": null, \"percent_x_location\": 1.0, \"perc"\
-        "ent_z_location\": 0.075, \"height\": 0.0, \"width\": 0.0, \"length"\
-        "\": 0.03825240000000004, \"effective_diameter\": 0.0, \"vsp_data\""\
-        ": {\"xsec_id\": \"VBXDAQDMXM\", \"shape\": \"point\"}}}, \"Sections"\
-        "\": {}, \"aerodynamic_center\": [0.0, 0.0, 0.0], \"number_coach_sea"\
-        "ts\": 0.0, \"seats_abreast\": 0.0, \"seat_pitch\": 1.0, \"areas\": "\
-        "{\"front_projected\": 0.0, \"side_projected\": 0.0, \"wetted\": 12."\
-        "97989862337664}, \"effective_diameter\": 4.325537190082645, \"width"\
-        "\": 4.318181818181818, \"heights\": {\"maximum\": 4.332892561983471"\
-        "5, \"at_quarter_length\": 3.5139013942502832, \"at_three_quarters_l"\
-        "ength\": 3.840909090909091, \"at_vertical_root_quarter_chord\": 0.0"\
-        "}, \"lengths\": {\"nose\": 1.5022563516068053, \"tail\": 2.86893, "\
-        "\"total\": 3.8252400000000004, \"cabin\": 0.0, \"fore_space\": 0.0,"\
-        " \"aft_space\": 0.0}, \"fineness\": {\"nose\": 0.34729937244583087,"\
-        " \"tail\": -0.8104842375601926}, \"differential_pressure\": 0.0, \""\
-        "aft_centerbody_area\": 0.0, \"aft_centerbody_taper\": 0.0, \"cabin_"\
-        "area\": 0.0, \"vsp_data\": {\"xsec_surf_id\": \"JHBPDVLWSV\", \"xse"\
-        "c_num\": 6}}, \"boommr\": {\"tag\": \"BoomMR\", \"origin\": [[-1.4,"\
-        " 9.891304347826088, -0.6]], \"mass_properties\": {\"mass\": 0.0, \""\
-        "volume\": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], \"moments_of"\
-        "_inertia\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0.0, 0"\
-        ".0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\": false, \""\
-        "Segments\": {\"segment_0\": {\"tag\": \"segment_0\", \"origin\": [["\
-        "0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"percent_x_locati"\
-        "on\": 0.0, \"percent_z_location\": 0.0, \"height\": 0.0, \"width\""\
-        ": 0.0, \"length\": 0.0, \"effective_diameter\": 0.0, \"vsp_data\": "\
-        "{\"xsec_id\": \"TOFKESXLQK\", \"shape\": \"point\"}}, \"segment_1\""\
-        ": {\"tag\": \"segment_1\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\""\
-        ": null, \"next\": null, \"percent_x_location\": 0.06521739130434782"\
-        ", \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \""\
-        "length\": 0.2027582608695652, \"effective_diameter\": 0.7, \"vsp_da"\
-        "ta\": {\"xsec_id\": \"ZAIDHILIOB\", \"shape\": \"ellipse\"}}, \"seg"\
-        "ment_2\": {\"tag\": \"segment_2\", \"origin\": [[0.0, 0.0, 0.0]], "\
-        "\"prev\": null, \"next\": null, \"percent_x_location\": 0.5, \"perc"\
-        "ent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \"length\""\
-        ": 1.3517217391304346, \"effective_diameter\": 0.7, \"vsp_data\": {"\
-        "\"xsec_id\": \"FSMAFZRASP\", \"shape\": \"ellipse\"}}, \"segment_3"\
-        "\": {\"tag\": \"segment_3\", \"origin\": [[0.0, 0.0, 0.0]], \"prev"\
-        "\": null, \"next\": null, \"percent_x_location\": 0.929347826086956"\
-        "5, \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \""\
-        "length\": 1.3348252173913042, \"effective_diameter\": 0.7, \"vsp_da"\
-        "ta\": {\"xsec_id\": \"RNQSENHZJW\", \"shape\": \"ellipse\"}}, \"seg"\
-        "ment_4\": {\"tag\": \"segment_4\", \"origin\": [[0.0, 0.0, 0.0]], "\
-        "\"prev\": null, \"next\": null, \"percent_x_location\": 1.0, \"perc"\
-        "ent_z_location\": 0.0, \"height\": 0.0, \"width\": 0.0, \"length\""\
-        ": 0.21965478260869556, \"effective_diameter\": 0.0, \"vsp_data\": {"\
-        "\"xsec_id\": \"UVRWVREGJD\", \"shape\": \"point\"}}}, \"Sections\""\
-        ": {}, \"aerodynamic_center\": [0.0, 0.0, 0.0], \"number_coach_seats"\
-        "\": 0.0, \"seats_abreast\": 0.0, \"seat_pitch\": 1.0, \"areas\": {"\
-        "\"front_projected\": 0.0, \"side_projected\": 0.0, \"wetted\": 3.03"\
-        "343643117952}, \"effective_diameter\": 0.7, \"width\": 0.4, \"heigh"\
-        "ts\": {\"maximum\": 1.0, \"at_quarter_length\": 1.0, \"at_three_qua"\
-        "rters_length\": 1.0, \"at_vertical_root_quarter_chord\": 0.0}, \"le"\
-        "ngths\": {\"nose\": 0.2027582608695652, \"tail\": 2.889305217391304"\
-        "3, \"total\": 3.1089599999999997, \"cabin\": 0.0, \"fore_space\": 0"\
-        ".0, \"aft_space\": 0.0}, \"fineness\": {\"nose\": 0.289654658385093"\
-        "13, \"tail\": -4.127578881987578}, \"differential_pressure\": 0.0, "\
-        "\"aft_centerbody_area\": 0.0, \"aft_centerbody_taper\": 0.0, \"cabi"\
-        "n_area\": 0.0, \"vsp_data\": {\"xsec_surf_id\": \"KRQUZOXBOL\", \""\
-        "xsec_num\": 5}}, \"boomor\": {\"tag\": \"BoomOR\", \"origin\": [[-1"\
-        ".4, 13.92, -0.5434782608695645]], \"mass_properties\": {\"mass\": 0"\
-        ".0, \"volume\": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], \"mome"\
-        "nts_of_inertia\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, "\
-        "0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\": fals"\
-        "e, \"Segments\": {\"segment_0\": {\"tag\": \"segment_0\", \"origin"\
-        "\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"percent_x_"\
-        "location\": 0.0, \"percent_z_location\": 0.0, \"height\": 0.0, \"wi"\
-        "dth\": 0.0, \"length\": 0.0, \"effective_diameter\": 0.0, \"vsp_dat"\
-        "a\": {\"xsec_id\": \"NARFYANMLT\", \"shape\": \"point\"}}, \"segmen"\
-        "t_1\": {\"tag\": \"segment_1\", \"origin\": [[0.0, 0.0, 0.0]], \"pr"\
-        "ev\": null, \"next\": null, \"percent_x_location\": 0.0652173913043"\
-        "4782, \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4,"\
-        " \"length\": 0.2027582608695652, \"effective_diameter\": 0.7, \"vsp"\
-        "_data\": {\"xsec_id\": \"JQEOHANFOC\", \"shape\": \"ellipse\"}}, \""\
-        "segment_2\": {\"tag\": \"segment_2\", \"origin\": [[0.0, 0.0, 0.0]]"\
-        ", \"prev\": null, \"next\": null, \"percent_x_location\": 0.5, \"pe"\
-        "rcent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \"length"\
-        "\": 1.3517217391304346, \"effective_diameter\": 0.7, \"vsp_data\": "\
-        "{\"xsec_id\": \"ALLJBWHEQH\", \"shape\": \"ellipse\"}}, \"segment_3"\
-        "\": {\"tag\": \"segment_3\", \"origin\": [[0.0, 0.0, 0.0]], \"prev"\
-        "\": null, \"next\": null, \"percent_x_location\": 0.929347826086956"\
-        "5, \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \""\
-        "length\": 1.3348252173913042, \"effective_diameter\": 0.7, \"vsp_da"\
-        "ta\": {\"xsec_id\": \"VIMMZNLBKK\", \"shape\": \"ellipse\"}}, \"seg"\
-        "ment_4\": {\"tag\": \"segment_4\", \"origin\": [[0.0, 0.0, 0.0]], "\
-        "\"prev\": null, \"next\": null, \"percent_x_location\": 1.0, \"perc"\
-        "ent_z_location\": 0.0, \"height\": 0.0, \"width\": 0.0, \"length\""\
-        ": 0.21965478260869556, \"effective_diameter\": 0.0, \"vsp_data\": {"\
-        "\"xsec_id\": \"TOHCUTZOTU\", \"shape\": \"point\"}}}, \"Sections\""\
-        ": {}, \"aerodynamic_center\": [0.0, 0.0, 0.0], \"number_coach_seats"\
-        "\": 0.0, \"seats_abreast\": 0.0, \"seat_pitch\": 1.0, \"areas\": {"\
-        "\"front_projected\": 0.0, \"side_projected\": 0.0, \"wetted\": 3.03"\
-        "343643117952}, \"effective_diameter\": 0.7, \"width\": 0.4, \"heigh"\
-        "ts\": {\"maximum\": 1.0, \"at_quarter_length\": 1.0, \"at_three_qua"\
-        "rters_length\": 1.0, \"at_vertical_root_quarter_chord\": 0.0}, \"le"\
-        "ngths\": {\"nose\": 0.2027582608695652, \"tail\": 2.889305217391304"\
-        "3, \"total\": 3.1089599999999997, \"cabin\": 0.0, \"fore_space\": 0"\
-        ".0, \"aft_space\": 0.0}, \"fineness\": {\"nose\": 0.289654658385093"\
-        "13, \"tail\": -4.127578881987578}, \"differential_pressure\": 0.0, "\
-        "\"aft_centerbody_area\": 0.0, \"aft_centerbody_taper\": 0.0, \"cabi"\
-        "n_area\": 0.0, \"vsp_data\": {\"xsec_surf_id\": \"SANIGIVLBJ\", \""\
-        "xsec_num\": 5}}, \"boomir\": {\"tag\": \"BoomIR\", \"origin\": [[-1"\
-        ".4, 5.543695652173912, -0.75]], \"mass_properties\": {\"mass\": 0.0"\
-        ", \"volume\": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], \"moment"\
-        "s_of_inertia\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0."\
-        "0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\": false,"\
-        " \"Segments\": {\"segment_0\": {\"tag\": \"segment_0\", \"origin\""\
-        ": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"percent_x_lo"\
-        "cation\": 0.0, \"percent_z_location\": 0.0, \"height\": 0.0, \"widt"\
-        "h\": 0.0, \"length\": 0.0, \"effective_diameter\": 0.0, \"vsp_data"\
-        "\": {\"xsec_id\": \"EYSFNPHZBF\", \"shape\": \"point\"}}, \"segment"\
-        "_1\": {\"tag\": \"segment_1\", \"origin\": [[0.0, 0.0, 0.0]], \"pre"\
-        "v\": null, \"next\": null, \"percent_x_location\": 0.06521739130434"\
-        "782, \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, "\
-        "\"length\": 0.35780869565217394, \"effective_diameter\": 0.7, \"vsp"\
-        "_data\": {\"xsec_id\": \"AALAOEMGMN\", \"shape\": \"ellipse\"}}, \""\
-        "segment_2\": {\"tag\": \"segment_2\", \"origin\": [[0.0, 0.0, 0.0]]"\
-        ", \"prev\": null, \"next\": null, \"percent_x_location\": 0.5, \"pe"\
-        "rcent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \"length"\
-        "\": 2.3853913043478263, \"effective_diameter\": 0.7, \"vsp_data\": "\
-        "{\"xsec_id\": \"LANNHWHSWN\", \"shape\": \"ellipse\"}}, \"segment_3"\
-        "\": {\"tag\": \"segment_3\", \"origin\": [[0.0, 0.0, 0.0]], \"prev"\
-        "\": null, \"next\": null, \"percent_x_location\": 0.699506734404536"\
-        "9, \"percent_z_location\": 0.0, \"height\": 1.0, \"width\": 0.4, \""\
-        "length\": 1.0945737476370514, \"effective_diameter\": 0.7, \"vsp_da"\
-        "ta\": {\"xsec_id\": \"IQLXLFORTB\", \"shape\": \"ellipse\"}}, \"seg"\
-        "ment_4\": {\"tag\": \"segment_4\", \"origin\": [[0.0, 0.0, 0.0]], "\
-        "\"prev\": null, \"next\": null, \"percent_x_location\": 0.774630050"\
-        "8034027, \"percent_z_location\": 0.010869565217391353, \"height\": "\
-        "1.25, \"width\": 0.4, \"length\": 0.4121565630907375, \"effective_d"\
-        "iameter\": 0.825, \"vsp_data\": {\"xsec_id\": \"BEHVUHUDFS\", \"sha"\
-        "pe\": \"ellipse\"}}, \"segment_5\": {\"tag\": \"segment_5\", \"orig"\
-        "in\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"percent_"\
-        "x_location\": 1.0, \"percent_z_location\": 0.04347826086956519, \""\
-        "height\": 0.0, \"width\": 0.0, \"length\": 1.2364696892722113, \"ef"\
-        "fective_diameter\": 0.0, \"vsp_data\": {\"xsec_id\": \"UCQIGAXQHB\""\
-        ", \"shape\": \"point\"}}}, \"Sections\": {}, \"aerodynamic_center\""\
-        ": [0.0, 0.0, 0.0], \"number_coach_seats\": 0.0, \"seats_abreast\": "\
-        "0.0, \"seat_pitch\": 1.0, \"areas\": {\"front_projected\": 0.0, \""\
-        "side_projected\": 0.0, \"wetted\": 6.13985860541952}, \"effective_d"\
-        "iameter\": 0.825, \"width\": 0.4, \"heights\": {\"maximum\": 1.25, "\
-        "\"at_quarter_length\": 1.0, \"at_three_quarters_length\": 1.1680345"\
-        "996952866, \"at_vertical_root_quarter_chord\": 0.0}, \"lengths\": {"\
-        "\"nose\": 0.35780869565217394, \"tail\": 4.249930310727789, \"total"\
-        "\": 5.486400000000001, \"cabin\": 0.0, \"fore_space\": 0.0, \"aft_s"\
-        "pace\": 0.0}, \"fineness\": {\"nose\": 0.5111552795031057, \"tail\""\
-        ": -5.151430679670048}, \"differential_pressure\": 0.0, \"aft_center"\
-        "body_area\": 0.0, \"aft_centerbody_taper\": 0.0, \"cabin_area\": 0."\
-        "0, \"vsp_data\": {\"xsec_surf_id\": \"VSSGPMPMZY\", \"xsec_num\": 6"\
-        "}}}, \"wings\": {\"main_wing\": {\"tag\": \"main_wing\", \"origin\""\
-        ": [3.5, 0.0, -0.5], \"mass_properties\": {\"mass\": 0.0, \"volume\""\
-        ": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], \"moments_of_inertia"\
-        "\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0.0, 0.0], [0."\
-        "0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\": true, \"Segments\""\
-        ": {\"section_1\": {\"tag\": \"Section_1\", \"origin\": [[0.0, 0.0, "\
-        "0.0]], \"prev\": null, \"next\": null, \"percent_span_location\": 0"\
-        ".0, \"twist\": 0.0, \"root_chord_percent\": 0.3048, \"dihedral_outb"\
-        "oard\": 0.03490658503988659, \"sweeps\": {\"quarter_chord\": 0.4180"\
-        "331926850298, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0018\": "\
-        "{\"tag\": \"NACA 0018\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves\""\
-        ": {}, \"prev\": null, \"next\": null, \"thickness_to_chord\": 0.18,"\
-        " \"coordinate_file\": null, \"points\": []}}, \"control_surfaces\""\
-        ": {}, \"thickness_to_chord\": 0.18}, \"section_2\": {\"tag\": \"Sec"\
-        "tion_2\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": "\
-        "null, \"percent_span_location\": 0.14266871512555726, \"twist\": 0."\
-        "0, \"root_chord_percent\": 0.46153846153846156, \"dihedral_outboard"\
-        "\": 0.03490658503988659, \"sweeps\": {\"quarter_chord\": -1.0408340"\
-        "855860843e-16, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0016\""\
-        ": {\"tag\": \"NACA 0016\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves"\
-        "\": {}, \"prev\": null, \"next\": null, \"thickness_to_chord\": 0.1"\
-        "6, \"coordinate_file\": null, \"points\": []}}, \"control_surfaces"\
-        "\": {}, \"thickness_to_chord\": 0.16}, \"section_3\": {\"tag\": \""\
-        "Section_3\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next"\
-        "\": null, \"percent_span_location\": 0.8533514654924694, \"twist\""\
-        ": 0.0, \"root_chord_percent\": 0.46153846153846173, \"dihedral_outb"\
-        "oard\": 0.17453292519943295, \"sweeps\": {\"quarter_chord\": 0.0059"\
-        "42095393564255, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0016\""\
-        ": {\"tag\": \"NACA 0016\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves"\
-        "\": {}, \"prev\": null, \"next\": null, \"thickness_to_chord\": 0.1"\
-        "6, \"coordinate_file\": null, \"points\": []}}, \"control_surfaces"\
-        "\": {}, \"thickness_to_chord\": 0.16}, \"section_4\": {\"tag\": \""\
-        "Section_4\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next"\
-        "\": null, \"percent_span_location\": 0.971842832492451, \"twist\": "\
-        "0.0, \"root_chord_percent\": 0.3230769230769231, \"dihedral_outboar"\
-        "d\": 0.3490658503988659, \"sweeps\": {\"quarter_chord\": 0.02717020"\
-        "0682986784, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0015\": {"\
-        "\"tag\": \"NACA 0015\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves\": "\
-        "{}, \"prev\": null, \"next\": null, \"thickness_to_chord\": 0.15, "\
-        "\"coordinate_file\": null, \"points\": []}}, \"control_surfaces\": "\
-        "{}, \"thickness_to_chord\": 0.15}, \"section_5\": {\"tag\": \"Secti"\
-        "on_5\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": nu"\
-        "ll, \"percent_span_location\": 0.9873546502801848, \"twist\": 0.0, "\
-        "\"root_chord_percent\": 0.24615384615384617, \"dihedral_outboard\""\
-        ": 0.6981317007977318, \"sweeps\": {\"quarter_chord\": 0.08166722678"\
-        "36359, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_000\": {\"tag\""\
-        ": \"NACA 000\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves\": {}, \"pr"\
-        "ev\": null, \"next\": null, \"thickness_to_chord\": 0.0, \"coordina"\
-        "te_file\": null, \"points\": []}}, \"control_surfaces\": {}, \"thic"\
-        "kness_to_chord\": 0.0}, \"section_6\": {\"tag\": \"Section_6\", \""\
-        "origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"perc"\
-        "ent_span_location\": 1.0, \"twist\": 0.0, \"root_chord_percent\": 0"\
-        ".04180755876068377, \"dihedral_outboard\": 0.0, \"sweeps\": {\"quar"\
-        "ter_chord\": 0.0, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0010"\
-        "\": {\"tag\": \"NACA 0010\", \"origin\": [[0.0, 0.0, 0.0]], \"Curve"\
-        "s\": {}, \"prev\": null, \"next\": null, \"thickness_to_chord\": 0."\
-        "1, \"coordinate_file\": null, \"points\": []}}, \"control_surfaces"\
-        "\": {}, \"thickness_to_chord\": 0.1}}, \"Sections\": {}, \"vertical"\
-        "\": false, \"t_tail\": false, \"taper\": 0.0, \"dihedral\": 6.85759"\
-        "8380390202, \"aspect_ratio\": 11.377066407810693, \"thickness_to_ch"\
-        "ord\": 0.0, \"span_efficiency\": 0.9, \"aerodynamic_center\": [0.0,"\
-        " 0.0, 0.0], \"exposed_root_chord_offset\": 0.0, \"spans\": {\"proje"\
-        "cted\": 35.99975538801259}, \"areas\": {\"reference\": 113.91182415"\
-        "064495, \"exposed\": 18.27980402870592, \"affected\": 0.0, \"wetted"\
-        "\": 18.27980402870592}, \"chords\": {\"mean_aerodynamic\": 0.0, \""\
-        "mean_geometric\": 43.52472720732587, \"root\": 3.0, \"tip\": 0.2717"\
-        "491319444445}, \"sweeps\": {\"quarter_chord\": 3.7450857940163425, "\
-        "\"leading_edge\": 0.0, \"half_chord\": 0.0}, \"twists\": {\"root\""\
-        ": 0.0, \"tip\": 0.0}, \"control_surfaces\": {}, \"flaps\": {\"chord"\
-        "\": 0.0, \"angle\": 0.0, \"span_start\": 0.0, \"span_end\": 0.0, \""\
-        "type\": null, \"area\": 0.0}, \"slats\": {\"chord\": 0.0, \"angle\""\
-        ": 0.0, \"span_start\": 0.0, \"span_end\": 0.0, \"type\": null}, \""\
-        "high_lift\": false, \"high_mach\": false, \"vortex_lift\": false, "\
-        "\"transition_x_upper\": 0.0, \"transition_x_lower\": 0.0, \"Airfoil"\
-        "\": {}}, \"horiztail\": {\"tag\": \"horiztail\", \"origin\": [18.36"\
-        "9565217391305, 0.0, 3.695652173913045], \"mass_properties\": {\"mas"\
-        "s\": 0.0, \"volume\": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], "\
-        "\"moments_of_inertia\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": ["\
-        "[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\""\
-        ": true, \"Segments\": {\"section_1\": {\"tag\": \"Section_1\", \"or"\
-        "igin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"percen"\
-        "t_span_location\": 0.0, \"twist\": 0.0, \"root_chord_percent\": 0.3"\
-        "048, \"dihedral_outboard\": 0.0, \"sweeps\": {\"quarter_chord\": -0"\
-        ".0, \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0012\": {\"tag\": "\
-        "\"NACA 0012\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves\": {}, \"pre"\
-        "v\": null, \"next\": null, \"thickness_to_chord\": 0.12, \"coordina"\
-        "te_file\": null, \"points\": []}}, \"control_surfaces\": {}, \"thic"\
-        "kness_to_chord\": 0.12}, \"section_2\": {\"tag\": \"Section_2\", \""\
-        "origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": null, \"perc"\
-        "ent_span_location\": 1.0, \"twist\": 0.0, \"root_chord_percent\": 1"\
-        ".0, \"dihedral_outboard\": 0.0, \"sweeps\": {\"quarter_chord\": 0.0"\
-        ", \"leading_edge\": 0.0}, \"Airfoil\": {\"naca_0012\": {\"tag\": \""\
-        "NACA 0012\", \"origin\": [[0.0, 0.0, 0.0]], \"Curves\": {}, \"prev"\
-        "\": null, \"next\": null, \"thickness_to_chord\": 0.12, \"coordinat"\
-        "e_file\": null, \"points\": []}}, \"control_surfaces\": {}, \"thick"\
-        "ness_to_chord\": 0.12}}, \"Sections\": {}, \"vertical\": false, \""\
-        "t_tail\": false, \"taper\": 0.0, \"dihedral\": 0.0, \"aspect_ratio"\
-        "\": 4.780518493733725, \"thickness_to_chord\": 0.0, \"span_efficien"\
-        "cy\": 0.9, \"aerodynamic_center\": [0.0, 0.0, 0.0], \"exposed_root_"\
-        "chord_offset\": 0.0, \"spans\": {\"projected\": 9.56103698746745}, "\
-        "\"areas\": {\"reference\": 19.1220739749349, \"exposed\": 3.6285207"\
-        "222988802, \"affected\": 0.0, \"wetted\": 3.6285207222988802}, \"ch"\
-        "ords\": {\"mean_aerodynamic\": 0.0, \"mean_geometric\": 9.561036987"\
-        "46745, \"root\": 2.0, \"tip\": 2.0}, \"sweeps\": {\"quarter_chord\""\
-        ": -0.0, \"leading_edge\": 0.0, \"half_chord\": 0.0}, \"twists\": {"\
-        "\"root\": 0.0, \"tip\": 0.0}, \"control_surfaces\": {}, \"flaps\": "\
-        "{\"chord\": 0.0, \"angle\": 0.0, \"span_start\": 0.0, \"span_end\""\
-        ": 0.0, \"type\": null, \"area\": 0.0}, \"slats\": {\"chord\": 0.0, "\
-        "\"angle\": 0.0, \"span_start\": 0.0, \"span_end\": 0.0, \"type\": n"\
-        "ull}, \"high_lift\": false, \"high_mach\": false, \"vortex_lift\": "\
-        "false, \"transition_x_upper\": 0.0, \"transition_x_lower\": 0.0, \""\
-        "Airfoil\": {}}, \"verttail\": {\"tag\": \"verttail\", \"origin\": ["\
-        "16.304347826086953, 5.435, -0.5434782608695645], \"mass_properties"\
-        "\": {\"mass\": 0.0, \"volume\": 0.0, \"center_of_gravity\": [0.0, 0"\
-        ".0, 0.0], \"moments_of_inertia\": {\"center\": [0.0, 0.0, 0.0], \""\
-        "tensor\": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \""\
-        "symmetric\": true, \"Segments\": {\"section_1\": {\"tag\": \"Sectio"\
-        "n_1\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\": null, \"next\": nul"\
-        "l, \"percent_span_location\": 0.0, \"twist\": 0.0, \"root_chord_per"\
-        "cent\": 0.3048, \"dihedral_outboard\": 0.0, \"sweeps\": {\"quarter_"\
-        "chord\": -0.006993875131753909, \"leading_edge\": 0.0}, \"Airfoil\""\
-        ": {\"naca_0012\": {\"tag\": \"NACA 0012\", \"origin\": [[0.0, 0.0, "\
-        "0.0]], \"Curves\": {}, \"prev\": null, \"next\": null, \"thickness_"\
-        "to_chord\": 0.12, \"coordinate_file\": null, \"points\": []}}, \"co"\
-        "ntrol_surfaces\": {}, \"thickness_to_chord\": 0.12}, \"section_2\""\
-        ": {\"tag\": \"Section_2\", \"origin\": [[0.0, 0.0, 0.0]], \"prev\""\
-        ": null, \"next\": null, \"percent_span_location\": 1.0, \"twist\": "\
-        "0.0, \"root_chord_percent\": 0.5, \"dihedral_outboard\": 0.0, \"swe"\
-        "eps\": {\"quarter_chord\": 0.0, \"leading_edge\": 0.0}, \"Airfoil\""\
-        ": {\"naca_0012\": {\"tag\": \"NACA 0012\", \"origin\": [[0.0, 0.0, "\
-        "0.0]], \"Curves\": {}, \"prev\": null, \"next\": null, \"thickness_"\
-        "to_chord\": 0.12, \"coordinate_file\": null, \"points\": []}}, \"co"\
-        "ntrol_surfaces\": {}, \"thickness_to_chord\": 0.12}}, \"Sections\""\
-        ": {}, \"vertical\": false, \"t_tail\": false, \"taper\": 0.0, \"dih"\
-        "edral\": 0.0, \"aspect_ratio\": 2.8194449097222223, \"thickness_to_"\
-        "chord\": 0.0, \"span_efficiency\": 0.9, \"aerodynamic_center\": [0."\
-        "0, 0.0, 0.0], \"exposed_root_chord_offset\": 0.0, \"spans\": {\"pro"\
-        "jected\": 8.458334729166667}, \"areas\": {\"reference\": 25.3750041"\
-        "87500004, \"exposed\": 4.799683014808321, \"affected\": 0.0, \"wett"\
-        "ed\": 4.799683014808321}, \"chords\": {\"mean_aerodynamic\": 0.0, "\
-        "\"mean_geometric\": 8.458334729166667, \"root\": 2.0, \"tip\": 2.0}"\
-        ", \"sweeps\": {\"quarter_chord\": -0.40071952749100154, \"leading_e"\
-        "dge\": 0.0, \"half_chord\": 0.0}, \"twists\": {\"root\": 0.0, \"tip"\
-        "\": 0.0}, \"control_surfaces\": {}, \"flaps\": {\"chord\": 0.0, \""\
-        "angle\": 0.0, \"span_start\": 0.0, \"span_end\": 0.0, \"type\": nul"\
-        "l, \"area\": 0.0}, \"slats\": {\"chord\": 0.0, \"angle\": 0.0, \"sp"\
-        "an_start\": 0.0, \"span_end\": 0.0, \"type\": null}, \"high_lift\""\
-        ": false, \"high_mach\": false, \"vortex_lift\": false, \"transition"\
-        "_x_upper\": 0.0, \"transition_x_lower\": 0.0, \"Airfoil\": {}}}, \""\
-        "propulsors\": {}, \"energy\": {\"tag\": \"Component\", \"origin\": "\
-        "[[0.0, 0.0, 0.0]], \"mass_properties\": {\"mass\": 0.0, \"volume\""\
-        ": 0.0, \"center_of_gravity\": [0.0, 0.0, 0.0], \"moments_of_inertia"\
-        "\": {\"center\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0.0, 0.0], [0."\
-        "0, 0.0, 0.0], [0.0, 0.0, 0.0]]}}, \"symmetric\": false}, \"systems"\
-        "\": {}, \"mass_properties\": {\"mass\": 0.0, \"volume\": 0.0, \"cen"\
-        "ter_of_gravity\": [0.0, 0.0, 0.0], \"moments_of_inertia\": {\"cente"\
-        "r\": [0.0, 0.0, 0.0], \"tensor\": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]"\
-        ", [0.0, 0.0, 0.0]]}, \"operating_empty\": 0.0, \"max_takeoff\": 0.0"\
-        ", \"takeoff\": 0.0, \"max_landing\": 0.0, \"landing\": 0.0, \"max_c"\
-        "argo\": 0.0, \"cargo\": 0.0, \"max_payload\": 0.0, \"payload\": 0.0"\
-        ", \"passenger\": 0.0, \"crew\": 0.0, \"max_fuel\": 0.0, \"fuel\": 0"\
-        ".0, \"max_zero_fuel\": 0.0, \"zero_fuel_center_of_gravity\": [0.0, "\
-        "0.0, 0.0]}, \"costs\": {\"tag\": \"costs\", \"industrial\": {\"tag"\
-        "\": \"industrial_costs\", \"reference_year\": 0.0, \"production_tot"\
-        "al_units\": 0.0, \"units_to_amortize\": null, \"prototypes_units\""\
-        ": 0.0, \"avionics_cost\": 0.0, \"test_facilities_cost\": 0.0, \"man"\
-        "ufacturing_facilities_cost\": 0.0, \"escalation_factor\": 0.0, \"de"\
-        "velopment_total_years\": 0.0, \"aircraft_type\": null, \"difficulty"\
-        "_factor\": 1.0, \"cad_factor\": 1.0, \"stealth\": 0.0, \"material_f"\
-        "actor\": 1.0, \"hourly_rates\": {\"engineering\": 0.0, \"tooling\""\
-        ": 0.0, \"manufacturing\": 0.0, \"quality_control\": 0.0}}, \"operat"\
-        "ing\": {\"tag\": \"operating_costs\", \"depreciate_years\": 0.0, \""\
-        "fuel_price\": 0.0, \"oil_price\": 0.0, \"insure_rate\": 0.0, \"main"\
-        "tenance_rate\": 0.0, \"pilot_rate\": 0.0, \"crew_rate\": 0.0, \"inf"\
-        "lator\": 0.0, \"reference_dollars\": 0.0}}, \"envelope\": {\"tag\""\
-        ": \"Envelope\", \"origin\": [[0.0, 0.0, 0.0]], \"ultimate_load\": 0"\
-        ".0, \"limit_load\": 0.0, \"alpha_maximum\": 0.0, \"alt_vc\": 0.0, "\
-        "\"alt_gust\": 0.0, \"max_ceiling\": 0.0, \"maximum_dynamic_pressure"\
-        "\": 0.0, \"maximum_mach_operational\": 0.0, \"maneuver\": {\"load_a"\
-        "lleviation_factor\": 0.0, \"equivalent_speed\": {\"velocity_max_gus"\
-        "t\": 0, \"velocity_max_cruise\": 0, \"velocity_max_dive\": 0}, \"lo"\
-        "ad_factor\": {\"velocity_max_gust\": 0, \"velocity_max_cruise\": 0,"\
-        " \"velocity_max_dive\": 0}}, \"gust\": {\"load_alleviation_factor\""\
-        ": 0.0, \"equivalent_speed\": {\"velocity_max_gust\": 0, \"velocity_"\
-        "max_cruise\": 0, \"velocity_max_dive\": 0}, \"load_factor\": {\"vel"\
-        "ocity_max_gust\": 0, \"velocity_max_cruise\": 0, \"velocity_max_div"\
-        "e\": 0}}}, \"reference_area\": 0.0, \"passengers\": 0.0, \"max_lift"\
-        "_coefficient_factor\": 1.0}",
-                            'first-line': 0L,
-                            'folded-linenos': [],
-                            'sel-line': 0L,
-                            'sel-line-start': 0L,
-                            'selection_end': 0L,
-                            'selection_start': 0L,
-                            'zoom': 0L},
-                           1536190010.749325],
-                          [loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+           loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+           loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+           loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+           loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+           loc('../../trunk/SUAVE/Components/Wings/Wing.py')]),
+         ({'bookmarks': ([[loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
                            {'attrib-starts': [],
                             'code-line': '# Cora read test file\n',
                             'first-line': 0L,
@@ -1476,75 +1080,288 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                             'selection_end': 0L,
                             'selection_start': 0L,
                             'zoom': 0L},
-                           1536193126.814033]],
+                           1536193126.814033],
+                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                           {'attrib-starts': [('mission_setup|0|',
+        242)],
+                            'code-line': '    segment.altitude        = 40. '\
+        ' * Units.ft\n',
+                            'first-line': 304L,
+                            'folded-linenos': [],
+                            'sel-line': 319L,
+                            'sel-line-start': 11226L,
+                            'selection_end': 11271L,
+                            'selection_start': 11271L,
+                            'zoom': 0L},
+                           1536196785.09409],
+                          [loc('../../trunk/SUAVE/Methods/Missions/Segments/Common/Frames.py'),
+                           {'attrib-starts': [('update_forces|0|',
+        -1)],
+                            'code-line': '    return\n',
+                            'first-line': 327L,
+                            'folded-linenos': [],
+                            'sel-line': 366L,
+                            'sel-line-start': 13317L,
+                            'selection_end': 13317L,
+                            'selection_start': 13317L,
+                            'zoom': 0L},
+                           1536196795.614655],
+                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                           {'attrib-starts': [('mission_setup|0|',
+        242)],
+                            'code-line': '\n',
+                            'first-line': 304L,
+                            'folded-linenos': [],
+                            'sel-line': 310L,
+                            'sel-line-start': 10879L,
+                            'selection_end': 10879L,
+                            'selection_start': 10879L,
+                            'zoom': 0L},
+                           1536196801.550059],
+                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
+                           {'attrib-starts': [('compressible_turbulent_flat_'\
+        'plate|0|',
+        16)],
+                            'code-line': '    return cf_comp, k_comp, k_reyn'\
+        '\n',
+                            'first-line': 22L,
+                            'folded-linenos': [],
+                            'sel-line': 59L,
+                            'sel-line-start': 1956L,
+                            'selection_end': 1956L,
+                            'selection_start': 1956L,
+                            'zoom': 0L},
+                           1536197252.223014],
+                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                           {'attrib-starts': [('mission_setup|0|',
+        242)],
+                            'code-line': '    mission.append_segment(segment'\
+        ')\n',
+                            'first-line': 304L,
+                            'folded-linenos': [],
+                            'sel-line': 308L,
+                            'sel-line-start': 10842L,
+                            'selection_end': 10875L,
+                            'selection_start': 10875L,
+                            'zoom': 0L},
+                           1536197258.162999],
+                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
+                           {'attrib-starts': [('compressible_turbulent_flat_'\
+        'plate|0|',
+        16)],
+                            'code-line': '    return cf_comp, k_comp, k_reyn'\
+        '\n',
+                            'first-line': 22L,
+                            'folded-linenos': [],
+                            'sel-line': 59L,
+                            'sel-line-start': 1956L,
+                            'selection_end': 1956L,
+                            'selection_start': 1956L,
+                            'zoom': 0L},
+                           1536197271.044484],
+                          [loc('../../trunk/SUAVE/Components/Energy/Networks/Lift_Forward_Propulsor_Low_Fidelity.py'),
+                           {'attrib-starts': [],
+                            'code-line': '# Lift_Forward_propulsor.py\n',
+                            'first-line': 117L,
+                            'folded-linenos': [],
+                            'sel-line': 0L,
+                            'sel-line-start': 0L,
+                            'selection_end': 0L,
+                            'selection_start': 0L,
+                            'zoom': 0L},
+                           1536197299.689264],
+                          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
+                           {'attrib-starts': [('compressible_turbulent_flat_'\
+        'plate|0|',
+        16)],
+                            'code-line': '    return cf_comp, k_comp, k_reyn'\
+        '\n',
+                            'first-line': 22L,
+                            'folded-linenos': [],
+                            'sel-line': 59L,
+                            'sel-line-start': 1956L,
+                            'selection_end': 1956L,
+                            'selection_start': 1956L,
+                            'zoom': 0L},
+                           1536197303.451608],
+                          [loc('../../trunk/SUAVE/Components/Energy/Networks/Lift_Forward_Propulsor_Low_Fidelity.py'),
+                           {'attrib-starts': [('Lift_Forward_Low_Fidelity|0|',
+        35),
+        ('Lift_Forward_Low_Fidelity|0|.evaluate_thrust|0|',
+         59)],
+                            'code-line': '        eta = state.conditions.pro'\
+        'pulsion.lift_throttle\n',
+                            'first-line': 111L,
+                            'folded-linenos': [],
+                            'sel-line': 150L,
+                            'sel-line-start': 5823L,
+                            'selection_end': 5823L,
+                            'selection_start': 5823L,
+                            'zoom': 0L},
+                           1536197873.203636],
+                          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                           {'attrib-starts': [('vehicle_setup|0|',
+        67)],
+                            'code-line': '    for k,wing in vehicle.wings.it'\
+        'ems():\n',
+                            'first-line': 74L,
+                            'folded-linenos': [],
+                            'sel-line': 91L,
+                            'sel-line-start': 3019L,
+                            'selection_end': 3019L,
+                            'selection_start': 3019L,
+                            'zoom': 0L},
+                           1536198176.719998],
+                          [loc('../../trunk/SUAVE/Core/Data.py'),
+                           {'attrib-starts': [('Data|0|',
+        25),
+        ('Data|0|.__getattribute__|0|',
+         37)],
+                            'code-line': '            return objgetattrib(se'\
+        'lf,k)\n',
+                            'first-line': 8L,
+                            'folded-linenos': [],
+                            'sel-line': 58L,
+                            'sel-line-start': 1609L,
+                            'selection_end': 1609L,
+                            'selection_start': 1609L,
+                            'zoom': 0L},
+                           1536198921.579225],
+                          [loc('../../trunk/SUAVE/Methods/Missions/Segments/Common/Frames.py'),
+                           {'attrib-starts': [('update_forces|0|',
+        -1)],
+                            'code-line': '    return\n',
+                            'first-line': 327L,
+                            'folded-linenos': [],
+                            'sel-line': 366L,
+                            'sel-line-start': 13317L,
+                            'selection_end': 13317L,
+                            'selection_start': 13317L,
+                            'zoom': 0L},
+                           1536266147.384708]],
                          20),
            'current-loc': loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-           'editor-state-list': [(loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                                  {'attrib-starts': [('compressible_turbulen'\
-        't_flat_plate|0|',
-        16)],
-                                   'code-line': '    Re[Re<=1.] = 1. \n',
-                                   'first-line': 22L,
+           'editor-state-list': [(loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                                  {'attrib-starts': [('vehicle_setup|0|',
+        69)],
+                                   'code-line': '    # ---------------------'\
+        '---------------------------------------------\n',
+                                   'first-line': 19L,
                                    'folded-linenos': [],
-                                   'sel-line': 42L,
-                                   'sel-line-start': 1508L,
-                                   'selection_end': 1527L,
-                                   'selection_start': 1527L,
+                                   'sel-line': 71L,
+                                   'sel-line-start': 2121L,
+                                   'selection_end': 2121L,
+                                   'selection_start': 2121L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-                                  {'attrib-starts': [('initialize_conditions'\
-        '|0|',
-        11)],
-                                   'code-line': '    segment.air_speed_start'\
-        '         [meters/second]\n',
-                                   'first-line': 4L,
+                                 (loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+                                  {'attrib-starts': [('import_cora|0|',
+        12)],
+                                   'code-line': '        vehicle.append_comp'\
+        'onent(fuselage)\n',
+                                   'first-line': 0L,
                                    'folded-linenos': [],
-                                   'sel-line': 22L,
-                                   'sel-line-start': 631L,
-                                   'selection_end': 631L,
-                                   'selection_start': 631L,
+                                   'sel-line': 35L,
+                                   'sel-line-start': 1069L,
+                                   'selection_end': 1069L,
+                                   'selection_start': 1069L,
                                    'zoom': 0L}),
-                                 (loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+                                  {'attrib-starts': [('populate_wing_section'\
+        's|0|',
+        157)],
+                                   'code-line': '                           '\
+        '                                             \n',
+                                   'first-line': 244L,
+                                   'folded-linenos': [],
+                                   'sel-line': 270L,
+                                   'sel-line-start': 14354L,
+                                   'selection_end': 14426L,
+                                   'selection_start': 14426L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                                  {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                                   'code-line': '            return super(Da'\
+        'taOrdered,self).__getattribute__(k)\r\n',
+                                   'first-line': 167L,
+                                   'folded-linenos': [],
+                                   'sel-line': 206L,
+                                   'sel-line-start': 4743L,
+                                   'selection_end': 4743L,
+                                   'selection_start': 4743L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+                                  {'attrib-starts': [('Segment',
+        16),
+        ('Segment.append_airfoil',
+         27)],
+                                   'first-line': 0,
+                                   'folded-linenos': [],
+                                   'sel-line': 27,
+                                   'sel-line-start': 857,
+                                   'selection_end': 1163,
+                                   'selection_start': 857}),
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
                                   {'attrib-starts': [],
-                                   'code-line': '# Cora.py\n',
-                                   'first-line': 253L,
+                                   'code-line': '## @ingroup Input_Output-Op'\
+        'enVSP\n',
+                                   'first-line': 0L,
                                    'folded-linenos': [],
                                    'sel-line': 0L,
                                    'sel-line-start': 0L,
                                    'selection_end': 0L,
                                    'selection_start': 0L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                                  {'attrib-starts': [('parasite_drag_propuls'\
-        'or|0|',
-        25)],
-                                   'code-line': '    cf_prop, k_comp, k_reyn'\
-        ' = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                                   'first-line': 45L,
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                                  {'attrib-starts': [],
+                                   'code-line': '## @ingroup Input_Output-Op'\
+        'enVSP\n',
+                                   'first-line': 0L,
                                    'folded-linenos': [],
-                                   'sel-line': 72L,
-                                   'sel-line-start': 2122L,
-                                   'selection_end': 2122L,
-                                   'selection_start': 2122L,
+                                   'sel-line': 0L,
+                                   'sel-line-start': 0L,
+                                   'selection_end': 0L,
+                                   'selection_start': 0L,
                                    'zoom': 0L}),
-                                 (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                                  {'attrib-starts': [('parasite_total|0|',
-        18)],
-                                   'code-line': '    try:\n',
-                                   'first-line': 43L,
+                                 (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                                  {'attrib-starts': [('write|0|',
+        22)],
+                                   'code-line': '                vsp.ReadFil'\
+        'eAirfoil(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)\n',
+                                   'first-line': 174L,
                                    'folded-linenos': [],
-                                   'sel-line': 78L,
-                                   'sel-line-start': 3200L,
-                                   'selection_end': 3200L,
-                                   'selection_start': 3200L,
+                                   'sel-line': 223L,
+                                   'sel-line-start': 9484L,
+                                   'selection_end': 9484L,
+                                   'selection_start': 9484L,
+                                   'zoom': 0L}),
+                                 (loc('../../trunk/SUAVE/Components/Wings/Wing.py'),
+                                  {'attrib-starts': [('Wing|0|',
+        22),
+        ('Wing|0|.__defaults__|0|',
+         40)],
+                                   'code-line': '        self.Segments      '\
+        '     = SUAVE.Core.ContainerOrdered()\n',
+                                   'first-line': 46L,
+                                   'folded-linenos': [],
+                                   'sel-line': 122L,
+                                   'sel-line-start': 3148L,
+                                   'selection_end': 3202L,
+                                   'selection_start': 3193L,
                                    'zoom': 0L})],
            'has-focus': False,
            'locked': False},
-          [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-           loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-           loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py')])),
+          [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+           loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+           loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+           loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+           loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+           loc('../../trunk/SUAVE/Components/Wings/Wing.py')])),
         ({'bookmarks': ([[loc('../../../workspace/NASA Modular UAV/Optimization_Feb_2017_hifi/Plot_Mission.py'),
                           {'attrib-starts': [],
                            'code-line': '# Plot_Mission.py\n',
@@ -2155,84 +1972,140 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                           1536193126.803432]],
                         20),
           'current-loc': loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-          'editor-state-list': [(loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                                 {'attrib-starts': [('compressible_turbulent'\
-        '_flat_plate|0|',
-        16)],
-                                  'code-line': '    Re[Re<=1.] = 1. \n',
-                                  'first-line': 22L,
-                                  'folded-linenos': [],
-                                  'sel-line': 42L,
-                                  'sel-line-start': 1508L,
-                                  'selection_end': 1527L,
-                                  'selection_start': 1527L,
-                                  'zoom': 0L}),
-                                (loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-                                 {'attrib-starts': [('initialize_conditions|'\
-        '0|',
-        11)],
-                                  'code-line': '    segment.air_speed_start '\
-        '        [meters/second]\n',
-                                  'first-line': 4L,
-                                  'folded-linenos': [],
-                                  'sel-line': 22L,
-                                  'sel-line-start': 631L,
-                                  'selection_end': 631L,
-                                  'selection_start': 631L,
-                                  'zoom': 0L}),
-                                (loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+          'editor-state-list': [(loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
                                  {'attrib-starts': [],
                                   'code-line': '# Cora.py\n',
-                                  'first-line': 253L,
+                                  'first-line': 251L,
                                   'folded-linenos': [],
                                   'sel-line': 0L,
                                   'sel-line-start': 0L,
                                   'selection_end': 0L,
                                   'selection_start': 0L,
                                   'zoom': 0L}),
-                                (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                                 {'attrib-starts': [('parasite_drag_propulso'\
-        'r|0|',
-        25)],
-                                  'code-line': '    cf_prop, k_comp, k_reyn '\
-        '= compressible_turbulent_flat_plate(Re_prop,Mc,Tc)\n',
-                                  'first-line': 45L,
+                                (loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+                                 {'attrib-starts': [('import_cora|0|',
+        12)],
+                                  'code-line': '        vehicle.append_compo'\
+        'nent(fuselage)\n',
+                                  'first-line': 0L,
                                   'folded-linenos': [],
-                                  'sel-line': 72L,
-                                  'sel-line-start': 2122L,
-                                  'selection_end': 2122L,
-                                  'selection_start': 2122L,
+                                  'sel-line': 35L,
+                                  'sel-line-start': 1069L,
+                                  'selection_end': 1069L,
+                                  'selection_start': 1069L,
                                   'zoom': 0L}),
-                                (loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                                 {'attrib-starts': [('parasite_total|0|',
-        18)],
-                                  'code-line': '    try:\n',
-                                  'first-line': 43L,
+                                (loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+                                 {'attrib-starts': [('populate_wing_sections'\
+        '|0|',
+        157)],
+                                  'code-line': '                            '\
+        '                                            \n',
+                                  'first-line': 244L,
                                   'folded-linenos': [],
-                                  'sel-line': 78L,
-                                  'sel-line-start': 3200L,
-                                  'selection_end': 3200L,
-                                  'selection_start': 3200L,
+                                  'sel-line': 270L,
+                                  'sel-line-start': 14354L,
+                                  'selection_end': 14426L,
+                                  'selection_start': 14426L,
+                                  'zoom': 0L}),
+                                (loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                                 {'attrib-starts': [('DataOrdered|0|',
+        124),
+        ('DataOrdered|0|.__getitem__|0|',
+         187)],
+                                  'code-line': '            return super(Dat'\
+        'aOrdered,self).__getattribute__(k)\r\n',
+                                  'first-line': 167L,
+                                  'folded-linenos': [],
+                                  'sel-line': 206L,
+                                  'sel-line-start': 4743L,
+                                  'selection_end': 4743L,
+                                  'selection_start': 4743L,
+                                  'zoom': 0L}),
+                                (loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+                                 {'attrib-starts': [('Segment',
+        16),
+        ('Segment.append_airfoil',
+         27)],
+                                  'first-line': 0,
+                                  'folded-linenos': [],
+                                  'sel-line': 27,
+                                  'sel-line-start': 857,
+                                  'selection_end': 1163,
+                                  'selection_start': 857}),
+                                (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+                                 {'attrib-starts': [],
+                                  'code-line': '## @ingroup Input_Output-Ope'\
+        'nVSP\n',
+                                  'first-line': 0L,
+                                  'folded-linenos': [],
+                                  'sel-line': 0L,
+                                  'sel-line-start': 0L,
+                                  'selection_end': 0L,
+                                  'selection_start': 0L,
+                                  'zoom': 0L}),
+                                (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                                 {'attrib-starts': [],
+                                  'code-line': '## @ingroup Input_Output-Ope'\
+        'nVSP\n',
+                                  'first-line': 0L,
+                                  'folded-linenos': [],
+                                  'sel-line': 0L,
+                                  'sel-line-start': 0L,
+                                  'selection_end': 0L,
+                                  'selection_start': 0L,
+                                  'zoom': 0L}),
+                                (loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                                 {'attrib-starts': [('write|0|',
+        22)],
+                                  'code-line': '                vsp.ReadFile'\
+        'Airfoil(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)\n',
+                                  'first-line': 174L,
+                                  'folded-linenos': [],
+                                  'sel-line': 223L,
+                                  'sel-line-start': 9484L,
+                                  'selection_end': 9484L,
+                                  'selection_start': 9484L,
+                                  'zoom': 0L}),
+                                (loc('../../trunk/SUAVE/Components/Wings/Wing.py'),
+                                 {'attrib-starts': [('Wing|0|',
+        22),
+        ('Wing|0|.__defaults__|0|',
+         40)],
+                                  'code-line': '        self.Segments       '\
+        '    = SUAVE.Core.ContainerOrdered()\n',
+                                  'first-line': 46L,
+                                  'folded-linenos': [],
+                                  'sel-line': 122L,
+                                  'sel-line-start': 3148L,
+                                  'selection_end': 3202L,
+                                  'selection_start': 3193L,
                                   'zoom': 0L})],
           'has-focus': False,
           'locked': False},
-         [loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-          loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py'),
-          loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-          loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-          loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py')])),
-                               'open_files': [u'../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py',
-        u'../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py',
-        u'../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py',
-        u'../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py',
+         [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
+          loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+          loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+          loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+          loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+          loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+          loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+          loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+          loc('../../trunk/SUAVE/Components/Wings/Wing.py')])),
+                               'open_files': [u'../../trunk/SUAVE/Components/Wings/Wing.py',
+        u'../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py',
+        u'../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py',
+        u'../../../Experimental/NASA_Cora/cora_read_test.py',
+        u'../../trunk/SUAVE/Components/Wings/Segment.py',
+        u'../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py',
+        u'../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py',
         u'../../../Experimental/NASA_Cora/cora_lo_lo_fid.py']},
         'saved_notebook_display': None,
-        'split_percents': {0: 0.5983847283406755},
+        'split_percents': {0: 0.4638643067846608},
         'splits': 2,
         'tab_location': 'top',
         'traversal_pos': ((1,
-                           1),
-                          1536195908.925003),
+                           0),
+                          1536274244.70056),
         'user_data': {}},
                  'saved_notebook_display': None,
                  'split_percents': {0: 0.4989406779661017},
@@ -2244,13 +2117,17 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                  'user_data': {}},
         'window-alloc': (0,
                          23,
-                         1662,
+                         1632,
                          1177)}]}
 guimgr.recent-documents = [loc('../../../Experimental/NASA_Cora/cora_lo_lo_fid.py'),
-                           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'),
-                           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_propulsor.py'),
-                           loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'),
-                           loc('../../trunk/SUAVE/Methods/Missions/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py')]
+                           loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'),
+                           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'),
+                           loc('../../trunk/SUAVE/Core/DataOrdered.py'),
+                           loc('../../trunk/SUAVE/Components/Wings/Segment.py'),
+                           loc('../../../Experimental/NASA_Cora/cora_read_test.py'),
+                           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'),
+                           loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'),
+                           loc('../../trunk/SUAVE/Components/Wings/Wing.py')]
 guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Contents/Resources/resources/builtin-pi-files/2.7/__builtin__.pi'): {'a'\
         'ttrib-starts': [('dict',
                           903)],
@@ -2287,6 +2164,20 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'sel-line-start': 1614L,
         'selection_end': 1614L,
         'selection_start': 1614L,
+        'zoom': 0L},
+                       loc('../../../../../../../Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/subprocess.py'): {'a'\
+        'ttrib-starts': [('Popen|0|',
+                          588),
+                         ('Popen|0|._execute_child|1|',
+                          1359)],
+        'code-line': '                    raise child_exception_type(errno_n'\
+                     'um, err_msg, err_filename)\n',
+        'first-line': 1460L,
+        'folded-linenos': [],
+        'sel-line': 1498L,
+        'sel-line-start': 58620L,
+        'selection_end': 58620L,
+        'selection_start': 58620L,
         'zoom': 0L},
                        loc('../../../../../../../Library/Python/2.7/site-packages/VyPy-1.0.0-py2.7.egg/VyPy/parallel/MultiTask.py'): {'a'\
         'ttrib-starts': [],
@@ -4223,6 +4114,18 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'sel-line-start': 26401,
         'selection_end': 26435,
         'selection_start': 26435},
+                       loc('../../../Experimental/Cora.py'): {'attrib-starts': [('v'\
+        'ehicle_setup|0|',
+        70)],
+        'code-line': '    # ------------------------------------------------'\
+                     '------------------\n',
+        'first-line': 47L,
+        'folded-linenos': [],
+        'sel-line': 72L,
+        'sel-line-start': 1941L,
+        'selection_end': 2791L,
+        'selection_start': 1941L,
+        'zoom': 0L},
                        loc('../../../Experimental/DC_10_noise.py'): {'attrib'\
         '-starts': [],
         'first-line': 0,
@@ -4265,6 +4168,16 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'sel-line-start': 741,
         'selection_end': 749,
         'selection_start': 749},
+                       loc('../../../Experimental/NASA_Cora/MainWing_airfoil_XSec_0.dat'): {'a'\
+        'ttrib-starts': [],
+        'code-line': 'MainWing_airfoil_XSec_0.dat\n',
+        'first-line': 0L,
+        'folded-linenos': [],
+        'sel-line': 0L,
+        'sel-line-start': 0L,
+        'selection_end': 0L,
+        'selection_start': 0L,
+        'zoom': 0L},
                        loc('../../../Experimental/NASA_Cora/cora.py'): {'att'\
         'rib-starts': [],
         'code-line': '# Cora.py\n',
@@ -7264,7 +7177,7 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'selection_start': 5753},
                        loc('../../trunk/SUAVE/Components/Energy/Networks/Lift_Forward_Propulsor_Low_Fidelity.py'): {'a'\
         'ttrib-starts': [],
-        'code-line': '# Lift_Forward_propulsor.py\n',
+        'code-line': '',
         'first-line': 0L,
         'folded-linenos': [],
         'sel-line': 0L,
@@ -7638,7 +7551,7 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
                        loc('../../trunk/SUAVE/Components/Wings/Main_Wing.py'): {'a'\
         'ttrib-starts': [],
         'code-line': '## @ingroup Components-Wings\r\n',
-        'first-line': 1L,
+        'first-line': 0L,
         'folded-linenos': [],
         'sel-line': 0L,
         'sel-line-start': 0L,
@@ -7671,7 +7584,7 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
                           40)],
         'code-line': '        self.Segments           = SUAVE.Core.Container'\
                      'Ordered()\n',
-        'first-line': 78L,
+        'first-line': 46L,
         'folded-linenos': [],
         'sel-line': 122L,
         'sel-line-start': 3148L,
@@ -7774,17 +7687,18 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'selection_end': 1090,
         'selection_start': 1090},
                        loc('../../trunk/SUAVE/Core/DataOrdered.py'): {'attri'\
-        'b-starts': [('Property|0|',
-                      26),
-                     ('Property|0|.__set__|0|',
-                      77)],
-        'code-line': '        """ Sets a property\r\n',
-        'first-line': 58L,
+        'b-starts': [('DataOrdered|0|',
+                      124),
+                     ('DataOrdered|0|.__getitem__|0|',
+                      187)],
+        'code-line': '            return super(DataOrdered,self).__getattrib'\
+                     'ute__(k)\r\n',
+        'first-line': 167L,
         'folded-linenos': [],
-        'sel-line': 78L,
-        'sel-line-start': 1841L,
-        'selection_end': 1852L,
-        'selection_start': 1852L,
+        'sel-line': 206L,
+        'sel-line-start': 4743L,
+        'selection_end': 4743L,
+        'selection_start': 4743L,
         'zoom': 0L},
                        loc('../../trunk/SUAVE/Core/DataOrdered_old.py'): {'a'\
         'ttrib-starts': [],
@@ -8281,7 +8195,7 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'selection_start': 0},
                        loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_fuselage.py'): {'a'\
         'ttrib-starts': [],
-        'code-line': '',
+        'code-line': '## @ingroup Input_Output-OpenVSP\n',
         'first-line': 0L,
         'folded-linenos': [],
         'sel-line': 0L,
@@ -8301,13 +8215,25 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'zoom': 0L},
                        loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_read_wing.py'): {'a'\
         'ttrib-starts': [],
-        'code-line': '',
+        'code-line': '## @ingroup Input_Output-OpenVSP\n',
         'first-line': 0L,
         'folded-linenos': [],
         'sel-line': 0L,
         'sel-line-start': 0L,
         'selection_end': 0L,
         'selection_start': 0L,
+        'zoom': 0L},
+                       loc('../../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py'): {'a'\
+        'ttrib-starts': [('write|0|',
+                          22)],
+        'code-line': '                vsp.ReadFileAirfoil(xsec1,wing.Segment'\
+                     's[0].Airfoil[0].coordinate_file)\n',
+        'first-line': 174L,
+        'folded-linenos': [],
+        'sel-line': 223L,
+        'sel-line-start': 9484L,
+        'selection_end': 9484L,
+        'selection_start': 9484L,
         'zoom': 0L},
                        loc('../../trunk/SUAVE/Input_Output/PASS/load.py'): {'a'\
         'ttrib-starts': [],
@@ -8381,6 +8307,16 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'sel-line-start': 0,
         'selection_end': 0,
         'selection_start': 0},
+                       loc('../../trunk/SUAVE/Input_Output/__init__.py'): {'a'\
+        'ttrib-starts': [],
+        'code-line': '## @defgroup Input_Output\r\n',
+        'first-line': 0L,
+        'folded-linenos': [],
+        'sel-line': 0L,
+        'sel-line-start': 0L,
+        'selection_end': 0L,
+        'selection_start': 0L,
+        'zoom': 0L},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/AERODAS/AERODAS_setup.py'): {'a'\
         'ttrib-starts': [('lift_drag_total|0|',
                           50)],
@@ -8517,13 +8453,17 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'selection_end': 0,
         'selection_start': 0},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/create_avl_datastructure.py'): {'a'\
-        'ttrib-starts': [],
-        'first-line': 0,
+        'ttrib-starts': [('populate_wing_sections|0|',
+                          157)],
+        'code-line': '                                                      '\
+                     '                  \n',
+        'first-line': 244L,
         'folded-linenos': [],
-        'sel-line': 13,
-        'sel-line-start': 330,
-        'selection_end': 357,
-        'selection_start': 357},
+        'sel-line': 270L,
+        'sel-line-start': 14354L,
+        'selection_end': 14426L,
+        'selection_start': 14426L,
+        'zoom': 0L},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/initialize_inputs.py'): {'a'\
         'ttrib-starts': [],
         'first-line': 0,
@@ -8558,13 +8498,18 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'selection_end': 305,
         'selection_start': 305},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/run_analysis.py'): {'a'\
-        'ttrib-starts': [],
-        'first-line': 0,
+        'ttrib-starts': [('call_avl|0|',
+                          44)],
+        'code-line': '                avl_run = subprocess.Popen([avl_call,g'\
+                     'eometry],stdout=sys.stdout,stderr=sys.stderr,stdin=sub'\
+                     'process.PIPE)\n',
+        'first-line': 0L,
         'folded-linenos': [],
-        'sel-line': 2,
-        'sel-line-start': 21,
-        'selection_end': 41,
-        'selection_start': 41},
+        'sel-line': 89L,
+        'sel-line-start': 2279L,
+        'selection_end': 2279L,
+        'selection_start': 2279L,
+        'zoom': 0L},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/AVL/translate_data.py'): {'a'\
         'ttrib-starts': [],
         'first-line': 0,
@@ -8679,13 +8624,13 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_total.py'): {'a'\
         'ttrib-starts': [('parasite_total|0|',
                           18)],
-        'code-line': '    try:\n',
+        'code-line': '    return total_parasite_drag',
         'first-line': 43L,
         'folded-linenos': [],
-        'sel-line': 78L,
-        'sel-line-start': 3200L,
-        'selection_end': 3200L,
-        'selection_start': 3200L,
+        'sel-line': 88L,
+        'sel-line-start': 3561L,
+        'selection_end': 3561L,
+        'selection_start': 3561L,
         'zoom': 0L},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/total_aircraft.py'): {'a'\
         'ttrib-starts': [],
@@ -8711,13 +8656,13 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/Common/Fidelity_Zero/Helper_Functions/compressible_turbulent_flat_plate.py'): {'a'\
         'ttrib-starts': [('compressible_turbulent_flat_plate|0|',
                           16)],
-        'code-line': '    Re[Re<=1.] = 1. \n',
+        'code-line': '    return cf_comp, k_comp, k_reyn\n',
         'first-line': 22L,
         'folded-linenos': [],
-        'sel-line': 42L,
-        'sel-line-start': 1508L,
-        'selection_end': 1527L,
-        'selection_start': 1527L,
+        'sel-line': 59L,
+        'sel-line-start': 1956L,
+        'selection_end': 1956L,
+        'selection_start': 1956L,
         'zoom': 0L},
                        loc('../../trunk/SUAVE/Methods/Aerodynamics/Fidelity_Zero/Drag/asymmetry_drag.py'): {'a'\
         'ttrib-starts': [],
@@ -10135,7 +10080,7 @@ guimgr.visual-state = {loc('../../../../../../../Applications/WingIDE.app/Conten
         'ttrib-starts': [('initialize_conditions|0|',
                           11)],
         'code-line': '    segment.air_speed_start         [meters/second]\n',
-        'first-line': 4L,
+        'first-line': 1L,
         'folded-linenos': [],
         'sel-line': 22L,
         'sel-line-start': 631L,
@@ -13071,6 +13016,15 @@ search.replace-history = [u'Usinpsi',
                           u'help_fun',
                           u'nexus']
 search.search-history = [u'compressibility_drag_wing',
+                         u'rot',
+                         u'tag',
+                         u'vertical',
+                         u'origin',
+                         u'proj_span_sum',
+                         u'symm',
+                         u'symme',
+                         u'symmetry',
+                         u'configs',
                          u'deg',
                          u'compressibility_drag_wing_total',
                          u'.lower()',
@@ -13080,16 +13034,7 @@ search.search-history = [u'compressibility_drag_wing',
                          u'forces',
                          u'container',
                          u'append',
-                         u'append_component(',
-                         u'tag',
-                         u'training.wing_lift_coefficients',
-                         u'surrogates.wing_lift_coefficients',
-                         u'conv',
-                         u'write',
-                         u'wrt',
-                         u'TBSYm',
-                         u'order',
-                         u'SYM']
+                         u'append_component(']
 search.search-scope-history = [loc('../..'),
                                loc('../../trunk'),
                                loc('../../trunk/SUAVE/Core')]
