@@ -201,8 +201,8 @@ def write(vehicle,tag):
                 vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
                 xsec1 = vsp.GetXSec(xsecsurf,0)
                 xsec2 = vsp.GetXSec(xsecsurf,1)
-                vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
-                vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec1,wing.Airfoil[0].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Airfoil[0].coordinate_file)
                 vsp.Update()
         else: # The wing airfoil is still used for the root segment if the first added segment does not begin there
             # This could be combined with above, but is left here for clarity
@@ -212,8 +212,8 @@ def write(vehicle,tag):
                 vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
                 xsec1 = vsp.GetXSec(xsecsurf,0)
                 xsec2 = vsp.GetXSec(xsecsurf,1)
-                vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
-                vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec1,wing.Airfoil[0].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Airfoil[0].coordinate_file)
                 vsp.Update()
             elif len(wing.Segments[0].Airfoil) != 0:
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)

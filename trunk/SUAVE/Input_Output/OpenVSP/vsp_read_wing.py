@@ -15,7 +15,6 @@ from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil
 import vsp_g as vsp
 import numpy as np
 
-
 ## @ingroup Input_Output-OpenVSP
 def vsp_read_wing(wing_id, units_type='SI'): 	
 	"""This reads an OpenVSP wing vehicle geometry and writes it into a SUAVE wing format.
@@ -99,8 +98,8 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)			# This is how VSP stores surfaces.
 	segment_num       = vsp.GetNumXSec(xsec_surf_id)		# Get number of wing segments (is one more than the VSP GUI shows).
 	
-	total_chord      = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_1')	
-	total_proj_span  = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom')  
+	total_chord      = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_1')	* units_factor
+	total_proj_span  = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom')  * units_factor
 	span_sum         = 0.				# Non-projected.
 	proj_span_sum    = 0.				# Projected.
 	segment_spans    = [None] * (segment_num) 	# Non-projected.
@@ -136,11 +135,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg 
 			segment.dihedral_outboard     = segment_dihedral[i]
 	
-			segment_spans[i] 	      = vsp.GetParmVal(wing_id, 'Span', 'XSec_' + str(i))
+			segment_spans[i] 	      = vsp.GetParmVal(wing_id, 'Span', 'XSec_' + str(i)) * units_factor
 			proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
 			span_sum      += segment_spans[i]
 		else:
-			segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1)))/total_chord
+			segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /total_chord
 	
 		# XSec airfoil
 		jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
@@ -158,11 +157,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			camber_round               = int(np.around(camber*100))
 			camber_loc_round           = int(np.around(camber_loc*10)) 
 			thick_cord_round           = int(np.around(thick_cord*100))
-			airfoil.tag                = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)
-			
-			# Always write the airfoil file
-			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'			
+			airfoil.tag                = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)	
 	
 		elif vsp.GetXSecShape(xsec_id) == 8: 	# XSec shape: NACA 6-series
 			thick_cord_round = int(np.around(thick_cord*100))
@@ -171,11 +166,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			series_vsp       = int(vsp.GetParmVal(wing_id, 'Series', 'XSecCurve_' + str(jj)))
 			series_dict      = {0:'63',1:'64',2:'65',3:'66',4:'67',5:'63A',6:'64A',7:'65A'} # VSP series values.
 			series           = series_dict[series_vsp]
-			airfoil.tag      = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))
-			
-			# Always write the airfoil file
-			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'			
+			airfoil.tag      = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))			
 				
 	
 		elif vsp.GetXSecShape(xsec_id) == 12:	# XSec shape: 12 is type AF_FILE
@@ -184,10 +175,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
 			# (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
 			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+			airfoil.coordinate_file    = 'str(wing.tag)' + '_airfoil_XSec_' + str(jj) +'.dat'
 			airfoil.tag                = 'AF_file'	
 	
-		segment.append_airfoil(airfoil)
+			segment.append_airfoil(airfoil)
 	
 		wing.Segments.append(segment)
 	
@@ -209,9 +200,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	
 	# Wing spans
 	if wing.symmetric == True:
-		wing.spans.projected = 2 * proj_span_sum * units_factor
+		wing.spans.projected = 2 * proj_span_sum
 	else:
-		wing.spans.projected = proj_span_sum	* units_factor	
+		wing.spans.projected = proj_span_sum
 		
 	# Areas
 	wing.areas.reference  = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') * units_factor**2 	
@@ -220,12 +211,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0') * units_factor
 	wing.chords.tip               = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor	
 	wing.chords.mean_geometric    = wing.areas.reference /wing.spans.projected
-
 		
 	# Twists
 	wing.twists.root      = vsp.GetParmVal(wing_id, 'Twist', 'XSec_0') * Units.deg
 	wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
-	
-
 	
 	return wing
