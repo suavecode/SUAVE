@@ -18,7 +18,7 @@ import numpy as np
 def BEM_read(bem_file, units_type='SI'):
     """Function that takes in a BEM file from Xrotor,Qprop, VSP, etc. 
     and returns propellor data. Note, this only works for VSP at the 
-    moment and is not speed effecient.
+    moment and is not speed efficient.
     
     Assumptions:
     Radius and Chord are normalized by Radius
@@ -45,7 +45,8 @@ def BEM_read(bem_file, units_type='SI'):
     results = Data()
     results.radius = []
     results.chord  = []
-    results.twist  = []
+    results.twist  = []    
+
     # Flag for type of BEM file
     # Set Flag here 
     
@@ -95,5 +96,13 @@ def BEM_read(bem_file, units_type='SI'):
             table = True
                     
     f.close()        
-            
-    return results 
+    
+    #propeller.radius_distribution = results.radius
+    #propeller.twist_distribution  = results.twist
+    #propeller.chord_distribution  = results.chord
+    #propeller.tip_radius          = results.diameter/2.
+    #propeller.number_blades       = results.num_blade
+    #propeller.origin              = results.origin
+    #propeller.orientation         = results.normal
+         
+    return results
