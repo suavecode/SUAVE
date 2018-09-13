@@ -80,12 +80,12 @@ def BEM_read(bem_file, units_type='SI'):
             results.num_blade = [int(s) for s in line.split() if s.isdigit()][0] 
             
         if line.startswith('Diameter'):
-            results.diameter = [float(s) for s in line.split() if s.count('.') == 1][0] 
+            results.diameter = [float(s) for s in line.split() if s.count('.') == 1][0] * units_factor
             
         if line.startswith('Center'):
             line = line.replace(':',',')
             line = line.replace('\n','')
-            results.origin = [float(s) for s in line.split(',') if s.count('.') == 1 ]        
+            results.origin = [float(s) * units_factor for s in line.split(',') if s.count('.') == 1 ] 
             
         if line.startswith('Normal'):
             line = line.replace(':',',')
@@ -97,12 +97,7 @@ def BEM_read(bem_file, units_type='SI'):
                     
     f.close()        
     
-    #propeller.radius_distribution = results.radius
-    #propeller.twist_distribution  = results.twist
-    #propeller.chord_distribution  = results.chord
-    #propeller.tip_radius          = results.diameter/2.
-    #propeller.number_blades       = results.num_blade
-    #propeller.origin              = results.origin
-    #propeller.orientation         = results.normal
+    results.twist = results.twist * Units.degrees
+
          
     return results
