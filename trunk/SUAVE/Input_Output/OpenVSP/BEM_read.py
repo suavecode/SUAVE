@@ -99,10 +99,11 @@ def BEM_read(bem_file, units_type='SI'):
     
     results.twist = results.twist * Units.degrees
     
-    if results.radius[ns] >= 1.0:
+    if results.radius[ns-1] >= 1.0:
         results.radius = results.radius[0:ns-1]
         results.chord  = results.chord[0:ns-1]
         results.teist  = results.twist[0:ns-1]
     
          
+
     return results
