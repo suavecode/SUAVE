@@ -208,9 +208,5 @@ def propeller_design(prop):
     
     #These are used to check, the values here were used to verify against
     #AIAA 89-2048 for their propeller
-    
-<<<<<<< HEAD
+
     return prop 
-=======
-    return prop
->>>>>>> 4a38c84b8a65406aeea08af813ec06f6c5e3383c

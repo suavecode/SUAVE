@@ -57,10 +57,7 @@ class Propeller(Energy_Component):
         self.chord_distribution = 0.0
         self.mid_chord_aligment = 0.0
         self.thrust_angle       = 0.0
-<<<<<<< HEAD
         self.sectional_lift_coefficent = 0.0
-=======
->>>>>>> 4a38c84b8a65406aeea08af813ec06f6c5e3383c
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
