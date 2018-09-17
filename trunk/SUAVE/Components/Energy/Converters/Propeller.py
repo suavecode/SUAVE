@@ -50,13 +50,14 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.number_blades      = 0.0
-        self.tip_radius         = 0.0
-        self.hub_radius         = 0.0
-        self.twist_distribution = 0.0
-        self.chord_distribution = 0.0
-        self.mid_chord_aligment = 0.0
-        self.thrust_angle       = 0.0
+        self.number_blades       = 0.0
+        self.tip_radius          = 0.0
+        self.hub_radius          = 0.0
+        self.twist_distribution  = 0.0
+        self.chord_distribution  = 0.0
+        self.mid_chord_aligment  = 0.0
+        self.thrust_angle        = 0.0
+        self.radius_distribution = None
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -154,9 +155,16 @@ class Propeller(Energy_Component):
 
         #Things that don't change with iteration
         N       = len(c) # Number of stations
-        chi0    = Rh/R   # Where the propeller blade actually starts
-        chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-        chi     = chi[0:N]
+        
+        if self.radius_distribution is None:
+            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
+            chi     = chi[0:N]
+        
+        else:
+            chi = self.radius_distribution
+        
+        
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
         pi      = np.pi
