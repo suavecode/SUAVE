@@ -50,16 +50,6 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-<<<<<<< HEAD
-        self.number_blades      = 0.0
-        self.tip_radius         = 0.0
-        self.hub_radius         = 0.0
-        self.twist_distribution = 0.0
-        self.chord_distribution = 0.0
-        self.mid_chord_aligment = 0.0
-        self.thrust_angle       = 0.0
-        self.sectional_lift_coefficent = 0.0
-=======
         self.number_blades       = 0.0
         self.tip_radius          = 0.0
         self.hub_radius          = 0.0
@@ -68,7 +58,6 @@ class Propeller(Energy_Component):
         self.mid_chord_aligment  = 0.0
         self.thrust_angle        = 0.0
         self.radius_distribution = None
->>>>>>> 3cd2340b45b639c1c2a6df7ebc3a6edc18e5668b
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
