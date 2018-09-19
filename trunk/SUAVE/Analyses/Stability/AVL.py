@@ -93,7 +93,7 @@ class AVL(Stability):
         self.training                                       = Data()        
 
         # Standard subsonic/transonic aircarft
-        self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.angle_of_attack                       = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
