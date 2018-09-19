@@ -78,7 +78,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
     Lift_distribution = np.zeros((num_var,n))
     Drag_distribution = np.zeros((num_var,n))
     
-    for index in xrange (num_var):
+    for index in range(num_var):
         rho              = conditions.freestream.density[index][0]            
         aoa              = conditions.aerodynamics.angle_of_attack[index][0]         
         q_inf            = conditions.freestream.dynamic_pressure[index][0]  
@@ -113,7 +113,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                 section_stations = np.zeros(n_segments)
     
                 # obtain chord and twist at the beginning/end of each segment
-                for i_seg in xrange(n_segments):                
+                for i_seg in range(n_segments):                
                     segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
                     segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
                     segment_sweep[i_seg] = wing.Segments[segment_keys[i_seg]].sweeps.quarter_chord
@@ -127,7 +127,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                         segment_chord_x_offset[i_seg]  = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
     
                 # shift spanwise vortices onto section breaks 
-                for i_seg in xrange(n_segments):
+                for i_seg in range(n_segments):
                     idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
                     y_coordinates[idx] = section_stations[i_seg]
     
@@ -174,7 +174,7 @@ def weissinger_vortex_lattice(conditions,settings,wing, propulsors):
                 y  = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
             
             # Check to see if there are any propellers  
-            if propulsors.has_key('network'):
+            if 'network' in propulsors:
                 propeller   =  propulsors['network'].propeller            
                 propeller_status = True
             else: 
