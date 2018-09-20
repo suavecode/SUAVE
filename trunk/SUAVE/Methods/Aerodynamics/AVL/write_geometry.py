@@ -55,7 +55,7 @@ def write_geometry(avl_object,spanwise_elements,chordwise_elements):
         for b in aircraft.fuselages:
             if b.tag == 'fuselage':
                 avl_body  = translate_avl_body(b)
-                body_text = make_body_text(avl_body)
+                body_text = make_body_text(avl_body,chordwise_elements)
                 geometry.write(body_text)
             
     return
@@ -188,7 +188,7 @@ SURFACE
     return surface_text
 
 
-def make_body_text(avl_body):    
+def make_body_text(avl_body,chordwise_elements):    
     """This function writes the body text using the template required for the AVL executable to read
 
     Assumptions:
@@ -220,7 +220,6 @@ SURFACE
     name = avl_body.tag
     
     # Define precision of analysis. See AVL documentation for reference 
-    chordwise_elements       = 20  
     chordwise_vortex_spacing = 1.0 
     
     # Form the horizontal part of the + shaped fuselage    
