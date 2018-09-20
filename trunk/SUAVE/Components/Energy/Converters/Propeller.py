@@ -58,6 +58,7 @@ class Propeller(Energy_Component):
         self.mid_chord_aligment  = 0.0
         self.thrust_angle        = 0.0
         self.radius_distribution = None
+        self.tag                 = 'Propeller'
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -315,7 +316,7 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data      
-        conditions.propulsion.acoustic_outputs = results_conditions(
+        noise_data = results_conditions(
             number_sections    = N,
             r0                 = r,
             airfoil_chord      = c,
@@ -331,7 +332,7 @@ class Propeller(Energy_Component):
         )
         
         
-        return thrust, torque, power, Cp
+        return thrust, torque, power, Cp, noise_data
     
     
 

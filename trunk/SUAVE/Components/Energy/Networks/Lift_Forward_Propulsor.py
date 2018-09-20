@@ -161,7 +161,8 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the propeller
         #F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
-        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward, noise_forward = propeller_forward.spin(conditions)
+        
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -187,6 +188,7 @@ class Lift_Forward_Propulsor(Propulsor):
         konditions.frames          = Data()
         konditions.frames.inertial = Data()
         konditions.frames.body     = Data()
+        konditions.propulsion.acoustic_outputs = Data()                
         konditions.propulsion.throttle                    = conditions.propulsion.lift_throttle * 1.
         konditions.propulsion.propeller_power_coefficient = conditions.propulsion.propeller_power_coefficient_lift * 1.
         konditions.freestream.density                     = conditions.freestream.density * 1.
@@ -197,7 +199,7 @@ class Lift_Forward_Propulsor(Propulsor):
         konditions.freestream.altitude                    = conditions.freestream.altitude * 1.
         konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
         konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
-        
+
         # Throttle the voltage
         esc_lift.voltageout(konditions)       
         # link
@@ -211,7 +213,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the propeller
         #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
-        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift, noise_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.lift_throttle
@@ -262,6 +264,9 @@ class Lift_Forward_Propulsor(Propulsor):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
+        
+        conditions.propulsion.acoustic_outputs[propeller_forward.tag] = noise_forward
+        conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = noise_lift
     
         conditions.propulsion.rpm_lift                 = rpm_lift
         conditions.propulsion.rpm_forward              = rpm_forward
@@ -480,8 +485,8 @@ class Lift_Forward_Propulsor(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
-        #state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
+        #segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
         
         return    
     

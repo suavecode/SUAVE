@@ -20,51 +20,51 @@ def propeller_noise_frequency(noise_data):
     #-----------------------------------------------------
     #unpack
     
-    number_sections    = noise_data.number_sections               #number of section on the blade
-    blades_number      = noise_data.blades_number                  #number of blades
-    propeller_diameter = noise_data.propeller_diameter           #propeller diameter [ft]
-    thrust             = np.max(noise_data.thrust)       #Thrust [lbs]
-    hpower             = np.max(noise_data.hpower)    #horsepower [hp]
-    rpm                = np.max(noise_data.rpm)                        #shaft rotation frequency
-    velocity           = np.max(noise_data.velocity)                       #flight speed
+    number_sections    = noise_data.number_sections                   # number of section on the blade
+    blades_number      = noise_data.blades_number                     # number of blades
+    propeller_diameter = noise_data.propeller_diameter / Units.feet   # propeller diameter [ft]
+    angle              = noise_data.angle                             # Angle from the observer
+    dist_obser         = noise_data.distance                          # Distance from an observer
+    r0                 = noise_data.r0 / Units.feet                   # Radii
+    airfoil_chord      = noise_data.airfoil_chord / Units.feet        # Chord in [ft]
+    lift_coefficient   = noise_data.lift_coefficient[:][1]
+    drag_coefficient   = noise_data.drag_coefficient[:][1]    
+    n_harmonic         = noise_data.n_harmonic                        # Number of harmonics to consider (Default = 10)
+    
+    # Unpack maxed things
+    sound_speed        = np.max(noise_data.sound_speed) / Units['ft/s']        # Feet/s
+    density            = np.max(noise_data.density)     / Units['slugs/ft**3']
+    thrust             = np.max(noise_data.thrust)      / Units.lb             #Thrust [lbs]
+    hpower             = np.max(noise_data.power)       / Units.hp             #horsepower [hp]
+    rpm                = np.max(noise_data.rpm)         * Units.rpm            #shaft rotation frequency [rad/s]
+    velocity           = np.max(noise_data.velocity)    / Units['ft/s']        #flight speed    [ft/s]
+    
+    # UNPACK MACH
+    Mx = velocity/sound_speed                   #flight Mach number
+    Mach_tip = frequency*tip_radius/sound_speed #tip rotational Mach number
+    
     
     MCA = 0.5*np.ones(number_sections)  #MCA (midchord of alignment or sweep) of the blade for each section
     FA = np.zeros(number_sections)  #face alignment or offset    
-    
-    r0 = noise_data.r0
-    airfoil_chord = noise_data.airfoil_chord 
-    lift_coefficient = noise_data.lift_coefficient[:][1]
-    drag_coefficient = noise_data.drag_coefficient[:][1]
-    
 
-    n_harmonic = noise_data.n_harmonic #Number of harmonics to consider (Default = 10)
-    
-    sound_speed = np.max(noise_data.sound_speed) 
-    density = np.max(noise_data.density)
-    
     p_base=2.0*1e-5  
     zeff = 0.8
     
-   # x_obs=5*propeller_diameter
-   # y_obs=5*propeller_diameter
-
-    dist_obser = noise_data.distance    #np.sqrt((x_obs*x_obs)+(y_obs*y_obs))
-    theta = (noise_data.angle)*np.pi/180  #radiation angle from propeller axis to observer point
+    #observer distance from propeller axis
+    dist_axis = dist_obser * np.sin(angle)                    
     
     
-    dist_axis = dist_obser * np.sin(noise_data.angle) #y_obs                   #observer distance from propeller axis    
-    
-    
+    ######## UPDATE THIS
     tip_radius = 0.3048*(propeller_diameter/2.0) #propeller tip radius [m]
     
-    Mx = velocity/sound_speed                   #flight Mach number
+    
     
     frequency = 2*np.pi*(rpm/60.)                       #Frequency of the rotation blade
-    frequency_doppler = frequency/(1-Mx*np.cos(theta))    #Doppler effect
+    frequency_doppler = frequency/(1-Mx*np.cos(angle))    #Doppler effect
     
-    Mach_tip = frequency*tip_radius/sound_speed #tip rotational Mach number
     
-    convection_factor = (1.0-Mx*np.cos(theta))  #convection factor
+    
+    convection_factor = (1.0-Mx*np.cos(angle))  #convection factor
     
     #print "f = ", frequency
     #print "fd = ", frequency_doppler
@@ -74,30 +74,31 @@ def propeller_noise_frequency(noise_data):
     
     
     #Sampling signal
-    max_frequency = n_harmonic*blades_number*rpm/60
+    max_frequency     = n_harmonic*blades_number*rpm/60
     nyquest_frequency = 2*max_frequency
-    dt=1.0/nyquest_frequency
+    dt                = 1.0/nyquest_frequency
     
-    tinit = 0.1
-    sampling=np.ceil(1-tinit)/dt
-    timej= np.linspace(tinit,0.5,num=sampling, endpoint=True) #[0.0001, 0.006, 0.011, 0.016, 0.021]
+    tinit    = 0.1
+    sampling = np.ceil(1-tinit)/dt
+    timej    = np.linspace(tinit,0.5,num=sampling, endpoint=True)
     
     # Loading the initial vectors
     total_pressure = 0.0
     total_monopole = 0.0
-    total_drag = 0.0
-    total_lift = 0.0
-    SPL = np.zeros(n_harmonic+1)
-    pressure = np.zeros(n_harmonic+1)
-    pt_total=np.zeros(np.size(timej))
-    pt_monopole=np.zeros(np.size(timej))
-    pt_drag=np.zeros(np.size(timej))
-    pt_lift=np.zeros(np.size(timej))
+    total_drag     = 0.0
+    total_lift     = 0.0
     
-    p_2_total = 0.0
+    SPL         = np.zeros(n_harmonic+1)
+    pressure    = np.zeros(n_harmonic+1)
+    pt_total    = np.zeros(np.size(timej))
+    pt_monopole = np.zeros(np.size(timej))
+    pt_drag     = np.zeros(np.size(timej))
+    pt_lift     = np.zeros(np.size(timej))
+    
+    p_2_total    = 0.0
     p_2_monopole = 0.0
-    p_2_drag = 0.0
-    p_2_lift = 0.0
+    p_2_drag     = 0.0
+    p_2_lift     = 0.0
     
     #*********************
     # Loop over the time 
@@ -118,13 +119,13 @@ def propeller_noise_frequency(noise_data):
             I_pdm = 0.0
             I_plm = 0.0
             I_pvm = 0.0
-            Pmb = 0.0
+            Pmb   = 0.0
            
             
     #        print "Harmonic mode = ", m, "BPF = ", m*blades_number*rpm/60 
             
             #Calculation of the constant term on the integral
-            const = - density*sound_speed*sound_speed*blades_number*np.sin(theta)*np.exp(1j*m*blades_number*((frequency_doppler*dist_obser/sound_speed)-(np.pi/2.0))) \
+            const = - density*sound_speed*sound_speed*blades_number*np.sin(angle)*np.exp(1j*m*blades_number*((frequency_doppler*dist_obser/sound_speed)-(np.pi/2.0))) \
                 / (8.0*np.pi*(dist_axis/propeller_diameter)*convection_factor)        
     
       #      print "const = ", const
@@ -135,7 +136,7 @@ def propeller_noise_frequency(noise_data):
             #********************************************
                 
                 max_thickness = 0.094*airfoil_chord[i]
-                z = r0[i]/tip_radius                        #normalized radial coordinate
+                z  = r0[i]/tip_radius                       #normalized radial coordinate
                 tb = max_thickness/airfoil_chord[i]         #section thickness to chord ratio
                 Bd = airfoil_chord[i]/propeller_diameter    #section chord to diameter ratio
                 
@@ -146,17 +147,17 @@ def propeller_noise_frequency(noise_data):
                 kx = (2.0*m*blades_number*Bd*Mach_tip)/(Mach_section*convection_factor)
                 
                 #Second wave number
-                ky = ((2*m*blades_number*Bd)/(z*Mach_section))*((Mach_section*Mach_section*np.cos(theta)-Mx)/convection_factor)
+                ky = ((2*m*blades_number*Bd)/(z*Mach_section))*((Mach_section*Mach_section*np.cos(angle)-Mx)/convection_factor)
                 
                 #Phase shift due to sweep
-                phi_zero = (2*m*blades_number/z*Mach_section)*((Mach_section*Mach_section*np.cos(theta)-Mx)/convection_factor)*FA[i]/propeller_diameter
+                phi_zero = (2*m*blades_number/z*Mach_section)*((Mach_section*Mach_section*np.cos(angle)-Mx)/convection_factor)*FA[i]/propeller_diameter
                 
                 #Phase shift due to offset or face alignment
                 phi_s = (2*m*blades_number*Mach_tip/Mach_section*convection_factor)*MCA[i]/propeller_diameter    
         
                 
                 #Calculation of the Bessel function:
-                Arg    = m*blades_number*z*Mach_tip*np.sin(theta)/convection_factor #argument
+                Arg    = m*blades_number*z*Mach_tip*np.sin(angle)/convection_factor #argument
                 NOrder = m*blades_number    #order
                 XJn    = scipy.special.jn(NOrder, Arg)
                 
@@ -242,19 +243,19 @@ def propeller_noise_frequency(noise_data):
             plm = np.sin(Xbig)/Xbig
             
             #Calculation of the Bessel function:
-            Arg    = m*blades_number*zeff*Mach_tip*np.sin(theta)/convection_factor #argument
+            Arg    = m*blades_number*zeff*Mach_tip*np.sin(angle)/convection_factor #argument
             NOrder = m*blades_number    #order
             Jmb    = scipy.special.jn(NOrder, Arg)        
             sound_speed_ft = 1115.49
            
-            A = 538673*m*blades_number*Mach_tip*np.sin(theta)/(dist_axis*propeller_diameter*convection_factor)
+            A = 538673*m*blades_number*Mach_tip*np.sin(angle)/(dist_axis*propeller_diameter*convection_factor)
            
-            B = (np.cos(theta)/convection_factor)*thrust-(550/(zeff*zeff*Mach_tip*Mach_tip*sound_speed_ft)*hpower)
+            B = (np.cos(angle)/convection_factor)*thrust-(550/(zeff*zeff*Mach_tip*Mach_tip*sound_speed_ft)*hpower)
                                                                
             SPL[m] = 20*np.log10(A*B*plm*Jmb)
             
-         #   SPL1 = 20*np.log10(538673*m*blades_number*Mach_tip*np.sin(theta)/(dist_axis*propeller_diameter*convection_factor) \
-         #                     *((np.cos(theta)*thrust/convection_factor)-(550*hpower/(zeff*zeff*Mach_tip*Mach_tip*sound_speed_ft))) \
+         #   SPL1 = 20*np.log10(538673*m*blades_number*Mach_tip*np.sin(angle)/(dist_axis*propeller_diameter*convection_factor) \
+         #                     *((np.cos(angle)*thrust/convection_factor)-(550*hpower/(zeff*zeff*Mach_tip*Mach_tip*sound_speed_ft))) \
          #                     *plm*Jmb)
             
            # print "A = ", A, "B = ", B,"plm = ",plm," bessel = ", Jmb, 

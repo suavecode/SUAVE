@@ -29,15 +29,15 @@ def noise_propeller_sae(noise_data, ioprint = 0):
 
   
   # unpack
-    diameter = noise_data.diameter / Units.ft
-    n_blades = noise_data.n_blades
+    diameter     = noise_data.diameter / Units.ft
+    n_blades     = noise_data.n_blades
     n_propellers = noise_data.n_engines
-    HP       = noise_data.HP / Units.horsepower
-    RPM      = noise_data.rpm
-    speed    = noise_data.speed / Units.fts
-    sound_speed = noise_data.sound_speed / Units.fts
-    dist    = noise_data.distance
-    theta   = noise_data.angle
+    HP           = noise_data.power / Units.horsepower
+    RPM          = noise_data.omega / Units.rpm
+    speed        = noise_data.speed / Units.fts
+    sound_speed  = noise_data.sound_speed / Units.fts
+    dist         = noise_data.distance
+    theta        = noise_data.angle
     
 # ***********************************************
     #Correction for the number of propellers:
@@ -47,21 +47,23 @@ def noise_propeller_sae(noise_data, ioprint = 0):
         NC = 3
     elif n_propellers == 4:
         NC = 6
+    else:
+        NC = n_propellers*2/3
      
 # Number of points on the discretize segment   
     nsteps=len(dist) 
 # Preparing matrix    
-    tip_mach = np.zeros(nsteps)
-    tip_speed = np.zeros(nsteps)
-    Vtip = np.zeros(nsteps)
-    Vtip_Mach = np.zeros(nsteps)    
-    FL1 = np.zeros(nsteps)
-    FL3_1 = np.zeros(nsteps)
-    FL3_2 = np.zeros(nsteps)
-    DI = np.zeros(nsteps)
+    tip_mach   = np.zeros(nsteps)
+    tip_speed  = np.zeros(nsteps)
+    Vtip       = np.zeros(nsteps)
+    Vtip_Mach  = np.zeros(nsteps)    
+    FL1        = np.zeros(nsteps)
+    FL3_1      = np.zeros(nsteps)
+    FL3_2      = np.zeros(nsteps)
+    DI         = np.zeros(nsteps)
     PNL_factor = np.zeros(nsteps)
-    PNL = np.zeros(nsteps)
-    PNL_dBA =np.zeros(nsteps)
+    PNL        = np.zeros(nsteps)
+    PNL_dBA    = np.zeros(nsteps)
     
 #***************************************************************    
 # Farfield Partial Noise Level Based on Blade count and Propeller diameter
@@ -150,7 +152,7 @@ def noise_propeller_sae(noise_data, ioprint = 0):
                 PNL_factor[id] = 0.0001869235*(diameter)**4 - 0.0108618115*diameter**3 + 0.2292260658*diameter**2 - 2.468037691*diameter + 13.2430172278
         else:
             print('ERROR: Method limited for 2 bladed propellers right now!!')
-            return
+            return (0,0,0)
         
 # ****************** CALCULATION OF NOISE LEVELS *********************        
         OASPL = FL1[id]+FL2+FL3_2[id]+DI[id]+NC
