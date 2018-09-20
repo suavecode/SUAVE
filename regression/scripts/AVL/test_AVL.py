@@ -54,7 +54,7 @@ def main():
     aerodynamics.process.compute.lift.inviscid.regression_flag = True
     aerodynamics.process.compute.lift.inviscid.keep_files      = True
     aerodynamics.geometry                                      = copy.deepcopy(configs.cruise) 
-    aerodynamics.process.compute.lift.inviscid.training_file   = 'base_data_aerodynamics.txt'    
+    aerodynamics.process.compute.lift.inviscid.training_file   = 'cruise_data_aerodynamics.txt'    
     configs_analyses.cruise.append(aerodynamics)     
     
     # append AVL stability analysis
@@ -62,7 +62,7 @@ def main():
     stability.regression_flag                                  = True 
     stability.keep_files                                       = True
     stability.geometry                                         = copy.deepcopy(configs.cruise)
-    stability.training_file                                    = 'base_data_stability.txt'    
+    stability.training_file                                    = 'cruise_data_stability.txt'    
     configs_analyses.cruise.append(stability)
 
     # ------------------------------------------------------------------
