@@ -173,19 +173,10 @@ def main():
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift = state.conditions.aerodynamics.lift_coefficient
-<<<<<<< HEAD
-    lift_r = np.array([ -2.17277359,-0.77516232,-0.41769607,-0.16530511, 0.19456498,
-                        0.49425496 , 0.67481247,0.93041268 , 1.41531217, 2.1033578 
-                        ,1.71822138])[:,None]
-   
-  
-    print 'lift = ', lift
-=======
     lift_r = np.array( [-2.17277359, -0.77516232, -0.41769607, -0.16530511, 0.19456498, 0.49425496, \
                         0.67481247, 0.93041268, 1.41531217, 2.1033578, 1.71822138])[:,None]
     
     print('lift = ', lift)
->>>>>>> 65f8946c17bb17b187fa467c7c52b147b756f084
     
     lift_test = np.abs((lift-lift_r)/lift)
     

@@ -121,7 +121,7 @@ def main():
     results = mission.evaluate()
 
     # lift coefficient check
-    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0]
+    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
     lift_coefficient_true         = 0.6142586053883199
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 

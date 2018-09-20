@@ -55,20 +55,12 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
     
-<<<<<<< HEAD
-    wing.aspect_ratio              = 1.83
-    wing.sweeps.quarter_chord      = 59.5 * Units.deg
-    wing.thickness_to_chord        = 0.03
-    wing.taper                     = 0.
-    wing.span_efficiency           = .8
-=======
     wing.aspect_ratio            = 1.83
     wing.sweeps.quarter_chord    = 59.5 * Units.deg
     wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
     wing.span_efficiency         = 0.9
->>>>>>> 65f8946c17bb17b187fa467c7c52b147b756f084
     
     wing.spans.projected           = 25.6    
     
@@ -103,20 +95,6 @@ def vehicle_setup():
     
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
-<<<<<<< HEAD
-    segment.tag                      = 'section_1'
-    segment.percent_span_location    = 0.
-    segment.twist                    = 0. * Units.deg
-    segment.root_chord_percent       = 33.8/33.8
-    segment.dihedral_outboard        = 0.
-    segment.sweeps.quarter_chord     = 67. * Units.deg
-    segment.vsp_mesh                 = Data()
-    segment.vsp_mesh.inner_radius    = 1./source_ratio
-    segment.vsp_mesh.outer_radius    = 1./source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .044/source_ratio
-    segment.vsp_mesh.matching_TE     = False
-=======
     segment.tag                   = 'section_1'
     segment.percent_span_location = 0.
     segment.twist                 = 0. * Units.deg
@@ -124,26 +102,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 67. * Units.deg
     segment.thickness_to_chord    = 0.03
->>>>>>> 65f8946c17bb17b187fa467c7c52b147b756f084
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
     # set section 2 start point
     segment = SUAVE.Components.Wings.Segment()
-<<<<<<< HEAD
-    segment.tag                      = 'section_2'
-    segment.percent_span_location    = 6.15/(25.6/2) + wing.Segments['section_1'].percent_span_location
-    segment.twist                    = 0. * Units.deg
-    segment.root_chord_percent       = 13.8/33.8
-    segment.dihedral_outboard        = 0.
-    segment.sweeps.quarter_chord     = 48. * Units.deg
-    segment.vsp_mesh                 = Data()
-    segment.vsp_mesh.inner_radius    = 1./source_ratio
-    segment.vsp_mesh.outer_radius    = .88/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .044/source_ratio 
-    segment.vsp_mesh.matching_TE     = False
-=======
     segment.tag                   = 'section_2'
     segment.percent_span_location = 6.15/(25.6/2) + wing.Segments['section_1'].percent_span_location
     segment.twist                 = 0. * Units.deg
@@ -151,7 +114,6 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 48. * Units.deg
     segment.thickness_to_chord    = 0.03
->>>>>>> 65f8946c17bb17b187fa467c7c52b147b756f084
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
@@ -173,19 +135,6 @@ def vehicle_setup():
     
     # set tip section start point
     segment = SUAVE.Components.Wings.Segment() 
-<<<<<<< HEAD
-    segment.tag                      = 'tip'
-    segment.percent_span_location    = 1.
-    segment.twist                    = 0. * Units.deg
-    segment.root_chord_percent       = 1.1/33.8
-    segment.dihedral_outboard        = 0.
-    segment.sweeps.quarter_chord     = 0. * Units.deg 
-    segment.vsp_mesh                 = Data()
-    segment.vsp_mesh.inner_radius    = .88/source_ratio
-    segment.vsp_mesh.outer_radius    = .22/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .011/source_ratio 
-=======
     segment.tag                   = 'section_3'
     segment.percent_span_location = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
     segment.twist                 = 0. * Units.deg
@@ -193,7 +142,6 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 71. * Units.deg 
     segment.thickness_to_chord    = 0.03
->>>>>>> 65f8946c17bb17b187fa467c7c52b147b756f084
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)  
     
