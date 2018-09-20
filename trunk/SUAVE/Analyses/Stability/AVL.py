@@ -85,9 +85,10 @@ class AVL(Stability):
         
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
-        
-        # Default spanwise vortex density 
-        self.settings.spanwise_vortex_density               = 1.5
+
+        # Default number of spanwise and chordwise votices
+        self.settings.spanwise_vortices      = None
+        self.settings.chordwise_vortices     = None
             
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
@@ -368,12 +369,15 @@ class AVL(Stability):
             Cm_alpha   = data_array[:,3:4]
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6]
-    
+        
+        # Save the data for regression
+        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha,Cn_beta,NP])
         training.grid_points  = xy
 
-
+        
         return        
 
     def build_surrogate(self):
@@ -469,7 +473,18 @@ class AVL(Stability):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-        spanwise_vortices_per_meter      = self.settings.spanwise_vortex_density
+        
+        # check if user specifies number of spanwise vortices
+        if self.settings.spanwise_vortices == None: 
+            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
+        else:
+            spanwise_elements  = self.settings.spanwise_vortices
+        
+        # check if user specifies number of chordise vortices 
+        if self.settings.chordwise_vortices == None: 
+            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
+        else:
+            chordwise_elements  = self.settings.chordwise_vortices
 
         # update current status
         self.current_status.batch_index += 1
@@ -502,7 +517,7 @@ class AVL(Stability):
 
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_vortices_per_meter)
+            write_geometry(self,spanwise_elements,chordwise_elements)
             write_run_cases(self)
             write_input_deck(self)
 
