@@ -11,7 +11,7 @@ from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
 
 # default Aero Results
-from Results import Results
+from .Results import Results
 
 import numpy as np
 

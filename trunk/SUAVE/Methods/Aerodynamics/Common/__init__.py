@@ -2,5 +2,5 @@
 # These are methods that are used by several analyses.
 # @ingroup Methods-Aerodynamics
 
-import Fidelity_Zero
-import Gas_Dynamics
+from . import Fidelity_Zero
+from . import Gas_Dynamics

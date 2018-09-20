@@ -105,9 +105,9 @@ def main():
     error.spiral_tau = (Blakelock.spiral_tau - spiral_tau) / Blakelock.spiral_tau                               
     error.roll_tau = (Blakelock.roll_tau - roll_tau) / Blakelock.roll_tau
     
-    print  error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<0.08)
         
         

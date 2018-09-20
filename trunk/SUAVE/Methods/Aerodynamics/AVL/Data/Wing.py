@@ -60,7 +60,7 @@ class Wing(Data):
 
 		# assert database type
 		if not isinstance(section,Data):
-			raise Exception, 'input component must be of type Data()'
+			raise Exception('input component must be of type Data()')
 
 		# store data
 		self.sections.append(section)
@@ -137,7 +137,7 @@ class Section(Data):
 
 		# assert database type
 		if not isinstance(control,Data):
-			raise Exception, 'input component must be of type Data()'
+			raise Exception('input component must be of type Data()')
 
 		# store data
 		self.control_surfaces.append(control)

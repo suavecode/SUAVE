@@ -318,7 +318,7 @@ def call_print(config):
     unit = config.costs.industrial.unit_cost / 1e6
     abc = config.costs.industrial.recurring.total / config.costs.industrial.production_total_units / 1e6
 
-    print '{:10s} Total non reccuring USM: {:7.2f} , Unit: {:7.2f} , Materials:{:7.2f}'.format(config.tag,nrec,unit,abc)
+    print('{:10s} Total non reccuring USM: {:7.2f} , Unit: {:7.2f} , Materials:{:7.2f}'.format(config.tag,nrec,unit,abc))
 
 if __name__ == '__main__':
 

@@ -7,10 +7,10 @@
 # Modified: Feb 2016, T. MacDonald
 
 # classes
-from Airfoil import Airfoil
+from .Airfoil import Airfoil
 
 # functions
-from load_airfoils import load_airfoils
+from .load_airfoils import load_airfoils
 
 # load airfoils
 import os

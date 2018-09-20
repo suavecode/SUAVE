@@ -36,8 +36,8 @@ def main():
     actual.obj2 = 0.6827133463598016
     actual.con3 = 1.20444375
     
-    print 'Fuel Burn   =', obj
-    print 'Fuel Margin =', con    
+    print('Fuel Burn   =', obj)
+    print('Fuel Margin =', con)    
 
     error = Data()
     error.obj  = (actual.obj - obj)/actual.obj
@@ -45,10 +45,10 @@ def main():
     error.obj2 = (actual.obj2 - obj2)/actual.obj2
     error.con3 = (actual.con3 - con3)/actual.con3 
 
-    print 'Fuel Burn Error   =',error.obj
-    print 'Fuel Margin Error =',error.con
+    print('Fuel Burn Error   =',error.obj)
+    print('Fuel Margin Error =',error.con)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)     
         
     return

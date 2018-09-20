@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Conditions import Conditions
+from .Conditions import Conditions
 
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 

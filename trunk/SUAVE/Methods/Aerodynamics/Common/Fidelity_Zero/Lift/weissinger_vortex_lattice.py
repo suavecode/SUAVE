@@ -98,7 +98,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             section_stations       = np.zeros(n_segments)
             
             # obtain chord and twist at the beginning/end of each segment
-            for i_seg in xrange(n_segments):                
+            for i_seg in range(n_segments):                
                 segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
                 segment_twist[i_seg]    = wing.Segments[i_seg].twist
                 segment_sweep[i_seg]    = wing.Segments[i_seg].sweeps.quarter_chord
@@ -112,7 +112,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
             
             # shift spanwise vortices onto section breaks 
-            for i_seg in xrange(n_segments):
+            for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
                 y_coordinates[idx] = section_stations[i_seg]
             
@@ -128,7 +128,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             
             # define coordinates of horseshoe vortices and control points
             i_seg = 0
-            for idx in xrange(n):
+            for idx in range(n):
                 twist_distri[idx]   =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
                 section_length[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
                 xa[idx]             = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex

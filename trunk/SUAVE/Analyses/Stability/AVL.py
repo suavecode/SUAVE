@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
 # local imports 
-from Stability import Stability
+from .Stability import Stability
 
 # Package imports
 import time
@@ -151,7 +151,7 @@ class AVL(Stability):
         configuration                  = self.configuration
         stability_model                = self.stability_model
         configuration.mass_properties  = geometry.mass_properties
-        if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
+        if 'fuel' in geometry: #fuel has been assigned(from weight statements)
             configuration.fuel         = geometry.fuel
         else: #assign as zero to planes with no fuel such as UAVs
             fuel                       = SUAVE.Components.Physical_Component()
@@ -359,7 +359,7 @@ class AVL(Stability):
 
         time1 = time.time()
 
-        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)

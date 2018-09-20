@@ -56,8 +56,8 @@ def call_SU2_CFD(tag,parallel=False,processors=1):
     SU2_results.coefficient_of_lift  = CL
     SU2_results.coefficient_of_drag  = CD
     
-    print 'CL:',CL
-    print 'CD:',CD
+    print('CL:',CL)
+    print('CD:',CD)
     
     # Moments
     # Moments are currently not recorded since no

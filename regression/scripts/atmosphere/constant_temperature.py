@@ -42,8 +42,8 @@ def main():
     p_err   = np.max( p_truth   - p   )
     rho_err = np.max( rho_truth - rho )
    
-    print 'Max Pressure Difference       = %.4e' % p_err
-    print 'Max Density Difference        = %.4e' % rho_err   
+    print('Max Pressure Difference       = %.4e' % p_err)
+    print('Max Density Difference        = %.4e' % rho_err)   
     
     # ------------------------------------------------------------------
     #   Plotting

@@ -90,7 +90,7 @@ def parasite_drag_wing(state,settings,geometry):
         total_k_reyn_l               = 0    
         root_chord                   = wing.chords.root  
         
-        for i_segs in xrange(num_segments):
+        for i_segs in range(num_segments):
             if i_segs == num_segments-1:
                 continue 
             else:  

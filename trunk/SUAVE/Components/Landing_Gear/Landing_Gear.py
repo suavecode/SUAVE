@@ -55,4 +55,4 @@ class Landing_Gear(Physical_Component):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
-    raise RuntimeError , 'test failed, not implemented'
+    raise RuntimeError('test failed, not implemented')

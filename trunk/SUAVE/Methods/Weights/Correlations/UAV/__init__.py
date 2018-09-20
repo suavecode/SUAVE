@@ -2,4 +2,4 @@
 # Provides structural weight correlations for UAVs
 # @ingroup Methods-Weights-Correlations
 
-from empty import empty
+from .empty import empty

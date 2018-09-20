@@ -44,8 +44,8 @@ def main():
   
   
     
-    print error
-    for k,v in error.items():
+    print(error)
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
 
     return

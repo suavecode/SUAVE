@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Payload import Payload
+from .Payload import Payload
 
 # ----------------------------------------------------------------------
 #  Cargo Data Class

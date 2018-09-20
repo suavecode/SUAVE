@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from find_power_larminie import find_power_larminie
+from .find_power_larminie import find_power_larminie
 
 # ----------------------------------------------------------------------
 #  Find Power Difference Larminie

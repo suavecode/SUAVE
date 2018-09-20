@@ -74,10 +74,10 @@ def main():
     error.Torque  = np.max(np.abs(Q-Q_truth))
     error.Cp      = np.max(np.abs(Cplast-Cplast_truth))   
     
-    print 'Errors:'
-    print  error
+    print('Errors:')
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
      
     return

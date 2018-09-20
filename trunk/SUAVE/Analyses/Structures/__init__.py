@@ -2,4 +2,4 @@
 # This is the analysis that controls vehicle structure evaluations.
 # @ingroup Analyses
 
-from Structures import Structures
+from .Structures import Structures

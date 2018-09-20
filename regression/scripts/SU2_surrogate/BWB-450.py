@@ -56,11 +56,11 @@ def main():
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
     final_mass_true = 560008.83682202641 # [lbs]
    
-    print final_mass
+    print(final_mass)
     
     # Error Calculation
     error_final_mass = np.abs(final_mass - final_mass_true)/final_mass_true 
-    print error_final_mass    
+    print(error_final_mass)    
     assert error_final_mass < 1e-6
 
     return
@@ -99,7 +99,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
