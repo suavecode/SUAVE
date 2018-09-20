@@ -94,9 +94,9 @@ def prop(prop,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    rProp       = prop.prop_attributes.tip_radius
+    rProp       = prop.tip_radius
     maxThrust   = maximum_thrust
-    nBlades     = prop.prop_attributes.number_blades
+    nBlades     = prop.number_blades
     chord       = rProp * chord_to_radius_ratio
     N           = spanwise_analysis_points
     SF          = safety_factor
