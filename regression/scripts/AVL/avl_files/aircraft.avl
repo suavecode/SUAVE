@@ -69,7 +69,7 @@ SECTION
 SURFACE
 fuselage_horizontal
 #Nchordwise  Cspace   Nspanwise  Sspace
-20           1.0      
+5           1.0      
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -120,7 +120,7 @@ SECTION
 SURFACE
 fuselage_vertical
 #Nchordwise  Cspace   Nspanwise  Sspace
-20           1.0      
+5           1.0      
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
