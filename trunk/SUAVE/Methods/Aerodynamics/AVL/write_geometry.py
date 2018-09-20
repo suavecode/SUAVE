@@ -220,7 +220,6 @@ SURFACE
     name = avl_body.tag
     
     # Define precision of analysis. See AVL documentation for reference 
-    chordwise_elements       = 20  
     chordwise_vortex_spacing = 1.0 
     
     # Form the horizontal part of the + shaped fuselage    
