@@ -68,11 +68,11 @@ def main():
     evaluate_problem(nexus)
     results = nexus.results
     err      = nexus.sizing_loop.norm_error
-    err_true = 0.0008487749585316693 #for 1E-2 tol
+    err_true = 0.0008500389050154076 #for 1E-2 tol
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.06795777
+    check_read_res = -0.06795776714509241
     error_res      = (data_outputs[1]-check_read_res)/check_read_res
     
     #remove files for later

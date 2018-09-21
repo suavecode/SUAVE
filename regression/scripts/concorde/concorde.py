@@ -745,7 +745,7 @@ def save_results(results):
     
     j = 0
     for segment in results.segments.values():    
-        for i in xrange(10):
+        for i in range(10):
             time   = segment.conditions.frames.inertial.time[i,0] / Units.min
             CLift  = segment.conditions.aerodynamics.lift_coefficient[i,0]
             CDrag  = segment.conditions.aerodynamics.drag_coefficient[i,0]

@@ -125,11 +125,6 @@ def vehicle_setup():
     segment.root_chord_percent       = 4.4/33.8
     segment.dihedral_outboard        = 0.
     segment.sweeps.quarter_chord     = 71. * Units.deg 
-    segment.vsp_mesh                 = Data()
-    segment.vsp_mesh.inner_radius    = .88/source_ratio
-    segment.vsp_mesh.outer_radius    = .22/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .011/source_ratio 
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)  
     
