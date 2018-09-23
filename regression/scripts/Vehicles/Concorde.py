@@ -477,6 +477,12 @@ def vehicle_setup():
 
     # Vehicle can be written to OpenVSP here if the API is installed
     write(vehicle,'fuel_tank_test')
+    from SUAVE.Input_Output.OpenVSP.get_fuel_tank_props import get_fuel_tank_props
+    fuel_tank_set_ind = 3
+    get_fuel_tank_props(vehicle, 'fuel_tank_test', fuel_tank_set_ind)
+    from SUAVE.Methods.Center_of_Gravity.compute_possible_longitudinal_fuel_center_of_gravity \
+         import compute_possible_longitudinal_fuel_center_of_gravity
+    compute_possible_longitudinal_fuel_center_of_gravity(vehicle)
 
     return vehicle
 

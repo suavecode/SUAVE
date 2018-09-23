@@ -45,7 +45,7 @@ def get_fuel_tank_props(vehicle,tag,fuel_tank_set_ind):
     fo = open(mass_props_output_file)
     for line in fo:
         prop_list = line.split()
-        try: # in case line is empty
+        try:
             if prop_list[0] in fuel_tanks:
                 cg_x = float(prop_list[2])
                 cg_y = float(prop_list[3])
@@ -62,7 +62,7 @@ def get_fuel_tank_props(vehicle,tag,fuel_tank_set_ind):
                     fuel_tanks[prop_list[0]].full_fuel_mass   += mass
                     fuel_tanks[prop_list[0]].volume           += vol                    
                     
-        except IndexError:
+        except IndexError:  # in case line is empty
             pass
 
     vehicle = apply_properties(vehicle, fuel_tanks)
