@@ -68,8 +68,8 @@ def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):
         tank_cgs[i]    = tank.mass_properties.center_of_gravity[0,0]
         tank_masses[i] = tank.mass_properties.full_fuel_volume
         
-    tank_cgs = np.array([0,1,2])
-    tank_masses = np.array([1,1,1])
+    #tank_cgs = np.array([0,1,2])
+    #tank_masses = np.array([1,1,1])
     
     max_mass = np.sum(tank_masses)
     
@@ -109,7 +109,5 @@ def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):
                 max_numer += tank_cgs_back_to_front[i]*remaining_mass
                 remaining_mass = 0.
         max_cg[j] = max_numer/mass   
-        
-    plot_cg_map(fuel_masses, min_cg, max_cg)
    
-    return
+    return fuel_masses, min_cg, max_cg
