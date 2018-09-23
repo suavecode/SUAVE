@@ -127,7 +127,27 @@ def vehicle_setup():
     segment.sweeps.quarter_chord  = 71. * Units.deg 
     segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
-    wing.Segments.append(segment)    
+    wing.Segments.append(segment)  
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                 = 'main_tank'
+    fuel_tank.inward_offset       = 0.1*Units.ft
+    fuel_tank.start_chord_percent = 0.55
+    fuel_tank.end_chord_percent   = 0.95
+    fuel_tank.start_span_percent  = 0.01
+    fuel_tank.end_span_percent    = 0.49
+    fuel_tank.fuel_type           = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                 = 'other_tank'
+    fuel_tank.inward_offset       = 0.1*Units.ft
+    fuel_tank.start_chord_percent = 0.1
+    fuel_tank.end_chord_percent   = 0.3
+    fuel_tank.start_span_percent  = 0.2
+    fuel_tank.end_span_percent    = 0.3
+    fuel_tank.fuel_type           = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)    
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -253,7 +273,15 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.0    
+    fuselage.OpenVSP_values.tail.top.strength = 0.0 
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'fuse_tank'
+    fuel_tank.inward_offset        = 0.1*Units.ft
+    fuel_tank.start_length_percent = 0.8
+    fuel_tank.end_length_percent   = 0.9
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    fuselage.Fuel_Tanks.append(fuel_tank)     
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -448,7 +476,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     # Vehicle can be written to OpenVSP here if the API is installed
-    #write(vehicle,'test')
+    write(vehicle,'fuel_tank_test')
 
     return vehicle
 
