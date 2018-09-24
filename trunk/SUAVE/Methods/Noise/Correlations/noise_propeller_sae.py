@@ -37,7 +37,7 @@ def noise_propeller_sae(noise_data, ioprint = 0):
     speed        = noise_data.speed / Units.fts
     sound_speed  = noise_data.sound_speed / Units.fts
     dist         = noise_data.distance
-    theta        = noise_data.angle
+    theta        = noise_data.angle / Units.degrees
     
 # ***********************************************
     #Correction for the number of propellers:
@@ -48,7 +48,7 @@ def noise_propeller_sae(noise_data, ioprint = 0):
     elif n_propellers == 4:
         NC = 6
     else:
-        NC = n_propellers*2/3
+        NC = 3 * np.log2(n_propellers) # Add 3 for every doubling
      
 # Number of points on the discretize segment   
     nsteps=len(dist) 
