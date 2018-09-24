@@ -5,6 +5,7 @@
 # Modified: Jan 2016, T. MacDonald
 #           Sep 2017, P. Goncalves
 #           Jan 2018, W. Maier
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,7 +76,8 @@ class Combustor(Energy_Component):
         self.fuel_velocity_ratio             = 0.0
         self.burner_drag_coefficient         = 0.0
         self.absolute_sensible_enthalpy      = 0.0
-        self.fuel_equivalency_ratio          = 1.0
+        self.fuel_equivalency_ratio          = 1.0        
+        self.inputs.nondim_mass_ratio        = 1.0 # allows fuel already burned to be added to the flow
     
     def compute(self,conditions):
         """ This computes the output values from the input values according to
@@ -96,6 +98,7 @@ class Combustor(Energy_Component):
         self.inputs.
           stagnation_temperature              [K]
           stagnation_pressure                 [Pa]
+          nondim_mass_ratio                   [-]
 
         Outputs:
         self.outputs.
@@ -121,11 +124,12 @@ class Combustor(Energy_Component):
         Tto    = conditions.freestream.stagnation_temperature
         
         # unpacking the values form inputs
-        Tt_in  = self.inputs.stagnation_temperature
-        Pt_in  = self.inputs.stagnation_pressure
-        Tt4    = self.turbine_inlet_temperature
-        pib    = self.pressure_ratio
-        eta_b  = self.efficiency
+        Tt_in    = self.inputs.stagnation_temperature
+        Pt_in    = self.inputs.stagnation_pressure
+        Tt4      = self.turbine_inlet_temperature
+        pib      = self.pressure_ratio
+        eta_b    = self.efficiency
+        nondim_r = self.inputs.nondim_mass_ratio
         
         # unpacking values from self
         htf    = self.fuel_data.specific_energy
@@ -134,10 +138,13 @@ class Combustor(Energy_Component):
         # compute pressure
         Pt_out = Pt_in*pib
 
+
+        # method to compute combustor properties
+
         # method - computing the stagnation enthalpies from stagnation temperatures
-        ht4     = Cp*Tt4
+        ht4     = Cp*Tt4*nondim_r
+        ht_in   = Cp*Tt_in*nondim_r
         ho      = Cp*To
-        ht_in   = Cp*Tt_in
         
         # Using the Turbine exit temperature, the fuel properties and freestream temperature to compute the fuel to air ratio f
         f       = (ht4 - ht_in)/(eta_b*htf-ht4)

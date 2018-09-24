@@ -5,14 +5,20 @@
 # Modified: Jan 2016, T. MacDonald
 #           Sep 2017, P. Goncalves
 #           Jan 2018, W. Maier
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
 import SUAVE
+
+# python imports
 from warnings import warn
 
+# package imports
 import numpy as np
+
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.shock_train import shock_train
 
@@ -54,6 +60,7 @@ class Compression_Nozzle(Energy_Component):
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
         self.pressure_ratio                  = 1.0
+        self.pressure_recovery               = 1.0
         self.compressibility_effects         = False
         self.inputs.stagnation_temperature   = 0.0
         self.inputs.stagnation_pressure      = 0.0
@@ -98,6 +105,7 @@ class Compression_Nozzle(Energy_Component):
         self.
           pressure_ratio                      [-]
           polytropic_efficiency               [-]
+          pressure_recovery                   [-]
         """
 
         #unpack from conditions
@@ -112,14 +120,16 @@ class Compression_Nozzle(Energy_Component):
         Pt_in   = self.inputs.stagnation_pressure
 
         #unpack from self
-        pid                     =  self.pressure_ratio
-        etapold                 =  self.polytropic_efficiency
+        pid     =  self.pressure_ratio
+        etapold =  self.polytropic_efficiency
+        eta_rec =  self.pressure_recovery
         compressibility_effects =  self.compressibility_effects
 
         #Method to compute the output variables
 
         #--Getting the output stagnation quantities
-        Tt_out  = Tt_in*pid**((gamma-1)/(gamma*etapold))
+        Pt_out  = Pt_in*pid*eta_rec
+        Tt_out  = Tt_in*(pid*eta_rec)**((gamma-1)/(gamma*etapold))
         ht_out  = Cp*Tt_out
 
         if compressibility_effects :
@@ -146,7 +156,7 @@ class Compression_Nozzle(Energy_Component):
             Pt_out[i_high] = pid*Pt_in[i_high]*((((gamma[i_high]+1.)*(Mo[i_high]**2.))/((gamma[i_high]-1.)*Mo[i_high]**2.+2.))**(gamma[i_high]/(gamma[i_high]-1.)))*((gamma[i_high]+1.)/(2.*gamma[i_high]*Mo[i_high]**2.-(gamma[i_high]-1.)))**(1./(gamma[i_high]-1.))
             P_out[i_high]  = Pt_out[i_high]*(1.+(gamma[i_high]-1.)/2.*Mach[i_high]**2.)**(-gamma[i_high]/(gamma[i_high]-1.))
         else:
-            Pt_out  = Pt_in*pid
+            Pt_out  = Pt_in*pid*eta_rec
             
             # in case pressures go too low
             if np.any(Pt_out<Po):

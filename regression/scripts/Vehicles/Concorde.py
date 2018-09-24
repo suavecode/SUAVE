@@ -2,6 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh (created from data taken from concorde/concorde.py)
 # Modified: Jul 2017, T. MacDonald
+#           Aug 2018, T. MacDonald
 
 """ setup file for the Concorde 
 """
@@ -13,9 +14,10 @@ from SUAVE.Core import (
     Data, Container,
 )
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Input_Output.OpenVSP.vsp_write import write
 
-
-def vehicle_setup(source_ratio=1.):
+def vehicle_setup():
 
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -32,12 +34,12 @@ def vehicle_setup(source_ratio=1.):
     # mass properties
     vehicle.mass_properties.max_takeoff               = 185000.   # kg
     vehicle.mass_properties.operating_empty           = 78700.   # kg
-    vehicle.mass_properties.takeoff                   = 185000.   # kg
+    vehicle.mass_properties.takeoff                   = 183000.   # kg, adjusted due to significant fuel burn on runway
     vehicle.mass_properties.cargo                     = 1000.  * Units.kilogram   
         
     # envelope properties
-    vehicle.envelope.ultimate_load = 3.5
-    vehicle.envelope.limit_load    = 1.5
+    vehicle.envelope.ultimate_load = 3.75
+    vehicle.envelope.limit_load    = 2.5
 
     # basic parameters
     vehicle.reference_area         = 358.25      
@@ -55,9 +57,10 @@ def vehicle_setup(source_ratio=1.):
     
     wing.aspect_ratio            = 1.83
     wing.sweeps.quarter_chord    = 59.5 * Units.deg
+    wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = .8
+    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 25.6    
     
@@ -98,12 +101,7 @@ def vehicle_setup(source_ratio=1.):
     segment.root_chord_percent    = 33.8/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 67. * Units.deg
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 1./source_ratio
-    segment.vsp_mesh.outer_radius    = 1./source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .044/source_ratio
-    segment.vsp_mesh.matching_TE     = False
+    segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
@@ -115,12 +113,7 @@ def vehicle_setup(source_ratio=1.):
     segment.root_chord_percent    = 13.8/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 48. * Units.deg
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 1./source_ratio
-    segment.vsp_mesh.outer_radius    = .88/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .044/source_ratio 
-    segment.vsp_mesh.matching_TE     = False
+    segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
@@ -132,11 +125,7 @@ def vehicle_setup(source_ratio=1.):
     segment.root_chord_percent    = 4.4/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 71. * Units.deg 
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = .88/source_ratio
-    segment.vsp_mesh.outer_radius    = .22/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .011/source_ratio 
+    segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)    
     
@@ -183,7 +172,7 @@ def vehicle_setup(source_ratio=1.):
     wing.dynamic_pressure_ratio  = 1.0
     
     tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tail_airfoil.coordinate_file = 'supertail_refined.dat' 
+    tail_airfoil.coordinate_file = 'supersonic_tail.dat' 
     
     wing.append_airfoil(tail_airfoil)  
 
@@ -195,11 +184,7 @@ def vehicle_setup(source_ratio=1.):
     segment.root_chord_percent    = 14.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 2.9/source_ratio
-    segment.vsp_mesh.outer_radius    = 1.5/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .044/source_ratio
+    segment.thickness_to_chord    = 0.03
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
@@ -211,11 +196,7 @@ def vehicle_setup(source_ratio=1.):
     segment.root_chord_percent    = 7.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 1.5/source_ratio
-    segment.vsp_mesh.outer_radius    = .54/source_ratio
-    segment.vsp_mesh.inner_length    = .044/source_ratio
-    segment.vsp_mesh.outer_length    = .027/source_ratio 
+    segment.thickness_to_chord    = 0.03
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
@@ -253,7 +234,26 @@ def vehicle_setup(source_ratio=1.):
     
     fuselage.effective_diameter    = 3.1
     
-    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
+    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure 
+    
+    fuselage.OpenVSP_values = Data() # VSP uses degrees directly
+    
+    fuselage.OpenVSP_values.nose = Data()
+    fuselage.OpenVSP_values.nose.top = Data()
+    fuselage.OpenVSP_values.nose.side = Data()
+    fuselage.OpenVSP_values.nose.top.angle = 20.0
+    fuselage.OpenVSP_values.nose.top.strength = 0.75
+    fuselage.OpenVSP_values.nose.side.angle = 20.0
+    fuselage.OpenVSP_values.nose.side.strength = 0.75  
+    fuselage.OpenVSP_values.nose.TB_Sym = True
+    fuselage.OpenVSP_values.nose.z_pos = -.01
+    
+    fuselage.OpenVSP_values.tail = Data()
+    fuselage.OpenVSP_values.tail.top = Data()
+    fuselage.OpenVSP_values.tail.side = Data()    
+    fuselage.OpenVSP_values.tail.bottom = Data()
+    fuselage.OpenVSP_values.tail.top.angle = 0.0
+    fuselage.OpenVSP_values.tail.top.strength = 0.0    
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -301,8 +301,9 @@ def vehicle_setup(source_ratio=1.):
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
-    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.polytropic_efficiency = 1.0
     inlet_nozzle.pressure_ratio        = 1.0
+    inlet_nozzle.pressure_recovery     = 0.94
     
     # add to network
     turbojet.append(inlet_nozzle)
@@ -316,7 +317,7 @@ def vehicle_setup(source_ratio=1.):
     compressor.tag = 'low_pressure_compressor'
 
     # setup
-    compressor.polytropic_efficiency = 0.91
+    compressor.polytropic_efficiency = 0.88
     compressor.pressure_ratio        = 3.1    
     
     # add to network
@@ -331,7 +332,7 @@ def vehicle_setup(source_ratio=1.):
     compressor.tag = 'high_pressure_compressor'
     
     # setup
-    compressor.polytropic_efficiency = 0.91
+    compressor.polytropic_efficiency = 0.88
     compressor.pressure_ratio        = 5.0  
     
     # add to network
@@ -347,7 +348,7 @@ def vehicle_setup(source_ratio=1.):
     
     # setup
     turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.93     
+    turbine.polytropic_efficiency = 0.89
     
     # add to network
     turbojet.append(turbine)
@@ -362,7 +363,7 @@ def vehicle_setup(source_ratio=1.):
 
     # setup
     turbine.mechanical_efficiency = 0.99
-    turbine.polytropic_efficiency = 0.93     
+    turbine.polytropic_efficiency = 0.87
     
     # add to network
     turbojet.append(turbine)
@@ -376,14 +377,31 @@ def vehicle_setup(source_ratio=1.):
     combustor.tag = 'combustor'
     
     # setup
-    combustor.efficiency                = 0.99
+    combustor.efficiency                = 0.94
     combustor.alphac                    = 1.0     
-    combustor.turbine_inlet_temperature = 1450.
-    combustor.pressure_ratio            = 1.0
+    combustor.turbine_inlet_temperature = 1440.
+    combustor.pressure_ratio            = 0.92
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
     
     # add to network
     turbojet.append(combustor)
+    
+    # ------------------------------------------------------------------
+    #  Afterburner
+    
+    # instantiate    
+    afterburner = SUAVE.Components.Energy.Converters.Combustor()   
+    afterburner.tag = 'afterburner'
+    
+    # setup
+    afterburner.efficiency                = 0.9
+    afterburner.alphac                    = 1.0     
+    afterburner.turbine_inlet_temperature = 1500
+    afterburner.pressure_ratio            = 1.0
+    afterburner.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
+    
+    # add to network
+    turbojet.append(afterburner)    
 
     
     # ------------------------------------------------------------------
@@ -394,31 +412,26 @@ def vehicle_setup(source_ratio=1.):
     nozzle.tag = 'core_nozzle'
     
     # setup
-    nozzle.polytropic_efficiency = 0.95
-    nozzle.pressure_ratio        = 0.99    
+    nozzle.pressure_recovery     = 0.95
+    nozzle.pressure_ratio        = 1.   
     
     # add to network
     turbojet.append(nozzle)
-    
-    # ------------------------------------------------------------------
-    #  Component 9 - Divergening Nozzle
-    
-    
     
     
     # ------------------------------------------------------------------
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
- 
+    
     #total design thrust (includes all the engines)
-    thrust.total_design             = 4*140000. * Units.N #Newtons
+    thrust.total_design             = 40000. * Units.lbf
  
     # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
     #design sizing conditions
-    altitude      = 0.0*Units.ft
-    mach_number   = 0.01
-    isa_deviation = 0.
+    altitude      = 60000.0*Units.ft
+    mach_number   = 2.02
+    isa_deviation = 0.    
     
     # add to network
     turbojet.thrust = thrust
@@ -433,6 +446,9 @@ def vehicle_setup(source_ratio=1.):
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
+
+    # Vehicle can be written to OpenVSP here if the API is installed
+    #write(vehicle,'test')
 
     return vehicle
 
@@ -462,6 +478,17 @@ def configs_setup(vehicle):
     
     configs.append(config)
     
+    # ------------------------------------------------------------------
+    #   Afterburner Climb Configuration
+    # ------------------------------------------------------------------
+    
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'climb'
+    
+    config.propulsors.turbojet.afterburner_active = True
+    
+    configs.append(config)    
+    
     
     # ------------------------------------------------------------------
     #   Takeoff Configuration
@@ -475,6 +502,8 @@ def configs_setup(vehicle):
     
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
+    
+    config.propulsors.turbojet.afterburner_active = True
     
     configs.append(config)
     
