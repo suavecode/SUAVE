@@ -79,7 +79,7 @@ if __name__ == '__main__':
     #   Plotting Delta CL due to Slat vs Sweep angle
     # ------------------------------------------------------------------
     title = "Delta dCL_slat vs Wing sweep"
-    plt.figure(1); plt.hold
+    plt.figure(1); 
     for deflection in range(len(deflection_vec)):
         plt.plot(sweep_vec/Units.deg , dcl_slat[:,deflection] ,'bo-', \
                     label = 'Deflection: ' +  str(deflection_vec[deflection]/Units.deg) + ' deg')
