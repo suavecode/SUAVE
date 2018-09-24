@@ -91,7 +91,7 @@ def main():
     print('Maximum Landing Field Length Error= %.4e' % LFL_error)
     
     title = "LFL vs W"
-    plt.figure(1); plt.hold
+    plt.figure(1); 
     plt.plot(w_vec,landing_field_length, 'k-', label = 'Landing Field Length')
 
     plt.title(title); plt.grid(True)
