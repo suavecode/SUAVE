@@ -206,7 +206,7 @@ class Motor(Energy_Component):
         etam = (1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
         
-        return i
+        return i, etam
 
     def load_csv_data(self,file_name):
         

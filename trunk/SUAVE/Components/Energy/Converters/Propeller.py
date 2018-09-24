@@ -332,7 +332,7 @@ class Propeller(Energy_Component):
         )
         
         
-        return thrust, torque, power, Cp, noise_data
+        return thrust, torque, power, Cp, noise_data, etap
     
     
 

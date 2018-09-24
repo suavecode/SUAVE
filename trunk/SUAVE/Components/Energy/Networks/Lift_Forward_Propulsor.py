@@ -161,7 +161,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the propeller
         #F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
-        F_forward, Q_forward, P_forward, Cp_forward, noise_forward = propeller_forward.spin(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward, noise_forward, etap_forward = propeller_forward.spin(conditions)
         
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
@@ -170,7 +170,7 @@ class Lift_Forward_Propulsor(Propulsor):
         F_forward[eta>1.0] = F_forward[eta>1.0]*eta[eta>1.0]        
         
         # Run the motor for current
-        motor_forward.current(conditions)  
+        i, etam_forward = motor_forward.current(conditions)  
         # link
         esc_forward.inputs.currentout =  motor_forward.outputs.current     
         
@@ -213,7 +213,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the propeller
         #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
-        F_lift, Q_lift, P_lift, Cp_lift, noise_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift, noise_lift, etap_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.lift_throttle
@@ -221,7 +221,7 @@ class Lift_Forward_Propulsor(Propulsor):
         F_lift[eta>1.0] = F_lift[eta>1.0]*eta[eta>1.0]        
         
         # Run the motor for current
-        motor_lift.current(conditions)  
+        i, etam_lift = motor_lift.current(conditions)  
         # link
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
@@ -268,14 +268,18 @@ class Lift_Forward_Propulsor(Propulsor):
         conditions.propulsion.acoustic_outputs[propeller_forward.tag] = noise_forward
         conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = noise_lift
     
-        conditions.propulsion.rpm_lift                 = rpm_lift
-        conditions.propulsion.rpm_forward              = rpm_forward
-        conditions.propulsion.current_lift             = i_lift 
-        conditions.propulsion.current_forward          = i_forward 
-        conditions.propulsion.motor_torque_lift        = motor_lift.outputs.torque
-        conditions.propulsion.motor_torque_forward     = motor_forward.outputs.torque
-        conditions.propulsion.propeller_torque_lift    = Q_lift   
-        conditions.propulsion.propeller_torque_forward = Q_forward       
+        conditions.propulsion.rpm_lift                     = rpm_lift
+        conditions.propulsion.rpm_forward                  = rpm_forward
+        conditions.propulsion.current_lift                 = i_lift 
+        conditions.propulsion.current_forward              = i_forward 
+        conditions.propulsion.motor_torque_lift            = motor_lift.outputs.torque
+        conditions.propulsion.motor_torque_forward         = motor_forward.outputs.torque
+        conditions.propulsion.propeller_torque_lift        = Q_lift   
+        conditions.propulsion.propeller_torque_forward     = Q_forward       
+        conditions.propulsion.propeller_efficiency_forward = etap_forward
+        conditions.propulsion.propeller_efficiency_lift    = etap_lift
+        conditions.propulsion.motor_efficiency_forward     = etam_forward
+        conditions.propulsion.motor_efficiency_lift        = etam_lift        
           
         conditions.propulsion.battery_draw             = battery_draw
         conditions.propulsion.battery_energy           = battery_energy
