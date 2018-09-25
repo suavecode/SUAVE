@@ -737,38 +737,7 @@ def load_results():
 def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
     return    
-    
-def save_results(results):
-
-    seg_count  = len(results.segments)
-    result_mat = np.zeros((9*10,10))
-    
-    j = 0
-    for segment in results.segments.values():    
-        for i in range(10):
-            time   = segment.conditions.frames.inertial.time[i,0] / Units.min
-            CLift  = segment.conditions.aerodynamics.lift_coefficient[i,0]
-            CDrag  = segment.conditions.aerodynamics.drag_coefficient[i,0]
-            AoA    = segment.conditions.aerodynamics.angle_of_attack[i,0] / Units.deg
-            l_d = CLift/CDrag
         
-            drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-            cdp = drag_breakdown.parasite.total[i,0]
-            cdi = drag_breakdown.induced.total[i,0]
-            cdc = drag_breakdown.compressible.total[i,0]   
-            cd  = drag_breakdown.total[i,0]
-        
-            mdot   = segment.conditions.weights.vehicle_mass_rate[i,0]
-            thrust =  segment.conditions.frames.body.thrust_force_vector[i,0]
-            sfc    = 3600. * mdot / 0.1019715 / thrust
-        
-            result_mat[j] = np.array([time,CLift,CDrag,l_d,cdp,cdi,cdc,cd,sfc,AoA])
-            j += 1
-        
-    np.save('Concorde_reg.npy',result_mat)
-        
-    return
-    
 if __name__ == '__main__': 
     main()    
     plt.show()
