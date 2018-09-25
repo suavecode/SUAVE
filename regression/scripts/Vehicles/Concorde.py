@@ -129,6 +129,18 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)  
     
+    # set tip section start point
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.1
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0.
+    segment.thickness_to_chord    = 0.03
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)      
+    
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                 = 'main_tank'
     fuel_tank.inward_offset       = 0.1*Units.ft
@@ -219,6 +231,18 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.03
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
+    
+    # set mid section start point
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 2.7
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0.
+    segment.thickness_to_chord    = 0.03
+    segment.append_airfoil(tail_airfoil)
+    wing.Segments.append(segment)    
     
     # add to vehicle
     vehicle.append_component(wing)    

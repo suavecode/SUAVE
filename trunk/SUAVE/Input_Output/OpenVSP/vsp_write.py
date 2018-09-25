@@ -352,7 +352,7 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     
     if 'Fuel_Tanks' in wing:
         for tank in wing.Fuel_Tanks:
-            write_wing_conformal_fuel_tank(wing_id, tank, fuel_tank_set_ind)
+            write_wing_conformal_fuel_tank(wing, wing_id, tank, fuel_tank_set_ind)
     
     return area_tags, wing_id
 
@@ -497,17 +497,25 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     
     return area_tags
 
-def write_wing_conformal_fuel_tank(wing_id,fuel_tank,fuel_tank_set_ind):
+def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     tank_id = vsp.AddGeom('CONFORMAL',wing_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)
     
     # Unpack
-    offset         = fuel_tank.inward_offset
-    chord_trim_max = 1.-fuel_tank.start_chord_percent
-    chord_trim_min = 1.-fuel_tank.end_chord_percent
-    span_trim_max  = fuel_tank.end_span_percent
-    span_trim_min  = fuel_tank.start_span_percent  
-    density        = fuel_tank.fuel_type.density
+    offset            = fuel_tank.inward_offset
+    chord_trim_max    = 1.-fuel_tank.start_chord_percent
+    chord_trim_min    = 1.-fuel_tank.end_chord_percent
+    span_trim_max     = fuel_tank.end_span_percent
+    span_trim_min     = fuel_tank.start_span_percent  
+    density           = fuel_tank.fuel_type.density
+    n_segments        = len(wing.Segments.keys())
+    if n_segments > 0.:
+        seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
+                                       in wing.Segments.iteritems()])
+        vsp_segment_breaks = np.linspace(0.,1.,n_segments)
+    else:
+        seg_span_percents = np.array([0.,1.])
+    span              = wing.spans.projected
     
     # Offset
     vsp.SetParmVal(tank_id,'Offset','Design',offset)      
@@ -518,6 +526,27 @@ def write_wing_conformal_fuel_tank(wing_id,fuel_tank,fuel_tank_set_ind):
     vsp.SetParmVal(tank_id,'ChordTrimMin','Design',chord_trim_min)
     
     # Fuel tank span bounds
+    if n_segments>0:
+        # Determine max chord trim correction
+        max_y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > chord_trim_max)
+        segment_percent_of_total_span = seg_span_percents[max_y_seg_ind] -\
+            seg_span_percents[max_y_seg_ind-1]
+        remaining_percent_within_segment = chord_trim_max - seg_span_percents[max_y_seg_ind-1]
+        percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
+        chord_trim_max = vsp_segment_breaks[max_y_seg_ind-1] + \
+            (vsp_segment_breaks[max_y_seg_ind]-vsp_segment_breaks[max_y_seg_ind-1])*percent_of_segment
+        
+        # Determine min chord trim correction
+        min_y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > chord_trim_min)
+        segment_percent_of_total_span = seg_span_percents[min_y_seg_ind] -\
+            seg_span_percents[min_y_seg_ind-1]
+        remaining_percent_within_segment = chord_trim_min - seg_span_percents[min_y_seg_ind-1]
+        percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
+        chord_trim_min = vsp_segment_breaks[min_y_seg_ind-1] + \
+            (vsp_segment_breaks[min_y_seg_ind]-vsp_segment_breaks[min_y_seg_ind-1])*percent_of_segment        
+    else:
+        pass # no change to span_trim
+    
     vsp.SetParmVal(tank_id,'UTrimFlag','Design',1.)
     vsp.SetParmVal(tank_id,'UTrimMax','Design',span_trim_max)
     vsp.SetParmVal(tank_id,'UTrimMin','Design',span_trim_min)  
@@ -555,3 +584,14 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     vsp.SetSetFlag(tank_id, fuel_tank_set_ind, True)
     
     return
+
+def get_vsp_trim_from_SUAVE_trim(seg_span_percents,vsp_segment_breaks,trim):
+    # Determine max chord trim correction
+    y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > trim)
+    segment_percent_of_total_span = seg_span_percents[y_seg_ind] -\
+        seg_span_percents[y_seg_ind-1]
+    remaining_percent_within_segment = trim - seg_span_percents[y_seg_ind-1]
+    percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
+    trim = vsp_segment_breaks[y_seg_ind-1] + \
+        (vsp_segment_breaks[y_seg_ind]-vsp_segment_breaks[y_seg_ind-1])*percent_of_segment  
+    return trim
