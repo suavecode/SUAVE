@@ -20,7 +20,7 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle,tag):
+def write(vehicle,tag,fuel_tank_set_ind=3):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -100,7 +100,7 @@ def write(vehicle,tag):
     # Wings
     # -------------
     
-    fuel_tank_set_ind = 3 # Default Set_0 in OpenVSP is index 3
+    # Default Set_0 in OpenVSP is index 3
     vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
     
     for wing in vehicle.wings:       

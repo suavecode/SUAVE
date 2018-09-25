@@ -12,7 +12,7 @@ import numpy as np
 from SUAVE.Core import Data
 
 ## @ingroup Input_Output-OpenVSP
-def get_fuel_tank_props(vehicle,tag,fuel_tank_set_ind):
+def get_fuel_tank_props(vehicle,tag,fuel_tank_set_ind=3):
     """
     
     Assumptions:
