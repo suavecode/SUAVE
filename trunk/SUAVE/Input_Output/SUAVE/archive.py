@@ -113,10 +113,11 @@ def build_dict_r(v):
         ret = None
     elif (tv == float) or (tv == int):
         ret = v
-    elif tv == types.FunctionType: # Functions cannot be stored
-        ret = None
+    elif callable(tv): # Functions cannot be stored
+        ret = None        
     elif tv == list:
         ret = v    
+
     else:
         # Assume other data types are SUAVE data types and check
         try:
