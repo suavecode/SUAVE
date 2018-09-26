@@ -3,8 +3,8 @@
 
  Configuration: cruise                                                      
      # Surfaces =   7
-     # Strips   = 162
-     # Vortices =3240
+     # Strips   =  70
+     # Vortices = 350
 
   Sref =  124.86       Cref =  4.2350       Bref =  34.320    
   Xref =  15.310       Yref =  0.0000       Zref =-0.48024    
@@ -17,15 +17,15 @@
   Beta  =   0.00000     qc/2V =   0.00000
   Mach  =     0.850     rb/2V =  -0.00000     r'b/2V =  -0.00000
 
-  CXtot =   0.00722     Cltot =   0.00037     Cl'tot =   0.00041
-  CYtot =   0.00270     Cmtot =   0.31582
-  CZtot =   0.30211     Cntot =  -0.00124     Cn'tot =  -0.00123
+  CXtot =   0.00692     Cltot =  -0.00000     Cl'tot =  -0.00000
+  CYtot =  -0.00000     Cmtot =   0.30737
+  CZtot =   0.29980     Cntot =   0.00000     Cn'tot =   0.00000
 
-  CLtot =  -0.30217
-  CDtot =   0.00333
-  CDvis =   0.00000     CDind = 0.0033275
-  CLff  =  -0.30220     CDff  = 0.0032459    | Trefftz
-  CYff  =   0.00278         e =    0.9495    | Plane  
+  CLtot =  -0.29986
+  CDtot =   0.00355
+  CDvis =   0.00000     CDind = 0.0035498
+  CLff  =  -0.29990     CDff  = 0.0031888    | Trefftz
+  CYff  =  -0.00000         e =    0.9517    | Plane  
 
 
  ---------------------------------------------------------------
@@ -34,20 +34,20 @@
 
                              alpha                beta
                   ----------------    ----------------
- z' force CL |    CLa =   8.914166    CLb =   0.093869
- y  force CY |    CYa =  -0.073677    CYb =  -0.652952
- x' mom.  Cl'|    Cla =  -0.012702    Clb =  -0.033382
- y  mom.  Cm |    Cma =  -9.312452    Cmb =  -0.316752
- z' mom.  Cn'|    Cna =   0.032816    Cnb =   0.145658
+ z' force CL |    CLa =   8.845823    CLb =  -0.000000
+ y  force CY |    CYa =   0.000000    CYb =  -0.656376
+ x' mom.  Cl'|    Cla =   0.000000    Clb =  -0.031898
+ y  mom.  Cm |    Cma =  -9.062749    Cmb =   0.000000
+ z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.147030
 
                      roll rate  p'      pitch rate  q'        yaw rate  r'
                   ----------------    ----------------    ----------------
- z' force CL |    CLp =   0.017986    CLq =  36.718418    CLr =  -0.102841
- y  force CY |    CYp =  -0.141329    CYq =  -0.893768    CYr =   0.709066
- x' mom.  Cl'|    Clp =  -0.667750    Clq =  -0.135425    Clr =   0.012173
- y  mom.  Cm |    Cmp =  -0.063145    Cmq = -96.100090    Cmr =   0.354385
- z' mom.  Cn'|    Cnp =   0.069875    Cnq =   0.407217    Cnr =  -0.315658
+ z' force CL |    CLp =   0.000000    CLq =  36.303658    CLr =   0.000000
+ y  force CY |    CYp =  -0.135738    CYq =  -0.000000    CYr =   0.713011
+ x' mom.  Cl'|    Clp =  -0.665854    Clq =   0.000001    Clr =   0.011032
+ y  mom.  Cm |    Cmp =  -0.000000    Cmq = -94.713264    Cmr =  -0.000000
+ z' mom.  Cn'|    Cnp =   0.067675    Cnq =  -0.000000    Cnr =  -0.316909
 
- Neutral point  Xnp =  19.734098
+ Neutral point  Xnp =  19.648733
 
- Clb Cnr / Clr Cnb  =   5.942683    (  > 1 if spirally stable )
+ Clb Cnr / Clr Cnb  =   6.231987    (  > 1 if spirally stable )

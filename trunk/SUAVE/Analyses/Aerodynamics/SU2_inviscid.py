@@ -257,17 +257,12 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
+              
         # Gaussian Process New
-        regr_cl = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcess()
+        regr_cl = gaussian_process.GaussianProcessRegressor()
+        regr_cd = gaussian_process.GaussianProcessRegressor()
         cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)          
-        
-        # Gaussian Process New
-        #regr_cl = gaussian_process.GaussianProcessRegressor()
-        #regr_cd = gaussian_process.GaussianProcessRegressor()
-        #cl_surrogate = regr_cl.fit(xy, CL_data)
-        #cd_surrogate = regr_cd.fit(xy, CD_data)  
+        cd_surrogate = regr_cd.fit(xy, CD_data)  
         
         # KNN
         #regr_cl = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')

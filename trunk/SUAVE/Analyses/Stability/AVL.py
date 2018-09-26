@@ -416,10 +416,10 @@ class AVL(Stability):
         xy                                          = training.grid_points 
 
         # Gaussian Process New
-        regr_cm                                     = gaussian_process.GaussianProcess()
-        regr_cm_alpha                               = gaussian_process.GaussianProcess()
-        regr_cn_beta                                = gaussian_process.GaussianProcess()
-        regr_np                                     = gaussian_process.GaussianProcess()
+        regr_cm                                     = gaussian_process.GaussianProcessRegressor()
+        regr_cm_alpha                               = gaussian_process.GaussianProcessRegressor()
+        regr_cn_beta                                = gaussian_process.GaussianProcessRegressor()
+        regr_np                                     = gaussian_process.GaussianProcessRegressor()
 
         cm_surrogate                                = regr_cm.fit(xy, CM_data) 
         cm_alpha_surrogate                          = regr_cm_alpha.fit(xy, Cm_alpha_data) 
