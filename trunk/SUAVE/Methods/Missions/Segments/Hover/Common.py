@@ -59,9 +59,11 @@ def residual_total_forces(segment):
     """            
     
     FT = segment.state.conditions.frames.inertial.total_force_vector
+    m  = segment.state.conditions.weights.total_mass  
 
     # vertical
-    segment.state.residuals.forces[:,0] = FT[:,2]
+    segment.state.residuals.forces[:,0] = FT[:,2]/m[:,0]
+
 
     return
     
