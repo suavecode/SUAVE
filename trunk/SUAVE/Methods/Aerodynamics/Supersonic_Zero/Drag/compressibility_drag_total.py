@@ -4,6 +4,7 @@
 # Created:  Aug 2014, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
 #           Jul 2017, T. MacDonald
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -145,7 +146,7 @@ def compressibility_drag_total(state,settings,geometry):
     # Fuselage wave drag
     if len(main_fuselage) > 0:
         fuse_wave = wave_drag_body_of_rev(main_fuselage.lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
-        fuse_drag[mach >= .99]  = fuse_wave*(mach[mach>=.99]-.99)/1.05
+        fuse_drag[mach >= .99]  = fuse_wave*(mach[mach>=.99]-.99)/(1.05-.99)
         fuse_drag[mach >= 1.05] = fuse_wave
     else:
         raise ValueError('Main fuselage does not have a total length')
@@ -156,7 +157,7 @@ def compressibility_drag_total(state,settings,geometry):
     effective_area          = (Dn*Dn-Di*Di)/4.*np.pi
     effective_radius        = np.sqrt(effective_area/np.pi)
     prop_wave               = wave_drag_body_of_rev(propulsor.engine_length,effective_radius,Sref_main)*propulsor.number_of_engines
-    prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/1.05
+    prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/(1.05-.99)
     prop_drag[mach >= 1.05] = prop_wave    
     
     drag_breakdown.compressible[main_fuselage.tag] = fuse_drag
