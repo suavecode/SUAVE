@@ -46,7 +46,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
             atmo_data = atmosphere.compute_values(altitude,delta_isa)
-
+            planet    = SUAVE.Attributes.Planets.Earth()
+            
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
             rho = atmo_data.density          
@@ -63,12 +64,12 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-            conditions.freestream.gravity                     = np.atleast_1d(9.81)
-            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-            conditions.freestream.Cp                          = 1.4*287.87/(1.4-1)
-            conditions.freestream.R                           = 287.87
+            conditions.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ducted_fan.working_fluid.compute_gamma(T,p))
+            conditions.freestream.Cp                          = np.atleast_1d(ducted_fan.working_fluid.compute_cp(T,p))
+            conditions.freestream.R                           = np.atleast_1d(ducted_fan.working_fluid.gas_specific_constant)
             conditions.freestream.speed_of_sound              = np.atleast_1d(a)
-            conditions.freestream.velocity                    = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
+            conditions.freestream.velocity                    = conditions.freestream.mach_number*conditions.freestream.speed_of_sound
             
             # propulsion conditions
             conditions.propulsion.throttle           =  np.atleast_1d(1.0)
@@ -162,10 +163,10 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     conditions_sls.freestream.temperature                 = np.atleast_1d(T)
     conditions_sls.freestream.density                     = np.atleast_1d(rho)
     conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
-    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                          = 1.4*287.87/(1.4-1)
-    conditions_sls.freestream.R                           = 287.87
+    conditions_sls.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(ducted_fan.working_fluid.compute_gamma(T,p))
+    conditions_sls.freestream.Cp                          = np.atleast_1d(ducted_fan.working_fluid.compute_cp(T,p))
+    conditions_sls.freestream.R                           = np.atleast_1d(ducted_fan.working_fluid.gas_specific_constant)
     conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
     conditions_sls.freestream.velocity                    = conditions_sls.freestream.mach_number * conditions_sls.freestream.speed_of_sound
     

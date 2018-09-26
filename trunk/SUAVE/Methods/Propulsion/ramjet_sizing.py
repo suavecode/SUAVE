@@ -94,7 +94,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     combustor.compute_rayleigh(conditions)
     
     #link the core nozzle to the combustor
-    core_nozzle.inputsv= combustor.outputs
+    core_nozzle.inputs= combustor.outputs
     
     #flow through the core nozzle
     core_nozzle.compute_limited_geometry(conditions)
@@ -145,7 +145,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     conditions_sls.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
     conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
     conditions_sls.freestream.Cp                          = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
-    conditions_sls.freestream.R                           = p/(rho*T)
+    conditions_sls.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
     conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
     conditions_sls.freestream.velocity                    = np.atleast_1d(a*0.01)
     
