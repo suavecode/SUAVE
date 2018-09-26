@@ -43,14 +43,16 @@ def energy_network():
     
     # setup conditions
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   
+    planet     = SUAVE.Attributes.Planets.Earth()
     ones_1col             = np.ones([1,1])   
-    conditions.freestream     = Data()
+    conditions.freestream = Data()
     conditions.propulsion = Data()
+    
     
     # vacuum conditions
     vac                   = conditions.freestream
     vac.altitude          = ones_1col*0.0
-    vac.gravity           = ones_1col*9.81
+    vac.gravity           = ones_1col*planet.sea_level_gravity
     vac.pressure          = ones_1col*0.0
         
     # propulsion conditions
@@ -76,8 +78,8 @@ def energy_network():
     SLS.pressure                      = ones_1col*atmo_data.pressure
     SLS.temperature                   = ones_1col*atmo_data.temperature
     SLS.density                       = ones_1col*atmo_data.density
-    SLS.speed_of_sound                = ones_1col* atmo_data.speed_of_sound
-    SLS.gravity                       = ones_1col*9.81
+    SLS.speed_of_sound                = ones_1col*atmo_data.speed_of_sound
+    SLS.gravity                       = ones_1col*planet.sea_level_gravity
     
     # propulsion conditions
     conditions_sls.propulsion.throttle = ones_1col*1.0
@@ -171,11 +173,11 @@ def energy_network():
     
     expected.thrust_SL = 7554319.11082433
     expected.mdot_SL   = 2607.71793795
-    expected.Isp_SL    = 295.3015351
+    expected.Isp_SL    = 295.40241156
     
     expected.thrust_Vac = 8644089.75082433
     expected.mdot_Vac   = 2607.71793795
-    expected.Isp_Vac    = 337.90113119  
+    expected.Isp_Vac    = 338.01655988  
     
     #error data function
     error =  Data()

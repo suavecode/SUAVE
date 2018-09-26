@@ -53,14 +53,16 @@ def energy_network():
     EVAL.altitude                    = ones_1col*10000.
     
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                        = atmosphere.compute_values(EVAL.altitude,0,True) 
+    atmo_data                        = atmosphere.compute_values(EVAL.altitude,0,True)
+    planet                           = SUAVE.Attributes.Planets.Earth()
+    
     working_fluid                    = SUAVE.Attributes.Gases.Air()
     
     EVAL.pressure                    = ones_1col*atmo_data.pressure
     EVAL.temperature                 = ones_1col*atmo_data.temperature
     EVAL.density                     = ones_1col*atmo_data.density
-    EVAL.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
-    EVAL.gravity                     = ones_1col*9.81
+    EVAL.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
+    EVAL.gravity                     = ones_1col*planet.sea_level_gravity
     EVAL.isentropic_expansion_factor = working_fluid.compute_gamma(EVAL.temperature,EVAL.pressure)
     EVAL.Cp                          = working_fluid.compute_cp(EVAL.temperature,EVAL.pressure)                                                                               
     EVAL.R                           = working_fluid.gas_specific_constant
@@ -97,7 +99,7 @@ def energy_network():
     SIZE.temperature                 = ones_1col*atmo_data.temperature
     SIZE.density                     = ones_1col*atmo_data.density
     SIZE.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    SIZE.gravity                     = ones_1col*9.81
+    SIZE.gravity                     = ones_1col*planet.sea_level_gravity
     SIZE.isentropic_expansion_factor = working_fluid.compute_gamma(SIZE.temperature,SIZE.pressure)
     SIZE.Cp                          = working_fluid.compute_cp(SIZE.temperature,SIZE.pressure)                                                                               
     SIZE.R                           = working_fluid.gas_specific_constant
@@ -224,9 +226,9 @@ def energy_network():
     #Specify the expected values
     expected = Data()
     
-    expected.thrust = 338740.93039999995
-    expected.mdot   = 23.11959727
-    expected.Isp    = 1494.05374047
+    expected.thrust = 338740.9304
+    expected.mdot   = 23.11172969
+    expected.Isp    = 1494.56411659
     
     #error data function
     error =  Data()
