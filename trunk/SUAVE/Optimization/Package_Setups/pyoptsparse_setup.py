@@ -1,8 +1,8 @@
 ## @ingroup Optimization-Package_Setups
 # pyopt_setup.py
 #
-# Created:  Jul 2015, E. Botero
-# Modified: Feb 2016, M. Vegh
+# Created:  Aug 2018, E. Botero
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,15 +12,14 @@
 import numpy as np
 from SUAVE.Optimization import helper_functions as help_fun
 
-
 # ----------------------------------------------------------------------
 #  Pyopt_Solve
 # ----------------------------------------------------------------------
 
 ## @ingroup Optimization-Package_Setups
 def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderivative_line_search=False):
-    """ This converts your SUAVE Nexus problem into a PyOpt optimization problem and solves it
-        PyOpt has many algorithms, they can be switched out by using the solver input. 
+    """ This converts your SUAVE Nexus problem into a PyOptsparse optimization problem and solves it.
+        Pyoptsparse has many algorithms, they can be switched out by using the solver input. 
 
         Assumptions:
         None
