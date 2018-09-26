@@ -55,7 +55,7 @@ def initialize_conditions(segment):
         
     # check for initial pitch
     if T0 is None:
-        T0  =  state.initials.conditions.frames.body.inertial_rotations[-1,1]
+        T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1]
         segment.pitch_initial = T0
     
     # dimensionalize time
