@@ -74,15 +74,15 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	else: 
 		wing.tag = 'WingGeom'
 	
-	wing.origin[0] = vsp.GetParmVal(wing_id, 'X_Rel_Location', 'XForm') * units_factor 
-	wing.origin[1] = vsp.GetParmVal(wing_id, 'Y_Rel_Location', 'XForm') * units_factor 
-	wing.origin[2] = vsp.GetParmVal(wing_id, 'Z_Rel_Location', 'XForm') * units_factor 
+	wing.origin[0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
+	wing.origin[1] = vsp.GetParmVal(wing_id, 'Y_Location', 'XForm') * units_factor 
+	wing.origin[2] = vsp.GetParmVal(wing_id, 'Z_Location', 'XForm') * units_factor 
 	
 	sym_planar = vsp.GetParmVal(wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor', 'Sym')
 	
 	# Get the initial rotation to get the dihedral angles
-	x_rot = vsp.GetParmVal( wing_id,'X_Rel_Rotation','XForm')	
+	x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')	
 	# Check if this is vertical tail and get the rotation
 	if  x_rot >=70:
 		wing.vertical = True
@@ -128,8 +128,13 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
 	
 		if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
-			segment_sweeps_quarter_chord[i]   = vsp.GetParmVal(wing_id, 'Sec_Sweep', 'XSec_' + str(i)) * Units.deg
-			segment.sweeps.quarter_chord      = -segment_sweeps_quarter_chord[i]  # Used again, below
+			sweep     = vsp.GetParmVal(wing_id, 'Sweep', 'XSec_' + str(i)) * Units.deg
+			sweep_loc = vsp.GetParmVal(wing_id, 'Sweep_Location', 'XSec_' + str(i))
+			AR        = vsp.GetParmVal(wing_id, 'Aspect', 'XSec_' + str(i))
+			taper     = vsp.GetParmVal(wing_id, 'Taper', 'XSec_' + str(i))
+			   
+			segment_sweeps_quarter_chord[i] = convert_sweep(sweep,sweep_loc,0.25,AR,taper)
+			segment.sweeps.quarter_chord    = segment_sweeps_quarter_chord[i]  # Used again, below
 			
 			# Used for dihedral computation, below.
 			segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg 
@@ -217,3 +222,14 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	wing.twists.tip       = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(segment_num-1)) * Units.deg
 	
 	return wing
+
+
+def convert_sweep(sweep,sweep_loc,new_sweep_loc,AR,taper):
+	
+	sweep_LE = np.arctan(np.tan(sweep)+4*sweep_loc*
+                              (1-taper)/(AR*(1+taper))) 
+	
+	new_sweep = np.arctan(np.tan(sweep_LE)-4*new_sweep_loc*
+                          (1-taper)/(AR*(1+taper))) 
+	
+	return new_sweep

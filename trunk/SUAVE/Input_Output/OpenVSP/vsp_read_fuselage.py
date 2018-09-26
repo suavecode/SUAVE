@@ -87,9 +87,9 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	else: 
 		fuselage.tag = 'FuselageGeom'	
 
-	fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Rel_Location', 'XForm') * units_factor
-	fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Rel_Location', 'XForm') * units_factor
-	fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Rel_Location', 'XForm') * units_factor
+	fuselage.origin[0][0] = vsp.GetParmVal(fuselage_id, 'X_Location', 'XForm') * units_factor
+	fuselage.origin[0][1] = vsp.GetParmVal(fuselage_id, 'Y_Location', 'XForm') * units_factor
+	fuselage.origin[0][2] = vsp.GetParmVal(fuselage_id, 'Z_Location', 'XForm') * units_factor
 
 	fuselage.lengths.total         = vsp.GetParmVal(fuselage_id, 'Length', 'Design') * units_factor
 	fuselage.vsp_data.xsec_surf_id = vsp.GetXSecSurf(fuselage_id, 0) 			# There is only one XSecSurf in geom.
