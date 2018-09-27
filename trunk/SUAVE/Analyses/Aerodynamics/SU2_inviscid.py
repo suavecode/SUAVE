@@ -16,6 +16,7 @@ from SUAVE.Core import Data, Units
 from .Aerodynamics import Aerodynamics
 from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
+from sklearn.gaussian_process.kernels import ExpSineSquared
 
 # Package imports
 import numpy as np
@@ -259,8 +260,9 @@ class SU2_inviscid(Aerodynamics):
         
               
         # Gaussian Process New
-        regr_cl = gaussian_process.GaussianProcessRegressor()
-        regr_cd = gaussian_process.GaussianProcessRegressor()
+        gp_kernel_ES = ExpSineSquared(length_scale=1.0, periodicity=1.0, length_scale_bounds=(1e-5,1e5), periodicity_bounds=(1e-5,1e5))
+        regr_cl = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cd = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
         cl_surrogate = regr_cl.fit(xy, CL_data)
         cd_surrogate = regr_cd.fit(xy, CD_data)  
         
