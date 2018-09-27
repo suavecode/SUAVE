@@ -126,6 +126,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		segment.root_chord_percent    = segment_root_chord / total_chord		
 		segment.percent_span_location = proj_span_sum / (total_proj_span/2)
 		segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
+		
+		if i==start:
+			wing.thickness_to_chord = thick_cord
 	
 		if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
 			sweep     = vsp.GetParmVal(wing_id, 'Sweep', 'XSec_' + str(i)) * Units.deg
