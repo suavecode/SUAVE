@@ -134,7 +134,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 
 	fuselage.heights.at_quarter_length          = get_fuselage_height(fuselage, .25)  # Calls get_fuselage_height function (below).
 	fuselage.heights.at_three_quarters_length   = get_fuselage_height(fuselage, .75) 
-	fuselage.heights.at_wing_root_quarter_chord = get_fuselage_height(fuselage, .5) 
+	fuselage.heights.at_wing_root_quarter_chord = get_fuselage_height(fuselage, .4) 
 
 	fuselage.heights.maximum    = max(heights) 		# Max segment height.	
 	fuselage.width		    = max(widths) 		# Max segment width.
@@ -184,8 +184,8 @@ def compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fw
 	eff_diam_gradients_fwd_tail = eff_diam_gradients_fwd[x_locs_tail[1:]]			# Smaller array of tail gradients.
 	min_val 		    = np.min(-eff_diam_gradients_fwd_tail)			# Computes min gradient, where fuselage tapers (minus sign makes positive).
 	x_loc = x_locs[np.hstack([False,-eff_diam_gradients_fwd==min_val])][-1]			# Saves aft-most value (useful for straight fuselage with multiple zero gradients.) 
-	fuselage.lengths.tail       = (x_loc-fuselage.Segments[0].percent_x_location)*fuselage.lengths.total
-	fuselage.fineness.tail      = -fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])	# Minus sign converts tail fineness to positive value.
+	fuselage.lengths.tail       = (1.-x_loc)*fuselage.lengths.total
+	fuselage.fineness.tail      = fuselage.lengths.tail/(eff_diams[x_locs==x_loc][0])	# Minus sign converts tail fineness to positive value.
 		
 	return fuselage
 
