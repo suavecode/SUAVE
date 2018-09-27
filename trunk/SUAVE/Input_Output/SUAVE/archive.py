@@ -113,7 +113,7 @@ def build_dict_r(v):
         ret = None
     elif (tv == float) or (tv == int):
         ret = v
-    elif callable(tv): # Functions cannot be stored
+    elif tv == types.FunctionType: # Functions cannot be stored
         ret = None        
     elif tv == list:
         ret = v    
@@ -123,7 +123,10 @@ def build_dict_r(v):
         try:
             keys = v.keys()
         except:
-            raise TypeError('Unexpected data type in SUAVE data structure')
+            if callable(tv):
+                return None
+            else:
+                raise TypeError('Unexpected data type in SUAVE data structure')
         # Recursively assign values
         ret = OrderedDict()
         for k in keys:
