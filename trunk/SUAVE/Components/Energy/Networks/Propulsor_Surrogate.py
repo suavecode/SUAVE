@@ -18,6 +18,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Core import Data
 import sklearn
 from sklearn import gaussian_process
+from sklearn.gaussian_process.kernels import RationalQuadratic 
 from sklearn import neighbors
 from sklearn import svm
 
@@ -162,11 +163,12 @@ class Propulsor_Surrogate(Propulsor):
         thr = np.transpose(np.atleast_2d(my_data[1:,3])) # Thrust
         sfc = np.transpose(np.atleast_2d(my_data[1:,4]))  # SFC
         
-
+        
         # Pick the type of process
-        if self.surrogate_type  == 'gaussian':
-            regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
-            regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
+        if self.surrogate_type  == 'gaussian': 
+            gp_kernel_RQ = RationalQuadratic(length_scale=1.0, alpha=1.0)
+            regr_sfc = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ,normalize_y=True)
+            regr_thr = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ)      
             thr_surrogate = regr_thr.fit(xy, thr)
             sfc_surrogate = regr_sfc.fit(xy, sfc)  
             

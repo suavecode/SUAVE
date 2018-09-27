@@ -41,12 +41,12 @@ def converge_opt(segment):
     """     
     
     # pack up the array
-    unknowns = state.unknowns.pack_array()
+    unknowns = segment.state.unknowns.pack_array()
     
     # Have the optimizer call the wrapper
     obj       = lambda unknowns:get_objective(unknowns,segment)   
     econ      = lambda unknowns:get_econstraints(unknowns,segment) 
-    iecon     = lambda unknowns:get_ieconstraints(unknowns,segment,state)
+    iecon     = lambda unknowns:get_ieconstraints(unknowns,segment)
     
     # Setup the bnds of the problem
     bnds = make_bnds(unknowns, segment)
@@ -117,10 +117,10 @@ def get_objective(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == state.unknowns):       
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
         segment.process.iterate(segment)
         
-    objective = state.objective_value
+    objective = segment.objective_value
     
     return objective
 

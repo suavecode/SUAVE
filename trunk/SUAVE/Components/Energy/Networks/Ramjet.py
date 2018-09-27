@@ -197,16 +197,16 @@ class Ramjet(Propulsor):
         inlet_nozzle(conditions)
 
         # link the combustor to the high pressure compressor
-        combustor.inputs = inlet_nozzle.outputs.mach_number
+        combustor.inputs = inlet_nozzle.outputs
 
         # flow through the high pressure compressor
         combustor.compute_rayleigh(conditions)
 
         # link the core nozzle to the low pressure turbine
-        core_nozzle.inputs = combustor.outputs.stagnation_pressure
+        core_nozzle.inputs = combustor.outputs
 
         # flow through the core nozzle
-        core_nozzle(conditions)
+        core_nozzle.compute_limited_geometry(conditions)
 
         # compute the thrust using the thrust component
 
