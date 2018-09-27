@@ -152,7 +152,7 @@ class Sizing_Loop(Data):
                             regr        = ensemble.BaggingRegressor()
                             
                         elif self.initial_step == 'GPR':
-                            regr        = gaussian_process.GaussianProcess()
+                            regr        = gaussian_process.GaussianProcessRegressor()
                             
                         elif self.initial_step == 'RANSAC':
                             regr        = linear_model.RANSACRegressor()
