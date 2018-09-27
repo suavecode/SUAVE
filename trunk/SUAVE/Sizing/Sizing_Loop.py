@@ -14,7 +14,7 @@ import scipy.interpolate as interpolate
 import sklearn.svm as svm
 import sklearn.ensemble as ensemble
 import sklearn.gaussian_process as gaussian_process
-from sklearn.gaussian_process.kernels import RationalQuadratic, ExpSineSquared
+from sklearn.gaussian_process.kernels import RationalQuadratic 
 import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
 from .write_sizing_outputs import write_sizing_outputs
