@@ -419,9 +419,9 @@ def write(vehicle,tag):
         
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
-        x1 = n_fine*width/length
+        x1 = 0.25
         x2 = (w_origin[0]+w_c_4)/length
-        x3 = 1-t_fine*width/length
+        x3 = 0.75
         
         fuse_id = vsp.AddGeom("FUSELAGE") 
         vsp.SetGeomName(fuse_id, fuselage.tag)
