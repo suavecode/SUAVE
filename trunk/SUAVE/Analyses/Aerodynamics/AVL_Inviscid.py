@@ -297,8 +297,8 @@ class AVL_Inviscid(Aerodynamics):
         xy                               = training.grid_points 
         
         # Gaussian Process New
-        regr_cl                          = gaussian_process.GaussianProcess()
-        regr_cd                          = gaussian_process.GaussianProcess()
+        regr_cl                          = gaussian_process.GaussianProcessRegressor()
+        regr_cd                          = gaussian_process.GaussianProcessRegressor()
         cl_surrogate                     = regr_cl.fit(xy, CL_data)
         cd_surrogate                     = regr_cd.fit(xy, CD_data)
         self.surrogates.lift_coefficient = cl_surrogate
