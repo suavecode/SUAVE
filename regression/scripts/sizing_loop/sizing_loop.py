@@ -72,8 +72,8 @@ def main():
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = 0.01417383
-    error_res      = (data_outputs[1]-check_read_res)/check_read_res
+    check_read_res = 0.014173832174028152
+    error_res      = (data_outputs[1][0]-check_read_res)/check_read_res
     
     #remove files for later
     os.remove('sizing_outputs.txt')
