@@ -55,7 +55,7 @@ def turbofan_sizing(turbofan,mach_number = None, altitude = None, delta_isa = 0,
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-            conditions.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+            conditions.freestream.gravity                     = np.atleast_1d(planet.compute_gravity(altitude))
             conditions.freestream.isentropic_expansion_factor = np.atleast_1d(turbofan.working_fluid.compute_gamma(T,p))
             conditions.freestream.Cp                          = np.atleast_1d(turbofan.working_fluid.compute_cp(T,p))
             conditions.freestream.R                           = np.atleast_1d(turbofan.working_fluid.gas_specific_constant)

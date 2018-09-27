@@ -62,7 +62,7 @@ def energy_network():
     EVAL.temperature                 = ones_1col*atmo_data.temperature
     EVAL.density                     = ones_1col*atmo_data.density
     EVAL.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    EVAL.gravity                     = ones_1col*planet.sea_level_gravity
+    EVAL.gravity                     = ones_1col*planet.compute_gravity(EVAL.altitude)
     EVAL.isentropic_expansion_factor = working_fluid.compute_gamma(EVAL.temperature,EVAL.pressure)
     EVAL.Cp                          = working_fluid.compute_cp(EVAL.temperature,EVAL.pressure)                                                                               
     EVAL.R                           = working_fluid.gas_specific_constant
@@ -99,7 +99,7 @@ def energy_network():
     SIZE.temperature                 = ones_1col*atmo_data.temperature
     SIZE.density                     = ones_1col*atmo_data.density
     SIZE.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    SIZE.gravity                     = ones_1col*planet.sea_level_gravity
+    SIZE.gravity                     = ones_1col*planet.compute_gravity(SIZE.altitude)
     SIZE.isentropic_expansion_factor = working_fluid.compute_gamma(SIZE.temperature,SIZE.pressure)
     SIZE.Cp                          = working_fluid.compute_cp(SIZE.temperature,SIZE.pressure)                                                                               
     SIZE.R                           = working_fluid.gas_specific_constant
@@ -228,7 +228,7 @@ def energy_network():
     
     expected.thrust = 338740.9304
     expected.mdot   = 23.11172969
-    expected.Isp    = 1494.56411659
+    expected.Isp    = 1499.25957118
     
     #error data function
     error =  Data()

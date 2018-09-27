@@ -64,7 +64,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-            conditions.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+            conditions.freestream.gravity                     = np.atleast_1d(planet.compute_gravity(altitude)                                                                                                    )
             conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ducted_fan.working_fluid.compute_gamma(T,p))
             conditions.freestream.Cp                          = np.atleast_1d(ducted_fan.working_fluid.compute_cp(T,p))
             conditions.freestream.R                           = np.atleast_1d(ducted_fan.working_fluid.gas_specific_constant)
@@ -87,28 +87,25 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     #Creating the network by manually linking the different components
     
     #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                             = ducted_fan.working_fluid
+    ram.inputs.working_fluid = ducted_fan.working_fluid
     
     #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
     ram(conditions)
 
     #link inlet nozzle to ram 
-    inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature
-    inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure
+    inlet_nozzle.inputs = ram.outputs
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
         
     #Link the fan to the inlet nozzle
-    fan.inputs.stagnation_temperature                      = inlet_nozzle.outputs.stagnation_temperature
-    fan.inputs.stagnation_pressure                         = inlet_nozzle.outputs.stagnation_pressure
+    fan.inputs = inlet_nozzle.outputs
     
     #flow through the fan
     fan(conditions)        
     
     #link the dan nozzle to the fan
-    fan_nozzle.inputs.stagnation_temperature               = fan.outputs.stagnation_temperature
-    fan_nozzle.inputs.stagnation_pressure                  = fan.outputs.stagnation_pressure
+    fan_nozzle.inputs =  fan.outputs
     
     # flow through the fan nozzle
     fan_nozzle(conditions)
