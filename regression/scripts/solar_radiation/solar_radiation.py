@@ -42,7 +42,7 @@ def main():
     fluxes = rad.solar_radiation(conditions)
     
     print('Solar Fluxes')
-    print fluxes
+    print(fluxes)
     truth_fluxes = [[ 1365.96369614],[  853.74651524],[  820.78323974],[    0.        ]]
 
     

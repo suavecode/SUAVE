@@ -15,7 +15,7 @@ from SUAVE.Core.Arrays import atleast_2d_col
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def initialize_differentials_dimensionless(segment,state):
+def initialize_differentials_dimensionless(segment):
     """ Discretizes the differential operators
     
         Assumptions:
@@ -39,7 +39,7 @@ def initialize_differentials_dimensionless(segment,state):
     
     
     # unpack
-    numerics = state.numerics
+    numerics = segment.state.numerics
     N                     = numerics.number_control_points
     discretization_method = numerics.discretization_method
     
@@ -59,7 +59,7 @@ def initialize_differentials_dimensionless(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_differentials_time(segment,state):
+def update_differentials_time(segment):
     """ Scales the differential operators (integrate and differentiate) based on mission time
     
         Assumptions:
@@ -84,15 +84,15 @@ def update_differentials_time(segment,state):
     """     
     
     # unpack
-    numerics = state.numerics
+    numerics = segment.state.numerics
     x = numerics.dimensionless.control_points
     D = numerics.dimensionless.differentiate
     I = numerics.dimensionless.integrate
     
     # rescale time
-    time = state.conditions.frames.inertial.time
-    T = time[-1] - time[0]
-    t = x * T
+    time = segment.state.conditions.frames.inertial.time
+    T    = time[-1] - time[0]
+    t    = x * T
     
     # rescale operators
     D = D / T

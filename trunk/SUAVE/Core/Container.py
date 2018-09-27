@@ -5,14 +5,12 @@
 # Modified: Feb 2016, T. MacDonald
 #           Jun 2016, E. Botero
 
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------        
 
-from Data     import Data
+from .Data     import Data
 from warnings import warn
-
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
@@ -118,4 +116,4 @@ class Container(Data):
         elif isinstance(vals,dict):
             self.update(vals)
         else:
-            raise Exception, 'unrecognized data type'
+            raise Exception('unrecognized data type')

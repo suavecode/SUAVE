@@ -216,7 +216,7 @@ def flight_trajectory(configs,turbofan,analyses):
         
         
         #Calculate flight path
-        for i in xrange(1,n_steps):
+        for i in range(1,n_steps):
             s[i]        = s[i-1]+velocity_x*dt
             altitute[i] = altitute[i-1]+velocity_y*dt
             phi[i]      = np.arctan(z0/altitute[i])

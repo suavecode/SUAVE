@@ -5,6 +5,7 @@
 # Modified: Feb 2016, M. Vegh
 #           Jul 2017, M. Clarke
 #           Aug 2017, E. Botero
+#           Oct 2017, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -60,6 +61,7 @@ class Turbofan(Propulsor):
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
         self.bypass_ratio      = 1.0
+        self.SFC_adjustment    = 0.0 # Less than 1 is a reduction
         
         #areas needed for drag; not in there yet
         self.areas             = Data()
@@ -118,7 +120,7 @@ class Turbofan(Propulsor):
         fan_nozzle                = self.fan_nozzle
         thrust                    = self.thrust
         bypass_ratio              = self.bypass_ratio
-        number_of_engines         = self.number_of_engines   
+        number_of_engines         = self.number_of_engines
         
         #Creating the network by manually linking the different components
         
@@ -332,13 +334,13 @@ class Turbofan(Propulsor):
         
         temp_throttle = np.zeros(len(state.conditions.propulsion.throttle))
         
-        for i in xrange(0,len(state.conditions.propulsion.throttle)):
+        for i in range(0,len(state.conditions.propulsion.throttle)):
             temp_throttle[i] = state.conditions.propulsion.throttle[i]
             state.conditions.propulsion.throttle[i] = 1.0
         
         results = self.evaluate_thrust(state)
         
-        for i in xrange(0,len(state.conditions.propulsion.throttle)):
+        for i in range(0,len(state.conditions.propulsion.throttle)):
             state.conditions.propulsion.throttle[i] = temp_throttle[i]
         
         results.thrust_force_vector = results.thrust_force_vector/self.number_of_engines*(self.number_of_engines-1)

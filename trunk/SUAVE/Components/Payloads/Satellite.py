@@ -13,7 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Payload import Payload
+from .Payload import Payload
 
 # ----------------------------------------------------------------------
 #  Sattelite Data Class

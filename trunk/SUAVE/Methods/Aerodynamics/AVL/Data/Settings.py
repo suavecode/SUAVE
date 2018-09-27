@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
-from Cases import Run_Case
+from .Cases import Run_Case
 
 # ------------------------------------------------------------
 #   Configuration
@@ -60,8 +60,8 @@ class Settings(Data):
                 self.flow_symmetry            = Data()
                 self.discretization           = Data()
 
-                self.num_control_surfaces     = 0
-
+                self.number_control_surfaces     = 0
+                
                 self.discretization.defaults  = Data()
                 self.discretization.surfaces  = Data()
                 self.discretization.defaults.wing                             = AVL_Discretization_Settings()
@@ -140,5 +140,7 @@ class AVL_Discretization_Settings(Data):
                 """  
                 self.chordwise_elements        = 5
                 self.chordwise_spacing_scheme  = 'equal'
-                self.spanwise_elements         = 5
+                self.spanwise_elements         = 10
                 self.spanwise_spacing_scheme   = 'cosine'
+
+                

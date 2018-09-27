@@ -15,7 +15,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Climb
-def unpack_body_angle(segment,state):
+def unpack_body_angle(segment):
     """Unpacks and sets the proper value for body angle
 
     Assumptions:
@@ -35,10 +35,10 @@ def unpack_body_angle(segment,state):
     """          
 
     # unpack unknowns
-    theta      = state.unknowns.body_angle
+    theta      = segment.state.unknowns.body_angle
 
     # apply unknowns
-    state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      
+    segment.state.conditions.frames.body.inertial_rotations[:,1] = theta[:,0]      
 
 
 # ----------------------------------------------------------------------
@@ -46,7 +46,7 @@ def unpack_body_angle(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Climb
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
     
     Assumptions:
@@ -56,12 +56,12 @@ def initialize_conditions(segment,state):
     N/A
 
     Inputs:
-    segment.air_speed                           [meters/second]
-    segment.throttle                            [Unitless]
-    segment.altitude_start                      [meters]
-    segment.altitude_end                        [meters]
-    state.numerics.dimensionless.control_points [Unitless]
-    conditions.freestream.density               [kilograms/meter^3]
+    segment.air_speed                                   [meters/second]
+    segment.throttle                                    [Unitless]
+    segment.altitude_start                              [meters]
+    segment.altitude_end                                [meters]
+    segment.state.numerics.dimensionless.control_points [Unitless]
+    conditions.freestream.density                       [kilograms/meter^3]
 
     Outputs:
     conditions.frames.inertial.velocity_vector  [meters/second]
@@ -76,20 +76,20 @@ def initialize_conditions(segment,state):
     air_speed  = segment.air_speed   
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
-    t_nondim   = state.numerics.dimensionless.control_points
-    conditions = state.conditions  
+    t_nondim   = segment.state.numerics.dimensionless.control_points
+    conditions = segment.state.conditions  
 
     # check for initial altitude
     if alt0 is None:
-        if not state.initials: raise AttributeError('initial altitude not set')
-        alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('initial altitude not set')
+        alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
 
     # pack conditions  
     conditions.propulsion.throttle[:,0] = throttle
     conditions.frames.inertial.velocity_vector[:,0] = air_speed # start up value
 
 ## @ingroup Methods-Missions-Segments-Climb
-def update_differentials_altitude(segment,state):
+def update_differentials_altitude(segment):
     """On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
     
     Assumptions:
@@ -114,21 +114,21 @@ def update_differentials_altitude(segment,state):
     """   
 
     # unpack
-    t = state.numerics.dimensionless.control_points
-    D = state.numerics.dimensionless.differentiate
-    I = state.numerics.dimensionless.integrate
+    t = segment.state.numerics.dimensionless.control_points
+    D = segment.state.numerics.dimensionless.differentiate
+    I = segment.state.numerics.dimensionless.integrate
 
     
     # Unpack segment initials
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end    
-    conditions = state.conditions  
-    v          = state.conditions.frames.inertial.velocity_vector
+    conditions = segment.state.conditions  
+    v          = segment.state.conditions.frames.inertial.velocity_vector
     
     # check for initial altitude
     if alt0 is None:
-        if not state.initials: raise AttributeError('initial altitude not set')
-        alt0 = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]    
+        if not segment.state.initials: raise AttributeError('initial altitude not set')
+        alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]    
     
     # get overall time step
     vz = -v[:,2,None] # Inertial velocity is z down
@@ -142,8 +142,8 @@ def update_differentials_altitude(segment,state):
     t = t * dt
 
     # pack
-    t_initial = state.conditions.frames.inertial.time[0,0]
-    state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
+    t_initial = segment.state.conditions.frames.inertial.time[0,0]
+    segment.state.conditions.frames.inertial.time[:,0] = t_initial + t[:,0]
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 
@@ -154,13 +154,13 @@ def update_differentials_altitude(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Climb
-def update_velocity_vector_from_wind_angle(segment,state):
+def update_velocity_vector_from_wind_angle(segment):
     
     # unpack
-    conditions = state.conditions 
+    conditions = segment.state.conditions 
     v_mag      = segment.air_speed 
-    alpha      = state.unknowns.wind_angle[:,0][:,None]
-    theta      = state.unknowns.body_angle[:,0][:,None]
+    alpha      = segment.state.unknowns.wind_angle[:,0][:,None]
+    theta      = segment.state.unknowns.body_angle[:,0][:,None]
     
     # Flight path angle
     gamma = theta-alpha

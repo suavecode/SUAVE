@@ -10,7 +10,7 @@
 
 from SUAVE.Methods import Missions as Methods
 
-from Mission import Mission
+from .Mission import Mission
 
 # ----------------------------------------------------------------------
 #   Class
@@ -72,25 +72,3 @@ class All_At_Once(Mission):
         #   Finalize
         # --------------------------------------------------------------        
         self.process.finalize.sub_segments          = Methods.Segments.Common.Sub_Segments.finalize_sub_segments
-        
-    def finalize(self):
-        """ Stub
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            None
-    
-            Outputs:
-            None
-    
-            Properties Used:
-            None
-            """           
-        pass
-    
-    

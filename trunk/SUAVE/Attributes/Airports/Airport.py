@@ -10,7 +10,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Attributes.Atmospheres import Earth
-from Runway import Runway
+from .Runway import Runway
 
 # ----------------------------------------------------------------------
 #  Airport Data Class

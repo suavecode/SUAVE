@@ -8,14 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Propellant import Propellant
+from .Propellant import Propellant
 
 # ----------------------------------------------------------------------
 #  Aviation_Gasoline Propellant Class
 # ----------------------------------------------------------------------
 ## @ingroup Attributes-Propellants
 class Aviation_Gasoline(Propellant):
-    """Holds values for this propellant
+    """Contains density and specific energy values for this propellant
     
     Assumptions:
     None

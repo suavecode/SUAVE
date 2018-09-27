@@ -9,16 +9,16 @@
 
 import SUAVE
 from SUAVE.Core import Data
-from Markup import Markup
+from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
 # Default aero Results
-from Results import Results
+from .Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from Process_Geometry import Process_Geometry
+from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.AVL_Inviscid import AVL_Inviscid
 
 # ----------------------------------------------------------------------
@@ -116,11 +116,9 @@ class AVL(Markup):
         self.geometry
         """          
         self.process.compute.lift.inviscid.geometry = self.geometry
-        
         # Generate the surrogate
         self.process.compute.lift.inviscid.initialize()
         
     finalize = initialize
     
     
-

@@ -59,26 +59,80 @@ def main():
         
     # --------------------------------------------------------------------
     # Initialize variables needed for CL and CD calculations
-    # Use a seeded random order for values
+    # Use a pre-run random order for values
     # --------------------------------------------------------------------
+
+    Mc = np.array([[0.9  ],
+       [0.475],
+       [0.05 ],
+       [0.39 ],
+       [0.815],
+       [0.645],
+       [0.305],
+       [0.22 ],
+       [0.56 ],
+       [0.73 ],
+       [0.135]])
     
-    random.seed(1)
-    Mc = np.linspace(0.05,0.9,test_num)
-    random.shuffle(Mc)
-    rho = np.linspace(0.3,1.3,test_num)
-    random.shuffle(rho)
-    mu = np.linspace(5*10**-6,20*10**-6,test_num)
-    random.shuffle(mu)
-    T = np.linspace(200,300,test_num)
-    random.shuffle(T)
-    pressure = np.linspace(10**5,10**6,test_num)
+    rho = np.array([[0.8],
+           [1. ],
+           [0.5],
+           [1.1],
+           [0.4],
+           [1.3],
+           [0.6],
+           [0.3],
+           [0.9],
+           [0.7],
+           [1.2]])
     
-    # Changed after to preserve seed for initial testing
-    Mc = Mc[:,None]
-    rho = rho[:,None]
-    mu = mu[:,None]
-    T = T[:,None]
-    pressure = pressure[:,None]
+    mu = np.array([[1.85e-05],
+           [1.55e-05],
+           [1.40e-05],
+           [1.10e-05],
+           [2.00e-05],
+           [8.00e-06],
+           [6.50e-06],
+           [9.50e-06],
+           [1.70e-05],
+           [1.25e-05],
+           [5.00e-06]])
+    
+    T = np.array([[270.],
+           [250.],
+           [280.],
+           [260.],
+           [240.],
+           [200.],
+           [290.],
+           [230.],
+           [210.],
+           [300.],
+           [220.]])
+    
+    pressure = np.array([[ 100000.],
+           [ 190000.],
+           [ 280000.],
+           [ 370000.],
+           [ 460000.],
+           [ 550000.],
+           [ 640000.],
+           [ 730000.],
+           [ 820000.],
+           [ 910000.],
+           [1000000.]])
+    
+    re = np.array([[12819987.97468646],
+           [ 9713525.47464844],
+           [  599012.59815633],
+           [12606549.94372309],
+           [ 5062187.10214493],
+           [29714816.00808047],
+           [ 9611290.40694227],
+           [ 2112171.68320523],
+           [ 8612638.72342302],
+           [14194381.78364854],
+           [ 9633881.90543247]])    
     
     air = Air()
     a = air.compute_speed_of_sound(T,pressure)
@@ -121,18 +175,17 @@ def main():
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
     lift = state.conditions.aerodynamics.lift_coefficient
-    lift_r = np.array( [ -2.17753919,  -0.7768714 ,  -0.41862788,  -0.16569318,0.1949377 ,
-                        0.49528782,  0.67624325,  0.93239723,   1.41834084,  2.1078681 ,
-                        1.72191103,])[:,None]
+    lift_r = np.array( [-2.17277359, -0.77516232, -0.41769607, -0.16530511, 0.19456498, 0.49425496, \
+                        0.67481247, 0.93041268, 1.41531217, 2.1033578, 1.71822138])[:,None]
     
-    print 'lift = ', lift
+    print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)
     
-    print '\nCompute Lift Test Results\n'
+    print('\nCompute Lift Test Results\n')
     #print lift_test
         
-    assert(np.max(lift_test)<1e-4), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
     
     
     # --------------------------------------------------------------------
@@ -155,7 +208,7 @@ def main():
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
    
-    print 'cd_m =', cd_m
+    print('cd_m =', cd_m)
     
    
     (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
@@ -176,10 +229,10 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print '\nCompute Drag Test Results\n'    
-    print 'cd_tot=', cd_tot
+    print('\nCompute Drag Test Results\n')    
+    print('cd_tot=', cd_tot)
    
-    for i, tests in drag_tests.items(): 
+    for i, tests in list(drag_tests.items()): 
        
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
         
@@ -187,13 +240,14 @@ def main():
       
 
 def reg_values():
-    cd_c_r = np.array([[  8.08247570e-09,  2.32439492e-09,  8.72099506e-23,  3.95356534e-09,
-                          1.12715582e-03,  1.25533189e-04,  3.95906799e-09,  6.25239791e-11,
-                          8.18124461e-05,  1.10331600e-03,   5.40850166e-14]]).T
+    cd_c_r = np.array([[ 8.29898441e-09,   2.34763975e-09,   8.76637705e-23,
+                         3.96161901e-09,   1.12526104e-03,   1.25062320e-04,
+                         3.94214946e-09,   6.22829118e-11,   8.18865035e-05,
+                         1.11968899e-03,   5.44253023e-14]]).T
 
-    cd_i_r = np.array([[  0.19128965,  0.02465096,   0.00777093,   0.00111688,   
-                         0.00156422,   0.00978113,   0.01873018,   0.03699081,   
-                         0.0822499 ,   0.17923674,   0.12162074 ]]).T
+    cd_i_r = np.array([[ 0.19045328,  0.02454262,  0.00773637,  0.00111166,  0.00155824,
+                        0.00974037,  0.01865101,  0.03683351,  0.08189901,  0.17847052,
+                        0.12110009]]).T
 
 
 
@@ -225,9 +279,9 @@ def reg_values():
                                  0.0048708 ,  0.00579879,  0.00734795,  0.00582637,  0.0054087,
                                  0.00583051]]).T
 
-    cd_tot_r        = np.array([[ 0.21162067, 0.04269817,   0.03486839,   0.01825581,   0.02122359, 
-                                 0.0250517 ,   0.03696244,   0.05986016,    0.10164356,   0.20016137,  
-                                 0.14207549,  ]]).T
+    cd_tot_r        = np.array([[ 0.21076757,  0.04258766,  0.03483314,  0.01825048,  0.02121556,
+                                  0.02500965,  0.03688168,  0.05969971,  0.10128573,  0.19939653,
+                                  0.14154442]]).T
     
     
     
@@ -238,5 +292,5 @@ if __name__ == '__main__':
 
     main()
     
-    print 'Aero regression test passed!'
+    print('Aero regression test passed!')
       
