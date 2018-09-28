@@ -8,3 +8,4 @@ from . import ipopt_setup
 from . import pyopt_surrogate_setup
 from . import TRMM
 from . import additive_setup
+from . import pyoptsparse_setup

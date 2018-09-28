@@ -30,7 +30,7 @@ install:
   
 # run test
 script:  
-     coverage run --source=SUAVE --omit=../trunk/SUAVE/Plugins/pint/* automatic_regression.py test
+     coverage run automatic_regression.py test
     
 after_success:
   coveralls
