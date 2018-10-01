@@ -75,15 +75,15 @@ def empty(config,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    rPropLift           = config.propulsors.propulsor.propeller_lift.prop_attributes.tip_radius
-    rPropThrust         = config.propulsors.propulsor.propeller_forward.prop_attributes.tip_radius
+    rPropLift           = config.propulsors.propulsor.propeller_lift.tip_radius
+    rPropThrust         = config.propulsors.propulsor.propeller_forward.tip_radius
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
     mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
     nLiftProps          = config.propulsors.propulsor.number_of_engines_lift
     nThrustProps        = config.propulsors.propulsor.number_of_engines_forward
-    nLiftBlades         = config.propulsors.propulsor.propeller_lift.prop_attributes.number_blades
-    nThrustBlades       = config.propulsors.propulsor.propeller_forward.prop_attributes.number_blades
+    nLiftBlades         = config.propulsors.propulsor.propeller_lift.number_blades
+    nThrustBlades       = config.propulsors.propulsor.propeller_forward.number_blades
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
     fHeight             = config.fuselages.fuselage.heights.maximum
