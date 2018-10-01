@@ -31,10 +31,10 @@ def main():
     con3 = problem.all_constraints([1.1,0.9])    
     
     actual = Data()
-    actual.obj  = 0.6655890687199768
-    actual.con  = 1.13148204
-    actual.obj2 = 0.6837032009429328
-    actual.con3 = 1.20031374
+    actual.obj  = 0.6643101598329857
+    actual.con  = 1.13510805
+    actual.obj2 = 0.6819034003539629
+    actual.con3 = 1.20299795
     
     print('Fuel Burn   =', obj)
     print('Fuel Margin =', con)    

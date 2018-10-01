@@ -51,8 +51,7 @@ class Earth(Planet):
     def compute_gravity(self, H=0.0):
         """Compute the gravitational acceleration at altitude
             
-        Assumptions:
-        
+        Assumptions:      
 
         Source:
 
