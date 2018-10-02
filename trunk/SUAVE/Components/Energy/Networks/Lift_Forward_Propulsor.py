@@ -171,8 +171,12 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the motor for current
         i, etam_forward = motor_forward.current(conditions)  
+        
+        # Fix the current for the throttle cap
+        motor_forward.outputs.current[eta>1.0] = motor_forward.outputs.current[eta>1.0]*eta[eta>1.0]
+        
         # link
-        esc_forward.inputs.currentout =  motor_forward.outputs.current     
+        esc_forward.inputs.currentout =  motor_forward.outputs.current 
         
         # Run the esc
         esc_forward.currentin()        
@@ -222,6 +226,10 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Run the motor for current
         i, etam_lift = motor_lift.current(conditions)  
+        
+        # Fix the current for the throttle cap
+        motor_lift.outputs.current[eta>1.0] = motor_lift.outputs.current[eta>1.0]*eta[eta>1.0]
+        
         # link
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
@@ -490,7 +498,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
-        #segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
         
         return    
     
