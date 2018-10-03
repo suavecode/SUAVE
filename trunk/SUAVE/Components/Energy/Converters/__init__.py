@@ -19,5 +19,6 @@ from .de_Laval_Nozzle import de_Laval_Nozzle
 from .Solar_Panel import Solar_Panel
 from .Turbine import Turbine
 from .Supersonic_Nozzle import Supersonic_Nozzle
+from .Internal_Combustion_Engine import Internal_Combustion_Engine
 from .Shaft_Power_Off_Take import Shaft_Power_Off_Take
 from .Gearbox import Gearbox

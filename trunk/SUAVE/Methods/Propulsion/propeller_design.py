@@ -18,7 +18,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
     
 
-def propeller_design(prop):
+def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
