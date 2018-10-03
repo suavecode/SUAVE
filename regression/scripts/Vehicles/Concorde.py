@@ -62,34 +62,34 @@ def vehicle_setup():
     wing.taper                   = 0.
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 25.6    
+    wing.spans.projected           = 25.6    
     
-    wing.chords.root             = 33.8
-    wing.total_length            = 33.8
-    wing.chords.tip              = 1.1
-    wing.chords.mean_aerodynamic = 18.4
+    wing.chords.root               = 33.8
+    wing.total_length              = 33.8
+    wing.chords.tip                = 1.1
+    wing.chords.mean_aerodynamic   = 18.4
     
-    wing.areas.reference         = 358.25 
-    wing.areas.wetted            = 653. - 12.*2.4*2 # 2.4 is engine area on one side
-    wing.areas.exposed           = 326.5
-    wing.areas.affected          = .6*wing.areas.reference
+    wing.areas.reference           = 358.25 
+    wing.areas.wetted              = 653. - 12.*2.4*2 # 2.4 is engine area on one side
+    wing.areas.exposed             = 326.5
+    wing.areas.affected            = .6*wing.areas.reference
     
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
+    wing.twists.root               = 0.0 * Units.degrees
+    wing.twists.tip                = 0.0 * Units.degrees
     
-    wing.origin                  = [14,0,-.8]
-    wing.aerodynamic_center      = [35,0,0] 
+    wing.origin                    = [14,0,-.8]
+    wing.aerodynamic_center        = [35,0,0] 
     
-    wing.vertical                = False
-    wing.symmetric               = True
-    wing.high_lift               = True
-    wing.vortex_lift             = True
-    wing.high_mach               = True
+    wing.vertical                  = False
+    wing.symmetric                 = True
+    wing.high_lift                 = True
+    wing.vortex_lift               = True
+    wing.high_mach                 = True
     
-    wing.dynamic_pressure_ratio  = 1.0
+    wing.dynamic_pressure_ratio    = 1.0
     
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    wing_airfoil.coordinate_file = 'NACA65-203.dat' 
+    wing_airfoil.coordinate_file   = 'NACA65-203.dat' 
     
     wing.append_airfoil(wing_airfoil)  
     
@@ -105,7 +105,7 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
-    # set mid section start point
+    # set section 2 start point
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'section_2'
     segment.percent_span_location = 6.15/(25.6/2) + wing.Segments['section_1'].percent_span_location
@@ -117,6 +117,17 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
+    # set section 3 start point
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                      = 'section_3'
+    segment.percent_span_location    = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
+    segment.twist                    = 0. * Units.deg
+    segment.root_chord_percent       = 4.4/33.8
+    segment.dihedral_outboard        = 0.
+    segment.sweeps.quarter_chord     = 71. * Units.deg 
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)  
+    
     # set tip section start point
     segment = SUAVE.Components.Wings.Segment() 
     segment.tag                   = 'section_3'
@@ -127,7 +138,7 @@ def vehicle_setup():
     segment.sweeps.quarter_chord  = 71. * Units.deg 
     segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
-    wing.Segments.append(segment)    
+    wing.Segments.append(segment)  
     
     # add to vehicle
     vehicle.append_component(wing)

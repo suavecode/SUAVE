@@ -737,7 +737,7 @@ def load_results():
 def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
     return    
-    
+        
 if __name__ == '__main__': 
     main()    
     plt.show()
