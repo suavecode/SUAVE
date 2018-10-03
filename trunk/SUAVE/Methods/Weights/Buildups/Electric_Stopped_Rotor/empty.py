@@ -155,16 +155,15 @@ def empty(config,
                             output.main_wing
                             ) *Units.kg
 
-    output.empty        = 1.1 * (
+    output.empty        = (1.1 * (
                             output.structural +
                             output.seats +
                             output.avionics +
-                            output.battery +
                             output.motors +
                             output.servos +
                             output.wiring +
                             output.brs
-                            ) *Units.kg
+                            ) + output.battery) *Units.kg
     
     output.total        = (output.empty +
                             output.payload) *Units.kg
