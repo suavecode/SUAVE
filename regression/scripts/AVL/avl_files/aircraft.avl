@@ -14,25 +14,6 @@ cruise
 
 #---------------------------------------------------------
 SURFACE
-horizontal_stabilizer
-#Nchordwise  Cspace   Nspanwise  Sspace
-5         1.0         10      1.0
-
-YDUPLICATE
-0.0
-
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-32.83  0    1.14    4.7    0.05235987755982989     
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-38.78760738135868  7.1    1.14    0.955    0.05235987755982989     
-
-
-#---------------------------------------------------------
-SURFACE
 vertical_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
 5         1.0         10      -1.1 
@@ -63,6 +44,25 @@ SECTION
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 21.611839413939776  17.16    -1.27    0.782    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+horizontal_stabilizer
+#Nchordwise  Cspace   Nspanwise  Sspace
+5         1.0         10      1.0
+
+YDUPLICATE
+0.0
+
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+32.83  0    1.14    4.7    0.05235987755982989     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+38.78760738135868  7.1    1.14    0.955    0.05235987755982989     
 
 
 #---------------------------------------------------------
