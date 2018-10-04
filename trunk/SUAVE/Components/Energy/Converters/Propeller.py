@@ -50,14 +50,23 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.number_blades       = 0.0
-        self.tip_radius          = 0.0
-        self.hub_radius          = 0.0
-        self.twist_distribution  = 0.0
-        self.chord_distribution  = 0.0
-        self.mid_chord_aligment  = 0.0
-        self.thrust_angle        = 0.0
-        self.radius_distribution = None
+        self.number_blades        = 0.0
+        self.tip_radius           = 0.0
+        self.hub_radius           = 0.0
+        self.twist_distribution   = 0.0
+        self.chord_distribution   = 0.0
+        self.mid_chord_aligment   = 0.0
+        self.thrust_angle         = 0.0
+        self.radius_distribution  = None
+        self.tag                  = 'Propeller'
+        
+        self.thrust_attributes         = Data()
+        self.thrust_attributes.velocity = 0.0
+        self.thrust_attributes.thrust   = 0.0
+        self.thrust_attributes.vt       = 0.0
+        self.thrust_attributes.va       = 0.0           
+        self.thrust_attributes.Ut       = 0.0
+        self.thrust_attributes.Ua       = 0.0      
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -315,7 +324,7 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data      
-        conditions.propulsion.acoustic_outputs = results_conditions(
+        noise_data = results_conditions(
             number_sections    = N,
             r0                 = r,
             airfoil_chord      = c,
@@ -336,7 +345,15 @@ class Propeller(Energy_Component):
         )
         
         
-        return thrust, torque, power, Cp 
+        self.thrust_attributes.velocity = V
+        self.thrust_attributes.thrust   = thrust
+        self.thrust_attributes.vt       = vt
+        self.thrust_attributes.va       = va          
+        self.thrust_attributes.Ut       = Ut
+        self.thrust_attributes.Ua       = Ua      
+        
+        return thrust, torque, power, Cp, noise_data, etap
+
     
     
 

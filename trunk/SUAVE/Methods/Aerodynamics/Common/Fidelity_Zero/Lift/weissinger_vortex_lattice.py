@@ -65,7 +65,7 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
     sym_para    = wing.symmetric
     Sref        = wing.areas.reference
     orientation = wing.vertical
-    
+    print(wing.tag)
     n           = 50            # number_panels_spanwise
     
     # conditions
@@ -80,10 +80,10 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
     for index in range(num_var):
         rho              = conditions.freestream.density[index][0]            
         aoa              = conditions.aerodynamics.angle_of_attack[index][0]         
-        q_inf            = conditions.freestream.dynamic_pressure[index][0]  
+        q_inf            = conditions.freestream.dynamic_pressure [index][0] 
         q_distribution   = np.ones(n)*q_inf
         V_distribution   = np.ones(n)*conditions.freestream.velocity[index][0]  
-        aoa_distribution = np.ones(n)*aoa 
+        aoa_distribution = np.ones(n)*aoa  
         
         # chord difference
         dchord = (root_chord-tip_chord)
@@ -185,84 +185,82 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
             if propeller_status : # If propellers present, find propeller location and re-vectorize wing with embedded propeller               
                 total_propeller_V_distribution = 0              
                 num_prop   = len(propeller.origin)                                            # number of propellers                  
-                for i in range(num_prop):                                                     # loop through propellers on aircraft to get combined effect of slipstreams          
-                    if propeller.origin[i][0] <= wing.origin[0] and propeller.origin[i][1] < span :
-                        if test : # condition for vertical alignment : ################
+                for i in range(num_prop):                                                     # loop through propellers on aircraft to get combined effect of slipstreams      
+                    R_p        = propeller.tip_radius                                         # propeller radius
+                    A_eng      = np.pi*R_p**2                                                 # area of propeller disc    
+                    V_eng     =  propeller.propeller_attributes.velocity                                           # total velocity 
+                    F_eng     = -propeller.propeller_attributes.thrust                                             # thurst            ###### might need to devide by number of proepllers
+                    if propeller.origin[i][0] <= wing.origin[0] and propeller.origin[i][1] < span :                         
+                        del_V_eng  =  np.sqrt(V_eng**2 + 2*F_eng/(rho*A_eng))                 # eqn. 121 AS Wing Theory Manual
+                        r_jet      = y[0]                                                     # spanwise coordinates of wing                        
+                        K_ep       = 0.11                                                     # jet spreading constant lateral pg.24 AS Wing Theory Manual                      
+                        ep_b       = K_ep*abs(del_V_eng)/(V_eng + 0.5*del_V_eng)              # gradient of outer mixing layer pg.24 AS Wing Theory Manual  
+                        ep_c       = K_ep*abs(del_V_eng)/(V_eng + del_V_eng)                  # gradient of inner mixing layer pg.24 AS Wing Theory Manual      
+                        x_jet      = propeller.origin[i][0] - wing.origin[0]                  # distance between jet and wing
+                        R_p_prime  = R_p*np.sqrt((V_eng + 0.5*del_V_eng)/(V_eng + del_V_eng)) # initial contraction radius                   
                         
-                            R_p        = propeller.tip_radius                                     # propeller radius
-                            A_eng      = np.pi*R_p**2                                             # area of propeller disc
-                            V_eng      = conditions.propulsion.acoustic_outputs.velocity[0][0]    # total velocity 
-                            F_eng      = -conditions.propulsion.acoustic_outputs.thrust[0][0]     # thurst            ###### might need to devide by number of proepllers
-                            del_V_eng  =  np.sqrt(V_eng**2 + 2*F_eng/(rho*A_eng))                 # eqn. 121 AS Wing Theory Manual
-                            r_jet      = y[0]                                                     # spanwise coordinates of wing                        
-                            K_ep       = 0.11                                                     # jet spreading constant lateral pg.24 AS Wing Theory Manual                      
-                            ep_b       = K_ep*abs(del_V_eng)/(V_eng + 0.5*del_V_eng)              # gradient of outer mixing layer pg.24 AS Wing Theory Manual  
-                            ep_c       = K_ep*abs(del_V_eng)/(V_eng + del_V_eng)                  # gradient of inner mixing layer pg.24 AS Wing Theory Manual      
-                            x_jet      = propeller.origin[i][0] - wing.origin[0]                  # distance between jet and wing
-                            R_p_prime  = R_p*np.sqrt((V_eng + 0.5*del_V_eng)/(V_eng + del_V_eng)) # initial contraction radius                   
+                        x_mix     = R_p_prime/ep_c                                            # mixing distance 
+                        b_jet     = R_p_prime + ep_b*x_jet                                    # width of outer mixing layer
+                        if x_jet <= x_mix:                                                    # width of inner mixing layer
+                            c_jet = R_p_prime - ep_c*x_jet
+                        elif x_jet > x_mix:
+                            c_jet = 0
+                           
+                        # Jet centerline velocity increment  
+                        b         = b_jet   # ## CHECK ##
+                        c         = c_jet   #  ## CHECK ##
+                        k1        = c**2 + (9/10)*c*(b-c) + (9/35)*(b-c)**2
+                        k2        = c**2 + (243/385)*c*(b-c) + (243/1820)*(b-c)**2   
+                        del_Vjet0 = np.sqrt(0.25*(k1**2/k2**2)*V_eng**2 + F_eng/(rho*np.pi*k2)) - 0.5*(k1/k2)*V_eng 
+                        
+                        # Velocity profile over the mixing layer is closely approximated by Schlichting’s asymptotic wake profile    
+                        for j in range(n):
+                            if (propeller.origin[0][1]-b_jet) >= (r_jet[j]):
+                                del_V_jet = 0;                                    
                             
-                            x_mix     = R_p_prime/ep_c                                            # mixing distance 
-                            b_jet     = R_p_prime + ep_b*x_jet                                    # width of outer mixing layer
-                            if x_jet <= x_mix:                                                    # width of inner mixing layer
-                                c_jet = R_p_prime - ep_c*x_jet
-                            elif x_jet > x_mix:
-                                c_jet = 0
-                               
-                            # Jet centerline velocity increment  
-                            b         = b_jet   # ############
-                            c         = c_jet   # ############    
-                            k1        = c**2 + (9/10)*c*(b-c) + (9/35)*(b-c)**2
-                            k2        = c**2 + (243/385)*c*(b-c) + (243/1820)*(b-c)**2   
-                            del_Vjet0 = np.sqrt(0.25*(k1**2/k2**2)*V_eng**2 + F_eng/(rho*np.pi*k2)) - 0.5*(k1/k2)*V_eng 
+                            elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <= (propeller.origin[0][1]-c_jet):
+                                start_val = propeller.origin[0][1] - b_jet
+                                end_val   = propeller.origin[0][1] - c_jet
+                                del_V_jet = del_Vjet0* (2*((r_jet[j] - start_val)/(end_val - start_val))**1.5 -  ((r_jet[j] - start_val)/(end_val - start_val))**3 )  
                             
-                            # Velocity profile over the mixing layer is closely approximated by Schlichting’s asymptotic wake profile    
-                            for j in range(n):
-                                if (propeller.origin[0][1]-b_jet) >= (r_jet[j]):
-                                    del_V_jet = 0;                                    
+                            elif (propeller.origin[0][1] - c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1]+c_jet):
+                                del_V_jet = del_Vjet0
                                 
-                                elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <= (propeller.origin[0][1]-c_jet):
-                                    start_val = propeller.origin[0][1] - b_jet
-                                    end_val   = propeller.origin[0][1] - c_jet
-                                    del_V_jet = del_Vjet0* (2*((r_jet[j] - start_val)/(end_val - start_val))**1.5 -  ((r_jet[j] - start_val)/(end_val - start_val))**3 )  
-                                
-                                elif (propeller.origin[0][1] - c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1]+c_jet):
-                                    del_V_jet = del_Vjet0
-                                    
-                                elif (propeller.origin[0][1] + c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1] + b_jet):
-                                    del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
-                                
-                                elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
-                                    del_V_jet = 0                                                                     
-                                                        
-                            added_propeller_V_distribution =+  del_V_jet                                  
+                            elif (propeller.origin[0][1] + c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1] + b_jet):
+                                del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
+                            
+                            elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
+                                del_V_jet = 0                                                                     
+                                                    
+                        total_propeller_V_distribution =+  del_V_jet                                  
                         
                 # distribution of dynamic pressure      
-                q_distribution =  0.5*(V_distribution+added_propeller_V_distribution)**2  # ##########
+                q_distribution =  0.5*(V_distribution+total_propeller_V_distribution)**2  #  ## CHECK ##
                 LT[index][0],CL[index][0],DT[index][0], CD[index][0],Lift_distribution[index][:],Drag_distribution[index][:] = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)            
             else:
-                q_distribution = 0.5*rho*V_distribution**2          # ##########
+                q_distribution = 0.5*rho*V_distribution**2          #  ## CHECK ##
                 LT[index][0],CL[index][0],DT[index][0],CD[index][0],Lift_distribution[index][:],Drag_distribution[index][:]  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
-    
-            ##-----------------------------------------------------------
-            ## PLOT LIFT & DRAF DISTRIBUTION
-            ##-----------------------------------------------------------
-            #wing_span          = np.array(np.linspace(0,span,n))
-            
-            #fig = plt.figure('Semi Span Aerodynamics')
-            #fig.set_size_inches(10, 8)
-    
-            #axes2 = fig.add_subplot(2,1,1)
-            #axes2.plot( wing_span , V_distribution , 'ro-' )
-            #axes2.set_xlabel('Span (m)')
-            #axes2.set_ylabel(r'Local Velocity $m/s$')
-            #axes2.grid(True)        
-    
-            #axes3 = fig.add_subplot(2,1,2)
-            #axes3.plot( wing_span , Lift_distribution[0], 'bo-' )
-            #axes3.set_xlabel('Span (m)')
-            #axes3.set_ylabel(r'$Spanwise Lift$')
-            #axes3.grid(True)        
-            #plt.show()
+
+        ##-----------------------------------------------------------
+        ## PLOT LIFT & DRAF DISTRIBUTION
+        ##-----------------------------------------------------------
+        #wing_span          = np.array(np.linspace(0,span,n))
+        
+        #fig = plt.figure('Semi Span Aerodynamics')
+        #fig.set_size_inches(10, 8)
+
+        #axes2 = fig.add_subplot(2,1,1)
+        #axes2.plot( wing_span , V_distribution , 'ro-' )
+        #axes2.set_xlabel('Span (m)')
+        #axes2.set_ylabel(r'Local Velocity $m/s$')
+        #axes2.grid(True)        
+
+        #axes3 = fig.add_subplot(2,1,2)
+        #axes3.plot( wing_span , Lift_distribution[0], 'bo-' )
+        #axes3.set_xlabel('Span (m)')
+        #axes3.set_ylabel(r'$Spanwise Lift$')
+        #axes3.grid(True)        
+        #plt.show()
             
     return  LT , CL , DT, CD   
         

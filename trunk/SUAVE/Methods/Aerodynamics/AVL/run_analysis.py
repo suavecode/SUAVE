@@ -89,7 +89,8 @@ def call_avl(avl_object):
                 # Run AVL
                 avl_run = subprocess.Popen([avl_call,geometry],stdout=sys.stdout,stderr=sys.stderr,stdin=subprocess.PIPE)
                 for line in commands:
-                    avl_run.stdin.write(line)
+                    avl_run.stdin.write(line.encode('utf-8'))
+                    avl_run.stdin.flush()
                   
                 # Terminate suppression of console window output  
                 if print_output == False:

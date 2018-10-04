@@ -102,7 +102,7 @@ def main():
     
     import pylab as plt
     title = "TOFL vs W"
-    plt.figure(1); plt.hold
+    plt.figure(1); 
     plt.plot(w_vec,takeoff_field_length[:,0], 'k-', label = '2 Engines')
     plt.plot(w_vec,takeoff_field_length[:,1], 'r-', label = '3 Engines')
     plt.plot(w_vec,takeoff_field_length[:,2], 'b-', label = '4 Engines')
@@ -117,7 +117,7 @@ def main():
         
     
     title = "2nd Segment Climb Gradient vs W"
-    plt.figure(2); plt.hold
+    plt.figure(2); 
     plt.plot(w_vec,second_seg_clb_grad[:,0], 'k-', label = '2 Engines')
     plt.plot(w_vec,second_seg_clb_grad[:,1], 'r-', label = '3 Engines')
     plt.plot(w_vec,second_seg_clb_grad[:,2], 'b-', label = '4 Engines')

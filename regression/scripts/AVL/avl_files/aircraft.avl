@@ -16,7 +16,7 @@ cruise
 SURFACE
 main_wing
 #Nchordwise  Cspace   Nspanwise  Sspace
-20         1.0         26.0      1.0
+5         1.0         10      1.0
 
 YDUPLICATE
 0.0
@@ -35,7 +35,7 @@ SECTION
 SURFACE
 horizontal_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
-20         1.0         11.0      1.0
+5         1.0         10      1.0
 
 YDUPLICATE
 0.0
@@ -54,7 +54,7 @@ SECTION
 SURFACE
 vertical_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
-20         1.0         12.0      -1.1 
+5         1.0         10      -1.1 
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -69,7 +69,7 @@ SECTION
 SURFACE
 fuselage_horizontal
 #Nchordwise  Cspace   Nspanwise  Sspace
-20           1.0      
+5           1.0      
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -120,7 +120,7 @@ SECTION
 SURFACE
 fuselage_vertical
 #Nchordwise  Cspace   Nspanwise  Sspace
-20           1.0      
+5           1.0      
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
