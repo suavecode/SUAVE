@@ -14,6 +14,7 @@ import scipy.interpolate as interpolate
 import sklearn.svm as svm
 import sklearn.ensemble as ensemble
 import sklearn.gaussian_process as gaussian_process
+from sklearn.gaussian_process.kernels import RationalQuadratic 
 import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
 from .write_sizing_outputs import write_sizing_outputs
@@ -152,7 +153,8 @@ class Sizing_Loop(Data):
                             regr        = ensemble.BaggingRegressor()
                             
                         elif self.initial_step == 'GPR':
-                            regr        = gaussian_process.GaussianProcess()
+                            gp_kernel_RQ = RationalQuadratic(length_scale=1.0, alpha=1.0)
+                            regr        = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ,normalize_y=True)
                             
                         elif self.initial_step == 'RANSAC':
                             regr        = linear_model.RANSACRegressor()
