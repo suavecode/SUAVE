@@ -40,7 +40,7 @@ class Vortex_Lattice(Aerodynamics):
     Source:
     None
     """ 
-
+     
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
 
@@ -72,7 +72,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.aircraft_span_efficiency_factor    = 0.78
         self.settings.drag_coefficient_increment         = 0.0000
 
-    def evaluate(self,state,settings,geometry):
+    def evaluate(self,state,settings,geometry,index):
         # unpack
         conditions = state.conditions
         propulsors = geometry.propulsors
@@ -89,9 +89,8 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = Data()
         state.conditions.aerodynamics.lift_coefficient                   = Data()
         state.conditions.aerodynamics.lift_coefficient_wing              = Data() 
-                
         for wing in geometry.wings.values():
-            [wing_lift_coeff, wing_lift, wing_drag_coeff, wing_drag]             = weissinger_vortex_lattice(conditions,settings,wing,propulsors)
+            [wing_lift_coeff, wing_lift, wing_drag_coeff, wing_drag]             = weissinger_vortex_lattice(conditions,settings,wing,propulsors,index)
             inviscid_wings_lift[wing.tag]                                        = wing_lift_coeff 
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag] = inviscid_wings_lift[wing.tag]
             state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]        = inviscid_wings_lift[wing.tag]     

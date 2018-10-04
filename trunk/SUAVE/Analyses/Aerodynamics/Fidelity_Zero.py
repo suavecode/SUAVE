@@ -91,7 +91,6 @@ class Fidelity_Zero(Markup):
         # first stub out empty functions
         # then implement methods
         # then we'll figure out how to connect to a mission
-        
         compute.lift = Process()
 
         compute.lift.inviscid_wings                = Vortex_Lattice()
@@ -121,7 +120,7 @@ class Fidelity_Zero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
-        
+        index = 1
     #def initialize(self):
         #"""Initializes the surrogate needed for lift calculation.
 

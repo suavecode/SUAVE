@@ -51,8 +51,7 @@ class Aerodynamics(Analysis):
         
         self.geometry = Data()
         self.settings = Data()
-        self.settings.maximum_lift_coefficient = np.inf
-        
+        self.settings.maximum_lift_coefficient = np.inf 
         
     def evaluate(self,state):
         """The default evaluate function.
