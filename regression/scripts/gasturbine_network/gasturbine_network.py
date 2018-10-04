@@ -45,23 +45,23 @@ def energy_network():
     
     # Conditions        
     ones_1col = np.ones([1,1])       
-    ALT                                                = 10.0
+    alt                                                = 10.0
     
     # Setup conditions
     planet     = SUAVE.Attributes.Planets.Earth()   
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                        = atmosphere.compute_values(ALT,0,True) 
+    atmo_data                        = atmosphere.compute_values(alt,0,True) 
     working_fluid                    = SUAVE.Attributes.Gases.Air()    
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
   
     # freestream conditions
-    conditions.freestream.altitude                     = ones_1col*ALT   
+    conditions.freestream.altitude                     = ones_1col*alt   
     conditions.freestream.mach_number                  = ones_1col*0.8
     conditions.freestream.pressure                     = ones_1col*atmo_data.pressure
     conditions.freestream.temperature                  = ones_1col*atmo_data.temperature
     conditions.freestream.density                      = ones_1col*atmo_data.density
     conditions.freestream.dynamic_viscosity            = ones_1col*atmo_data.dynamic_viscosity
-    conditions.freestream.gravity                      = ones_1col*planet.compute_gravity(ALT)
+    conditions.freestream.gravity                      = ones_1col*planet.compute_gravity(alt)
     conditions.freestream.isentropic_expansion_factor  = ones_1col*working_fluid.compute_gamma(atmo_data.temperature,atmo_data.pressure)                                                                                             
     conditions.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmo_data.temperature,atmo_data.pressure)
     conditions.freestream.R                            = ones_1col*working_fluid.gas_specific_constant
@@ -80,22 +80,22 @@ def energy_network():
     
     # Conditions        
     ones_1col = np.ones([1,1])    
-    ALT_SIZE  = 10000.0
+    alt_size  = 10000.0
     # Setup conditions
     planet     = SUAVE.Attributes.Planets.Earth()   
     atmosphere                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data                        = atmosphere.compute_values(ALT_SIZE,0,True) 
+    atmo_data                        = atmosphere.compute_values(alt_size,0,True) 
     working_fluid                    = SUAVE.Attributes.Gases.Air()    
     conditions_sizing = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
     # freestream conditions
-    conditions_sizing.freestream.altitude                     = ones_1col*ALT_SIZE     
+    conditions_sizing.freestream.altitude                     = ones_1col*alt_size     
     conditions_sizing.freestream.mach_number                  = ones_1col*0.8
     conditions_sizing.freestream.pressure                     = ones_1col*atmo_data.pressure
     conditions_sizing.freestream.temperature                  = ones_1col*atmo_data.temperature
     conditions_sizing.freestream.density                      = ones_1col*atmo_data.density
     conditions_sizing.freestream.dynamic_viscosity            = ones_1col*atmo_data.dynamic_viscosity
-    conditions_sizing.freestream.gravity                      = ones_1col*planet.compute_gravity(ALT_SIZE)
+    conditions_sizing.freestream.gravity                      = ones_1col*planet.compute_gravity(alt_size)
     conditions_sizing.freestream.isentropic_expansion_factor  = ones_1col*working_fluid.compute_gamma(atmo_data.temperature,atmo_data.pressure)                                                                                             
     conditions_sizing.freestream.Cp                           = ones_1col*working_fluid.compute_cp(atmo_data.temperature,atmo_data.pressure)
     conditions_sizing.freestream.R                            = ones_1col*working_fluid.gas_specific_constant
