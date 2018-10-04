@@ -29,25 +29,6 @@ SECTION
 
 #---------------------------------------------------------
 SURFACE
-main_wing
-#Nchordwise  Cspace   Nspanwise  Sspace
-5         1.0         10      1.0
-
-YDUPLICATE
-0.0
-
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-13.61  0    -1.27    7.76    0.06981317007977318     
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-21.611839413939776  17.16    -1.27    0.782    0.0     
-
-
-#---------------------------------------------------------
-SURFACE
 horizontal_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
 5         1.0         10      1.0
@@ -63,6 +44,25 @@ SECTION
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 38.78760738135868  7.1    1.14    0.955    0.05235987755982989     
+
+
+#---------------------------------------------------------
+SURFACE
+main_wing
+#Nchordwise  Cspace   Nspanwise  Sspace
+5         1.0         10      1.0
+
+YDUPLICATE
+0.0
+
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+13.61  0    -1.27    7.76    0.06981317007977318     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+21.611839413939776  17.16    -1.27    0.782    0.0     
 
 
 #---------------------------------------------------------
