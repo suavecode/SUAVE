@@ -2,16 +2,33 @@
 # compute_possible_longitudinal_fuel_center_of_gravity.py
 #
 # Created:  Sep 2018, T. MacDonald
-
-# ----------------------------------------------------------------------
-#  Computer Mission Center of Gravity
-# ----------------------------------------------------------------------
+# Modified: Oct 2018, T. MacDonald
 
 from SUAVE.Core import DataOrdered, Data
 import numpy as np
 from copy import copy
 
+## @ingroup Methods-Center_of_Gravity
 def plot_cg_map(masses,cg_mins,cg_maxes):
+    """Plot possible longitudinal cg positions for the fuel.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    masses    [kg]
+    cg_mins   [m]
+    cg_maxes  [m]
+
+    Outputs:
+    A plot
+
+    Properties Used:
+    N/A
+    """    
     
     import pylab as plt
 
@@ -29,17 +46,27 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):
-    """ 
+    """Computes the possible longitudinal center of gravity given
+    a set of fuel tanks.
 
     Assumptions:
-    None
+    Fuel tanks are only in the fuselage/wings
 
     Source:
     N/A
 
     Inputs:
+    vehicle.wings.*.Fuel_Tanks.mass_properties.
+      center_of_gravity       [m]
+      full_fuel_mass          [kg]
+    vehicle.fuselages.*.Fuel_Tanks.mass_properties.
+      center_of_gravity       [m]
+      full_fuel_mass          [kg]
 
     Outputs:
+    fuel_masses               [kg] (these are arrays spanning the possible masses)
+    min_cg                    [m]
+    max_cg                    [m]
 
     Properties Used:
     N/A
@@ -66,7 +93,7 @@ def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):
     
     for i,tank in enumerate(fuel_tanks):
         tank_cgs[i]    = tank.mass_properties.center_of_gravity[0,0]
-        tank_masses[i] = tank.mass_properties.full_fuel_volume
+        tank_masses[i] = tank.mass_properties.full_fuel_mass
         
     #tank_cgs = np.array([0,1,2])
     #tank_masses = np.array([1,1,1])

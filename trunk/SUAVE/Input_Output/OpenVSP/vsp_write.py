@@ -4,6 +4,7 @@
 # Created:  Jul 2016, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
 #           Jul 2017, T. MacDonald
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -32,53 +33,55 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     N/A
 
     Inputs:
-    wings.*.    (* is all keys)
-      origin                                  [m] in all three dimensions
-      spans.projected                         [m]
-      chords.root                             [m]
-      chords.tip                              [m]
-      sweeps.quarter_chord                    [radians]
-      twists.root                             [radians]
-      twists.tip                              [radians]
-      thickness_to_chord                      [-]
-      dihedral                                [radians]
-      tag                                     <string>
-      Segments.*. (optional)
-        twist                                 [radians]
-        percent_span_location                 [-]  .1 is 10%
-        root_chord_percent                    [-]  .1 is 10%
-        dihedral_outboard                     [radians]
-        sweeps.quarter_chord                  [radians]
-        thickness_to_chord                    [-]
-    propulsors.turbofan. (optional)
-      number_of_engines                       [-]
-      engine_length                           [m]
-      nacelle_diameter                        [m]
-      origin                                  [m] in all three dimension, should have as many origins as engines
-      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
-    fuselages.fuselage (optional)
-      width                                   [m]
-      lengths.total                           [m]
-      heights.
-        maximum                               [m]
-        at_quarter_length                     [m]
-        at_wing_root_quarter_chord            [m]
-        at_three_quarters_length              [m]
-      effective_diameter                      [m]
-      fineness.nose                           [-] ratio of nose section length to fuselage width
-      fineness.tail                           [-] ratio of tail section length to fuselage width
-      tag                                     <string>
-      OpenVSP_values.  (optional)
-        nose.top.angle                        [degrees]
-        nose.top.strength                     [-] this determines how much the specified angle influences that shape
-        nose.side.angle                       [degrees]
-        nose.side.strength                    [-]
-        nose.TB_Sym                           <boolean> determines if top angle is mirrored on bottom
-        nose.z_pos                            [-] z position of the nose as a percentage of fuselage length (.1 is 10%)
-        tail.top.angle                        [degrees]
-        tail.top.strength                     [-]
-        tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
-    
+    vehicle.
+      tag                                       [-]
+      wings.*.    (* is all keys)
+        origin                                  [m] in all three dimensions
+        spans.projected                         [m]
+        chords.root                             [m]
+        chords.tip                              [m]
+        sweeps.quarter_chord                    [radians]
+        twists.root                             [radians]
+        twists.tip                              [radians]
+        thickness_to_chord                      [-]
+        dihedral                                [radians]
+        tag                                     <string>
+        Segments.*. (optional)
+          twist                                 [radians]
+          percent_span_location                 [-]  .1 is 10%
+          root_chord_percent                    [-]  .1 is 10%
+          dihedral_outboard                     [radians]
+          sweeps.quarter_chord                  [radians]
+          thickness_to_chord                    [-]
+      propulsors.turbofan. (optional)
+        number_of_engines                       [-]
+        engine_length                           [m]
+        nacelle_diameter                        [m]
+        origin                                  [m] in all three dimension, should have as many origins as engines
+        OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+      fuselages.fuselage (optional)
+        width                                   [m]
+        lengths.total                           [m]
+        heights.
+          maximum                               [m]
+          at_quarter_length                     [m]
+          at_wing_root_quarter_chord            [m]
+          at_three_quarters_length              [m]
+        effective_diameter                      [m]
+        fineness.nose                           [-] ratio of nose section length to fuselage width
+        fineness.tail                           [-] ratio of tail section length to fuselage width
+        tag                                     <string>
+        OpenVSP_values.  (optional)
+          nose.top.angle                        [degrees]
+          nose.top.strength                     [-] this determines how much the specified angle influences that shape
+          nose.side.angle                       [degrees]
+          nose.side.strength                    [-]
+          nose.TB_Sym                           <boolean> determines if top angle is mirrored on bottom
+          nose.z_pos                            [-] z position of the nose as a percentage of fuselage length (.1 is 10%)
+          tail.top.angle                        [degrees]
+          tail.top.strength                     [-]
+          tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+    fuel_tank_set_index                         <int> OpenVSP object set containing the fuel tanks    
 
     Outputs:
     <tag>.vsp3           This is the OpenVSP representation of the aircraft
@@ -133,7 +136,46 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     
     return area_tags
 
+## @ingroup Input_Output-OpenVSP
 def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
+    """This write a given wing into OpenVSP format
+    
+    Assumptions:
+    If wing segments are defined, they must cover the full span.
+    (may work in some other cases, but functionality will not be maintained)
+
+    Source:
+    N/A
+
+    Inputs:
+    wing.
+      origin                                  [m] in all three dimensions
+      spans.projected                         [m]
+      chords.root                             [m]
+      chords.tip                              [m]
+      sweeps.quarter_chord                    [radians]
+      twists.root                             [radians]
+      twists.tip                              [radians]
+      thickness_to_chord                      [-]
+      dihedral                                [radians]
+      tag                                     <string>
+      Segments.*. (optional)
+        twist                                 [radians]
+        percent_span_location                 [-]  .1 is 10%
+        root_chord_percent                    [-]  .1 is 10%
+        dihedral_outboard                     [radians]
+        sweeps.quarter_chord                  [radians]
+        thickness_to_chord                    [-]
+    area_tags                                 <dict> used to keep track of all tags needed in wetted area computation           
+    fuel_tank_set_index                       <int> OpenVSP object set containing the fuel tanks    
+
+    Outputs:
+    area_tags                                 <dict> used to keep track of all tags needed in wetted area computation           
+    wing_id                                   <str>  OpenVSP ID for given wing
+
+    Properties Used:
+    N/A
+    """       
     wing_x = wing.origin[0]    
     wing_y = wing.origin[1]
     wing_z = wing.origin[2]
@@ -356,7 +398,30 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     
     return area_tags, wing_id
 
+## @ingroup Input_Output-OpenVSP
 def write_vsp_turbofan(turbofan):
+    """This converts turbofans into OpenVSP format.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    turbofan.
+      number_of_engines                       [-]
+      engine_length                           [m]
+      nacelle_diameter                        [m]
+      origin                                  [m] in all three dimension, should have as many origins as engines
+      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """    
     n_engines = turbofan.number_of_engines
     length    = turbofan.engine_length
     width = turbofan.nacelle_diameter
@@ -420,7 +485,51 @@ def write_vsp_turbofan(turbofan):
         
         vsp.Update()
         
+## @ingroup Input_Output-OpenVSP
 def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
+    """This writes a fuselage into OpenVSP format.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    fuselage
+      width                                   [m]
+      lengths.total                           [m]
+      heights.
+        maximum                               [m]
+        at_quarter_length                     [m]
+        at_wing_root_quarter_chord            [m]
+        at_three_quarters_length              [m]
+      effective_diameter                      [m]
+      fineness.nose                           [-] ratio of nose section length to fuselage width
+      fineness.tail                           [-] ratio of tail section length to fuselage width
+      tag                                     <string>
+      OpenVSP_values.  (optional)
+        nose.top.angle                        [degrees]
+        nose.top.strength                     [-] this determines how much the specified angle influences that shape
+        nose.side.angle                       [degrees]
+        nose.side.strength                    [-]
+        nose.TB_Sym                           <boolean> determines if top angle is mirrored on bottom
+        nose.z_pos                            [-] z position of the nose as a percentage of fuselage length (.1 is 10%)
+        tail.top.angle                        [degrees]
+        tail.top.strength                     [-]
+        tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+    area_tags                                 <dict> used to keep track of all tags needed in wetted area computation           
+    main_wing.origin                          [m]
+    main_wing.chords.root                     [m]
+    fuel_tank_set_index                       <int> OpenVSP object set containing the fuel tanks    
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """        
+    
     width    = fuselage.width
     length   = fuselage.lengths.total
     hmax     = fuselage.heights.maximum
@@ -497,7 +606,35 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     
     return area_tags
 
+## @ingroup Input_Output-OpenVSP
 def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
+    """This writes a conformal fuel tank in a wing.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    wing.Segments.*.percent_span_location       [-]
+    wing.spans.projected                        [m]
+    wind_id                                     <str>
+    fuel_tank.
+      inward_offset                             [m]
+      start_chord_percent                       [-] .1 is 10%
+      end_chord_percent                         [-]
+      start_span_percent                        [-]
+      end_span_percent                          [-]
+      fuel_type.density                         [kg/m^3]
+    fuel_tank_set_ind                           <int>
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """        
     tank_id = vsp.AddGeom('CONFORMAL',wing_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)
     
@@ -527,23 +664,12 @@ def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     
     # Fuel tank span bounds
     if n_segments>0:
-        # Determine max chord trim correction
-        max_y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > chord_trim_max)
-        segment_percent_of_total_span = seg_span_percents[max_y_seg_ind] -\
-            seg_span_percents[max_y_seg_ind-1]
-        remaining_percent_within_segment = chord_trim_max - seg_span_percents[max_y_seg_ind-1]
-        percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
-        chord_trim_max = vsp_segment_breaks[max_y_seg_ind-1] + \
-            (vsp_segment_breaks[max_y_seg_ind]-vsp_segment_breaks[max_y_seg_ind-1])*percent_of_segment
-        
-        # Determine min chord trim correction
-        min_y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > chord_trim_min)
-        segment_percent_of_total_span = seg_span_percents[min_y_seg_ind] -\
-            seg_span_percents[min_y_seg_ind-1]
-        remaining_percent_within_segment = chord_trim_min - seg_span_percents[min_y_seg_ind-1]
-        percent_of_segment = remaining_percent_within_segment/segment_percent_of_total_span
-        chord_trim_min = vsp_segment_breaks[min_y_seg_ind-1] + \
-            (vsp_segment_breaks[min_y_seg_ind]-vsp_segment_breaks[min_y_seg_ind-1])*percent_of_segment        
+        span_trim_max = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,  
+                                                     span_trim_max)
+        span_trim_min = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,
+                                                     span_trim_min)
     else:
         pass # no change to span_trim
     
@@ -559,7 +685,31 @@ def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     
     return
 
+## @ingroup Input_Output-OpenVSP
 def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
+    """This writes a conformal fuel tank in a fuselage.
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    fuse_id                                     <str>
+    fuel_tank.
+      inward_offset                             [m]
+      start_length_percent                      [-] .1 is 10%
+      end_length_percent                        [-]
+      fuel_type.density                         [kg/m^3]
+    fuel_tank_set_ind                           <int>
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """        
     tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)
     
@@ -585,7 +735,27 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     
     return
 
+## @ingroup Input_Output-OpenVSP
 def get_vsp_trim_from_SUAVE_trim(seg_span_percents,vsp_segment_breaks,trim):
+    """Compute OpenVSP span trim coordinates based on SUAVE coordinates
+    
+    Assumptions:
+    Wing does not have end caps
+
+    Source:
+    N/A
+
+    Inputs:
+    seg_span_percents   [-] range of 0 to 1
+    vsp_segment_breaks  [-] range of 0 to 1
+    trim                [-] range of 0 to 1 (SUAVE value)
+
+    Outputs:
+    trim                [-] OpenVSP trim value
+
+    Properties Used:
+    N/A
+    """      
     # Determine max chord trim correction
     y_seg_ind = next(i for i,per_y in enumerate(seg_span_percents) if per_y > trim)
     segment_percent_of_total_span = seg_span_percents[y_seg_ind] -\

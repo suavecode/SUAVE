@@ -1,5 +1,5 @@
 ## @defgroup Components-Energy-Storages-Fuel_Tanks Fuel_Tanks
-#Contains different fuel tank type
+# Contains different fuel tank types
 # @ingroup Components-Energy-Storages
 
 

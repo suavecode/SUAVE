@@ -3,6 +3,7 @@
 # Created:  Feb 2017, M. Vegh (created from data taken from concorde/concorde.py)
 # Modified: Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
+#           Oct 2018, T. MacDonald
 
 """ setup file for the Concorde 
 """
@@ -134,7 +135,7 @@ def vehicle_setup():
     segment.tag                   = 'tip'
     segment.percent_span_location = 1.
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 1.1
+    segment.root_chord_percent    = 1.1/33.8
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
     segment.thickness_to_chord    = 0.03
@@ -144,8 +145,8 @@ def vehicle_setup():
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                 = 'main_tank'
     fuel_tank.inward_offset       = 0.1*Units.ft
-    fuel_tank.start_chord_percent = 0.55
-    fuel_tank.end_chord_percent   = 0.95
+    fuel_tank.start_chord_percent = 0.5
+    fuel_tank.end_chord_percent   = .9
     fuel_tank.start_span_percent  = 0.01
     fuel_tank.end_span_percent    = 0.49
     fuel_tank.fuel_type           = SUAVE.Attributes.Propellants.Jet_A()
@@ -237,7 +238,7 @@ def vehicle_setup():
     segment.tag                   = 'tip'
     segment.percent_span_location = 1.
     segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 2.7
+    segment.root_chord_percent    = 2.7/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
     segment.thickness_to_chord    = 0.03

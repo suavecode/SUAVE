@@ -5,6 +5,7 @@
 # Modified: Sep 2016, E. Botero
 #           Jul 2017, M. Clarke
 #           Oct 2017, E. Botero
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

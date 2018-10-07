@@ -4,6 +4,7 @@
 # Created:  Mar 2014, T. Lukacyzk
 # Modified: Sep 2016, E. Botero
 #           Jun 2017, M. Clarke
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
