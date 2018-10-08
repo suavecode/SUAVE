@@ -690,7 +690,7 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     """This writes a conformal fuel tank in a fuselage.
     
     Assumptions:
-    None
+    Fuselage is aligned with the x axis
 
     Source:
     N/A
@@ -713,19 +713,42 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
     vsp.SetGeomName(tank_id, fuel_tank.tag)
     
+    
+    #stdout = vsp.cvar.cstdout
+    #errorMgr = vsp.ErrorMgrSingleton_getInstance()
+    #errorMgr.PopErrorAndPrint(stdout)
+    
     # Unpack
     offset         = fuel_tank.inward_offset
     len_trim_max   = fuel_tank.end_length_percent
     len_trim_min   = fuel_tank.start_length_percent  
     density        = fuel_tank.fuel_type.density
     
+    # Search for proper x position
+    # Get min x
+    probe_id = vsp.AddProbe(fuse_id,0,0,0,fuel_tank.tag+'_probe')
+    vsp.Update()
+    x_id  = vsp.FindParm(probe_id,'X','Measure')
+    x_pos = vsp.GetParmVal(x_id)    
+    fuse_x_min = x_pos
+    # Get min x
+    probe_id = vsp.AddProbe(fuse_id,0,1,0,fuel_tank.tag+'_probe')
+    vsp.Update()
+    x_id  = vsp.FindParm(probe_id,'X','Measure')
+    x_pos = vsp.GetParmVal(x_id)    
+    fuse_x_max = x_pos 
+    # Search for u values
+    x_target_start  = (fuse_x_max-fuse_x_min)*fuel_tank.start_length_percent
+    x_target_end    = (fuse_x_max-fuse_x_min)*fuel_tank.end_length_percent
+    u_start = find_fuse_u_coordinate(x_target_start, fuse_id, fuel_tank.tag)
+    u_end   = find_fuse_u_coordinate(x_target_end, fuse_id, fuel_tank.tag)
     # Offset
     vsp.SetParmVal(tank_id,'Offset','Design',offset)      
     
     # Fuel tank length bounds
     vsp.SetParmVal(tank_id,'UTrimFlag','Design',1.)
-    vsp.SetParmVal(tank_id,'UTrimMax','Design',len_trim_max)
-    vsp.SetParmVal(tank_id,'UTrimMin','Design',len_trim_min)  
+    vsp.SetParmVal(tank_id,'UTrimMax','Design',u_end)
+    vsp.SetParmVal(tank_id,'UTrimMin','Design',u_start)  
     
     # Set density
     vsp.SetParmVal(tank_id,'Density','Mass_Props',density)  
@@ -765,3 +788,42 @@ def get_vsp_trim_from_SUAVE_trim(seg_span_percents,vsp_segment_breaks,trim):
     trim = vsp_segment_breaks[y_seg_ind-1] + \
         (vsp_segment_breaks[y_seg_ind]-vsp_segment_breaks[y_seg_ind-1])*percent_of_segment  
     return trim
+
+## @ingroup Input_Output-OpenVSP
+def find_fuse_u_coordinate(x_target,fuse_id,fuel_tank_tag):
+    """Determines the u coordinate of an OpenVSP fuselage that matches an x coordinate
+    
+    Assumptions:
+    Fuselage is aligned with the x axis
+
+    Source:
+    N/A
+
+    Inputs:
+    x_target      [m]
+    fuse_id       <str>
+    fuel_tank_tag <str>
+
+    Outputs:
+    u_current     [-] u coordinate for the requests x position
+
+    Properties Used:
+    N/A
+    """     
+    tol   = 1e-3
+    diff  = 1000    
+    u_min = 0
+    u_max = 1    
+    while np.abs(diff) > tol:
+        u_current = (u_max+u_min)/2
+        probe_id = vsp.AddProbe(fuse_id,0,u_current,0,fuel_tank_tag+'_probe')
+        vsp.Update()
+        x_id  = vsp.FindParm(probe_id,'X','Measure')
+        x_pos = vsp.GetParmVal(x_id) 
+        diff = x_target-x_pos
+        if diff > 0:
+            u_min = u_current
+        else:
+            u_max = u_current
+        vsp.DelProbe(probe_id)
+    return u_current

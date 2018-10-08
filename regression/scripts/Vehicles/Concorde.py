@@ -303,8 +303,8 @@ def vehicle_setup():
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'fuse_tank'
     fuel_tank.inward_offset        = 0.1*Units.ft
-    fuel_tank.start_length_percent = 0.8
-    fuel_tank.end_length_percent   = 0.9
+    fuel_tank.start_length_percent = 0.25
+    fuel_tank.end_length_percent   = 0.75
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     fuselage.Fuel_Tanks.append(fuel_tank)     
     
