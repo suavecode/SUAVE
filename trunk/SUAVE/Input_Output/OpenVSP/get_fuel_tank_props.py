@@ -176,11 +176,3 @@ def get_fuel_tank_tags(vehicle):
                     fuel_tanks[tank.tag] = Data()
                     
     return fuel_tanks
-    
-if __name__ == '__main__':
-    tag = '/home/tim/Documents/SUAVE/regression/scripts/concorde/fuel_tank_test'
-    import sys
-    sys.path.append('/home/tim/Documents/SUAVE/regression/scripts/Vehicles')
-    from Concorde import vehicle_setup, configs_setup
-    vehicle = vehicle_setup()
-    get_fuel_tank_props(vehicle,tag,3)
