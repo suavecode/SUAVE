@@ -143,6 +143,7 @@ def vehicle_setup():
     wing.Segments.append(segment)      
     
     # CG locations are approximate
+    # Masses from http://www.concordesst.com/fuelsys.html
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_9'
     fuel_tank.mass_properties.center_of_gravity    = np.array([[26.5,0,0]])
@@ -263,7 +264,7 @@ def vehicle_setup():
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
-    # set mid section start point
+    # set tip
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'tip'
     segment.percent_span_location = 1.
@@ -331,6 +332,7 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.top.strength = 0.0 
     
     # CG locations are approximate
+    # Masses from http://www.concordesst.com/fuelsys.html
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_11'
     fuel_tank.mass_properties.center_of_gravity    = np.array([[49.8,0,0]])
