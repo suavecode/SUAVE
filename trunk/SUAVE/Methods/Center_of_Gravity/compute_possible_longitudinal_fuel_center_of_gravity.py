@@ -43,6 +43,8 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
     axes.grid(True)  
     
     plt.show()
+    
+    return
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):

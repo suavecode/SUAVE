@@ -731,12 +731,14 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     x_id  = vsp.FindParm(probe_id,'X','Measure')
     x_pos = vsp.GetParmVal(x_id)    
     fuse_x_min = x_pos
+    vsp.DelProbe(probe_id)
     # Get min x
     probe_id = vsp.AddProbe(fuse_id,0,1,0,fuel_tank.tag+'_probe')
     vsp.Update()
     x_id  = vsp.FindParm(probe_id,'X','Measure')
     x_pos = vsp.GetParmVal(x_id)    
     fuse_x_max = x_pos 
+    vsp.DelProbe(probe_id)
     # Search for u values
     x_target_start  = (fuse_x_max-fuse_x_min)*fuel_tank.start_length_percent
     x_target_end    = (fuse_x_max-fuse_x_min)*fuel_tank.end_length_percent

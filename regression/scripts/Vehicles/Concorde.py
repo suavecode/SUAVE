@@ -16,7 +16,6 @@ from SUAVE.Core import (
 )
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Input_Output.OpenVSP.vsp_write import write
 
 def vehicle_setup():
 
@@ -143,24 +142,54 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)      
     
+    # CG locations are approximate
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
-    fuel_tank.tag                 = 'main_tank'
-    fuel_tank.inward_offset       = 0.1*Units.ft
-    fuel_tank.start_chord_percent = 0.5
-    fuel_tank.end_chord_percent   = .9
-    fuel_tank.start_span_percent  = 0.01
-    fuel_tank.end_span_percent    = 0.49
-    fuel_tank.fuel_type           = SUAVE.Attributes.Propellants.Jet_A()
+    fuel_tank.tag                  = 'tank_9'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[26.5,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 11096
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
-    fuel_tank.tag                 = 'other_tank'
-    fuel_tank.inward_offset       = 0.1*Units.ft
-    fuel_tank.start_chord_percent = 0.1
-    fuel_tank.end_chord_percent   = 0.3
-    fuel_tank.start_span_percent  = 0.2
-    fuel_tank.end_span_percent    = 0.3
-    fuel_tank.fuel_type           = SUAVE.Attributes.Propellants.Jet_A()
+    fuel_tank.tag                  = 'tank_10'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[28.7,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 11943
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_1_and_4'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[31.0,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 4198+4198
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)   
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_5_and_8'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[32.9,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 7200+12838
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_6_and_7'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[37.4,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 11587+7405
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_5A_and_7A'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[40.2,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 2225+2225
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_2_and_3'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[40.2,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 4570+4570
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)    
     
     # add to vehicle
@@ -301,11 +330,11 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.top.angle = 0.0
     fuselage.OpenVSP_values.tail.top.strength = 0.0 
     
+    # CG locations are approximate
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
-    fuel_tank.tag                  = 'fuse_tank'
-    fuel_tank.inward_offset        = 0.1*Units.ft
-    fuel_tank.start_length_percent = 0.25
-    fuel_tank.end_length_percent   = 0.75
+    fuel_tank.tag                  = 'tank_11'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[49.8,0,0]])
+    fuel_tank.mass_properties.full_fuel_mass       = 10415
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     fuselage.Fuel_Tanks.append(fuel_tank)     
     
@@ -500,17 +529,6 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
-
-    # Vehicle can be written to OpenVSP here if the API is installed
-    write(vehicle,'fuel_tank_test')
-    from SUAVE.Input_Output.OpenVSP.get_fuel_tank_props import get_fuel_tank_props
-    get_fuel_tank_props(vehicle, 'fuel_tank_test')
-    from SUAVE.Methods.Center_of_Gravity.compute_possible_longitudinal_fuel_center_of_gravity \
-         import compute_possible_longitudinal_fuel_center_of_gravity
-    from SUAVE.Methods.Center_of_Gravity.compute_possible_longitudinal_fuel_center_of_gravity \
-         import plot_cg_map 
-    masses, cg_mins, cg_maxes = compute_possible_longitudinal_fuel_center_of_gravity(vehicle)
-    plot_cg_map(masses, cg_mins, cg_maxes)
     
 
     return vehicle

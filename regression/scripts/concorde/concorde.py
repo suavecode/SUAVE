@@ -42,6 +42,10 @@ from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
+from SUAVE.Methods.Center_of_Gravity.compute_possible_longitudinal_fuel_center_of_gravity \
+     import compute_possible_longitudinal_fuel_center_of_gravity
+from SUAVE.Methods.Center_of_Gravity.compute_possible_longitudinal_fuel_center_of_gravity \
+     import plot_cg_map 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -98,6 +102,9 @@ def full_setup():
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
+    
+    masses, cg_mins, cg_maxes = compute_possible_longitudinal_fuel_center_of_gravity(vehicle)
+    plot_cg_map(masses, cg_mins, cg_maxes)    
     
     return configs, analyses
 
