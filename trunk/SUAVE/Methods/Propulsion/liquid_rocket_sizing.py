@@ -50,7 +50,7 @@ def liquid_rocket_sizing(liquid_rocket, altitude = None, delta_isa = 0, conditio
             conditions.freestream.altitude    = np.atleast_1d(altitude)
             conditions.freestream.pressure    = np.atleast_1d(p)
             conditions.freestream.temperature = np.atleast_1d(T)
-            conditions.freestream.gravity     = np.atleast_1d(planet.sea_level_gravity)
+            conditions.freestream.gravity     = np.atleast_1d(planet.compute_gravity(altitude))
             
             # propulsion conditions
             conditions.propulsion.throttle    = np.atleast_1d(1.0)
@@ -98,7 +98,7 @@ def liquid_rocket_sizing(liquid_rocket, altitude = None, delta_isa = 0, conditio
     conditions_sls.freestream.altitude    = np.atleast_1d(0.)
     conditions_sls.freestream.pressure    = np.atleast_1d(p)
     conditions_sls.freestream.temperature = np.atleast_1d(T)
-    conditions_sls.freestream.gravity     = np.atleast_1d(9.81) 
+    conditions_sls.freestream.gravity     = np.atleast_1d(planet.sea_level_gravity) 
     
     # propulsion conditions
     conditions_sls.propulsion.throttle    =  np.atleast_1d(1.0)    

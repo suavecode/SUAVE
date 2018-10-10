@@ -609,19 +609,16 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
-
     missions.base = base_mission
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Fuel
     # ------------------------------------------------------------------    
-    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
-    fuel_mission.tag = 'fuel'
+    fuel_mission         = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
+    fuel_mission.tag     = 'fuel'
     fuel_mission.range   = 1277. * Units.nautical_mile
-    fuel_mission.payload   = 19000.
+    fuel_mission.payload = 19000.
     missions.append(fuel_mission)    
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Short Field
@@ -638,17 +635,14 @@ def missions_setup(base_mission):
     short_field.airport = airport    
     missions.append(short_field)
 
-
-
     # ------------------------------------------------------------------
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
     payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
-    payload.tag = 'payload'
+    payload.tag     = 'payload'
     payload.range   = 2316. * Units.nautical_mile
-    payload.payload   = 19000.
+    payload.payload = 19000.
     missions.append(payload)
-
 
     # done!
     return missions  
