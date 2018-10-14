@@ -67,6 +67,14 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
     
+    masses, cg_mins, cg_maxes = compute_possible_longitudinal_fuel_center_of_gravity(configs.base)
+    plot_cg_map(masses, cg_mins, cg_maxes)  
+    
+    results.fuel_tank_test = Data()
+    results.fuel_tank_test.masses   = masses
+    results.fuel_tank_test.cg_mins  = cg_mins
+    results.fuel_tank_test.cg_maxes = cg_maxes
+    
     # load older results
     #save_results(results)
     old_results = load_results()   
@@ -101,10 +109,7 @@ def full_setup():
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
-    
-    masses, cg_mins, cg_maxes = compute_possible_longitudinal_fuel_center_of_gravity(vehicle)
-    plot_cg_map(masses, cg_mins, cg_maxes)    
+    analyses.missions = missions_analyses        
     
     return configs, analyses
 
@@ -714,6 +719,9 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'fuel_tank_test.masses',
+        'fuel_tank_test.cg_mins',
+        'fuel_tank_test.cg_maxes',
     ]
 
     # do the check

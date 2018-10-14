@@ -35,8 +35,9 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
         else:
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)
-
+            atmo_data  = atmosphere.compute_values(altitude,delta_isa)
+            planet     = SUAVE.Attributes.Planets.Earth()
+            
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
             rho = atmo_data.density          
@@ -53,10 +54,10 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-            conditions.freestream.gravity                     = np.atleast_1d(9.81)
-            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-            conditions.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
-            conditions.freestream.R                           = p/(rho*T)
+            conditions.freestream.gravity                     = np.atleast_1d(planet.compute_gravity(altitude))
+            conditions.freestream.isentropic_expansion_factor = np.atleast_1d(turbojet.working_fluid.compute_gamma(T,p))
+            conditions.freestream.Cp                          = np.atleast_1d(turbojet.working_fluid.compute_cp(T,p))
+            conditions.freestream.R                           = np.atleast_1d(turbojet.working_fluid.gas_specific_constant)
             conditions.freestream.speed_of_sound              = np.atleast_1d(a)
             conditions.freestream.velocity                    = np.atleast_1d(a*mach_number)
             
@@ -196,10 +197,10 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     conditions_sls.freestream.temperature                 = np.atleast_1d(T)
     conditions_sls.freestream.density                     = np.atleast_1d(rho)
     conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
-    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
-    conditions_sls.freestream.R                           = p/(rho*T)
+    conditions_sls.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(turbojet.working_fluid.compute_gamma(T,p))
+    conditions_sls.freestream.Cp                          = np.atleast_1d(turbojet.working_fluid.compute_cp(T,p))
+    conditions_sls.freestream.R                           = np.atleast_1d(turbojet.working_fluid.gas_specific_constant)
     conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
     conditions_sls.freestream.velocity                    = np.atleast_1d(a*0.01)
     
