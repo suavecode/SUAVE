@@ -89,7 +89,7 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
         
-        self.Fuel_Tanks         = Container()
+        self.Fuel_Tanks = Container()
         
     def append_fuel_tank(self,fuel_tank):
         """ Adds a fuel tank to the fuselage 
