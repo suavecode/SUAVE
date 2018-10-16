@@ -417,6 +417,43 @@ class Lift_Forward_Propulsor(Propulsor):
         
         return    
     
+    def unpack_unknowns_full_forward(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses the lift motors at a variable throttle and the forward motor on full
+    
+            Assumptions:
+            Only the lift motors thro
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle                    [0-1]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle                    [0-1]
+    
+            Properties Used:
+            N/A
+        """             
+        
+        ones = segment.state.ones_row
+        
+        # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
+        segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient_lift = segment.state.unknowns.propeller_power_coefficient_lift
+        segment.state.conditions.propulsion.throttle                         = 1.0 * ones(1)
+        
+        return    
+    
     
     def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
