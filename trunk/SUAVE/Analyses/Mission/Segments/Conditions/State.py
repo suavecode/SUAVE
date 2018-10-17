@@ -12,10 +12,10 @@
 import numpy as np
 
 # SUAVE imports
-from Conditions import Conditions
-from Unknowns   import Unknowns
-from Residuals  import Residuals
-from Numerics   import Numerics
+from .Conditions import Conditions
+from .Unknowns   import Unknowns
+from .Residuals  import Residuals
+from .Numerics   import Numerics
 
 import SUAVE
 from SUAVE.Core.Arrays import array_type
@@ -85,7 +85,7 @@ class State(Conditions):
         # store
         self._size = rows
         
-        for k,v in self.iteritems():
+        for k,v in self.items():
             
             # don't expand initials or numerics
             if k in ('initials','numerics'):

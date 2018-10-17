@@ -18,7 +18,7 @@ def main():
     
     data = SUAVE.Input_Output.XML.load('example.xml')
     
-    print data
+    print(data)
     
     SUAVE.Input_Output.XML.save(data,'output.xml')
     

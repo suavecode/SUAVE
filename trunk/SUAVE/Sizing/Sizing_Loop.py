@@ -14,11 +14,12 @@ import scipy.interpolate as interpolate
 import sklearn.svm as svm
 import sklearn.ensemble as ensemble
 import sklearn.gaussian_process as gaussian_process
+from sklearn.gaussian_process.kernels import RationalQuadratic 
 import sklearn.linear_model as linear_model
 import sklearn.neighbors as neighbors
-from write_sizing_outputs import write_sizing_outputs
-from read_sizing_inputs import read_sizing_inputs
-from write_sizing_residuals import write_sizing_residuals
+from .write_sizing_outputs import write_sizing_outputs
+from .read_sizing_inputs import read_sizing_inputs
+from .write_sizing_residuals import write_sizing_residuals
 
 
 import numpy as np
@@ -122,10 +123,10 @@ class Sizing_Loop(Data):
                         regr    = neighbors.KNeighborsRegressor( n_neighbors = 1)
                       
                     else:
-                        print 'running surrogate method'
+                        print('running surrogate method')
                         if self.initial_step == 'SVR':
                             #for SVR, can optimize parameters C and eps for closest point
-                            print 'optimizing svr parameters'
+                            print('optimizing svr parameters')
                             x = [2.,-1.] #initial guess for 10**C, 10**eps
                         
                             out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, imin_dist))
@@ -152,7 +153,8 @@ class Sizing_Loop(Data):
                             regr        = ensemble.BaggingRegressor()
                             
                         elif self.initial_step == 'GPR':
-                            regr        = gaussian_process.GaussianProcess()
+                            gp_kernel_RQ = RationalQuadratic(length_scale=1.0, alpha=1.0)
+                            regr        = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ,normalize_y=True)
                             
                         elif self.initial_step == 'RANSAC':
                             regr        = linear_model.RANSACRegressor()
@@ -174,11 +176,11 @@ class Sizing_Loop(Data):
                         y_surrogate = regr.fit(data_inputs, data_outputs[:,j])
                         y.append(y_surrogate.predict(input_for_regr)[0])    
                         if y[j] > self.max_y[j] or y[j]< self.min_y[j]: 
-                            print 'sizing variable range violated, val = ', y[j], ' j = ', j
+                            print('sizing variable range violated, val = ', y[j], ' j = ', j)
                             n_neighbors = min(iteration_options.n_neighbors, len(data_outputs))
                             regr_backup = neighbors.KNeighborsRegressor( n_neighbors = n_neighbors)
                             y = []
-                            for j in xrange(len(data_outputs[0,:])):
+                            for j in range(len(data_outputs[0,:])):
                                 y_surrogate = regr_backup.fit(data_inputs, data_outputs[:,j])
                                 y.append(y_surrogate.predict(input_for_regr)[0])
                             break
@@ -257,8 +259,8 @@ class Sizing_Loop(Data):
                 norm_err_back_list = [np.linalg.norm(err)]
                 
                 while np.linalg.norm(err)>back_thresh*np.linalg.norm(err_save) and i_back<backtracking.max_steps  : #while?
-                    print 'backtracking'
-                    print 'err, err_save = ', np.linalg.norm(err), np.linalg.norm(err_save)
+                    print('backtracking')
+                    print('err, err_save = ', np.linalg.norm(err), np.linalg.norm(err_save))
                     p                 = y-y_save
                     backtrack_y       = y_save+p*(backtracking.multiplier**(i_back+1))
                     err,y_back, i     = self.successive_substitution_update(backtrack_y, err, sizing_evaluation, nexus, scaling, i, iteration_options)
@@ -277,13 +279,13 @@ class Sizing_Loop(Data):
             y_save2 = 1.*y_save
             y_save  = 1. *y  
     
-            print 'err = ', err
+            print('err = ', err)
             
             if self.write_residuals:  #write residuals at every iteration
                 write_sizing_residuals(self, y_save, scaled_inputs, err)
         
             if i>max_iter: #
-                print "###########sizing loop did not converge##########"
+                print("###########sizing loop did not converge##########")
                 break
         
         if i<max_iter and not np.isnan(err).any() and opt_flag == 1:  #write converged values to file
@@ -298,8 +300,8 @@ class Sizing_Loop(Data):
         nexus.number_of_iterations = i #function calls
         results=nexus.results
         
-        print 'number of function calls=', i
-        print 'number of iterations total=', nexus.total_number_of_iterations
+        print('number of function calls=', i)
+        print('number of iterations total=', nexus.total_number_of_iterations)
 
         nexus.sizing_loop.converged    = converged
         nexus.sizing_loop.norm_error   = np.linalg.norm(err)
@@ -325,7 +327,7 @@ class Sizing_Loop(Data):
         """
         
         h = iteration_options.h
-        print '###begin Finite Differencing###'
+        print('###begin Finite Differencing###')
         J, iter = Finite_Difference_Gradient(y,err, sizing_evaluation, nexus, scaling, iter, h)
         try:
             
@@ -344,7 +346,7 @@ class Sizing_Loop(Data):
 
             
         except np.linalg.LinAlgError:
-            print 'singular Jacobian detected, use successive_substitution'
+            print('singular Jacobian detected, use successive_substitution')
             err_out, y_update, iter = self.successive_substitution_update(y, err, sizing_evaluation, nexus, scaling, iter, iteration_options)
         
        
@@ -390,7 +392,7 @@ class Sizing_Loop(Data):
         """
         y_out          = 1.*y #create copy
         bound_violated = 0
-        for j in xrange(len(y)):  #handle variable bounds to prevent going to weird areas (such as negative mass)
+        for j in range(len(y)):  #handle variable bounds to prevent going to weird areas (such as negative mass)
             if self.hard_min_bound:
                 if y[j]<self.min_y[j]:
                     y_out[j]       = self.min_y[j]*1.
@@ -423,10 +425,10 @@ class Sizing_Loop(Data):
         backtrack_step        = self.iteration_options.backtracking.multiplier
         bounds_violated       = 1 #counter to determine how many bounds are violated
         while bound_violated:
-            print 'bound violated, backtracking'
-            print 'y_update, y_out = ',  y_update, y_out
+            print('bound violated, backtracking')
+            print('y_update, y_out = ',  y_update, y_out)
             bound_violated = 0
-            for j in xrange(len(y_out)):
+            for j in range(len(y_out)):
                 if not np.isclose(y_out[j], y_update[j]) or np.isnan(y_update).any():
                     y_update        = y+p*backtrack_step
                     bounds_violated = bounds_violated+1
@@ -485,7 +487,7 @@ def find_min_norm(scaled_inputs, data_inputs):
     diff      = np.subtract(scaled_inputs, data_inputs) #check how close inputs are to tabulated values  
   
     imin_dist = -1 
-    for k in xrange(len(diff[:,-1])):
+    for k in range(len(diff[:,-1])):
         row      = diff[k,:]
         row_norm = np.linalg.norm(row)
         if row_norm < min_norm:

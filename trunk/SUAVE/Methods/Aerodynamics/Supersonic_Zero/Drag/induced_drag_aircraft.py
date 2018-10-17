@@ -3,6 +3,7 @@
 # 
 # Created:  Aug 2014, T. MacDonald
 # Modified: Nov 2016, T. MacDonald
+#           Aug 2018, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,6 +47,7 @@ def induced_drag_aircraft(state,settings,geometry):
     configuration = settings    
     
     aircraft_lift = conditions.aerodynamics.lift_coefficient
+    mach          = conditions.freestream.mach_number
     
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
@@ -56,7 +58,10 @@ def induced_drag_aircraft(state,settings,geometry):
     if e == None:
         e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
     
-    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    total_induced_drag = np.zeros_like(mach)
+    total_induced_drag[mach<.95] = aircraft_lift[mach<.95]**2 / (np.pi*ar*e[mach<.95])
+    total_induced_drag[mach>=.95] = aircraft_lift[mach>=.95]**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
+                                                                                    # which is not computed here
         
     # store data
     try:

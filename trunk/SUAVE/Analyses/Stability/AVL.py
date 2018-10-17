@@ -26,7 +26,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
 # local imports 
-from Stability import Stability
+from .Stability import Stability
 
 # Package imports
 import time
@@ -85,15 +85,16 @@ class AVL(Stability):
         
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
-        
-        # Default spanwise vortex density 
-        self.settings.spanwise_vortex_density               = 1.5
+
+        # Default number of spanwise and chordwise votices
+        self.settings.spanwise_vortices      = None
+        self.settings.chordwise_vortices     = None
             
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
 
         # Standard subsonic/transonic aircarft
-        self.training.angle_of_attack                       = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.angle_of_attack                       = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                                  = np.array([0.05,0.15,0.25, 0.45,0.65,0.85])       
         self.training.moment_coefficient                    = None
         self.training.Cm_alpha_moment_coefficient           = None
@@ -151,7 +152,7 @@ class AVL(Stability):
         configuration                  = self.configuration
         stability_model                = self.stability_model
         configuration.mass_properties  = geometry.mass_properties
-        if geometry.has_key('fuel'): #fuel has been assigned(from weight statements)
+        if 'fuel' in geometry: #fuel has been assigned(from weight statements)
             configuration.fuel         = geometry.fuel
         else: #assign as zero to planes with no fuel such as UAVs
             fuel                       = SUAVE.Components.Physical_Component()
@@ -359,7 +360,7 @@ class AVL(Stability):
 
         time1 = time.time()
 
-        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
@@ -368,12 +369,15 @@ class AVL(Stability):
             Cm_alpha   = data_array[:,3:4]
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6]
-    
+        
+        # Save the data for regression
+        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha,Cn_beta,NP])
         training.grid_points  = xy
 
-
+        
         return        
 
     def build_surrogate(self):
@@ -412,10 +416,10 @@ class AVL(Stability):
         xy                                          = training.grid_points 
 
         # Gaussian Process New
-        regr_cm                                     = gaussian_process.GaussianProcess()
-        regr_cm_alpha                               = gaussian_process.GaussianProcess()
-        regr_cn_beta                                = gaussian_process.GaussianProcess()
-        regr_np                                     = gaussian_process.GaussianProcess()
+        regr_cm                                     = gaussian_process.GaussianProcessRegressor()
+        regr_cm_alpha                               = gaussian_process.GaussianProcessRegressor()
+        regr_cn_beta                                = gaussian_process.GaussianProcessRegressor()
+        regr_np                                     = gaussian_process.GaussianProcessRegressor()
 
         cm_surrogate                                = regr_cm.fit(xy, CM_data) 
         cm_alpha_surrogate                          = regr_cm_alpha.fit(xy, Cm_alpha_data) 
@@ -469,7 +473,18 @@ class AVL(Stability):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-        spanwise_vortices_per_meter      = self.settings.spanwise_vortex_density
+        
+        # check if user specifies number of spanwise vortices
+        if self.settings.spanwise_vortices == None: 
+            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
+        else:
+            spanwise_elements  = self.settings.spanwise_vortices
+        
+        # check if user specifies number of chordise vortices 
+        if self.settings.chordwise_vortices == None: 
+            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
+        else:
+            chordwise_elements  = self.settings.chordwise_vortices
 
         # update current status
         self.current_status.batch_index += 1
@@ -502,7 +517,7 @@ class AVL(Stability):
 
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_vortices_per_meter)
+            write_geometry(self,spanwise_elements,chordwise_elements)
             write_run_cases(self)
             write_input_deck(self)
 

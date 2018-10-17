@@ -8,8 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Component          import Component
-from Physical_Component import Physical_Component
+from .Component          import Component
+from .Physical_Component import Physical_Component
 from SUAVE.Core         import DataOrdered
 
 

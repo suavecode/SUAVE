@@ -12,8 +12,13 @@
 
 import SUAVE
 from SUAVE.Core import Data
+<<<<<<< HEAD
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties, Physical_Component
 from Airfoils import Airfoil
+=======
+from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+from .Airfoils import Airfoil
+>>>>>>> develop
 
 # ------------------------------------------------------------
 #   Wing
@@ -60,7 +65,7 @@ class Wing(Lofted_Body):
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
         self.position        = [0.0,0.0,0.0]
-
+        
         self.symmetric                 = True
         self.vertical                  = False
         self.t_tail                    = False
@@ -145,7 +150,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(segment,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Segments.append(segment)
@@ -173,7 +178,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(airfoil,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Airfoil.append(airfoil)
@@ -202,7 +207,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(control_surface,Data):
-            raise Exception, 'input control surface must be of type Data()'
+            raise Exception('input control surface must be of type Data()')
 
         # Store data
         self.control_surfaces.append(control_surface)

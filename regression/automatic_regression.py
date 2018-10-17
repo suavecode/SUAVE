@@ -33,11 +33,11 @@ import matplotlib.pyplot as plt
 
 modules = [
 
-    # regression
+    # ----------------------- Regression List --------------------------
     'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'regression/test_mission_AS2.py',
+    #'scripts/regression/test_mission_AS2.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
@@ -64,7 +64,9 @@ modules = [
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
-    'scripts/scramjet_network/scramjet_network.py',    
+    'scripts/scramjet_network/scramjet_network.py',
+    'scripts/rocket_network/Rocketdyne_F1.py',
+    'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/sizing_loop/sizing_loop.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
@@ -77,7 +79,6 @@ modules = [
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
     'scripts/weights/weights.py',        
 ]
-
 
 # ----------------------------------------------------------------------
 #   Main
@@ -109,15 +110,13 @@ def main():
     # final report
     sys.stdout.write('# --------------------------------------------------------------------- \n')
     sys.stdout.write('Final Results \n')
-    for module,result in results.items():
+    for module,result in list(results.items()):
         sys.stdout.write('%s - %s\n' % (result,module))
 
     if all_pass:
         sys.exit(0)
     else:
         sys.exit(1)
-
-
 
 
 # ----------------------------------------------------------------------
@@ -141,7 +140,7 @@ def test_module(module_path):
         # see if file exists
         os.chdir(test_dir)
         if not os.path.exists(module_name) and not os.path.isfile(module_name):
-            raise ImportError, 'file %s does not exist' % module_name
+            raise ImportError('file %s does not exist' % module_name)
 
         # add module directory
         sys.path.append(test_dir)
@@ -183,7 +182,6 @@ def test_module(module_path):
     sys.stderr.flush()
 
     return passed
-
 
 # ----------------------------------------------------------------------
 #   Call Main

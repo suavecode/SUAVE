@@ -2,6 +2,6 @@
 # Trust Region Model Management Scripts live here
 # @ingroup Optimization-Package_Setups
 
-import TRMM_setup
-import Trust_Region
-import Trust_Region_Optimization
+from . import TRMM_setup
+from . import Trust_Region
+from . import Trust_Region_Optimization

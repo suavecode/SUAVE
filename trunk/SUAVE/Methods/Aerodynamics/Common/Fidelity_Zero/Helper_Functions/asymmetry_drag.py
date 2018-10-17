@@ -65,9 +65,9 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
             n_wing = n_wing + 1
             reference_area = wing.sref
         if n_wing > 1:
-            print ' More than one Main_Wing in the vehicle. Last one will be considered.'
+            print(' More than one Main_Wing in the vehicle. Last one will be considered.')
         elif n_wing == 0:
-            print  'No Main_Wing defined! Using the 1st wing found'
+            print('No Main_Wing defined! Using the 1st wing found')
             for wing in wings:
                 if not isinstance(wing,Wings.Wing): continue
                 reference_area = wing.sref
@@ -93,7 +93,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     try:
         vertical_idx
     except AttributeError:
-        print ' No vertical tail found! Error calculating one engine inoperative drag'
+        print(' No vertical tail found! Error calculating one engine inoperative drag')
 
     # getting vertical tail data (span, distance to cg)
     vertical_height = wings[vertical_idx].spans.projected

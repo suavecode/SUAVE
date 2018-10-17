@@ -9,4 +9,4 @@
 # Modified: Feb 2016, T. MacDonald
 
 # classes
-from System import System
+from .System import System

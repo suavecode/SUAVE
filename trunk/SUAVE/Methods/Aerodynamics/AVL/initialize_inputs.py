@@ -11,10 +11,10 @@
 # SUAVE Imports
 from SUAVE.Core import Data
 # SUAVE-AVL Imports
-from create_avl_datastructure import create_avl_datastructure
-from write_geometry           import write_geometry
-from write_run_cases          import write_run_cases
-from write_input_deck         import write_input_deck
+from .create_avl_datastructure import create_avl_datastructure
+from .write_geometry           import write_geometry
+from .write_run_cases          import write_run_cases
+from .write_input_deck         import write_input_deck
 
 ## @ingroup Methods-Aerodynamics-AVL
 def initialize_inputs(geometry,configuration,conditions):

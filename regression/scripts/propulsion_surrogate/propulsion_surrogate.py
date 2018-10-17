@@ -43,18 +43,18 @@ def main():
     mdot = results.vehicle_mass_rate
     
     # Truth values
-    F_truth    = np.array([[ 1266.66672275,     0.        ,    -0.        ]])
-    mdot_truth = np.array([[ 671.33336306]])
+    F_truth    = np.array([[ 1223.60069381,     0.        ,    -0.        ]])
+    mdot_truth = np.array([[ 717.33608545]])
 
     # Error check
     error = Data()
     error.Thrust    = np.max(np.abs(F[0,0]-F_truth[0,0]))/F_truth[0,0]
     error.Mass_Rate = np.max(np.abs(mdot[0,0]-mdot_truth[0,0]))/mdot_truth[0,0]
     
-    print 'Errors:'
-    print  error
+    print('Errors:')
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
      
     return

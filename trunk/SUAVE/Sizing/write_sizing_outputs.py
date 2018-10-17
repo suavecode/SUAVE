@@ -24,7 +24,7 @@ def write_sizing_outputs(sizing_loop, y_save, opt_inputs):
     None
     
     """
-    file=open(sizing_loop.output_filename, 'ab')
+    file=open(sizing_loop.output_filename, 'a')
     if len(opt_inputs) == 1:
         #weird python formatting issue when writing a 1 entry array
         file.write('[')
