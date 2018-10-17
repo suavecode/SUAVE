@@ -12,13 +12,8 @@
 
 import SUAVE
 from SUAVE.Core import Data
-<<<<<<< HEAD
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties, Physical_Component
-from Airfoils import Airfoil
-=======
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 from .Airfoils import Airfoil
->>>>>>> develop
 
 # ------------------------------------------------------------
 #   Wing
