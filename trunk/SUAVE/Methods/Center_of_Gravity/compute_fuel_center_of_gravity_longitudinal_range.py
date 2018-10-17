@@ -1,5 +1,5 @@
 ## @ingroup Methods-Center_of_Gravity
-# compute_possible_longitudinal_fuel_center_of_gravity.py
+# compute_fuel_center_of_gravity_longitudinal_range.py
 #
 # Created:  Sep 2018, T. MacDonald
 # Modified: Oct 2018, T. MacDonald
@@ -47,9 +47,9 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
     return
 
 ## @ingroup Methods-Center_of_Gravity
-def compute_possible_longitudinal_fuel_center_of_gravity(vehicle):
+def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
     """Computes the possible longitudinal center of gravity given
-    a set of fuel tanks.
+    a set of fuel tanks (includes fuel weight only)
 
     Assumptions:
     Fuel tanks are only in the fuselage/wings

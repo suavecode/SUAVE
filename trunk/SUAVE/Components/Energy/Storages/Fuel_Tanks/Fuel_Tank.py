@@ -29,4 +29,4 @@ class Fuel_Tank(Energy_Component):
         self.mass_properties.empty_mass            = 0.0
         self.mass_properties.fuel_mass_when_full   = 0.0
         self.mass_properties.fuel_volume_when_full = 0.0
-        self.fuel_type                  = None
+        self.fuel_type                             = None

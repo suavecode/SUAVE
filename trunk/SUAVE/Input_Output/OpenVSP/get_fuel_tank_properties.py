@@ -48,7 +48,7 @@ def get_fuel_tank_properties(vehicle,tag,fuel_tank_set_index=3,slices_for_calcul
     vsp.ReadVSPFile(tag + '.vsp3')
     
     # Extract fuel tanks from vehicle
-    fuel_tanks = get_fuel_tank_tags(vehicle)
+    fuel_tanks = get_fuel_tanks(vehicle)
     
     num_slices = slices_for_calculation # Slices used to estimate mass distribution from areas in OpenVSP
     mass_props_output_file = tag + '_mass_props.txt'
@@ -137,7 +137,7 @@ def apply_properties(vehicle,fuel_tanks):
     return vehicle
     
 ## @ingroup Input_Output-OpenVSP
-def get_fuel_tank_tags(vehicle):
+def get_fuel_tanks(vehicle):
     """Creates a data structure with fuel tanks based on 
     fuel tanks present in the vehicle
     
