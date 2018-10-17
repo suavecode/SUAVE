@@ -228,9 +228,9 @@ class Container(Physical_Component.Container):
         Properties Used:
         N/A
         """       
-        from Main_Wing import Main_Wing
-        from Vertical_Tail import Vertical_Tail
-        from Horizontal_Tail import Horizontal_Tail
+        from . import Main_Wing
+        from . import Vertical_Tail
+        from . import Horizontal_Tail
         
         return [Main_Wing,Vertical_Tail,Horizontal_Tail]
 
