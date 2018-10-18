@@ -3,5 +3,6 @@
 # @ingroup Components-Energy
 
 from . import Batteries
+from . import Fuel_Tanks
 
 

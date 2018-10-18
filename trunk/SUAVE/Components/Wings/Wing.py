@@ -5,6 +5,7 @@
 # Modified: Sep 2016, E. Botero
 #           Jul 2017, M. Clarke
 #           Oct 2017, E. Botero
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -121,6 +122,7 @@ class Wing(Lofted_Body):
         
         self.Airfoil            = Data()
         self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 
@@ -204,5 +206,33 @@ class Wing(Lofted_Body):
 
         # Store data
         self.control_surfaces.append(control_surface)
+
+        return
+    
+    def append_fuel_tank(self,fuel_tank):
+        """ Adds a fuel tank to the wing 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(fuel_tank,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Fuel_Tanks.append(fuel_tank)
 
         return
