@@ -31,8 +31,10 @@ def run_vspaero(vehicle,tag,vspaero_settings):
     """
     
     alpha_start = vspaero_settings.alpha_start
-    alpha_end   = vspaero_settings.alpha_end
     alpha_npts  = vspaero_settings.alpha_npts
+    if alpha_npts > 1:
+        alpha_end   = vspaero_settings.alpha_end
+    mach_num    = vspaero_settings.mach_number[0,0]
     
     # VSPAERO Result Output Indicies, may change over time
     AoA_ind = 2
@@ -53,9 +55,10 @@ def run_vspaero(vehicle,tag,vspaero_settings):
     
     vsp.SetDoubleAnalysisInput(analysis_name,'Sref',[Sref])
     vsp.SetDoubleAnalysisInput(analysis_name,'AlphaStart',[alpha_start])
-    vsp.SetDoubleAnalysisInput(analysis_name,'AlphaEnd',[alpha_end])
+    if alpha_npts > 1:
+        vsp.SetDoubleAnalysisInput(analysis_name,'AlphaEnd',[alpha_end])
     vsp.SetIntAnalysisInput(analysis_name,'AlphaNpts',[alpha_npts])
-    vsp.SetDoubleAnalysisInput(analysis_name,'MachStart',[0.2])
+    vsp.SetDoubleAnalysisInput(analysis_name,'MachStart',[mach_num])
     
     results_id = vsp.ExecAnalysis(analysis_name)
     

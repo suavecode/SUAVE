@@ -20,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Performance
-def estimate_landing_field_length(vehicle,analyses,airport):
+def estimate_landing_field_length(vehicle,analyses,airport,maximum_lift_method='Fidelity_Zero'):
     """ Computes the landing field length for a given vehicle configuration in a given airport.
 
     Assumptions:
@@ -50,7 +50,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # ==============================================
     # Unpack
     # ==============================================
-    atmo            = airport.atmosphere
+    atmo            = analyses.base.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.landing
@@ -77,24 +77,43 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # Determining vehicle maximum lift coefficient
     # ==============================================
     
-    try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
-    except:
-        # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
-
-        
-        conditions.freestream = Data()
-        conditions.freestream.density           = rho
-        conditions.freestream.dynamic_viscosity = mu
-        conditions.freestream.velocity          = 90. * Units.knots
-        
-        try:
-            maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
-            vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
-            
+    if maximum_lift_method == 'Fidelity_Zero':
+        try:   # aircraft maximum lift informed by user
+            maximum_lift_coefficient = vehicle.maximum_lift_coefficient
         except:
-            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
+            # Using semi-empirical method for maximum lift coefficient calculation
+            from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
+    
+            
+            conditions.freestream = Data()
+            conditions.freestream.density           = rho
+            conditions.freestream.dynamic_viscosity = mu
+            conditions.freestream.velocity          = 90. * Units.knots
+            
+            try:
+                maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
+                vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
+                
+            except:
+                raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
+    elif maximum_lift_method == 'OpenVSP':
+        # This method is designed for aircraft with a known maximum angle of attack but not a known
+        # maximum coefficient of lift (typically applicable to delta wing configurations).
+        # This may not actually indicate stall, but is used in a similar manner.
+        from SUAVE.Input_Output.OpenVSP.run_vspaero import run_vspaero
+        # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
+        #conditions  = atmo.compute_values(10000. * Units.ft)     
+        mach_number = 90. * Units.knots / a
+        #vspaero_settings.alpha_start = max_angle
+        vspaero_settings = Data()
+        vspaero_settings.alpha_start = 14.
+        vspaero_settings.alpha_npts  = 1
+        vspaero_settings.mach_number = mach_number
+        #tag = vehicle.tag
+        tag = 'aero_test'
+        _, maximum_lift_coefficient = run_vspaero(vehicle, tag, vspaero_settings)        
+    else:
+        raise NotImplementedError('The selected maximum lift calculation method is not implemented.')
         
     # ==============================================
     # Computing speeds (Vs, Vref)
