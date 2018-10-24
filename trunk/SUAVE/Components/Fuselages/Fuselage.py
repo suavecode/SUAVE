@@ -3,12 +3,12 @@
 # 
 # Created:  Mar 2014, T. Lukacyzk
 # Modified: Sep 2016, E. Botero
-#           Jun 2017, M. Clarke
+#           Oct 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
+import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Components import Physical_Component, Lofted_Body
 
@@ -49,7 +49,7 @@ class Fuselage(Lofted_Body):
         self.tag = 'fuselage'
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = Lofted_Body.Segment.Container()
+        #self.Segments    = Lofted_Body.Segment.Container()
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
@@ -87,6 +87,35 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
+        self.Segments             = SUAVE.Core.ContainerOrdered()
+    
+def append_segment(self,segment):
+            """ Adds a segment to the wing 
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            N/A
+            """ 
+    
+            # Assert database type
+            if not isinstance(segment,Data):
+                raise Exception('input component must be of type Data()')
+    
+            # Store data
+            self.Segments.append(segment)
+    
+            return       
         
 class Container(Physical_Component.Container):
     pass

@@ -86,17 +86,17 @@ def noise_propeller_sae(noise_data, ioprint = 0):
   
     for id in range(0,nsteps):
         
-  #Calculate propeller tip Mach number:
+        #Calculate propeller tip Mach number:
         tip_speed[id]  = 3.141590*diameter*RPM[id]/60.0
         tip_mach[id]  = tip_speed[id]/sound_speed[id]  
     
-    #Calculation of the helical tip speed
+        #Calculation of the helical tip speed
         Vtip[id] = np.sqrt(speed[id]**2 + tip_speed[id]**2)
         Vtip_Mach[id] = Vtip[id]/sound_speed[id]
     
-# **********************************    
-    # Farfield Partial Level based on Power and Tip Speed    
-# ***** Figure 3 *********************
+        # **********************************    
+            # Farfield Partial Level based on Power and Tip Speed    
+        # ***** Figure 3 *********************
         
         if tip_mach[id] <= 0.4:
             FL1[id] = 6.7810306101*np.log(HP[id])+32.4536847808
@@ -111,9 +111,9 @@ def noise_propeller_sae(noise_data, ioprint = 0):
         elif tip_mach[id] <= 0.9:
             FL1[id] = 6.8447630205*np.log(HP[id])+50.7481250789
         
-# ********************************** 
-    #Atmospheric Absorption and Spherical Spreading
-# ***** Figure 5 *********************
+        # ********************************** 
+            #Atmospheric Absorption and Spherical Spreading
+        # ***** Figure 5 *********************
 
         #Perceived Noise Level and dbA
         FL3_1[id] = -10.6203648721*np.log(dist[id]) + 63.9095683153
@@ -121,15 +121,15 @@ def noise_propeller_sae(noise_data, ioprint = 0):
         #Overall sound pressure level
         FL3_2[id] = -9.0388679389*np.log(dist[id]) + 55.9177440082
         
-# ********************************** 
-    # Directivity Index
-# ***** Figure 6 *********************
+        # ********************************** 
+            # Directivity Index
+        # ***** Figure 6 *********************
 
         DI[id] = 0.000000003*(theta[id]**5) - 1.5330661136843e-6*(theta[id]**4) + 0.0002748446*(theta[id]**3) - 0.0224465579*(theta[id]**2) + 0.8841215644*theta[id] -15.0851264829
     
-# **********************************
-    # PNL adjustment for 2 bladed propellers
-# ***** Figure 7 *********************
+        # **********************************
+            # PNL adjustment for 2 bladed propellers
+        # ***** Figure 7 *********************
 
         if n_blades == 2:
 
@@ -154,20 +154,20 @@ def noise_propeller_sae(noise_data, ioprint = 0):
             print('ERROR: Method limited for 2 bladed propellers right now!!')
             return (0,0,0)
         
-# ****************** CALCULATION OF NOISE LEVELS *********************        
+        # ****************** CALCULATION OF NOISE LEVELS *********************        
         OASPL = FL1[id]+FL2+FL3_2[id]+DI[id]+NC
         PNL[id] = OASPL + PNL_factor[id]
         PNL_dBA[id] = PNL[id] - 14
         
-# *********************** END OF LOOP  *******************************    
+        # *********************** END OF LOOP  *******************************    
         
     # Effective Perceived Noise Level for takeoff and landing:
     EPNdB_takeoff = np.max(PNL) - 4
     EPNdB_landing = np.max(PNL) - 2
     
-# ********************************************************    
-    # Write output file
-# ********************************************************   
+    # ********************************************************    
+        # Write output file
+    # ********************************************************   
 
     if ioprint:
 

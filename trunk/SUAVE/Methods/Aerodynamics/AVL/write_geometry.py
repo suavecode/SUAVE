@@ -53,7 +53,7 @@ def write_geometry(avl_object,spanwise_elements,chordwise_elements):
             geometry.write(wing_text)  
                      
         for b in aircraft.fuselages:
-            if b.tag == 'fuselage':
+            if b.configuration == 'tube_and_wing' or b.configuration == 'boom':
                 avl_body  = translate_avl_body(b)
                 body_text = make_body_text(avl_body,chordwise_elements)
                 geometry.write(body_text)
