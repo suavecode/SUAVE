@@ -120,7 +120,7 @@ class Fidelity_Zero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
-        index = 1
+        
     #def initialize(self):
         #"""Initializes the surrogate needed for lift calculation.
 
