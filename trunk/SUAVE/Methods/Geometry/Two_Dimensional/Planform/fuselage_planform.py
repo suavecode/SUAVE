@@ -20,7 +20,7 @@ from math import pi, sqrt
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
-def fuselage_planform(fuselage):
+def fuselage_planform(fuselage,length=None):
     """Calculates fuselage geometry values
 
     Assumptions:
@@ -66,12 +66,18 @@ def fuselage_planform(fuselage):
     fuselage_width  = fuselage.width
     fuselage_height = fuselage.heights.maximum
     
-    # process
-    nose_length     = nose_fineness * fuselage_width
-    tail_length     = tail_fineness * fuselage_width
-    cabin_length    = number_seats * seat_pitch / seats_abreast + \
-                   forward_extra + aft_extra
-    fuselage_length = cabin_length + nose_length + tail_length
+    if length is not None:    
+        # process
+        nose_length     = nose_fineness * fuselage_width
+        tail_length     = tail_fineness * fuselage_width
+        cabin_length    = number_seats * seat_pitch / seats_abreast + \
+                       forward_extra + aft_extra
+        fuselage_length = cabin_length + nose_length + tail_length
+    else:
+        fuselage_length = fuselage.lengths.total
+        nose_length     = nose_fineness * fuselage_width
+        tail_length     = tail_fineness * fuselage_width      
+        cabin_length    = fuselage_length - nose_length - tail_length
     
     wetted_area = 0.0
     
@@ -81,7 +87,7 @@ def fuselage_planform(fuselage):
     b = fuselage_height/2.
     A = pi * a * b  # area
     R = (a-b)/(a+b) # effective radius
-    C = pi*(a+b)*(1.+ ( 3*R**2 )/( 10+sqrt(4.-3.*R**2) )) # circumfrence
+    C = pi*(a+b)*(1.+ ( 3*R**2 )/( 10+sqrt(4.-3.*R**2) )) # circumference
     
     wetted_area += C * cabin_length
     cross_section_area = A
@@ -103,4 +109,4 @@ def fuselage_planform(fuselage):
     fuselage.areas.front_projected = cross_section_area
     fuselage.effective_diameter    = Deff
     
-    return 0
+    return fuselage

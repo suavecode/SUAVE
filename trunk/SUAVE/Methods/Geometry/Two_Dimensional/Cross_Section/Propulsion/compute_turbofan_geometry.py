@@ -43,13 +43,7 @@ def compute_turbofan_geometry(turbofan, conditions):
     """    
 
     #unpack
-    thrust            = turbofan.thrust
-    core_nozzle       = turbofan.core_nozzle
-    fan_nozzle        = turbofan.fan_nozzle
-    bypass_ratio      = turbofan.bypass_ratio
-    
     slsthrust         = turbofan.sealevel_static_thrust*0.224809 #convert from N to lbs. in correlation
-    #slsthrust         = slsthrust*0.224809
 
     #note; this script doesn't actually use conditions; however, it takes it as input to maintain common interface
 

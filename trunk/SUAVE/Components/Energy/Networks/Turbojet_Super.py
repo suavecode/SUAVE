@@ -58,6 +58,9 @@ class Turbojet_Super(Propulsor):
         self.nacelle_diameter   = 1.0
         self.engine_length      = 1.0
         self.afterburner_active = False
+        
+        self.PGM_characteristics = ['sealevel_static_thrust']
+        
 
     _component_root_map = None
 

@@ -69,6 +69,9 @@ class Turbofan(Propulsor):
         self.areas.maximum     = 0.0
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
+        
+        self.PGM_characteristics = ['sealevel_static_thrust']
+        
     _component_root_map = None
         
     # linking the different network components
