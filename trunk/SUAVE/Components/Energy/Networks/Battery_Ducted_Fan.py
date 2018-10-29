@@ -89,12 +89,12 @@ class Battery_Ducted_Fan(Propulsor):
         results = propulsor.evaluate_thrust(state)
         Pe      = np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         
-        try:
-            initial_energy = conditions.propulsion.battery_energy
-            if initial_energy[0][0]==0: #beginning of segment; initialize battery
-                battery.current_energy = battery.current_energy[-1]*np.ones_like(initial_energy)
-        except AttributeError: #battery energy not initialized, e.g. in takeoff
-            battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
+        #try:
+        #    initial_energy = conditions.propulsion.battery_energy
+        #    if initial_energy[0][0]==0: #beginning of segment; initialize battery
+        #        battery.current_energy = battery.current_energy[-1]*np.ones_like(initial_energy)
+        #except AttributeError: #battery energy not initialized, e.g. in takeoff
+        #    battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
         
         pbat = -Pe/self.motor_efficiency
         battery_logic          = Data()
