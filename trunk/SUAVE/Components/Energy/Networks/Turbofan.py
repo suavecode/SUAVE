@@ -70,7 +70,7 @@ class Turbofan(Propulsor):
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
         
-        self.PGM_characteristics = ['sealevel_static_thrust']
+        self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines']
         
     _component_root_map = None
         

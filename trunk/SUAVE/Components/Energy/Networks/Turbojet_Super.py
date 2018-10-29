@@ -59,7 +59,7 @@ class Turbojet_Super(Propulsor):
         self.engine_length      = 1.0
         self.afterburner_active = False
         
-        self.PGM_characteristics = ['sealevel_static_thrust']
+        self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines']
         
 
     _component_root_map = None
