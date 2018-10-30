@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Container
 
 import numpy as np
 

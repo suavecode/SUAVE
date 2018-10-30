@@ -18,8 +18,6 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import comp
 from SUAVE.Methods.Propulsion import turbofan_sizing
 from SUAVE.Methods.Propulsion import turbojet_sizing
 
-
-
 # ----------------------------------------------------------------------
 #  Size from PGM
 # ----------------------------------------------------------------------
@@ -46,8 +44,8 @@ def size_from_PGM(vehicle):
         """        
         
         # The top level info
-        vehicle.systems.control        = "fully powered" 
-        vehicle.systems.accessories    = "medium range"        
+        vehicle.systems.control     = "fully powered" 
+        vehicle.systems.accessories = "medium range"        
         
         # Passengers
         vehicle.passengers  = vehicle.performance.vector[-1] *1.

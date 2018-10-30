@@ -14,6 +14,12 @@ from SUAVE.Core import Data, Container
 from SUAVE import Components
 import numpy as np
 
+from warnings import warn
+import string
+chars = string.punctuation + string.whitespace
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
+
 # ----------------------------------------------------------------------
 #  Vehicle Data Class
 # ----------------------------------------------------------------------
@@ -53,7 +59,7 @@ class Vehicle(Data):
         self.propulsors             = Components.Propulsors.Propulsor.Container()
         self.energy                 = Components.Energy.Energy()
         self.systems                = Components.Systems.System.Container()
-        self.mass_properties        = Vehicle_Mass_Properties()
+        self.mass_properties        = Vehicle_Mass_Container()
         self.costs                  = Costs()
         self.envelope               = Components.Envelope()
         self.reference_area         = 0.0
@@ -90,8 +96,12 @@ class Vehicle(Data):
             Components.Systems.System                  : self['systems']                ,
             Components.Propulsors.Propulsor            : self['propulsors']             ,
             Components.Envelope                        : self['envelope']               ,
+            Vehicle_Mass_Properties                    : self['mass_properties']        ,
+        
         }
-
+        
+        self.append_component(Vehicle_Mass_Properties())
+        
         return
 
     def find_component_root(self,component):
@@ -151,6 +161,13 @@ class Vehicle(Data):
         # find the place to store data
         component_root = self.find_component_root(component)
         
+        ## Check if there are Mass_Properties already, can only be one
+        #if isinstance(component,Vehicle_Mass_Properties):
+            #try:
+                #self.__delattr__('mass_properties')
+            #except:
+                #pass        
+        
         # See if the component exists, if it does modify the name
         keys = component_root.keys()
         if component.tag in keys:
@@ -196,6 +213,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
             None
             """         
 
+        self.tag             = ''
         self.operating_empty = 0.0
         self.max_takeoff     = 0.0
         self.takeoff         = 0.0
@@ -212,6 +230,10 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_zero_fuel   = 0.0
         self.center_of_gravity = [0.0,0.0,0.0]
         self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
+
+        self.max_per_vehicle     = 1
+        self.PGM_characteristics = ['max_takeoff']
+        self.PGM_compulsory      = True
 
 ## @ingroup Vehicle
 class Costs(Data):
@@ -244,3 +266,49 @@ class Costs(Data):
         self.tag = 'costs'
         self.industrial = Components.Costs.Industrial_Costs()
         self.operating  = Components.Costs.Operating_Costs()
+        
+        
+class Vehicle_Mass_Container(Components.Physical_Component.Container):
+        
+    def append(self,value,key=None):
+        """ Appends the vehicle mass, but only let's one ever exist. Keeps the newest one
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """      
+        self.clear()
+        for key in value.keys():
+            self[key] = value[key]
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return [Vehicle_Mass_Properties]

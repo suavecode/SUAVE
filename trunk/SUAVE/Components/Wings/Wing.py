@@ -121,7 +121,8 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
-
+        
+        self.PGM_compulsory      = False
         self.PGM_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference']
         self.Segments           = SUAVE.Core.ContainerOrdered()
         self.Fuel_Tanks         = SUAVE.Core.Container()

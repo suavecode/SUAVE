@@ -66,6 +66,7 @@ class Battery_Propeller(Propulsor):
         self.voltage           = None
         self.thrust_angle      = 0.0
         self.tag               = 'Battery_Propeller'
+        self.PGM_compulsory    = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

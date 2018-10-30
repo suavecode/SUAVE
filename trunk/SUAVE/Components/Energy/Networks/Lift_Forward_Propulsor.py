@@ -79,6 +79,7 @@ class Lift_Forward_Propulsor(Propulsor):
         self.thrust_angle_lift         = 0.0
         self.thrust_angle_forward      = 0.0
         self.tag                       = 'Lift_Forward'
+        self.PGM_compulsory            = False
         
         pass
         

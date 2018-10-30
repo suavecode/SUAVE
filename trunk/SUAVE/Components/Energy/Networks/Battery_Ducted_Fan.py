@@ -56,6 +56,7 @@ class Battery_Ducted_Fan(Propulsor):
         self.battery          = None
         self.motor_efficiency = .95 
         self.tag              = 'Battery_Ducted_Fan'
+        self.PGM_compulsory    = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

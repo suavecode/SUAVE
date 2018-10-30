@@ -58,6 +58,7 @@ class Dual_Battery_Ducted_Fan(Propulsor):
         self.auxiliary_battery    = None # used to meet power demands beyond primary
         self.motor_efficiency     = .95
         self.tag                  = 'Network'
+        self.PGM_compulsory       = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
