@@ -268,7 +268,7 @@ class Costs(Data):
         self.operating  = Components.Costs.Operating_Costs()
         
         
-class Vehicle_Mass_Container(Components.Physical_Component.Container):
+class Vehicle_Mass_Container(Components.Physical_Component.Container,Vehicle_Mass_Properties):
         
     def append(self,value,key=None):
         """ Appends the vehicle mass, but only let's one ever exist. Keeps the newest one

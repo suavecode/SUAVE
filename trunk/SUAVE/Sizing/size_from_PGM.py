@@ -46,9 +46,12 @@ def size_from_PGM(vehicle):
         # The top level info
         vehicle.systems.control     = "fully powered" 
         vehicle.systems.accessories = "medium range"        
+        vehicle.envelope.ultimate_load = 2.5
+        vehicle.envelope.limit_load    = 1.5
+        vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
         # Passengers
-        vehicle.passengers  = vehicle.performance.vector[-1] *1.
+        vehicle.passengers  = vehicle.performance.vector[0][-1] *1.
         
         # Size the wings
         max_area = 0

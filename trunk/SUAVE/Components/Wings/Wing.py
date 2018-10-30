@@ -60,7 +60,7 @@ class Wing(Lofted_Body):
 
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
-        self.position        = [0.0,0.0,0.0]
+        self.origin          = [0.0,0.0,0.0]
         
         self.symmetric                 = True
         self.vertical                  = False
@@ -119,6 +119,8 @@ class Wing(Lofted_Body):
 
         self.transition_x_upper = 0.0
         self.transition_x_lower = 0.0
+        
+        self.dynamic_pressure_ratio = 0.0
         
         self.Airfoil            = Data()
         
