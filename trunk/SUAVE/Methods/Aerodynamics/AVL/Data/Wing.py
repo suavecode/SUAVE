@@ -41,9 +41,10 @@ class Wing(Data):
 		self.symmetric = True
 		self.vertical  = False
 		self.origin    = [0.,0.,0.]
-             
+
 		self.sweep        = 0.0
-                self.semispan     = 0.0
+		self.dihedral     = 0.0
+
 		self.sections = Data()
 		self.configuration = Data()
 		self.control_surfaces = Data()
@@ -59,7 +60,7 @@ class Wing(Data):
 
 		# assert database type
 		if not isinstance(section,Data):
-			raise Exception, 'input component must be of type Data()'
+			raise Exception('input component must be of type Data()')
 
 		# store data
 		self.sections.append(section)
@@ -136,7 +137,7 @@ class Section(Data):
 
 		# assert database type
 		if not isinstance(control,Data):
-			raise Exception, 'input component must be of type Data()'
+			raise Exception('input component must be of type Data()')
 
 		# store data
 		self.control_surfaces.append(control)

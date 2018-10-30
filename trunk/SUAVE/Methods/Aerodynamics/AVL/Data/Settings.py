@@ -3,14 +3,14 @@
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-#           Arp 2017, M. Clarke
+#           Oct 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
-from Cases import Run_Case
+from .Cases import Run_Case
 
 # ------------------------------------------------------------
 #   Configuration
@@ -58,9 +58,8 @@ class Settings(Data):
                 self.run_cases                = Run_Case.Container()
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
-                self.discretization           = Data()
-
-                self.num_control_surfaces     = 0
+                self.discretization           = Data()          
+                self.number_control_surfaces     = 0
                 
                 self.discretization.defaults  = Data()
                 self.discretization.surfaces  = Data()
@@ -71,7 +70,7 @@ class Settings(Data):
                 self.discretization.defaults.fuselage.nose_interpolation      = 'parabolic'
                 self.discretization.defaults.fuselage.tail_interpolation      = 'linear'
 
-                self.filenames.avl_bin_name    = 'C:/Users/Matthew/Documents/AVL/avl.exe' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
+                self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
                 self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
                 self.filenames.features        = 'aircraft.avl'
                 self.filenames.mass_file       = 'aircraft.mass'
@@ -138,9 +137,9 @@ class AVL_Discretization_Settings(Data):
                 Properties Used:
                     N/A
                 """  
-                self.chordwise_elements        = 5
+                self.chordwise_vortices        = 5
                 self.chordwise_spacing_scheme  = 'equal'
-                self.spanwise_elements         = 5
+                self.spanwise_vortices         = 10
                 self.spanwise_spacing_scheme   = 'cosine'
 
                 
