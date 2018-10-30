@@ -88,10 +88,10 @@ def main():
     truth_LFL = np.array( [  723.67022689 ,  786.82625714 ,  849.98228739  , 913.13831764  , 976.29434789 , 1039.45037815 , 1102.6064084 ,  1165.76243865 , 1228.9184689 ,  1292.07449915])
     LFL_error = np.max(np.abs(landing_field_length-truth_LFL))
     
-    print 'Maximum Landing Field Length Error= %.4e' % LFL_error
+    print('Maximum Landing Field Length Error= %.4e' % LFL_error)
     
     title = "LFL vs W"
-    plt.figure(1); plt.hold
+    plt.figure(1); 
     plt.plot(w_vec,landing_field_length, 'k-', label = 'Landing Field Length')
 
     plt.title(title); plt.grid(True)

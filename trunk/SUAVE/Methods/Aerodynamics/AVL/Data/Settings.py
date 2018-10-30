@@ -58,7 +58,7 @@ class Settings(Data):
                 self.run_cases                = Run_Case.Container()
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
-                self.discretization           = Data()          
+                self.discretization           = Data()
                 self.number_control_surfaces     = 0
                 
                 self.discretization.defaults  = Data()

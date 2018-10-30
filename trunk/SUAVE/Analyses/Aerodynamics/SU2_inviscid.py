@@ -13,9 +13,10 @@ import SUAVE
 from SUAVE.Core import Data, Units
 
 # Local imports
-from Aerodynamics import Aerodynamics
+from .Aerodynamics import Aerodynamics
 from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
+from sklearn.gaussian_process.kernels import ExpSineSquared
 
 # Package imports
 import numpy as np
@@ -139,16 +140,15 @@ class SU2_inviscid(Aerodynamics):
         data_len = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict(np.array([AoA[ii][0],mach[ii][0]]))
+            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn fix
+            
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag = np.zeros([data_len,1])
-        #for ii,_ in enumerate(AoA):
-        #    inviscid_drag[ii] = drag_model.predict([AoA[ii][0],mach[ii][0]])        
+        inviscid_drag                                              = np.zeros([data_len,1])       
         state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
         
         return inviscid_lift, inviscid_drag
@@ -211,7 +211,7 @@ class SU2_inviscid(Aerodynamics):
             
             time1 = time.time()
             
-            print 'The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds'
+            print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
         else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
@@ -258,17 +258,13 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
+              
         # Gaussian Process New
-        regr_cl = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcess()
+        gp_kernel_ES = ExpSineSquared(length_scale=1.0, periodicity=1.0, length_scale_bounds=(1e-5,1e5), periodicity_bounds=(1e-5,1e5))
+        regr_cl = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cd = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
         cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)          
-        
-        # Gaussian Process New
-        #regr_cl = gaussian_process.GaussianProcessRegressor()
-        #regr_cd = gaussian_process.GaussianProcessRegressor()
-        #cl_surrogate = regr_cl.fit(xy, CL_data)
-        #cd_surrogate = regr_cd.fit(xy, CD_data)  
+        cd_surrogate = regr_cd.fit(xy, CD_data)  
         
         # KNN
         #regr_cl = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
@@ -297,9 +293,8 @@ class SU2_inviscid(Aerodynamics):
         
         for jj in range(len(AoA_points)):
             for ii in range(len(mach_points)):
-                CL_sur[ii,jj] = cl_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-                CD_sur[ii,jj] = cd_surrogate.predict(np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]]))
-        
+                CL_sur[ii,jj] = cl_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])
+                CD_sur[ii,jj] = cd_surrogate.predict([np.array([AoA_mesh[ii,jj],mach_mesh[ii,jj]])])  #sklearn fix        
 
         fig = plt.figure('Coefficient of Lift Surrogate Plot')    
         plt_handle = plt.contourf(AoA_mesh/Units.deg,mach_mesh,CL_sur,levels=None)

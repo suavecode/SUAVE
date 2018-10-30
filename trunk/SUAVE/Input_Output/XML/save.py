@@ -95,9 +95,9 @@ def save(xml_data,filename):
 	tree = et.ElementTree(xml_data)
 
 	# write!
-	output = open(filename,'w')
+	output = open(filename,'wb')
 	tree.write(output, 'utf-8')
-	output.write('\n')    
+	output.write(bytes('\n', 'utf-8'))    
 	output.close()
 
 	return

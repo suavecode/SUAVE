@@ -11,7 +11,7 @@ from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
 
 # default Aero Results
-from Results import Results
+from .Results import Results
 
 import numpy as np
 
@@ -51,7 +51,6 @@ class Aerodynamics(Analysis):
         
         self.geometry = Data()
         self.settings = Data()
-        self.vortex_density = Data()
         self.settings.maximum_lift_coefficient = np.inf
         
         

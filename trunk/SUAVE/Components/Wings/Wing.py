@@ -5,14 +5,16 @@
 # Modified: Sep 2016, E. Botero
 #           Jul 2017, M. Clarke
 #           Oct 2017, E. Botero
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
-from Airfoils import Airfoil
+from .Airfoils import Airfoil
 
 # ------------------------------------------------------------
 #   Wing
@@ -59,7 +61,7 @@ class Wing(Lofted_Body):
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
         self.position        = [0.0,0.0,0.0]
-
+        
         self.symmetric                 = True
         self.vertical                  = False
         self.t_tail                    = False
@@ -96,7 +98,6 @@ class Wing(Lofted_Body):
         self.twists.tip  = 0.0
 
         self.control_surfaces = Data()
-
         self.flaps = Data()
         self.flaps.chord      = 0.0
         self.flaps.angle      = 0.0
@@ -120,6 +121,8 @@ class Wing(Lofted_Body):
         self.transition_x_lower = 0.0
         
         self.Airfoil            = Data()
+        self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 
@@ -142,7 +145,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(segment,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Segments.append(segment)
@@ -170,7 +173,7 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(airfoil,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # Store data
         self.Airfoil.append(airfoil)
@@ -199,9 +202,37 @@ class Wing(Lofted_Body):
 
         # Assert database type
         if not isinstance(control_surface,Data):
-            raise Exception, 'input control surface must be of type Data()'
+            raise Exception('input control surface must be of type Data()')
 
         # Store data
         self.control_surfaces.append(control_surface)
+
+        return
+    
+    def append_fuel_tank(self,fuel_tank):
+        """ Adds a fuel tank to the wing 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(fuel_tank,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Fuel_Tanks.append(fuel_tank)
 
         return

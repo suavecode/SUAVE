@@ -48,10 +48,8 @@ def empty(vehicle):
     
     
     # Airframe weight
-    #Waf = (5.58*(S**1.59)*(AR**0.71))/g # 
+    Waf = (5.58*(S**1.59)*(AR**0.71))/g # All Samples
     #Waf = (0.44*(S**1.55)*(AR**1.30))/g  # Top 19
-    
-    Waf = 0.48*(S**1.5)*(AR**0.71)
     
     # Pack
     weight = Data()

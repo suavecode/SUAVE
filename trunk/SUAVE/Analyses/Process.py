@@ -52,12 +52,12 @@ class Process(ContainerOrdered):
         results = Data()
         
         if self.verbose:
-            print 'process start'
+            print('process start')
         
         for tag,step in self.items(): 
             
             if self.verbose:
-                print 'step :' , tag
+                print('step :' , tag)
             
             #if not callable(step): continue
             
@@ -71,7 +71,7 @@ class Process(ContainerOrdered):
         #: for each step
         
         if self.verbose:
-            print 'process end'        
+            print('process end')        
         
         return results
         

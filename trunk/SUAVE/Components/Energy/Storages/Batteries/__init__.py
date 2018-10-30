@@ -4,7 +4,7 @@
 
 
 
-from Battery import Battery
-import Constant_Mass
-import Variable_Mass
+from .Battery import Battery
+from . import Constant_Mass
+from . import Variable_Mass
 

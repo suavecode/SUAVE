@@ -9,16 +9,16 @@
 
 import SUAVE
 from SUAVE.Core import Data
-from Markup import Markup
+from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
 # Default aero Results
-from Results import Results
+from .Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from Process_Geometry import Process_Geometry
+from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.AVL_Inviscid import AVL_Inviscid
 
 # ----------------------------------------------------------------------
@@ -64,8 +64,8 @@ class AVL(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
-
-          
+        
+                
         # Build the evaluation process
         compute = self.process.compute
         compute.lift = Process()
@@ -116,18 +116,9 @@ class AVL(Markup):
         self.geometry
         """          
         self.process.compute.lift.inviscid.geometry = self.geometry
-        try:
-            vortices_per_meter = self.settings.vortex_density
-        except:
-            vortices_per_meter = []
-        if vortices_per_meter == []:
-            vortices_per_meter = 2
-        pass
-        
-    
-        self.process.compute.lift.inviscid.initialize(vortices_per_meter)
+        # Generate the surrogate
+        self.process.compute.lift.inviscid.initialize()
         
     finalize = initialize
     
     
-

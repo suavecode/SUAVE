@@ -3,6 +3,7 @@
 # 
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Mar 2018, T. MacDonald
 
 ## @ingroup Input_Output-SU2
 def write_SU2_cfg(tag,SU2_settings):
@@ -54,7 +55,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('REF_ORIGIN_MOMENT_X = 0.25\n\n')
     f.write('REF_ORIGIN_MOMENT_Y = 0.00\n\n')
     f.write('REF_ORIGIN_MOMENT_Z = 0.00\n\n')
-    f.write('REF_LENGTH_MOMENT = 1.0\n\n')
+    f.write('REF_LENGTH = 1.0\n\n')
     f.write('REF_AREA = ' + str(float(ref_area)) + '\n\n')
     f.write('REF_DIMENSIONALIZATION = FREESTREAM_VEL_EQ_ONE\n\n')
     
@@ -82,9 +83,8 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('LINEAR_SOLVER_ITER = 2\n\n')
     
     # Slope limiter
-    f.write('REF_ELEM_LENGTH = 0.1\n\n')
-    f.write('LIMITER_COEFF = 0.3\n\n')
-    f.write('SHARP_EDGES_COEFF = 3.0\n\n')
+    f.write('VENKAT_LIMITER_COEFF = 0.3\n\n')
+    f.write('ADJ_SHARP_LIMITER_COEFF = 3.0\n\n')
     f.write('REF_SHARP_EDGES = 3.0\n\n')
     f.write('SENS_REMOVE_SHARP = YES\n\n')
     
@@ -99,16 +99,16 @@ def write_SU2_cfg(tag,SU2_settings):
     
     # Flow numerical method
     f.write('CONV_NUM_METHOD_FLOW = JST\n\n')
-    f.write('SPATIAL_ORDER_FLOW = 2ND_ORDER\n\n')
+    f.write('MUSCL_FLOW = YES\n\n')
     f.write('SLOPE_LIMITER_FLOW = VENKATAKRISHNAN\n\n')
-    f.write('AD_COEFF_FLOW = ( 0.15, 0.5, 0.02 )\n\n')
+    f.write('JST_SENSOR_COEFF = ( 0.5, 0.02 )\n\n')
     f.write('TIME_DISCRE_FLOW = EULER_IMPLICIT\n\n')
     
     # Adjoint-flow numerical method
     f.write('CONV_NUM_METHOD_ADJFLOW = JST\n\n')
-    f.write('SPATIAL_ORDER_ADJFLOW = 2ND_ORDER\n\n')
+    f.write('MUSCL_ADJFLOW = YES\n\n')
     f.write('SLOPE_LIMITER_ADJFLOW = VENKATAKRISHNAN\n\n')
-    f.write('AD_COEFF_ADJFLOW = ( 0.15, 0.0, 0.02 )\n\n')
+    f.write('ADJ_JST_SENSOR_COEFF = ( 0.0, 0.02 )\n\n')
     f.write('CFL_REDUCTION_ADJFLOW = 0.5\n\n')
     f.write('TIME_DISCRE_ADJFLOW = EULER_IMPLICIT\n\n')
     
@@ -128,7 +128,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('SOLUTION_ADJ_FILENAME = solution_adj.dat\n\n')
     f.write('MESH_FORMAT = SU2\n\n')
     f.write('OUTPUT_FORMAT = TECPLOT\n\n')
-    f.write('CONV_FILENAME = history\n\n')
+    f.write('CONV_FILENAME = ' + tag + '_history\n\n')
     f.write('BREAKDOWN_FILENAME = ' + tag + '_forces_breakdown.dat\n\n')
     f.write('RESTART_FLOW_FILENAME = ' + tag + '_restart_flow.dat\n\n')
     f.write('RESTART_ADJ_FILENAME = restart_adj.dat\n\n')

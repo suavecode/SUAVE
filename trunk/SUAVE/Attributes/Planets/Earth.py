@@ -3,13 +3,14 @@
 # 
 # Created:  Unk, 2013, J. Sinsay
 # Modified: Apr, 2015, E. Botero
+#           Sep, 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+from .Planet import Planet
+from SUAVE.Core import Units
 
-from Planet import Planet
-     
 # ----------------------------------------------------------------------
 #  Earth Constant Class
 # ----------------------------------------------------------------------
@@ -47,4 +48,28 @@ class Earth(Planet):
         self.sea_level_gravity = 9.80665  # m/s^2   
         self.HitchHikersGuide  = 'MostlyHarmless'
 
+    def compute_gravity(self, H=0.0):
+        """Compute the gravitational acceleration at altitude
+            
+        Assumptions:      
 
+        Source:
+
+        Inputs:
+        H     [m] (Altitude)
+
+        Outputs:
+        g     [m/(s^2)] (Gravity)
+
+        Properties Used:
+        None
+        """          
+        # Unpack
+        g0  = self.sea_level_gravity
+        Re  = self.mean_radius
+        Alt = H*Units['m']
+        
+        # Calculate gravity
+        gh = g0*(Re/(Re+H))**2.0
+        
+        return gh
