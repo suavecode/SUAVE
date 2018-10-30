@@ -61,12 +61,15 @@ def initialize_conditions(segment):
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = (Tf-T0)/theta_dot + t_initial
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # set the body angle
     body_angle = theta_dot*time + T0
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]    
+    
+    # Set the angle ofattack
+    
     
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
