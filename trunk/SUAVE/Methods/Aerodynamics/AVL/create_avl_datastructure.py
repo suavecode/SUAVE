@@ -275,7 +275,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         index =+ 1                                                       
                    
                                         if suave_wing.Segments[i_segs].Airfoil:
-                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].coordinate_file
+                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].airfoil.coordinate_file
                                         avl_wing.append_section(section)   
                                         
                                 if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs].percent_span_location:  
@@ -291,7 +291,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
                                 section.origin = origin[i_segs]
                                 if suave_wing.Segments[i_segs].Airfoil:
-                                        section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].coordinate_file
+                                        section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].airfoil.coordinate_file
                 
                                 # append section to wing
                                 avl_wing.append_section(section)                               
