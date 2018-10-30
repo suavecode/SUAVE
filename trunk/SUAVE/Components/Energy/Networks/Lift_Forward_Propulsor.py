@@ -289,7 +289,10 @@ class Lift_Forward_Propulsor(Propulsor):
         conditions.propulsion.motor_efficiency_forward     = etam_forward
         conditions.propulsion.motor_efficiency_lift        = etam_lift        
           
-        conditions.propulsion.battery_draw             = battery_draw
+        conditions.propulsion.battery_draw             = Data()
+        conditions.propulsion.battery_draw.total       = battery_draw
+        conditions.propulsion.battery_draw.forward_prop= -i_forward * volts 
+        conditions.propulsion.battery_draw.lift_prop   = -i_lift * volts 
         conditions.propulsion.battery_energy           = battery_energy
         conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
         conditions.propulsion.voltage_under_load       = voltage_under_load      

@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, M. Clarke 
 # Modified: Jan 2018, W. Maier
+#           Oct 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -83,10 +84,6 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr
         
-        # Default number of spanwise and chordwise votices
-        self.settings.spanwise_vortices      = None
-        self.settings.chordwise_vortices     = None
-        
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
         
@@ -104,7 +101,7 @@ class AVL_Inviscid(Aerodynamics):
         # Regression Status
         self.regression_flag                 = False
 
-    def initialize(self):
+    def initialize(self,spanwise_vortices,chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -125,7 +122,19 @@ class AVL_Inviscid(Aerodynamics):
         geometry     = self.geometry
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
         run_folder   = self.settings.filenames.run_folder
-                
+        
+        # check if user specifies number of spanwise vortices
+        if spanwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.spanwise_vortices = spanwise_vortices  
+        
+        # check if user specifies number of chordise vortices 
+        if chordwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.chordwise_vortices = chordwise_vortices     
+            
         # Sample training data
         self.sample_training()
     
@@ -169,20 +178,28 @@ class AVL_Inviscid(Aerodynamics):
         # Inviscid lift
         data_len      = len(AoA)
         inviscid_lift = np.zeros([data_len,1])
+        inviscid_drag = np.zeros([data_len,1])    
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn update fix
-            
+            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])])  
+            inviscid_drag[ii] = drag_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
+        
+        # Store inviscid lift results     
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
-
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
-        # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                                    = np.zeros([data_len,1])        
+        # Store inviscid drag results  
+        e             = settings.oswald_efficiency_factor
+        ar            = geometry.wings['main_wing'].aspect_ratio
         state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        
-        return inviscid_lift, inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.induced = Data(
+            total             = inviscid_drag ,
+            efficiency_factor = e             ,
+            aspect_ratio      = ar            ,
+        )        
+                
+        return inviscid_lift
         
 
     def sample_training(self):
@@ -349,17 +366,7 @@ class AVL_Inviscid(Aerodynamics):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-        # check if user specifies number of spanwise vortices
-        if self.settings.spanwise_vortices == None: 
-            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
-        else:
-            spanwise_elements  = self.settings.spanwise_vortices
-        
-        # check if user specifies number of chordise vortices 
-        if self.settings.chordwise_vortices == None: 
-            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
-        else:
-            chordwise_elements  = self.settings.chordwise_vortices
+
         
         # update current status
         self.current_status.batch_index += 1
@@ -391,7 +398,7 @@ class AVL_Inviscid(Aerodynamics):
     
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_elements,chordwise_elements)
+            write_geometry(self)
             write_run_cases(self)
             write_input_deck(self)
     
