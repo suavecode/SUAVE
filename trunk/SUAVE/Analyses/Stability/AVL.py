@@ -485,6 +485,9 @@ class AVL(Stability):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
+        # rename defaul avl aircraft tag
+        self.settings.filenames.features = self.geometry._base.tag + '.avl'
+        
         # update current status
         self.current_status.batch_index += 1
         batch_index                      = self.current_status.batch_index

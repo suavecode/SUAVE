@@ -54,7 +54,7 @@ def write_geometry(avl_object):
             geometry.write(wing_text)  
                      
         for b in aircraft.fuselages:
-            if b.configuration == 'tube_and_wing' or b.configuration == 'boom':
+            if b.configuration == 'Tube_Wing' or b.configuration == 'boom':
                 avl_body  = translate_avl_body(b)
                 body_text = make_body_text(avl_body,chordwise_vortices)
                 geometry.write(body_text)

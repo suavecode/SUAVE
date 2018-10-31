@@ -122,7 +122,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6118500927696005
+    lift_coefficient_true         = 0.6118979112943634
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -132,7 +132,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6288724307669327
+    moment_coefficient_true       = -0.6267104228027165
 
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
