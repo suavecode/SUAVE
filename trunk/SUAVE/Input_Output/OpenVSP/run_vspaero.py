@@ -13,7 +13,7 @@ import time
 import fileinput
 
 ## @ingroup Input_Output-OpenVSP
-def run_vspaero(vehicle,tag,vspaero_settings):
+def run_vspaero(vehicle,tag,vspaero_settings,deflect_control_surfaces=False):
     """
     
     Assumptions:
@@ -39,6 +39,8 @@ def run_vspaero(vehicle,tag,vspaero_settings):
     # VSPAERO Result Output Indicies, may change over time
     AoA_ind = 2
     CL_ind  = 4
+    CMy_ind = 15
+    CMz_ind = 16
     
     #alpha_start = 0
     #alpha_end   = 20 # deg
@@ -50,10 +52,20 @@ def run_vspaero(vehicle,tag,vspaero_settings):
     vsp.ReadVSPFile(tag + '.vsp3')
     vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
     
+    if deflect_control_surfaces == True:
+        set_up_control_surfaces(vehicle, vspaero_settings)  
+    
+    # Compute geometry for use (this is not done automatically in the API VSPAERO call)
+    vsp.ComputeDegenGeom(0, vsp.DEGEN_GEOM_CSV_TYPE)
+    
     analysis_name = 'VSPAEROSweep'
     Sref = vehicle.reference_area
+    bref = vehicle.wings.main_wing.spans.projected
+    cref = vehicle.wings.main_wing.chords.mean_aerodynamic
     
     vsp.SetDoubleAnalysisInput(analysis_name,'Sref',[Sref])
+    vsp.SetDoubleAnalysisInput(analysis_name,'bref',[bref])
+    vsp.SetDoubleAnalysisInput(analysis_name,'cref',[cref])
     vsp.SetDoubleAnalysisInput(analysis_name,'AlphaStart',[alpha_start])
     if alpha_npts > 1:
         vsp.SetDoubleAnalysisInput(analysis_name,'AlphaEnd',[alpha_end])
@@ -71,6 +83,8 @@ def run_vspaero(vehicle,tag,vspaero_settings):
     num_outputs = 2 # to be changed based on modifications to desired outputs
     CLs  = np.zeros(num_runs)
     AoAs = np.zeros(num_runs)
+    CMys = np.zeros(num_runs)
+    CMzs = np.zeros(num_runs)
     for i,line in enumerate(fi):
         if i == 0:
             pass
@@ -78,8 +92,21 @@ def run_vspaero(vehicle,tag,vspaero_settings):
             run_ind = i-1
             AoAs[run_ind] = line.split()[AoA_ind]
             CLs[run_ind]  = line.split()[CL_ind]
+            CMys[run_ind] = line.split()[CMy_ind]
+            CMzs[run_ind] = line.split()[CMz_ind]
             
-    return AoAs,CLs
+    return AoAs,CLs,CMys,CMzs
+
+def set_up_control_surfaces(vehicle,vspaero_settings):
+    #vsp.AutoGroupVSPAEROControlSurfaces()
+    for wing in vehicle.wings:
+        wing_tag = wing.tag
+        for control_surface in wing.control_surfaces:
+            surf_tag = control_surface.tag
+            
+    
+            
+    return
     
 if __name__ == '__main__':
     tag = '/home/tim/Documents/Experimental/OpenVSP_VSPAERO_Test/aero_test'

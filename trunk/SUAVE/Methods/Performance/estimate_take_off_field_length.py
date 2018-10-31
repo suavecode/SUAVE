@@ -106,7 +106,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
                 vehicle.maximum_lift_coefficient = maximum_lift_coefficient
             except:
                 raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
-    elif maximum_lift_method == 'OpenVSP':
+    elif maximum_lift_method == 'OpenVSP_Fixed_Angle':
         # This method is designed for aircraft with a known maximum angle of attack but not a known
         # maximum coefficient of lift (typically applicable to delta wing configurations).
         # This may not actually indicate stall, but is used in a similar manner.
@@ -119,8 +119,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         vspaero_settings.alpha_start = 14.
         vspaero_settings.alpha_npts  = 1
         vspaero_settings.mach_number = mach_number
-        #tag = vehicle.tag
-        tag = 'aero_test'
+        tag = vehicle.tag
+        tag = 'base'
         _, maximum_lift_coefficient = run_vspaero(vehicle, tag, vspaero_settings)
     else:
         raise NotImplementedError('Chosen maximum lift method is not implemented.')

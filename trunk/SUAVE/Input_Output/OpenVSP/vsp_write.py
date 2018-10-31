@@ -109,7 +109,9 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     for wing in vehicle.wings:       
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
         if wing.tag == 'main_wing':
-            main_wing_id = wing_id         
+            main_wing_id = wing_id      
+            
+    vsp.AutoGroupVSPAEROControlSurfaces()
     
     # -------------
     # Engines
@@ -392,11 +394,54 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
 
     vsp.Update() # to fix problems with chords not matching up
     
+    for control_surface in wing.control_surfaces:
+        write_control_surface(wing, wing_id, control_surface)
+    
     if 'Fuel_Tanks' in wing:
         for tank in wing.Fuel_Tanks:
             write_wing_conformal_fuel_tank(wing, wing_id, tank, fuel_tank_set_ind)
     
     return area_tags, wing_id
+
+def write_control_surface(wing, wing_id, control_surface):
+    
+    chord_fraction = control_surface.chord_fraction
+    span_trim_min  = control_surface.span_fraction[0]
+    span_trim_max  = control_surface.span_fraction[1]
+    
+    n_segments = len(wing.Segments.keys())
+    if n_segments > 0.:
+        seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
+                                       in wing.Segments.iteritems()])
+        seg_span_percents  = np.hstack([0,seg_span_percents,1])
+        vsp_segment_breaks = np.linspace(0.,1.,n_segments+2)
+    else:
+        seg_span_percents = np.array([0.,1/3,2/3,1.])
+        
+    if n_segments>0:
+        span_trim_max = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,  
+                                                     span_trim_max)
+        span_trim_min = get_vsp_trim_from_SUAVE_trim(seg_span_percents,
+                                                     vsp_segment_breaks,
+                                                     span_trim_min)    
+        
+    surf_id = vsp.AddSubSurf(wing_id,vsp.SS_CONTROL)
+    
+    pid = vsp.FindParm(surf_id,'Length_C_Start','SS_Control')
+    vsp.SetParmVal(pid,chord_fraction)
+    pid = vsp.FindParm(surf_id,'UStart','SS_Control')
+    vsp.SetParmVal(pid,span_trim_min)
+    pid = vsp.FindParm(surf_id,'UEnd','SS_Control')
+    vsp.SetParmVal(pid,span_trim_max)
+    
+    #stdout = vsp.cvar.cstdout
+    #errorMgr = vsp.ErrorMgrSingleton_getInstance()
+    #errorMgr.PopErrorAndPrint(stdout)    
+        
+    #vsp.Update()
+        
+    return
 
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_turbofan(turbofan):
