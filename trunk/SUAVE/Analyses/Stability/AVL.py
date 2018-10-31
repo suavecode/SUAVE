@@ -73,9 +73,7 @@ class AVL(Stability):
         N/A
         """                  
         self.tag                                            = 'avl'
-        self.keep_files                                     = True
-        
-        self.settings                                       = Settings()
+        self.keep_files                                     = True  
         
         self.current_status                                 = Data()
         self.current_status.batch_index                     = 0
@@ -83,12 +81,11 @@ class AVL(Stability):
         self.current_status.deck_file                       = None
         self.current_status.cases                           = None
         
+        self.settings                                       = Settings()
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
-
-        # Default number of spanwise and chordwise votices
-        self.settings.spanwise_vortices      = None
-        self.settings.chordwise_vortices     = None
+        self.settings.spanwise_vortices                     = None
+        self.settings.chordwise_vortices                    = None
             
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
@@ -485,7 +482,7 @@ class AVL(Stability):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-        # rename defaul avl aircraft tag
+        # rename default avl aircraft tag
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
         
         # update current status
