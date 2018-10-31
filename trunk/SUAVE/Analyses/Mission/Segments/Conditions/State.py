@@ -56,6 +56,7 @@ class State(Conditions):
             None
         """           
         
+        self.tag        = 'state'
         self.unknowns   = Unknowns()
         self.conditions = Conditions()
         self.residuals  = Residuals()

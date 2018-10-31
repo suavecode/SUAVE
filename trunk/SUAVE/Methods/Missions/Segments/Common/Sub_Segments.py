@@ -34,8 +34,6 @@ def expand_sub_segments(segment):
         N/A
                                 
     """    
-    
-    pass
 
     last_tag = None
     
@@ -47,7 +45,8 @@ def expand_sub_segments(segment):
         if last_tag:
             sub_segment.state.initials = segment.segments[last_tag].state
         last_tag = tag        
-
+        
+        sub_segment.process.initialize.expand_state(sub_segment)
                
         if Process.verbose:
             print('segment end :' , tag)        
@@ -79,6 +78,8 @@ def update_sub_segments(segment):
         sub_segment.initialize()
         sub_segment.iterate()
         sub_segment.finalize()
+        
+    segment.state.update(segment.merged())
    
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments
@@ -132,3 +133,28 @@ def sequential_sub_segments(segment):
     for tag,sub_segment in segment.segments.items():
         sub_segment.evaluate()
 
+
+# ----------------------------------------------------------------------
+#  Sequential Sub Segments
+# ----------------------------------------------------------------------
+
+## @ingroup Methods-Missions-Segments-Common
+def merge_sub_segment_states(segment):
+    
+    """ Evaluates all the segments in a mission one by one
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        N/A
+            
+        Outputs:
+        N/A
+
+        Properties Used:
+        N/A
+                                
+    """       
+
+    segment.state.update(segment.merged())

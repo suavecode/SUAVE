@@ -55,8 +55,9 @@ class All_At_Once(Mission):
         # --------------------------------------------------------------
         #   Initialize
         # --------------------------------------------------------------
-        self.process.initialize.expand_state        = Methods.Segments.expand_state
-        self.process.initialize.expand_sub_segments = Methods.Segments.Common.Sub_Segments.expand_sub_segments
+        self.process.initialize.expand_state             = Methods.Segments.expand_state
+        self.process.initialize.expand_sub_segments      = Methods.Segments.Common.Sub_Segments.expand_sub_segments
+        self.process.initialize.merge_sub_segment_states = Methods.Segments.Common.Sub_Segments.merge_sub_segment_states
 
         # --------------------------------------------------------------
         #   Converge
