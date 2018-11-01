@@ -30,8 +30,6 @@ def main():
     analyses = mission_B737.analyses_setup(configs)
     mission  = mission_setup(configs,analyses)
     
-    vehicle.mass_properties.takeoff = 70000 * Units.kg
-    
     configs.finalize()
     analyses.finalize()
     
@@ -60,7 +58,7 @@ def mission_setup(configs,analyses):
     
     # the cruise tag to vary cruise distance
     mission.cruise_tag = 'cruise'
-    mission.target_landing_weight = 40000 * Units.kg
+    mission.target_landing_weight = analyses.base.weights.vehicle.mass_properties.operating_empty
     
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments    
@@ -98,7 +96,7 @@ def mission_setup(configs,analyses):
     segment.analyses.extend( analyses.cruise )
     
     segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = 2000.00 * Units.km
+    segment.distance   = 4000.00 * Units.km
         
     mission.append_segment(segment)
     

@@ -75,11 +75,9 @@ def update_sub_segments(segment):
         N/A
                                 
     """      
-    
-    unpack_subsegemts(segment)
-    
+
     for tag,sub_segment in segment.segments.items():
-        
+        sub_segment.initialize()
         sub_segment.iterate()
         sub_segment.finalize()
         
@@ -168,7 +166,7 @@ def merge_sub_segment_states(segment):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def unpack_subsegemts(segment):
+def unpack_subsegments(segment):
     
     """ Evaluates all the segments in a mission one by one
     

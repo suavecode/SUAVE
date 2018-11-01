@@ -67,6 +67,7 @@ class All_At_Once(Mission):
         # --------------------------------------------------------------
         #   Iterate
         # --------------------------------------------------------------        
+        self.process.iterate.unpack                 = Methods.Segments.Common.Sub_Segments.unpack_subsegments
         self.process.iterate.sub_segments           = Methods.Segments.Common.Sub_Segments.update_sub_segments
 
         # --------------------------------------------------------------

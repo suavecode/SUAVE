@@ -69,9 +69,7 @@ def unknown_cruise_distance(segment):
     
     # apply the unknown
     segment.segments[cruise_tag].distance = distance
-    
-    print(distance)
-    
+
     return
 
 
@@ -106,8 +104,6 @@ def residual_landing_weight(segment):
     target_weight  = segment.target_landing_weight
     
     # this needs to go to zero for the solver to complete
-    segment.state.residuals.landing_weight = abs(landing_weight - target_weight)
-    
-    print(segment.state.residuals.landing_weight)
+    segment.state.residuals.landing_weight = (landing_weight - target_weight)/target_weight
     
     return

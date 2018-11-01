@@ -90,6 +90,7 @@ class Given_Weight(All_At_Once):
         iterate.unpack_distance              = Methods.Segments.Cruise.Variable_Cruise_Distance.unknown_cruise_distance
         
         # Run the Segments
+        iterate.unpack                       = Methods.Segments.Common.Sub_Segments.unpack_subsegments
         iterate.sub_segments                 = Methods.Segments.Common.Sub_Segments.update_sub_segments
         
         # Solve Residuals
