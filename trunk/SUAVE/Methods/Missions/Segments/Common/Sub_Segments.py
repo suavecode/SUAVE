@@ -140,7 +140,7 @@ def sequential_sub_segments(segment):
 ## @ingroup Methods-Missions-Segments-Common
 def merge_sub_segment_states(segment):
     
-    """ Evaluates all the segments in a mission one by one
+    """ Merges all of the sub segment states back into the main state
     
         Assumptions:
         N/A
@@ -165,10 +165,10 @@ def merge_sub_segment_states(segment):
 ## @ingroup Methods-Missions-Segments-Common
 def unpack_subsegments(segment):
     
-    """ Evaluates all the segments in a mission one by one
+    """ Unpacks the unknowns from the higher level state into the sub segments
     
         Assumptions:
-        N/A
+        The subsegments have numerics
         
         Inputs:
         N/A
