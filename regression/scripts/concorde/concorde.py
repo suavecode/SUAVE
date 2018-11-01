@@ -4,6 +4,7 @@
 # Modified: Nov 2016, T. MacDonald
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -611,6 +612,22 @@ def mission_setup(analyses):
     
     # add to mission
     mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    #   This segment is here primarily to test functionality of Constant_Mach_Constant_Altitude
+    # ------------------------------------------------------------------    
+    
+    segment = Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
+    segment.tag = "level_cruise"
+    
+    segment.analyses.extend( analyses.cruise )
+    
+    segment.mach       = 2.02
+    segment.distance   = 1. * Units.nmi
+    segment.state.numerics.number_control_points = 4
+        
+    mission.append_segment(segment)    
     
     # ------------------------------------------------------------------
     #   First Descent Segment: decceleration
