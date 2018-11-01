@@ -10,8 +10,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from copy import deepcopy
 from SUAVE.Analyses import Process
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Expand Sub Segments
@@ -50,6 +50,8 @@ def expand_sub_segments(segment):
                
         if Process.verbose:
             print('segment end :' , tag)        
+            
+        sub_segment.initialize()
 
 
 # ----------------------------------------------------------------------
@@ -74,8 +76,10 @@ def update_sub_segments(segment):
                                 
     """      
     
+    unpack_subsegemts(segment)
+    
     for tag,sub_segment in segment.segments.items():
-        sub_segment.initialize()
+        
         sub_segment.iterate()
         sub_segment.finalize()
         
@@ -158,3 +162,43 @@ def merge_sub_segment_states(segment):
     """       
 
     segment.state.update(segment.merged())
+
+# ----------------------------------------------------------------------
+#  Sequential Sub Segments
+# ----------------------------------------------------------------------
+
+## @ingroup Methods-Missions-Segments-Common
+def unpack_subsegemts(segment):
+    
+    """ Evaluates all the segments in a mission one by one
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+        N/A
+            
+        Outputs:
+        N/A
+
+        Properties Used:
+        N/A
+                                
+    """       
+
+    # Build a dict with the sections, sections start at 0
+    counter = Data()
+    
+    for key in segment.state.unknowns.keys():
+        counter[key] = 0
+
+    for i, seg_k in enumerate(segment.segments):
+        sub_segment = segment.segments[seg_k]
+        ctrl_pnts = sub_segment.state.numerics.number_control_points
+        for key in sub_segment.state.unknowns.keys():
+            sub_segment.state.unknowns[key] = segment.state.unknowns[key][counter[key]:counter[key]+ctrl_pnts]
+            counter[key] = counter[key]+ctrl_pnts
+            
+    return
+            
+            
