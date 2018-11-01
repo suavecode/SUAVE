@@ -38,9 +38,14 @@ def main():
     
     plot_results(results)
     
-    error = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
-    print('landing weight error' , error)
-    assert error < 1.
+    distance_regression = 4317710.33719722
+    distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    assert error_distance < 1e-6
+    
+    error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
+    print('landing weight error' , error_weight)
+    assert error_weight < 1.
     
     return
     
@@ -51,8 +56,6 @@ def mission_setup(configs,analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    #mission = SUAVE.Analyses.Mission.Sequential_Segments()
-    #mission = SUAVE.Analyses.Mission.All_At_Once()
     mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_Weight()
     mission.tag = 'the_mission'
     
