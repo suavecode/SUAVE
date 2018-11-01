@@ -75,13 +75,10 @@ def update_sub_segments(segment):
         N/A
                                 
     """      
-
     for tag,sub_segment in segment.segments.items():
         sub_segment.initialize()
         sub_segment.iterate()
         sub_segment.finalize()
-        
-    segment.state.update(segment.merged())
    
 # ----------------------------------------------------------------------
 #  Finalize Sub Segments

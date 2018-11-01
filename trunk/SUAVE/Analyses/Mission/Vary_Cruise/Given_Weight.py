@@ -92,6 +92,7 @@ class Given_Weight(All_At_Once):
         # Run the Segments
         iterate.unpack                       = Methods.Segments.Common.Sub_Segments.unpack_subsegments
         iterate.sub_segments                 = Methods.Segments.Common.Sub_Segments.update_sub_segments
+        iterate.merge_sub_segment_states     = Methods.Segments.Common.Sub_Segments.merge_sub_segment_states
         
         # Solve Residuals
         self.process.iterate.residual_weight = Methods.Segments.Cruise.Variable_Cruise_Distance.residual_landing_weight
