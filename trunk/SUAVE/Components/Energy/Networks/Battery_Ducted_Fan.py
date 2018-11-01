@@ -77,6 +77,8 @@ class Battery_Ducted_Fan(Propulsor):
             Properties Used:
             Defaulted values
         """         
+
+
         
         # unpack
 
@@ -89,6 +91,10 @@ class Battery_Ducted_Fan(Propulsor):
         results = propulsor.evaluate_thrust(state)
         Pe      = np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
         
+        # Set battery energy
+        battery.current_energy = conditions.propulsion.battery_energy  
+        battery.energy_calc(numerics)
+
         #try:
         #    initial_energy = conditions.propulsion.battery_energy
         #    if initial_energy[0][0]==0: #beginning of segment; initialize battery
@@ -104,7 +110,8 @@ class Battery_Ducted_Fan(Propulsor):
         battery.inputs = battery_logic
         tol = 1e-6
         
-        battery.energy_calc(numerics)
+        
+
         #allow for mass gaining batteries
        
         try:
@@ -118,6 +125,8 @@ class Battery_Ducted_Fan(Propulsor):
       
         conditions.propulsion.battery_draw   = battery_draw
         conditions.propulsion.battery_energy = battery_energy
+
+
         
         results.vehicle_mass_rate   = mdot
         return results
