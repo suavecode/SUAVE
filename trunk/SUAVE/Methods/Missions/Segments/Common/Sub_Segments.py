@@ -50,8 +50,6 @@ def expand_sub_segments(segment):
                
         if Process.verbose:
             print('segment end :' , tag)        
-            
-        sub_segment.initialize()
 
 
 # ----------------------------------------------------------------------
