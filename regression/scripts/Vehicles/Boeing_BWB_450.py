@@ -31,7 +31,7 @@ def vehicle_setup():
 
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_BWB_450'    
-
+    vehicle.configuration =   'BWB'    
 
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
@@ -178,6 +178,15 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.10
     wing.Segments.append(segment)      
 
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.0241
+    segment.dihedral_outboard     = 0. * Units.degrees
+    segment.sweeps.quarter_chord  = 0. * Units.degrees
+    segment.thickness_to_chord    = 0.10
+    wing.Segments.append(segment)  
 
     # add to vehicle
     vehicle.append_component(wing)

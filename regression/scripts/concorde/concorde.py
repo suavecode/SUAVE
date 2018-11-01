@@ -42,6 +42,10 @@ from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
+from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+     import compute_fuel_center_of_gravity_longitudinal_range
+from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+     import plot_cg_map 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -62,6 +66,14 @@ def main():
     # These functions analyze the mission
     mission = analyses.missions.base
     results = mission.evaluate()
+    
+    masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
+    plot_cg_map(masses, cg_mins, cg_maxes)  
+    
+    results.fuel_tank_test = Data()
+    results.fuel_tank_test.masses   = masses
+    results.fuel_tank_test.cg_mins  = cg_mins
+    results.fuel_tank_test.cg_maxes = cg_maxes
     
     # load older results
     #save_results(results)
@@ -97,7 +109,7 @@ def full_setup():
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
+    analyses.missions = missions_analyses        
     
     return configs, analyses
 
@@ -707,6 +719,9 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'fuel_tank_test.masses',
+        'fuel_tank_test.cg_mins',
+        'fuel_tank_test.cg_maxes',
     ]
 
     # do the check
@@ -737,7 +752,7 @@ def load_results():
 def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
     return    
-    
+        
 if __name__ == '__main__': 
     main()    
     plt.show()

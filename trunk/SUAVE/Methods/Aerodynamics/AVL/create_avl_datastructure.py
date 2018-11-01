@@ -129,8 +129,7 @@ def translate_avl_body(suave_body):
 
         Inputs:
             body.tag                                                       [-]
-            suave_wing.lengths.total                                       [meters] 
-            suave_body.origin                                              [meters]           
+            suave_wing.lengths.total                                       [meters]   
             suave_body.lengths.nose                                        [meters]
             suave_body.lengths.tail                                        [meters]
             suave_wing.verical                                             [meters]
@@ -275,7 +274,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         index =+ 1                                                       
                    
                                         if suave_wing.Segments[i_segs].Airfoil:
-                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].coordinate_file     
+                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil[0].coordinate_file 
                                         avl_wing.append_section(section)   
                                         
                                 if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs].percent_span_location:  

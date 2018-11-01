@@ -70,19 +70,19 @@ class AVL_Inviscid(Aerodynamics):
         """          
         self.tag                             = 'avl'
         self.keep_files                      = True
-        
-        self.settings                        = Settings()
-        
-        self.current_status                  = Data()
-        
+                
+        self.current_status                  = Data()        
         self.current_status.batch_index      = 0
         self.current_status.batch_file       = None
         self.current_status.deck_file        = None
         self.current_status.cases            = None      
         self.geometry                        = None   
         
+        self.settings                        = Settings()
         self.settings.filenames.log_filename = sys.stdout
-        self.settings.filenames.err_filename = sys.stderr
+        self.settings.filenames.err_filename = sys.stderr        
+        self.settings.spanwise_vortices      = None 
+        self.settings.chordwise_vortices     = None       
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -190,7 +190,7 @@ class AVL_Inviscid(Aerodynamics):
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Store inviscid drag results  
-        e             = settings.oswald_efficiency_factor
+        e             = settings.efficiency_factor
         ar            = geometry.wings['main_wing'].aspect_ratio
         state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.induced = Data(
@@ -366,7 +366,8 @@ class AVL_Inviscid(Aerodynamics):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-
+        # rename defaul avl aircraft tag
+        self.settings.filenames.features = self.geometry._base.tag + '.avl'
         
         # update current status
         self.current_status.batch_index += 1

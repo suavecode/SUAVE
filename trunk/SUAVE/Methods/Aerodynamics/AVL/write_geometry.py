@@ -54,7 +54,7 @@ def write_geometry(avl_object):
             geometry.write(wing_text)  
                      
         for b in aircraft.fuselages:
-            if b.configuration == 'tube_and_wing' or b.configuration == 'boom':
+            if b.configuration == 'Tube_Wing' or b.configuration == 'boom':
                 avl_body  = translate_avl_body(b)
                 body_text = make_body_text(avl_body,chordwise_vortices)
                 geometry.write(body_text)
@@ -167,8 +167,8 @@ SURFACE
         spanwise_vortex_spacing  = -1.1                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
         
-        # Write text    
-        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)     
+        # Write text 
+        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
         for i in range(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text    = surface_text + section_text
@@ -187,6 +187,7 @@ SURFACE
             surface_text    = surface_text + section_text
 
     return surface_text
+
 
 
 def make_body_text(avl_body,chordwise_vortices):    
@@ -225,8 +226,7 @@ SURFACE
     
     # Form the horizontal part of the + shaped fuselage    
     hname           = name + '_horizontal'
-    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing)   
-       
+    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing)        
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.horizontal, key = lambda x: x.origin[1])
     for i in range(len(ordered_tags)):
