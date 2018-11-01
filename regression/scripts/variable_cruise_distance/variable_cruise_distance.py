@@ -45,7 +45,7 @@ def main():
     
     error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
     print('landing weight error' , error_weight)
-    assert error_weight < 1.
+    assert error_weight < 1e-6
     
     return
     
