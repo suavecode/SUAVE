@@ -126,7 +126,7 @@ class Wing(Lofted_Body):
         
         self.non_dimensional_origin = [0.0,0.0,0.0]
         self.PGM_compulsory         = False
-        self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','non_dimensional_origin[0]']
+        self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','non_dimensional_origin[0]','non_dimensional_origin[2]']
         self.Segments               = SUAVE.Core.ContainerOrdered()
         self.Fuel_Tanks             = SUAVE.Core.Container()
 
