@@ -53,6 +53,11 @@ def size_from_PGM(vehicle):
         # Passengers
         vehicle.passengers  = vehicle.performance.vector[0][-1] *1.
         
+        for fuse in  vehicle.fuselages:
+                fuse.number_coach_seats = vehicle.passengers 
+                fuse.differential_pressure = 55. * 1000.* Units.pascals
+                
+        
         # Size the wings
         max_area = 0
         for wing in vehicle.wings:
@@ -235,12 +240,7 @@ def size_from_PGM(vehicle):
                         thrust.tag ='compute_thrust'
                 
                         #total design thrust (includes all the engines)
-                        thrust.total_design             = 2*24000. * Units.N #Newtons
-                
-                        #design sizing conditions
-                        altitude      = 35000.0*Units.ft
-                        mach_number   = 0.78 
-                        isa_deviation = 0.
+                        thrust.total_design  = turbofan.number_of_engines *  turbofan.sealevel_static_thrust
                 
                         # add to network
                         turbofan.thrust = thrust                       
@@ -248,6 +248,7 @@ def size_from_PGM(vehicle):
                         prop.working_fluid = SUAVE.Attributes.Gases.Air()
                         compute_turbofan_geometry(prop, conditions)
                         turbofan_sizing(prop,mach_number = 0.1, altitude = 0., delta_isa = 0)
+                        
                 if prop.tag == 'Turbojet':
                         turbojet_sizing(prop,mach_number = 0.1, altitude = 0., delta_isa = 0)                        
 
