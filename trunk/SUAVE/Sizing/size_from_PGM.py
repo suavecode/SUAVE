@@ -75,6 +75,10 @@ def size_from_PGM(vehicle):
                 
                  # Use existing scripts
                 fuse = fuselage_planform(fuse)
+                fuse.heights.at_quarter_length              = fuse.heights.maximum    
+                fuse.heights.at_three_quarters_length       = fuse.heights.maximum    
+                fuse.heights.at_wing_root_quarter_chord     = fuse.heights.maximum    
+                fuse.heights.at_vertical_root_quarter_chord = fuse.heights.maximum    
         
         # Size the propulsion system
         for prop in vehicle.propulsors:

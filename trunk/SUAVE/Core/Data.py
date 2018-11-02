@@ -519,8 +519,13 @@ class Data(dict):
             for k in keys[:-1]:
                 data = data[k]
         
-        data[ keys[-1] ] = val
-        
+        if keys[-1][-1] ==']':
+            splitkey = keys[-1].split('[')
+            index    = splitkey[-1][:-1]
+            data[splitkey[0]][int(index)] = val
+        else:
+            data[ keys[-1] ] = val
+            
         return data
 
     def deep_get(self,keys):
