@@ -38,16 +38,16 @@ def set_origin_non_dimensional(vehicle):
     for wing in vehicle.wings:
         origin  = wing.origin
         b       = wing.spans.projected
-        non_dim = origin/b
+        non_dim = np.array(origin)/b
         
-        wing.non_dimensional_origin = non_dim
+        wing.non_dimensional_origin = non_dim.tolist()
     
     for fuse in vehicle.fuselages:
         origin  = fuse.origin
         length  = fuse.lengths.total
-        non_dim = origin/length
+        non_dim = np.array(origin)/length
         
-        fuse.non_dimensional_origin = non_dim
+        fuse.non_dimensional_origin = non_dim.tolist()
         
     
         
@@ -80,15 +80,15 @@ def set_origin_dimensional(vehicle):
     for wing in vehicle.wings:
         non_dim = wing.non_dimensional_origin
         b       = wing.spans.projected
-        origin  = non_dim*b
+        origin  = np.array(non_dim)*b
         
-        wing.origin = origin
+        wing.origin = origin.tolist()
     
     for fuse in vehicle.fuselages:
         non_dim = fuse.non_dimensional_origin
         length  = fuse.lengths.total
-        origin  = non_dim*length
+        origin  = np.array(non_dim)*length
         
-        fuse.origin = origin
+        fuse.origin = origin.tolist()
         
     return vehicle
