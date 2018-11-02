@@ -124,10 +124,11 @@ class Wing(Lofted_Body):
         
         self.Airfoil            = Data()
         
-        self.PGM_compulsory      = False
-        self.PGM_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord']
-        self.Segments           = SUAVE.Core.ContainerOrdered()
-        self.Fuel_Tanks         = SUAVE.Core.Container()
+        self.non_dimensional_origin = [0.0,0.0,0.0]
+        self.PGM_compulsory         = False
+        self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','non_dimensional_origin']
+        self.Segments               = SUAVE.Core.ContainerOrdered()
+        self.Fuel_Tanks             = SUAVE.Core.Container()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 

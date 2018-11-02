@@ -15,6 +15,7 @@ from SUAVE.Core import Data, Units
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import fuselage_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.rescale_non_dimensional import set_origin_dimensional
 from SUAVE.Methods.Propulsion import turbofan_sizing
 from SUAVE.Methods.Propulsion import turbojet_sizing
 
@@ -259,6 +260,9 @@ def size_from_PGM(vehicle):
                 area = max_area
         
         vehicle.reference_area = area    
+    
+        # Set the origins
+        vehicle = set_origin_dimensional(vehicle)
     
     
         return vehicle
