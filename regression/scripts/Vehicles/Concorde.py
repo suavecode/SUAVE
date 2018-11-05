@@ -90,6 +90,7 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio    = 1.0
     
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    # This airfoil is not a true Concorde airfoil
     wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
     wing.append_airfoil(wing_airfoil)  
@@ -237,6 +238,7 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio  = 1.0
     
     tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    # This airfoil is not a true Concorde airfoil
     tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
     
     wing.append_airfoil(tail_airfoil)  
