@@ -63,6 +63,10 @@ def main():
     # Here we finalize the configuration and analysis settings
     configs.finalize()
     analyses.finalize()
+    
+    ## Use these scripts to test OpenVSP functionality if desired
+    #from SUAVE.Input_Output.OpenVSP.vsp_write import write
+    #write(configs.base,'Concorde')
 
     # These functions analyze the mission
     mission = analyses.missions.base
