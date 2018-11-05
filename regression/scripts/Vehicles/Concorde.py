@@ -4,6 +4,7 @@
 # Modified: Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
 #           Oct 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
 
 """ setup file for the Concorde 
 """
@@ -89,7 +90,8 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio    = 1.0
     
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    wing_airfoil.coordinate_file   = 'NACA65-203.dat' 
+    # This airfoil is not a true Concorde airfoil
+    wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
     wing.append_airfoil(wing_airfoil)  
     
@@ -236,7 +238,8 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio  = 1.0
     
     tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tail_airfoil.coordinate_file = 'supersonic_tail.dat' 
+    # This airfoil is not a true Concorde airfoil
+    tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
     
     wing.append_airfoil(tail_airfoil)  
 
