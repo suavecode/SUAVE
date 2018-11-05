@@ -521,8 +521,12 @@ class Data(dict):
         
         if keys[-1][-1] ==']':
             splitkey = keys[-1].split('[')
-            index    = splitkey[-1][:-1]
-            data[splitkey[0]][int(index)] = val
+            thing = data[splitkey[0]]
+            for ii in range(1,len(splitkey)-1):
+                index    = int(splitkey[ii][:-1])
+                thing = thing[index]
+            index    = int(splitkey[-1][:-1])
+            thing[index] = val
         else:
             data[ keys[-1] ] = val
             

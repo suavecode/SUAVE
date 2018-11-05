@@ -34,21 +34,34 @@ def set_origin_non_dimensional(vehicle):
         Properties Used:
         None
     """        
+    
+    
+    try:
+        length_scale = vehicle.fuselages.fuselage.lengths.total
+    except:
+        try:
+            length_scale = vehicle.wings.main_wing.spans.projected
+        except:
+            length_scale = 1.
 
     for wing in vehicle.wings:
         origin  = wing.origin
-        b       = wing.spans.projected
-        non_dim = np.array(origin)/b
+        non_dim = np.array(origin)/length_scale
         
         wing.non_dimensional_origin = non_dim.tolist()
     
     for fuse in vehicle.fuselages:
         origin  = fuse.origin
-        length  = fuse.lengths.total
-        non_dim = np.array(origin)/length
+        non_dim = np.array(origin)/length_scale
         
-        fuse.non_dimensional_origin = non_dim.tolist()
-        
+        fuse.non_dimensional_origin = non_dim.tolist()  
+
+    for prop in vehicle.propulsors:
+        origins  = prop.origin
+        prop.non_dimensional_origin.clear()
+        for eng in range(int(prop.number_of_engines)):
+            origin = np.array(origins[eng])/length_scale
+            prop.non_dimensional_origin.append(origin.tolist())       
     
         
     return vehicle
@@ -76,19 +89,32 @@ def set_origin_dimensional(vehicle):
         Properties Used:
         None
     """    
+    
+    try:
+        length_scale = vehicle.fuselages.fuselage.lengths.total
+    except:
+        try:
+            length_scale = vehicle.wings.main_wing.spans.projected
+        except:
+            length_scale = 1.
 
     for wing in vehicle.wings:
         non_dim = wing.non_dimensional_origin
-        b       = wing.spans.projected
-        origin  = np.array(non_dim)*b
+        origin  = np.array(non_dim)*length_scale
         
         wing.origin = origin.tolist()
     
     for fuse in vehicle.fuselages:
         non_dim = fuse.non_dimensional_origin
-        length  = fuse.lengths.total
-        origin  = np.array(non_dim)*length
+        origin  = np.array(non_dim)*length_scale
         
         fuse.origin = origin.tolist()
+                
+    for prop in vehicle.propulsors:
+        non_dims  = prop.non_dimensional_origin
+        prop.origin.clear()
+        for eng in range(int(prop.number_of_engines)):
+            origin = np.array(non_dims[eng])*length_scale
+            prop.origin.append(origin.tolist())       
         
     return vehicle

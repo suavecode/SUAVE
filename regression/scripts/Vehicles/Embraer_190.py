@@ -67,7 +67,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
-    wing.dihedral                = 5.00
+    wing.dihedral                = 5.00 * Units.deg
     
     wing.origin                  = [13,0,0] 
     wing.vertical                = False
@@ -196,6 +196,7 @@ def vehicle_setup():
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
+    gt_engine.origin            = [[0.,0.,0.],[0.,0.,0.]]
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4

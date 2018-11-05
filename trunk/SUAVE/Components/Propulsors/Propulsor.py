@@ -52,6 +52,7 @@ class Propulsor(Physical_Component):
         """
         self.tag = 'Propulsor'
         self.max_per_vehicle = 1
+        self.non_dimensional_origin = [[0.0,0.0,0.0]]
         
 ## @ingroup Components-Propulsors
 class Container(Physical_Component.Container):

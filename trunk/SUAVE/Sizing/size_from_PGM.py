@@ -82,6 +82,12 @@ def size_from_PGM(vehicle):
         
         # Size the propulsion system
         for prop in vehicle.propulsors:
+                prop.number_of_engines = int(np.round(prop.number_of_engines))
+                
+                orig = prop.origin[0]
+                prop.origin.clear()
+                for eng in range(prop.number_of_engines):
+                        prop.origin.append(orig)
                 if prop.tag == 'Turbofan':
                         
                         turbofan = prop
