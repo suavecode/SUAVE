@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.taper                   = 0.28
     wing.dihedral                = 5.00 * Units.deg
     
-    wing.origin                  = [13,0,0] 
+    wing.origin                  = [12.3,0,-1.50] 
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = True
@@ -77,6 +77,8 @@ def vehicle_setup():
     wing.flaps.chord             = 0.28
     wing.flaps.span_start        = 0.11
     wing.flaps.span_end          = 0.85
+    
+    
     
     wing = wing_planform(wing)
     wing.areas.exposed           = 0.80 * wing.areas.wetted
@@ -101,9 +103,9 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
-    wing.dihedral                = 8.00
+    wing.dihedral                = 8.4 * Units.degrees
     
-    wing.origin                  = [32,0,0] 
+    wing.origin                  = [31,0,0.44] 
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = False
@@ -133,7 +135,7 @@ def vehicle_setup():
     wing.taper                   = 0.31
     wing.dihedral                = 0.00
     
-    wing.origin                  = [32,0,0] 
+    wing.origin                  = [32,0,1.675] 
     wing.vertical                = True
     wing.symmetric               = False       
     wing.high_lift               = False
@@ -158,10 +160,10 @@ def vehicle_setup():
     fuselage.origin = [[0,0,0]]
     fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 0.7455
+    fuselage.seat_pitch            = 30 * Units.inches
 
-    fuselage.fineness.nose         = 2.0
-    fuselage.fineness.tail         = 3.0
+    fuselage.fineness.nose         = 1.28
+    fuselage.fineness.tail         = 3.48
 
     fuselage.lengths.nose          = 6.0
     fuselage.lengths.tail          = 9.0
@@ -170,12 +172,12 @@ def vehicle_setup():
     fuselage.lengths.fore_space    = 0.
     fuselage.lengths.aft_space     = 0.
 
-    fuselage.width                 = 3.18
+    fuselage.width                 = 3.01 * Units.meters
 
-    fuselage.heights.maximum       = 4.18    
-    fuselage.heights.at_quarter_length          = 3.18 
-    fuselage.heights.at_three_quarters_length   = 3.18 
-    fuselage.heights.at_wing_root_quarter_chord = 4.00 
+    fuselage.heights.maximum       = 3.35    
+    fuselage.heights.at_quarter_length          = 3.35 
+    fuselage.heights.at_three_quarters_length   = 3.35 
+    fuselage.heights.at_wing_root_quarter_chord = 3.35 
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
@@ -196,7 +198,7 @@ def vehicle_setup():
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
-    gt_engine.origin            = [[0.,0.,0.],[0.,0.,0.]]
+    gt_engine.origin            = [[11.95,4.41,-2.1],[11.95,-4.41,-2.1]]
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
