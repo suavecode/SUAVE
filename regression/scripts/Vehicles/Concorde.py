@@ -94,7 +94,7 @@ def vehicle_setup():
     # This airfoil is not a true Concorde airfoil
     wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
-    wing.append_airfoil(wing_airfoil)  
+    #wing.append_airfoil(wing_airfoil)  
     
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -242,7 +242,7 @@ def vehicle_setup():
     # This airfoil is not a true Concorde airfoil
     tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
     
-    wing.append_airfoil(tail_airfoil)  
+    #wing.append_airfoil(tail_airfoil)  
 
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()

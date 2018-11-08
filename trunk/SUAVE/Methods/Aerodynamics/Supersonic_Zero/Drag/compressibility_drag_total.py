@@ -73,7 +73,6 @@ def compressibility_drag_total(state,settings,geometry):
     # Use the vehicle for drag coefficients
     Sref_main = geometry.reference_area
     
-
     # Iterate through wings
     for k in wings.keys():
         
@@ -83,11 +82,6 @@ def compressibility_drag_total(state,settings,geometry):
         cd_c = np.array([[0.0]] * len(Mc))
         mcc = np.array([[0.0]] * len(Mc))
         MDiv = np.array([[0.0]] * len(Mc))     
-
-
-        # Get main fuselage data - note that name of fuselage is important here
-        # This should be changed to be general 
-        main_fuselage = fuselages['fuselage']
 
         # Get number of engines data
         num_engines = propulsor.number_of_engines
@@ -100,8 +94,6 @@ def compressibility_drag_total(state,settings,geometry):
         (drag99,a,b) = drag_div(np.array([[0.99]] * len(Mc)),wing,k,cl,Sref_main)
         (drag105,a,b,cd_c_l_105,cd_c_v_105) = wave_drag(conditions, 
                                   configuration, 
-                                  main_fuselage, 
-                                  propulsor, 
                                   wing, 
                                   num_engines,k,Sref_main,True)
 
@@ -115,8 +107,6 @@ def compressibility_drag_total(state,settings,geometry):
         # Only the supsonic results are returned with nonzero values
         (cd_c_sup,mcc_sup,MDiv_sup,cd_c_l,cd_c_v) = wave_drag(conditions, 
                                                 configuration, 
-                                                main_fuselage, 
-                                                propulsor, 
                                                 wing, 
                                                 num_engines,k,Sref_main,False)
         
@@ -144,12 +134,17 @@ def compressibility_drag_total(state,settings,geometry):
     fuse_drag = np.array([[0.0]] * len(mach))
 
     # Fuselage wave drag
-    if len(main_fuselage) > 0:
-        fuse_wave = wave_drag_body_of_rev(main_fuselage.lengths.total,main_fuselage.effective_diameter/2.0,Sref_main)
-        fuse_drag[mach >= .99]  = fuse_wave*(mach[mach>=.99]-.99)/(1.05-.99)
-        fuse_drag[mach >= 1.05] = fuse_wave
-    else:
-        raise ValueError('Main fuselage does not have a total length')
+    for fuse in fuselages:
+        fuse_d    = np.array([[0.0]] * len(mach))
+        fuse_wave = wave_drag_body_of_rev(fuse.lengths.total,fuse.effective_diameter/2.0,Sref_main)
+        
+        fuse_d[mach >= .99]  = fuse_wave*(mach[mach>=.99]-.99)/(1.05-.99)
+        fuse_d[mach >= 1.05] = fuse_wave        
+        
+        fuse_drag  += fuse_d
+        
+        drag_breakdown.compressible[fuse.tag] = fuse_drag
+        
 
     # Propulsor wave drag	
     Dn                      = propulsor.nacelle_diameter
@@ -160,7 +155,7 @@ def compressibility_drag_total(state,settings,geometry):
     prop_drag[mach >= .99]  = prop_wave*(mach[mach>=.99]-.99)/(1.05-.99)
     prop_drag[mach >= 1.05] = prop_wave    
     
-    drag_breakdown.compressible[main_fuselage.tag] = fuse_drag
+    
     drag_breakdown.compressible[propulsor.tag] = prop_drag
 
     # Dump total comp drag
@@ -273,7 +268,7 @@ def drag_div(Mc_ii,wing,k,cl,Sref_main):
     return (cd_c,mcc,MDiv)
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,k,Sref_main,flag105):
+def wave_drag(conditions,configuration,wing,num_engines,k,Sref_main,flag105):
     """Use wave drag to determine compressibility drag for supersonic speeds
 
     Assumptions:
@@ -285,8 +280,6 @@ def wave_drag(conditions,configuration,main_fuselage,propulsor,wing,num_engines,
     Inputs:
     conditions.freestream.mach_number            [Unitless]
     configuration
-    main_fuselage (unused)
-    propulsor     (unused)
     wing.areas.reference                         [m^2]
     num_engines   (unused)
     k             (tag for wing)                 [String]

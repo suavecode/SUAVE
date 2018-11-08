@@ -204,6 +204,7 @@ def vehicle_setup():
     gt_engine.bypass_ratio      = 5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
+    gt_engine.inlet_diameter    = 2.0
     
     #compute engine areas)
     Amax    = (np.pi/4.)*gt_engine.nacelle_diameter**2.
@@ -214,7 +215,7 @@ def vehicle_setup():
     gt_engine.areas.wetted  = Awet
     
     #set the working fluid for the network
-    working_fluid               = SUAVE.Attributes.Gases.Air()
+    working_fluid           = SUAVE.Attributes.Gases.Air()
 
     #add working fluid to the network
     gt_engine.working_fluid = working_fluid

@@ -51,6 +51,10 @@ def size_from_PGM(vehicle):
         vehicle.envelope.limit_load    = 1.5
         vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
+        ####################################
+        vehicle.mass_properties.max_zero_fuel
+        ####################################
+        
         # Passengers
         vehicle.passengers  = vehicle.performance.vector[0][-1] *1.
         

@@ -65,6 +65,8 @@ class Weights_Tube_Wing(Weights):
         self.settings.weight_reduction_factors.fuselage  = 0.
         self.settings.weight_reduction_factors.empennage = 0. # applied to horizontal and vertical stabilizers
         
+        self.settings.empty = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        
     def evaluate(self,conditions=None):
         """Evaluate the weight analysis.
     
@@ -86,7 +88,7 @@ class Weights_Tube_Wing(Weights):
         # unpack
         vehicle  = self.vehicle
         settings = self.settings
-        empty    = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        empty    = self.settings.empty
 
         
         # evaluate

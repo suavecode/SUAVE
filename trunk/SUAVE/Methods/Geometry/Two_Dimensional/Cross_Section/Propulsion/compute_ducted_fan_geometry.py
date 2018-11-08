@@ -72,8 +72,9 @@ def compute_ducted_fan_geometry(ducted_fan, conditions):
     
 
    
-    ducted_fan.areas.maximum = 1.2*Ae/fan_nozzle.outputs.area_ratio[0][0]
+    ducted_fan.areas.maximum    = 1.2*Ae/fan_nozzle.outputs.area_ratio[0][0]
     ducted_fan.nacelle_diameter = 2.1*((ducted_fan.areas.maximum/np.pi)**.5)
+    ducted_fan.inlet_diameter   = (ducted_fan.areas.maximum/np.pi)**.5
 
     ducted_fan.engine_length    = 1.5*ducted_fan.nacelle_diameter
     ducted_fan.areas.wetted     = ducted_fan.nacelle_diameter*ducted_fan.engine_length*np.pi

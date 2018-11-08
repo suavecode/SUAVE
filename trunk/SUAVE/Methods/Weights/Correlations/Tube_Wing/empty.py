@@ -186,6 +186,7 @@ def empty(vehicle,settings=None):
         output_3.wt_tail_vertical = 0.0
         output_3.wt_rudder        = 0.0
         S_v                       = 0.0
+        wt_vtail_tot              = 0.0
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
         
     else:     
@@ -283,7 +284,7 @@ def empty(vehicle,settings=None):
     vehicle.hydraulics                          = hydraulics
     vehicle.optionals                           = optionals
     vehicle.landing_gear                        = landing_gear_component
-    vehicle.wings['vertical_stabilizer'].rudder = rudder
+    #vehicle.wings['vertical_stabilizer'].rudder = rudder
     
     
 
