@@ -95,6 +95,8 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     if plot_const==1:
         
         for i in range(0, constraint_num): #constraint_num):
+            if constraint_val[i,:,:].all() == 0:
+                continue
             plt.figure(i+1)
             CS_const=plt.contour(inputs[0,:],inputs[1,:], constraint_val[i,:,:])
             cbar = plt.colorbar(CS_const)

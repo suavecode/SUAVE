@@ -190,12 +190,12 @@ class AVL_Inviscid(Aerodynamics):
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Store inviscid drag results  
-        e             = settings.efficiency_factor
+        e             = settings.oswald_efficiency_factor
         ar            = geometry.wings['main_wing'].aspect_ratio
         state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
         state.conditions.aerodynamics.drag_breakdown.induced = Data(
             total             = inviscid_drag ,
-            efficiency_factor = e             ,
+            oswald_efficiency_factor = e             ,
             aspect_ratio      = ar            ,
         )        
                 
