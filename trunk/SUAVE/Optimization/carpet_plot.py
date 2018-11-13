@@ -90,9 +90,10 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
         cbar.ax.set_ylabel(obj_name)
         plt.xlabel(names[idx0])
         plt.ylabel(names[idx1])
-        plt.savefig(obj_name +'.pdf')
+        plt.savefig(obj_name +'.png')
        
     if plot_const==1:
+        
         
         for i in range(0, constraint_num): #constraint_num):
             #error_flag = constraint_val[i,0,0]
@@ -104,10 +105,16 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
             cbar.ax.set_ylabel(constraint_names[i])
             plt.xlabel(names[idx0])
             plt.ylabel(names[idx1])
-            plt.savefig(constraint_names[i] +'.pdf')
+            plt.savefig(constraint_names[i] +'.png')
     plt.show(block=True)      
        
-        
+    np.save('inputs.npy',inputs)
+    np.save('constraint_val.npy',constraint_val)
+    np.save('constraint_names.npy',constraint_names)
+    np.save('names.npy',names)
+    np.save('obj.npy',obj)
+    np.save('obj_name.npy',obj_name)
+    
     #pack outputs
     outputs= Data()
     outputs.inputs         = inputs
