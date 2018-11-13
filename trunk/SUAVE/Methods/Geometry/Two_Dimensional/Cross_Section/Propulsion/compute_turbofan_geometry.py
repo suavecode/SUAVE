@@ -58,11 +58,13 @@ def compute_turbofan_geometry(turbofan, conditions):
    
 
     # pack
-    turbofan.engine_length = L_eng_m
+    turbofan.engine_length    = L_eng_m
     turbofan.nacelle_diameter = nacelle_diameter 
     turbofan.inlet_diameter   = nacelle_diameter/np.sqrt(2.1)
   
     turbofan.areas.wetted     = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+    
+    return turbofan
     
     
 # ----------------------------------------------------------------------

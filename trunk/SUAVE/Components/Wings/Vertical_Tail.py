@@ -50,8 +50,9 @@ class Vertical_Tail(Wing):
         Properties Used:
         N/A
         """ 
-        self.tag      = 'vertical_stabilizer'
-        self.vertical = True
+        self.tag       = 'vertical_stabilizer'
+        self.vertical  = True
+        self.symmetric = False
         self.max_per_vehicle = 5
 
 

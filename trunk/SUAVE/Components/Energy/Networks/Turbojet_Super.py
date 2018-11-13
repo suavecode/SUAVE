@@ -59,6 +59,13 @@ class Turbojet_Super(Propulsor):
         self.engine_length      = 1.0
         self.afterburner_active = False
         
+        #areas needed for drag; not in there yet
+        self.areas             = Data()
+        self.areas.wetted      = 0.0
+        self.areas.maximum     = 0.0
+        self.areas.exit        = 0.0
+        self.areas.inflow      = 0.0        
+        
         self.PGM_compulsory      = False
         self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines']
         

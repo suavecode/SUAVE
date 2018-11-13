@@ -51,7 +51,7 @@ def vehicle_setup():
 
     # basic parameters
     vehicle.reference_area         = 92.
-    vehicle.passengers             = 114
+    vehicle.passengers             = 106
     vehicle.systems.control        = "fully powered"
     vehicle.systems.accessories    = "medium range"
 
