@@ -85,24 +85,26 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
   
     if plot_obj==1:
         plt.figure(0)
-        CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2)
+        CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2 , cmap=plt.cm.jet)
         cbar = plt.colorbar(CS)
         cbar.ax.set_ylabel(obj_name)
         plt.xlabel(names[idx0])
         plt.ylabel(names[idx1])
-        
+        plt.savefig(obj_name +'.pdf')
        
     if plot_const==1:
         
         for i in range(0, constraint_num): #constraint_num):
-            if constraint_val[i,:,:].all() == 0:
-                continue
+            #error_flag = constraint_val[i,0,0]
+            #if constraint_val[i,:,:].all() == error_flag:
+                #continue
             plt.figure(i+1)
-            CS_const=plt.contour(inputs[0,:],inputs[1,:], constraint_val[i,:,:])
+            CS_const=plt.contourf(inputs[0,:],inputs[1,:], constraint_val[i,:,:],linewidths=2 , cmap=plt.cm.jet)
             cbar = plt.colorbar(CS_const)
             cbar.ax.set_ylabel(constraint_names[i])
             plt.xlabel(names[idx0])
             plt.ylabel(names[idx1])
+            plt.savefig(constraint_names[i] +'.pdf')
     plt.show(block=True)      
        
         
