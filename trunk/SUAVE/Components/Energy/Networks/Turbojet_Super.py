@@ -67,7 +67,9 @@ class Turbojet_Super(Propulsor):
         self.areas.inflow      = 0.0        
         
         self.PGM_compulsory      = False
-        self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines']
+        self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
+        self.PGM_char_min_bounds    = [0,0,0,-np.inf,-np.inf]   
+        self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
 
     _component_root_map = None

@@ -51,12 +51,8 @@ def size_from_PGM(vehicle):
         vehicle.envelope.limit_load    = 1.5
         vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
-        ####################################
-        vehicle.mass_properties.max_zero_fuel
-        ####################################
-        
         # Passengers
-        vehicle.passengers  = vehicle.performance.vector[0][-1] *1.
+        vehicle.passengers  = vehicle.performance.vector[0][1] *1.
         
         for fuse in vehicle.fuselages:
                 fuse.number_coach_seats = vehicle.passengers 
@@ -262,7 +258,7 @@ def size_from_PGM(vehicle):
                         
                         prop.working_fluid = SUAVE.Attributes.Gases.Air()
                         prop = compute_turbofan_geometry(prop, conditions)
-                        turbofan_sizing(prop,mach_number = 0.1, altitude = 0., delta_isa = 0)
+                        turbofan_sizing(prop,mach_number = 0.01, altitude = 0., delta_isa = 0)
                         
                 if prop.tag == 'Turbojet':
                         
@@ -427,7 +423,7 @@ def size_from_PGM(vehicle):
                         prop.working_fluid = SUAVE.Attributes.Gases.Air()
                     
                         #size the turbojet                  
-                        turbojet_sizing(prop,mach_number = 0.1, altitude = 0., delta_isa = 0)          
+                        turbojet_sizing(prop,mach_number = 0.01, altitude = 0., delta_isa = 0)          
                         conditions = None
                         prop = compute_turbofan_geometry(prop, conditions)                   
 

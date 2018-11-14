@@ -234,6 +234,8 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_per_vehicle     = 1
         self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
         self.PGM_compulsory      = True
+        self.PGM_char_min_bounds = [0,0]   
+        self.PGM_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle
 class Costs(Data):

@@ -110,11 +110,11 @@ def set_origin_dimensional(vehicle):
         
         fuse.origin = origin.tolist()
                 
-    #for prop in vehicle.propulsors:
-        #non_dims  = prop.non_dimensional_origin
-        #prop.origin.clear()
-        #for eng in range(int(prop.number_of_engines)):
-            #origin = np.array(non_dims[eng])*length_scale
-            #prop.origin.append(origin.tolist())       
+    for prop in vehicle.propulsors:
+        non_dims  = prop.non_dimensional_origin
+        prop.origin.clear()
+        for eng in range(int(prop.number_of_engines)):
+            origin = np.array(non_dims[eng])*length_scale
+            prop.origin.append(origin.tolist())       
         
     return vehicle
