@@ -156,6 +156,10 @@ class Ducted_Fan(Propulsor):
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
         results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
+        # I think this is not shaft power b/c it's missing viscous power?
+        # See http://web.mit.edu/16.unified/www/SPRING/systems/Lab_Notes/airpower.pdf
+        # It differentiates btwn Froude efficiency and viscous efficiency
+        # Combine those ang get shaft power
         
         # store data
         results_conditions = Data

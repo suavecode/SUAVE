@@ -10,7 +10,7 @@
 
 # suave imports
 import SUAVE
-
+import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -103,5 +103,7 @@ class Electronic_Speed_Controller(Energy_Component):
         
         # Pack
         self.outputs.currentin = currentin
+        if np.isnan(currentout[0]):
+            a123= 1
         
         return currentin
