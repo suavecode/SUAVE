@@ -434,55 +434,39 @@ def write_vsp_turbofan(turbofan):
     else:
         simple_flag = False
     
+    import operator # import here since engines are not always needed
+    # sort engines per left to right convention
+    origins_sorted = sorted(origins, key=operator.itemgetter(1))
+    
     for ii in range(0,int(n_engines)):
 
-        origin = origins[ii]
+        origin = origins_sorted[ii]
         
         x = origin[0]
         y = origin[1]
         z = origin[2]
         
-        nac_id = vsp.AddGeom( "FUSELAGE")
-        vsp.SetGeomName(nac_id, 'turbofan')
+        stack_id = vsp.AddGeom("STACK")
+        vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
         
         # Origin
-        vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-        vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-        vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-        vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-        vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
+        vsp.SetParmVal(stack_id,'X_Location','XForm',x)
+        vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
+        vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+        vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
         
-        if simple_flag == True:
-            vsp.CutXSec(nac_id,3)
-            vsp.CutXSec(nac_id,1)
-            angle = np.arctan(width/length) / Units.deg
-            vsp.SetParmVal(nac_id,"TopLAngle","XSec_0",angle)
-            vsp.SetParmVal(nac_id,"TopLAngle","XSec_2",-angle)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_0",1)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_1",1)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_2",1)
-            vsp.SetParmVal(nac_id,"Length","Design",length)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
-            
-        else:
-        
-            # Length and overall diameter
-            vsp.SetParmVal(nac_id,"Length","Design",length)
-            vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.) 
-            vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
-            
-            xsecsurf = vsp.GetXSecSurf(nac_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
-            vsp.Update()
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
+        vsp.CutXSec(stack_id,2) # remove extra default subsurface
+        xsecsurf = vsp.GetXSecSurf(stack_id,0)
+        vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
+        vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
+        vsp.Update()
+        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
+        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
+        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
+        vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
+        vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
+        vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
         
         vsp.Update()
         
