@@ -415,7 +415,7 @@ def write_vsp_turbofan(turbofan):
       engine_length                           [m]
       nacelle_diameter                        [m]
       origin                                  [m] in all three dimension, should have as many origins as engines
-      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+      OpenVSP_flow_through                    <boolean> if True create a flow through nacelle, if False create a cylinder
 
     Outputs:
     Operates on the active OpenVSP model, no direct output
@@ -425,14 +425,12 @@ def write_vsp_turbofan(turbofan):
     """    
     n_engines = turbofan.number_of_engines
     length    = turbofan.engine_length
-    width = turbofan.nacelle_diameter
+    width     = turbofan.nacelle_diameter
     origins   = turbofan.origin
     
-    # True will make a biconvex body, false will make a flow-through subsonic nacelle
-    if 'OpenVSP_simple' in turbofan:
-        simple_flag = turbofan.OpenVSP_simple
-    else:
-        simple_flag = False
+    # True will create a flow-through subsonic nacelle (which may have dimensional errors)
+    # False will create a cylindrical stack (essentially a cylinder)
+    ft_flag = turbofan.OpenVSP_flow_through
     
     import operator # import here since engines are not always needed
     # sort engines per left to right convention
@@ -446,27 +444,56 @@ def write_vsp_turbofan(turbofan):
         y = origin[1]
         z = origin[2]
         
-        stack_id = vsp.AddGeom("STACK")
-        vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
-        
-        # Origin
-        vsp.SetParmVal(stack_id,'X_Location','XForm',x)
-        vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
-        vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
-        vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-        vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
-        
-        vsp.CutXSec(stack_id,2) # remove extra default subsurface
-        xsecsurf = vsp.GetXSecSurf(stack_id,0)
-        vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
-        vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
-        vsp.Update()
-        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
-        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
-        vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
-        vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
-        vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
-        vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
+        if ft_flag == True:
+            nac_id = vsp.AddGeom( "FUSELAGE")
+            vsp.SetGeomName(nac_id, 'turbofan_'+str(ii+1))
+            
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)    
+            
+            # Length and overall diameter
+            vsp.SetParmVal(nac_id,"Length","Design",length)
+            vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.) 
+            vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
+            
+            xsecsurf = vsp.GetXSecSurf(nac_id,0)
+            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)            
+            
+        else:
+            stack_id = vsp.AddGeom("STACK")
+            vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
+            
+            # Origin
+            vsp.SetParmVal(stack_id,'X_Location','XForm',x)
+            vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
+            
+            vsp.CutXSec(stack_id,2) # remove extra default subsurface
+            xsecsurf = vsp.GetXSecSurf(stack_id,0)
+            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
+            vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
+            vsp.Update()
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
         
         vsp.Update()
         
