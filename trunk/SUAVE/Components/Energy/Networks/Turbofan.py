@@ -6,6 +6,7 @@
 #           Jul 2017, M. Clarke
 #           Aug 2017, E. Botero
 #           Oct 2017, E. Botero
+#           Nov 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
