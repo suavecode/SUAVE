@@ -16,6 +16,7 @@ from .Series_Battery_Propeller_Hybrid_Interp import Series_Battery_Propeller_Hyb
 from .Series_Battery_Propeller_Hybrid_Low_Fid import Series_Battery_Propeller_Hybrid_Low_Fid
 from .Internal_Combustion_Propeller import Internal_Combustion_Propeller
 from .Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_Low_Fidelity
+from .Tilt_Rotor_Propulsor import Tilt_Rotor_Propulsor
 from .Battery_Propeller_Low_Fidelity import Battery_Propeller_Low_Fidelity
 from .Propulsor_Surrogate import Propulsor_Surrogate
 from .Ramjet import Ramjet

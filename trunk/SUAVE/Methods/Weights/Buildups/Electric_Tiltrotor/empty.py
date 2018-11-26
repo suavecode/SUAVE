@@ -74,16 +74,16 @@ def empty(config,
 # Assumed Weights
 #-------------------------------------------------------------------------------
 
-    output.payload          = config.propulsors.network.payload.mass_properties.mass
+    output.payload          = config.propulsors.propulsor.payload.mass_properties.mass
     output.seats            = 30.
     output.avionics         = 15.
-    output.motors           = 10 * config.propulsors.network.number_of_engines
-    output.battery          = config.propulsors.network.battery.mass_properties.mass
-    output.servos           = 0.65 * config.propulsors.network.number_of_engines
+    output.motors           = 10 * config.propulsors.propulsor.number_of_engines
+    output.battery          = config.propulsors.propulsor.battery.mass_properties.mass
+    output.servos           = 0.65 * config.propulsors.propulsor.number_of_engines
     output.rotor_servos     = 2 * (len(config.wings['main_wing'].motor_spanwise_locations) 
-                                   + len(config.wings['main_wing'].motor_spanwise_locations))
+                                   + len(config.wings['main_wing_2'].motor_spanwise_locations))
     output.brs              = 16.
-    output.hubs             = 2 * config.propulsors.network.number_of_engines
+    output.hubs             = 2 * config.propulsors.propulsor.number_of_engines
     output.landing_gear     = config.mass_properties.max_takeoff * 0.02
 
 #-------------------------------------------------------------------------------
@@ -116,19 +116,23 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift)
+    output.lift_rotors      = (prop(config.propulsors.propulsor.propeller, maxLift)
                                * (len(config.wings['main_wing'].motor_spanwise_locations) 
-                                  + len(config.wings['main_wing'].motor_spanwise_locations)))
+                                  + len(config.wings['main_wing_2'].motor_spanwise_locations))) # make more generic ash jordan about this
     output.fuselage         = fuselage(config)
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
                                      maxLiftPower/etaMotor)
-    output.main_wing = wing(config.wings['main_wing'],
-                            config,
-                            maxLift/5)
-    output.sec_wing = wing(config.wings['secondary_wing'],
-                            config,
-                            maxLift/5)
+   
+    total_wing_weight = 0.
+    for w in config.wings:
+        wing_tag = w.tag
+        if (wing_tag.find('main_wing') != -1):
+            wing_weight = wing(config.wings[w.tag],
+                               config, 
+                               maxLift/5) *Units.kg
+            total_wing_weight = total_wing_weight + wing_weight
+    output.total_wing_weight = total_wing_weight    
     
     
 #-------------------------------------------------------------------------------
@@ -140,8 +144,7 @@ def empty(config,
                             output.hubs +
                             output.fuselage + 
                             output.landing_gear +
-                            output.main_wing +
-                            output.sec_wing
+                            output.total_wing_weight
                             )
 
     output.empty        = 1.1 * (

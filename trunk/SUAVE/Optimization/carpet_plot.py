@@ -78,8 +78,7 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
         for j in range(0,number_of_points):
             #problem.optimization_problem.inputs=base_inputs  #overwrite any previous modification
             opt_prob.inputs[:,1][idx0]= inputs[0,i]
-            opt_prob.inputs[:,1][idx1]= inputs[1,j]
-   
+            opt_prob.inputs[:,1][idx1]= inputs[1,j]   
             obj[j,i]             = problem.objective()*obj_scaling
             constraint_val[:,j,i]= problem.all_constraints().tolist()
   
@@ -94,11 +93,7 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
        
     if plot_const==1:
         
-        
-        for i in range(0, constraint_num): #constraint_num):
-            #error_flag = constraint_val[i,0,0]
-            #if constraint_val[i,:,:].all() == error_flag:
-                #continue
+        for i in range(0, constraint_num):
             plt.figure(i+1)
             CS_const=plt.contourf(inputs[0,:],inputs[1,:], constraint_val[i,:,:],linewidths=2 , cmap=plt.cm.jet)
             cbar = plt.colorbar(CS_const)

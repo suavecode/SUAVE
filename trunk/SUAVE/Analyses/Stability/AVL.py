@@ -483,7 +483,10 @@ class AVL(Stability):
         deck_template                    = self.settings.filenames.deck_template
         
         # rename default avl aircraft tag
-        self.settings.filenames.features = self.geometry._base.tag + '.avl'
+        if '_base' in self.geometry:
+            self.settings.filenames.features = self.geometry._base.tag + '.avl' # if running an optimization. Nexus uses _base
+        else:
+            self.settings.filenames.features = self.geometry.tag + '.avl'       # normal name assignment
         
         # update current status
         self.current_status.batch_index += 1
