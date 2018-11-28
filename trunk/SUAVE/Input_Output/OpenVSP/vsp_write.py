@@ -5,6 +5,7 @@
 # Modified: Jun 2017, T. MacDonald
 #           Jul 2017, T. MacDonald
 #           Oct 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -722,16 +723,20 @@ def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     Properties Used:
     N/A
     """        
-    tank_id = vsp.AddGeom('CONFORMAL',wing_id)
-    vsp.SetGeomName(tank_id, fuel_tank.tag)
-    
     # Unpack
-    offset            = fuel_tank.inward_offset
-    chord_trim_max    = 1.-fuel_tank.start_chord_percent
-    chord_trim_min    = 1.-fuel_tank.end_chord_percent
-    span_trim_max     = fuel_tank.end_span_percent
-    span_trim_min     = fuel_tank.start_span_percent  
-    density           = fuel_tank.fuel_type.density
+    try:
+        offset            = fuel_tank.inward_offset
+        chord_trim_max    = 1.-fuel_tank.start_chord_percent
+        chord_trim_min    = 1.-fuel_tank.end_chord_percent
+        span_trim_max     = fuel_tank.end_span_percent
+        span_trim_min     = fuel_tank.start_span_percent  
+        density           = fuel_tank.fuel_type.density
+    except:
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return
+        
+    tank_id = vsp.AddGeom('CONFORMAL',wing_id)
+    vsp.SetGeomName(tank_id, fuel_tank.tag)    
     n_segments        = len(wing.Segments.keys())
     if n_segments > 0.:
         seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
@@ -797,8 +802,6 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     Properties Used:
     N/A
     """        
-    tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
-    vsp.SetGeomName(tank_id, fuel_tank.tag)
     
     
     #stdout = vsp.cvar.cstdout
@@ -806,10 +809,17 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     #errorMgr.PopErrorAndPrint(stdout)
     
     # Unpack
-    offset         = fuel_tank.inward_offset
-    len_trim_max   = fuel_tank.end_length_percent
-    len_trim_min   = fuel_tank.start_length_percent  
-    density        = fuel_tank.fuel_type.density
+    try:
+        offset         = fuel_tank.inward_offset
+        len_trim_max   = fuel_tank.end_length_percent
+        len_trim_min   = fuel_tank.start_length_percent  
+        density        = fuel_tank.fuel_type.density
+    except:
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return        
+    
+    tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
+    vsp.SetGeomName(tank_id, fuel_tank.tag)    
     
     # Search for proper x position
     # Get min x
