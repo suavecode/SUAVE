@@ -52,11 +52,13 @@ class Battery_Ducted_Fan(Propulsor):
             N/A
         """         
         
-        self.propulsor        = None
-        self.battery          = None
-        self.motor_efficiency = .95 
-        self.tag              = 'Battery_Ducted_Fan'
+        self.propulsor         = None
+        self.battery           = None
+        self.motor_efficiency  = .95 
+        self.tag               = 'Battery_Ducted_Fan'
         self.PGM_compulsory    = False
+        self.number_of_engines = 0.
+        self.nacelle_diameter  = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

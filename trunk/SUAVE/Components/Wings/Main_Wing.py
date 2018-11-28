@@ -52,8 +52,9 @@ class Main_Wing(Wing):
         Properties Used:
         N/A
         """ 
-        self.tag = 'main_wing'
+        self.tag             = 'main_wing'
         self.max_per_vehicle = 3
+        self.PGM_compulsory  = True
 
 
 # ----------------------------------------------------------------------
