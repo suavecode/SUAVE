@@ -171,25 +171,11 @@ class Tilt_Rotor_Propulsor(Propulsor):
         
         # Create the outputs
         # Find the angle between two points on the position vector 
-        position_vectors = state.conditions.frames.inertial.position_vector
-        # expand position vector 
-        unit_vectors = [[1 , 0 , 0],[0 , 1 , 0],[0 , 0 , 1]]
-        relative_directions = np.zeros((len(position_vectors),3))
-        for i in range(len(position_vectors)-1):
-            position_vector = position_vectors[:][i] - position_vectors[:][i+1]
-            x_angle = ((np.dot(position_vector,unit_vectors[0])) / np.linalg.norm(position_vector))
-            y_angle = ((np.dot(position_vector,unit_vectors[1])) / np.linalg.norm(position_vector))
-            z_angle = ((np.dot(position_vector,unit_vectors[2])) / np.linalg.norm(position_vector))
-            
-            # condition for ascending and descending 
-            if z_angle > 0.:
-                relative_directions[i] = [x_angle, y_angle , -z_angle]
-            else:
-                relative_directions[i] = [x_angle, y_angle , z_angle]
-        relative_directions[len(position_vectors)-1] = relative_directions[0]
-        
-        # find angle between two points (this create a vector of 10 again)
-        
+        n = len(state.conditions.frames.inertial.acceleration_vector)
+        trust_range = np.pi/2 # np.linspace(0,np.pi/2,n)
+        relative_directions = np.zeros((n,3))
+        relative_directions[:,0] = np.cos(trust_range)
+        relative_directions[:,2] = -np.sin(trust_range)
         
         # computer force vector 
         F    = num_engines * np.multiply(F,relative_directions)       
