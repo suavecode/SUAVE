@@ -1,4 +1,4 @@
-## @ingroup Optimization
+ ## @ingroup Optimization
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
@@ -11,7 +11,7 @@
 
 # suave imports
 import SUAVE 
-from SUAVE.Core import Data, DataOrdered
+from SUAVE.Core import Data, DataOrdered, Units
 from SUAVE.Analyses import Process
 from copy import deepcopy
 from . import helper_functions as help_fun
@@ -62,18 +62,18 @@ class Nexus(Data):
         self.procedure              = Process()
         self.results                = Data()
         self.summary                = Data()
-        self.optimization_problem   = None
+        self.optimization_problem   = Data()
         self.fidelity_level         = 1
         self.last_inputs            = None
         self.last_fidelity          = None
         self.evaluation_count       = 0
         self.force_evaluate         = False
+
         opt_prob = self.optimization_problem
         opt_prob.objective     = None
         opt_prob.inputs        = None 
         opt_prob.constraints   = None
         opt_prob.aliases       = None
-
 
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -434,6 +434,128 @@ class Nexus(Data):
         
         return inpu,const_table
                                
+                               
+    def add_mission_variables(self,mission_key):
+        """Make a pretty table view of the problem with objective and constraints at the current inputs for the dummy solver
         
     
- 
+            Assumptions:
+            N/A
+    
+            Source:
+            N/A
+    
+            Inputs:
+            x                  [vector]
+    
+            Outputs:
+            input              [array]
+            const_table        [array]
+    
+            Properties Used:
+            None
+        """             
+        
+        # unpack
+        mis = eval('self.missions.'+mission_key)
+        inp = self.optimization_problem.inputs
+        con = self.optimization_problem.constraints
+        ali = self.optimization_problem.aliases
+        
+        # add the inputs
+        input_count = 0
+        vec = np.array([])
+        for segment in mis.segments:
+            
+            # Change the mission solve to dummy solver
+            print('Overwriting the solver in ' + segment + ' segment.')
+            mis.segments[segment].settings.root_finder = SUAVE.Methods.Missions.Segments.dummy_mission_solver
+            
+            # Start putting together the inputs
+            print ('Adding in the new inputs for ' + segment + '.')
+            n_points = mis.segments[segment].state.numerics.number_control_points
+            unknown_keys = list(mis.segments[segment].state.unknowns.keys())
+            unknown_keys.remove('tag')  
+            len_inputs     = n_points*len(unknown_keys)
+            unknown_value  = Data()
+            full_unkn_vals = Data()
+            for unkn in unknown_keys:
+                unknown_value[unkn]  = mis.segments[segment].state.unknowns[unkn]
+                full_unkn_vals[unkn] = unknown_value[unkn]*np.ones(n_points)
+        
+            # Basic construction
+            # [Input_###, initial, (-np.inf, np.inf), initial, Units.less]
+            initial_values    = full_unkn_vals.pack_array()
+            input_len_strings = np.tile('Mission_Input_', len_inputs)
+            input_numbers     = np.linspace(1,len_inputs,len_inputs,dtype=np.int16)
+            input_names       = np.core.defchararray.add(input_len_strings,np.array(input_numbers+input_count).astype(str))
+            bounds            = np.broadcast_to((-np.inf,np.inf),(len_inputs,2))
+            units             = np.broadcast_to(Units.less,(len_inputs,))
+            new_inputs        = np.reshape(np.tile(np.atleast_2d(np.array([None,None,(None,None),None,None])),len_inputs), (-1, 5))
+            
+            # Add in the inputs
+            new_inputs[:,0]   = input_names 
+            new_inputs[:,1]   = initial_values
+            new_inputs[:,2]   = bounds.tolist()
+            new_inputs[:,3]   = initial_values
+            new_inputs[:,4]   = units
+            inp               = np.concatenate((new_inputs,inp),axis=0)
+            self.optimization_problem.inputs = inp
+            
+            # Create the equality constraints to the beginning of the constraints
+            # all equality constraints are 0, scale 1, and unitless
+            new_con = np.reshape(np.tile(np.atleast_2d(np.array([None,None,None,None,None])),len_inputs), (-1, 5))
+        
+            con_len_strings = np.tile('Residual_', len_inputs)
+            con_names       = np.core.defchararray.add(con_len_strings,np.array(input_numbers+input_count).astype(str))
+            equals          = np.broadcast_to('=',(len_inputs,))
+            zeros           = np.zeros(len_inputs)
+            ones            = np.ones(len_inputs)
+            
+            # Add in the new constraints
+            new_con[:,0]    = con_names
+            new_con[:,1]    = equals
+            new_con[:,2]    = zeros
+            new_con[:,3]    = ones
+            new_con[:,4]    = units
+            con             = np.concatenate((new_con,con),axis=0)
+            self.optimization_problem.constraints = con
+            
+            # add the corresponding aliases
+            # setup the aliases for the inputs
+            output_numbers = np.linspace(0,n_points-1,n_points,dtype=np.int16)
+            basic_string_con = Data()
+            input_string = []
+            for unkn in unknown_keys:
+                basic_string_con[unkn] = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.unknowns.'+unkn+'[', n_points)
+                input_string.append(np.core.defchararray.add(basic_string_con[unkn],np.array(output_numbers).astype(str)))
+            input_string  = np.ravel(input_string)
+            input_string  = np.core.defchararray.add(input_string, np.tile(']',len_inputs))
+            input_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
+                                          
+            input_aliases[:,0] = input_names
+            input_aliases[:,1] = input_string
+            
+            
+            # setup the aliases for the residuals
+            basic_string_res = np.tile('missions.' + mission_key + '.segments.' + segment + '.state.residuals.pack_array()[', len_inputs)
+            residual_string  = np.core.defchararray.add(basic_string_res,np.array(input_numbers-1).astype(str))
+            residual_string  = np.core.defchararray.add(residual_string, np.tile(']',len_inputs))
+            residual_aliases = np.reshape(np.tile(np.atleast_2d(np.array((None,None))),len_inputs), (-1, 2))
+            
+            residual_aliases[:,0] = con_names
+            residual_aliases[:,1] = residual_string
+            
+            # Put all the aliases in!
+            for ii in range(len_inputs):
+                ali.append(residual_aliases[ii].tolist())
+                ali.append(input_aliases[ii].tolist())
+                
+            # The mission needs the state expanded now
+            mis.segments[segment].process.initialize.expand_state(mis.segments[segment])
+            
+            # Update the count of inputs
+            input_count = input_count+input_numbers[-1]            
+            
+        return self
+    
