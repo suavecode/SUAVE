@@ -67,15 +67,14 @@ class Nexus(Data):
         self.last_inputs            = None
         self.last_fidelity          = None
         self.evaluation_count       = 0
-        
+        self.force_evaluate         = False
+
         opt_prob = self.optimization_problem
         opt_prob.objective     = None
         opt_prob.inputs        = None 
         opt_prob.constraints   = None
         opt_prob.aliases       = None
-    
-        self.optimization_problem        
-    
+
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
             If the last time you ran this the inputs were the same, a cache is used.
@@ -100,7 +99,8 @@ class Nexus(Data):
         
         # Check if last call was the same
         if np.all(self.optimization_problem.inputs==self.last_inputs) \
-           and self.last_fidelity == self.fidelity_level:
+           and self.last_fidelity == self.fidelity_level \
+           and self.force_evaluate == False:
             pass
         else:
             self._really_evaluate()
