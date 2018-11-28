@@ -88,6 +88,10 @@ def arbitrary(vehicle,settings=None):
             thrust_sls                = prop.sealevel_static_thrust
             wt_engine_jet             = Propulsion.engine_jet(thrust_sls)
             wt_prop                   = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
+            
+            if num_eng == 0.:
+                wt_prop = 0.
+                
             prop.mass_properties.mass = wt_prop
             
             wt_propulsion             += wt_prop
@@ -116,7 +120,7 @@ def arbitrary(vehicle,settings=None):
             
             # Pack and sum
             wing.mass_properties.mass = wt_wing
-            wt_main_wing += wt_main_wing
+            wt_main_wing += wt_wing
             
         # Horizontal Tail    
         if isinstance(wing,Wings.Horizontal_Tail):
@@ -170,7 +174,7 @@ def arbitrary(vehicle,settings=None):
         wing_c_r   = vehicle.wings.main_wing.chords.root
         
         #
-        wt_fuse = tube(S_fus,diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_wing,wt_propulsion,wing_c_r) 
+        wt_fuse = tube(S_fus,diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_main_wing,wt_propulsion,wing_c_r) 
         wt_fuse = wt_fuse*(1.-wt_factors.fuselage)
         fuse.mass_properties.mass = wt_fuse
         
@@ -183,12 +187,12 @@ def arbitrary(vehicle,settings=None):
     output_2        = systems(num_pax, ctrl_type, s_tail, S_gross_w, ac_type)
     
     # Calculate the equipment empty weight of the aircraft
-    wt_empty        = (wt_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
+    wt_empty        = (wt_main_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
                           wt_tail_horizontal + wt_vtail_tot)     
 
     # packup outputs
     output                   = payload.payload(TOW, wt_empty, num_pax,wt_cargo)
-    output.wing              = wt_wing
+    output.wing              = wt_main_wing
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion
     output.landing_gear      = wt_landing_gear

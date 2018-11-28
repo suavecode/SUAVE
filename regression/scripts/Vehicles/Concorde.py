@@ -37,6 +37,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty           = 78700.   # kg
     vehicle.mass_properties.takeoff                   = 183000.   # kg, adjusted due to significant fuel burn on runway
     vehicle.mass_properties.cargo                     = 1000.  * Units.kilogram   
+    vehicle.mass_properties.max_zero_fuel             = 92000.
         
     # envelope properties
     vehicle.envelope.ultimate_load = 3.75
