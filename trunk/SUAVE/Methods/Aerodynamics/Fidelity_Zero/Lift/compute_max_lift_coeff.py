@@ -119,7 +119,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Cd_ind += ( 0.01 ) * Swing / Sref
 
     Cl_max_ls = Cl_max_ls * max_lift_coefficient_factor
-    return Cl_max_w_eng, Cl_max_ls, Cd_ind
+    return Cl_max_ls, Cd_ind
 
 
 # ----------------------------------------------------------------------
