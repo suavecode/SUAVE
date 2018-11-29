@@ -124,12 +124,12 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
             maximum_lift_coefficient         = max_lift_coefficient[0][0]
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
         except:
-            raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
+            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
         
     try:    # aircraft minimum lift informed by user
         minimum_lift_coefficient = vehicle.minimum_lift_coefficient
     except:
-        raise ValueError, "The value not found. Specify minimum lift coefficeint"
+        raise ValueError("The value not found. Specify minimum lift coefficeint")
                     
     # -----------------------------------------------------------------------------
     # Convert all terms to English (Used for FAR) and remove elements from arrays
@@ -219,10 +219,10 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
             load_factors_neg[2] = -0.5 * load_factors_pos[2]
             
         else:
-            raise ValueError, "Check the category_tag input. The parameter was not found"
+            raise ValueError("Check the category_tag input. The parameter was not found")
        
     else:
-        raise ValueError, "Check the FARflag input. The parameter was not found"
+        raise ValueError("Check the FARflag input. The parameter was not found")
 
     # Check input of the limit load
     if abs(neg_limit_load) > abs(load_factors_neg[2]):
