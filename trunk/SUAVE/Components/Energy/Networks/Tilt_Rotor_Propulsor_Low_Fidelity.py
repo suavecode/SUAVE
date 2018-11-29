@@ -14,14 +14,14 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 import math 
-from SUAVE.Core import Data
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Tilt_Rotor_Propulsor(Propulsor):
+class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
 
@@ -110,14 +110,14 @@ class Tilt_Rotor_Propulsor(Propulsor):
         esc.inputs.voltagein = self.voltage
         
         # Step 2
-        esc.voltageout(conditions)   #NEED TOCORRECTETA
+        esc.voltageout(conditions)   
         # link
         motor.inputs.voltage = esc.outputs.voltageout 
         # step 3
         motor.omega(conditions)
         # link
         propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle =  state.unknowns.thrust_angle[0][0]
+        propeller.thrust_angle =  state.thrust_angle
         
         # step 4
         F, Q, P, Cp , noise, etap = propeller.spin(conditions)
@@ -170,15 +170,7 @@ class Tilt_Rotor_Propulsor(Propulsor):
         conditions.propulsion.propeller_torque     = Q
         
         # Create the outputs
-        # Find the angle between two points on the position vector 
-        n = len(state.conditions.frames.inertial.acceleration_vector)
-        trust_range = np.pi/2 # np.linspace(0,np.pi/2,n)
-        relative_directions = np.zeros((n,3))
-        relative_directions[:,0] = np.cos(trust_range)
-        relative_directions[:,2] = -np.sin(trust_range)
-        
-        # computer force vector 
-        F    = num_engines * np.multiply(F,relative_directions)       
+        F    = num_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]        
         mdot = np.zeros_like(F)
 
         results = Data()
@@ -211,10 +203,9 @@ class Tilt_Rotor_Propulsor(Propulsor):
         """                  
         ones = segment.state.ones_row
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        #segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
-        segment.state.conditions.propulsion.thrust_angle                = np.pi/2 * ones(1)
+        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle  
         return
     
     def residuals(self,segment):
@@ -251,8 +242,7 @@ class Tilt_Rotor_Propulsor(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
-        
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max        
         return    
             
     __call__ = evaluate_thrust
