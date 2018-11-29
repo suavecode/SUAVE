@@ -119,7 +119,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
         conditions.freestream.dynamic_viscosity = atmo_values.dynamic_viscosity
         conditions.freestream.velocity          = 0.333 * Vc
         try:
-            max_lift_coefficient, maximum_lift_coefficient_flaps, induced_drag_high_lift \
+            maximum_lift_coefficient, induced_drag_high_lift \
                                              = compute_max_lift_coeff(vehicle,conditions)
             maximum_lift_coefficient         = max_lift_coefficient[0][0]
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
@@ -130,7 +130,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
         minimum_lift_coefficient = vehicle.minimum_lift_coefficient
     except:
         raise ValueError("The value not found. Specify minimum lift coefficeint")
-                    
+               
     # -----------------------------------------------------------------------------
     # Convert all terms to English (Used for FAR) and remove elements from arrays
     # -----------------------------------------------------------------------------
