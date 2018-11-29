@@ -260,6 +260,12 @@ def size_from_PGM(vehicle):
                         prop = compute_turbofan_geometry(prop, conditions)
                         turbofan_sizing(prop,mach_number = 0.01, altitude = 0., delta_isa = 0)
                         
+                        if prop.engine_length == 0.:
+                                prop.engine_length = 0.01
+                                
+                        if prop.nacelle_diameter == 0.:
+                                prop.nacelle_diameter= 0.01                                
+                        
                 if prop.tag == 'Turbojet':
                         
                         
@@ -425,7 +431,13 @@ def size_from_PGM(vehicle):
                         #size the turbojet                  
                         turbojet_sizing(prop,mach_number = 0.01, altitude = 0., delta_isa = 0)          
                         conditions = None
-                        prop = compute_turbofan_geometry(prop, conditions)                   
+                        prop = compute_turbofan_geometry(prop, conditions)            
+                        
+                        if prop.engine_length == 0.:
+                                prop.engine_length = 0.01
+                                
+                        if prop.nacelle_diameter == 0.:
+                                prop.nacelle_diameter= 0.01                           
 
         # Vehicle reference area
         try:

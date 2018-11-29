@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Physical_Component
+from SUAVE.Core import Data
 
 
 # ----------------------------------------------------------------------
@@ -112,9 +113,20 @@ class Container(Physical_Component.Container):
                 Properties Used:
                 N/A
         """
+        
+        ones_row = state.ones_row
+        
+        results = Data()
+        results.thrust_force_vector = 0.*ones_row(3)
+        results.vehicle_mass_rate   = 0.*ones_row(1)
 
         for propulsor in self.values():
-            results = propulsor.evaluate_thrust(state) 
+            results_p = propulsor.evaluate_thrust(state) 
+            
+            for key in results.keys():
+                results[key] += results_p[key]
+            
+            
             
         return results
 

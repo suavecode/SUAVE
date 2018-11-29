@@ -122,6 +122,11 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
         print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbofan
         write_vsp_turbofan(turbofan)
+        
+    if 'turbojet' in vehicle.propulsors:
+        print('Warning: no meshing sources are currently implemented for the nacelle')
+        turbofan  = vehicle.propulsors.turbojet
+        write_vsp_turbofan(turbofan)    
     
     # -------------
     # Fuselage
@@ -427,6 +432,7 @@ def write_vsp_turbofan(turbofan):
     length    = turbofan.engine_length
     width     = turbofan.nacelle_diameter
     origins   = turbofan.origin
+    tf_tag    = turbofan.tag
     
     # True will create a flow-through subsonic nacelle (which may have dimensional errors)
     # False will create a cylindrical stack (essentially a cylinder)
@@ -446,7 +452,7 @@ def write_vsp_turbofan(turbofan):
         
         if ft_flag == True:
             nac_id = vsp.AddGeom( "FUSELAGE")
-            vsp.SetGeomName(nac_id, 'turbofan_'+str(ii+1))
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
             
             # Origin
             vsp.SetParmVal(nac_id,'X_Location','XForm',x)
