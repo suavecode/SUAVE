@@ -102,7 +102,7 @@ def main():
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(1000*Units.ft)
+    atmosphere_conditions =  atmosphere.compute_values(1000.*Units.ft)
     
     rho = atmosphere_conditions.density[0,:]
     a   = atmosphere_conditions.speed_of_sound[0,:]
@@ -135,10 +135,10 @@ def main():
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[ 164.81564     ], [ 164.81564        ]]
-    truth_i   = [[ 12.99700928   ], [ 12.99700928     ]]
-    truth_rpm = [[ 13873.96308852], [ 13873.96308852  ]]
-    truth_bat = [[ 4500000.      ], [ 4499749.00540994]]
+    truth_F   = [[ 68.78277813   ], [ 68.78277813     ]]
+    truth_i   = [[ 5.75011436    ], [ 5.75011436      ]]
+    truth_rpm = [[ 14390.30435183], [ 14390.30435183  ]]
+    truth_bat = [[ 4500000.      ], [ 4499883.5041616 ]]
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
@@ -146,9 +146,9 @@ def main():
     error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
-    print  error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)        
     
     return

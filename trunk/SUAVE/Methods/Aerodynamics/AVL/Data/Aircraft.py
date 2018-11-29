@@ -11,8 +11,8 @@
 
 from SUAVE.Core import Data
 
-from Wing import Wing
-from Body import Body
+from .Wing import Wing
+from .Body import Body
 
 # ------------------------------------------------------------
 #   Aircraft
@@ -80,7 +80,7 @@ class Aircraft(Data):
 		""" 		
 		# assert database type
 		if not isinstance(wing,Wing):
-			raise Exception, 'input component must be of type AVL.Data.Wing()'
+			raise Exception('input component must be of type AVL.Data.Wing()')
 
 		# store data
 		self.wings.append(wing)
@@ -107,7 +107,7 @@ class Aircraft(Data):
 		""" 		
 		# assert database type
 		if not isinstance(body,Body):
-			raise Exception, 'input component must be of type AVL.Data.Body()'
+			raise Exception('input component must be of type AVL.Data.Body()')
 
 		# store data
 		self.bodies.append(body)

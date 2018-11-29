@@ -58,7 +58,7 @@ def energy_network():
     eval.temperature                 = ones_1col*atmo_data.temperature
     eval.density                     = ones_1col*atmo_data.density
     eval.dynamic_viscosity           = ones_1col* atmo_data.dynamic_viscosity
-    eval.gravity                     = ones_1col* SUAVE.Attributes.Planets.Earth().sea_level_gravity
+    eval.gravity                     = ones_1col* SUAVE.Attributes.Planets.Earth().compute_gravity(eval.altitude)
     eval.isentropic_expansion_factor = working_fluid.compute_gamma(eval.temperature,eval.pressure)
     eval.Cp                          = working_fluid.compute_cp(eval.temperature,eval.pressure)                                                                               
     eval.R                           = working_fluid.gas_specific_constant
@@ -95,7 +95,7 @@ def energy_network():
     size.temperature                 = ones_1col*atmo_data.temperature
     size.density                     = ones_1col*atmo_data.density
     size.dynamic_viscosity           = ones_1col*atmo_data.dynamic_viscosity
-    size.gravity                     = ones_1col*SUAVE.Attributes.Planets.Earth().sea_level_gravity
+    size.gravity                     = ones_1col*SUAVE.Attributes.Planets.Earth().compute_gravity(size.altitude)
     size.isentropic_expansion_factor = working_fluid.compute_gamma(size.temperature,size.pressure)
     size.Cp                          = working_fluid.compute_cp(size.temperature,size.pressure)                                                                               
     size.R                           = working_fluid.gas_specific_constant
@@ -208,8 +208,8 @@ def energy_network():
     #size the ramjet
     scramjet_sizing(scramjet,size.mach_number,size.altitude)
     
-    print "Design thrust :",scramjet.design_thrust
-    print "Sealevel static thrust :",scramjet.sealevel_static_thrust
+    print("Design thrust :",scramjet.design_thrust)
+    print("Sealevel static thrust :",scramjet.sealevel_static_thrust)
     
     results_design     = scramjet(state_sizing)
     results_off_design = scramjet(state_off_design)
@@ -224,7 +224,7 @@ def energy_network():
     expected        = Data()
     expected.thrust = 180000.0
     expected.mdot   = 7.8394948
-    expected.Isp    = 2341.33605553
+    expected.Isp    = 2356.0590883
     
     #error data function
     error =  Data()
@@ -232,9 +232,9 @@ def energy_network():
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
     error.mdot_error   = (mdot[0][0] - expected.mdot)/expected.mdot
     error.Isp_error    = (Isp[0][0]- expected.Isp)/expected.Isp
-    print error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
     
     return

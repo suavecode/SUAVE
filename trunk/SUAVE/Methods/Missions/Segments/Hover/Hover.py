@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Hover
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -37,13 +37,13 @@ def initialize_conditions(segment,state):
     # unpack
     alt        = segment.altitude
     duration   = segment.time
-    conditions = state.conditions   
+    conditions = segment.state.conditions   
     
     
     # check for initial altitude
     if alt is None:
-        if not state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
         segment.altitude = alt        
     
     # dimensionalize time
@@ -52,7 +52,7 @@ def initialize_conditions(segment,state):
     time      =  t_nondim * (duration) + t_initial
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = 0.
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]    
+    segment.state.conditions.freestream.altitude[:,0]             = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = 0.
+    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]    

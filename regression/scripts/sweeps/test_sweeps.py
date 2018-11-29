@@ -1,7 +1,7 @@
 # test_sweeps.py
 #
 # Created:  Oct 2017, M. Vegh
-#  Modified Jan 2018, W. Maier
+# Modified Jan 2018, W. Maier
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -20,7 +20,6 @@ from Optimize2 import setup
 #   Main
 # ----------------------------------------------------------------------
 
-
 def main():
     
     # Pull out the problem and reset the bounds
@@ -29,21 +28,21 @@ def main():
         [ 'wing_area'       ,  95, (   90. ,   120.   ) ,   100. , Units.meter**2],
         [ 'cruise_altitude' ,  11, (   10   ,   13.   ) ,   10.  , Units.km]])
     
-    
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [[ 6837.02435843,  6654.75194104]]
+    truth_obj_sweeps = [[6809.14455765, 6629.30832632]]
     
     #print outputs_sweep
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))
     
-    print 'max_err_sweeps = ', max_err_sweeps
+    print('max_err_sweeps = ', max_err_sweeps)
     assert(max_err_sweeps<1e-6)
     outputs_carpet = variable_sweep(problem)
     
     #print outputs_carpet
-    truth_obj_carp  =  [[6711.60449303,  6674.2811524 ],[ 7066.45258873,  6572.22262351]] 
+    truth_obj_carp  =  [[6686.79830704, 6650.74053198],[7031.47217287, 6542.08699857]] 
+
     max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)/truth_obj_carp) 
-    print ' max_err_carp = ',  max_err_carp
+    print(' max_err_carp = ',  max_err_carp)
     assert(max_err_carp<1e-6)
     return
         
@@ -55,7 +54,8 @@ def linear_sweep(problem):
     
 def variable_sweep(problem):    
     number_of_points=2
-    outputs=carpet_plot(problem, number_of_points,  plot_obj = 0, plot_const = 0)  #run carpet plot, suppressing default plots
+    #run carpet plot, suppressing default plots
+    outputs=carpet_plot(problem, number_of_points,  plot_obj = 0, plot_const = 0)  
     return outputs
 
 if __name__ == '__main__':

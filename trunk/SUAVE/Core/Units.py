@@ -139,30 +139,30 @@ if __name__ == '__main__':
     
     x = Units['miles/hour']
     y = Units.miles / Units.hour
-    print x
-    print y
+    print(x)
+    print(y)
     
     x = Units['slug/ft**3']
     y = Units.slug / Units.ft**3
-    print x
-    print y    
+    print(x)
+    print(y)    
     
     a = 4. * Units.kilogram
     b = 5. * Units.gram
     v = np.array([3.,4.,6.]) * Units['miles/hour']
     t = 100 * Units.degF
     
-    print a
-    print b
-    print v
-    print t
+    print(a)
+    print(b)
+    print(v)
+    print(t)
     
     a = a / Units.g
     b = b / Units.g
     v = v / Units['miles/hour']
     t = t / Units.degF
     
-    print a
-    print b
-    print v
-    print t
+    print(a)
+    print(b)
+    print(v)
+    print(t)

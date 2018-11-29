@@ -16,7 +16,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Cruise
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -44,16 +44,16 @@ def initialize_conditions(segment,state):
     alt        = segment.altitude
     final_time = segment.time
     q          = segment.dynamic_pressure
-    conditions = state.conditions   
+    conditions = segment.state.conditions   
     
     # Update freestream to get density
-    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment,state)
+    SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
     rho        = conditions.freestream.density[:,0]   
     
     # check for initial altitude
     if alt is None:
-        if not state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
         segment.altitude = alt        
     
     # compute speed, constant with constant altitude
@@ -62,11 +62,11 @@ def initialize_conditions(segment,state):
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = final_time + t_initial
-    t_nondim  = state.numerics.dimensionless.control_points
-    time      =  t_nondim * (t_final-t_initial) + t_initial
+    t_nondim  = segment.state.numerics.dimensionless.control_points
+    time      = t_nondim * (t_final-t_initial) + t_initial
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]
+    segment.state.conditions.freestream.altitude[:,0]             = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]

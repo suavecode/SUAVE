@@ -44,6 +44,10 @@ class Segment(Lofted_Body.Segment):
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
         self.sweeps.leading_edge   = 0.0
+        self.areas                 = Data()
+        self.areas.reference       = 0.0
+        self.areas.exposed         = 0.0
+        self.areas.wetted          = 0.0
         self.Airfoil               = Data()
         self.control_surfaces      = Data()  
         
@@ -67,7 +71,7 @@ class Segment(Lofted_Body.Segment):
         """  
         # assert database type
         if not isinstance(airfoil,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # store data
         self.Airfoil.append(airfoil)
@@ -92,7 +96,7 @@ class Segment(Lofted_Body.Segment):
         """  
         # assert database type
         if not isinstance(control_surface,Data):
-            raise Exception, 'input component must be of type Data()'
+            raise Exception('input component must be of type Data()')
 
         # store data
         self.control_surfaces.append(control_surface)

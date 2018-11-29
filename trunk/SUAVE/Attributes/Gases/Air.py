@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Gas import Gas
+from .Gas import Gas
 from SUAVE.Core import Data
 import numpy as np
 

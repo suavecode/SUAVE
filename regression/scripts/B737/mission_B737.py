@@ -84,6 +84,7 @@ def main():
     old_results = load_results()   
 
     # plt the old results
+    #save_results(results)
     plot_mission(results)
     plot_mission(old_results,'k-')
     plt.show(block=True)
@@ -127,7 +128,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -208,7 +209,7 @@ def plot_mission(results,line_style='bo-'):
 
 
     fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -240,7 +241,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -313,7 +314,7 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -608,19 +609,16 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
-
     missions.base = base_mission
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Fuel
     # ------------------------------------------------------------------    
-    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
-    fuel_mission.tag = 'fuel'
+    fuel_mission         = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
+    fuel_mission.tag     = 'fuel'
     fuel_mission.range   = 1277. * Units.nautical_mile
-    fuel_mission.payload   = 19000.
+    fuel_mission.payload = 19000.
     missions.append(fuel_mission)    
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Short Field
@@ -637,17 +635,14 @@ def missions_setup(base_mission):
     short_field.airport = airport    
     missions.append(short_field)
 
-
-
     # ------------------------------------------------------------------
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
     payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
-    payload.tag = 'payload'
+    payload.tag     = 'payload'
     payload.range   = 2316. * Units.nautical_mile
-    payload.payload   = 19000.
+    payload.payload = 19000.
     missions.append(payload)
-
 
     # done!
     return missions  
@@ -667,21 +662,21 @@ def check_results(new_results,old_results):
 
     # do the check
     for k in check_list:
-        print k
+        print(k)
 
         old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
+        print('Error at Max:' , err)
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )        
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
+        print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print ''
+        print('')
 
     ## check high level outputs
     #def check_vals(a,b):
@@ -713,4 +708,3 @@ def save_results(results):
 if __name__ == '__main__': 
     main()    
     #plt.show()
-

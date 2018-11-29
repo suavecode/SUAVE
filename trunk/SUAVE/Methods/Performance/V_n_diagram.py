@@ -1,7 +1,8 @@
 ## @ingroup Methods-Performance
 # V_n_diagram.py
 #
-# Created:  Nov 2018, S. Karpuk 
+# Created:  Nov 2018, S. Karpuk
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +14,8 @@ from SUAVE.Core import Data
 from SUAVE.Core import Units
 
 from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
-#from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations import datcom
 
 # package imports
 import numpy as np
@@ -25,7 +27,7 @@ import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Performance
-def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA,FARflag):
+def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     
     """ Computes a V-n diagram for a given aircraft and given regulations for ISA conditions
 
@@ -40,372 +42,911 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA,FARflag):
       mass_properties.takeoff              [kg]
       reference_area                       [m^2]
       maximum_lift_coefficient             [Unitless]
-      chords.mean_aerodynamic      [meter]
+      minimum_lift_coefficient             [Unitless]
+      chords.mean_aerodynamic              [m]
+      envelope.FARflag                     [Unitless]
+          pos_limit_load                   [Unitless]
+          neg_limit_load                   [Unitless]
+          cruise_mach                      [Unitless]
 
     Outputs:
-    airspeeds, Mach, load_factors                   [m]
+    V_n_data
 
     Properties Used:
     N/A
+
+    Description:
+    The script creates an aircraft V-n diagram based on the input parameters specified by the user.
+    Depending on the certification flag, an appropriate diagram, output and log files are created.
     """        
+
+    #------------------------
+    # Create a log - file
+    #------------------------
+    flog = open("V_n_diagram_" + vehicle.file_tag + ".log","w")
     
-    # ==============================================
+    print('Running the V-n diagram calculation...')
+    flog.write('Running the V-n diagram calculation...\n')
+    flog.write('Aircraft: ' + vehicle.tag + '\n')
+    flog.write('Category: ' + vehicle.category + '\n')
+    flog.write('FAR certification: Part ' + str(vehicle.envelope.FARflag) + '\n\n')
+    
+    # ----------------------------------------------
     # Unpack
-    # ==============================================
-    atmo = analyses.configs.base.atmosphere
+    # ----------------------------------------------
+    flog.write('Unpacking the input and calculating required inputs...\n')
+    FARflag = vehicle.envelope.FARflag
+    atmo    = analyses.atmosphere
+    Mc      = vehicle.envelope.cruise_mach
 
     for wing in vehicle.wings: 
         reference_area  = vehicle.reference_area 
         Cmac            = wing.chords.mean_aerodynamic
-    
-    for mission in analyses.missions:
-        Vc = mission.segments.cruise.air_speed
 
-    CLa = 5.25
+    for envelope in vehicle:
+        pos_limit_load  = vehicle.envelope.pos_limit_load
+        neg_limit_load  = vehicle.envelope.neg_limit_load
+
     category_tag = vehicle.category
-    minimum_lift_coefficient = -1.0
-    vehicle.minimum_lift_coefficient = minimum_lift_coefficient
-    
-    # ==============================================
+       
+    # ----------------------------------------------
     # Computing atmospheric conditions
-    # ==============================================
-    atmo_values = atmo.compute_values(altitude,delta_ISA)
-    SL_atmo_values = atmo.compute_values(0,delta_ISA)
-    conditions  = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    # ----------------------------------------------
+    atmo_values       = atmo.compute_values(altitude,delta_ISA)
+    SL_atmo_values    = atmo.compute_values(0,delta_ISA)
+    conditions        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
 
-    rho = atmo_values.density
-    sea_level_rho = SL_atmo_values.density
-    a = atmo_values.speed_of_sound
+    rho               = atmo_values.density
+    sea_level_rho     = SL_atmo_values.density
     sea_level_gravity = atmo.planet.sea_level_gravity
+    Vc                = Mc * (1.4 * 287 * atmo_values.temperature) ** 0.5
+    
+    # ------------------------------
+    # Computing lift-curve slope
+    # ------------------------------  
+    CLa = datcom(vehicle.wings.main_wing, Mc)
+    CLa = CLa[0]
 
-    # ==============================================
-    # Determining vehicle maximum lift coefficient
-    # ==============================================
+    # -----------------------------------------------------------
+    # Determining vehicle minimum and maximum lift coefficients
+    # -----------------------------------------------------------
     try:   # aircraft maximum lift informed by user
         maximum_lift_coefficient = vehicle.maximum_lift_coefficient
     except:
-        # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
-
-        # Condition to CLmax calculation: 300KTAS @ specified altitude, ISA
-        conditions.freestream=Data()
-        conditions.freestream.density   = atmo_values.density
+        # Condition to CLmax calculation: 0.33 * Vc @ specified altitude, ISA
+        conditions.freestream                   = Data()
+        conditions.freestream.density           = atmo_values.density
         conditions.freestream.dynamic_viscosity = atmo_values.dynamic_viscosity
-        conditions.freestream.velocity  = 300. * Units.knots
+        conditions.freestream.velocity          = 0.333 * Vc
         try:
-            maximum_lift_coefficient, maximum_lift_coefficient_flaps, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
+            max_lift_coefficient, maximum_lift_coefficient_flaps, induced_drag_high_lift \
+                                             = compute_max_lift_coeff(vehicle,conditions)
+            maximum_lift_coefficient         = max_lift_coefficient[0][0]
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
         except:
             raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
         
-    # ============================================================================
+    try:    # aircraft minimum lift informed by user
+        minimum_lift_coefficient = vehicle.minimum_lift_coefficient
+    except:
+        raise ValueError, "The value not found. Specify minimum lift coefficeint"
+                    
+    # -----------------------------------------------------------------------------
     # Convert all terms to English (Used for FAR) and remove elements from arrays
-    # ============================================================================
-    altitude = altitude / Units.ft
-    rho = rho[0,0] / Units['slug/ft**3']
-    sea_level_rho = sea_level_rho[0,0] / Units['slug/ft**3']
-    density_ratio = (rho/sea_level_rho)**0.5
-    a = a[0,0] / Units['ft/s']
+    # -----------------------------------------------------------------------------
+    altitude          = altitude / Units.ft
+    rho               = rho[0,0] / Units['slug/ft**3']
+    sea_level_rho     = sea_level_rho[0,0] / Units['slug/ft**3']
+    density_ratio     = (rho/sea_level_rho)**0.5
     sea_level_gravity = sea_level_gravity / Units['ft/s**2']
-    weight = weight / Units['slug'] * sea_level_gravity
-    reference_area = reference_area / Units['ft**2']
-    Cmac = Cmac / Units.ft
-    wing_loading = weight / reference_area
-    maximum_lift_coefficient = maximum_lift_coefficient[0,0]
+    weight            = weight / Units['slug'] * sea_level_gravity
+    reference_area    = reference_area / Units['ft**2']
+    Cmac              = Cmac / Units.ft
+    wing_loading      = weight / reference_area
+    Vc                = Vc / Units['ft/s']
     
-    load_factors_pos = np.zeros(shape=(5));     load_factors_neg = np.zeros(shape=(5));
-    load_factors_pos[1] = 1;    load_factors_neg[1] = -1;
-    airspeeds_pos = np.zeros(shape=(5));        airspeeds_neg = np.zeros(shape=(5))
+    load_factors_pos    = np.zeros(shape=(5));
+    load_factors_neg    = np.zeros(shape=(5));
+    load_factors_pos[1] =  1;
+    load_factors_neg[1] = -1;
+    airspeeds_pos       = np.zeros(shape=(5));
+    airspeeds_neg       = np.zeros(shape=(5))
         
-    # ================================================
+    # --------------------------------------------------
     # Establish limit maneuver load factors n+ and n- 
-    # ================================================ 
+    # --------------------------------------------------
+    flog.write('Establish limit maneuver load factors n+ and n-...\n')
     # CFR Part 25
     # Positive and negative limits
-    if FARflag == 25:   
-        load_factors_pos[2] = 2.1 + 24000/(weight+10000)
+    if FARflag == 25:
+        # Positive limit
+        flog.write('    Estimating n+...\n')
+        load_factors_pos[2] = 2.1 + 24000 / (weight + 10000)
         if load_factors_pos[2] < 2.5:
+            flog.write('        Defined positive limit load factor < 2.5. Setting 2.5...\n')
             load_factors_pos[2] = 2.5
+        elif load_factors_pos[2] < pos_limit_load:
+            load_factors_pos[2] = pos_limit_load
         elif load_factors_pos[2] > 3.8:
+            flog.write('        Defined positive limit load factor > 3.8. Setting 3.8...\n')
             load_factors_pos[2] = 3.8
-        print('minimum positive limit load factor =  '+ str(load_factors_pos[2]))
-        print('maximum positive limit load factor =  3.8')
-        cond = raw_input('Would you like to increase it? (y/n): ')
-        if cond == 'y':
-            load_factors_pos[2] = raw_input('input positive limit maneuver load factor (n <= 3.8): ')
-            
-        # Negative limit      
-        load_factors_neg[2] = raw_input('input negative limit maneuver load factor (n <= -1): ')
+
+        # Negative limit
+        flog.write('    Estimating n-...\n')
+        load_factors_neg[2] = neg_limit_load
+        if load_factors_neg[2] > -1:
+            flog.write('        Negative limit load factor magnitude is too small. Setting to -1...\n')
+            load_factors_neg[2] = -1
 
     elif FARflag == 23:
         if category_tag == 'normal' or category_tag == 'commuter':
-            load_factors_pos[2] = 2.1 + 24000/(weight+10000)
+            # Positive limit
+            flog.write('    Estimating n+...\n')
+            load_factors_pos[2] = 2.1 + 24000 / (weight + 10000)
             if load_factors_pos[2] < 2.5:
+                flog.write('        Defined positive limit load factor < 2.5. Setting 2.5...\n')
                 load_factors_pos[2] = 2.5
+            elif load_factors_pos[2] < pos_limit_load:
+                load_factors_pos[2] = pos_limit_load
             elif load_factors_pos[2] > 3.8:
+                flog.write('        Defined positive limit load factor > 3.8. Setting 3.8...\n')
                 load_factors_pos[2] = 3.8
-            print('minimum positive limit load factor =  '+ str(load_factors_pos[2]))
-            print('maximum positive limit load factor =  3.8')
-            cond = raw_input('Would you like to increase it? (y/n): ')
-            if cond == 'y':
-                load_factors_pos[2] = raw_input('input positive limit maneuver load factor (n <= 3.8): ')
+
+            # Negative limit
+            flog.write('    Estimating n-...\n')
             load_factors_neg[2] = -0.4 * load_factors_pos[2]
+            
         elif category_tag == 'utility':
-            load_factors_pos[2] = raw_input('input positive limit maneuver load factor (n >= 4.4): ')
+            # Positive limit
+            flog.write('    Estimating n+...\n')
+            load_factors_pos[2] =  pos_limit_load
+            if load_factors_pos[2] < 4.4:
+                 flog.write('        Defined positive limit load factor < 4.4. Setting 4.4...\n')
+                 load_factors_pos[2] = 4.4
+                 
+            # Negative limit
+            flog.write('    Estimating n-...\n')
             load_factors_neg[2] = -0.4 * load_factors_pos[2]
+            
         elif category_tag == 'acrobatic':
-            load_factors_pos[2] = raw_input('input positive limit maneuver load factor (n >= 6.0): ')
+            # Positive limit
+            load_factors_pos[2] = pos_limit_load
+            if load_factors_pos[2] < 6.0:
+                flog.write('        Defined positive limit load factor < 6.0. Setting 6.0...\n')
+                load_factors_pos[2] = 6.0
+
+            # Negative limit    
             load_factors_neg[2] = -0.5 * load_factors_pos[2]
+            
         else:
-            print('Check the category_tag input. The parameter was not found')
+            raise ValueError, "Check the category_tag input. The parameter was not found"
        
     else:
-        print('Check the FARflag input. The parameter was not found')
-        
-    # ================================================
+        raise ValueError, "Check the FARflag input. The parameter was not found"
+
+    # Check input of the limit load
+    if abs(neg_limit_load) > abs(load_factors_neg[2]):
+        load_factors_neg[2] = neg_limit_load
+
+    #----------------------------------------
+    # Generate a V-n diagram data structure
+    #----------------------------------------
+    V_n_data                          = Data()
+    V_n_data.load_factors_pos         = load_factors_pos
+    V_n_data.load_factors_neg         = load_factors_neg
+    V_n_data.airspeeds_pos            = airspeeds_pos
+    V_n_data.airspeeds_neg            = airspeeds_neg
+    V_n_data.Vc                       = Vc
+    V_n_data.weight                   = weight
+    V_n_data.wing_loading             = wing_loading
+    V_n_data.altitude                 = altitude
+    V_n_data.density                  = rho
+    V_n_data.density_ratio            = density_ratio
+    V_n_data.reference_area           = reference_area
+    V_n_data.maximum_lift_coefficient = maximum_lift_coefficient
+    V_n_data.minimum_lift_coefficient = minimum_lift_coefficient
+    V_n_data.limit_load_pos           = load_factors_pos[2]
+    V_n_data.limit_load_neg           = load_factors_neg[2]
+    
+    # --------------------------------------------------
     # Computing critical speeds (Va, Vc, Vb, Vd, Vs1)
-    # ================================================
-    print("max_lift" + str(maximum_lift_coefficient))
+    # --------------------------------------------------
+    flog.write('Computing critical speeds (Va, Vc, Vb, Vd, Vs1)...\n')
+    
     # Calculate Stall and Maneuver speeds
-    airspeeds_pos, airspeeds_neg = stall_maneuver_speeds(airspeeds_pos,airspeeds_neg, weight, rho, reference_area, \
-                                                         maximum_lift_coefficient, minimum_lift_coefficient,\
-                                                         load_factors_pos, load_factors_neg)
+    flog.write('    Computing Vs1 and Va...\n')
+    stall_maneuver_speeds(V_n_data)  
         
-    # convert speeds to KEAS for future calculations
-    airspeeds_pos =  airspeeds_pos * Units['ft/s'] / Units.knots * density_ratio
-    airspeeds_neg =  airspeeds_neg * Units['ft/s'] / Units.knots * density_ratio
-        
-    # Gust speeds between Vb and Vc(EAS) and minimum Vc
+    # convert speeds to KEAS for future calculations 
+    convert_keas(V_n_data)
+
+    # unpack modified airspeeds 
+    airspeeds_pos = V_n_data.airspeeds_pos
+    airspeeds_neg = V_n_data.airspeeds_neg
+    Vc            = V_n_data.Vc
+    Va_pos        = V_n_data.Va_pos 
+    Va_neg        = V_n_data.Va_neg
+    Va_pos        = V_n_data.Va_pos 
+    Va_neg        = V_n_data.Va_neg 
+
+    flog.write('    Checking Vc wrt Va...\n')
+    if Va_neg > Vc and Va_neg > Va_pos:
+        flog.write('        Negative Va > Vc. Setting Vc = 1.15 * Va...\n')
+        Vc = 1.15 * Va_neg
+    elif Va_pos > Vc and Va_neg < Va_pos:
+        flog.write('        Positive Va > Vc. Setting Vc = 1.15 * Va...\n')
+        Vc = 1.15 * Va_pos
+    
+    # Gust speeds between Vb and Vc (EAS) and minimum Vc
     miu = 2 * wing_loading / (rho * Cmac * CLa * sea_level_gravity)
-    Kg = 0.88 * miu / (5.3 + miu)
+    Kg  = 0.88 * miu / (5.3 + miu)
+          
     if FARflag == 25:
         if altitude < 15000:
-            Uref = (-0.0008 * altitude + 56);       Uref_dive = 0.5 * Uref
+            Uref_cruise = (-0.0008 * altitude + 56)
+            Uref_rough  = Uref_cruise
+            Uref_dive   = 0.5 * Uref_cruise
         else:
-            Uref = (-0.0005142 * altitude + 51.7133);       Uref_dive = 0.5 * Uref
+            Uref_cruise = (-0.0005142 * altitude + 51.7133)
+            Uref_rough  = Uref_cruise
+            Uref_dive   = 0.5 * Uref_cruise
+            
         # Minimum Cruise speed Vc_min
-        coefs=[1, -Uref * (2.64 + (Kg*CLa*airspeeds_pos[1]**2)/(498*wing_loading)), 1.72424*Uref]
-        Vc1 = max(np.roots(coefs))
+        coefs = [1, -Uref_cruise * (2.64 + (Kg * CLa * airspeeds_pos[1]**2)/(498 * wing_loading)), 1.72424 * Uref_cruise**2 - airspeeds_pos[1]**2]
+        Vc1   = max(np.roots(coefs))
         
-    elif FARflag == 23:
+    elif FARflag == 23:           
         if altitude < 20000:
-            Uref = 50;      Uref_dive = 25;
+            Uref_cruise = 50;
+            Uref_dive   = 25;
         else:
-            Uref = (-0.0008333 * altitude + 66.67);    Uref_dive = (-0.0004167 * altitude + 33.334);  
+            Uref_cruise = (-0.0008333 * altitude + 66.67);
+            Uref_dive = (-0.0004167 * altitude + 33.334);
+
+        if category_tag == 'commuter':
+            if altitude < 20000:
+                Uref_rough = 66
+            else:
+                Uref_rough = -0.000933 * altitude + 84.667
+        else:
+            Uref_rough = Uref_cruise
+                       
         # Minimum Cruise speed Vc_min
         if category_tag == 'acrobatic':
-            Vc1 = 36 * wing_loaing**0.5
+            Vc1 = 36 * wing_loading**0.5
             if wing_loading >= 20:
-                Vc1 = (-0.0925*wing_loading+37.85)* wing_loading**0.5
+                Vc1 = (-0.0925 * wing_loading + 37.85) * wing_loading **0.5
         else:
             Vc1 = 33 * wing_loading**0.5
             if wing_loading >= 20:       
-                Vc1 = (-0.055*wing_loading+34.1)* wing_loading**0.5
+                Vc1 = (-0.055 * wing_loading + 34.1) * wing_loading **0.5
 
-    # input Cruise speed
-    print('Cruise speed conditions: ')
-    print('Vc > ' + str(Vc1) + 'KEAS')
-    print('Vc >= Va, Va = ' + str(airspeeds_pos[2]) + 'KEAS')
-    Vc = input('Input cruise speed Vc: ')
+    # checking input Cruise speed
+    flog.write('    Checking Vc wrt Vcmin... \n')
+    if Vc1 > Vc:
+        flog.write('        Specified cruise speed is less than the minimum required. Setting th minimum required value...\n')
+        Vc = Vc1
 
     # Dive speed
+    flog.write('    Computing Vd...\n')
     if FARflag == 25:        
         airspeeds_pos[4] = 1.25 * Vc
     elif FARflag == 23:
         if category_tag == 'acrobatic':
             airspeeds_pos[4] = 1.55 * Vc1
+            if wing_loading > 20:
+                airspeeds_pos[4] = (-0.0025 * wing_loading + 1.6) * Vc1
         elif category_tag == 'utility':
             airspeeds_pos[4] = 1.5 * Vc1
+            if wing_loading > 20:
+                airspeeds_pos[4] = (-0.001875 * wing_loading + 1.5375) * Vc1           
         else:
             airspeeds_pos[4] = 1.4 * Vc1
-       
-    Vd = airspeeds_pos[4]
+            if wing_loading > 20:
+                airspeeds_pos[4] = (-0.000625 * wing_loading + 1.4125) * Vc1
+            
+        if airspeeds_pos[4] < 1.15 * Vc:
+            flog.write('        Based on min Vc, Vd is too close Vc. Setting Vd = 1.15 Vc...\n')
+            airspeeds_pos[4] = 1.15 * Vc
+   
+    Vd               = airspeeds_pos[4]
     airspeeds_pos[3] = airspeeds_pos[4]
+    airspeeds_neg[3] = Vc
     airspeeds_neg[4] = airspeeds_pos[4]
-    if FARflag == 25:
-        airspeeds_neg[3] = Vc
-    else:
-        airspeeds_neg[3] = airspeeds_pos[4]
     
-    # complete initail load factors
-    load_factors_pos[4] = 0;    load_factors_neg[4] = 0;           
+    # complete initial load factors
+    load_factors_pos[4] = 0
+    load_factors_neg[4] = 0
+    if category_tag == 'acrobatic' or category_tag == 'utility':
+        load_factors_neg[4] = -1
+        
     load_factors_pos[3] = load_factors_pos[2]
     load_factors_neg[3] = load_factors_neg[2]
 
+    # add parameters to the data structure
+    V_n_data.load_factors_pos         = load_factors_pos
+    V_n_data.load_factors_neg         = load_factors_neg
+    V_n_data.airspeeds_pos            = airspeeds_pos
+    V_n_data.airspeeds_neg            = airspeeds_neg
+    V_n_data.Vd                       = Vd
+    V_n_data.Vc                       = Vc
+
+    #------------------------
     # Create Stall lines
+    #------------------------
+    flog.write('Creating stall lines...\n')
     Num_of_points = 20                                            # number of points for the stall line
     upper_bound = 2;  lower_bound = 1;
-    load_factors_pos, airspeeds_pos = stall_line(load_factors_pos, airspeeds_pos, upper_bound, lower_bound, Num_of_points, \
-                                                 density_ratio, rho, maximum_lift_coefficient, weight, reference_area)
-    load_factors_neg, airspeeds_neg = stall_line(load_factors_neg, airspeeds_neg, upper_bound, lower_bound, Num_of_points, \
-                                                 density_ratio, rho, minimum_lift_coefficient, weight, reference_area)
+    stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, 1)
+    stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, 2)
 
-    #print(airspeeds_pos)
-    #print(airspeeds_neg)
-    #print(load_factors_pos)
-    #print(load_factors_neg)
-
-    # ==============================================
-    # ==============================================
+    # ----------------------------------------------
     # Determine Gust loads
-    # ==============================================
-    # =========================================================================================================
-    airspeeds_pos, load_factors_pos, gust_load_factors_pos = Gust_loads(airspeeds_pos, load_factors_pos, Kg, CLa, weight, \
-                                                                        wing_loading, reference_area, rho, density_ratio, \
-                                                                        maximum_lift_coefficient, Vc, Vd, Uref, Uref_dive, \
-                                                                        Num_of_points, FARflag)
+    # ----------------------------------------------
+    flog.write('Calculating gust loads...\n')
+    Gust_loads(category_tag, V_n_data, Kg, CLa,  Uref_rough,  Uref_cruise,  Uref_dive, Num_of_points, FARflag, 1)
+    Gust_loads(category_tag, V_n_data, Kg, CLa, -Uref_rough, -Uref_cruise, -Uref_dive, Num_of_points, FARflag, 2)
 
-    airspeeds_neg, load_factors_neg, gust_load_factors_neg = Gust_loads(airspeeds_neg, load_factors_neg, Kg, CLa, weight, \
-                                                                        wing_loading, reference_area, rho, density_ratio, \
-                                                                        minimum_lift_coefficient, Vc, Vd, -Uref, -Uref_dive, \
-                                                                        Num_of_points, FARflag)
-        
-    
-    # =========================================================================================================    
-    #print(airspeeds_neg)
-    #print(load_factors_neg)
-    # ==============================================
+    #----------------------------------------------------------------
+    # Finalize the load factors for acrobatic and utility aircraft
+    #----------------------------------------------------------------
+    if category_tag == 'acrobatic' or category_tag == 'utility':
+        V_n_data.airspeeds_neg    = np.append(V_n_data.airspeeds_neg, Vd)
+        V_n_data.load_factors_neg = np.append(V_n_data.load_factors_neg, 0)
+
+    # ----------------------------------------------
     # Post-processing the V-n diagram
-    # ==============================================
-    fig, ax = plt.subplots()
-    ax.fill(airspeeds_pos, load_factors_pos, c='b', alpha=0.3)
-    ax.fill(airspeeds_neg, load_factors_neg, c='b', alpha=0.3)
-    ax.plot(airspeeds_pos, load_factors_pos, c='b')
-    ax.plot(airspeeds_neg, load_factors_neg, c='b')
+    # ----------------------------------------------
+    flog.write('Post-Processing...\n')
+    V_n_data.limit_load_pos = max(V_n_data.load_factors_pos)
+    V_n_data.limit_load_neg = min(V_n_data.load_factors_neg)
     
-    ax.plot([0, Vc],[1,gust_load_factors_pos[2]],'--', c='r')
-    ax.plot([0, Vd],[1,gust_load_factors_pos[3]],'--', c='r')
-    ax.plot([0, Vc],[1,gust_load_factors_neg[2]],'--', c='r')
-    ax.plot([0, Vd],[1,gust_load_factors_neg[3]],'--', c='r')
-    print(vehicle)
-    ax.set_xlabel('Airspeed, KEAS')
-    ax.set_ylabel('Load Factor')
-    ax.set_title(vehicle._base.tag + '  Weight=' + str(round(weight)) + 'lb  ' + ' Altitude=' + str(altitude) + 'ft ')
-    ax.grid()
-    plt.show()
-    return 
+    post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, vehicle)
+
+    print('Calculation complete...')
+    flog.write('Calculation complete\n')
+    flog.close()
+  
+    return V_n_data
 
 
-#===================================================================================================================
-#====================
-#USEFUL FUNCTIONS
-#===================================================================================================================
-def stall_maneuver_speeds(airspeeds_pos, airspeeds_neg, weight, rho, reference_area, maximum_lift_coefficient, \
-                          minimum_lift_coefficient, load_factors_pos, load_factors_neg):
+#------------------------------------------------------------------------------------------------------
+# USEFUL FUNCTIONS
+#------------------------------------------------------------------------------------------------------
+
+def stall_maneuver_speeds(V_n_data):
+
+    """ Computes stall and maneuver speeds for positive and negative halves of the the V-n diagram
+
+    Source:
+    S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
+
+    Inputs:
+    V_n_data.airspeeds_pos                      [kts]
+        airspeeds_neg                           [kts]
+        weight                                  [lb]
+        density                                 [slug/ft**3]
+        density_ratio                           [Unitless]
+        reference_area                          [ft**2]
+        maximum_lift_coefficient                [Unitless]
+        minimum_lift_coefficient                [Unitless]
+        load_factors_pos                        [Unitless]
+        load_factors_neg                        [Unitless]
+
+    Outputs:
+    V_n_data.airspeeds_pos                      [kts]
+        airspeeds_neg                           [kts]
+        load_factors_pos                        [Unitless]
+        load_factors_neg                        [Unitless]                 
+
+    Properties Used:
+    N/A
+
+    Description:   
+    """     
+
+    # Unpack
+    airspeeds_pos    = V_n_data.airspeeds_pos
+    airspeeds_neg    = V_n_data.airspeeds_neg
+    weight           = V_n_data.weight
+    rho              = V_n_data.density
+    reference_area   = V_n_data.reference_area
+    max_lift_coef    = V_n_data.maximum_lift_coefficient
+    min_lift_coef    = V_n_data.minimum_lift_coefficient
+    load_factors_pos = V_n_data.load_factors_pos
+    load_factors_neg = V_n_data.load_factors_neg
+    
     # Stall speeds
-    airspeeds_pos[1] = (2 * weight / (rho * reference_area * maximum_lift_coefficient)) ** 0.5
-    airspeeds_neg[1] = (2 * weight / (rho * reference_area * abs(minimum_lift_coefficient))) ** 0.5
+    airspeeds_pos[1] = (2 * weight / (rho * reference_area * max_lift_coef)) ** 0.5
+    airspeeds_neg[1] = (2 * weight / (rho * reference_area * abs(min_lift_coef))) ** 0.5
     airspeeds_pos[0] = airspeeds_pos[1]
     airspeeds_neg[0] = airspeeds_neg[1]
 
     # Maneuver speeds
     airspeeds_pos[2] = airspeeds_pos[1] * load_factors_pos[2] ** 0.5
     airspeeds_neg[2] = (2 * weight * abs(load_factors_neg[2]) / (rho * reference_area * \
-                                                                 abs(minimum_lift_coefficient))) ** 0.5
-
-    return airspeeds_pos, airspeeds_neg
-
-def stall_line(load_factors, airspeeds, upper_bound, lower_bound, Num_of_points, density_ratio, \
-               rho, lift_coefficient, weight, reference_area):
+                                                                 abs(min_lift_coef))) ** 0.5
     
-    delta = (airspeeds[upper_bound] - airspeeds[lower_bound]) / (Num_of_points+1)     # Step size
-    for i in range(Num_of_points):           
-        coef = lower_bound+i+1
-        airspeeds = np.concatenate((airspeeds[:coef], [airspeeds[lower_bound] + (i+1) * delta], airspeeds[coef:]))
-        Vtas = airspeeds[coef] / density_ratio * Units.knots / Units['ft/s']
+    # Pack
+    V_n_data.airspeeds_pos           = airspeeds_pos
+    V_n_data.airspeeds_neg           = airspeeds_neg
+    V_n_data.load_factors_pos        = load_factors_pos
+    V_n_data.load_factors_neg        = load_factors_neg
+    V_n_data.Vs1_pos                 = airspeeds_pos[1]
+    V_n_data.Vs1_neg                 = airspeeds_neg[1]
+    V_n_data.Va_pos                  = airspeeds_pos[2]
+    V_n_data.Va_neg                  = airspeeds_neg[2]
+    
+#------------------------------------------------------------------------------------------------------------
+
+def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
+    
+    """ Calculates Stall lines of positive and negative halves of the V-n diagram
+
+    Source:
+    S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
+
+    Inputs:
+    V_n_data.airspeeds                      [kts]
+        load_factors                        [Unitless]
+        weight                              [lb]
+        density                             [slug/ft**3]
+        density_ratio                       [Unitless]
+        lift_coefficient                    [Unitless]
+        reference_area                      [ft**2]
+    lower_bound                             [Unitless]
+    Num_of_points                           [Unitless]
+    sign_flag                               [Unitless]
+
+    Outputs:
+    airspeeds                               [kts]
+    load_factors                            [Unitless]
+
+    Properties Used:
+    N/A
+
+    Description:   
+    """  
+    # Unpack
+    weight          = V_n_data.weight
+    reference_area  = V_n_data.reference_area
+    density_ratio   = V_n_data.density_ratio
+    rho             = V_n_data.density
+    
+    if sign_flag == 1:
+        load_factors     = V_n_data.load_factors_pos
+        airspeeds        = V_n_data.airspeeds_pos
+        lift_coefficient = V_n_data.maximum_lift_coefficient
+
+    elif sign_flag == 2:
+        load_factors     = V_n_data.load_factors_neg
+        airspeeds        = V_n_data.airspeeds_neg
+        lift_coefficient = V_n_data.minimum_lift_coefficient
+    
+    delta = (airspeeds[upper_bound] - airspeeds[lower_bound]) / (Num_of_points + 1)     # Step size
+    for i in range(Num_of_points):       
+        coef      = lower_bound + i + 1
+        airspeeds = np.concatenate((airspeeds[:coef], [airspeeds[lower_bound] + (i + 1) * delta], airspeeds[coef:]))
+        Vtas      = airspeeds[coef] / density_ratio * Units.knots / Units['ft/s']      
         if load_factors[1] > 0:
-            nl = 0.5 * rho*Vtas**2 * reference_area * lift_coefficient / weight
+            nl = 0.5 * rho * Vtas**2 * reference_area * lift_coefficient / weight
         else:
             nl = -0.5 * rho * Vtas**2 * reference_area * abs(lift_coefficient) / weight
+            
         load_factors = np.concatenate((load_factors[:coef], [nl], load_factors[coef:]))
+
+    # Pack
+    if sign_flag == 1:
+        V_n_data.load_factors_pos     = load_factors
+        V_n_data.airspeeds_pos        = airspeeds
+
+    elif sign_flag == 2:
+        V_n_data.load_factors_neg     = load_factors
+        V_n_data.airspeeds_neg        = airspeeds
     
-    return load_factors, airspeeds
+    return 
+#--------------------------------------------------------------------------------------------------------------
 
-def Gust_loads(airspeeds, load_factors, Kg, CLa, weight, wing_loading, reference_area, rho, density_ratio, \
-               lift_coefficient, Vc, Vd, Uref, Uref_dive, Num_of_points, FARflag):
+def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_dive, Num_of_points, FARflag, sign_flag):
 
-    gust_load_factors = np.zeros(shape=(4));    
-    gust_load_factors[0] = 1;        
+    """ Calculates airspeeds and load factors for gust loads and modifies the V-n diagram
 
+    Source:
+    S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
+
+    Inputs:
+    V_n_data.airspeeds                          [kts]
+        load_factors                            [Unitless]
+        weight                                  [lb]
+        wing_loading                            [lb/ft**2]
+        reference_area                          [ft**2]
+        density                                 [slug/ft**3]
+        density_ratio                           [Unitless]
+        lift_coefficient                        [Unitless]
+        Vc                                      [kts]
+        Vd                                      [kts]
+    Uref_rough                                  [ft/s]
+    Uref_cruise                                 [ft/s]
+    Uref_dive                                   [ft/s]
+    Num_of_points                               [Unitless]
+    FARflag                                     [Unitless]
+    sign_flag                                   [Unitless]
+  
+    
+    Outputs:
+    V_n_data.airspeeds                          [kts]
+        load_factors                            [Unitless]
+        gust_load_factors                       [Unitless]
+
+    Properties Used:
+    N/A
+
+    Description:
+    The function calculates the gust-related load factors at critical speeds (Va, Vc, Vd). Then, if the load factors exceed
+    the standart diagram limits, the diagram is modified to include the new limit loads.
+    For more details, refer to S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures"
+    """
+
+    # Unpack
+    weight          = V_n_data.weight
+    wing_loading    = V_n_data.wing_loading
+    reference_area  = V_n_data.reference_area
+    density         = V_n_data.density
+    density_ratio   = V_n_data.density_ratio
+    Vc              = V_n_data.Vc
+    Vd              = V_n_data.Vd
+    
+    if sign_flag == 1:
+        airspeeds        = V_n_data.airspeeds_pos
+        load_factors     = V_n_data.load_factors_pos
+        lift_coefficient = V_n_data.maximum_lift_coefficient
+        limit_load       = V_n_data.limit_load_pos  
+
+    elif sign_flag == 2:
+        airspeeds        = V_n_data.airspeeds_neg
+        load_factors     = V_n_data.load_factors_neg
+        lift_coefficient = V_n_data.minimum_lift_coefficient
+        limit_load       = V_n_data.limit_load_neg
+        
+
+    gust_load_factors    = np.zeros(shape=(4));    
+    gust_load_factors[0] = 1;
+    
     # Cruise speed Gust loads at Va and Vc
-    gust_load_factors[1] = 1 + Kg*CLa*airspeeds[Num_of_points+2]*Uref/(498*wing_loading)
-    gust_load_factors[2] = 1 + Kg*CLa*Vc*Uref/(498*wing_loading)
+    gust_load_factors[1] = 1 + Kg * CLa * airspeeds[Num_of_points+2] * Uref_rough / (498 * wing_loading)
+    gust_load_factors[2] = 1 + Kg * CLa * Vc * Uref_cruise/(498 * wing_loading)
 
-    print(gust_load_factors, load_factors)
-    print(gust_load_factors[2], load_factors[Num_of_points+3])
-    
-    # ======================================================
-    # Intersection between positive cruise gust load and Va
-    # ======================================================
-    if abs(gust_load_factors[1]) > abs(load_factors[Num_of_points+2]):
-        print('Intersection between positive cruise gust load and Va')
-        sea_level_rho = rho / density_ratio**2
-        coefs = [709.486*sea_level_rho*lift_coefficient, -Kg*Uref*CLa, -498*wing_loading]
-        V_inters = max(np.roots(coefs))
-        load_factor_inters = 1 + Kg*CLa*V_inters*Uref/(498*wing_loading)
+    # Intersection between cruise gust load and Va
+    if abs(gust_load_factors[1]) > abs(limit_load):
+        sea_level_rho      = density / density_ratio**2
+        coefs              = [709.486 * sea_level_rho * lift_coefficient, -Kg * Uref_rough * CLa, -498 * wing_loading]
+        V_inters           = max(np.roots(coefs))
+        load_factor_inters = 1 + Kg * CLa * V_inters * Uref_rough / (498 * wing_loading)
 
-        airspeeds = np.concatenate((airspeeds[:(Num_of_points+3)], [V_inters], airspeeds[(Num_of_points+3):]))
-        load_factors = np.concatenate((load_factors[:(Num_of_points+3)], [load_factor_inters], load_factors[(Num_of_points+3):]))
+        airspeeds    = np.concatenate((airspeeds[:(Num_of_points + 3)], [V_inters], airspeeds[(Num_of_points + 3):]))
+        load_factors = np.concatenate((load_factors[:(Num_of_points + 3)], [load_factor_inters], load_factors[(Num_of_points + 3):]))
+
+        # Pack
+        if sign_flag == 1:
+            V_n_data.airspeeds_pos          = airspeeds
+            V_n_data.load_factors_pos       = load_factors
+            V_n_data.gust_load_factors_pos  = gust_load_factors
+            V_n_data.Vb_load_factor_pos     = load_factor_inters
+            V_n_data.Vb_pos                 = V_inters           
+            
+        if sign_flag == 2:
+            V_n_data.airspeeds_neg          = airspeeds
+            V_n_data.load_factors_neg       = load_factors
+            V_n_data.gust_load_factors_neg  = gust_load_factors
+            V_n_data.Vb_load_factor_neg     = load_factor_inters
+            V_n_data.Vb_neg                 = V_inters
         
         # continue stall lines
-        Num_of_points_ext = 5;
-        upper_bound = Num_of_points+3;     lower_bound = Num_of_points+2;
-        load_factors, airspeeds = stall_line(load_factors, airspeeds, upper_bound, lower_bound, Num_of_points_ext, \
-                                                     density_ratio, rho, lift_coefficient, weight, reference_area)        
+        Num_of_points_ext       = 5;
+        upper_bound             = Num_of_points+3;
+        lower_bound             = Num_of_points+2;
+        stall_line(V_n_data, upper_bound, lower_bound, Num_of_points_ext, sign_flag)        
         Num_of_points = Num_of_points + Num_of_points_ext + 1
 
+        # Unpack
+        if sign_flag == 1:
+            airspeeds        = V_n_data.airspeeds_pos
+            load_factors     = V_n_data.load_factors_pos
+            lift_coefficient = V_n_data.maximum_lift_coefficient
+
+        elif sign_flag == 2:
+            airspeeds        = V_n_data.airspeeds_neg
+            load_factors     = V_n_data.load_factors_neg
+            lift_coefficient = V_n_data.minimum_lift_coefficient
+
+        
         # insert the cruise speed Vc in the positive load factor line
-        if load_factors[1] > 0 or FARflag == 23:
-            airspeeds = np.concatenate((airspeeds[:(Num_of_points+3)], [Vc], airspeeds[(Num_of_points+3):]))
-            load_factors = np.concatenate((load_factors[:(Num_of_points+3)], [gust_load_factors[2]], \
-                                           load_factors[(Num_of_points+3):]))
+        if load_factors[1] > 0:
+            airspeeds    = np.concatenate((airspeeds[:(Num_of_points + 3)], [Vc], airspeeds[(Num_of_points + 3):]))
+            load_factors = np.concatenate((load_factors[:(Num_of_points + 3)], [gust_load_factors[2]], \
+                                           load_factors[(Num_of_points + 3):]))
 
-    # ======================================================================
-    # Intersection between positive cruise gust load and maximum load at Vc
-    # ======================================================================
-    elif abs(gust_load_factors[2]) > abs(load_factors[Num_of_points+3]):
-        V_inters = 498*(load_factors[Num_of_points+2]-1)*wing_loading/(Kg * Uref * CLa)
-        airspeeds = np.concatenate((airspeeds[:(Num_of_points+3)], [V_inters], airspeeds[(Num_of_points+3):]))
-        load_factors = np.concatenate((load_factors[:(Num_of_points+3)], [load_factors[Num_of_points+2]], \
-                                       load_factors[(Num_of_points+3):]))
-        Num_of_points =Num_of_points + 1
-        
-        if load_factors[1] > 0 or FARflag == 23:
-            airspeeds = np.concatenate((airspeeds[:(Num_of_points+3)], [Vc], airspeeds[(Num_of_points+3):]))
-            load_factors = np.concatenate((load_factors[:(Num_of_points+3)], [gust_load_factors[2]], \
-                                           load_factors[(Num_of_points+3):]))
-        print(airspeeds, gust_load_factors, load_factors)
+    # Intersection between cruise gust load and maximum load at Vc
+    elif abs(gust_load_factors[2]) > abs(limit_load):
+        V_inters      = 498 * (load_factors[Num_of_points + 2] - 1) * wing_loading / (Kg * Uref_cruise * CLa)
+        airspeeds     = np.concatenate((airspeeds[:(Num_of_points + 3)], [V_inters], airspeeds[(Num_of_points + 3):]))
+        load_factors  = np.concatenate((load_factors[:(Num_of_points + 3)], [limit_load], \
+                                       load_factors[(Num_of_points + 3):]))
+        Num_of_points = Num_of_points + 1
 
-        
-    #==========================
-    # Dive speed Gust loads Vd
-    #==========================
-    gust_load_factors[3] = 1 + Kg*CLa*Vd*Uref_dive/(498*wing_loading)
-    if abs(gust_load_factors[2]) > abs(load_factors[len(load_factors)-2]):
-        if abs(gust_load_factors[3]) > abs(load_factors[len(load_factors)-2]):
-            load_factors[len(load_factors)-2] = gust_load_factors[3]
-            if load_factors[1] > 0:
-                airspeeds, load_factors = gust_dive_speed_intersection(load_factors, gust_load_factors, airspeeds, \
-                                                                       len(load_factors)-2, Vc, Vd, FARflag)                
+        if load_factors[1] > 0:
+            airspeeds    = np.concatenate((airspeeds[:(Num_of_points + 3)], [Vc], airspeeds[(Num_of_points + 3):]))
+            load_factors = np.concatenate((load_factors[:(Num_of_points + 3)], [gust_load_factors[2]], \
+                                           load_factors[(Num_of_points + 3):]))
         else:
-            airspeeds, load_factors = gust_dive_speed_intersection(load_factors, gust_load_factors, airspeeds, \
-                                                                   len(load_factors)-2, Vc, Vd, FARflag)
+            load_factors[len(airspeeds)-2] = gust_load_factors[2]
+
+        
+    # Dive speed Gust loads Vd
+    gust_load_factors[3] = 1 + Kg * CLa * Vd * Uref_dive / (498 * wing_loading)
+
+    # Resolve the upper half of the dive section
+    if load_factors[1] > 0: 
+        if abs(gust_load_factors[2]) > abs(limit_load):   
+            if abs(gust_load_factors[3]) > abs(limit_load):
+                load_factors[len(load_factors) - 2] = gust_load_factors[3]               
+            else:
+                airspeeds, load_factors = gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, \
+                                                                       len(load_factors)-2, Vc, Vd, FARflag)
+
+    # Resolve the lower half of the dive section
+    else:
+        if gust_load_factors[3] < load_factors[len(load_factors) - 1]:
+            airspeeds    = np.concatenate((airspeeds[:(len(load_factors) - 1)], [airspeeds[(len(load_factors) - 1)]], \
+                                           airspeeds[(len(load_factors) - 1):]))
+            load_factors = np.concatenate((load_factors[:(len(load_factors) - 1)], [gust_load_factors[3]], \
+                                           load_factors[(len(load_factors) - 1):]))
             
-    return airspeeds, load_factors, gust_load_factors
+            if abs(gust_load_factors[2]) > abs(limit_load):
+                load_factors[len(load_factors) - 2] = gust_load_factors[3]
+            else:
+                airspeeds, load_factors = gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, \
+                                                                       len(load_factors)-2, Vc, Vd, FARflag)
 
-def gust_dive_speed_intersection(load_factors, gust_load_factors, airspeeds, element_num, Vc, Vd, FARflag):
-    if FARflag == 25 and load_factors[1] > 0:
-        V_inters = (gust_load_factors[3]*Vc+(load_factors[element_num]-gust_load_factors[2])*Vd)\
-                   /(gust_load_factors[3]-gust_load_factors[2]+load_factors[element_num])
-        load = load_factors[element_num]*(V_inters-Vd)/(Vc-Vd)
-    else:       
-        V_inters = (load_factors[element_num] - gust_load_factors[2])*(Vd-Vc)\
-                    /(gust_load_factors[3] - gust_load_factors[2])+Vc
-        load = load_factors[element_num]
+            V_n_data.dive_limit_load_neg = load_factors[len(load_factors) - 2]
+        else:
+            V_n_data.dive_limit_load_neg = load_factors[len(load_factors) - 1]
 
-    airspeeds = np.concatenate((airspeeds[:(element_num)], [V_inters], airspeeds[(element_num):]))
+    # gusts load extension for gust lines at Vd
+    gust_load_factors = np.append(gust_load_factors, 1 + Kg * CLa * (1.05 * Vd) * Uref_cruise/(498 * wing_loading))
+    gust_load_factors = np.append(gust_load_factors, 1 + Kg * CLa * (1.05 * Vd) * Uref_dive/(498 * wing_loading))
+
+    # guts load extension for gust lines at Vb and Vc for a rough gust
+    if category_tag == 'commuter':
+        gust_load_factors = np.append(gust_load_factors, 1 + Kg * CLa * (1.05 * Vd) * Uref_rough/(498 * wing_loading))
+    else:
+        gust_load_factors = np.append(gust_load_factors, 0)
+      
+    # Pack
+    if sign_flag == 1:
+        V_n_data.airspeeds_pos          = airspeeds
+        V_n_data.load_factors_pos       = load_factors
+        V_n_data.gust_load_factors_pos  = gust_load_factors
+        V_n_data.dive_limit_load_pos    = load_factors[len(load_factors) - 2]
+        
+    if sign_flag == 2:
+        V_n_data.airspeeds_neg          = airspeeds
+        V_n_data.load_factors_neg       = load_factors
+        V_n_data.gust_load_factors_neg  = gust_load_factors
+    
+    return 
+#------------------------------------------------------------------------------------------------------------------------
+
+def gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, element_num, Vc, Vd, FARflag):
+
+    """ Calculates intersection between the general V-n diagram and the gust load for Vd
+
+    Source:
+    S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
+
+    Inputs:
+    load_factors                                [Unitless]
+    gust_load_factors                           [Unitless]
+    airspeeds                                   [kts]
+    Vc                                          [kts]
+    Vd                                          [kts]
+    element_num                                 [Unitless]
+    FARflag                                     [Unitless]
+    
+    Outputs:
+    airspeeds                                    [kts]
+    load_factors                                 [Unitless]
+
+    Properties Used:
+    N/A
+
+    Description:
+    A specific function for CFR FAR Part 25 regulations. For negative loads, the general curve must go linear from a specific
+    load factor at Vc to zero at Vd. Gust loads may put a non-zero load factor at Vd, so an intersection between the old and
+    the new curves is required
+    """
+    
+    if load_factors[1] > 0:
+        V_inters = (load_factors[element_num] - gust_load_factors[2]) * (Vd - Vc) \
+                    / (gust_load_factors[3] - gust_load_factors[2]) + Vc
+        load     = load_factors[element_num]
+    else:
+        if category_tag == 'acrobatic':          
+            V_inters = ((gust_load_factors[3] + 1) * Vc + (min(load_factors) - gust_load_factors[2]) * Vd) / \
+                       (gust_load_factors[3] - gust_load_factors[2] + min(load_factors) + 1)
+            load     = (min(load_factors) + 1) / (Vc - Vd) * V_inters - ((min(load_factors) + 1) / (Vc - Vd) * Vd + 1)
+        else:
+            V_inters = (gust_load_factors[3] * Vc + (min(load_factors) - gust_load_factors[2]) * Vd) / \
+                       (gust_load_factors[3] - gust_load_factors[2] + min(load_factors))
+            load     = min(load_factors) * (V_inters - Vd) / (Vc - Vd)
+
+
+    airspeeds    = np.concatenate((airspeeds[:(element_num)], [V_inters], airspeeds[(element_num):]))
     load_factors = np.concatenate((load_factors[:(element_num)], [load], \
                                         load_factors[(element_num):]))    
 
     return airspeeds, load_factors
+#--------------------------------------------------------------------------------------------------------------------------
 
+def post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, vehicle):
+
+    """ Plot graph, save the final figure, and create results output file
+
+    Source:
+
+    Inputs:
+    V_n_data.airspeeds_pos                  [kts]
+        airspeeds_neg                       [kts]
+        Vc                                  [ft/s]
+        Vd                                  [ft/s]
+        load_factors_pos                    [Unitless]
+        load_factors_neg                    [Unitless]
+        gust_load_factors_pos               [Unitless]
+        gust_load_factors_neg               [Unitless]
+        weight                              [lb]
+        altitude                            [ft]
+    vehicle._base.tag                       [Unitless]
+    Uref_rough                              [ft/s]
+    Uref_cruise                             [ft/s]
+    Uref_dive                               [ft/s]
+
+    Outputs:
+
+    Properties Used:
+    N/A
+
+    Description:
+    """
+
+    # Unpack
+    load_factors_pos        = V_n_data.load_factors_pos
+    load_factors_neg        = V_n_data.load_factors_neg
+    airspeeds_pos           = V_n_data.airspeeds_pos
+    airspeeds_neg           = V_n_data.airspeeds_neg
+    Vc                      = V_n_data.Vc
+    Vd                      = V_n_data.Vd
+    Vs1_pos                 = V_n_data.Vs1_pos
+    Vs1_neg                 = V_n_data.Vs1_neg
+    Va_pos                  = V_n_data.Va_pos
+    Va_neg                  = V_n_data.Va_neg
+    gust_load_factors_pos   = V_n_data.gust_load_factors_pos
+    gust_load_factors_neg   = V_n_data.gust_load_factors_neg
+    weight                  = V_n_data.weight
+    altitude                = V_n_data.altitude
+
+    #-----------------------------
+    # Plotting the V-n diagram
+    #-----------------------------
+    fig, ax = plt.subplots()
+    ax.fill(airspeeds_pos, load_factors_pos, c='b', alpha=0.3)
+    ax.fill(airspeeds_neg, load_factors_neg, c='b', alpha=0.3)
+    ax.plot(airspeeds_pos, load_factors_pos, c='b')
+    ax.plot(airspeeds_neg, load_factors_neg, c='b')
+
+    # Plotting gust lines
+    ax.plot([0, Vc,1.05*Vd],[1,gust_load_factors_pos[2],gust_load_factors_pos[len(gust_load_factors_pos)-3]],'--', c='r', label = ('Gust ' + str(round(Uref_cruise)) + 'fps'))
+    ax.plot([0, Vd,1.05*Vd],[1,gust_load_factors_pos[3],gust_load_factors_pos[len(gust_load_factors_pos)-2]],'--', c='g', label = ('Gust ' + str(round(Uref_dive)) + 'fps'))
+    ax.plot([0, Vc,1.05*Vd],[1,gust_load_factors_neg[2],gust_load_factors_neg[len(gust_load_factors_neg)-3]],'--', c='r')
+    ax.plot([0, Vd,1.05*Vd],[1,gust_load_factors_neg[3],gust_load_factors_neg[len(gust_load_factors_neg)-2]],'--', c='g')
+
+    if category_tag == 'commuter':
+        ax.plot([0, 1.05*Vd],[1,gust_load_factors_pos[len(gust_load_factors_pos)-1]],'--', c='m', label = ('Gust ' + str(round(Uref_rough)) + 'fps'))
+        ax.plot([0, 1.05*Vd],[1,gust_load_factors_neg[len(gust_load_factors_neg)-1]],'--', c='m')
+
+    # Formating the plot
+    ax.set_xlabel('Airspeed, KEAS')
+    ax.set_ylabel('Load Factor')
+    ax.set_title(vehicle.tag + '  Weight=' + str(round(weight)) + 'lb  ' + ' Altitude=' + str(round(altitude)) + 'ft ')
+    ax.legend()
+    ax.grid()
+    plt.savefig('Vn_diagram_'+ vehicle.file_tag + '.png')
+
+    #---------------------------------
+    # Creating results output file
+    #---------------------------------
+    fres = open("V_n_diagram_results_" + vehicle.file_tag +".dat","w")
+    fres.write('V-n diagram summary\n')
+    fres.write('-------------------\n')
+    fres.write('Aircraft: ' + vehicle.tag + '\n')
+    fres.write('category: ' + vehicle.category + '\n')
+    fres.write('FAR certification: Part ' + str(vehicle.envelope.FARflag) + '\n')
+    fres.write('Weight = ' + str(round(weight)) + ' lb\n')
+    fres.write('Altitude = ' + str(round(altitude)) + ' ft\n')
+    fres.write('---------------------------------------------------------------\n\n')
+    fres.write('Airspeeds: \n')
+    fres.write('    Positive stall speed (Vs1)   = ' + str(round(Vs1_pos,1)) + ' KEAS\n')
+    fres.write('    Negative stall speed (Vs1)   = ' + str(round(Vs1_neg,1)) + ' KEAS\n')
+    fres.write('    Positive maneuver speed (Va) = ' + str(round(Va_pos,1)) + ' KEAS\n')
+    fres.write('    Negative maneuver speed (Va) = ' + str(round(Va_neg,1)) + ' KEAS\n')
+    fres.write('    Cruise speed (Vc)            = ' + str(round(Vc,1))      + ' KEAS\n')
+    fres.write('    Dive speed (Vd)              = ' + str(round(Vd,1))      + ' KEAS\n')
+    fres.write('Load factors: \n')
+    fres.write('    Positive limit load factor (n+) = ' + str(round(max(load_factors_pos),2)) + '\n')
+    fres.write('    Negative limit load factor (n-) = ' + str(round(min(load_factors_neg),2)) + '\n')
+    fres.write('    Positive load factor at Vd      = ' + str(round(V_n_data.dive_limit_load_pos,2)) + '\n')
+    fres.write('    Negative load factor at Vd      = ' + str(round(V_n_data.dive_limit_load_neg,2)) + '\n')
+   
+    return
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+def convert_keas(V_n_data):
+
+    """ Convert speed to KEAS
+
+    Source:
+
+    Inputs:
+    V_n_data.airspeeds_pos              [ft/s]
+        airspeeds_neg                   [ft/s]
+        Vc                              [ft/s]
+        Va_pos                          [ft/s]
+        Va_neg                          [ft/s]
+        Vs1_neg                         [ft/s]
+        Vs1_pos                         [ft/s]
+        density_ratio                   [Unitless]
+
+    Outputs:
+    V_n_data.airspeeds_pos              [kts]
+        airspeeds_neg                   [kts]
+        Vc                              [kts]
+        Va_pos                          [kts]
+        Va_neg                          [kts]
+        Vs1_neg                         [kts]
+        Vs1_pos                         [kts]
+
+    Properties Used:
+    N/A
+
+    Description:
+    """
+
+    # Unpack
+    airspeeds_pos = V_n_data.airspeeds_pos
+    airspeeds_neg = V_n_data.airspeeds_neg
+    density_ratio = V_n_data.density_ratio
+    Vc            = V_n_data.Vc
+    Va_pos        = V_n_data.Va_pos
+    Va_neg        = V_n_data.Va_neg
+    Vs1_neg       = V_n_data.Vs1_neg
+    Vs1_pos       = V_n_data.Vs1_pos
+    
+    airspeeds_pos = airspeeds_pos * Units['ft/s'] / Units.knots * density_ratio
+    airspeeds_neg = airspeeds_neg * Units['ft/s'] / Units.knots * density_ratio
+
+    Vs1_pos       = Vs1_pos * Units['ft/s'] / Units.knots * density_ratio
+    Vs1_neg       = Vs1_neg * Units['ft/s'] / Units.knots * density_ratio
+    Va_pos        = Va_pos * Units['ft/s'] / Units.knots * density_ratio
+    Va_neg        = Va_neg * Units['ft/s'] / Units.knots * density_ratio
+    Vc            = Vc[0] * Units['ft/s'] / Units.knots * density_ratio
+    Vc            = Vc[0]
+    
+    # Pack
+    V_n_data.airspeeds_pos = airspeeds_pos
+    V_n_data.airspeeds_neg = airspeeds_neg
+    V_n_data.Vc            = Vc
+    V_n_data.Va_pos        = Va_pos
+    V_n_data.Va_neg        = Va_neg
+    V_n_data.Vs1_neg       = Vs1_neg
+    V_n_data.Vs1_pos       = Vs1_pos
+    
+    

@@ -15,8 +15,8 @@ from SUAVE.Core import Data as Data_Base
 # for enforcing attribute style access names
 import string
 chars = string.punctuation + string.whitespace
-t_table = string.maketrans( chars          + string.uppercase , 
-                            '_'*len(chars) + string.lowercase )
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
 
 # ----------------------------------------------------------------------
 #  XML Data Clas
@@ -122,7 +122,7 @@ class Data(Data_Base):
         """           
         result = Data()
         
-        if data.has_key('tag'):
+        if 'tag' in data:
             result.tag = data.tag.translate(t_table)
         else:
             result.tag = 'node'

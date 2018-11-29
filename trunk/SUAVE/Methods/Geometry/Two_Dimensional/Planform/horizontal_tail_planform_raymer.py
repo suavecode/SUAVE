@@ -5,7 +5,7 @@
 # Modified: Feb 2016, E. Botero
 #           Jan 2016, E. Botero
 
-from wing_planform import wing_planform
+from .wing_planform import wing_planform
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------

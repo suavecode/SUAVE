@@ -83,14 +83,15 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr
         
-        # Default spanwise vortex density 
-        self.settings.spanwise_vortex_density         = 1.5
+        # Default number of spanwise and chordwise votices
+        self.settings.spanwise_vortices      = None
+        self.settings.chordwise_vortices     = None
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack        = np.array([-2.,0, 2.,5., 7., 10])*Units.degree 
+        self.training.angle_of_attack        = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
         
         self.training.lift_coefficient       = None
@@ -247,14 +248,17 @@ class AVL_Inviscid(Aerodynamics):
         
         time1 = time.time()
         
-        print 'The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds'
+        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
             CL         = data_array[:,2:3]
             CD         = data_array[:,3:4]
-
+            
+        # Save the data for regression
+        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
+        
         # Store training data
         training.coefficients = np.hstack([CL,CD])
         training.grid_points  = xy
@@ -293,8 +297,8 @@ class AVL_Inviscid(Aerodynamics):
         xy                               = training.grid_points 
         
         # Gaussian Process New
-        regr_cl                          = gaussian_process.GaussianProcess()
-        regr_cd                          = gaussian_process.GaussianProcess()
+        regr_cl                          = gaussian_process.GaussianProcessRegressor()
+        regr_cd                          = gaussian_process.GaussianProcessRegressor()
         cl_surrogate                     = regr_cl.fit(xy, CL_data)
         cd_surrogate                     = regr_cd.fit(xy, CD_data)
         self.surrogates.lift_coefficient = cl_surrogate
@@ -344,7 +348,18 @@ class AVL_Inviscid(Aerodynamics):
         output_template                  = self.settings.filenames.output_template
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
-        spanwise_vortices_per_meter      = self.settings.spanwise_vortex_density
+        
+        # check if user specifies number of spanwise vortices
+        if self.settings.spanwise_vortices == None: 
+            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
+        else:
+            spanwise_elements  = self.settings.spanwise_vortices
+        
+        # check if user specifies number of chordise vortices 
+        if self.settings.chordwise_vortices == None: 
+            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
+        else:
+            chordwise_elements  = self.settings.chordwise_vortices
         
         # update current status
         self.current_status.batch_index += 1
@@ -376,7 +391,7 @@ class AVL_Inviscid(Aerodynamics):
     
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_vortices_per_meter)
+            write_geometry(self,spanwise_elements,chordwise_elements)
             write_run_cases(self)
             write_input_deck(self)
     
