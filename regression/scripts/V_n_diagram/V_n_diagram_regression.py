@@ -89,11 +89,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
         
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -131,11 +131,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
     
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error) 
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2) 
@@ -177,11 +177,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
         
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error) 
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -219,11 +219,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
         
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -265,11 +265,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
        
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -308,11 +308,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
        
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)   
@@ -355,11 +355,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
     
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -397,11 +397,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
     
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error)  
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)    
@@ -442,11 +442,11 @@ def main():
     error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
     error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
     
-    print 'Results (kg)'
-    print V_n_data
+    print('Results')
+    print(V_n_data)
     
-    print 'Relative Errors'
-    print error  
+    print('Relative Errors')
+    print(error) 
       
     for k,v in error.items():
         assert(np.abs(v)<1E-2)   
