@@ -118,8 +118,13 @@ def set_origin_dimensional(vehicle):
         
         origin = np.zeros((n,3))
     
-        for eng in range(n):
+        for eng in range(0,n):
             origin[eng,:] = np.array(non_dims[0])*length_scale
-            prop.origin.append(origin.tolist())       
+            
+            if eng % 2 != 0:
+                origin[eng,1] = -origin[eng,1]
+                
+
+        prop.origin = origin.tolist()  
         
     return vehicle
