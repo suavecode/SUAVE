@@ -480,7 +480,7 @@ def write_vsp_turbofan(turbofan):
             
         else:
             stack_id = vsp.AddGeom("STACK")
-            vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
+            vsp.SetGeomName(stack_id, tf_tag+'_'+str(ii+1))
             
             # Origin
             vsp.SetParmVal(stack_id,'X_Location','XForm',x)
