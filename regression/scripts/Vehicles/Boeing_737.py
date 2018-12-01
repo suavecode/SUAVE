@@ -53,6 +53,7 @@ def vehicle_setup():
     # envelope properties
     vehicle.envelope.FARflag = 25
     vehicle.envelope.ultimate_load = 2.5
+    vehicle.envelope.limit_load    = 1.5
     vehicle.envelope.pos_limit_load    = 1.5
     vehicle.envelope.neg_limit_load    = -1.5
     vehicle.envelope.cruise_mach = np.array([0.785])
