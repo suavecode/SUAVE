@@ -1,4 +1,4 @@
-# Piper_M350.py
+# Su29_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
@@ -23,33 +23,31 @@ from SUAVE.Core import (
 
 def vehicle_setup():
           
-    vehicle 		= SUAVE.Vehicle()
-    vehicle.tag 	= 'Piper M350'
-    vehicle.file_tag 	= 'M350'    
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'Sukhoi_Su29'
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'normal'
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 1969.0 * Units.kilogram      # aerobatic, one pilot
-    vehicle.mass_properties.takeoff                   = 1969.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 860.0 * Units.kilogram      # aerobatic, one pilot
+    vehicle.mass_properties.takeoff                   = 860.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.FARflag = 23
-    vehicle.envelope.pos_limit_load    = 3
-    vehicle.envelope.neg_limit_load    = -1.5
-    vehicle.envelope.cruise_mach = np.array([0.25])
+    vehicle.envelope.category                = 'acrobatic'
+    vehicle.envelope.FAR_part_number         = 23
+    vehicle.envelope.limit_loads.positive    =  5
+    vehicle.envelope.limit_loads.negative    = -2.75
+    vehicle.envelope.cruise_mach             = np.array([0.2])
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient = 1.4
-    vehicle.minimum_lift_coefficient = -1.24
+    vehicle.maximum_lift_coefficient = 1.26
+    vehicle.minimum_lift_coefficient = -1.26
 
     # basic parameters
-    vehicle.reference_area         = 16.26 * Units['meters**2']  
+    vehicle.reference_area         = 12.20 * Units['meters**2']  
     vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
@@ -59,13 +57,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 10.6
+    wing.aspect_ratio            = 5.5
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.13
-    wing.taper                   = 0.47
-    wing.spans.projected         = 13.11 * Units.meter
-    wing.chords.mean_aerodynamic = 3.22 * Units.meter
-    wing.areas.reference         = 16.26 * Units['meters**2']  
+    wing.thickness_to_chord      = 0.14
+    wing.taper                   = 0.52
+    wing.spans.projected         = 8.20 * Units.meter
+    wing.chords.mean_aerodynamic = 1.67 * Units.meter
+    wing.areas.reference         = 12.20 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True

@@ -1,4 +1,4 @@
-# Tecnam_P2012.py
+# DHC6_TwinOtter_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
@@ -23,33 +23,31 @@ from SUAVE.Core import (
 
 def vehicle_setup():
           
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Tecnam P2012'
-    vehicle.file_tag = 'P2012'    
+    vehicle 		= SUAVE.Vehicle()
+    vehicle.tag 	= 'DHC6_TwinOtter'    
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'commuter'
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 3618.0 * Units.kilogram      
-    vehicle.mass_properties.takeoff                   = 3618.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 5670.0 * Units.kilogram      
+    vehicle.mass_properties.takeoff                   = 5670.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.FARflag = 23
-    vehicle.envelope.pos_limit_load    = 2
-    vehicle.envelope.neg_limit_load    = -1.5
-    vehicle.envelope.cruise_mach = np.array([0.3])
+    vehicle.envelope.category                   = 'commuter'
+    vehicle.envelope.FAR_part_number 	        = 23
+    vehicle.envelope.limit_loads.positive    	= 3
+    vehicle.envelope.limit_loads.negative    	= -1
+    vehicle.envelope.cruise_mach 	        = np.array([0.3])
 
     # aerodynamic properties
     vehicle.maximum_lift_coefficient = 1.4
-    vehicle.minimum_lift_coefficient = -1.25
+    vehicle.minimum_lift_coefficient = -1.24
 
     # basic parameters
-    vehicle.reference_area         = 22.00 * Units['meters**2']  
+    vehicle.reference_area         = 39.00 * Units['meters**2']  
     vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
@@ -59,13 +57,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 8.9
-    wing.sweeps.quarter_chord    = -2.0 * Units.deg
-    wing.thickness_to_chord      = 0.14
-    wing.taper                   = 0.7
-    wing.spans.projected         = 14.00 * Units.meter
-    wing.chords.mean_aerodynamic = 2.71 * Units.meter
-    wing.areas.reference         = 22.00 * Units['meters**2']  
+    wing.aspect_ratio            = 10.0
+    wing.sweeps.quarter_chord    = 0.0 * Units.deg
+    wing.thickness_to_chord      = 0.16
+    wing.taper                   = 1.0
+    wing.spans.projected         = 19.81 * Units.meter
+    wing.chords.mean_aerodynamic = 1.98 * Units.meter
+    wing.areas.reference         = 39.00 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True

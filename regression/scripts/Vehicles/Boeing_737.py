@@ -37,8 +37,6 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'transport'
 
     # mass properties
     vehicle.mass_properties.max_takeoff               = 79015.8   # kg
@@ -51,12 +49,12 @@ def vehicle_setup():
     
  
     # envelope properties
-    vehicle.envelope.FARflag = 25
-    vehicle.envelope.ultimate_load = 2.5
-    vehicle.envelope.limit_load    = 1.5
-    vehicle.envelope.pos_limit_load    = 1.5
-    vehicle.envelope.neg_limit_load    = -1.5
-    vehicle.envelope.cruise_mach = np.array([0.785])
+    vehicle.envelope.category                 = 'transport'
+    vehicle.envelope.FAR_part_number          = 25
+    vehicle.envelope.ultimate_load            = 2.5
+    vehicle.envelope.limit_loads.positive     = 1.5
+    vehicle.envelope.limit_loads.negative     = -1.5
+    vehicle.envelope.cruise_mach              = np.array([0.785])
 
     # aerodynamic properties
     vehicle.minimum_lift_coefficient = -1

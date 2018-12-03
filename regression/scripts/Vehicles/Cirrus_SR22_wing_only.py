@@ -1,4 +1,4 @@
-# SR22.py
+# Cirrus_SR22_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
@@ -23,14 +23,11 @@ from SUAVE.Core import (
 def vehicle_setup():
           
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Cirrus SR-22' 
-    vehicle.file_tag = 'SR22'   
+    vehicle.tag = 'Cirrus_SR22'    
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'normal'
     
     # mass properties
     vehicle.mass_properties.max_takeoff               = 598.7 * Units.kilogram 
@@ -38,10 +35,11 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                     =  59.0  * Units.kilogram   
     
     # envelope properties
-    vehicle.envelope.FARflag = 23
-    vehicle.envelope.pos_limit_load    = 1.5
-    vehicle.envelope.neg_limit_load    = -1
-    vehicle.envelope.cruise_mach = np.array([0.16])
+    vehicle.envelope.category 	             = 'normal'
+    vehicle.envelope.FAR_part_number         = 23
+    vehicle.envelope.limit_loads.positive    = 1.5
+    vehicle.envelope.limit_loads.negative    = -1
+    vehicle.envelope.cruise_mach             = np.array([0.16])
 
     # aerodynamic properties
     vehicle.maximum_lift_coefficient = 1.45

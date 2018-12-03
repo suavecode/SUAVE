@@ -1,4 +1,4 @@
-# Su29.py
+# HAIG_Y12_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
@@ -23,33 +23,31 @@ from SUAVE.Core import (
 
 def vehicle_setup():
           
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Sukhoi Su-29'
-    vehicle.file_tag = 'Su29'
+    vehicle 		= SUAVE.Vehicle()
+    vehicle.tag 	= 'HAIG_Y12'   
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'acrobatic'
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 860.0 * Units.kilogram      # aerobatic, one pilot
-    vehicle.mass_properties.takeoff                   = 860.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 5669.0 * Units.kilogram      
+    vehicle.mass_properties.takeoff                   = 5669.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.FARflag = 23
-    vehicle.envelope.pos_limit_load    =  5
-    vehicle.envelope.neg_limit_load    = -2.75
-    vehicle.envelope.cruise_mach = np.array([0.2])
+    vehicle.envelope.category                = 'utility'
+    vehicle.envelope.FAR_part_number         = 23
+    vehicle.envelope.limit_loads.positive    = 2.6
+    vehicle.envelope.limit_loads.negative    = -1.2
+    vehicle.envelope.cruise_mach             = np.array([0.3])
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient = 1.26
-    vehicle.minimum_lift_coefficient = -1.26
+    vehicle.maximum_lift_coefficient = 1.4
+    vehicle.minimum_lift_coefficient = -1.24
 
     # basic parameters
-    vehicle.reference_area         = 12.20 * Units['meters**2']  
+    vehicle.reference_area         = 36.90 * Units['meters**2']  
     vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
@@ -59,13 +57,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 5.5
+    wing.aspect_ratio            = 10.0
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.14
-    wing.taper                   = 0.52
-    wing.spans.projected         = 8.20 * Units.meter
-    wing.chords.mean_aerodynamic = 1.67 * Units.meter
-    wing.areas.reference         = 12.20 * Units['meters**2']  
+    wing.thickness_to_chord      = 0.17
+    wing.taper                   = 1.0
+    wing.spans.projected         = 19.20 * Units.meter
+    wing.chords.mean_aerodynamic = 1.96 * Units.meter
+    wing.areas.reference         = 36.90 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True

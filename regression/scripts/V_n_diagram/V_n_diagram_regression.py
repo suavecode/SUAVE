@@ -16,20 +16,20 @@ sys.path.append('../Vehicles')
 
 # Part 23
 # aerobatic category
-from Yak54 import vehicle_setup as vehicle_setup_Yak54
-from  SU29 import vehicle_setup as vehicle_setup_SU29
+from Yak54_wing_only import vehicle_setup as vehicle_setup_Yak54
+from  SU29_wing_only import vehicle_setup as vehicle_setup_SU29
 
 # normal category
-from  Cirrus_SR22 import vehicle_setup as vehicle_setup_SR22
-from  Piper_M350  import vehicle_setup as vehicle_setup_Piper_M350
+from  Cirrus_SR22_wing_only import vehicle_setup as vehicle_setup_SR22
+from  Piper_M350_wing_only  import vehicle_setup as vehicle_setup_Piper_M350
 
 # commuter category
-from   Tecnam_P2012  import vehicle_setup as vehicle_setup_Tecnam_P2012
-from  DHC6_TwinOtter import vehicle_setup as vehicle_setup_DHC6_TwinOtter
+from   Tecnam_P2012_wing_only  import vehicle_setup as vehicle_setup_Tecnam_P2012
+from  DHC6_TwinOtter_wing_only import vehicle_setup as vehicle_setup_DHC6_TwinOtter
 
 # utility category
-from   HAIG_Y12   import vehicle_setup as vehicle_setup_HAIG_Y12
-from Pilatus_PC12 import vehicle_setup as vehicle_setup_Pilatus_PC12
+from   HAIG_Y12_wing_only   import vehicle_setup as vehicle_setup_HAIG_Y12
+from Pilatus_PC12_wing_only import vehicle_setup as vehicle_setup_Pilatus_PC12
 
 # Part 25
 from Boeing_737   import vehicle_setup as vehicle_setup_Boeing_B737
@@ -78,16 +78,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
         
     print('Results')
     print(V_n_data)
@@ -120,16 +120,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg 
     
     print('Results')
     print(V_n_data)
@@ -166,16 +166,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
         
     print('Results')
     print(V_n_data)
@@ -208,16 +208,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
         
     print('Results')
     print(V_n_data)
@@ -254,16 +254,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
        
     print('Results')
     print(V_n_data)
@@ -297,16 +297,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
        
     print('Results')
     print(V_n_data)
@@ -344,16 +344,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
     
     print('Results')
     print(V_n_data)
@@ -386,16 +386,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
     
     print('Results')
     print(V_n_data)
@@ -431,16 +431,16 @@ def main():
     
     # error calculations
     error                         = Data()
-    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1_pos)/actual.Vs1_pos
-    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1_neg)/actual.Vs1_neg
-    error.Va_pos                  = (actual.Va_pos - V_n_data.Va_pos)/actual.Va_pos
-    error.Va_neg                  = (actual.Va_neg - V_n_data.Va_neg)/actual.Va_neg
+    error.Vs1_pos                 = (actual.Vs1_pos - V_n_data.Vs1.positive)/actual.Vs1_pos
+    error.Vs1_neg                 = (actual.Vs1_neg - V_n_data.Vs1.negative)/actual.Vs1_neg
+    error.Va_pos                  = (actual.Va_pos - V_n_data.Va.positive)/actual.Va_pos
+    error.Va_neg                  = (actual.Va_neg - V_n_data.Va.negative)/actual.Va_neg
     error.Vc                      = (actual.Vc - V_n_data.Vc)/actual.Vc
     error.Vd                      = (actual.Vd - V_n_data.Vd)/actual.Vd
-    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_load_pos)/actual.limit_load_pos
-    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_load_neg)/actual.limit_load_neg
-    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.dive_limit_load_pos)/actual.dive_limit_load_pos
-    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.dive_limit_load_neg)/actual.dive_limit_load_neg   
+    error.limit_load_pos          = (actual.limit_load_pos - V_n_data.limit_loads.positive)/actual.limit_load_pos
+    error.limit_load_neg          = (actual.limit_load_neg - V_n_data.limit_loads.negative)/actual.limit_load_neg
+    error.dive_limit_load_pos     = (actual.dive_limit_load_pos - V_n_data.limit_loads.dive.positive)/actual.dive_limit_load_pos
+    error.dive_limit_load_neg     = (actual.dive_limit_load_neg - V_n_data.limit_loads.dive.negative)/actual.dive_limit_load_neg
     
     print('Results')
     print(V_n_data)

@@ -1,10 +1,9 @@
-# Pilatus_PC12.py
+# Yak54_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
 """
     Vehicle set-up used for the V-n diagram test only
-    Data obtained from: Jane's all aircraft 
 """
 # ----------------------------------------------------------------------
 #   Imports
@@ -23,33 +22,31 @@ from SUAVE.Core import (
 
 def vehicle_setup():
           
-    vehicle 		= SUAVE.Vehicle()
-    vehicle.tag 	= 'Pilatus PC-12' 
-    vehicle.file_tag 	= 'PC12' 
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'Yakovlev_Ya54'  
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'utility'
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 4762.0 * Units.kilogram      
-    vehicle.mass_properties.takeoff                   = 4762.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 901.0 * Units.kilogram      # aerobatic, one pilot
+    vehicle.mass_properties.takeoff                   = 901.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.FARflag 		= 23
-    vehicle.envelope.pos_limit_load    	= 3.3
-    vehicle.envelope.neg_limit_load    	= -1.32
-    vehicle.envelope.cruise_mach 	= np.array([0.35])
+    vehicle.envelope.category                = 'acrobatic'
+    vehicle.envelope.FAR_part_number         = 23
+    vehicle.envelope.limit_loads.positive    = 9
+    vehicle.envelope.limit_loads.negative    = -7
+    vehicle.envelope.cruise_mach 	     = np.array([0.17])
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient = 1.4
-    vehicle.minimum_lift_coefficient = -1.24
+    vehicle.maximum_lift_coefficient = 1.26
+    vehicle.minimum_lift_coefficient = -1.26
 
     # basic parameters
-    vehicle.reference_area         = 25.81 * Units['meters**2']  
+    vehicle.reference_area         = 12.89 * Units['meters**2']  
     vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
@@ -59,13 +56,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 10.3
+    wing.aspect_ratio            = 5.2
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.15
-    wing.taper                   = 0.5
-    wing.spans.projected         = 16.28 * Units.meter
-    wing.chords.mean_aerodynamic = 1.71 * Units.meter
-    wing.areas.reference         = 25.81 * Units['meters**2']  
+    wing.thickness_to_chord      = 0.14
+    wing.taper                   = 0.43
+    wing.spans.projected         = 8.16 * Units.meter
+    wing.chords.mean_aerodynamic = 1.57 * Units.meter
+    wing.areas.reference         = 12.89 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True

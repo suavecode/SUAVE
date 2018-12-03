@@ -104,7 +104,7 @@ def empty(vehicle,settings=None):
 
     # Unpack inputs
     Nult       = vehicle.envelope.ultimate_load
-    Nlim       = vehicle.envelope.limit_load
+    Nlim       = vehicle.envelope.limit_loads.positive
     TOW        = vehicle.mass_properties.max_takeoff
     wt_zf      = vehicle.mass_properties.max_zero_fuel
     num_pax    = vehicle.passengers

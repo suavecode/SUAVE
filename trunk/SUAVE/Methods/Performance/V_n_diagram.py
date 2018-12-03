@@ -39,15 +39,17 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     Inputs:
     analyses.base.atmosphere               [SUAVE data type]
     vehicle.
-      mass_properties.takeoff              [kg]
       reference_area                       [m^2]
       maximum_lift_coefficient             [Unitless]
       minimum_lift_coefficient             [Unitless]
       chords.mean_aerodynamic              [m]
-      envelope.FARflag                     [Unitless]
-          pos_limit_load                   [Unitless]
-          neg_limit_load                   [Unitless]
-          cruise_mach                      [Unitless]
+      envelope.FARpart_number              [Unitless]
+        limit_loads.positive               [Unitless]
+        limit_loads.negative               [Unitless]
+        cruise_mach                        [Unitless]
+    weight                                 [kg]
+    altitude                               [m]
+    delta_ISA                              [deg C]
 
     Outputs:
     V_n_data
@@ -63,32 +65,32 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     #------------------------
     # Create a log - file
     #------------------------
-    flog = open("V_n_diagram_" + vehicle.file_tag + ".log","w")
+    flog = open("V_n_diagram_" + vehicle.tag + ".log","w")
     
     print('Running the V-n diagram calculation...')
     flog.write('Running the V-n diagram calculation...\n')
     flog.write('Aircraft: ' + vehicle.tag + '\n')
-    flog.write('Category: ' + vehicle.category + '\n')
-    flog.write('FAR certification: Part ' + str(vehicle.envelope.FARflag) + '\n\n')
+    flog.write('Category: ' + vehicle.envelope.category + '\n')
+    flog.write('FAR certification: Part ' + str(vehicle.envelope.FAR_part_number) + '\n\n')
     
     # ----------------------------------------------
     # Unpack
     # ----------------------------------------------
     flog.write('Unpacking the input and calculating required inputs...\n')
-    FARflag = vehicle.envelope.FARflag
-    atmo    = analyses.atmosphere
-    Mc      = vehicle.envelope.cruise_mach
+    FAR_part_number = vehicle.envelope.FAR_part_number
+    atmo            = analyses.atmosphere
+    Mc              = vehicle.envelope.cruise_mach
 
     for wing in vehicle.wings: 
         reference_area  = vehicle.reference_area 
         Cmac            = wing.chords.mean_aerodynamic
 
     for envelope in vehicle:
-        pos_limit_load  = vehicle.envelope.pos_limit_load
-        neg_limit_load  = vehicle.envelope.neg_limit_load
+        pos_limit_load  = vehicle.envelope.limit_loads.positive
+        neg_limit_load  = vehicle.envelope.limit_loads.negative
 
-    category_tag = vehicle.category
-       
+    category_tag = vehicle.envelope.category
+    
     # ----------------------------------------------
     # Computing atmospheric conditions
     # ----------------------------------------------
@@ -113,7 +115,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     try:   # aircraft maximum lift informed by user
         maximum_lift_coefficient = vehicle.maximum_lift_coefficient
     except:
-        # Condition to CLmax calculation: 0.33 * Vc @ specified altitude, ISA
+        # Condition to CLmax calculation: 0.333 * Vc @ specified altitude, ISA
         conditions.freestream                   = Data()
         conditions.freestream.density           = atmo_values.density
         conditions.freestream.dynamic_viscosity = atmo_values.dynamic_viscosity
@@ -159,7 +161,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     flog.write('Establish limit maneuver load factors n+ and n-...\n')
     # CFR Part 25
     # Positive and negative limits
-    if FARflag == 25:
+    if FAR_part_number == 25:
         # Positive limit
         flog.write('    Estimating n+...\n')
         load_factors_pos[2] = 2.1 + 24000 / (weight + 10000)
@@ -179,7 +181,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
             flog.write('        Negative limit load factor magnitude is too small. Setting to -1...\n')
             load_factors_neg[2] = -1
 
-    elif FARflag == 23:
+    elif FAR_part_number == 23:
         if category_tag == 'normal' or category_tag == 'commuter':
             # Positive limit
             flog.write('    Estimating n+...\n')
@@ -233,10 +235,19 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     # Generate a V-n diagram data structure
     #----------------------------------------
     V_n_data                          = Data()
-    V_n_data.load_factors_pos         = load_factors_pos
-    V_n_data.load_factors_neg         = load_factors_neg
-    V_n_data.airspeeds_pos            = airspeeds_pos
-    V_n_data.airspeeds_neg            = airspeeds_neg
+    V_n_data.limit_loads              = Data()
+    V_n_data.limit_loads.dive         = Data()
+    V_n_data.load_factors             = Data()
+    V_n_data.gust_load_factors        = Data()
+    V_n_data.Vb_load_factor           = Data()
+    V_n_data.airspeeds                = Data()
+    V_n_data.Vs1                      = Data()
+    V_n_data.Va                       = Data()
+    V_n_data.Vb                       = Data()
+    V_n_data.load_factors.positive    = load_factors_pos
+    V_n_data.load_factors.negative    = load_factors_neg
+    V_n_data.airspeeds.positive       = airspeeds_pos
+    V_n_data.airspeeds.negative       = airspeeds_neg
     V_n_data.Vc                       = Vc
     V_n_data.weight                   = weight
     V_n_data.wing_loading             = wing_loading
@@ -246,8 +257,8 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     V_n_data.reference_area           = reference_area
     V_n_data.maximum_lift_coefficient = maximum_lift_coefficient
     V_n_data.minimum_lift_coefficient = minimum_lift_coefficient
-    V_n_data.limit_load_pos           = load_factors_pos[2]
-    V_n_data.limit_load_neg           = load_factors_neg[2]
+    V_n_data.limit_loads.positive     = load_factors_pos[2]
+    V_n_data.limit_loads.negative     = load_factors_neg[2]
     
     # --------------------------------------------------
     # Computing critical speeds (Va, Vc, Vb, Vd, Vs1)
@@ -262,13 +273,13 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     convert_keas(V_n_data)
 
     # unpack modified airspeeds 
-    airspeeds_pos = V_n_data.airspeeds_pos
-    airspeeds_neg = V_n_data.airspeeds_neg
+    airspeeds_pos = V_n_data.airspeeds.positive
+    airspeeds_neg = V_n_data.airspeeds.negative
     Vc            = V_n_data.Vc
-    Va_pos        = V_n_data.Va_pos 
-    Va_neg        = V_n_data.Va_neg
-    Va_pos        = V_n_data.Va_pos 
-    Va_neg        = V_n_data.Va_neg 
+    Va_pos        = V_n_data.Va.positive 
+    Va_neg        = V_n_data.Va.negative
+    Va_pos        = V_n_data.Va.positive 
+    Va_neg        = V_n_data.Va.negative 
 
     flog.write('    Checking Vc wrt Va...\n')
     if Va_neg > Vc and Va_neg > Va_pos:
@@ -282,7 +293,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     miu = 2 * wing_loading / (rho * Cmac * CLa * sea_level_gravity)
     Kg  = 0.88 * miu / (5.3 + miu)
           
-    if FARflag == 25:
+    if FAR_part_number == 25:
         if altitude < 15000:
             Uref_cruise = (-0.0008 * altitude + 56)
             Uref_rough  = Uref_cruise
@@ -296,7 +307,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
         coefs = [1, -Uref_cruise * (2.64 + (Kg * CLa * airspeeds_pos[1]**2)/(498 * wing_loading)), 1.72424 * Uref_cruise**2 - airspeeds_pos[1]**2]
         Vc1   = max(np.roots(coefs))
         
-    elif FARflag == 23:           
+    elif FAR_part_number == 23:           
         if altitude < 20000:
             Uref_cruise = 50;
             Uref_dive   = 25;
@@ -330,9 +341,9 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
 
     # Dive speed
     flog.write('    Computing Vd...\n')
-    if FARflag == 25:        
+    if FAR_part_number == 25:        
         airspeeds_pos[4] = 1.25 * Vc
-    elif FARflag == 23:
+    elif FAR_part_number == 23:
         if category_tag == 'acrobatic':
             airspeeds_pos[4] = 1.55 * Vc1
             if wing_loading > 20:
@@ -365,10 +376,10 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     load_factors_neg[3] = load_factors_neg[2]
 
     # add parameters to the data structure
-    V_n_data.load_factors_pos         = load_factors_pos
-    V_n_data.load_factors_neg         = load_factors_neg
-    V_n_data.airspeeds_pos            = airspeeds_pos
-    V_n_data.airspeeds_neg            = airspeeds_neg
+    V_n_data.load_factors.positive    = load_factors_pos
+    V_n_data.load_factors.negative    = load_factors_neg
+    V_n_data.airspeeds.positive       = airspeeds_pos
+    V_n_data.airspeeds.negative       = airspeeds_neg
     V_n_data.Vd                       = Vd
     V_n_data.Vc                       = Vc
 
@@ -385,22 +396,22 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     # Determine Gust loads
     # ----------------------------------------------
     flog.write('Calculating gust loads...\n')
-    Gust_loads(category_tag, V_n_data, Kg, CLa,  Uref_rough,  Uref_cruise,  Uref_dive, Num_of_points, FARflag, 1)
-    Gust_loads(category_tag, V_n_data, Kg, CLa, -Uref_rough, -Uref_cruise, -Uref_dive, Num_of_points, FARflag, 2)
+    gust_loads(category_tag, V_n_data, Kg, CLa,  Uref_rough,  Uref_cruise,  Uref_dive, Num_of_points, FAR_part_number, 1)
+    gust_loads(category_tag, V_n_data, Kg, CLa, -Uref_rough, -Uref_cruise, -Uref_dive, Num_of_points, FAR_part_number, 2)
 
     #----------------------------------------------------------------
     # Finalize the load factors for acrobatic and utility aircraft
     #----------------------------------------------------------------
     if category_tag == 'acrobatic' or category_tag == 'utility':
-        V_n_data.airspeeds_neg    = np.append(V_n_data.airspeeds_neg, Vd)
-        V_n_data.load_factors_neg = np.append(V_n_data.load_factors_neg, 0)
+        V_n_data.airspeeds.negative    = np.append(V_n_data.airspeeds.negative, Vd)
+        V_n_data.load_factors.negative = np.append(V_n_data.load_factors.negative, 0)
 
     # ----------------------------------------------
     # Post-processing the V-n diagram
     # ----------------------------------------------
     flog.write('Post-Processing...\n')
-    V_n_data.limit_load_pos = max(V_n_data.load_factors_pos)
-    V_n_data.limit_load_neg = min(V_n_data.load_factors_neg)
+    V_n_data.limit_loads.positive = max(V_n_data.load_factors.positive)
+    V_n_data.limit_loads.negative = min(V_n_data.load_factors.negative)
     
     post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, vehicle)
 
@@ -423,22 +434,28 @@ def stall_maneuver_speeds(V_n_data):
     S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
 
     Inputs:
-    V_n_data.airspeeds_pos                      [kts]
-        airspeeds_neg                           [kts]
+    V_n_data.
+        airspeeds.positive                      [kts]
+            negative                            [kts]
         weight                                  [lb]
         density                                 [slug/ft**3]
         density_ratio                           [Unitless]
         reference_area                          [ft**2]
         maximum_lift_coefficient                [Unitless]
         minimum_lift_coefficient                [Unitless]
-        load_factors_pos                        [Unitless]
-        load_factors_neg                        [Unitless]
+        load_factors.positive                   [Unitless]
+        load_factors.negative                   [Unitless]
 
     Outputs:
-    V_n_data.airspeeds_pos                      [kts]
-        airspeeds_neg                           [kts]
-        load_factors_pos                        [Unitless]
-        load_factors_neg                        [Unitless]                 
+    V_n_data.
+        airspeeds.positive                      [kts]
+            negative                            [kts]
+        Vs1.positive                            [kts]       
+            negative                            [kts]
+        Va.positive                             [kts]
+            negative                            [kts]
+        load_factors.positive                   [Unitless]
+            negative                            [Unitless]                 
 
     Properties Used:
     N/A
@@ -447,15 +464,15 @@ def stall_maneuver_speeds(V_n_data):
     """     
 
     # Unpack
-    airspeeds_pos    = V_n_data.airspeeds_pos
-    airspeeds_neg    = V_n_data.airspeeds_neg
+    airspeeds_pos    = V_n_data.airspeeds.positive
+    airspeeds_neg    = V_n_data.airspeeds.negative
     weight           = V_n_data.weight
     rho              = V_n_data.density
     reference_area   = V_n_data.reference_area
     max_lift_coef    = V_n_data.maximum_lift_coefficient
     min_lift_coef    = V_n_data.minimum_lift_coefficient
-    load_factors_pos = V_n_data.load_factors_pos
-    load_factors_neg = V_n_data.load_factors_neg
+    load_factors_pos = V_n_data.load_factors.positive
+    load_factors_neg = V_n_data.load_factors.negative
     
     # Stall speeds
     airspeeds_pos[1] = (2 * weight / (rho * reference_area * max_lift_coef)) ** 0.5
@@ -469,14 +486,14 @@ def stall_maneuver_speeds(V_n_data):
                                                                  abs(min_lift_coef))) ** 0.5
     
     # Pack
-    V_n_data.airspeeds_pos           = airspeeds_pos
-    V_n_data.airspeeds_neg           = airspeeds_neg
-    V_n_data.load_factors_pos        = load_factors_pos
-    V_n_data.load_factors_neg        = load_factors_neg
-    V_n_data.Vs1_pos                 = airspeeds_pos[1]
-    V_n_data.Vs1_neg                 = airspeeds_neg[1]
-    V_n_data.Va_pos                  = airspeeds_pos[2]
-    V_n_data.Va_neg                  = airspeeds_neg[2]
+    V_n_data.airspeeds.positive           = airspeeds_pos
+    V_n_data.airspeeds.negative           = airspeeds_neg
+    V_n_data.load_factors.positive        = load_factors_pos
+    V_n_data.load_factors.negative        = load_factors_neg
+    V_n_data.Vs1.positive                 = airspeeds_pos[1]
+    V_n_data.Vs1.negative                 = airspeeds_neg[1]
+    V_n_data.Va.positive                  = airspeeds_pos[2]
+    V_n_data.Va.negative                  = airspeeds_neg[2]
     
 #------------------------------------------------------------------------------------------------------------
 
@@ -488,8 +505,11 @@ def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
     S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
 
     Inputs:
-    V_n_data.airspeeds                      [kts]
-        load_factors                        [Unitless]
+    V_n_data.
+        airspeeds.positive                  [kts]
+            negative                        [kts]
+        load_factors.positive               [Unitless]
+            negative                        [Unitless]
         weight                              [lb]
         density                             [slug/ft**3]
         density_ratio                       [Unitless]
@@ -500,8 +520,11 @@ def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
     sign_flag                               [Unitless]
 
     Outputs:
-    airspeeds                               [kts]
-    load_factors                            [Unitless]
+    V_n_data.
+        load_factors.positive               [Unitless]
+            negative                        [Unitless]
+        airspeeds.positive                  [kts]
+            negative                        [kts]
 
     Properties Used:
     N/A
@@ -515,13 +538,13 @@ def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
     rho             = V_n_data.density
     
     if sign_flag == 1:
-        load_factors     = V_n_data.load_factors_pos
-        airspeeds        = V_n_data.airspeeds_pos
+        load_factors     = V_n_data.load_factors.positive
+        airspeeds        = V_n_data.airspeeds.positive
         lift_coefficient = V_n_data.maximum_lift_coefficient
 
     elif sign_flag == 2:
-        load_factors     = V_n_data.load_factors_neg
-        airspeeds        = V_n_data.airspeeds_neg
+        load_factors     = V_n_data.load_factors.negative
+        airspeeds        = V_n_data.airspeeds.negative
         lift_coefficient = V_n_data.minimum_lift_coefficient
     
     delta = (airspeeds[upper_bound] - airspeeds[lower_bound]) / (Num_of_points + 1)     # Step size
@@ -538,17 +561,17 @@ def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
 
     # Pack
     if sign_flag == 1:
-        V_n_data.load_factors_pos     = load_factors
-        V_n_data.airspeeds_pos        = airspeeds
+        V_n_data.load_factors.positive     = load_factors
+        V_n_data.airspeeds.positive        = airspeeds
 
     elif sign_flag == 2:
-        V_n_data.load_factors_neg     = load_factors
-        V_n_data.airspeeds_neg        = airspeeds
+        V_n_data.load_factors.negative     = load_factors
+        V_n_data.airspeeds.negative        = airspeeds
     
     return 
 #--------------------------------------------------------------------------------------------------------------
 
-def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_dive, Num_of_points, FARflag, sign_flag):
+def gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_dive, Num_of_points, FAR_part_number, sign_flag):
 
     """ Calculates airspeeds and load factors for gust loads and modifies the V-n diagram
 
@@ -556,8 +579,13 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
     S. Gudmundsson "General Aviation Aircraft Design: Applied Methods and Procedures", Butterworth-Heinemann; 1 edition
 
     Inputs:
-    V_n_data.airspeeds                          [kts]
-        load_factors                            [Unitless]
+    V_n_data.
+        airspeeds.positive                      [kts]
+            negative                            [kts]
+        load_factors.positive                   [Unitless]
+            negative                            [Unitless]
+        limit_loads.positive                    [Unitless]
+            negative                            [Unitless]
         weight                                  [lb]
         wing_loading                            [lb/ft**2]
         reference_area                          [ft**2]
@@ -570,14 +598,17 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
     Uref_cruise                                 [ft/s]
     Uref_dive                                   [ft/s]
     Num_of_points                               [Unitless]
-    FARflag                                     [Unitless]
     sign_flag                                   [Unitless]
   
     
     Outputs:
-    V_n_data.airspeeds                          [kts]
-        load_factors                            [Unitless]
-        gust_load_factors                       [Unitless]
+    V_n_data.
+        airspeeds.positive                      [kts]
+            negative                            [kts]
+        load_factors.positive                   [Unitless]
+            .negative                           [Unitless]
+        gust_load_factors.positive              [Unitless]
+            negative                            [Unitless]
 
     Properties Used:
     N/A
@@ -598,16 +629,16 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
     Vd              = V_n_data.Vd
     
     if sign_flag == 1:
-        airspeeds        = V_n_data.airspeeds_pos
-        load_factors     = V_n_data.load_factors_pos
+        airspeeds        = V_n_data.airspeeds.positive
+        load_factors     = V_n_data.load_factors.positive
         lift_coefficient = V_n_data.maximum_lift_coefficient
-        limit_load       = V_n_data.limit_load_pos  
+        limit_load       = V_n_data.limit_loads.positive  
 
     elif sign_flag == 2:
-        airspeeds        = V_n_data.airspeeds_neg
-        load_factors     = V_n_data.load_factors_neg
+        airspeeds        = V_n_data.airspeeds.negative
+        load_factors     = V_n_data.load_factors.negative
         lift_coefficient = V_n_data.minimum_lift_coefficient
-        limit_load       = V_n_data.limit_load_neg
+        limit_load       = V_n_data.limit_loads.negative
         
 
     gust_load_factors    = np.zeros(shape=(4));    
@@ -629,18 +660,18 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
 
         # Pack
         if sign_flag == 1:
-            V_n_data.airspeeds_pos          = airspeeds
-            V_n_data.load_factors_pos       = load_factors
-            V_n_data.gust_load_factors_pos  = gust_load_factors
-            V_n_data.Vb_load_factor_pos     = load_factor_inters
-            V_n_data.Vb_pos                 = V_inters           
+            V_n_data.airspeeds.positive          = airspeeds
+            V_n_data.load_factors.positive       = load_factors
+            V_n_data.gust_load_factors.positive  = gust_load_factors
+            V_n_data.Vb_load_factor.positive     = load_factor_inters
+            V_n_data.Vb.positive                 = V_inters           
             
         if sign_flag == 2:
-            V_n_data.airspeeds_neg          = airspeeds
-            V_n_data.load_factors_neg       = load_factors
-            V_n_data.gust_load_factors_neg  = gust_load_factors
-            V_n_data.Vb_load_factor_neg     = load_factor_inters
-            V_n_data.Vb_neg                 = V_inters
+            V_n_data.airspeeds.negative          = airspeeds
+            V_n_data.load_factors.negative       = load_factors
+            V_n_data.gust_load_factors.negative  = gust_load_factors
+            V_n_data.Vb_load_factor.negative     = load_factor_inters
+            V_n_data.Vb.negative                 = V_inters
         
         # continue stall lines
         Num_of_points_ext       = 5;
@@ -651,13 +682,13 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
 
         # Unpack
         if sign_flag == 1:
-            airspeeds        = V_n_data.airspeeds_pos
-            load_factors     = V_n_data.load_factors_pos
+            airspeeds        = V_n_data.airspeeds.positive
+            load_factors     = V_n_data.load_factors.positive
             lift_coefficient = V_n_data.maximum_lift_coefficient
 
         elif sign_flag == 2:
-            airspeeds        = V_n_data.airspeeds_neg
-            load_factors     = V_n_data.load_factors_neg
+            airspeeds        = V_n_data.airspeeds.negative
+            load_factors     = V_n_data.load_factors.negative
             lift_coefficient = V_n_data.minimum_lift_coefficient
 
         
@@ -693,7 +724,7 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
                 load_factors[len(load_factors) - 2] = gust_load_factors[3]               
             else:
                 airspeeds, load_factors = gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, \
-                                                                       len(load_factors)-2, Vc, Vd, FARflag)
+                                                                       len(load_factors)-2, Vc, Vd)
 
     # Resolve the lower half of the dive section
     else:
@@ -707,11 +738,11 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
                 load_factors[len(load_factors) - 2] = gust_load_factors[3]
             else:
                 airspeeds, load_factors = gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, \
-                                                                       len(load_factors)-2, Vc, Vd, FARflag)
+                                                                       len(load_factors)-2, Vc, Vd)
 
-            V_n_data.dive_limit_load_neg = load_factors[len(load_factors) - 2]
+            V_n_data.limit_loads.dive.negative = load_factors[len(load_factors) - 2]
         else:
-            V_n_data.dive_limit_load_neg = load_factors[len(load_factors) - 1]
+            V_n_data.limit_loads.dive.negative = load_factors[len(load_factors) - 1]
 
     # gusts load extension for gust lines at Vd
     gust_load_factors = np.append(gust_load_factors, 1 + Kg * CLa * (1.05 * Vd) * Uref_cruise/(498 * wing_loading))
@@ -725,20 +756,20 @@ def Gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
       
     # Pack
     if sign_flag == 1:
-        V_n_data.airspeeds_pos          = airspeeds
-        V_n_data.load_factors_pos       = load_factors
-        V_n_data.gust_load_factors_pos  = gust_load_factors
-        V_n_data.dive_limit_load_pos    = load_factors[len(load_factors) - 2]
+        V_n_data.airspeeds.positive          = airspeeds
+        V_n_data.load_factors.positive       = load_factors
+        V_n_data.gust_load_factors.positive  = gust_load_factors
+        V_n_data.limit_loads.dive.positive   = load_factors[len(load_factors) - 2]
         
     if sign_flag == 2:
-        V_n_data.airspeeds_neg          = airspeeds
-        V_n_data.load_factors_neg       = load_factors
-        V_n_data.gust_load_factors_neg  = gust_load_factors
+        V_n_data.airspeeds.negative          = airspeeds
+        V_n_data.load_factors.negative       = load_factors
+        V_n_data.gust_load_factors.negative  = gust_load_factors
     
     return 
 #------------------------------------------------------------------------------------------------------------------------
 
-def gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, element_num, Vc, Vd, FARflag):
+def gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, airspeeds, element_num, Vc, Vd):
 
     """ Calculates intersection between the general V-n diagram and the gust load for Vd
 
@@ -752,7 +783,6 @@ def gust_dive_speed_intersection(category_tag, load_factors, gust_load_factors, 
     Vc                                          [kts]
     Vd                                          [kts]
     element_num                                 [Unitless]
-    FARflag                                     [Unitless]
     
     Outputs:
     airspeeds                                    [kts]
@@ -796,14 +826,19 @@ def post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, 
     Source:
 
     Inputs:
-    V_n_data.airspeeds_pos                  [kts]
-        airspeeds_neg                       [kts]
-        Vc                                  [ft/s]
-        Vd                                  [ft/s]
-        load_factors_pos                    [Unitless]
-        load_factors_neg                    [Unitless]
-        gust_load_factors_pos               [Unitless]
-        gust_load_factors_neg               [Unitless]
+    V_n_data.
+        airspeeds.positive                  [kts]
+        airspeeds.negative                  [kts]
+        Vc                                  [kts]
+        Vd                                  [kts]
+        Vs1.positive                        [kts]
+            negative                        [kts]
+        Va.positive                         [kts]
+            negative                        [kts]
+        load_factors.positive               [Unitless]
+            negative                        [Unitless]
+        gust_load_factors.positive          [Unitless]
+            negative                        [Unitless]
         weight                              [lb]
         altitude                            [ft]
     vehicle._base.tag                       [Unitless]
@@ -820,18 +855,18 @@ def post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, 
     """
 
     # Unpack
-    load_factors_pos        = V_n_data.load_factors_pos
-    load_factors_neg        = V_n_data.load_factors_neg
-    airspeeds_pos           = V_n_data.airspeeds_pos
-    airspeeds_neg           = V_n_data.airspeeds_neg
+    load_factors_pos        = V_n_data.load_factors.positive
+    load_factors_neg        = V_n_data.load_factors.negative
+    airspeeds_pos           = V_n_data.airspeeds.positive
+    airspeeds_neg           = V_n_data.airspeeds.negative
     Vc                      = V_n_data.Vc
     Vd                      = V_n_data.Vd
-    Vs1_pos                 = V_n_data.Vs1_pos
-    Vs1_neg                 = V_n_data.Vs1_neg
-    Va_pos                  = V_n_data.Va_pos
-    Va_neg                  = V_n_data.Va_neg
-    gust_load_factors_pos   = V_n_data.gust_load_factors_pos
-    gust_load_factors_neg   = V_n_data.gust_load_factors_neg
+    Vs1_pos                 = V_n_data.Vs1.positive
+    Vs1_neg                 = V_n_data.Vs1.negative
+    Va_pos                  = V_n_data.Va.positive
+    Va_neg                  = V_n_data.Va.negative
+    gust_load_factors_pos   = V_n_data.gust_load_factors.positive
+    gust_load_factors_neg   = V_n_data.gust_load_factors.negative
     weight                  = V_n_data.weight
     altitude                = V_n_data.altitude
 
@@ -860,35 +895,35 @@ def post_processing(category_tag, Uref_rough, Uref_cruise, Uref_dive, V_n_data, 
     ax.set_title(vehicle.tag + '  Weight=' + str(round(weight)) + 'lb  ' + ' Altitude=' + str(round(altitude)) + 'ft ')
     ax.legend()
     ax.grid()
-    plt.savefig('Vn_diagram_'+ vehicle.file_tag + '.png')
+    plt.savefig('Vn_diagram_'+ vehicle.tag + '.png')
 
     #---------------------------------
     # Creating results output file
     #---------------------------------
-    fres = open("V_n_diagram_results_" + vehicle.file_tag +".dat","w")
+    fres = open("V_n_diagram_results_" + vehicle.tag +".dat","w")
     fres.write('V-n diagram summary\n')
     fres.write('-------------------\n')
     fres.write('Aircraft: ' + vehicle.tag + '\n')
-    fres.write('category: ' + vehicle.category + '\n')
-    fres.write('FAR certification: Part ' + str(vehicle.envelope.FARflag) + '\n')
+    fres.write('category: ' + vehicle.envelope.category + '\n')
+    fres.write('FAR certification: Part ' + str(vehicle.envelope.FAR_part_number) + '\n')
     fres.write('Weight = ' + str(round(weight)) + ' lb\n')
     fres.write('Altitude = ' + str(round(altitude)) + ' ft\n')
     fres.write('---------------------------------------------------------------\n\n')
     fres.write('Airspeeds: \n')
     fres.write('    Positive stall speed (Vs1)   = ' + str(round(Vs1_pos,1)) + ' KEAS\n')
     fres.write('    Negative stall speed (Vs1)   = ' + str(round(Vs1_neg,1)) + ' KEAS\n')
-    fres.write('    Positive maneuver speed (Va) = ' + str(round(Va_pos,1)) + ' KEAS\n')
-    fres.write('    Negative maneuver speed (Va) = ' + str(round(Va_neg,1)) + ' KEAS\n')
+    fres.write('    Positive maneuver speed (Va) = ' + str(round(Va_pos,1))  + ' KEAS\n')
+    fres.write('    Negative maneuver speed (Va) = ' + str(round(Va_neg,1))  + ' KEAS\n')
     fres.write('    Cruise speed (Vc)            = ' + str(round(Vc,1))      + ' KEAS\n')
     fres.write('    Dive speed (Vd)              = ' + str(round(Vd,1))      + ' KEAS\n')
     fres.write('Load factors: \n')
     fres.write('    Positive limit load factor (n+) = ' + str(round(max(load_factors_pos),2)) + '\n')
     fres.write('    Negative limit load factor (n-) = ' + str(round(min(load_factors_neg),2)) + '\n')
-    fres.write('    Positive load factor at Vd      = ' + str(round(V_n_data.dive_limit_load_pos,2)) + '\n')
-    fres.write('    Negative load factor at Vd      = ' + str(round(V_n_data.dive_limit_load_neg,2)) + '\n')
+    fres.write('    Positive load factor at Vd      = ' + str(round(V_n_data.limit_loads.dive.positive,2)) + '\n')
+    fres.write('    Negative load factor at Vd      = ' + str(round(V_n_data.limit_loads.dive.negative,2)) + '\n')
    
     return
-#-----------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 
 def convert_keas(V_n_data):
 
@@ -897,23 +932,25 @@ def convert_keas(V_n_data):
     Source:
 
     Inputs:
-    V_n_data.airspeeds_pos              [ft/s]
-        airspeeds_neg                   [ft/s]
+    V_n_data.
+        airspeeds.positive              [ft/s]
+            negative                    [ft/s]
         Vc                              [ft/s]
-        Va_pos                          [ft/s]
-        Va_neg                          [ft/s]
-        Vs1_neg                         [ft/s]
-        Vs1_pos                         [ft/s]
+        Va.positive                     [ft/s]
+        Va.negative                     [ft/s]
+        Vs1.negative                    [ft/s]
+        Vs1.positive                    [ft/s]
         density_ratio                   [Unitless]
 
     Outputs:
-    V_n_data.airspeeds_pos              [kts]
-        airspeeds_neg                   [kts]
+    V_n_data.              
+        airspeeds.positive              [kts]
+            negative                    [kts]
         Vc                              [kts]
-        Va_pos                          [kts]
-        Va_neg                          [kts]
-        Vs1_neg                         [kts]
-        Vs1_pos                         [kts]
+        Va.positive                     [kts]
+        Va.negative                     [kts]
+        Vs1.negative                    [kts]
+        Vs1.positive                    [kts]
 
     Properties Used:
     N/A
@@ -922,14 +959,14 @@ def convert_keas(V_n_data):
     """
 
     # Unpack
-    airspeeds_pos = V_n_data.airspeeds_pos
-    airspeeds_neg = V_n_data.airspeeds_neg
+    airspeeds_pos = V_n_data.airspeeds.positive
+    airspeeds_neg = V_n_data.airspeeds.negative
     density_ratio = V_n_data.density_ratio
     Vc            = V_n_data.Vc
-    Va_pos        = V_n_data.Va_pos
-    Va_neg        = V_n_data.Va_neg
-    Vs1_neg       = V_n_data.Vs1_neg
-    Vs1_pos       = V_n_data.Vs1_pos
+    Va_pos        = V_n_data.Va.positive
+    Va_neg        = V_n_data.Va.negative
+    Vs1_neg       = V_n_data.Vs1.negative
+    Vs1_pos       = V_n_data.Vs1.positive
     
     airspeeds_pos = airspeeds_pos * Units['ft/s'] / Units.knots * density_ratio
     airspeeds_neg = airspeeds_neg * Units['ft/s'] / Units.knots * density_ratio
@@ -942,12 +979,12 @@ def convert_keas(V_n_data):
     Vc            = Vc[0]
     
     # Pack
-    V_n_data.airspeeds_pos = airspeeds_pos
-    V_n_data.airspeeds_neg = airspeeds_neg
-    V_n_data.Vc            = Vc
-    V_n_data.Va_pos        = Va_pos
-    V_n_data.Va_neg        = Va_neg
-    V_n_data.Vs1_neg       = Vs1_neg
-    V_n_data.Vs1_pos       = Vs1_pos
+    V_n_data.airspeeds.positive = airspeeds_pos
+    V_n_data.airspeeds.negative = airspeeds_neg
+    V_n_data.Vc                 = Vc
+    V_n_data.Va.positive        = Va_pos
+    V_n_data.Va.negative        = Va_neg
+    V_n_data.Vs1.negative       = Vs1_neg
+    V_n_data.Vs1.positive       = Vs1_pos
     
     

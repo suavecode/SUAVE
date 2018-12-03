@@ -1,4 +1,4 @@
-# HAIG_Y12.py
+# Piper_M350_wing_only.py
 # 
 # Created:  Nov 2018, Stanislav Karpuk
 # Modified: 
@@ -24,32 +24,30 @@ from SUAVE.Core import (
 def vehicle_setup():
           
     vehicle 		= SUAVE.Vehicle()
-    vehicle.tag 	= 'HAIG Y-12' 
-    vehicle.file_tag	= 'Y12'   
+    vehicle.tag 	= 'Piper_M350'    
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-    # vehicle category
-    vehicle.category = 'utility'
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 5669.0 * Units.kilogram      
-    vehicle.mass_properties.takeoff                   = 5669.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 1969.0 * Units.kilogram      # aerobatic, one pilot
+    vehicle.mass_properties.takeoff                   = 1969.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.FARflag = 23
-    vehicle.envelope.pos_limit_load    = 2.6
-    vehicle.envelope.neg_limit_load    = -1.2
-    vehicle.envelope.cruise_mach = np.array([0.3])
+    vehicle.envelope.category                = 'normal'
+    vehicle.envelope.FAR_part_number         = 23
+    vehicle.envelope.limit_loads.positive    = 3
+    vehicle.envelope.limit_loads.negative    = -1.5
+    vehicle.envelope.cruise_mach             = np.array([0.25])
 
     # aerodynamic properties
     vehicle.maximum_lift_coefficient = 1.4
     vehicle.minimum_lift_coefficient = -1.24
 
     # basic parameters
-    vehicle.reference_area         = 36.90 * Units['meters**2']  
+    vehicle.reference_area         = 16.26 * Units['meters**2']  
     vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
@@ -59,13 +57,13 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 10.0
+    wing.aspect_ratio            = 10.6
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.17
-    wing.taper                   = 1.0
-    wing.spans.projected         = 19.20 * Units.meter
-    wing.chords.mean_aerodynamic = 1.96 * Units.meter
-    wing.areas.reference         = 36.90 * Units['meters**2']  
+    wing.thickness_to_chord      = 0.13
+    wing.taper                   = 0.47
+    wing.spans.projected         = 13.11 * Units.meter
+    wing.chords.mean_aerodynamic = 3.22 * Units.meter
+    wing.areas.reference         = 16.26 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True
