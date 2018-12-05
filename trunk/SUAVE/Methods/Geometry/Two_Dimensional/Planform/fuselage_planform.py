@@ -13,7 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from math import pi, sqrt
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -78,6 +78,9 @@ def fuselage_planform(fuselage,length=None):
         nose_length     = nose_fineness * fuselage_width
         tail_length     = tail_fineness * fuselage_width      
         cabin_length    = fuselage_length - nose_length - tail_length
+        
+        # Now we can calculate the number of passengers
+        number_seats    = np.round(cabin_length * seats_abreast / seat_pitch)
     
     wetted_area = 0.0
     
@@ -85,9 +88,9 @@ def fuselage_planform(fuselage,length=None):
     # approximate circumference http://en.wikipedia.org/wiki/Ellipse#Circumference
     a = fuselage_width/2.
     b = fuselage_height/2.
-    A = pi * a * b  # area
+    A = np.pi * a * b  # area
     R = (a-b)/(a+b) # effective radius
-    C = pi*(a+b)*(1.+ ( 3*R**2 )/( 10+sqrt(4.-3.*R**2) )) # circumference
+    C = np.pi*(a+b)*(1.+ ( 3*R**2 )/( 10+np.sqrt(4.-3.*R**2) )) # circumference
     
     wetted_area += C * cabin_length
     cross_section_area = A
@@ -95,7 +98,7 @@ def fuselage_planform(fuselage,length=None):
     # approximate nose and tail wetted area
     # http://adg.stanford.edu/aa241/drag/wettedarea.html
     Deff = (a+b)*(64.-3.*R**4)/(64.-16.*R**2)
-    wetted_area += 0.75*pi*Deff * (nose_length + tail_length)
+    wetted_area += 0.75*np.pi*Deff * (nose_length + tail_length)
     
     # reference area approximated with
     reference_area = cross_section_area
@@ -108,5 +111,6 @@ def fuselage_planform(fuselage,length=None):
     fuselage.areas.wetted          = wetted_area
     fuselage.areas.front_projected = cross_section_area
     fuselage.effective_diameter    = Deff
+    fuselage.number_coach_seats    = number_seats
     
     return fuselage

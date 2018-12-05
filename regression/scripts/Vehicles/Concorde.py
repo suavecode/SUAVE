@@ -293,7 +293,7 @@ def vehicle_setup():
     fuselage.tag = 'fuselage'
     
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 1
+    fuselage.seat_pitch            = 38. * Units.inches
     
     fuselage.fineness.nose         = 4.3
     fuselage.fineness.tail         = 6.4

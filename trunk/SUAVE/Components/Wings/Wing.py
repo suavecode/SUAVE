@@ -129,7 +129,7 @@ class Wing(Lofted_Body):
         self.non_dimensional_origin = [0.0,0.0,0.0]
         self.PGM_compulsory         = False
         self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0]','non_dimensional_origin[1]','non_dimensional_origin[2]']
-        self.PGM_char_min_bounds    = [0,0,0,0,0,0,0,-np.inf,-np.inf]   
+        self.PGM_char_min_bounds    = [0,1.,0.001,0.1,0,0,0,-np.inf,-np.inf]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf]
         self.Segments               = SUAVE.Core.ContainerOrdered()
         self.Fuel_Tanks             = SUAVE.Core.Container()

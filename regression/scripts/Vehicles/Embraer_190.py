@@ -160,7 +160,7 @@ def vehicle_setup():
     fuselage.origin = [[0,0,0]]
     fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 30 * Units.inches
+    fuselage.seat_pitch            = 30. * Units.inches
 
     fuselage.fineness.nose         = 1.28
     fuselage.fineness.tail         = 3.48

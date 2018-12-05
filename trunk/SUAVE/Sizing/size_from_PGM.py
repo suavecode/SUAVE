@@ -19,6 +19,8 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Planform.rescale_non_dimensional imp
 from SUAVE.Methods.Propulsion import turbofan_sizing
 from SUAVE.Methods.Propulsion import turbojet_sizing
 
+from SUAVE.Components.Wings.Main_Wing import Main_Wing
+
 # ----------------------------------------------------------------------
 #  Size from PGM
 # ----------------------------------------------------------------------
@@ -51,14 +53,6 @@ def size_from_PGM(vehicle):
         vehicle.envelope.limit_load    = 1.5
         vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
-        # Passengers
-        vehicle.passengers  = vehicle.performance.vector[0][1] *1.
-        
-        for fuse in vehicle.fuselages:
-                fuse.number_coach_seats = vehicle.passengers 
-                fuse.differential_pressure = 55. * 1000.* Units.pascals
-                
-        
         # Size the wings
         max_area = 0
         for wing in vehicle.wings:
@@ -67,18 +61,43 @@ def size_from_PGM(vehicle):
                 wing = wing_planform(wing)
                 
                 # Get the max area
-                if wing.areas.reference>max_area:
-                        max_area = wing.areas.reference
-        
+                if isinstance(wing,Main_Wing):
+                        max_area += wing.areas.reference
+
+        # Set the vehicle reference area
+        vehicle.reference_area = max_area   
+                            
         # Size the fuselage
+        
+        # Passengers and deal with passengers
+        vehicle.passengers  = vehicle.performance.vector[0][1] *1.
+        pax = 0
+        
+        n_fuses = len(vehicle.fuselages)
         for fuse in vehicle.fuselages:
+                
+                # Split the number of passengers over the vehicle
+                #fuse.number_coach_seats = vehicle.passengers/n_fuses
+                fuse.differential_pressure = 55. * 1000.* Units.pascals       
+                
+                # Calculate seats abreast
+                bins  = np.floor(fuse.width/0.53)
+                if bins<=7:
+                        aisles = 1.
+                elif bins>7:
+                        aisles = 2.
+                fuse.seats_abreast = bins-aisles
                 
                  # Use existing scripts
                 fuse = fuselage_planform(fuse)
                 fuse.heights.at_quarter_length              = fuse.heights.maximum    
                 fuse.heights.at_three_quarters_length       = fuse.heights.maximum    
                 fuse.heights.at_wing_root_quarter_chord     = fuse.heights.maximum    
-                fuse.heights.at_vertical_root_quarter_chord = fuse.heights.maximum    
+                fuse.heights.at_vertical_root_quarter_chord = fuse.heights.maximum
+                
+                pax += fuse.number_coach_seats
+                
+        vehicle.passengers  = pax
         
         # Size the propulsion system
         for prop in vehicle.propulsors:
@@ -264,10 +283,14 @@ def size_from_PGM(vehicle):
                                 prop.engine_length = 0.01
                                 
                         if prop.nacelle_diameter == 0.:
-                                prop.nacelle_diameter= 0.01                                
+                                prop.nacelle_diameter= 0.01    
+                                
+                        prop.OpenVSP_flow_through = True
                         
                 if prop.tag == 'Turbojet':
                         
+                        print('######')
+                        print('HI I TRIED A TURBOJET!')
                         
                         
                         # ------------------------------------------------------------------
@@ -439,14 +462,6 @@ def size_from_PGM(vehicle):
                         if prop.nacelle_diameter == 0.:
                                 prop.nacelle_diameter= 0.01                           
 
-        # Vehicle reference area
-        try:
-                area = vehicle.wings.main_wing.areas.reference
-        except:
-                area = max_area
-        
-        vehicle.reference_area = area    
-    
         # Set the origins
         vehicle = set_origin_dimensional(vehicle)
     

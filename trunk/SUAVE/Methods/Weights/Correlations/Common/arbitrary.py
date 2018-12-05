@@ -23,6 +23,8 @@ from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import SUAVE.Components.Energy.Networks as Nets
 import SUAVE.Components.Wings as Wings
 
+import numpy as np
+
 # ----------------------------------------------------------------------
 #  Empty
 # ----------------------------------------------------------------------
@@ -62,6 +64,8 @@ def arbitrary(vehicle,settings=None):
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories
     S_gross_w  = vehicle.reference_area
+    
+    
     
     # Set the factors
     if settings == None:
@@ -113,10 +117,13 @@ def arbitrary(vehicle,settings=None):
             lambda_w = wing.taper
             
             # Calculate the weights
-            wt_wing  = wing_main.wing_main(S_gross_w,b,lambda_w,t_c,sweep,Nult,TOW,wt_zf)
+            wt_wing  = wing_main.wing_main(S,b,lambda_w,t_c,sweep,Nult,TOW,wt_zf)
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)
+            
+            if np.isnan(wt_wing):
+                wt_wing = 0.
             
             # Pack and sum
             wing.mass_properties.mass = wt_wing
@@ -127,8 +134,14 @@ def arbitrary(vehicle,settings=None):
             
             # Unpack horizontal tail specific parameters
             h_tail_exposed = wing.areas.exposed / wing.areas.wetted
-            l_w2h          = wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0]
+            l_w2h          = wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].origin[0]
             mac_w          = vehicle.wings['main_wing'].chords.mean_aerodynamic
+            
+            if np.isnan(mac_w):
+                mac_w = 0.
+                
+            if np.isnan(l_w2h):
+                l_w2h = 0.
             
             # Calculate the weights
             wt_horiz = tail_horizontal(b,sweep,Nult,S,TOW,mac_w,mac,l_w2h,t_c, h_tail_exposed)   
@@ -172,6 +185,9 @@ def arbitrary(vehicle,settings=None):
         h_fus      = fuse.heights.maximum
         l_fus      = fuse.lengths.total
         wing_c_r   = vehicle.wings.main_wing.chords.root
+        
+        if np.isnan(wing_c_r):
+            wing_c_r = 0.
         
         #
         wt_fuse = tube(S_fus,diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_main_wing,wt_propulsion,wing_c_r) 
