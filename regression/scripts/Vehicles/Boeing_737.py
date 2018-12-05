@@ -30,9 +30,7 @@ def vehicle_setup():
     
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_737800'
-    vehicle.file_tag = 'Boeing_B737' 
-   
-    
+      
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
@@ -54,7 +52,7 @@ def vehicle_setup():
     vehicle.envelope.ultimate_load            = 2.5
     vehicle.envelope.limit_loads.positive     = 1.5
     vehicle.envelope.limit_loads.negative     = -1.5
-    vehicle.envelope.cruise_mach              = np.array([0.785])
+    vehicle.envelope.cruise_mach              = 0.785
 
     # aerodynamic properties
     vehicle.minimum_lift_coefficient = -1

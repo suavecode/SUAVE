@@ -39,7 +39,7 @@ def vehicle_setup():
     vehicle.envelope.FAR_part_number         = 23
     vehicle.envelope.limit_loads.positive    = 9
     vehicle.envelope.limit_loads.negative    = -7
-    vehicle.envelope.cruise_mach 	     = np.array([0.17])
+    vehicle.envelope.cruise_mach 	     = 0.17
 
     # aerodynamic properties
     vehicle.maximum_lift_coefficient = 1.26

@@ -55,10 +55,10 @@ def datcom(wing,mach):
     """         
     
     #Unpack inputs
-    if 'effective_aspect_ratio' in wing:
+    if wing.has_key('effective_aspect_ratio'):
         ar = wing.effective_aspect_ratio
-    elif 'extended' in wing:
-        if 'aspect_ratio' in wing.extended:
+    elif wing.has_key('extended'):
+        if wing.extended.has_key('aspect_ratio'):
             ar = wing.extended.aspect_ratio
         else:
             ar = wing.aspect_ratio

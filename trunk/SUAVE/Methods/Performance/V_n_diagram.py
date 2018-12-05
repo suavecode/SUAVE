@@ -106,7 +106,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     # ------------------------------
     # Computing lift-curve slope
     # ------------------------------  
-    CLa = datcom(vehicle.wings.main_wing, Mc)
+    CLa = datcom(vehicle.wings.main_wing, np.array([Mc]))
     CLa = CLa[0]
 
     # -----------------------------------------------------------
