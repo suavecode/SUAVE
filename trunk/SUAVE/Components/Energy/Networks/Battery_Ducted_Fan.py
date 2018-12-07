@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
-
+#           Nov 2018, C. Mc
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -147,7 +147,7 @@ class Battery_Ducted_Fan(Propulsor):
         # Step 2
         test = (conditions.propulsion.throttle[:,0,None])*1.0
         
-        if np.isnan(test[0]):
+        if state.residuals.forces[0,0] < 1e-7:
             a123= 1
             # Works for first 32?
         #print(1)
@@ -160,7 +160,7 @@ class Battery_Ducted_Fan(Propulsor):
         # Run the payload
         payload.power()
 
-        esc.inputs.currentout =  motor_power/self.voltage
+        esc.inputs.currentout =  motor_power/np.transpose(esc.outputs.voltageout)[0]
         
         # Run the esc
         esc.currentin()
@@ -175,7 +175,7 @@ class Battery_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power)
         battery.energy_calc(numerics)        
     
         
