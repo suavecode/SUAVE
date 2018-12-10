@@ -289,10 +289,6 @@ def size_from_PGM(vehicle):
                         
                 if prop.tag == 'Turbojet':
                         
-                        print('######')
-                        print('HI I TRIED A TURBOJET!')
-                        
-                        
                         # ------------------------------------------------------------------
                         #   Component 1 - Ram
                         
