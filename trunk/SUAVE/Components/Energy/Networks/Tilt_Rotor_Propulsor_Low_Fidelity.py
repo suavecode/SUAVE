@@ -205,7 +205,9 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle  
+        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle 
+        #segment.state.conditions.propulsion.thurst_angle                     = segment.state.unknowns.thurst_angle
+        
         return
     
     def residuals(self,segment):
