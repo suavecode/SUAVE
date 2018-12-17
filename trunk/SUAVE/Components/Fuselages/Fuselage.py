@@ -118,6 +118,34 @@ class Fuselage(Lofted_Body):
         self.Fuel_Tanks.append(fuel_tank)
 
         return
+    
+    def append_segment(self,segment):
+        """ Adds a segment to the fuselage. 
+    
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+        """ 
+        
+        # Assert database type
+        if not isinstance(segment,Data):
+            raise Exception('input component must be of type Data()')
+        
+        # Store data
+        self.Segments.append(segment)
+        
+        return
         
 class Container(Physical_Component.Container):
     pass

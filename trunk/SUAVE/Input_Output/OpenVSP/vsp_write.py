@@ -92,6 +92,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     """    
     
     # Reset OpenVSP to avoid including a previous vehicle
+    print('Reseting OpenVSP Model in Memory')
     try:
         vsp.ClearVSPModel()
     except NameError:
@@ -109,6 +110,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     
     for wing in vehicle.wings:       
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
+        print('Writing '+wing.tag+' to OpenVSP Model')
         if wing.tag == 'main_wing':
             main_wing_id = wing_id         
     
@@ -119,6 +121,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     ## This was a place to start and may not still be functional    
     
     if 'turbofan' in vehicle.propulsors:
+        print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
         print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbofan
         write_vsp_turbofan(turbofan)
@@ -129,10 +132,11 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     
     if 'fuselage' in vehicle.fuselages:
         fuselage = vehicle.fuselages.fuselage
+        print('Writing '+fuselage.tag+' to OpenVSP Model')
         area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, fuel_tank_set_ind)
     
     # Write the vehicle to the file
-    
+    print('Saving OpenVSP File')
     vsp.WriteVSPFile(tag + ".vsp3")
     
     return area_tags
@@ -540,26 +544,45 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
 
     Properties Used:
     N/A
-    """        
+    """
     
-    width    = fuselage.width
+    num_segs = len(fuselage.Segments)
     length   = fuselage.lengths.total
-    hmax     = fuselage.heights.maximum
-    height1  = fuselage.heights.at_quarter_length
-    height2  = fuselage.heights.at_wing_root_quarter_chord 
-    height3  = fuselage.heights.at_three_quarters_length
-    effdia   = fuselage.effective_diameter
-    n_fine   = fuselage.fineness.nose 
-    t_fine   = fuselage.fineness.tail  
     
-    w_origin = main_wing.origin
-    w_c_4    = main_wing.chords.root/4.
+    if num_segs==0:
     
-    # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
-    
-    x1 = n_fine*width/length
-    x2 = (w_origin[0]+w_c_4)/length
-    x3 = 1-t_fine*width/length
+        width    = fuselage.width
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
+        
+        w_origin = main_wing.origin
+        w_c_4    = main_wing.chords.root/4.
+        
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+        
+        x1 = n_fine*width/length
+        x2 = (w_origin[0]+w_c_4)/length
+        x3 = 1-t_fine*width/length
+        
+        end_ind = 4
+        
+    else:
+        widths  = []
+        heights = []
+        x_poses = []
+        z_poses = []
+        for seg in fuselage.Segments:
+            widths.append(seg.width)
+            heights.append(seg.height)
+            x_poses.append(seg.percent_x_location)
+            z_poses.append(seg.percent_z_location)
+            
+        end_ind = num_segs-1
     
     fuse_id = vsp.AddGeom("FUSELAGE") 
     vsp.SetGeomName(fuse_id, fuselage.tag)
@@ -584,8 +607,8 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         
         
         # Tail
-        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_4",vals.tail.top.angle)
-        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_4",vals.tail.top.strength)
+        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
         # Below can be enabled if AllSym (below) is removed
         #vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
         #vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
@@ -597,26 +620,117 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         else:
             pass # use above default
             
-        vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
+        vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
 
-    vsp.SetParmVal(fuse_id,"Length","Design",length)
-    vsp.SetParmVal(fuse_id,"Diameter","Design",width)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
-    vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
+    if num_segs == 0:
+        vsp.SetParmVal(fuse_id,"Length","Design",length)
+        vsp.SetParmVal(fuse_id,"Diameter","Design",width)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
+        vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
+        vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
+        vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
+    else:
+        vsp.SetParmVal(fuse_id,"Length","Design",length)
+        if num_segs != 5: # reduce to only nose and tail
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            vsp.CutXSec(fuse_id,1) # remove extra default section
+            for i in range(num_segs-2): # add back the required number of sections
+                vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)
+                stdout = vsp.cvar.cstdout
+                errorMgr = vsp.ErrorMgrSingleton_getInstance()
+                errorMgr.PopErrorAndPrint(stdout)                
+                vsp.Update()
+        for i in reversed(range(num_segs-2)):
+            # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
+            # to make more robust this bunching will need to be enforced as a first step
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
+            vsp.Update()
+            #errorMgr = vsp.ErrorMgrSingleton_getInstance()
+            #errorMgr.PopErrorAndPrint(stdout)               
+            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)
+        vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
+        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
+        vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
+        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
+        
+        # Tail
+        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
+        vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
+        vsp.Update()
+        if 'z_pos' in vals.tail:
+            tail_z_pos = vals.tail.z_pos
+        else:
+            pass # use above default        
     
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:
             write_fuselage_conformal_fuel_tank(fuse_id, tank, fuel_tank_set_ind)    
     
     return area_tags
+
+def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id):
+    if i == 0: # not needed
+        w0 = 0
+        h0 = 0
+        x0 = 0
+        z0 = nose_z
+        w2 = widths[i+2]
+        h2 = heights[i+2]
+        x2 = x_poses[i+2]
+        z2 = z_poses[i+2]
+    elif i == end_ind-1: # not needed
+        w0 = widths[i]
+        h0 = heights[i]
+        x0 = x_poses[i]
+        z0 = z_poses[i]
+        w2 = 0
+        h2 = 0
+        x2 = 1.
+        z2 = tail_z
+    else: 
+        w0 = widths[i]
+        h0 = heights[i]
+        x0 = x_poses[i]
+        z0 = z_poses[i]   
+        w2 = widths[i+2]
+        h2 = heights[i+2]
+        x2 = x_poses[i+2]
+        z2 = z_poses[i+2]
+        
+    x0 = x0*length
+    x2 = x2*length
+    z0 = z0*length
+    z2 = z2*length
+        
+    top_z_diff = (h2/2+z2)-(h0/2+z0)
+    bot_z_diff = (z2-h2/2)-(z0-h0/2)
+    y_diff     = w2/2-w0/2
+    x_diff     = x2-x0
+    
+    top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
+    bot_angle  = np.tan(bot_z_diff/x_diff)/Units.deg
+    side_angle = np.tan(y_diff/x_diff)/Units.deg
+        
+    vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)
+    vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(i+1),top_angle)
+    vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(i+1),0.75)
+    vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_"+str(i+1),bot_angle)
+    vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_"+str(i+1),0.75)   
+    vsp.SetParmVal(fuse_id,"RightLAngle","XSec_"+str(i+1),side_angle)
+    vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(i+1),0.75)   
+    
+    return
 
 ## @ingroup Input_Output-OpenVSP
 def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
