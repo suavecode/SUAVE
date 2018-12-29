@@ -32,7 +32,7 @@ def write_SU2_cfg(tag,SU2_settings):
     
     ref_area = SU2_settings.reference_area
     mach     = SU2_settings.mach_number
-    AoA      = SU2_settings.angle_of_attack
+    AOA      = SU2_settings.angle_of_attack
     iters    = SU2_settings.maximum_iterations
     
     
@@ -46,7 +46,7 @@ def write_SU2_cfg(tag,SU2_settings):
     
     # Freestream definition
     f.write('MACH_NUMBER = ' + str(float(mach)) + '\n\n')
-    f.write('AoA = ' + str(float(AoA)) + '\n\n')
+    f.write('AOA = ' + str(float(AOA)) + '\n\n')
     f.write('SIDESLIP_ANGLE = 0.0\n\n')
     f.write('FREESTREAM_PRESSURE = 101325.0\n\n')
     f.write('FREESTREAM_TEMPERATURE = 288.15\n\n')

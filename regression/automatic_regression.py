@@ -33,11 +33,11 @@ import matplotlib.pyplot as plt
 
 modules = [
 
-    # regression
+    # ----------------------- Regression List --------------------------
     'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'regression/test_mission_AS2.py',
+    #'scripts/regression/test_mission_AS2.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
@@ -81,7 +81,6 @@ modules = [
     'scripts/weights/weights.py',        
 ]
 
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -119,8 +118,6 @@ def main():
         sys.exit(0)
     else:
         sys.exit(1)
-
-
 
 
 # ----------------------------------------------------------------------
@@ -186,7 +183,6 @@ def test_module(module_path):
     sys.stderr.flush()
 
     return passed
-
 
 # ----------------------------------------------------------------------
 #   Call Main

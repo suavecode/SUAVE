@@ -39,6 +39,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             #call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
             atmo_data = atmosphere.compute_values(altitude,delta_isa,True)                    
+            planet     = SUAVE.Attributes.Planets.Earth()
 
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
@@ -56,7 +57,7 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
             conditions.freestream.temperature                 = np.atleast_1d(T)
             conditions.freestream.density                     = np.atleast_1d(rho)
             conditions.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-            conditions.freestream.gravity                     = np.atleast_1d(9.81)
+            conditions.freestream.gravity                     = np.atleast_1d(planet.compute_gravity(altitude))
             conditions.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
             conditions.freestream.Cp                          = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
             conditions.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
@@ -75,46 +76,46 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     
     #Creating the network by manually linking the different components
     #set the working fluid to determine the fluid properties
-    ram.inputs.working_fluid                               = ramjet.working_fluid
+    ram.inputs.working_fluid = ramjet.working_fluid
     
     #Flow through the ram
     ram(conditions)
     
     #link inlet nozzle to ram 
-    inlet_nozzle.inputs             = ram.outputs
+    inlet_nozzle.inputs = ram.outputs
     
     #Flow through the inlet nozzle
     inlet_nozzle(conditions)
     
     #link the combustor to the inlet nozzle
-    combustor.inputs                = inlet_nozzle.outputs
+    combustor.inputs = inlet_nozzle.outputs
     
     #flow through the high pressor comprresor
     combustor.compute_rayleigh(conditions)
     
     #link the core nozzle to the combustor
-    core_nozzle.inputs              = combustor.outputs
+    core_nozzle.inputs= combustor.outputs
     
     #flow through the core nozzle
     core_nozzle.compute_limited_geometry(conditions)
 
     #link the thrust component to the core nozzle
-    thrust.inputs.core_nozzle                              = core_nozzle.outputs
-    thrust.inputs.number_of_engines                        = number_of_engines
-    thrust.inputs.total_temperature_reference              = core_nozzle.outputs.stagnation_temperature
-    thrust.inputs.total_pressure_reference                 = core_nozzle.outputs.stagnation_pressure
+    thrust.inputs.core_nozzle                 = core_nozzle.outputs
+    thrust.inputs.number_of_engines           = number_of_engines
+    thrust.inputs.total_temperature_reference = core_nozzle.outputs.stagnation_temperature
+    thrust.inputs.total_pressure_reference    = core_nozzle.outputs.stagnation_pressure
     
     #link the thrust component to the combustor
     thrust.inputs.fuel_to_air_ratio = combustor.outputs.fuel_to_air_ratio
     
     #compute the thrust
-    thrust.inputs.fan_nozzle                               = Data()
-    thrust.inputs.fan_nozzle.velocity                      = 0.0
-    thrust.inputs.fan_nozzle.area_ratio                    = 0.0
-    thrust.inputs.fan_nozzle.static_pressure               = 0.0
-    thrust.inputs.bypass_ratio                             = 0.0
-    thrust.inputs.flow_through_core                        = 1.0 #scaled constant to turn on core thrust computation
-    thrust.inputs.flow_through_fan                         = 0.0 #scaled constant to turn on fan thrust computation     
+    thrust.inputs.fan_nozzle                  = Data()
+    thrust.inputs.fan_nozzle.velocity         = 0.0
+    thrust.inputs.fan_nozzle.area_ratio       = 0.0
+    thrust.inputs.fan_nozzle.static_pressure  = 0.0
+    thrust.inputs.bypass_ratio                = 0.0
+    thrust.inputs.flow_through_core           = 1.0 #scaled constant to turn on core thrust computation
+    thrust.inputs.flow_through_fan            = 0.0 #scaled constant to turn on fan thrust computation     
     thrust.size(conditions)
     
     #update the design thrust value
@@ -141,10 +142,10 @@ def ramjet_sizing(ramjet,mach_number = None, altitude = None, delta_isa = 0, con
     conditions_sls.freestream.temperature                 = np.atleast_1d(T)
     conditions_sls.freestream.density                     = np.atleast_1d(rho)
     conditions_sls.freestream.dynamic_viscosity           = np.atleast_1d(mu)
-    conditions_sls.freestream.gravity                     = np.atleast_1d(9.81)
-    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(1.4)
-    conditions_sls.freestream.Cp                          = 1.4*(p/(rho*T))/(1.4-1)
-    conditions_sls.freestream.R                           = p/(rho*T)
+    conditions_sls.freestream.gravity                     = np.atleast_1d(planet.sea_level_gravity)
+    conditions_sls.freestream.isentropic_expansion_factor = np.atleast_1d(ramjet.working_fluid.compute_gamma(T,p))
+    conditions_sls.freestream.Cp                          = np.atleast_1d(ramjet.working_fluid.compute_cp(T,p))
+    conditions_sls.freestream.R                           = np.atleast_1d(ramjet.working_fluid.gas_specific_constant)
     conditions_sls.freestream.speed_of_sound              = np.atleast_1d(a)
     conditions_sls.freestream.velocity                    = np.atleast_1d(a*0.01)
     

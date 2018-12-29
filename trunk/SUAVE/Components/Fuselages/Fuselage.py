@@ -4,12 +4,13 @@
 # Created:  Mar 2014, T. Lukacyzk
 # Modified: Sep 2016, E. Botero
 #           Jun 2017, M. Clarke
+#           Oct 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Container
 from SUAVE.Components import Physical_Component, Lofted_Body
 
 # ------------------------------------------------------------
@@ -87,6 +88,36 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
+        
+        self.Fuel_Tanks = Container()
+        
+    def append_fuel_tank(self,fuel_tank):
+        """ Adds a fuel tank to the fuselage 
+    
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(fuel_tank,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Fuel_Tanks.append(fuel_tank)
+
+        return
         
 class Container(Physical_Component.Container):
     pass

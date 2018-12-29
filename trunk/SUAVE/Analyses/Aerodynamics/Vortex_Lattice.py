@@ -108,4 +108,56 @@ class Vortex_Lattice(Aerodynamics):
         state.conditions.aerodynamics.inviscid_lift                      = total_lift_coeff 
         inviscid_wings_lift.total                                        = total_lift_coeff
         
-        return inviscid_wings_lift
+        for wing in wing_CL_data.keys():
+            wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
+
+
+        self.surrogates.lift_coefficient = cl_surrogate
+        self.surrogates.wing_lift_coefficients = wing_cl_surrogates
+
+        return
+
+
+
+# ----------------------------------------------------------------------
+#  Helper Functions
+# ----------------------------------------------------------------------
+
+
+def calculate_lift_vortex_lattice(conditions,settings,geometry):
+    """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
+    using a vortex lattice method.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions                      (passed to vortex lattice method)
+    settings                        (passed to vortex lattice method)
+    geometry.reference_area         [m^2]
+    geometry.wings.*.reference_area (each wing is also passed to the vortex lattice method)
+
+    Outputs:
+    
+
+    Properties Used:
+    
+    """            
+
+    # unpack
+    vehicle_reference_area = geometry.reference_area
+
+    # iterate over wings
+    total_lift_coeff = 0.0
+    wing_lifts = Data()
+
+    for wing in geometry.wings.values():
+
+        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        wing_lifts[wing.tag] = wing_lift_coeff
+
+    return total_lift_coeff, wing_lifts

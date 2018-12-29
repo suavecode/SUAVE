@@ -4,6 +4,7 @@
 # Modified: Nov 2016, T. MacDonald
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -42,6 +43,10 @@ from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
+from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+     import compute_fuel_center_of_gravity_longitudinal_range
+from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
+     import plot_cg_map 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -58,10 +63,22 @@ def main():
     # Here we finalize the configuration and analysis settings
     configs.finalize()
     analyses.finalize()
+    
+    ## Use these scripts to test OpenVSP functionality if desired
+    #from SUAVE.Input_Output.OpenVSP.vsp_write import write
+    #write(configs.base,'Concorde')
 
     # These functions analyze the mission
     mission = analyses.missions.base
     results = mission.evaluate()
+    
+    masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
+    plot_cg_map(masses, cg_mins, cg_maxes)  
+    
+    results.fuel_tank_test = Data()
+    results.fuel_tank_test.masses   = masses
+    results.fuel_tank_test.cg_mins  = cg_mins
+    results.fuel_tank_test.cg_maxes = cg_maxes
     
     # load older results
     #save_results(results)
@@ -97,7 +114,7 @@ def full_setup():
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
-    analyses.missions = missions_analyses
+    analyses.missions = missions_analyses        
     
     return configs, analyses
 
@@ -600,6 +617,22 @@ def mission_setup(analyses):
     # add to mission
     mission.append_segment(segment)
     
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    #   This segment is here primarily to test functionality of Constant_Mach_Constant_Altitude
+    # ------------------------------------------------------------------    
+    
+    segment = Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
+    segment.tag = "level_cruise"
+    
+    segment.analyses.extend( analyses.cruise )
+    
+    segment.mach       = 2.02
+    segment.distance   = 1. * Units.nmi
+    segment.state.numerics.number_control_points = 4
+        
+    mission.append_segment(segment)    
+    
     # ------------------------------------------------------------------
     #   First Descent Segment: decceleration
     # ------------------------------------------------------------------    
@@ -707,6 +740,9 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'fuel_tank_test.masses',
+        'fuel_tank_test.cg_mins',
+        'fuel_tank_test.cg_maxes',
     ]
 
     # do the check
@@ -737,7 +773,7 @@ def load_results():
 def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_concorde.res')
     return    
-    
+        
 if __name__ == '__main__': 
     main()    
     plt.show()
