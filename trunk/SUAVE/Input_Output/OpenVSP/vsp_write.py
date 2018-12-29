@@ -568,10 +568,27 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     tail_z_pos = 0.02 # default value
     if 'OpenVSP_values' in fuselage:
         
-
-        vals = fuselage.OpenVSP_values
+        # Airfoils should be in Lednicer format
+        # i.e. :
+        #
+        #EXAMPLE AIRFOIL
+        # 3. 3. 
+        #
+        # 0.0 0.0
+        # 0.5 0.1
+        # 1.0 0.0
+        #
+        # 0.0 0.0
+        # 0.5 -0.1
+        # 1.0 0.0
+    
+        # Note this will fail silently if airfoil is not in correct format
+        # check geometry output
         
+<<<<<<< HEAD
 
+=======
+>>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
         if n_segments==0:
             if len(wing.Airfoil) != 0:
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
@@ -602,6 +619,12 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
                 vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)
                 vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil[0].coordinate_file)
                 vsp.Update()                
+<<<<<<< HEAD
+=======
+        
+        # for wave drag testing
+        fuselage.OpenVSP_ID = fuse_id
+>>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
         
         # Nose
         vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
@@ -611,22 +634,16 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
         vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
         
-        
-        # Tail
-        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_4",vals.tail.top.angle)
-        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_4",vals.tail.top.strength)
-        # Below can be enabled if AllSym (below) is removed
-        #vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
-        #vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
-        #vsp.SetParmVal(fuse_id,"TBSym","XSec_4",vals.tail.TB_Sym)
-        #vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_4",vals.tail.bottom.angle)
-        #vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_4",vals.tail.bottom.strength)
-        if 'z_pos' in vals.tail:
-            tail_z_pos = vals.tail.z_pos
-        else:
-            pass # use above default
+        # Loop for the number of segments left over
+        for i_segs in range(1,n_segments+1):  
             
+            if (wing.Segments[i_segs-1] == wing.Segments[-1]) and (wing.Segments[-1].percent_span_location == 1.):
+                break
+            
+<<<<<<< HEAD
 
+=======
+>>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
             # Unpack
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
             chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
@@ -674,23 +691,30 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],tip_chord)
             vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
             # twist is set in the normal loop
+
         else:
-            vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
-            vsp.SetParmVal( wing_id,'Twist',x_secs[-1-(1-adjust)],tip_twist)
-            # a single trapezoidal wing is assumed to have constant thickness to chord
-        vsp.Update()
-        vsp.SetParmVal(wing_id,'CapUMaxOption','EndCap',2.)
-        vsp.SetParmVal(wing_id,'CapUMaxStrength','EndCap',1.)
-        
-        vsp.Update() # to fix problems with chords not matching up
-        
-        if wing.tag == 'main_wing':
-            main_wing_id = wing_id
+            pass # use above default
             
-            
+<<<<<<< HEAD
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional
 
+=======
+        vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
+
+    vsp.SetParmVal(fuse_id,"Length","Design",length)
+    vsp.SetParmVal(fuse_id,"Diameter","Design",width)
+    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
+    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
+    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
+    vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
+    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
+    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
+    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
+    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
+    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
+    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
+>>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
     
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:

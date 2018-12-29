@@ -30,7 +30,7 @@ def vehicle_setup():
     
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_737800'    
-    
+    vehicle.configuration = 'Tube_Wing'
     
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
@@ -199,6 +199,7 @@ def vehicle_setup():
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
+    fuselage.configuration = 'Tube_Wing'
     
     fuselage.number_coach_seats    = vehicle.passengers
     #fuselage.number_coach_seats    = 200.

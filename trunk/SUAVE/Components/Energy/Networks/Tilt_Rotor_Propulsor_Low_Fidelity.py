@@ -1,8 +1,7 @@
 ## @ingroup Components-Energy-Networks
-# Battery_Propeller.py
+# Tilt_Rotor.py
 # 
-# Created:  Jul 2015, E. Botero
-# Modified: Feb 2016, T. MacDonald
+# Created:  Nov 2018, M.Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,22 +13,18 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-
-from SUAVE.Core import Data
+import math 
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Propeller(Propulsor):
+class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
-        
-        This network adds 2 extra unknowns to the mission. The first is
-        a voltage, to calculate the thevenin voltage drop in the pack.
-        The second is torque matching between motor and propeller.
-    
+
         Assumptions:
         None
         
@@ -64,16 +59,7 @@ class Battery_Propeller(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.voltage           = None
-        self.thrust_angle      = 0.0
-        self.use_surrogate     = False
-        
-        self.thrust_attributes         = Data()
-        self.thrust_attributes.velocity = 0.0
-        self.thrust_attributes.thrust   = 0.0
-        self.thrust_attributes.vt       = 0.0
-        self.thrust_attributes.va       = 0.0           
-        self.thrust_attributes.Ut       = 0.0
-        self.thrust_attributes.Ua       = 0.0           
+        self.thrust_angle      = 0.0 
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -114,36 +100,27 @@ class Battery_Propeller(Propulsor):
         avionics   = self.avionics
         payload    = self.payload
         battery    = self.battery
+        num_engines= self.number_of_engines
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
 
         # Step 1 battery power
-        esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
-        #esc.inputs.voltagein = self.voltage
+        #esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        esc.inputs.voltagein = self.voltage
+        
         # Step 2
-        esc.voltageout(conditions)
+        esc.voltageout(conditions)   
         # link
         motor.inputs.voltage = esc.outputs.voltageout 
         # step 3
         motor.omega(conditions)
         # link
         propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.thrust_angle =  state.thrust_angle
         
-        # link 
-        propeller.thrust_attributes.velocity = self.thrust_attributes.velocity 
-        propeller.thrust_attributes.thrust   = self.thrust_attributes.thrust   
-        propeller.thrust_attributes.vt       = self.thrust_attributes.vt     
-        propeller.thrust_attributes.va       = self.thrust_attributes.va               
-        propeller.thrust_attributes.Ut       = self.thrust_attributes.Ut    
-        propeller.thrust_attributes.Ua       = self.thrust_attributes.Ua  
-        
-        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
-            F, Q, P, Cp = propeller.spin_surrogate(conditions)
-        else:            
-            # step 4
-            F, Q, P, Cp, noise_data, etap = propeller.spin(conditions)
+        # step 4
+        F, Q, P, Cp , noise, etap = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -193,7 +170,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.propeller_torque     = Q
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        F    = num_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]        
         mdot = np.zeros_like(F)
 
         results = Data()
@@ -224,10 +201,12 @@ class Battery_Propeller(Propulsor):
             Properties Used:
             N/A
         """                  
-        
+        ones = segment.state.ones_row
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle 
+        #segment.state.conditions.propulsion.thurst_angle                     = segment.state.unknowns.thurst_angle
         
         return
     
@@ -265,8 +244,7 @@ class Battery_Propeller(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
-        
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max        
         return    
             
     __call__ = evaluate_thrust

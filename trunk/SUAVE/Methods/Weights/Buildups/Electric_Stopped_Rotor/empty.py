@@ -137,10 +137,16 @@ def empty(config,
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
                                      maxLiftPower/etaMotor) *Units.kg
-    output.main_wing = wing(config.wings['main_wing'],
-                            config, 
-                            maxLift/5) *Units.kg
-    
+
+    total_wing_weight = 0.
+    for w in config.wings:
+        wing_tag = w.tag
+        if (wing_tag.find('main_wing') != -1):
+            wing_weight = wing(config.wings[w.tag],
+                               config, 
+                               maxLift/5) *Units.kg
+            total_wing_weight = total_wing_weight + wing_weight
+    output.total_wing_weight = total_wing_weight
     
 #-------------------------------------------------------------------------------
 # Weight Summations
@@ -152,7 +158,7 @@ def empty(config,
                             output.hubs +
                             output.fuselage + 
                             output.landing_gear +
-                            output.main_wing
+                            output.total_wing_weight
                             ) *Units.kg
 
     output.empty        = (1.1 * (

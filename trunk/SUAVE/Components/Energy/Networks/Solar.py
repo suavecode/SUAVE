@@ -63,7 +63,6 @@ class Solar(Propulsor):
         self.nacelle_diameter  = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag               = 'network'
         self.use_surrogate     = False
     
     # manage process with a driver function
@@ -134,10 +133,10 @@ class Solar(Propulsor):
         
         # step 6
         if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
-            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+            F, Q, P, Cp , noise, etap = propeller.spin_surrogate(conditions)
         else:            
             # step 4
-            F, Q, P, Cp = propeller.spin(conditions)
+            F, Q, P, Cp , noise, etap = propeller.spin(conditions)
         
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
@@ -206,17 +205,17 @@ class Solar(Propulsor):
             N/A
     
             Inputs:
-            state.unknowns.propeller_power_coefficient [None]
+            segment.state.unknowns.propeller_power_coefficient [None]
     
             Outputs:
-            state.conditions.propulsion.propeller_power_coefficient [None]
+            segment.state.conditions.propulsion.propeller_power_coefficient [None]
     
             Properties Used:
             N/A
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
 
         return
     
