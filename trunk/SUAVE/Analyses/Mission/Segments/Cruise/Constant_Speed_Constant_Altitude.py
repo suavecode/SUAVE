@@ -115,23 +115,32 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         
         # Update Conditions
         iterate.conditions = Process()
+        #iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
+        #iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust     
+        #iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
+        #iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
+        #iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
+        #iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
+        #iterate.conditions.orientations    = Methods.Common.Frames.update_orientations 
+        #iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        #iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability    
+        #iterate.conditions.forces          = Methods.Common.Frames.update_forces     
+        #iterate.conditions.weights         = Methods.Common.Weights.update_weights       
+        #iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
+
         iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust     
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations 
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability    
-        iterate.conditions.forces          = Methods.Common.Frames.update_forces     
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
-        
-
-               
-        
+        iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
-
+        
         # Solve Residuals
         iterate.residuals = Process()     
         iterate.residuals.total_forces     = Methods.Cruise.Common.residual_total_forces

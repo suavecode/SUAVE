@@ -91,7 +91,6 @@ class Fidelity_Zero(Markup):
         # first stub out empty functions
         # then implement methods
         # then we'll figure out how to connect to a mission
-        
         compute.lift = Process()
 
         compute.lift.inviscid_wings                = Vortex_Lattice()

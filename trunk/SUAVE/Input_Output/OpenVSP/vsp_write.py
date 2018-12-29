@@ -585,10 +585,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         # Note this will fail silently if airfoil is not in correct format
         # check geometry output
         
-<<<<<<< HEAD
-
-=======
->>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
         if n_segments==0:
             if len(wing.Airfoil) != 0:
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
@@ -619,12 +615,9 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
                 vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil[0].coordinate_file)
                 vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil[0].coordinate_file)
                 vsp.Update()                
-<<<<<<< HEAD
-=======
-        
+
         # for wave drag testing
         fuselage.OpenVSP_ID = fuse_id
->>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
         
         # Nose
         vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
@@ -640,10 +633,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             if (wing.Segments[i_segs-1] == wing.Segments[-1]) and (wing.Segments[-1].percent_span_location == 1.):
                 break
             
-<<<<<<< HEAD
-
-=======
->>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
             # Unpack
             dihedral_i = wing.Segments[i_segs-1].dihedral_outboard / Units.deg
             chord_i    = root_chord*wing.Segments[i_segs-1].root_chord_percent
@@ -695,11 +684,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         else:
             pass # use above default
             
-<<<<<<< HEAD
-    ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
-    ## This was a place to start and may not still be functional
 
-=======
         vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
 
     vsp.SetParmVal(fuse_id,"Length","Design",length)
@@ -713,8 +698,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
     vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
     vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
->>>>>>> 78bb0d6f15ec7400f989dec81cb460b8dd73c7c2
+    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);   
     
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:

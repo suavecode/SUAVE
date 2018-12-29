@@ -21,7 +21,7 @@ import matplotlib
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
+def weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 
     Assumptions:
@@ -67,20 +67,109 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
     sym_para    = wing.symmetric
     Sref        = wing.areas.reference
     orientation = wing.vertical
-    print(wing.tag)
-    n           = 50            # number_panels_spanwise
-
+    n           = 50            # number_panels_spanwise    
+    num_var = len(conditions.freestream.density)    
+ 
     
     # conditions
-    num_var = len(conditions.freestream.density)
-    CL = np.zeros((num_var,1))
-    CD = np.zeros((num_var,1))
-    LT = np.zeros((num_var,1))
-    DT = np.zeros((num_var,1))
-    Lift_distribution = np.zeros((num_var,n))
-    Drag_distribution = np.zeros((num_var,n))
+    LT = 0.0 
+    DT = 0.0 
+    CL = 0.0 
+    CD = 0.0 
+    Lift_distribution = np.zeros((1,n))
+    Drag_distribution = np.zeros((1,n))    
+
+    # chord difference
+    dchord = (root_chord-tip_chord)
+    if sym_para is True :
+        span = span/2            
+    deltax = span/n
+
+    if orientation == False :
+        #-------------------------------------------------------------------------------------------------------
+        # MULTI SEGMENT WINGS  
+        #-------------------------------------------------------------------------------------------------------
+        segment_keys = wing.Segments.keys()
+        n_segments   = len(segment_keys)
+        segment_vortex_index = np.zeros(n_segments)
+        # If spanwise stations are setup
+        if n_segments>0:
+            # discretizing the wing sections into panels
+            i              = np.arange(0,n)
+            j              = np.arange(0,n+1)
+            y_coordinates = (j)*deltax             
+            segment_chord = np.zeros(n_segments)
+            segment_twist = np.zeros(n_segments)
+            segment_sweep = np.zeros(n_segments)
+            segment_span = np.zeros(n_segments)
+            segment_chord_x_offset = np.zeros(n_segments)
+            section_stations = np.zeros(n_segments)
+
+            # obtain chord and twist at the beginning/end of each segment
+            for i_seg in range(n_segments):                
+                segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
+                segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
+                segment_sweep[i_seg] = wing.Segments[segment_keys[i_seg]].sweeps.quarter_chord
+                section_stations[i_seg] = wing.Segments[segment_keys[i_seg]].percent_span_location*span
+
+                if i_seg == 0:
+                    segment_span[i_seg] = 0.0
+                    segment_chord_x_offset[i_seg] = 0.25*root_chord # weissinger uses quarter chord as reference
+                else:
+                    segment_span[i_seg]    = wing.Segments[segment_keys[i_seg]].percent_span_location*span - wing.Segments[segment_keys[i_seg-1]].percent_span_location*span
+                    segment_chord_x_offset[i_seg]  = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
+
+            # shift spanwise vortices onto section breaks 
+            for i_seg in range(n_segments):
+                idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
+                y_coordinates[idx] = section_stations[i_seg]
+
+            # define y coordinates of horseshoe vortices      
+            ya = np.atleast_2d(y_coordinates[i])           
+            yb = np.atleast_2d(y_coordinates[i+1])          
+            deltax = y_coordinates[i+1] - y_coordinates[i]
+            xa =  np.zeros(n)
+            x  = np.zeros(n)
+            y  =  np.zeros(n)
+            twist_distribution =  np.zeros(n)
+            chord_distribution =  np.zeros(n)
+
+            # define coordinates of horseshoe vortices and control points
+            i_seg = 0
+            for idx in range(n):
+                twist_distribution[idx]   =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
+                chord_distribution[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
+                xa[idx]= segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
+                x[idx] = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distribution[idx]                         # computer three-quarter chord control points for each horseshoe vortex
+                y[idx] = (yb[0][idx] -  deltax[idx]/2)                
+
+                if y_coordinates[idx] == wing.Segments[segment_keys[i_seg+1]].percent_span_location*span: 
+                    i_seg += 1                    
+                if y_coordinates[idx+1] == span:
+                    continue
+
+            ya = np.atleast_2d(ya)  # y coordinate of start of horseshoe vortex on panel
+            yb = np.atleast_2d(yb)  # y coordinate of end horseshoe vortex on panel
+            xa = np.atleast_2d(xa)  # x coordinate of horseshoe vortex on panel
+            x  = np.atleast_2d(x)   # x coordinate of control points on panel
+            y  = np.atleast_2d(y)   # y coordinate of control points on panel
+
+        else:   # no segments defined on wing 
+            # discretizing the wing sections into panels 
+            i              = np.arange(0,n)
+            chord_distribution = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+            twist_distribution   = twist_rc + i/float(n)*(twist_tc-twist_rc)
+
+            ya = np.atleast_2d((i)*deltax)                                                      # y coordinate of start of horseshoe vortex on panel
+            yb = np.atleast_2d((i+1)*deltax)                                                    # y coordinate of end horseshoe vortex on panel
+            xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*chord_distribution) # x coordinate of horseshoe vortex on panel
+            x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*chord_distribution) # x coordinate of control points on panel
+            y  = np.atleast_2d(((i+1)*deltax-deltax/2))                                         # y coordinate of control points on panel 
+        
+        #-------------------------------------------------------------------------------------------------------
+        # PROPELLER SLIPSTREAM EFFECT  
+        #-------------------------------------------------------------------------------------------------------
     
-    for index in range(num_var):
         rho              = conditions.freestream.density[index][0]            
         aoa              = conditions.aerodynamics.angle_of_attack[index][0]         
         q_inf            = conditions.freestream.dynamic_pressure [index][0] 
@@ -267,47 +356,29 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
                         x_jet      = propeller.origin[i][0] - wing.origin[0]                  # distance between jet and wing
                         R_p_prime  = R_p*np.sqrt((V_eng + 0.5*del_V_eng)/(V_eng + del_V_eng)) # initial contraction radius                   
                         
-                        x_mix     = R_p_prime/ep_c                                            # mixing distance 
-                        b_jet     = R_p_prime + ep_b*x_jet                                    # width of outer mixing layer
-                        if x_jet <= x_mix:                                                    # width of inner mixing layer
-                            c_jet = R_p_prime - ep_c*x_jet
-                        elif x_jet > x_mix:
-                            c_jet = 0
-                           
-                        # Jet centerline velocity increment  
-                        b         = b_jet   # ## CHECK ##
-                        c         = c_jet   #  ## CHECK ##
-                        k1        = c**2 + (9/10)*c*(b-c) + (9/35)*(b-c)**2
-                        k2        = c**2 + (243/385)*c*(b-c) + (243/1820)*(b-c)**2   
-                        del_Vjet0 = np.sqrt(0.25*(k1**2/k2**2)*V_eng**2 + F_eng/(rho*np.pi*k2)) - 0.5*(k1/k2)*V_eng 
+                        elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <= (propeller.origin[0][1]-c_jet):
+                            start_val = propeller.origin[0][1] - b_jet
+                            end_val   = propeller.origin[0][1] - c_jet
+                            del_V_jet = del_Vjet0* (2*((r_jet[j] - start_val)/(end_val - start_val))**1.5 -  ((r_jet[j] - start_val)/(end_val - start_val))**3 )  
                         
-                        # Velocity profile over the mixing layer is closely approximated by Schlichting’s asymptotic wake profile    
-                        for j in range(n):
-                            if (propeller.origin[0][1]-b_jet) >= (r_jet[j]):
-                                del_V_jet = 0;                                    
+                        elif (propeller.origin[0][1] - c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1]+c_jet):
+                            del_V_jet = del_Vjet0
                             
-                            elif  (propeller.origin[0][1]-b_jet) < (r_jet[j]) and (r_jet[j]) <= (propeller.origin[0][1]-c_jet):
-                                start_val = propeller.origin[0][1] - b_jet
-                                end_val   = propeller.origin[0][1] - c_jet
-                                del_V_jet = del_Vjet0* (2*((r_jet[j] - start_val)/(end_val - start_val))**1.5 -  ((r_jet[j] - start_val)/(end_val - start_val))**3 )  
-                            
-                            elif (propeller.origin[0][1] - c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1]+c_jet):
-                                del_V_jet = del_Vjet0
-                                
-                            elif (propeller.origin[0][1] + c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1] + b_jet):
-                                del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
-                            
-                            elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
-                                del_V_jet = 0                                                                     
-                                                    
-                        total_propeller_V_distribution =+  del_V_jet                                  
+                        elif (propeller.origin[0][1] + c_jet) < r_jet[j] and r_jet[j] <= (propeller.origin[0][1] + b_jet):
+                            del_V_jet = del_Vjet0*(1-(((r_jet[j]-(propeller.origin[0][1]+c_jet))/((propeller.origin[0][1] + b_jet) - (propeller.origin[0][1]+c_jet)))**1.5))**2;                           
                         
-                # distribution of dynamic pressure      
-                q_distribution =  0.5*(V_distribution+total_propeller_V_distribution)**2  #  ## CHECK ##
-                LT[index][0],CL[index][0],DT[index][0], CD[index][0],Lift_distribution[index][:],Drag_distribution[index][:] = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)            
-            else:
-                q_distribution = 0.5*rho*V_distribution**2          #  ## CHECK ##
-                LT[index][0],CL[index][0],DT[index][0],CD[index][0],Lift_distribution[index][:],Drag_distribution[index][:]  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
+                        elif (propeller.origin[0][1] + b_jet ) < r_jet[j]:
+                            del_V_jet = 0                                                                     
+                                                
+                    total_propeller_V_distribution =+  del_V_jet                                  
+                    
+            # distribution of dynamic pressure      
+            q_distribution =  0.5*(V_distribution+total_propeller_V_distribution)**2  #  ## CHECK ##
+            LT,CL,DT, CD, Lift_distribution,Drag_distribution= compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)            
+        else:
+            q_distribution = 0.5*rho*V_distribution**2          #  ## CHECK ##
+            LT,CL,DT,CD,Lift_distribution,Drag_distribution = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution ,q_inf,q_distribution,chord_distribution,Sref)
+
 
         ##-----------------------------------------------------------
         ## PLOT LIFT & DRAF DISTRIBUTION
@@ -328,7 +399,7 @@ def weissinger_vortex_lattice(conditions,settings,wing,propulsors):
         #axes3.set_ylabel(r'$Spanwise Lift$')
         #axes3.grid(True)        
         #plt.show()
-            
+
     return  LT , CL , DT, CD   
         
 # ----------------------------------------------------------------------
@@ -375,6 +446,12 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf
 
     L  = deltax * Lft
     D  = deltax * Dg
+    
+    # ----------------------------------------------
+    # OLD CODE    
+    ## Total lift
+    #LT = np.sum(L)
+    #DT = np.sum(D)
 
     # Total lift
     LT = np.sum(L)
@@ -388,11 +465,11 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_inf
     Drag_distribution      = q_distribution *D[0]       
 
     # Total Lift and Drag
-    Total_Lift_Force = sum(Lift_distribution) 
-    Total_Drag_Force = sum(Drag_distribution)
+    LT = sum(Lift_distribution) 
+    DT = sum(Drag_distribution)
     
-    CL2 = 2*Total_Lift_Force/(0.5*Sref*q_inf)
-    CD2 = 2*Total_Drag_Force/(0.5*Sref*q_inf)  
+    CL = 2*LT/(0.5*Sref*q_inf)
+    CD = 2*DT/(0.5*Sref*q_inf)  
     
-    return LT , CL1 , DT, CD1  , Lift_distribution, Drag_distribution   
+    return LT , CL , DT, CD  , Lift_distribution, Drag_distribution   
 

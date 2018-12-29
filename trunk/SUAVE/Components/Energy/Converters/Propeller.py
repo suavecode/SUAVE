@@ -61,12 +61,12 @@ class Propeller(Energy_Component):
         self.tag                  = 'Propeller'
         
         self.thrust_attributes         = Data()
-        self.thrust_attributes.velocity = 0.0
-        self.thrust_attributes.thrust   = 0.0
-        self.thrust_attributes.vt       = 0.0
-        self.thrust_attributes.va       = 0.0           
-        self.thrust_attributes.Ut       = 0.0
-        self.thrust_attributes.Ua       = 0.0      
+        self.thrust_attributes.velocity = np.zeros((16,1))
+        self.thrust_attributes.thrust   = np.zeros((16,1))
+        self.thrust_attributes.vt       = np.zeros((16,1))
+        self.thrust_attributes.va       = np.zeros((16,1))     
+        self.thrust_attributes.Ut       = np.zeros((16,1))
+        self.thrust_attributes.Ua       = np.zeros((16,1))     
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -344,15 +344,15 @@ class Propeller(Energy_Component):
             mid_chord_aligment = self.mid_chord_aligment
         )
         
+        thrust_attributes  = Data()
+        thrust_attributes.velocity = V
+        thrust_attributes.thrust   = thrust
+        thrust_attributes.vt       = vt
+        thrust_attributes.va       = va          
+        thrust_attributes.Ut       = Ut
+        thrust_attributes.Ua       = Ua      
         
-        self.thrust_attributes.velocity = V
-        self.thrust_attributes.thrust   = thrust
-        self.thrust_attributes.vt       = vt
-        self.thrust_attributes.va       = va          
-        self.thrust_attributes.Ut       = Ut
-        self.thrust_attributes.Ua       = Ua      
-        
-        return thrust, torque, power, Cp, noise_data, etap
+        return thrust, torque, power, Cp, noise_data, etap ,thrust_attributes
 
     
     
