@@ -60,13 +60,9 @@ class Propeller(Energy_Component):
         self.radius_distribution  = None
         self.tag                  = 'Propeller'
         
-        self.thrust_attributes         = Data()
-        self.thrust_attributes.velocity = np.zeros((16,1))
-        self.thrust_attributes.thrust   = np.zeros((16,1))
-        self.thrust_attributes.vt       = np.zeros((16,1))
-        self.thrust_attributes.va       = np.zeros((16,1))     
-        self.thrust_attributes.Ut       = np.zeros((16,1))
-        self.thrust_attributes.Ua       = np.zeros((16,1))     
+        self.run_properties       = Data()  
+        self.run_properties.vt    = 0.0 
+        self.run_properties.va    = 0.0
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -323,8 +319,8 @@ class Propeller(Energy_Component):
         conditions.propulsion.etap = etap
         
         # store data
-        results_conditions = Data      
-        noise_data = results_conditions(
+        results_conditions = Data     
+        run_properties = results_conditions(
             number_sections    = N,
             r0                 = r,
             airfoil_chord      = c,
@@ -344,15 +340,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment = self.mid_chord_aligment
         )
         
-        thrust_attributes  = Data()
-        thrust_attributes.velocity = V
-        thrust_attributes.thrust   = thrust
-        thrust_attributes.vt       = vt
-        thrust_attributes.va       = va          
-        thrust_attributes.Ut       = Ut
-        thrust_attributes.Ua       = Ua      
-        
-        return thrust, torque, power, Cp, noise_data, etap ,thrust_attributes
+        return thrust, torque, power, Cp, run_properties, etap  
 
     
     

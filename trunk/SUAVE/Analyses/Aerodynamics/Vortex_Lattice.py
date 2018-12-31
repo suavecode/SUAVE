@@ -80,9 +80,6 @@ class Vortex_Lattice(Aerodynamics):
         vehicle_reference_area = geometry.reference_area
         total_lift_coeff = 0
         total_drag_coeff = 0
-        #total_lift       = 0
-        #total_drag       = 0 
-
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()
@@ -92,18 +89,12 @@ class Vortex_Lattice(Aerodynamics):
         state.conditions.aerodynamics.lift_coefficient                   = Data()
         state.conditions.aerodynamics.lift_coefficient_wing              = Data() 
         for wing in geometry.wings.values():
-            [wing_lift, wing_lift_coeff, wing_drag,  wing_drag_coeff]             = weissinger_vortex_lattice(conditions,settings,wing,propulsors,self.index)
+            [wing_lift, wing_lift_coeff, wing_drag,  wing_drag_coeff]            = weissinger_vortex_lattice(conditions,settings,wing,propulsors,self.index)
             inviscid_wings_lift[wing.tag]                                        = wing_lift_coeff 
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag] = inviscid_wings_lift[wing.tag]
             state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]        = inviscid_wings_lift[wing.tag]     
             total_lift_coeff                                                     += wing_lift_coeff * wing.areas.reference / vehicle_reference_area  
-            
-            ## lift 
-            #total_lift  += wing_lift  
-            
-            ## inviscid drag 
-            #total_drag  += wing_drag 
-        
+                   
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = total_lift_coeff
         state.conditions.aerodynamics.lift_coefficient                   = total_lift_coeff
         state.conditions.aerodynamics.inviscid_lift                      = total_lift_coeff 
