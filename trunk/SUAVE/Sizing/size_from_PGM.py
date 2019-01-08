@@ -10,6 +10,7 @@
 
 import SUAVE
 import numpy as np
+import scipy as sp
 
 from SUAVE.Core import Data, Units
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
@@ -24,6 +25,17 @@ from SUAVE.Components.Wings.Main_Wing import Main_Wing
 # ----------------------------------------------------------------------
 #  Size from PGM
 # ----------------------------------------------------------------------
+
+
+def loc(x,t_c,height):
+        
+        x[x<0] = 0.
+        
+        the_height = 2.*5.*t_c*(0.2969*x**0.5-0.1260*x-0.3516*x**2+0.2843*x**3-0.1015*x**4)
+        
+        val = the_height - height
+        
+        return val
 
 def size_from_PGM(vehicle):
         """Completes the sizing of a SUAVE vehicle to determine fill out all of the dimensions of the vehicle.
@@ -53,6 +65,10 @@ def size_from_PGM(vehicle):
         vehicle.envelope.limit_load    = 1.5
         vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
+        # Deal with passengers
+        pax = 0
+        n_fuses = len(vehicle.fuselages)
+        
         # Size the wings
         max_area = 0
         for wing in vehicle.wings:
@@ -63,17 +79,87 @@ def size_from_PGM(vehicle):
                 # Get the max area
                 if isinstance(wing,Main_Wing):
                         max_area += wing.areas.reference
+                        
+                if n_fuses == 0.:
+                        
+                        # This is a flying wing. Figure out how many pax can fit
+                        
+                        # The height needs to be at least 1.4 meters
+                        height = 1.4
+                        
+                        # Pull out data
+                        t_c   = wing.thickness_to_chord
+                        c     = wing.chords.root   
+                        span  = wing.spans.projected
+                        taper = wing.taper
+                        
+                        # Determine the area which has the min height
+                        h_c = height/c
+                        max_height = t_c*c
+                        
+                        if height<max_height:
+                        
+                                root = lambda x:loc(x,t_c,h_c)
+                                
+                                x0 = np.array([0.])
+                                x1 = np.array([1.])
+                                
+                                fore_location = sp.optimize.newton(root, x0)
+                                aft_location  = sp.optimize.newton(root, x1)
+                                
+                                root_length = (aft_location - fore_location)*c
+                                
+                                # Assume the passengers are in the inner 10% for now
+                                per        = 0.1
+                                span_loc   = per*span
+                                end_chord  = c*((1-per)-per*taper)
+                                max_height = end_chord*t_c
+                                
+                                if height<max_height:
+                                        
+                                        x0 = np.array([0.])
+                                        x1 = np.array([1.])                                        
+                                        
+                                        root = lambda x:loc(x,t_c,h_c)
+                                        
+                                        fore_location = sp.optimize.newton(root, x0)
+                                        aft_location  = sp.optimize.newton(root, x1)
+                                        
+                                        end_length = (aft_location - fore_location)*end_chord                      
+                                        
+                                        avg_length = 0.5*(root_length+end_length)
+                                        seats_len  = avg_length / (31.* Units.inches)
+                                        
+                                        # Calculate seats abreast
+                                        bins  = np.floor(span_loc/0.53)
+                                        if bins<=7:
+                                                aisles = 1.
+                                        elif bins>7:
+                                                aisles = 2.
+                                        elif bins>=15:
+                                                aisles = 3.
+                                        elif bins>= 23:
+                                                aisles = 4.
+                                                
+                                        seats_abreast = bins-aisles
+                                        
+                                        seats = np.floor(seats_abreast*seats_len)
+                                        
+                                        if np.isnan(seats):
+                                                seats = 0.
+                                        elif seats<= 0.:
+                                                seats = 0.
+                                                
+                                        pax  += seats
+                                        
+                                        vehicle.passengers = int(pax)
 
         # Set the vehicle reference area
         vehicle.reference_area = max_area   
                             
         # Size the fuselage
         
-        # Passengers and deal with passengers
-        vehicle.passengers  = vehicle.performance.vector[0][1] *1.
-        pax = 0
-        
-        n_fuses = len(vehicle.fuselages)
+       
         for fuse in vehicle.fuselages:
                 
                 # Split the number of passengers over the vehicle
@@ -97,13 +183,14 @@ def size_from_PGM(vehicle):
                 
                 pax += fuse.number_coach_seats
                 
-        vehicle.passengers  = pax
+                vehicle.passengers = pax
         
         # Size the propulsion system
         for prop in vehicle.propulsors:
                 prop.number_of_engines = int(np.round(prop.number_of_engines))
                 
                 orig = prop.origin[0]
+                prop.origin = []
                 prop.origin.clear()
                 for eng in range(prop.number_of_engines):
                         prop.origin.append(orig)

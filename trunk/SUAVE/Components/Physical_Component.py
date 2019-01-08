@@ -11,6 +11,7 @@
 from .Component import Component
 from .Mass_Properties import Mass_Properties
 
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Physical Component
@@ -46,7 +47,7 @@ class Physical_Component(Component):
         """         
         self.tag = 'Component'
         self.mass_properties = Mass_Properties()
-        self.origin  = [[0.0,0.0,0.0]]
+        self.origin = np.array([[0.0,0.0,0.0]])
         self.symmetric = False
 
 ## @ingroup Components    
@@ -80,10 +81,38 @@ class Container(Component.Container):
         """   
         total = 0.0
         for key,Comp in self.items():
-            if isinstance(Comp,PhysicalComponentContainer):
+            if isinstance(Comp,Physical_Component.Container):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
                 total += Comp.mass_properties.mass
+                
+        return total
+    
+    def CG(self):
+        """ will recursively search the data tree and sum
+            any Comp.Mass_Properties.mass, and return the total sum
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """   
+        total = np.array([0.0,0.0,0.0])
+        for key,Comp in self.items():
+            if isinstance(Comp,Physical_Component.Container):
+                total += Comp.CG() # recursive!
+            elif isinstance(Comp,Physical_Component):
+                total += Comp.mass_properties.mass*(Comp.origin+Comp.mass_properties.center_of_gravity)
                 
         return total
     

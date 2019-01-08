@@ -95,7 +95,7 @@ class Fuselage(Lofted_Body):
         self.non_dimensional_origin = [0.0,0.0,0.0]
         self.PGM_compulsory         = False
         self.PGM_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
-        self.PGM_char_min_bounds    = [0.1,0,0,0.001,0.001]   
+        self.PGM_char_min_bounds    = [0.1,0.001,0.001,0.001,0.001]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
         self.Fuel_Tanks = Container()
