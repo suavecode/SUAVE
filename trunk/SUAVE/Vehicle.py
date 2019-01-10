@@ -12,6 +12,7 @@
 
 from SUAVE.Core import Data, Container
 from SUAVE import Components
+from SUAVE.Components import Physical_Component
 import numpy as np
 
 from warnings import warn
@@ -180,6 +181,68 @@ class Vehicle(Data):
 
         return
 
+    def sum_mass(self):
+        """ Regresses through the vehicle and sums the masses
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """  
+
+        total = 0.0
+        
+        for key in self.keys():
+            item = self[key]
+            if isinstance(item,Physical_Component.Container):
+                total += item.sum_mass()
+
+        return total
+    
+    
+    def CG(self):
+        """ will recursively search the data tree and sum
+            any Comp.Mass_Properties.mass, and return the total sum
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """   
+        total = np.array([[0.0,0.0,0.0]])
+
+        for key in self.keys():
+            item = self[key]
+            if isinstance(item,Physical_Component.Container):
+                total += item.total_moment()
+                
+        CG = total/self.sum_mass()
+        
+        self.mass_properties.center_of_gravity = CG
+                
+        return CG
+
+
 ## @ingroup Vehicle
 class Vehicle_Mass_Properties(Components.Mass_Properties):
 
@@ -229,7 +292,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
         self.center_of_gravity = [0.0,0.0,0.0]
-        self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
+        self.zero_fuel_center_of_gravity = np.array([0.0,0.0,0.0])
 
         self.max_per_vehicle     = 1
         self.PGM_characteristics = ['max_takeoff','max_zero_fuel']

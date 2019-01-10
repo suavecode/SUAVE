@@ -134,7 +134,7 @@ def arbitrary(vehicle,settings=None):
             
             # Unpack horizontal tail specific parameters
             h_tail_exposed = wing.areas.exposed / wing.areas.wetted
-            l_w2h          = wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].origin[0]
+            l_w2h          = wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] - vehicle.wings['main_wing'].origin[0][0]
             mac_w          = vehicle.wings['main_wing'].chords.mean_aerodynamic
             
             if np.isnan(mac_w):
@@ -234,17 +234,27 @@ def arbitrary(vehicle,settings=None):
         landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
         vehicle.landing_gear=landing_gear_component
     
-    control_systems   = SUAVE.Components.Physical_Component()
-    electrical_systems= SUAVE.Components.Physical_Component()
-    passengers        = SUAVE.Components.Physical_Component()
-    furnishings       = SUAVE.Components.Physical_Component()
-    air_conditioner   = SUAVE.Components.Physical_Component()
-    fuel              = SUAVE.Components.Physical_Component()
-    apu               = SUAVE.Components.Physical_Component()
-    hydraulics        = SUAVE.Components.Physical_Component()
-    optionals         = SUAVE.Components.Physical_Component()
-    rudder            = SUAVE.Components.Physical_Component()
-    avionics          = SUAVE.Components.Energy.Peripherals.Avionics()
+    control_systems        = SUAVE.Components.Physical_Component()
+    control_systems.tag    = 'control_systems'
+    electrical_systems     = SUAVE.Components.Physical_Component()
+    electrical_systems.tag = 'electrical_systems'
+    passengers             = SUAVE.Components.Physical_Component()
+    passengers.tag         = 'passengers'
+    furnishings            = SUAVE.Components.Physical_Component()
+    furnishings.tag        = 'furnishings'
+    air_conditioner        = SUAVE.Components.Physical_Component()
+    air_conditioner.tag    = 'air_conditioner'
+    fuel                   = SUAVE.Components.Physical_Component()
+    fuel.tag               = 'fuel'
+    apu                    = SUAVE.Components.Physical_Component()
+    apu.tag                = 'apu'
+    hydraulics             = SUAVE.Components.Physical_Component()
+    hydraulics.tag         = 'hydraulics'
+    optionals              = SUAVE.Components.Physical_Component()
+    optionals.tag          = 'optionals'
+    rudder                 = SUAVE.Components.Physical_Component()
+    rudder.tag             = 'rudder'
+    avionics               = SUAVE.Components.Energy.Peripherals.Avionics()
     
     #assign output weights to objects
     landing_gear_component.mass_properties.mass                      = output.landing_gear
@@ -262,16 +272,16 @@ def arbitrary(vehicle,settings=None):
     rudder.mass_properties.mass                                      = output.rudder
     
     #assign components to vehicle
-    vehicle.control_systems                     = control_systems
-    vehicle.electrical_systems                  = electrical_systems
-    vehicle.avionics                            = avionics
-    vehicle.furnishings                         = furnishings
-    vehicle.passenger_weights                   = passengers 
-    vehicle.air_conditioner                     = air_conditioner
-    vehicle.fuel                                = fuel
-    vehicle.apu                                 = apu
-    vehicle.hydraulics                          = hydraulics
-    vehicle.optionals                           = optionals
-    vehicle.landing_gear                        = landing_gear_component
+    vehicle.systems.control_systems        = control_systems
+    vehicle.systems.electrical_systems     = electrical_systems
+    vehicle.systems.avionics               = avionics
+    vehicle.systems.furnishings            = furnishings
+    vehicle.systems.passengers             = passengers
+    vehicle.systems.air_conditioner        = air_conditioner
+    vehicle.systems.fuel                   = fuel
+    vehicle.systems.apu                    = apu
+    vehicle.systems.hydraulics             = hydraulics
+    vehicle.systems.optionals              = optionals
+    vehicle.systems.landing_gear           = landing_gear_component
 
     return output    

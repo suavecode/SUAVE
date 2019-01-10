@@ -182,9 +182,9 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     Properties Used:
     N/A
     """       
-    wing_x = wing.origin[0]    
-    wing_y = wing.origin[1]
-    wing_z = wing.origin[2]
+    wing_x = wing.origin[0][0]    
+    wing_y = wing.origin[0][1]
+    wing_z = wing.origin[0][2]
     if wing.symmetric == True:
         span   = wing.spans.projected/2. # span of one side
     else:
@@ -564,7 +564,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
     
     x1 = n_fine*width/length
-    x2 = (w_origin[0]+w_c_4)/length
+    x2 = (w_origin[0][0]+w_c_4)/length
     x3 = 1-t_fine*width/length
     
     fuse_id = vsp.AddGeom("FUSELAGE") 

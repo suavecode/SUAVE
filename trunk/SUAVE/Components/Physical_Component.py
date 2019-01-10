@@ -88,9 +88,9 @@ class Container(Component.Container):
                 
         return total
     
-    def CG(self):
+    def total_moment(self):
         """ will recursively search the data tree and sum
-            any Comp.Mass_Properties.mass, and return the total sum
+            any Comp.Mass_Properties.mass, and return the total sum of moments
             
             Assumptions:
             None
@@ -107,13 +107,14 @@ class Container(Component.Container):
             Properties Used:
             None
         """   
-        total = np.array([0.0,0.0,0.0])
+        total = np.array([[0.0,0.0,0.0]])
         for key,Comp in self.items():
             if isinstance(Comp,Physical_Component.Container):
-                total += Comp.CG() # recursive!
+                total += Comp.total_moment() # recursive!
             elif isinstance(Comp,Physical_Component):
-                total += Comp.mass_properties.mass*(Comp.origin+Comp.mass_properties.center_of_gravity)
+                total += Comp.mass_properties.mass*(np.sum(np.array(Comp.origin),axis=0)+Comp.mass_properties.center_of_gravity)
                 
+
         return total
     
     

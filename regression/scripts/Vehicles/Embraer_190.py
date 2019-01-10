@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.taper                   = 0.28
     wing.dihedral                = 5.00 * Units.deg
     
-    wing.origin                  = [12.3,0,-1.50] 
+    wing.origin                  = [[12.3,0,-1.50]]
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = True
@@ -105,7 +105,7 @@ def vehicle_setup():
     wing.taper                   = 0.11
     wing.dihedral                = 8.4 * Units.degrees
     
-    wing.origin                  = [31,0,0.44] 
+    wing.origin                  = [[31,0,0.44]]
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = False
@@ -135,7 +135,7 @@ def vehicle_setup():
     wing.taper                   = 0.31
     wing.dihedral                = 0.00
     
-    wing.origin                  = [32,0,1.675] 
+    wing.origin                  = [[32,0,1.675]]
     wing.vertical                = True
     wing.symmetric               = False       
     wing.high_lift               = False

@@ -92,7 +92,7 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
         
-        self.non_dimensional_origin = [0.0,0.0,0.0]
+        self.non_dimensional_origin = [[0.0,0.0,0.0]]
         self.PGM_compulsory         = False
         self.PGM_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
         self.PGM_char_min_bounds    = [0.1,0.001,0.001,0.001,0.001]   

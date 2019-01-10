@@ -62,7 +62,7 @@ class Wing(Lofted_Body):
 
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
-        self.origin          = [0.0,0.0,0.0]
+        self.origin          = [[0.0,0.0,0.0]]
         
         self.symmetric                 = True
         self.vertical                  = False
@@ -126,9 +126,9 @@ class Wing(Lofted_Body):
         
         self.Airfoil            = Data()
         
-        self.non_dimensional_origin = [0.0,0.0,0.0]
+        self.non_dimensional_origin = [[0.0,0.0,0.0]]
         self.PGM_compulsory         = False
-        self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0]','non_dimensional_origin[1]','non_dimensional_origin[2]']
+        self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.PGM_char_min_bounds    = [0,1.,0.001,0.1,0,0,0,-np.inf,-np.inf]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf]
         self.Segments               = SUAVE.Core.ContainerOrdered()

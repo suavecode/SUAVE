@@ -79,7 +79,7 @@ def vehicle_setup():
     wing.twists.tip              = 0.0 * Units.degrees
     wing.dihedral                = 2.5 * Units.degrees
 
-    wing.origin                  = [0.,0.,0]
+    wing.origin                  = [[0.,0.,0]]
     wing.aerodynamic_center      = [0,0,0] 
 
     wing.vertical                = False
