@@ -109,9 +109,9 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     # Default Set_0 in OpenVSP is index 3
     vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
     
-    for wing in vehicle.wings:       
-        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
+    for wing in vehicle.wings:    
         print('Writing '+wing.tag+' to OpenVSP Model')
+        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
         if wing.tag == 'main_wing':
             main_wing_id = wing_id         
     
@@ -538,6 +538,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         tail.top.angle                        [degrees]
         tail.top.strength                     [-]
         tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+      Segments. (optional)
+        width                                 [m]
+        height                                [m]
+        percent_x_location                    [-] .1 is 10% length
+        percent_z_location                    [-] .1 is 10% length
     area_tags                                 <dict> used to keep track of all tags needed in wetted area computation           
     main_wing.origin                          [m]
     main_wing.chords.root                     [m]
@@ -654,12 +659,12 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
                 vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
                 vsp.Update()
         for i in range(num_segs-2):
-            # Bunch sections to allow proper length settings
+            # Bunch sections to allow proper length settings in the next step
             # This is necessary because OpenVSP will not move a section past an adjacent section
             vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
             vsp.Update()
-        if np.any(x_poses) < (num_segs-2)*1e-6:
-            print('Warning: User specified segments are too close to the nose. OpenVSP model may not be accurate.')
+        if x_poses[1] < (num_segs-2)*1e-6:
+            print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
         for i in reversed(range(num_segs-2)):
             # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
             vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
