@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container
+from SUAVE.Core import Data, Container, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body
 
 # ------------------------------------------------------------
@@ -50,7 +50,7 @@ class Fuselage(Lofted_Body):
         self.tag = 'fuselage'
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = Lofted_Body.Segment.Container()
+        self.Segments    = ContainerOrdered()
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0

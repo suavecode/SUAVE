@@ -22,7 +22,7 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle,tag,fuel_tank_set_ind=3):
+def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -92,7 +92,8 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     """    
     
     # Reset OpenVSP to avoid including a previous vehicle
-    print('Reseting OpenVSP Model in Memory')
+    if verbose:
+        print('Reseting OpenVSP Model in Memory')
     try:
         vsp.ClearVSPModel()
     except NameError:
@@ -110,7 +111,8 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     
     for wing in vehicle.wings:       
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
-        print('Writing '+wing.tag+' to OpenVSP Model')
+        if verbose:
+            print('Writing '+wing.tag+' to OpenVSP Model')
         if wing.tag == 'main_wing':
             main_wing_id = wing_id         
     
@@ -121,8 +123,8 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     ## This was a place to start and may not still be functional    
     
     if 'turbofan' in vehicle.propulsors:
-        print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
-        print('Warning: no meshing sources are currently implemented for the nacelle')
+        if verbose:
+            print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
         turbofan  = vehicle.propulsors.turbofan
         write_vsp_turbofan(turbofan)
     
@@ -130,13 +132,14 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     # Fuselage
     # -------------    
     
-    if 'fuselage' in vehicle.fuselages:
-        fuselage = vehicle.fuselages.fuselage
-        print('Writing '+fuselage.tag+' to OpenVSP Model')
+    for fuselage in vehicle.fuselages:
+        if verbose:
+            print('Writing '+fuselage.tag+' to OpenVSP Model')
         area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, fuel_tank_set_ind)
     
     # Write the vehicle to the file
-    print('Saving OpenVSP File')
+    if verbose:
+        print('Saving OpenVSP File')
     vsp.WriteVSPFile(tag + ".vsp3")
     
     return area_tags
@@ -576,11 +579,12 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         heights = []
         x_poses = []
         z_poses = []
-        for seg in fuselage.Segments:
-            widths.append(seg.width)
-            heights.append(seg.height)
-            x_poses.append(seg.percent_x_location)
-            z_poses.append(seg.percent_z_location)
+        segs = fuselage.Segments
+        for seg_name in segs:
+            widths.append(segs[seg_name].width)
+            heights.append(segs[seg_name].height)
+            x_poses.append(segs[seg_name].percent_x_location)
+            z_poses.append(segs[seg_name].percent_z_location)
             
         end_ind = num_segs-1
     
