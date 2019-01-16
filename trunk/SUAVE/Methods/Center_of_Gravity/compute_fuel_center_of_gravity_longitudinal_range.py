@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2018, T. MacDonald
 # Modified: Oct 2018, T. MacDonald
+#           Jan 2019, T. MacDonald
 
 from SUAVE.Core import DataOrdered, Data
 import numpy as np
@@ -10,7 +11,8 @@ from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
 def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
-    """Plot possible longitudinal cg positions for the fuel.
+    """Plot possible longitudinal cg positions for the fuel (or full vehicle
+    is empty mass is given)
     
     Assumptions:
     None
@@ -19,9 +21,11 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
     N/A
 
     Inputs:
-    masses    [kg]
-    cg_mins   [m]
-    cg_maxes  [m]
+    masses     [kg]
+    cg_mins    [m]
+    cg_maxes   [m]
+    empty_mass [kg]
+    empty_cg   [m]
 
     Outputs:
     A plot

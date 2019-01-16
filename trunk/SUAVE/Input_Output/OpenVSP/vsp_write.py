@@ -6,6 +6,7 @@
 #           Jul 2017, T. MacDonald
 #           Oct 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
+#           Jan 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -113,6 +114,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
+        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
         if wing.tag == 'main_wing':
             main_wing_id = wing_id         
     
@@ -132,10 +134,14 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     # Fuselage
     # -------------    
     
-    for fuselage in vehicle.fuselages:
+    if 'fuselage' in vehicle.fuselages:
+        fuselage = vehicle.fuselages.fuselage
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
-        area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, fuel_tank_set_ind)
+        try:
+            area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, fuel_tank_set_ind)
+        except AttributeError:
+            area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind)
     
     # Write the vehicle to the file
     if verbose:
@@ -537,6 +543,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         tail.top.angle                        [degrees]
         tail.top.strength                     [-]
         tail.z_pos (optional, 0.02 default)   [-] z position of the tail as a percentage of fuselage length (.1 is 10%)
+      Segments. (optional)
+        width                                 [m]
+        height                                [m]
+        percent_x_location                    [-] .1 is 10% length
+        percent_z_location                    [-] .1 is 10% length
     area_tags                                 <dict> used to keep track of all tags needed in wetted area computation           
     main_wing.origin                          [m]
     main_wing.chords.root                     [m]
@@ -552,7 +563,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     num_segs = len(fuselage.Segments)
     length   = fuselage.lengths.total
     
-    if num_segs==0:
+    if num_segs==0: # SUAVE default fuselage shaping
     
         width    = fuselage.width
         hmax     = fuselage.heights.maximum
@@ -563,8 +574,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         n_fine   = fuselage.fineness.nose 
         t_fine   = fuselage.fineness.tail  
         
-        w_origin = main_wing.origin
-        w_c_4    = main_wing.chords.root/4.
+        try:
+            w_origin = main_wing.origin
+            w_c_4    = main_wing.chords.root/4.
+        except AttributeError:
+            raise AttributeError('Main wing not detected. Fuselage must have specified sections in this configuration.')
         
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
@@ -574,7 +588,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         
         end_ind = 4
         
-    else:
+    else: # Fuselage shaping based on sections
         widths  = []
         heights = []
         x_poses = []
@@ -640,27 +654,30 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
     else:
+        if len(np.unique(x_poses)) != len(x_poses):
+            raise ValueError('Duplicate fuselage section positions detected.')
         vsp.SetParmVal(fuse_id,"Length","Design",length)
         if num_segs != 5: # reduce to only nose and tail
             vsp.CutXSec(fuse_id,1) # remove extra default section
             vsp.CutXSec(fuse_id,1) # remove extra default section
             vsp.CutXSec(fuse_id,1) # remove extra default section
             for i in range(num_segs-2): # add back the required number of sections
-                vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)
-                stdout = vsp.cvar.cstdout
-                errorMgr = vsp.ErrorMgrSingleton_getInstance()
-                errorMgr.PopErrorAndPrint(stdout)                
+                vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
                 vsp.Update()
+        for i in range(num_segs-2):
+            # Bunch sections to allow proper length settings in the next step
+            # This is necessary because OpenVSP will not move a section past an adjacent section
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
+            vsp.Update()
+        if x_poses[1] < (num_segs-2)*1e-6:
+            print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
         for i in reversed(range(num_segs-2)):
             # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
-            # to make more robust this bunching will need to be enforced as a first step
             vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
             vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
-            vsp.Update()
-            #errorMgr = vsp.ErrorMgrSingleton_getInstance()
-            #errorMgr.PopErrorAndPrint(stdout)               
+            vsp.Update()             
             set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
@@ -683,34 +700,38 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     
     return area_tags
 
+## ingroup Input_Output-OpenVSP
 def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id):
-    if i == 0: # not needed
-        w0 = 0
-        h0 = 0
-        x0 = 0
-        z0 = nose_z
-        w2 = widths[i+2]
-        h2 = heights[i+2]
-        x2 = x_poses[i+2]
-        z2 = z_poses[i+2]
-    elif i == end_ind-1: # not needed
-        w0 = widths[i]
-        h0 = heights[i]
-        x0 = x_poses[i]
-        z0 = z_poses[i]
-        w2 = 0
-        h2 = 0
-        x2 = 1.
-        z2 = tail_z
-    else: 
-        w0 = widths[i]
-        h0 = heights[i]
-        x0 = x_poses[i]
-        z0 = z_poses[i]   
-        w2 = widths[i+2]
-        h2 = heights[i+2]
-        x2 = x_poses[i+2]
-        z2 = z_poses[i+2]
+    """Set fuselage section angles to create a smooth (in the non-technical sense) fuselage shape.
+    Note that i of 0 corresponds to the first section that is not the end point.
+    
+    Assumptions:
+    May fail to give reasonable angles for very irregularly shaped fuselages
+    Does not work on the nose and tail sections.
+    
+    Source:
+    N/A
+
+    Inputs:  
+    nose_z   [-] # 0.1 is 10% of the fuselage length
+    widths   np.array of [m]
+    heights  np.array of [m]
+    tail_z   [-] # 0.1 is 10% of the fuselage length
+
+    Outputs:
+    Operates on the active OpenVSP model, no direct output
+
+    Properties Used:
+    N/A
+    """    
+    w0 = widths[i]
+    h0 = heights[i]
+    x0 = x_poses[i]
+    z0 = z_poses[i]   
+    w2 = widths[i+2]
+    h2 = heights[i+2]
+    x2 = x_poses[i+2]
+    z2 = z_poses[i+2]
         
     x0 = x0*length
     x2 = x2*length
@@ -723,7 +744,7 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     x_diff     = x2-x0
     
     top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
-    bot_angle  = np.tan(bot_z_diff/x_diff)/Units.deg
+    bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
     side_angle = np.tan(y_diff/x_diff)/Units.deg
         
     vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)

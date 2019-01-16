@@ -4,7 +4,9 @@
 # Created:  Sep 2016, E. Botero (for wings)
 # Modified: Jul 2017, M. Clarke
 #           Aug 2018, T. St Francis (for fuselages)
- # ----------------------------------------------------------------------
+#           Jan 2019, T. MacDonald
+
+# ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
@@ -37,7 +39,7 @@ class Segment(Lofted_Body.Segment):
         
         self.tag                = 'segment'
         self.percent_x_location = 0.0      # Percent location along fuselage length.
-        self.percent_z_location = 0.0      # Vertical translation of segment.
+        self.percent_z_location = 0.0      # Vertical translation of segment. Percent of length.
         self.height             = 0.0
         self.width              = 0.0
         self.length             = 0.0    
