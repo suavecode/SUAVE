@@ -17,7 +17,6 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
 
 # local imports
@@ -82,18 +81,22 @@ class Vortex_Lattice(Aerodynamics):
         total_drag_coeff = 0
         
         # inviscid lift of wings only
-        inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total                                        = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = Data()
-        state.conditions.aerodynamics.lift_coefficient                   = Data()
-        state.conditions.aerodynamics.lift_coefficient_wing              = Data() 
+        inviscid_wings_lift                                                     = Data()
+        inviscid_wings_lift_distribution                                        = Data()
+        inviscid_wings_lift.total                                               = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift              = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift_distribution = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total        = Data()
+        state.conditions.aerodynamics.lift_coefficient                          = Data()
+        state.conditions.aerodynamics.lift_coefficient_wing                     = Data() 
         for wing in geometry.wings.values():
-            [wing_lift, wing_lift_coeff, wing_drag,  wing_drag_coeff]            = weissinger_vortex_lattice(conditions,settings,wing,propulsors,self.index)
-            inviscid_wings_lift[wing.tag]                                        = wing_lift_coeff 
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag] = inviscid_wings_lift[wing.tag]
-            state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]        = inviscid_wings_lift[wing.tag]     
-            total_lift_coeff                                                     += wing_lift_coeff * wing.areas.reference / vehicle_reference_area  
+            [wing_lift_coeff, wing_CL_distribution, wing_drag_coeff, wing_CD_distribution] = weissinger_vortex_lattice(conditions,settings,wing,propulsors,self.index)
+            inviscid_wings_lift[wing.tag]                                                      = wing_lift_coeff 
+            inviscid_wings_lift_distribution[wing.tag]                                         = wing_CL_distribution  
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]               = inviscid_wings_lift[wing.tag]
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift_distribution[wing.tag]  = inviscid_wings_lift_distribution[wing.tag]               
+            state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]                      = inviscid_wings_lift[wing.tag]   
+            total_lift_coeff                                                                   += wing_lift_coeff * wing.areas.reference / vehicle_reference_area  
                    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = total_lift_coeff
         state.conditions.aerodynamics.lift_coefficient                   = total_lift_coeff

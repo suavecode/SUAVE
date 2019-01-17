@@ -60,9 +60,9 @@ class Propeller(Energy_Component):
         self.radius_distribution  = None
         self.tag                  = 'Propeller'
         
-        self.run_properties       = Data()  
-        self.run_properties.vt    = 0.0 
-        self.run_properties.va    = 0.0
+        #self.run_attributes       = Data()  
+        #self.run_attributes.vt    = 0.0 
+        #self.run_attributes.va    = 0.0
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -320,7 +320,7 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data     
-        run_properties = results_conditions(
+        prop_data = results_conditions(
             number_sections    = N,
             r0                 = r,
             airfoil_chord      = c,
@@ -340,7 +340,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment = self.mid_chord_aligment
         )
         
-        return thrust, torque, power, Cp, run_properties, etap  
+        return thrust, torque, power, Cp, prop_data, etap  
 
     
     
