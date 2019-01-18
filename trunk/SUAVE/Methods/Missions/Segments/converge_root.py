@@ -57,11 +57,13 @@ def converge_root(segment):
         print("Segment did not converge. Segment Tag: " + segment.tag)
         print("Error Message:\n" + msg)
         segment.state.numerics.converged = False
+        segment.converged                = False
     else:
         segment.state.numerics.converged = True
+        segment.converged = True
          
-                            
-    return
+         
+    return segment
     
 # ----------------------------------------------------------------------
 #  Helper Functions

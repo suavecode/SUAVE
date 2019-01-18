@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container
+from SUAVE.Core import Data, Container, DataOrdered
 from SUAVE import Components
 from SUAVE.Components import Physical_Component
 import numpy as np
@@ -63,8 +63,10 @@ class Vehicle(Data):
         self.mass_properties        = Vehicle_Mass_Container()
         self.costs                  = Costs()
         self.envelope               = Components.Envelope()
+        self.landing_gear           = Components.Landing_Gear.Landing_Gear.Container()
         self.reference_area         = 0.0
         self.passengers             = 0.0
+        self.performance            = DataOrdered()
 
         self.max_lift_coefficient_factor = 1.0
 
@@ -98,6 +100,7 @@ class Vehicle(Data):
             Components.Propulsors.Propulsor            : self['propulsors']             ,
             Components.Envelope                        : self['envelope']               ,
             Vehicle_Mass_Properties                    : self['mass_properties']        ,
+            #Components.Landing_Gear                    : self['landing_gear']           ,
         
         }
         

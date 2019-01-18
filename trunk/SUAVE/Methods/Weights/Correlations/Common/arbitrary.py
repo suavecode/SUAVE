@@ -211,7 +211,8 @@ def arbitrary(vehicle,settings=None):
     output.wing              = wt_main_wing
     output.fuselage          = wt_fuselage
     output.propulsion        = wt_propulsion
-    output.landing_gear      = wt_landing_gear
+    output.main_gear         = wt_landing_gear * 0.9
+    output.nose_gear         = wt_landing_gear * 0.1
     output.horizontal_tail   = wt_tail_horizontal
     output.vertical_tail     = wt_vtail_tot
     output.rudder            = wt_rudder
@@ -227,12 +228,7 @@ def arbitrary(vehicle,settings=None):
     output.systems_breakdown.air_conditioner   = output_2.wt_ac          
     output.systems_breakdown.furnish           = output_2.wt_furnish    
     
-    #define weights components
-    try: 
-        landing_gear_component=vehicle.landing_gear #landing gear previously defined
-    except AttributeError: # landing gear not defined
-        landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear=landing_gear_component
+
     
     control_systems        = SUAVE.Components.Physical_Component()
     control_systems.tag    = 'control_systems'
@@ -255,9 +251,12 @@ def arbitrary(vehicle,settings=None):
     rudder                 = SUAVE.Components.Physical_Component()
     rudder.tag             = 'rudder'
     avionics               = SUAVE.Components.Energy.Peripherals.Avionics()
+    main_gear              = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
+    nose_gear              = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
     
     #assign output weights to objects
-    landing_gear_component.mass_properties.mass                      = output.landing_gear
+    main_gear.mass_properties.mass                                   = output.main_gear
+    nose_gear.mass_properties.mass                                   = output.nose_gear
     control_systems.mass_properties.mass                             = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass                          = output.systems_breakdown.electrical
     passengers.mass_properties.mass                                  = output.pax + output.bag
@@ -282,6 +281,7 @@ def arbitrary(vehicle,settings=None):
     vehicle.systems.apu                    = apu
     vehicle.systems.hydraulics             = hydraulics
     vehicle.systems.optionals              = optionals
-    vehicle.systems.landing_gear           = landing_gear_component
-
+    vehicle.landing_gear.nose_landing_gear = nose_gear
+    vehicle.landing_gear.main_landing_gear = main_gear
+    
     return output    

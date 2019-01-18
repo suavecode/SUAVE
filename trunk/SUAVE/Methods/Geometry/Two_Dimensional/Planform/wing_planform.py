@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -90,6 +91,11 @@ def wing_planform(wing):
 
     if symmetric:
         y_coord = 0    
+        
+    # Do leading edge sweeps
+    le_sweep = convert_sweep(wing,0.25,0.)
+    wing.sweeps.leading_edge = le_sweep
+        
         
     # Computing flap geometry
     affected_area = 0.

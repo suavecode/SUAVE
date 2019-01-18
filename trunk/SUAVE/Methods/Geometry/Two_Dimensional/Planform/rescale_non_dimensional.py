@@ -124,6 +124,9 @@ def set_origin_dimensional(vehicle):
             if eng % 2 != 0:
                 origin[eng,1] = -origin[eng,1]
                 
+            elif (eng % 2 == 0) and (eng == n-1):
+                
+                origin[eng,1] = 0.
 
         prop.origin = origin.tolist()  
         

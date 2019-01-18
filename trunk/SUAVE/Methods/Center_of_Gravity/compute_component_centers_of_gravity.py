@@ -19,7 +19,7 @@ import SUAVE.Components as C
 # ---------------origin-------------------------------------------------------
 
 ## @ingroup Methods-Center_of_Gravity
-def compute_component_centers_of_gravity(vehicle):
+def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     """ computes the CG of all of the vehicle components based on correlations 
     from AA241
 
@@ -44,31 +44,40 @@ def compute_component_centers_of_gravity(vehicle):
         
         if isinstance(wing,C.Wings.Main_Wing):
             span_location_mac = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-            mac_le_offset     = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
+            mac_le_offset     = np.sin(wing.sweeps.leading_edge)*span_location_mac
             
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
         elif isinstance(wing,C.Wings.Horizontal_Tail):
             chord_length_h_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected*.5)
-            h_tail_35_percent_semi_span_offset        = .8*np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected   
+            h_tail_35_percent_semi_span_offset        = np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected   
             wing.mass_properties.center_of_gravity[0][0] = .3*chord_length_h_tail_35_percent_semi_span + \
                                                                           h_tail_35_percent_semi_span_offset            
 
         elif isinstance(wing,C.Wings.Vertical_Tail):
             chord_length_v_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected*.5)
-            v_tail_35_percent_semi_span_offset        = .8*np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected
+            v_tail_35_percent_semi_span_offset        = np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected
             wing.mass_properties.center_of_gravity[0][0] = .3*chord_length_v_tail_35_percent_semi_span + \
                                                                         v_tail_35_percent_semi_span_offset
         else:
             span_location_mac = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-            mac_le_offset     = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
+            mac_le_offset     = np.sin(wing.sweeps.leading_edge)*span_location_mac
             
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
             
     # Go through all the propulsors
+    propulsion_moment = 0.
+    propulsion_mass   = 0. 
     for prop in vehicle.propulsors:
             prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
+            propulsion_mass                              += prop.mass_properties.mass         
+            propulsion_moment                            += propulsion_mass*prop.engine_length*.5
+            
+    if propulsion_mass!= 0.:
+        propulsion_cg = propulsion_moment/propulsion_mass
+    else:
+        propulsion_cg = 0.
 
     # Go through all the fuselages
     for fuse in vehicle.fuselages:
@@ -109,8 +118,8 @@ def compute_component_centers_of_gravity(vehicle):
     fuel                                                    = vehicle.systems.fuel 
     control_systems                                         = vehicle.systems.control_systems
     electrical_systems                                      = vehicle.systems.electrical_systems
-    
-    landing_gear                                            = vehicle.systems.landing_gear    
+    main_gear                                               = vehicle.landing_gear.main_landing_gear    
+    nose_gear                                               = vehicle.landing_gear.nose_landing_gear 
     hydraulics                                              = vehicle.systems.hydraulics
         
     avionics.origin[0][0]                                      = 0.4 * nose_length
@@ -140,19 +149,25 @@ def compute_component_centers_of_gravity(vehicle):
         .1*vehicle.wings.main_wing.chords.mean_aerodynamic
     
     
-    electrical_systems.origin[0][0]                            = .75*(.5*length_scale)
+    electrical_systems.origin[0][0]                            = .75*(.5*length_scale) + propulsion_cg*.25
     electrical_systems.mass_properties.center_of_gravity[0][0] = 0.0
     
     hydraulics.origin[0][0]                                    = .75*(vehicle.wings.main_wing.origin[0][0] + \
-                                                                      wing.mass_properties.center_of_gravity[0][0])
-    hydraulics.mass_properties.center_of_gravity[0][0]         = 0.0         
+                                                                      wing.mass_properties.center_of_gravity[0][0]) + 0.25* \
+                                                                     length_scale*.95
+    hydraulics.mass_properties.center_of_gravity[0][0]         = 0.0       
     
+    # Now the landing gear
+    
+    # Nose gear
+    nose_gear.origin[0][0]                                     = 0.25*nose_length
+    nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0   
+    
+    # Main gear
+    moment_sans_main = vehicle.CG()[0][0]*vehicle.sum_mass()-main_gear.mass_properties.mass
+    
+    main_gear_location = moment_sans_main/(vehicle.mass_properties.takeoff-main_gear.mass_properties.mass)/(1-nose_load)
+    main_gear.origin[0][0]                                     = main_gear_location
+    main_gear.mass_properties.center_of_gravity                = 0.0
     
     return
-
-
-        
-        #electrical_systems.mass_properties.center_of_gravity[0] = .75*(fuselage.origin[0][0]+  .5*fuselage.lengths.total)+.25*(propulsor.origin[0][0]+propulsor.mass_properties.center_of_gravity[0])      
-        
-        
-        #hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity) +.25*(propulsor.origin[0]+propulsor.mass_properties.center_of_gravity)       

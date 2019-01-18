@@ -547,6 +547,6 @@ def size_from_PGM(vehicle):
 
         # Set the origins
         vehicle = set_origin_dimensional(vehicle)
-    
+        
     
         return vehicle
