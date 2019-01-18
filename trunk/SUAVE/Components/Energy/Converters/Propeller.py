@@ -60,10 +60,6 @@ class Propeller(Energy_Component):
         self.radius_distribution  = None
         self.tag                  = 'Propeller'
         
-        #self.run_attributes       = Data()  
-        #self.run_attributes.vt    = 0.0 
-        #self.run_attributes.va    = 0.0
-        
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
 

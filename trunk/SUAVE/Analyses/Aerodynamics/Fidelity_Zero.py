@@ -29,28 +29,21 @@ from .Vortex_Lattice import Vortex_Lattice
 ## @ingroup Analyses-Aerodynamics
 class Fidelity_Zero(Markup):
     """This is an analysis based on low-fidelity models.
-
     Assumptions:
     Subsonic
-
     Source:
     Primarily based on adg.stanford.edu, see methods for details
     """       
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """          
@@ -91,6 +84,7 @@ class Fidelity_Zero(Markup):
         # first stub out empty functions
         # then implement methods
         # then we'll figure out how to connect to a mission
+        
         compute.lift = Process()
 
         compute.lift.inviscid_wings                = Vortex_Lattice()
@@ -121,25 +115,20 @@ class Fidelity_Zero(Markup):
         compute.drag.total                         = Common.Drag.total_aircraft
         
         
-    #def initialize(self):
-        #"""Initializes the surrogate needed for lift calculation.
-
-        #Assumptions:
-        #None
-
-        #Source:
-        #N/A
-
-        #Inputs:
-        #None
-
-        #Outputs:
-        #None
-
-        #Properties Used:
-        #self.geometry
-        #"""                  
-        #self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        #self.process.compute.lift.inviscid_wings.initialize()
+    def initialize(self):
+        """Initializes the surrogate needed for lift calculation.
+        Assumptions:
+        None
+        Source:
+        N/A
+        Inputs:
+        None
+        Outputs:
+        None
+        Properties Used:
+        self.geometry
+        """                  
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        self.process.compute.lift.inviscid_wings.initialize()
         
-    #finalize = initialize
+    finalize = initialize
