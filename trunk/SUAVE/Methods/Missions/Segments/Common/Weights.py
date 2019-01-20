@@ -73,12 +73,13 @@ def update_gravity(segment):
 
     # unpack
     planet = segment.analyses.planet
-    g0     = planet.features.sea_level_gravity
+    H      = segment.conditions.freestream.altitude
+    
     # calculate
-    g = g0        # m/s^2 (placeholder for better g models)
+    g      = planet.features.compute_gravity(H)
 
     # pack
-    segment.state.conditions.freestream.gravity[:,0] = g
+    segment.state.conditions.freestream.gravity[:,0] = g[:,0]
 
     return
 

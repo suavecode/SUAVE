@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Nov 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -50,7 +51,7 @@ def initialize_conditions(segment):
         if not segment.state.initials: raise AttributeError('altitude not set')
         alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
         segment.altitude = alt   
-        segment.state.conditions.freestream.altitude[:,0] = alt
+    segment.state.conditions.freestream.altitude[:,0] = alt
         
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)

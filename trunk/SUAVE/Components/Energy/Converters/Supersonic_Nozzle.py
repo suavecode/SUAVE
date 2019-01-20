@@ -6,6 +6,7 @@
 #           Jun 2017, P. Goncalves
 #           Sep 2017, E. Botero
 #           Jan 2018, W. Maier
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -63,14 +64,16 @@ class Supersonic_Nozzle(Energy_Component):
         self.tag = 'Nozzle'
         self.polytropic_efficiency           = 1.0
         self.pressure_ratio                  = 1.0
+        self.pressure_recovery               = 1.0
         self.inputs.stagnation_temperature   = 0.
         self.inputs.stagnation_pressure      = 0.
         self.outputs.stagnation_temperature  = 0.
         self.outputs.stagnation_pressure     = 0.
         self.outputs.stagnation_enthalpy     = 0.
-        self.max_area_ratio                  = 2.
-        self.min_area_ratio                  = 1.35
-        self.pressure_expansion              = 1.0
+        self.max_area_ratio                  = 1000.
+        self.min_area_ratio                  = 0.    
+    
+    
     
     def compute(self,conditions):
         """This computes the output values from the input values according to
@@ -111,6 +114,7 @@ class Supersonic_Nozzle(Energy_Component):
         self.
           pressure_ratio                      [-]
           polytropic_efficiency               [-]
+          pressure_recovery                   [-]
         """           
         
         #unpack the values
@@ -131,13 +135,13 @@ class Supersonic_Nozzle(Energy_Component):
         #unpack from self
         pid      = self.pressure_ratio
         etapold  = self.polytropic_efficiency
-        
+        eta_rec =  self.pressure_recovery
         
         #Method for computing the nozzle properties
         
         #--Getting the output stagnation quantities
-        Pt_out   = Pt_in*pid
-        Tt_out   = Tt_in*pid**((gamma-1)/(gamma)*etapold)
+        Pt_out   = Pt_in*pid*eta_rec
+        Tt_out   = Tt_in*(pid*eta_rec)**((gamma-1)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
         
         

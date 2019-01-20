@@ -41,9 +41,9 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # Setup Conditions        
-    ones_1col = np.ones([1,1])    
+    ones_1col  = np.ones([1,1])    
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-   
+       
     # Freestream conditions
     conditions.freestream.mach_number                 = ones_1col*0.4
     conditions.freestream.pressure                    = ones_1col*20000.0

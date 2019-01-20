@@ -63,7 +63,7 @@ def write_optimization_outputs(nexus, filename):
         problem_constraints.append(value)
     
     
-    file=open(filename, 'ab')
+    file=open(filename, 'a')
     file.write('iteration = ')
     file.write(str(nexus.total_number_of_iterations))
     file.write(' , ')
