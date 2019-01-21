@@ -100,9 +100,9 @@ def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
     max_cg      = np.zeros_like(fuel_masses)
     
     tank_masses_front_to_back = tank_masses
-    tank_masses_back_to_front = np.flip(tank_masses,0)
+    tank_masses_back_to_front = np.flip(tank_masses)
     tank_cgs_front_to_back    = tank_cgs
-    tank_cgs_back_to_front    = np.flip(tank_cgs,0)
+    tank_cgs_back_to_front    = np.flip(tank_cgs)
     
     for j,mass in enumerate(fuel_masses):
         # find minimum
