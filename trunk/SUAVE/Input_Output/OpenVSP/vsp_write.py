@@ -5,6 +5,7 @@
 # Modified: Jun 2017, T. MacDonald
 #           Jul 2017, T. MacDonald
 #           Oct 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -414,7 +415,7 @@ def write_vsp_turbofan(turbofan):
       engine_length                           [m]
       nacelle_diameter                        [m]
       origin                                  [m] in all three dimension, should have as many origins as engines
-      OpenVSP_simple (optional)               <boolean> if False (default) create a flow through nacelle, if True creates a roughly biparabolic shape
+      OpenVSP_flow_through                    <boolean> if True create a flow through nacelle, if False create a cylinder
 
     Outputs:
     Operates on the active OpenVSP model, no direct output
@@ -424,48 +425,36 @@ def write_vsp_turbofan(turbofan):
     """    
     n_engines = turbofan.number_of_engines
     length    = turbofan.engine_length
-    width = turbofan.nacelle_diameter
+    width     = turbofan.nacelle_diameter
     origins   = turbofan.origin
     
-    # True will make a biconvex body, false will make a flow-through subsonic nacelle
-    if 'OpenVSP_simple' in turbofan:
-        simple_flag = turbofan.OpenVSP_simple
-    else:
-        simple_flag = False
+    # True will create a flow-through subsonic nacelle (which may have dimensional errors)
+    # False will create a cylindrical stack (essentially a cylinder)
+    ft_flag = turbofan.OpenVSP_flow_through
+    
+    import operator # import here since engines are not always needed
+    # sort engines per left to right convention
+    origins_sorted = sorted(origins, key=operator.itemgetter(1))
     
     for ii in range(0,int(n_engines)):
 
-        origin = origins[ii]
+        origin = origins_sorted[ii]
         
         x = origin[0]
         y = origin[1]
         z = origin[2]
         
-        nac_id = vsp.AddGeom( "FUSELAGE")
-        vsp.SetGeomName(nac_id, 'turbofan')
-        
-        # Origin
-        vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-        vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-        vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-        vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-        vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
-        
-        if simple_flag == True:
-            vsp.CutXSec(nac_id,3)
-            vsp.CutXSec(nac_id,1)
-            angle = np.arctan(width/length) / Units.deg
-            vsp.SetParmVal(nac_id,"TopLAngle","XSec_0",angle)
-            vsp.SetParmVal(nac_id,"TopLAngle","XSec_2",-angle)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_0",1)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_1",1)
-            vsp.SetParmVal(nac_id,"AllSym","XSec_2",1)
-            vsp.SetParmVal(nac_id,"Length","Design",length)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
+        if ft_flag == True:
+            nac_id = vsp.AddGeom( "FUSELAGE")
+            vsp.SetGeomName(nac_id, 'turbofan_'+str(ii+1))
             
-        else:
-        
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)    
+            
             # Length and overall diameter
             vsp.SetParmVal(nac_id,"Length","Design",length)
             vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.) 
@@ -481,7 +470,30 @@ def write_vsp_turbofan(turbofan):
             vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
             vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
             vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)
+            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)            
+            
+        else:
+            stack_id = vsp.AddGeom("STACK")
+            vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
+            
+            # Origin
+            vsp.SetParmVal(stack_id,'X_Location','XForm',x)
+            vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
+            
+            vsp.CutXSec(stack_id,2) # remove extra default subsurface
+            xsecsurf = vsp.GetXSecSurf(stack_id,0)
+            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
+            vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
+            vsp.Update()
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
+            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
+            vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
         
         vsp.Update()
         
@@ -635,16 +647,20 @@ def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     Properties Used:
     N/A
     """        
-    tank_id = vsp.AddGeom('CONFORMAL',wing_id)
-    vsp.SetGeomName(tank_id, fuel_tank.tag)
-    
     # Unpack
-    offset            = fuel_tank.inward_offset
-    chord_trim_max    = 1.-fuel_tank.start_chord_percent
-    chord_trim_min    = 1.-fuel_tank.end_chord_percent
-    span_trim_max     = fuel_tank.end_span_percent
-    span_trim_min     = fuel_tank.start_span_percent  
-    density           = fuel_tank.fuel_type.density
+    try:
+        offset            = fuel_tank.inward_offset
+        chord_trim_max    = 1.-fuel_tank.start_chord_percent
+        chord_trim_min    = 1.-fuel_tank.end_chord_percent
+        span_trim_max     = fuel_tank.end_span_percent
+        span_trim_min     = fuel_tank.start_span_percent  
+        density           = fuel_tank.fuel_type.density
+    except:
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return
+        
+    tank_id = vsp.AddGeom('CONFORMAL',wing_id)
+    vsp.SetGeomName(tank_id, fuel_tank.tag)    
     n_segments        = len(wing.Segments.keys())
     if n_segments > 0.:
         seg_span_percents  = np.array([v['percent_span_location'] for (k,v)\
@@ -710,8 +726,6 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     Properties Used:
     N/A
     """        
-    tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
-    vsp.SetGeomName(tank_id, fuel_tank.tag)
     
     
     #stdout = vsp.cvar.cstdout
@@ -719,10 +733,17 @@ def write_fuselage_conformal_fuel_tank(fuse_id,fuel_tank,fuel_tank_set_ind):
     #errorMgr.PopErrorAndPrint(stdout)
     
     # Unpack
-    offset         = fuel_tank.inward_offset
-    len_trim_max   = fuel_tank.end_length_percent
-    len_trim_min   = fuel_tank.start_length_percent  
-    density        = fuel_tank.fuel_type.density
+    try:
+        offset         = fuel_tank.inward_offset
+        len_trim_max   = fuel_tank.end_length_percent
+        len_trim_min   = fuel_tank.start_length_percent  
+        density        = fuel_tank.fuel_type.density
+    except:
+        print('Fuel tank does not contain parameters needed for OpenVSP geometry. Tag: '+fuel_tank.tag)
+        return        
+    
+    tank_id = vsp.AddGeom('CONFORMAL',fuse_id)
+    vsp.SetGeomName(tank_id, fuel_tank.tag)    
     
     # Search for proper x position
     # Get min x
